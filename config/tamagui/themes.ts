@@ -1,4 +1,4 @@
-import { createThemeBuilder } from '@tamagui/theme-builder'
+import { createThemeBuilder } from "@tamagui/theme-builder";
 import {
   darkColors,
   darkShadowColor,
@@ -7,7 +7,7 @@ import {
   lightShadowColor,
   lightShadowColorStrong,
   palettes,
-} from './colors'
+} from "./colors";
 
 const shadows = {
   light: {
@@ -18,7 +18,7 @@ const shadows = {
     shadowColor: darkShadowColor,
     shadowColorStrong: darkShadowColorStrong,
   },
-}
+};
 
 const nonInherited = {
   light: {
@@ -29,7 +29,7 @@ const nonInherited = {
     ...darkColors,
     ...shadows.dark,
   },
-}
+};
 
 // --- themeBuilder ---
 
@@ -64,33 +64,33 @@ const templates = {
     background: 4,
     borderColor: 6,
   },
-}
+};
 
 const themeBuilder = createThemeBuilder()
   .addPalettes(palettes)
   .addTemplates(templates)
   .addThemes({
     light: {
-      template: 'base',
-      palette: 'light',
+      template: "base",
+      palette: "light",
       nonInheritedValues: nonInherited.light,
     },
     dark: {
-      template: 'base',
-      palette: 'dark',
+      template: "base",
+      palette: "dark",
       nonInheritedValues: nonInherited.dark,
     },
   })
   .addChildThemes({
     gray: {
-      palette: 'gray',
-      template: 'base',
+      palette: "gray",
+      template: "base",
     },
     yellow: {
-      palette: 'yellow',
-      template: 'base',
+      palette: "yellow",
+      template: "base",
     },
-  })
+  });
 // no need for componet themes for us
 // .addComponentThemes(defaultComponentThemes, {
 //   avoidNestingWithin: ['alt1', 'alt2'],
@@ -98,12 +98,12 @@ const themeBuilder = createThemeBuilder()
 
 // --- themes ---
 
-const themesIn = themeBuilder.build()
+const themesIn = themeBuilder.build();
 
-type ThemeKeys = keyof typeof templates.base | keyof typeof nonInherited.light
+type ThemeKeys = keyof typeof templates.base | keyof typeof nonInherited.light;
 
-export type Theme = Record<ThemeKeys, string>
+export type Theme = Record<ThemeKeys, string>;
 
-export type ThemesOut = Record<keyof typeof themesIn, Theme>
+export type ThemesOut = Record<keyof typeof themesIn, Theme>;
 
-export const themes = themesIn as any as ThemesOut
+export const themes = themesIn as any as ThemesOut;

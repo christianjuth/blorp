@@ -1,12 +1,13 @@
-import type { OneRouter } from 'one'
+import type { OneRouter } from "one";
 
-declare module 'one' {
+declare module "one" {
   export namespace OneRouter {
-    export interface __routes<T extends string = string> extends Record<string, unknown> {
-      StaticRoutes: `/` | `/_sitemap`
-      DynamicRoutes: never
-      DynamicRouteTemplate: never
-      IsTyped: true
+    export interface __routes<T extends string = string>
+      extends Record<string, unknown> {
+      StaticRoutes: `/` | `/_sitemap`;
+      DynamicRoutes: never;
+      DynamicRouteTemplate: never;
+      IsTyped: true;
     }
   }
 }

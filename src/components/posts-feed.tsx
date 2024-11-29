@@ -1,28 +1,27 @@
-import { PostCompact, POST_HEIGHT, EXPANDED_POST_HEIGHT } from '~/src/components/post';
+import {
+  PostCompact,
+  POST_HEIGHT,
+  EXPANDED_POST_HEIGHT,
+} from "~/src/components/post";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { useEffect, useRef, useState } from 'react';
-import { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
-import { GetPostsResponse } from 'lemmy-js-client';
-import { View } from 'tamagui';
+import { useEffect, useRef, useState } from "react";
+import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
+import { GetPostsResponse } from "lemmy-js-client";
 
 const EMPTY_ARR = [];
 
 const PADDING = 10;
 
 export function PostsFeed({
-  posts
+  posts,
 }: {
-  posts: UseInfiniteQueryResult<InfiniteData<GetPostsResponse, unknown>, Error>
+  posts: UseInfiniteQueryResult<InfiniteData<GetPostsResponse, unknown>, Error>;
 }) {
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  const {
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = posts;
+  const { hasNextPage, fetchNextPage, isFetchingNextPage } = posts;
 
-  const data = posts.data?.pages.flatMap(res => res.posts) ?? EMPTY_ARR;
+  const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
 
@@ -32,24 +31,21 @@ export function PostsFeed({
     const paddingY = PADDING * 2;
     const postHeight = isExpanded ? EXPANDED_POST_HEIGHT : POST_HEIGHT;
     return postHeight + paddingY;
-  }
+  };
 
   const virtualizer = useWindowVirtualizer({
     count: data?.length ?? 0,
-    estimateSize: (i) => {
-      console.log(i, 'index')
-      return getHeight(i);
-    },
+    estimateSize: getHeight,
     overscan: 5,
     scrollMargin: listRef.current?.offsetTop ?? 0,
     enabled: true,
   });
 
   useEffect(() => {
-    const [lastItem] = [...virtualizer.getVirtualItems()].reverse()
+    const [lastItem] = [...virtualizer.getVirtualItems()].reverse();
 
     if (!lastItem) {
-      return
+      return;
     }
 
     if (
@@ -57,7 +53,7 @@ export function PostsFeed({
       hasNextPage &&
       !isFetchingNextPage
     ) {
-      fetchNextPage()
+      fetchNextPage();
     }
   }, [
     hasNextPage,
@@ -68,22 +64,22 @@ export function PostsFeed({
   ]);
 
   const toggleExpand = (id: number) => {
-    setExpanded(prev => {
+    setExpanded((prev) => {
       const prevState = prev[id] ?? false;
       return {
         ...prev,
-        [id]: !prevState
-      }
+        [id]: !prevState,
+      };
     });
-  }
+  };
 
   return (
     <div ref={listRef} className="List">
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,
-          width: '100%',
-          position: 'relative',
+          width: "100%",
+          position: "relative",
         }}
       >
         {virtualizer.getVirtualItems().map((item) => {
@@ -96,13 +92,15 @@ export function PostsFeed({
               style={{
                 paddingTop: PADDING,
                 paddingBottom: PADDING,
-                position: 'absolute',
+                position: "absolute",
                 top: 0,
                 left: 0,
-                width: '100%',
-                transform: `translateY(${item.start - virtualizer.options.scrollMargin
-                  }px)`,
-                display: 'flex',
+                width: "100%",
+                transform: `translateY(${
+                  item.start - virtualizer.options.scrollMargin
+                }px)`,
+                display: "flex",
+                borderBottom: "1px solid gray",
               }}
             >
               <PostCompact
@@ -116,5 +114,5 @@ export function PostsFeed({
         })}
       </div>
     </div>
-  )
+  );
 }

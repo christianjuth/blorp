@@ -1,11 +1,11 @@
-import './_layout.css'
-import './tamagui.css'
+import "./_layout.css";
+import "./tamagui.css";
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { SchemeProvider, useColorScheme } from '@vxrn/color-scheme'
-import { LoadProgressBar, Slot } from 'one'
-import { isWeb, TamaguiProvider } from 'tamagui'
-import config from '~/config/tamagui/tamagui.config'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SchemeProvider, useColorScheme } from "@vxrn/color-scheme";
+import { LoadProgressBar, Slot } from "one";
+import { isWeb, TamaguiProvider } from "tamagui";
+import config from "~/config/tamagui/tamagui.config";
 
 const queryClient = new QueryClient();
 
@@ -16,7 +16,10 @@ export default function Layout() {
         <>
           <meta charSet="utf-8" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=5"
+          />
           <link rel="icon" href="/favicon.svg" />
         </>
       )}
@@ -29,17 +32,20 @@ export default function Layout() {
         </TamaguiRootProvider>
       </SchemeProvider>
     </>
-  )
+  );
 }
 
 const TamaguiRootProvider = ({ children }: { children: React.ReactNode }) => {
-  const [scheme] = useColorScheme()
+  const [scheme] = useColorScheme();
 
   return (
-    <TamaguiProvider disableInjectCSS config={config} defaultTheme={scheme} disableRootThemeClass>
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
+    <TamaguiProvider
+      disableInjectCSS
+      config={config}
+      defaultTheme={scheme}
+      disableRootThemeClass
+    >
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </TamaguiProvider>
-  )
-}
+  );
+};

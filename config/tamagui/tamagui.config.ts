@@ -1,10 +1,10 @@
-import { createMedia } from '@tamagui/react-native-media-driver'
-import { shorthands } from '@tamagui/shorthands/v2'
-import { createTamagui } from 'tamagui'
-import { fonts } from './fonts'
-import * as themes from './themesOut'
-import { tokens } from './tokens'
-import { animations } from './animations'
+import { createMedia } from "@tamagui/react-native-media-driver";
+import { shorthands } from "@tamagui/shorthands/v2";
+import { createTamagui } from "tamagui";
+import { fonts } from "./fonts";
+import * as themes from "./themesOut";
+import { tokens } from "./tokens";
+import { animations } from "./animations";
 
 const selectionStyles = (theme) =>
   theme.color5
@@ -12,7 +12,7 @@ const selectionStyles = (theme) =>
         backgroundColor: theme.color5,
         color: theme.color11,
       }
-    : null
+    : null;
 
 const media = createMedia({
   xl: { maxWidth: 1450 },
@@ -26,7 +26,7 @@ const media = createMedia({
   gtMd: { minWidth: 1020 + 1 },
   gtLg: { minWidth: 1180 + 1 },
   gtXl: { minWidth: 1450 + 1 },
-})
+});
 
 export const config = createTamagui({
   animations,
@@ -46,22 +46,22 @@ export const config = createTamagui({
       // false
       xxs: false,
     },
-    defaultFont: 'body',
+    defaultFont: "body",
     fastSchemeChange: true,
     shouldAddPrefersColorThemes: false,
     themeClassNameOnRoot: true,
     maxDarkLightNesting: 1,
   },
-})
+});
 
-export type Conf = typeof config
+export type Conf = typeof config;
 
-declare module 'tamagui' {
+declare module "tamagui" {
   interface TamaguiCustomConfig extends Conf {}
 
   interface TypeOverride {
-    groupNames(): 'card'
+    groupNames(): "card";
   }
 }
 
-export default config
+export default config;

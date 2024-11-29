@@ -1,7 +1,6 @@
-import { Image } from '@tamagui/image-next'
-import { Text, YStack } from 'tamagui'
-import { Feed } from '~/src/features/feed'
-
+import { Image } from "@tamagui/image-next";
+import { Text, YStack } from "tamagui";
+import { Feed } from "~/src/features/feed";
 
 export function HomePage() {
   return <Feed />;
