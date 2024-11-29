@@ -1,7 +1,12 @@
 import { Text, View } from "tamagui";
 import { Image } from "@tamagui/image-next";
 import { PostView } from "lemmy-js-client";
-import { Voting } from "./post-voting";
+import { Voting, ExpandPost } from "./post-buttons";
+import { abbriviateNumber } from "../lib/format";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { RelativeTime } from "./relative-time";
+dayjs.extend(relativeTime);
 
 export const POST_HEIGHT = 90;
 const PADDING = 10;
@@ -16,45 +21,65 @@ export function PostCompact({
   toggleExpand: () => any;
   expanded: boolean;
 }) {
-  const { post, creator, community } = postView;
+  const { post, creator, community, counts } = postView;
   const server = new URL(post.ap_id);
   return (
-    <View dsp="flex" fd="column" flex={1}>
-      <View h={POST_HEIGHT} dsp="flex" fd="row" gap="$3">
-        <Image
-          src={post.thumbnail_url}
-          aspectRatio={1}
-          h="100%"
-          objectFit="cover"
-          onPress={toggleExpand}
-        />
-        <View dsp="flex" fd="column" jc="space-between">
-          <Text color="grey">
-            @{creator.name} to {community.title}@{server.host}
+    <View minHeight={POST_HEIGHT} dsp="flex" fd="row" gap="$3" w="100%">
+      <Image
+        src={post.thumbnail_url}
+        aspectRatio={1.2}
+        h={POST_HEIGHT}
+        objectFit="cover"
+        onPress={toggleExpand}
+        borderRadius="$3"
+      />
+      <View flexShrink="unset" flex={1}>
+        <View
+          dsp="flex"
+          fd="column"
+          jc="space-between"
+          flexShrink="unset"
+          gap={5}
+          minHeight={POST_HEIGHT}
+        >
+          <View dsp="flex" fd="row">
+            <Text color="$color10" fontSize="$2">
+              @{creator.name} to {community.title}@{server.host} •{" "}
+            </Text>
+            <RelativeTime
+              time={post.published}
+              color="$color10"
+              fontSize="$2"
+            />
+          </View>
+          <Text fontWeight="bold" lineHeight="$2">
+            {post.name}
           </Text>
-          <Text fontWeight="bold">{post.name}</Text>
-          <View dsp="flex" fd="row" ai="flex-start">
+          <View dsp="flex" fd="row" ai="center" gap="$2">
+            <ExpandPost toggleExpand={toggleExpand} />
             <Voting postView={postView} />
+            <Text fontSize="$3">
+              {abbriviateNumber(counts.comments)} comments
+            </Text>
           </View>
         </View>
-      </View>
-      {expanded && (
-        <View
-          h={EXPANDED_POST_HEIGHT - POST_HEIGHT}
-          dsp="flex"
-          fd="row"
-          jc="center"
-          mt={PADDING}
-        >
+        {expanded && (
           <Image
             src={post.thumbnail_url}
-            aspectRatio={1}
-            h="100%"
-            objectFit="cover"
+            objectFit="contain"
             onPress={toggleExpand}
+            maxHeight={EXPANDED_POST_HEIGHT - POST_HEIGHT}
+            dsp="flex"
+            fd="row"
+            jc="center"
+            mt={PADDING}
+            objectPosition="center"
+            bg="$color4"
+            w="100%"
+            borderRadius="$2"
           />
-        </View>
-      )}
+        )}
+      </View>
     </View>
   );
 }

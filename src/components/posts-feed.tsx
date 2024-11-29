@@ -7,6 +7,7 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState } from "react";
 import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
 import { GetPostsResponse } from "lemmy-js-client";
+import { useTheme } from "tamagui";
 
 const EMPTY_ARR = [];
 
@@ -17,6 +18,8 @@ export function PostsFeed({
 }: {
   posts: UseInfiniteQueryResult<InfiniteData<GetPostsResponse, unknown>, Error>;
 }) {
+  const theme = useTheme();
+
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const { hasNextPage, fetchNextPage, isFetchingNextPage } = posts;
@@ -101,6 +104,7 @@ export function PostsFeed({
                 }px)`,
                 display: "flex",
                 borderBottom: "1px solid gray",
+                borderColor: theme.gray5.val,
               }}
             >
               <PostCompact

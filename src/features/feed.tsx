@@ -20,7 +20,7 @@ function usePosts(form: GetPosts) {
 export function Feed() {
   const posts = usePosts({
     limit: 50,
-    sort: "New",
+    sort: "Active",
   });
 
   return <PostsFeed posts={posts} />;
