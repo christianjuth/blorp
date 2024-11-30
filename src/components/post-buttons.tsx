@@ -15,22 +15,22 @@ export function Voting({ postView }: { postView: PostView }) {
     >
       <Button
         aspectRatio={1}
-        bg="$gray5"
+        bg="$color5"
         h="$2"
         borderRadius="$12"
         p={4}
-        hoverStyle={{ bg: "$gray7" }}
+        hoverStyle={{ bg: "$color7" }}
       >
         <ArrowBigUp />
       </Button>
       <Text fontSize="$5">{abbriviateNumber(postView.counts.upvotes)}</Text>
       <Button
         aspectRatio={1}
-        bg="$gray5"
+        bg="$color5"
         h="$2"
         borderRadius="$12"
         p={4}
-        hoverStyle={{ bg: "$gray7" }}
+        hoverStyle={{ bg: "$color7" }}
       >
         <ArrowBigDown />
       </Button>
@@ -43,10 +43,10 @@ export function ExpandPost({ toggleExpand }: { toggleExpand: () => any }) {
     <Button
       aspectRatio={1.5}
       h="$2"
-      bg="$gray5"
+      bg="$color5"
       borderRadius="$12"
       p="$3"
-      hoverStyle={{ bg: "$gray7" }}
+      hoverStyle={{ bg: "$color7" }}
       onPress={toggleExpand}
       $md={{ dsp: "none" }}
     >

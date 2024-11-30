@@ -79,6 +79,7 @@ export function PostCompact({
             objectFit="contain"
             onPress={toggleExpand}
             height={EXPANDED_POST_HEIGHT - POST_HEIGHT}
+            $platform-web={{ height: "unset", b: "red" }}
             dsp="flex"
             fd="row"
             jc="center"

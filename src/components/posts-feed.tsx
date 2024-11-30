@@ -103,8 +103,9 @@ export function PostsFeed({
                   item.start - virtualizer.options.scrollMargin
                 }px)`,
                 display: "flex",
-                borderBottom: "1px solid gray",
-                borderColor: theme.gray5.val,
+                borderBottom: 1,
+                borderBottomStyle: "solid",
+                borderBottomColor: theme.gray3.val,
               }}
             >
               <PostCompact
