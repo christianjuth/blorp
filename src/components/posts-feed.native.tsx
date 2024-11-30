@@ -49,10 +49,10 @@ export function PostsFeed({
       )}
       estimatedItemSize={POST_HEIGHT}
       ItemSeparatorComponent={() => <View h={PADDING} />}
-      contentInset={{
-        top: insets.top,
-        bottom: insets.bottom,
-      }}
+      // contentInset={{
+      //   top: insets.top,
+      //   bottom: insets.bottom,
+      // }}
       onEndReached={
         hasNextPage && !isFetchingNextPage ? fetchNextPage : undefined
       }

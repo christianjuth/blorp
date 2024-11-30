@@ -8,8 +8,10 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { RelativeTime } from "./relative-time";
 dayjs.extend(relativeTime);
 
-export const POST_HEIGHT = 90;
+export const POST_HEIGHT = 110;
 const PADDING = 10;
+const BORDER_HEIGHT = 1;
+const POST_INNER_HEIGHT = POST_HEIGHT - BORDER_HEIGHT - PADDING * 2;
 export const EXPANDED_POST_HEIGHT = POST_HEIGHT * 6 + PADDING;
 
 export function PostCompact({
@@ -25,18 +27,20 @@ export function PostCompact({
   const server = new URL(post.ap_id);
   return (
     <View
-      minHeight={POST_HEIGHT}
+      minHeight={POST_INNER_HEIGHT}
       dsp="flex"
       fd="row"
       gap="$3"
       w="100%"
-      $md={{ px: "unset" }}
-      px="$2.5"
+      $md={{ px: "$2.5" }}
+      py={PADDING}
+      bbw={1}
+      bbc="$color3"
     >
-      <View h={POST_HEIGHT} aspectRatio={1}>
+      <View h={POST_INNER_HEIGHT} aspectRatio={1}>
         <Image
           src={post.thumbnail_url}
-          h={POST_HEIGHT}
+          h={POST_INNER_HEIGHT}
           aspectRatio={1}
           objectFit="cover"
           onPress={toggleExpand}
@@ -50,7 +54,7 @@ export function PostCompact({
           jc="space-between"
           flexShrink="unset"
           gap={5}
-          minHeight={POST_HEIGHT}
+          minHeight={POST_INNER_HEIGHT}
         >
           <View dsp="flex" fd="row">
             <Text color="$color10" fontSize="$2">

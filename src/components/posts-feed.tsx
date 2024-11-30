@@ -3,27 +3,21 @@ import {
   POST_HEIGHT,
   EXPANDED_POST_HEIGHT,
 } from "~/src/components/post";
-import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState } from "react";
 import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
 import { GetPostsResponse } from "lemmy-js-client";
-import { useTheme } from "tamagui";
 
 const EMPTY_ARR = [];
-
-const PADDING = 10;
 
 export function PostsFeed({
   posts,
 }: {
   posts: UseInfiniteQueryResult<InfiniteData<GetPostsResponse, unknown>, Error>;
 }) {
-  const theme = useTheme();
-
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const { hasNextPage, fetchNextPage, isFetchingNextPage } = posts;
-
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
@@ -31,17 +25,14 @@ export function PostsFeed({
   const getHeight = (index: number) => {
     const view = data[index];
     const isExpanded = expanded[view.post.id];
-    const paddingY = PADDING * 2;
-    const postHeight = isExpanded ? EXPANDED_POST_HEIGHT : POST_HEIGHT;
-    return postHeight + paddingY;
+    return isExpanded ? EXPANDED_POST_HEIGHT : POST_HEIGHT;
   };
 
-  const virtualizer = useWindowVirtualizer({
+  const virtualizer = useVirtualizer({
     count: data?.length ?? 0,
     estimateSize: getHeight,
     overscan: 5,
-    scrollMargin: listRef.current?.offsetTop ?? 0,
-    enabled: true,
+    getScrollElement: () => listRef.current, // Use the custom scroll container
   });
 
   useEffect(() => {
@@ -77,7 +68,13 @@ export function PostsFeed({
   };
 
   return (
-    <div ref={listRef} className="List">
+    <div
+      ref={listRef}
+      style={{
+        height: "100%", // Full viewport height
+        overflow: "auto", // Enable scrolling
+      }}
+    >
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,
@@ -93,19 +90,12 @@ export function PostsFeed({
               data-index={item.index}
               ref={virtualizer.measureElement}
               style={{
-                paddingTop: PADDING,
-                paddingBottom: PADDING,
                 position: "absolute",
                 top: 0,
                 left: 0,
                 width: "100%",
-                transform: `translateY(${
-                  item.start - virtualizer.options.scrollMargin
-                }px)`,
+                transform: `translateY(${item.start}px)`,
                 display: "flex",
-                borderBottom: 1,
-                borderBottomStyle: "solid",
-                borderBottomColor: theme.gray3.val,
               }}
             >
               <PostCompact
