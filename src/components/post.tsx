@@ -24,15 +24,25 @@ export function PostCompact({
   const { post, creator, community, counts } = postView;
   const server = new URL(post.ap_id);
   return (
-    <View minHeight={POST_HEIGHT} dsp="flex" fd="row" gap="$3" w="100%">
-      <Image
-        src={post.thumbnail_url}
-        aspectRatio={1.2}
-        h={POST_HEIGHT}
-        objectFit="cover"
-        onPress={toggleExpand}
-        borderRadius="$3"
-      />
+    <View
+      minHeight={POST_HEIGHT}
+      dsp="flex"
+      fd="row"
+      gap="$3"
+      w="100%"
+      $md={{ px: "unset" }}
+      px="$2.5"
+    >
+      <View h={POST_HEIGHT} aspectRatio={1}>
+        <Image
+          src={post.thumbnail_url}
+          h={POST_HEIGHT}
+          aspectRatio={1}
+          objectFit="cover"
+          onPress={toggleExpand}
+          borderRadius="$3"
+        />
+      </View>
       <View flexShrink="unset" flex={1}>
         <View
           dsp="flex"
@@ -68,7 +78,7 @@ export function PostCompact({
             src={post.thumbnail_url}
             objectFit="contain"
             onPress={toggleExpand}
-            maxHeight={EXPANDED_POST_HEIGHT - POST_HEIGHT}
+            height={EXPANDED_POST_HEIGHT - POST_HEIGHT}
             dsp="flex"
             fd="row"
             jc="center"

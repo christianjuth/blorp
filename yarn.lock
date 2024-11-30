@@ -2654,16 +2654,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-masked-view/masked-view@npm:0.3.1":
-  version: 0.3.1
-  resolution: "@react-native-masked-view/masked-view@npm:0.3.1"
-  peerDependencies:
-    react: ">=16"
-    react-native: ">=0.57"
-  checksum: 10c0/e8823e69caa4f916546de528faa9beb69d25311adecaeb37a5a3e2871141754e895d1b5faa01bc0ca07b4d4b676d940191917803da53208b1be8fef857e5b502
-  languageName: node
-  linkType: hard
-
 "@react-native-masked-view/masked-view@npm:^0.3.1":
   version: 0.3.2
   resolution: "@react-native-masked-view/masked-view@npm:0.3.2"
@@ -4989,13 +4979,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:~18.2.79":
-  version: 18.2.79
-  resolution: "@types/react@npm:18.2.79"
+"@types/react@npm:^18.3.11":
+  version: 18.3.12
+  resolution: "@types/react@npm:18.3.12"
   dependencies:
     "@types/prop-types": "npm:*"
     csstype: "npm:^3.0.2"
-  checksum: 10c0/c8a8a005d8830a48cc1ef93c3510c4935a2a03e5557dbecaa8f1038450cbfcb18eb206fa7fba7077d54b8da21faeb25577e897a333392770a7797f625b62c78a
+  checksum: 10c0/8bae8d9a41619804561574792e29112b413044eb0d53746dde2b9720c1f9a59f71c895bbd7987cd8ce9500b00786e53bc032dced38cddf42910458e145675290
   languageName: node
   linkType: hard
 
@@ -9491,7 +9481,7 @@ __metadata:
   resolution: "lemmy-try@workspace:."
   dependencies:
     "@biomejs/biome": "npm:^1.8.3"
-    "@react-native-masked-view/masked-view": "npm:0.3.1"
+    "@react-native-masked-view/masked-view": "npm:^0.3.1"
     "@shopify/flash-list": "npm:1.6.4"
     "@tamagui/animations-css": "npm:^1.117.0"
     "@tamagui/animations-moti": "npm:^1.117.0"
@@ -9503,7 +9493,7 @@ __metadata:
     "@tamagui/vite-plugin": "npm:^1.117.0"
     "@tanstack/react-query": "npm:^5.61.5"
     "@tanstack/react-virtual": "npm:^3.10.9"
-    "@types/react": "npm:~18.2.79"
+    "@types/react": "npm:^18.3.11"
     "@vxrn/color-scheme": "npm:1.1.334"
     dayjs: "npm:^1.11.13"
     expo: "npm:~51.0.28"
@@ -9511,8 +9501,7 @@ __metadata:
     lemmy-js-client: "npm:0.20.0-pkce.1"
     one: "npm:1.1.334"
     prettier: "npm:3.4.1"
-    react: "npm:18.2.0"
-    react-dom: "npm:18.2.0"
+    react: "npm:^18.3.1"
     react-native: "npm:0.74.5"
     react-native-reanimated: "npm:~3.10.1"
     react-native-safe-area-context: "npm:4.10.5"
@@ -11629,18 +11618,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:18.2.0":
-  version: 18.2.0
-  resolution: "react-dom@npm:18.2.0"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-    scheduler: "npm:^0.23.0"
-  peerDependencies:
-    react: ^18.2.0
-  checksum: 10c0/66dfc5f93e13d0674e78ef41f92ed21dfb80f9c4ac4ac25a4b51046d41d4d2186abc915b897f69d3d0ebbffe6184e7c5876f2af26bfa956f179225d921be713a
-  languageName: node
-  linkType: hard
-
 "react-dom@npm:>=18.0.0":
   version: 18.3.1
   resolution: "react-dom@npm:18.3.1"
@@ -11904,16 +11881,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:18.2.0":
-  version: 18.2.0
-  resolution: "react@npm:18.2.0"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-  checksum: 10c0/b562d9b569b0cb315e44b48099f7712283d93df36b19a39a67c254c6686479d3980b7f013dc931f4a5a3ae7645eae6386b4aa5eea933baa54ecd0f9acb0902b8
-  languageName: node
-  linkType: hard
-
-"react@npm:>=18.0.0":
+"react@npm:>=18.0.0, react@npm:^18.3.1":
   version: 18.3.1
   resolution: "react@npm:18.3.1"
   dependencies:
@@ -12430,7 +12398,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.23.0, scheduler@npm:^0.23.2":
+"scheduler@npm:^0.23.2":
   version: 0.23.2
   resolution: "scheduler@npm:0.23.2"
   dependencies:

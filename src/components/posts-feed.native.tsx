@@ -6,8 +6,9 @@ import {
 import { useState } from "react";
 import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
 import { GetPostsResponse } from "lemmy-js-client";
-import { useTheme } from "tamagui";
+import { useTheme, View } from "tamagui";
 import { FlashList } from "@shopify/flash-list";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const EMPTY_ARR = [];
 
@@ -18,7 +19,7 @@ export function PostsFeed({
 }: {
   posts: UseInfiniteQueryResult<InfiniteData<GetPostsResponse, unknown>, Error>;
 }) {
-  const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   const { hasNextPage, fetchNextPage, isFetchingNextPage } = posts;
 
@@ -47,6 +48,16 @@ export function PostsFeed({
         />
       )}
       estimatedItemSize={POST_HEIGHT}
+      ItemSeparatorComponent={() => <View h={PADDING} />}
+      contentInset={{
+        top: insets.top,
+        bottom: insets.bottom,
+      }}
+      onEndReached={
+        hasNextPage && !isFetchingNextPage ? fetchNextPage : undefined
+      }
+      onEndReachedThreshold={0.5}
+      keyExtractor={(item) => String(item.post.id)}
     />
   );
 }

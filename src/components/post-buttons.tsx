@@ -48,6 +48,7 @@ export function ExpandPost({ toggleExpand }: { toggleExpand: () => any }) {
       p="$3"
       hoverStyle={{ bg: "$gray7" }}
       onPress={toggleExpand}
+      $md={{ dsp: "none" }}
     >
       <Expand />
     </Button>
