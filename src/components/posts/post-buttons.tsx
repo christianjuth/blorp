@@ -1,7 +1,7 @@
 import { PostView } from "lemmy-js-client";
 import { Button, View, Text } from "tamagui";
 import { ArrowBigUp, ArrowBigDown, Expand } from "@tamagui/lucide-icons";
-import { abbriviateNumber } from "../lib/format";
+import { abbriviateNumber } from "~/src/lib/format";
 
 export function Voting({ postView }: { postView: PostView }) {
   return (

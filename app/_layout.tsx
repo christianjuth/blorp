@@ -3,15 +3,10 @@ import "./tamagui.css";
 
 import { LoadProgressBar, Slot } from "one";
 import { isWeb } from "tamagui";
+import { MainAppTemplate } from "~/src/components/main-app-template";
 import { Providers } from "~/src/components/providers";
-import { Tabs } from "one";
-import { useWindowDimensions } from "react-native";
-import { Home } from "@tamagui/lucide-icons";
 
 export default function Layout() {
-  const { width } = useWindowDimensions();
-  const isLargeScreen = width >= 900;
-
   return (
     <>
       {isWeb && (
@@ -29,31 +24,9 @@ export default function Layout() {
       <LoadProgressBar />
 
       <Providers>
-        {isLargeScreen ? (
+        <MainAppTemplate>
           <Slot />
-        ) : (
-          <Tabs
-            screenOptions={
-              {
-                // tabBarStyle: {
-                //   position: "absolute",
-                //   backgroundColor: "transparent",
-                // },
-                // tabBarBackground: () => (
-                //   <View pos="absolute" t="$0" r="$0" b="$0" l="$0" bg="$color1" />
-                // ),
-              }
-            }
-          >
-            <Tabs.Screen
-              name="index"
-              options={{
-                title: "Home",
-                tabBarIcon: ({ color }) => <Home color={color} />,
-              }}
-            />
-          </Tabs>
-        )}
+        </MainAppTemplate>
       </Providers>
     </>
   );

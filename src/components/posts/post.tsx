@@ -2,11 +2,9 @@ import { Text, View } from "tamagui";
 import { Image } from "@tamagui/image-next";
 import { PostView } from "lemmy-js-client";
 import { Voting, ExpandPost } from "./post-buttons";
-import { abbriviateNumber } from "../lib/format";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import { RelativeTime } from "./relative-time";
-dayjs.extend(relativeTime);
+import { abbriviateNumber } from "~/src/lib/format";
+import { Link } from "one";
+import { RelativeTime } from "~/src/components/relative-time";
 
 export const POST_HEIGHT = 110;
 const PADDING = 10;
@@ -25,17 +23,22 @@ export function PostCompact({
 }) {
   const { post, creator, community, counts } = postView;
   const server = new URL(post.ap_id);
+  const href = `/posts/${post.id}`;
   return (
     <View
       minHeight={POST_INNER_HEIGHT}
       dsp="flex"
       fd="row"
       gap="$3"
-      w="100%"
+      flex={1}
       $md={{ px: "$2.5" }}
       py={PADDING}
       bbw={1}
-      bbc="$color3"
+      bbc="$color6"
+      $theme-dark={{ bbc: "$color3" }}
+      $gtMd={{
+        mx: "$2.5",
+      }}
     >
       <View h={POST_INNER_HEIGHT} aspectRatio={1}>
         <Image
@@ -66,9 +69,11 @@ export function PostCompact({
               fontSize="$2"
             />
           </View>
-          <Text fontWeight="bold" lineHeight="$2">
-            {post.name}
-          </Text>
+          <Link href={href as any}>
+            <Text fontWeight="bold" lineHeight="$2">
+              {post.name}
+            </Text>
+          </Link>
           <View dsp="flex" fd="row" ai="center" gap="$2">
             <ExpandPost toggleExpand={toggleExpand} />
             <Voting postView={postView} />

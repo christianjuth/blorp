@@ -2,7 +2,7 @@ import {
   PostCompact,
   POST_HEIGHT,
   EXPANDED_POST_HEIGHT,
-} from "~/src/components/post";
+} from "~/src/components/posts/post";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState } from "react";
 import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
