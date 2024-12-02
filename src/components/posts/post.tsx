@@ -33,12 +33,11 @@ export function PostCompact({
       flex={1}
       $md={{ px: "$2.5" }}
       py={PADDING}
-      bbw={1}
-      bbc="$color6"
       $theme-dark={{ bbc: "$color3" }}
       $gtMd={{
         mx: "$2.5",
       }}
+      bg="$color1"
     >
       <View h={POST_INNER_HEIGHT} aspectRatio={1}>
         <Image

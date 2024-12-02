@@ -7,7 +7,7 @@ import { GetComments, GetPost } from "lemmy-js-client";
 import { Image } from "~/src/components/image";
 import { Markdown } from "~/src/components/markdown";
 import { Voting } from "~/src/components/posts/post-buttons";
-import { PostComment, PostComments } from "~/src/components/posts/post-comment";
+import { PostComments } from "~/src/components/posts/post-comment";
 
 function usePost(form: GetPost) {
   return useQuery({
@@ -58,8 +58,8 @@ export default function Post() {
     <ScrollView bg="$gray5">
       <View maxWidth={800} mx="auto" w="100%">
         {thumbnail && <Image imageUrl={thumbnail} />}
-        <View p="$3" bg="$gray1">
-          <Text fontWeight="bold" fontSize="$8" lineHeight="$7">
+        <View p="$3" bg="$gray1" gap="$2">
+          <Text fontWeight={500} fontSize="$8" lineHeight="$7">
             {data?.post_view.post.name}
           </Text>
           {body && <Markdown markdown={body} />}

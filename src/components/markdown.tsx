@@ -2,7 +2,7 @@ import { Text, View } from "tamagui";
 import MarkdownRender from "markdown-to-jsx";
 
 function Div({ children }: { children?: React.ReactNode }) {
-  return <View>{children}</View>;
+  return <Text>{children}</Text>;
 }
 
 function H1({ children }: { children?: React.ReactNode }) {
@@ -32,15 +32,45 @@ export function Markdown({ markdown }: { markdown: string }) {
             p: H1,
             span: H1,
             a: H1,
+            link: H1,
             strong: Strong,
             s: Strong,
             i: Italic,
             em: Italic,
             div: Div,
             view: Div,
+            blockquote: H1,
+            del: H1,
+            ul: Div,
+            ol: Div,
+            li: Div,
+            img: Div,
+            code: H1,
+            pre: H1,
+            hr: Div,
+            table: Div,
+            thead: Div,
+            tbody: Div,
+            tr: Div,
+            th: H1,
+            td: H1,
+            br: Div,
           },
           wrapper: ({ children }: { children: React.ReactNode }) => {
             return <>{children}</>;
+          },
+          createElement: (Tag, props, children) => {
+            if (typeof Tag === "string") {
+              console.warn("Failed to render tag '", Tag, "'");
+              return <></>;
+            }
+
+            const { key, ...rest } = props;
+            return (
+              <Tag key={key} {...rest}>
+                {children}
+              </Tag>
+            );
           },
         }}
       >

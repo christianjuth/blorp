@@ -1,9 +1,29 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import updateLocale from "dayjs/plugin/updateLocale";
 import { useEffect, useState } from "react";
 import { Tooltip, Text, TextProps } from "tamagui";
 
 dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
+
+dayjs.updateLocale("en", {
+  relativeTime: {
+    future: "in %s",
+    past: "%s",
+    s: "<1m",
+    m: "1m",
+    mm: "%dm",
+    h: "1h",
+    hh: "%dh",
+    d: "1d",
+    dd: "%dd",
+    M: "1mo",
+    MM: "%dmo",
+    y: "1y",
+    yy: "%dy",
+  },
+});
 
 interface Props extends TextProps {
   time: string;

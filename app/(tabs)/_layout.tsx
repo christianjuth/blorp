@@ -3,11 +3,11 @@ import { Home } from "@tamagui/lucide-icons";
 import { useShouldUseReactNavigation } from "~/src/lib/navigation";
 
 export default function Layout() {
-  const shoudUseNativeNav = useShouldUseReactNavigation();
+  const shouldUseTabView = useShouldUseReactNavigation();
 
   return (
     <>
-      {!shoudUseNativeNav ? (
+      {!shouldUseTabView ? (
         <Slot />
       ) : (
         <Tabs>

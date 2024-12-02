@@ -1,10 +1,11 @@
 import { CommentView } from "lemmy-js-client";
 import { useMemo } from "react";
-import { View, Text } from "tamagui";
+import { View, Text, Avatar } from "tamagui";
 import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
+import { RelativeTime } from "~/src/components/relative-time";
 
-export function PostComment({
+function PostComment({
   commentMap,
   level,
 }: {
@@ -19,33 +20,48 @@ export function PostComment({
   let color = "red";
   switch (level % 6) {
     case 0:
-      color = "red";
+      color = "#FF2A33";
       break;
     case 1:
-      color = "orange";
+      color = "#F98C1D";
       break;
     case 2:
-      color = "yellow";
+      color = "#DAB84D";
       break;
     case 3:
-      color = "green";
+      color = "#459E6F";
       break;
     case 4:
-      color = "blue";
+      color = "#3088C1";
       break;
     case 5:
       color = "purple";
       break;
   }
 
+  const creator = commentView.creator;
+  const avatar = creator.avatar;
+
   return (
-    <View mt="$2" pl="$2" gap="$1.5" py="$2" bg="$gray1">
+    <View mt={level === -1 ? "$2" : undefined} pl="$2" py="$2" bg="$gray1">
       <View
         blw={level >= 0 ? "$1" : undefined}
         blc={level >= 0 ? color : undefined}
         p={level >= 0 ? "$2" : undefined}
+        gap="$2"
       >
-        <Text fontWeight="bold">{commentView.creator.name}</Text>
+        <View dsp="flex" fd="row" ai="center">
+          {avatar && (
+            <Avatar size="$1.5" mr="$2">
+              <Avatar.Image src={avatar} />
+            </Avatar>
+          )}
+          <Text fontWeight={500} color="$color11">
+            {commentView.creator.name} •{" "}
+          </Text>
+          <RelativeTime time={commentView.comment.published} color="$color11" />
+        </View>
+
         <Markdown markdown={commentView.comment.content} />
         {_.entries(rest).map(([id, map]) => (
           <PostComment key={id} commentMap={map} level={level + 1} />

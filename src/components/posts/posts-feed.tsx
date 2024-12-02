@@ -10,6 +10,8 @@ import { GetPostsResponse } from "lemmy-js-client";
 
 const EMPTY_ARR = [];
 
+const PADDING = 10;
+
 export function PostsFeed({
   posts,
 }: {
@@ -25,7 +27,7 @@ export function PostsFeed({
   const getHeight = (index: number) => {
     const view = data[index];
     const isExpanded = expanded[view.post.id];
-    return isExpanded ? EXPANDED_POST_HEIGHT : POST_HEIGHT;
+    return isExpanded ? EXPANDED_POST_HEIGHT : POST_HEIGHT + PADDING;
   };
 
   const virtualizer = useVirtualizer({
@@ -73,6 +75,8 @@ export function PostsFeed({
       style={{
         height: "100%", // Full viewport height
         overflow: "auto", // Enable scrolling
+        paddingTop: PADDING,
+        paddingBottom: PADDING,
       }}
     >
       <div
@@ -96,6 +100,7 @@ export function PostsFeed({
                 width: "100%",
                 transform: `translateY(${item.start}px)`,
                 display: "flex",
+                paddingBottom: PADDING,
               }}
             >
               <PostCompact
