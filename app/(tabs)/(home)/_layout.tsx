@@ -22,7 +22,6 @@ export default function Layout() {
         contentStyle: {
           backgroundColor: "transparent",
         },
-        presentation: "transparentModal",
       }}
     >
       <Stack.Screen name="index" options={{ headerTitle: "Home" }} />
