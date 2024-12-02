@@ -1,5 +1,5 @@
 import { CommentView } from "lemmy-js-client";
-import { useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import { View, Text, Avatar } from "tamagui";
 import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
@@ -72,6 +72,8 @@ function PostComment({
   );
 }
 
+const Memoed = memo(PostComment);
+
 interface CommentMap {
   comment?: CommentView;
   sort: number;
@@ -110,9 +112,11 @@ function buildCommentMap(commentViews: CommentView[]) {
 export function PostComments({
   header,
   commentViews,
+  loadMore,
 }: {
   commentViews: CommentView[];
   header: () => React.ReactNode;
+  loadMore: () => any;
 }) {
   const structured = useMemo(() => {
     const map = buildCommentMap(commentViews);
@@ -128,10 +132,12 @@ export function PostComments({
       data={structured.topLevelItems}
       renderItem={(row) => (
         <View key={row.item[0]} maxWidth={800} mx="auto" w="100%">
-          <PostComment commentMap={row.item[1]} level={-1} />
+          <Memoed commentMap={row.item[1]} level={-1} />
         </View>
       )}
       keyExtractor={([id]) => id}
+      onEndReached={loadMore}
+      onEndReachedThreshold={0.5}
     />
   );
 }

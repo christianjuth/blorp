@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Image as RNImage } from "react-native";
-import { Stack, Text } from "tamagui";
+import { Stack } from "tamagui";
 import { Image as TImage } from "@tamagui/image-next";
 
 export const Image = ({ imageUrl }: { imageUrl: string }) => {
@@ -22,22 +22,10 @@ export const Image = ({ imageUrl }: { imageUrl: string }) => {
     );
   }, [imageUrl]);
 
-  if (!dimensions) {
-    return (
-      <Stack
-        width="100%"
-        aspectRatio={1} // Placeholder square
-        backgroundColor="$backgroundSoft"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text>Loading...</Text>
-      </Stack>
-    );
-  }
-
   // Calculate aspect ratio
-  const aspectRatio = dimensions.width / dimensions.height;
+  const aspectRatio = dimensions
+    ? dimensions.width / dimensions.height
+    : undefined;
 
   return (
     <Stack width="100%">
