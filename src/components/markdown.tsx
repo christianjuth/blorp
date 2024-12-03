@@ -122,7 +122,7 @@ function Pre({ children }: { children?: React.ReactNode }) {
 
 export function Markdown({ markdown }: { markdown: string }) {
   return (
-    <View dsp="flex" fd="column" gap="$1.5">
+    <View dsp="flex" fd="column" gap="$2.5">
       <MarkdownRender
         options={{
           overrides: {
@@ -166,7 +166,13 @@ export function Markdown({ markdown }: { markdown: string }) {
                 {React.Children.map(
                   React.Children.toArray(children),
                   (child) => {
-                    if (_.isString(child) || _.isNumber(child)) {
+                    if (_.isString(child)) {
+                      if (child.trim() === "") {
+                        return null;
+                      }
+                      return <Text key={child}>{child}</Text>;
+                    }
+                    if (_.isNumber(child)) {
                       return <Text key={child}>{child}</Text>;
                     }
                     return child;
