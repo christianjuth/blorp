@@ -1,10 +1,43 @@
 import "./_layout.css";
 import "./tamagui.css";
 
-import { LoadProgressBar, Slot } from "one";
+import { LoadProgressBar } from "one";
 import { isWeb } from "tamagui";
 import { MainAppTemplate } from "~/src/components/main-app-template";
 import { Providers } from "~/src/components/providers";
+
+import { Stack } from "one";
+import { useTheme, View } from "tamagui";
+
+function Nav() {
+  const theme = useTheme();
+  return (
+    <Stack
+      screenOptions={{
+        headerBackground: () => (
+          <View
+            pos="absolute"
+            t="$0"
+            r="$0"
+            b="$0"
+            l="$0"
+            bg="$color1"
+            bbw={1}
+            bbc="$color5"
+          />
+        ),
+        headerTintColor: theme.gray12.val,
+        contentStyle: {
+          backgroundColor: theme.color1.val,
+        },
+      }}
+    >
+      <Stack.Screen name="(tabs)" options={{ headerTitle: "Home" }} />
+      <Stack.Screen name="posts/[postId]" />
+      <Stack.Screen name="auth" />
+    </Stack>
+  );
+}
 
 export default function Layout() {
   return (
@@ -25,7 +58,7 @@ export default function Layout() {
 
       <Providers>
         <MainAppTemplate>
-          <Slot />
+          <Nav />
         </MainAppTemplate>
       </Providers>
     </>

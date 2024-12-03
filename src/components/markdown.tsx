@@ -1,17 +1,29 @@
-import { Text, View } from "tamagui";
+import { Text, useTheme, View } from "tamagui";
 import MarkdownRender from "markdown-to-jsx";
 import disc from "@jsamr/counter-style/presets/disc";
 import decimal from "@jsamr/counter-style/presets/decimal";
 import MarkedList from "@jsamr/react-native-li";
+import React from "react";
+import _ from "lodash";
 
 // Define reusable components with styles
 function Div({ children }: { children?: React.ReactNode }) {
   return <Text>{children}</Text>;
 }
 
+function P({ children }: { children?: React.ReactNode }) {
+  return <Text>{children}</Text>;
+}
+
 function H1({ children }: { children?: React.ReactNode }) {
   return (
-    <Text fontSize="$6" fontWeight="bold" marginVertical="$2">
+    <Text
+      fontSize="$6"
+      fontWeight="bold"
+      marginVertical="$2"
+      tag="h1"
+      width="100%"
+    >
       {children}
     </Text>
   );
@@ -42,11 +54,39 @@ function Blockquote({ children }: { children?: React.ReactNode }) {
 }
 
 function Ul({ children }: { children?: React.ReactNode }) {
-  return <MarkedList counterRenderer={disc}>{children}</MarkedList>;
+  const theme = useTheme();
+  return (
+    <View py="$2.5">
+      <MarkedList
+        counterRenderer={disc}
+        markerTextStyle={{ color: theme.gray12.val }}
+        lineStyle={{
+          marginTop: 2,
+          marginBottom: 2,
+        }}
+      >
+        {children}
+      </MarkedList>
+    </View>
+  );
 }
 
 function Ol({ children }: { children?: React.ReactNode }) {
-  return <MarkedList counterRenderer={decimal}>{children}</MarkedList>;
+  const theme = useTheme();
+  return (
+    <View py="$2.5">
+      <MarkedList
+        counterRenderer={decimal}
+        markerTextStyle={{ color: theme.gray12.val }}
+        lineStyle={{
+          marginTop: 2,
+          marginBottom: 2,
+        }}
+      >
+        {children}
+      </MarkedList>
+    </View>
+  );
 }
 
 function Li({ children }: { children?: React.ReactNode }) {
@@ -82,7 +122,7 @@ function Pre({ children }: { children?: React.ReactNode }) {
 
 export function Markdown({ markdown }: { markdown: string }) {
   return (
-    <Text dsp="flex" fd="column" gap="$3">
+    <View dsp="flex" fd="column" gap="$1.5">
       <MarkdownRender
         options={{
           overrides: {
@@ -92,7 +132,7 @@ export function Markdown({ markdown }: { markdown: string }) {
             h4: H1,
             h5: H1,
             h6: H1,
-            p: Div,
+            p: P,
             span: Div,
             a: Strong, // Add link handling if necessary
             link: Strong,
@@ -121,12 +161,25 @@ export function Markdown({ markdown }: { markdown: string }) {
             text: Div,
           },
           wrapper: ({ children }: { children: React.ReactNode }) => {
-            return <>{children}</>;
+            return (
+              <>
+                {React.Children.map(
+                  React.Children.toArray(children),
+                  (child) => {
+                    if (_.isString(child) || _.isNumber(child)) {
+                      return <Text key={child}>{child}</Text>;
+                    }
+                    return child;
+                  },
+                )}
+              </>
+            );
           },
+          disableParsingRawHTML: true,
         }}
       >
         {markdown}
       </MarkdownRender>
-    </Text>
+    </View>
   );
 }

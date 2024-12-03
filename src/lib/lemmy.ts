@@ -11,13 +11,39 @@ import {
   GetPostResponse,
   GetPostsResponse,
 } from "lemmy-js-client";
-import { Image } from "@tamagui/image-next";
+import { Image as Image } from "react-native";
+
+const imageAspectRatioCache = new Map<
+  string,
+  Promise<{ width: number; height: number }>
+>();
+
+export async function measureImage(src: string) {
+  if (imageAspectRatioCache.has(src)) {
+    return imageAspectRatioCache.get(src);
+  }
+
+  const p = new Promise<{
+    width: number;
+    height: number;
+  }>((resolve, reject) => {
+    Image.getSize(
+      src,
+      (width, height) => {
+        resolve({ width, height });
+      },
+      reject,
+    );
+  });
+
+  imageAspectRatioCache.set(src, p);
+}
 
 // Build the client
 const baseUrl = "https://lemmy.world";
 export const lemmy: LemmyHttp = new LemmyHttp(baseUrl);
 
-function getPostFromCache(
+export function getPostFromCache(
   cache: InfiniteData<GetPostsResponse, unknown> | undefined,
   postId: number | undefined,
 ) {
@@ -44,11 +70,11 @@ export function usePost(form: GetPost) {
   >(["getPosts"]);
 
   return useQuery<Partial<GetPostResponse>>({
-    queryKey: ["getPost", form.id],
+    queryKey: ["getPost", `getPost-${form.id}`],
     queryFn: async () => {
       const res = await lemmy.getPost(form);
       if (res.post_view.post.thumbnail_url) {
-        Image.prefetch(res.post_view.post.thumbnail_url);
+        measureImage(res.post_view.post.thumbnail_url);
       }
       return res;
     },
@@ -61,7 +87,7 @@ export function usePost(form: GetPost) {
 
 export function usePostComments(form: GetComments) {
   return useInfiniteQuery({
-    queryKey: ["getComments", form.post_id],
+    queryKey: ["getComments", `getComments-${form.post_id}`],
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
       const { comments } = await lemmy.getComments({
@@ -91,7 +117,7 @@ export function usePosts(form: GetPosts) {
 
       for (const { post } of res.posts) {
         if (post.thumbnail_url) {
-          Image.prefetch(post.thumbnail_url);
+          measureImage(post.thumbnail_url);
         }
       }
 

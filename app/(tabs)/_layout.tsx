@@ -12,7 +12,7 @@ export default function Layout() {
       ) : (
         <Tabs>
           <Tabs.Screen
-            name="(home)"
+            name="index"
             options={{
               title: "Home",
               tabBarIcon: ({ color }) => <Home color={color} />,

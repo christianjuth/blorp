@@ -1,6 +1,6 @@
 import { CommentView } from "lemmy-js-client";
 import { memo, useMemo } from "react";
-import { View, Text, Avatar } from "tamagui";
+import { View, Text, Avatar, useTheme, useThemeName } from "tamagui";
 import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
 import { RelativeTime } from "~/src/components/relative-time";
@@ -52,11 +52,19 @@ function PostComment({
         gap="$2"
       >
         <View dsp="flex" fd="row" ai="center">
-          {avatar && (
-            <Avatar size="$1.5" mr="$2">
-              <Avatar.Image src={avatar} borderRadius="$12" />
-            </Avatar>
-          )}
+          <Avatar size="$1.5" mr="$2">
+            <Avatar.Image src={avatar} borderRadius="$12" />
+            <Avatar.Fallback
+              backgroundColor="$color8"
+              borderRadius="$12"
+              ai="center"
+              jc="center"
+            >
+              <Text fontSize="$1">
+                {creator.name?.substring(0, 1).toUpperCase()}
+              </Text>
+            </Avatar.Fallback>
+          </Avatar>
           <Text fontWeight={500} color="$color11">
             {commentView.creator.name} •{" "}
           </Text>
@@ -115,9 +123,12 @@ export function PostComments({
   loadMore,
 }: {
   commentViews: CommentView[];
-  header: () => React.ReactNode;
+  header: JSX.Element;
   loadMore: () => any;
 }) {
+  const theme = useTheme();
+  const isDark = useThemeName() === "dark";
+
   const structured = useMemo(() => {
     const map = buildCommentMap(commentViews);
     const topLevelItems = _.entries(map).sort(
@@ -138,6 +149,9 @@ export function PostComments({
       keyExtractor={([id]) => id}
       onEndReached={loadMore}
       onEndReachedThreshold={0.5}
+      contentContainerStyle={{
+        backgroundColor: isDark ? theme.color1.val : theme.color6.val,
+      }}
     />
   );
 }
