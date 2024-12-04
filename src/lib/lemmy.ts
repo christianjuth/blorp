@@ -4,6 +4,7 @@ import {
   useInfiniteQuery,
   InfiniteData,
   useQueryClient,
+  keepPreviousData,
 } from "@tanstack/react-query";
 import {
   GetComments,
@@ -87,7 +88,7 @@ export function usePost(form: GetPost) {
 
 export function usePostComments(form: GetComments) {
   return useInfiniteQuery({
-    queryKey: ["getComments", `getComments-${form.post_id}`],
+    queryKey: ["getComments", `getComments-${form.sort}-${form.post_id}`],
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
       const { comments } = await lemmy.getComments({
@@ -103,6 +104,13 @@ export function usePostComments(form: GetComments) {
     enabled: !!form.post_id,
     getNextPageParam: (data) => data.page,
     initialPageParam: 1,
+    placeholderData: (prev) => {
+      const firstComment = prev?.pages[0]?.comments?.[0];
+      if (!firstComment || firstComment.post.id !== form.post_id) {
+        return undefined;
+      }
+      return prev;
+    },
   });
 }
 

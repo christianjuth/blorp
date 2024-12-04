@@ -1,10 +1,22 @@
-import { Text, useTheme, View } from "tamagui";
+import { Button, Text, useTheme, View } from "tamagui";
 import MarkdownRender from "markdown-to-jsx";
 import disc from "@jsamr/counter-style/presets/disc";
 import decimal from "@jsamr/counter-style/presets/decimal";
 import MarkedList from "@jsamr/react-native-li";
-import React from "react";
+import React, { useState } from "react";
 import _ from "lodash";
+import { Image } from "./image";
+
+function Img({ alt, src }: { alt?: string; src?: string }) {
+  if (!src) {
+    return null;
+  }
+  return (
+    <View maxWidth={250}>
+      <Image imageUrl={src} />
+    </View>
+  );
+}
 
 // Define reusable components with styles
 function Div({ children }: { children?: React.ReactNode }) {
@@ -12,7 +24,11 @@ function Div({ children }: { children?: React.ReactNode }) {
 }
 
 function P({ children }: { children?: React.ReactNode }) {
-  return <Text>{children}</Text>;
+  return (
+    <Text tag="p" mb="$2">
+      {children}
+    </Text>
+  );
 }
 
 function H1({ children }: { children?: React.ReactNode }) {
@@ -47,6 +63,7 @@ function Blockquote({ children }: { children?: React.ReactNode }) {
       borderLeftColor="$gray9"
       paddingLeft="$2"
       py="$1"
+      mb="$2"
     >
       {children}
     </Text>
@@ -99,8 +116,9 @@ function Code({ children }: { children?: React.ReactNode }) {
       fontFamily="monospace"
       fontSize="$2"
       backgroundColor="$gray4"
-      padding="$1"
       borderRadius="$1"
+      padding="$3"
+      tag="code"
     >
       {children}
     </Text>
@@ -109,14 +127,73 @@ function Code({ children }: { children?: React.ReactNode }) {
 
 function Pre({ children }: { children?: React.ReactNode }) {
   return (
-    <View
-      backgroundColor="$gray3"
-      padding="$3"
-      borderRadius="$2"
-      marginVertical="$2"
-    >
+    <View borderRadius="$2" mb="$2">
       {children}
     </View>
+  );
+}
+
+function Spoiler({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <View dsp="flex" fd="column">
+      <Button
+        onPress={() => setIsVisible(!isVisible)}
+        unstyled
+        bg="transparent"
+        bc="none"
+        bw={0}
+        p={0}
+        py="$1"
+        ai="flex-start"
+      >
+        <Text fontSize="$5">
+          {isVisible ? "\u25BC" : "\u25B6"} {title}
+        </Text>
+      </Button>
+      {isVisible &&
+        React.Children.toArray(children).map((child, index) => (
+          <Text key={index}>{child}</Text>
+        ))}
+    </View>
+  );
+}
+
+function preprocessMarkdown(markdown: string): string {
+  // Define regex for code blocks and spoilers
+  const codeBlockRegex = /```[\s\S]*?```/g;
+  const spoilerRegex = /(^|\n)\s*::: spoiler (.+?)\n([\s\S]+?)\n:::/g;
+
+  // Array to store code blocks
+  const codeBlocks: string[] = [];
+
+  // Extract code blocks and replace them with placeholders
+  const markdownWithoutCodeBlocks = markdown.replace(
+    codeBlockRegex,
+    (match) => {
+      codeBlocks.push(match);
+      return `PLACEHOLDER_CODE_BLOCK_${codeBlocks.length - 1}`;
+    },
+  );
+
+  // Replace spoilers outside of code blocks
+  const processedMarkdown = markdownWithoutCodeBlocks.replace(
+    spoilerRegex,
+    (_, newline: string, title: string, hiddenText: string) =>
+      `${newline}\n<Spoiler title="${title}">${hiddenText}</Spoiler>\n`,
+  );
+
+  // Restore code blocks from placeholders
+  return processedMarkdown.replace(
+    /PLACEHOLDER_CODE_BLOCK_(\d+)/g,
+    (_, index: string) => codeBlocks[parseInt(index, 10)],
   );
 }
 
@@ -147,7 +224,7 @@ export function Markdown({ markdown }: { markdown: string }) {
             ul: Ul,
             ol: Ol,
             li: Li,
-            img: Div, // Handle images with a custom component if needed
+            img: Img, // Handle images with a custom component if needed
             code: Code,
             pre: Pre,
             hr: Div,
@@ -159,6 +236,7 @@ export function Markdown({ markdown }: { markdown: string }) {
             td: Div,
             br: Div,
             text: Div,
+            Spoiler: Spoiler,
           },
           wrapper: ({ children }: { children: React.ReactNode }) => {
             return (
@@ -181,10 +259,10 @@ export function Markdown({ markdown }: { markdown: string }) {
               </>
             );
           },
-          disableParsingRawHTML: true,
+          // disableParsingRawHTML: true,
         }}
       >
-        {markdown}
+        {preprocessMarkdown(markdown)}
       </MarkdownRender>
     </View>
   );

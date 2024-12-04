@@ -13,10 +13,14 @@ function PostComment({
   commentMap: CommentMap;
   level: number;
 }) {
-  const { comment: commentView, ...rest } = commentMap;
+  const { comment: commentView, sort, ...rest } = commentMap;
   if (!commentView) {
     return null;
   }
+
+  const sorted = _.entries(_.omit(rest)).sort(
+    ([id1, a], [id2, b]) => a.sort - b.sort,
+  );
 
   let color = "red";
   switch (level % 6) {
@@ -40,8 +44,11 @@ function PostComment({
       break;
   }
 
+  const comment = commentView.comment;
   const creator = commentView.creator;
   const avatar = creator.avatar;
+
+  const hideContent = comment.removed || comment.deleted;
 
   return (
     <View mt={level === -1 ? "$2" : undefined} pl="$2" py="$2" bg="$gray1">
@@ -71,8 +78,11 @@ function PostComment({
           <RelativeTime time={commentView.comment.published} color="$color11" />
         </View>
 
-        <Markdown markdown={commentView.comment.content} />
-        {_.entries(_.omit(rest, "sort")).map(([id, map]) => (
+        {comment.deleted && <Text fontStyle="italic">deleted</Text>}
+        {comment.removed && <Text fontStyle="italic">removed</Text>}
+
+        {!hideContent && <Markdown markdown={comment.content} />}
+        {sorted.map(([id, map]) => (
           <PostComment key={id} commentMap={map} level={level + 1} />
         ))}
       </View>
@@ -102,9 +112,7 @@ function buildCommentMap(commentViews: CommentView[]) {
 
     while (path.length > 1) {
       const front = path.shift()!;
-      loc[front] = loc[front] ?? {
-        sort: i++,
-      };
+      loc[front] = loc[front] ?? {};
       loc = loc[front];
     }
 
