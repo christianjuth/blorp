@@ -8,6 +8,7 @@ import { Providers } from "~/src/components/providers";
 
 import { Stack } from "one";
 import { useTheme, View } from "tamagui";
+import { PostHeader } from "~/src/components/headers";
 
 function Nav() {
   const theme = useTheme();
@@ -33,7 +34,12 @@ function Nav() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerTitle: "Home" }} />
-      <Stack.Screen name="posts/[postId]" />
+      <Stack.Screen
+        name="posts/[postId]"
+        options={{
+          header: PostHeader,
+        }}
+      />
       <Stack.Screen name="auth" />
     </Stack>
   );

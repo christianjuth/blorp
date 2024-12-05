@@ -51,33 +51,44 @@ function PostComment({
   const hideContent = comment.removed || comment.deleted;
 
   return (
-    <View mt={level === -1 ? "$2" : undefined} pl="$2" py="$2" bg="$gray1">
+    <View
+      mt={level === 0 ? "$2" : undefined}
+      pl={level === 0 ? "$2" : undefined}
+      py="$2"
+      bg="$color1"
+    >
+      <View dsp="flex" fd="row" ai="center">
+        <Avatar size={21} mr="$2">
+          <Avatar.Image src={avatar} borderRadius="$12" />
+          <Avatar.Fallback
+            backgroundColor="$color8"
+            borderRadius="$12"
+            ai="center"
+            jc="center"
+          >
+            <Text fontSize="$1">
+              {creator.name?.substring(0, 1).toUpperCase()}
+            </Text>
+          </Avatar.Fallback>
+        </Avatar>
+        <Text fontWeight={500} color="$color11">
+          {commentView.creator.name} •{" "}
+        </Text>
+        <RelativeTime time={commentView.comment.published} color="$color11" />
+      </View>
+
       <View
-        blw={level >= 0 ? "$1" : undefined}
-        blc={level >= 0 ? color : undefined}
-        p={level >= 0 ? "$2" : undefined}
+        // blw={level >= 0 ? "$1" : undefined}
+        // blc={level >= 0 ? color : undefined}
+        // p={level >= 0 ? "$2" : undefined}
+        blw={2}
+        blc={color}
+        p="$2.5"
+        pt="$2"
+        mt="$1"
+        ml={9}
         gap="$2"
       >
-        <View dsp="flex" fd="row" ai="center">
-          <Avatar size="$1.5" mr="$2">
-            <Avatar.Image src={avatar} borderRadius="$12" />
-            <Avatar.Fallback
-              backgroundColor="$color8"
-              borderRadius="$12"
-              ai="center"
-              jc="center"
-            >
-              <Text fontSize="$1">
-                {creator.name?.substring(0, 1).toUpperCase()}
-              </Text>
-            </Avatar.Fallback>
-          </Avatar>
-          <Text fontWeight={500} color="$color11">
-            {commentView.creator.name} •{" "}
-          </Text>
-          <RelativeTime time={commentView.comment.published} color="$color11" />
-        </View>
-
         {comment.deleted && <Text fontStyle="italic">deleted</Text>}
         {comment.removed && <Text fontStyle="italic">removed</Text>}
 
@@ -151,7 +162,7 @@ export function PostComments({
       data={structured.topLevelItems}
       renderItem={(row) => (
         <View key={row.item[0]} maxWidth={800} mx="auto" w="100%">
-          <Memoed commentMap={row.item[1]} level={-1} />
+          <Memoed commentMap={row.item[1]} level={0} />
         </View>
       )}
       keyExtractor={([id]) => id}

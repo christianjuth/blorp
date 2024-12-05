@@ -1,6 +1,5 @@
 import { CommentSortType } from "lemmy-js-client";
-import { useState } from "react";
-import { Option, Select, SelectProps } from "~/src/components/select";
+import { Option, Select } from "~/src/components/select";
 import {
   Flame,
   ArrowUpCircle,
@@ -8,7 +7,7 @@ import {
   Sword,
   Hourglass,
 } from "@tamagui/lucide-icons";
-import type { IconProps } from "@tamagui/helpers-icon";
+import { useSettings } from "~/src/stores/settings";
 
 const COMMENT_SORT_OPTIONS: Option<CommentSortType, CommentSortType>[] = [
   {
@@ -38,22 +37,21 @@ const COMMENT_SORT_OPTIONS: Option<CommentSortType, CommentSortType>[] = [
   },
 ];
 
-export function useCommentSort() {
-  const [sort, setSort] = useState<CommentSortType>("Hot");
-  return {
-    sort,
-    setSort,
-  };
+function getIconForSort(sort: CommentSortType) {
+  const Icon = COMMENT_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
+  return Icon ? <Icon /> : undefined;
 }
 
-export function ComentSortSelect(
-  props: Omit<SelectProps<CommentSortType>, "options">,
-) {
+export function ComentSortSelect() {
+  const commentSort = useSettings((s) => s.commentSort);
+  const setCommentSort = useSettings((s) => s.setCommentSort);
   return (
     <Select
-      {...props}
       options={COMMENT_SORT_OPTIONS}
       title="Sort Comments By"
+      value={commentSort}
+      onValueChange={setCommentSort}
+      trigger={getIconForSort(commentSort)}
     />
   );
 }

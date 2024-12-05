@@ -1,17 +1,10 @@
 import React from "react";
 import { Check, ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
+import type { IconProps } from "@tamagui/helpers-icon";
 
 import type { FontSizeTokens, SelectProps as TSelectProps } from "tamagui";
-import {
-  Adapt,
-  Select as TSelect,
-  Sheet,
-  YStack,
-  getFontSize,
-  View,
-} from "tamagui";
+import { Adapt, Select as TSelect, Sheet, YStack, getFontSize } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-// import { LinearGradient } from "tamagui/linear-gradient";
 
 export type Option<V, L = string> = {
   label: L;
@@ -24,19 +17,27 @@ export interface SelectProps<V extends string> extends TSelectProps {
   value: V;
   onValueChange?: (value: V) => void;
   title: string;
+  trigger?: React.ReactNode;
 }
 
 export function Select<V extends string>({
   options,
   title,
+  trigger,
   ...props
 }: SelectProps<V>) {
   const insets = useSafeAreaInsets();
   return (
     <TSelect disablePreventBodyScroll {...props}>
-      <TSelect.Trigger width={220} iconAfter={ChevronDown}>
-        <TSelect.Value placeholder="Something" />
-      </TSelect.Trigger>
+      {trigger ? (
+        <TSelect.Trigger unstyled bw={0} w="auto" p={0}>
+          {trigger}
+        </TSelect.Trigger>
+      ) : (
+        <TSelect.Trigger width={220} iconAfter={ChevronDown}>
+          <TSelect.Value placeholder="Something" />
+        </TSelect.Trigger>
+      )}
 
       <Adapt when="sm" platform="touch">
         <Sheet
@@ -100,7 +101,7 @@ export function Select<V extends string>({
         <TSelect.Viewport
           // to do animations:
           // animation="quick"
-          // animateOnly={['transform', 'opacity']}
+          // animateOnly={["transform", "opacity"]}
           // enterStyle={{ o: 0, y: -10 }}
           // exitStyle={{ o: 0, y: 10 }}
           minWidth={200}
@@ -114,7 +115,6 @@ export function Select<V extends string>({
               bbw={1}
               fontWeight="500"
               color="$color10"
-              bbw={1}
               bbc="$color4"
               backgroundColor="transparent"
             >

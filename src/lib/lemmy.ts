@@ -4,7 +4,6 @@ import {
   useInfiniteQuery,
   InfiniteData,
   useQueryClient,
-  keepPreviousData,
 } from "@tanstack/react-query";
 import {
   GetComments,
@@ -13,6 +12,7 @@ import {
   GetPostsResponse,
 } from "lemmy-js-client";
 import { Image as Image } from "react-native";
+import { useSettings } from "~/src/stores/settings";
 
 const imageAspectRatioCache = new Map<
   string,
@@ -87,14 +87,17 @@ export function usePost(form: GetPost) {
 }
 
 export function usePostComments(form: GetComments) {
+  const commentSort = useSettings((s) => s.commentSort);
+  const sort = form.sort ?? commentSort;
   return useInfiniteQuery({
-    queryKey: ["getComments", `getComments-${form.sort}-${form.post_id}`],
+    queryKey: ["getComments", `getComments-${sort}-${form.post_id}`],
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
       const { comments } = await lemmy.getComments({
         ...form,
         limit,
         page: pageParam,
+        sort,
       });
       return {
         comments,
