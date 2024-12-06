@@ -1,11 +1,8 @@
-import { Text, View } from "tamagui";
 import { useParams, useNavigation } from "one";
-import { Image } from "~/src/components/image";
-import { Markdown } from "~/src/components/markdown";
-import { Voting } from "~/src/components/posts/post-buttons";
 import { PostComments } from "~/src/components/posts/post-comment";
 import { useEffect } from "react";
 import { usePost, usePostComments } from "~/src/lib/lemmy";
+import { PostDetail } from "~/src/components/posts/post-details";
 
 const EMPTY_ARR = [];
 
@@ -27,9 +24,6 @@ export default function Post() {
   });
 
   const postView = data?.post_view;
-  const post = postView?.post;
-  const thumbnail = post?.thumbnail_url;
-  const body = post?.body;
 
   const communityTitle = postView?.community.title;
 
@@ -44,26 +38,13 @@ export default function Post() {
   return (
     <PostComments
       commentViews={allComments}
-      header={
-        <View maxWidth={800} mx="auto" w="100%">
-          {thumbnail && <Image imageUrl={thumbnail} priority />}
-          <View p="$3" bg="$gray1" gap="$2">
-            <Text fontWeight={500} fontSize="$8" lineHeight="$7">
-              {data?.post_view?.post.name}
-            </Text>
-            {body && <Markdown markdown={body} />}
-
-            <View dsp="flex" fd="row" ai="flex-start">
-              {postView && <Voting postView={postView} />}
-            </View>
-          </View>
-        </View>
-      }
+      header={postView ? <PostDetail postView={postView} /> : null}
       loadMore={() => {
         if (comments.hasNextPage && !comments.isFetchingNextPage) {
           comments.fetchNextPage();
         }
       }}
+      opId={postView?.creator.id}
     />
   );
 }

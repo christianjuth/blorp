@@ -1,4 +1,4 @@
-import { View } from "tamagui";
+import { ScrollView, View } from "tamagui";
 import { Sidebar } from "./sidebar";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -12,11 +12,13 @@ export function MainAppTemplate({ children }: { children: React.ReactNode }) {
         brw={1}
         $sm={{ dsp: "none" }}
       >
-        <SafeAreaView>
-          <View p="$3">
-            <Sidebar />
-          </View>
-        </SafeAreaView>
+        <ScrollView>
+          <SafeAreaView>
+            <View p="$3">
+              <Sidebar />
+            </View>
+          </SafeAreaView>
+        </ScrollView>
       </View>
 
       <View flex={1} h="100%" $sm={{ dsp: "contents" }}>

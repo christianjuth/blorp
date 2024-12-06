@@ -1,4 +1,4 @@
-import { GetPosts, LemmyHttp, Login } from "lemmy-js-client";
+import { GetPosts, LemmyHttp, ListCommunities, Login } from "lemmy-js-client";
 import {
   useQuery,
   useInfiniteQuery,
@@ -101,11 +101,11 @@ export function usePostComments(form: GetComments) {
       });
       return {
         comments,
-        page: comments.length < limit ? null : pageParam + 1,
+        nextPage: comments.length < limit ? null : pageParam + 1,
       };
     },
     enabled: !!form.post_id,
-    getNextPageParam: (data) => data.page,
+    getNextPageParam: (data) => data.nextPage,
     initialPageParam: 1,
     placeholderData: (prev) => {
       const firstComment = prev?.pages[0]?.comments?.[0];
@@ -136,5 +136,24 @@ export function usePosts(form: GetPosts) {
     },
     getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: "init",
+  });
+}
+
+export function useListCommunities(form: ListCommunities) {
+  return useInfiniteQuery({
+    queryKey: ["listCommunities"],
+    queryFn: async ({ pageParam }) => {
+      const limit = form.limit ?? 50;
+      const { communities } = await lemmy.listCommunities({
+        ...form,
+        page: pageParam,
+      });
+      return {
+        communities,
+        nextPage: communities.length < limit ? null : pageParam + 1,
+      };
+    },
+    getNextPageParam: (data) => data.nextPage,
+    initialPageParam: 1,
   });
 }

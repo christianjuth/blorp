@@ -15,25 +15,30 @@ function Nav() {
   return (
     <Stack
       screenOptions={{
-        headerBackground: () => (
-          <View
-            pos="absolute"
-            t="$0"
-            r="$0"
-            b="$0"
-            l="$0"
-            bg="$color1"
-            bbw={1}
-            bbc="$color5"
-          />
-        ),
         headerTintColor: theme.gray12.val,
         contentStyle: {
           backgroundColor: theme.color1.val,
         },
       }}
     >
-      <Stack.Screen name="(tabs)" options={{ headerTitle: "Home" }} />
+      <Stack.Screen
+        name="(tabs)"
+        options={{
+          headerTitle: "Home",
+          headerBackground: () => (
+            <View
+              pos="absolute"
+              t="$0"
+              r="$0"
+              b="$0"
+              l="$0"
+              bg="$color1"
+              bbw={1}
+              bbc="$color5"
+            />
+          ),
+        }}
+      />
       <Stack.Screen
         name="posts/[postId]"
         options={{

@@ -5,13 +5,16 @@ import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
 import { RelativeTime } from "~/src/components/relative-time";
 import { FlatList } from "react-native";
+import { Byline } from "../byline";
 
 function PostComment({
   commentMap,
   level,
+  opId,
 }: {
   commentMap: CommentMap;
   level: number;
+  opId: number | undefined;
 }) {
   const { comment: commentView, sort, ...rest } = commentMap;
   if (!commentView) {
@@ -53,48 +56,31 @@ function PostComment({
   return (
     <View
       mt={level === 0 ? "$2" : undefined}
-      pl={level === 0 ? "$2" : undefined}
-      py="$2"
+      py={level === 0 ? "$3" : "$2"}
       bg="$color1"
+      $sm={{
+        px: level === 0 ? "$2" : undefined,
+      }}
     >
-      <View dsp="flex" fd="row" ai="center">
-        <Avatar size={21} mr="$2">
-          <Avatar.Image src={avatar} borderRadius="$12" />
-          <Avatar.Fallback
-            backgroundColor="$color8"
-            borderRadius="$12"
-            ai="center"
-            jc="center"
-          >
-            <Text fontSize="$1">
-              {creator.name?.substring(0, 1).toUpperCase()}
-            </Text>
-          </Avatar.Fallback>
-        </Avatar>
-        <Text fontWeight={500} color="$color11">
-          {commentView.creator.name} •{" "}
-        </Text>
-        <RelativeTime time={commentView.comment.published} color="$color11" />
-      </View>
+      <Byline
+        avatar={avatar}
+        author={creator.name}
+        publishedDate={comment.published}
+        highlightAuthor={creator.id === opId}
+      />
 
-      <View
-        // blw={level >= 0 ? "$1" : undefined}
-        // blc={level >= 0 ? color : undefined}
-        // p={level >= 0 ? "$2" : undefined}
-        blw={2}
-        blc={color}
-        p="$2.5"
-        pt="$2"
-        mt="$1"
-        ml={9}
-        gap="$2"
-      >
+      <View blw={2} blc={color} p="$2" mt="$1" ml={9} gap="$2">
         {comment.deleted && <Text fontStyle="italic">deleted</Text>}
         {comment.removed && <Text fontStyle="italic">removed</Text>}
 
         {!hideContent && <Markdown markdown={comment.content} />}
         {sorted.map(([id, map]) => (
-          <PostComment key={id} commentMap={map} level={level + 1} />
+          <PostComment
+            key={id}
+            commentMap={map}
+            level={level + 1}
+            opId={opId}
+          />
         ))}
       </View>
     </View>
@@ -140,10 +126,12 @@ export function PostComments({
   header,
   commentViews,
   loadMore,
+  opId,
 }: {
   commentViews: CommentView[];
-  header: JSX.Element;
+  header: JSX.Element | null;
   loadMore: () => any;
+  opId: number | undefined;
 }) {
   const theme = useTheme();
   const isDark = useThemeName() === "dark";
@@ -162,15 +150,15 @@ export function PostComments({
       data={structured.topLevelItems}
       renderItem={(row) => (
         <View key={row.item[0]} maxWidth={800} mx="auto" w="100%">
-          <Memoed commentMap={row.item[1]} level={0} />
+          <Memoed commentMap={row.item[1]} level={0} opId={opId} />
         </View>
       )}
       keyExtractor={([id]) => id}
       onEndReached={loadMore}
       onEndReachedThreshold={0.5}
-      contentContainerStyle={{
-        backgroundColor: isDark ? theme.color1.val : theme.color6.val,
-      }}
+      // contentContainerStyle={{
+      //   backgroundColor: isDark ? theme.color1.val : theme.color6.val,
+      // }}
     />
   );
 }

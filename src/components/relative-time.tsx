@@ -27,6 +27,7 @@ dayjs.updateLocale("en", {
 
 interface Props extends TextProps {
   time: string;
+  prefix?: string;
 }
 
 /**
@@ -34,7 +35,7 @@ interface Props extends TextProps {
  * Does so in a way that won't break hydration.
  * Shows the full date/time time on hover.
  */
-export function RelativeTime({ time, ...rest }: Props) {
+export function RelativeTime({ time, prefix, ...rest }: Props) {
   const [relativeTime, setRelativeTime] = useState<string>(
     dayjs(time).format("MMM D, YYYY h:mma"),
   );
@@ -52,7 +53,10 @@ export function RelativeTime({ time, ...rest }: Props) {
   return relativeTime ? (
     <Tooltip>
       <Tooltip.Trigger asChild>
-        <Text {...rest}>{relativeTime}</Text>
+        <Text {...rest}>
+          {prefix}
+          {relativeTime}
+        </Text>
       </Tooltip.Trigger>
       <Tooltip.Content>
         <Text>{dayjs(time).format("MMM D, YYYY h:mma")}</Text>
