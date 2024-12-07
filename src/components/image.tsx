@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Image as RNImage, Platform } from "react-native";
 import { measureImage } from "../lib/lemmy";
 import { useTheme } from "tamagui";
+import Animated from "react-native-reanimated";
 
 export function Image({
   imageUrl,
