@@ -1,4 +1,4 @@
-import { CommentSortType } from "lemmy-js-client";
+import { CommentSortType, PostSortType } from "lemmy-js-client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -6,6 +6,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 type SettingsStore = {
   commentSort: CommentSortType;
   setCommentSort: (sort: CommentSortType) => void;
+  postSort: PostSortType;
+  setPostSort: (sort: PostSortType) => void;
 };
 
 export const useSettings = create<SettingsStore>()(
@@ -13,6 +15,8 @@ export const useSettings = create<SettingsStore>()(
     (set) => ({
       commentSort: "Hot",
       setCommentSort: (commentSort) => set({ commentSort }),
+      postSort: "Active",
+      setPostSort: (postSort) => set({ postSort }),
     }),
     {
       name: "settings",

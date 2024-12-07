@@ -9,10 +9,14 @@ const EMPTY_ARR = [];
 export default function Post() {
   const nav = useNavigation();
 
-  const { postId } = useParams<{ postId: string }>();
+  const { postId, communityId } = useParams<{
+    postId: string;
+    communityId: string;
+  }>();
 
   const { data } = usePost({
     id: postId ? parseInt(postId) : undefined,
+    comment_id: communityId ? +communityId : undefined,
   });
 
   const comments = usePostComments({

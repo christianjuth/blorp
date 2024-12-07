@@ -148,7 +148,7 @@ export function PostComments({
       ListHeaderComponent={header}
       data={structured.topLevelItems}
       renderItem={(row) => (
-        <View key={row.item[0]} maxWidth={800} mx="auto" w="100%">
+        <View key={row.item[0]} maxWidth={750} mx="auto" w="100%">
           <Memoed commentMap={row.item[1]} level={0} opId={opId} />
         </View>
       )}

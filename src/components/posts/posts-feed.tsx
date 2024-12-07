@@ -23,7 +23,7 @@ export function PostsFeed({
       renderItem={(item) => <PostCard postView={item.item} />}
       onEndReached={() => {
         if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage?.();
+          fetchNextPage();
         }
       }}
       onEndReachedThreshold={0.5}

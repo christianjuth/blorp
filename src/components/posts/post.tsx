@@ -1,17 +1,14 @@
 import { Text, View, YStack } from "tamagui";
-import { Image as TImage } from "@tamagui/image-next";
 import { Image } from "~/src/components/image";
 import { PostView } from "lemmy-js-client";
-import { Voting, ExpandPost } from "./post-buttons";
-import { abbriviateNumber } from "~/src/lib/format";
+import { Voting } from "./post-buttons";
 import { Link } from "one";
-import { RelativeTime } from "~/src/components/relative-time";
 import { Byline } from "../byline";
 
 export function PostCard({ postView }: { postView: PostView }) {
   const { post, creator, community, counts } = postView;
   const server = new URL(post.ap_id);
-  const href = `/posts/${post.id}`;
+  const href = `/communities/${community.id}/posts/${post.id}`;
   const thumbnail = post?.thumbnail_url;
 
   return (
@@ -32,14 +29,7 @@ export function PostCard({ postView }: { postView: PostView }) {
         <Text fontWeight={500} fontSize="$8" lineHeight="$7">
           {post.name}
         </Text>
-        {thumbnail && (
-          <Image
-            // sharedTransitionTag={String(post.id)}
-            imageUrl={thumbnail}
-            priority
-            borderRadius={15}
-          />
-        )}
+        {thumbnail && <Image imageUrl={thumbnail} priority borderRadius={15} />}
         <Byline
           avatar={community.icon}
           author={creator.name}

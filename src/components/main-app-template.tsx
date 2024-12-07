@@ -6,7 +6,7 @@ export function MainAppTemplate({ children }: { children: React.ReactNode }) {
   return (
     <View h="100%" dsp="flex" fd="row" $sm={{ dsp: "contents" }}>
       <View
-        w={270}
+        w={320}
         backgroundColor="$color1"
         brc="$color7"
         brw={1}

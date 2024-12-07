@@ -12,7 +12,7 @@ export function PostDetail({ postView }: { postView: PostView }) {
 
   return (
     <View
-      maxWidth={800}
+      maxWidth={750}
       mx="auto"
       w="100%"
       $sm={{
@@ -26,14 +26,7 @@ export function PostDetail({ postView }: { postView: PostView }) {
       <Text fontWeight={500} fontSize="$8" lineHeight="$7">
         {postView.post.name}
       </Text>
-      {thumbnail && (
-        <Image
-          // sharedTransitionTag={String(post.id)}
-          imageUrl={thumbnail}
-          priority
-          borderRadius={15}
-        />
-      )}
+      {thumbnail && <Image imageUrl={thumbnail} priority borderRadius={15} />}
       {body && <Markdown markdown={body} />}
 
       <Byline

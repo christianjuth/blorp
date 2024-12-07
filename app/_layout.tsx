@@ -7,7 +7,7 @@ import { MainAppTemplate } from "~/src/components/main-app-template";
 import { Providers } from "~/src/components/providers";
 
 import { Stack } from "one";
-import { useTheme, View } from "tamagui";
+import { useTheme } from "tamagui";
 import { PostHeader } from "~/src/components/headers";
 
 function Nav() {
@@ -25,25 +25,14 @@ function Nav() {
         name="(tabs)"
         options={{
           headerTitle: "Home",
-          headerBackground: () => (
-            <View
-              pos="absolute"
-              t="$0"
-              r="$0"
-              b="$0"
-              l="$0"
-              bg="$color1"
-              bbw={1}
-              bbc="$color5"
-            />
-          ),
+          headerShown: false,
         }}
       />
       <Stack.Screen
-        name="posts/[postId]"
+        name="communities/[communityId]/posts/[postId]"
         options={{
           header: PostHeader,
-          presentation: "transparentModal",
+          presentation: "containedTransparentModal",
           animation: "fade",
         }}
       />
