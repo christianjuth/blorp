@@ -43,6 +43,8 @@ function Nav() {
         name="posts/[postId]"
         options={{
           header: PostHeader,
+          presentation: "transparentModal",
+          animation: "fade",
         }}
       />
       <Stack.Screen name="auth" />

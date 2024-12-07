@@ -19,6 +19,9 @@
       "bundleIdentifier": "com.christianjuth.lemmy-try"
     },
     "orientation": "default",
-    "userInterfaceStyle": "automatic"
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "com.christianjuth.lemmytry"
+    }
   }
 }
