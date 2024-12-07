@@ -12,7 +12,7 @@ const useCustomHeaderHeight = () => {
   const defaultHeaderHeight = Platform.select({
     ios: 40, // Default header height on iOS
     android: 56, // Default header height on Android
-    default: 64, // Default header height for web or other platforms
+    default: 65, // Default header height for web or other platforms
   });
 
   // Add safe area top inset to ensure the header accounts for the status bar

@@ -38,6 +38,10 @@ export async function measureImage(src: string) {
   });
 
   imageAspectRatioCache.set(src, p);
+
+  p.catch(() => {
+    imageAspectRatioCache.delete(src);
+  });
 }
 
 // Build the client

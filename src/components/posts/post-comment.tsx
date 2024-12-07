@@ -59,7 +59,7 @@ function PostComment({
       py={level === 0 ? "$3" : "$2"}
       bg="$color1"
       $sm={{
-        px: level === 0 ? "$2" : undefined,
+        px: level === 0 ? "$2.5" : undefined,
       }}
     >
       <Byline
@@ -134,7 +134,6 @@ export function PostComments({
   opId: number | undefined;
 }) {
   const theme = useTheme();
-  const isDark = useThemeName() === "dark";
 
   const structured = useMemo(() => {
     const map = buildCommentMap(commentViews);
@@ -156,9 +155,9 @@ export function PostComments({
       keyExtractor={([id]) => id}
       onEndReached={loadMore}
       onEndReachedThreshold={0.5}
-      // contentContainerStyle={{
-      //   backgroundColor: isDark ? theme.color1.val : theme.color6.val,
-      // }}
+      contentContainerStyle={{
+        backgroundColor: theme.color1.val,
+      }}
     />
   );
 }

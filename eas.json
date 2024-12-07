@@ -1,0 +1,12 @@
+{
+  "cli": {
+    "version": "latest"
+  },
+  "build": {
+    "development": {
+      "ios": {
+        "buildType": "simulator"
+      }
+    }
+  }
+}

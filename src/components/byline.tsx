@@ -41,7 +41,7 @@ export function Byline({
       <Text
         fontSize="$3"
         fontWeight={500}
-        color={highlightAuthor ? "$blue" : "$color11"}
+        // color={highlightAuthor ? "$blue" : "$color11"}
       >
         {author}
       </Text>

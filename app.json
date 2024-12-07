@@ -17,6 +17,8 @@
     },
     "ios": {
       "bundleIdentifier": "com.christianjuth.lemmy-try"
-    }
+    },
+    "orientation": "default",
+    "userInterfaceStyle": "automatic"
   }
 }
