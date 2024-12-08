@@ -2,7 +2,8 @@ import { createMedia } from "@tamagui/react-native-media-driver";
 import { shorthands } from "@tamagui/shorthands/v2";
 import { createTamagui } from "tamagui";
 import { fonts } from "./fonts";
-import * as themes from "./themesOut";
+// import * as themes from "./themesOut";
+import { themes } from "./themes";
 import { tokens } from "./tokens";
 import { animations } from "./animations";
 

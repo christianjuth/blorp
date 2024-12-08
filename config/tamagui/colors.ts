@@ -1,47 +1,49 @@
-import { gray, grayDark } from "@tamagui/colors";
+import { gray, grayDark, blue, blueDark } from "@tamagui/colors";
 
 // adopted from the one website: https://onestack.dev
 // you can also just use @tamagui/config/v3
 
-const yellow = {
-  yellow1: "hsl(54, 54.0%, 98.5%)",
-  yellow2: "hsl(54, 100%, 93.5%)",
-  yellow3: "hsl(54, 100%, 88.9%)",
-  yellow4: "hsl(54, 100%, 83.6%)",
-  yellow5: "hsl(54, 97.9%, 78.0%)",
-  yellow6: "hsl(54, 89.4%, 72.1%)",
-  yellow7: "hsl(54, 80.4%, 65.0%)",
-  yellow8: "hsl(54, 90%, 62%)",
-  yellow9: "hsl(54, 100%, 58.0%)",
-  yellow10: "hsl(54, 90%, 40%)",
-  yellow11: "hsl(54, 80%, 30.0%)",
-  yellow12: "hsl(54, 55.0%, 15%)",
-  yellow13: "#000",
-};
+// const yellow = {
+//   yellow1: "hsl(54, 54.0%, 98.5%)",
+//   yellow2: "hsl(54, 100%, 93.5%)",
+//   yellow3: "hsl(54, 100%, 88.9%)",
+//   yellow4: "hsl(54, 100%, 83.6%)",
+//   yellow5: "hsl(54, 97.9%, 78.0%)",
+//   yellow6: "hsl(54, 89.4%, 72.1%)",
+//   yellow7: "hsl(54, 80.4%, 65.0%)",
+//   yellow8: "hsl(54, 90%, 62%)",
+//   yellow9: "hsl(54, 100%, 58.0%)",
+//   yellow10: "hsl(54, 90%, 40%)",
+//   yellow11: "hsl(54, 80%, 30.0%)",
+//   yellow12: "hsl(54, 55.0%, 15%)",
+//   yellow13: "#000",
+// };
 
-const yellowDark = {
-  yellow1: "hsl(54, 20%, 5.5%)",
-  yellow2: "hsl(54, 20%, 6.7%)",
-  yellow3: "hsl(54, 20%, 8.7%)",
-  yellow4: "hsl(54, 30%, 10.4%)",
-  yellow5: "hsl(54, 40%, 12.1%)",
-  yellow6: "hsl(54, 40%, 14.3%)",
-  yellow7: "hsl(54, 40%, 18.4%)",
-  yellow8: "hsl(54, 100%, 25.0%)",
-  yellow9: "hsl(54, 92.0%, 40.0%)",
-  yellow10: "hsl(54, 100%, 60.0%)",
-  yellow11: "hsl(54, 100%, 80.0%)",
-  yellow12: "hsl(54, 100%, 91.0%)",
-  yellow13: "#fff",
-};
+// const yellowDark = {
+//   yellow1: "hsl(54, 20%, 5.5%)",
+//   yellow2: "hsl(54, 20%, 6.7%)",
+//   yellow3: "hsl(54, 20%, 8.7%)",
+//   yellow4: "hsl(54, 30%, 10.4%)",
+//   yellow5: "hsl(54, 40%, 12.1%)",
+//   yellow6: "hsl(54, 40%, 14.3%)",
+//   yellow7: "hsl(54, 40%, 18.4%)",
+//   yellow8: "hsl(54, 100%, 25.0%)",
+//   yellow9: "hsl(54, 92.0%, 40.0%)",
+//   yellow10: "hsl(54, 100%, 60.0%)",
+//   yellow11: "hsl(54, 100%, 80.0%)",
+//   yellow12: "hsl(54, 100%, 91.0%)",
+//   yellow13: "#fff",
+// };
 
 const colorTokens = {
   light: {
-    yellow,
+    blue,
+    // yellow,
     gray,
   },
   dark: {
-    yellow: yellowDark,
+    blue: blueDark,
+    // yellow: yellowDark,
     gray: grayDark,
   },
 };
@@ -52,7 +54,8 @@ export const darkShadowColor = "rgba(0,0,0,0.12)";
 export const darkShadowColorStrong = "rgba(0,0,0,0.2)";
 
 export const darkColors = {
-  ...colorTokens.dark.yellow,
+  ...colorTokens.dark.blue,
+  // ...colorTokens.dark.yellow,
   ...colorTokens.dark.gray,
 
   blue: "hsla(210, 60%, 40%, 0.6)",
@@ -69,7 +72,8 @@ export const darkColors = {
 };
 
 export const lightColors = {
-  ...colorTokens.light.yellow,
+  ...colorTokens.light.blue,
+  // ...colorTokens.light.yellow,
   ...colorTokens.light.gray,
 
   blue: "hsla(210, 60%, 80%, 0.7)",
@@ -123,8 +127,8 @@ export const color = {
 };
 
 export const brandColor = {
-  light: color.yellow6Light,
-  dark: color.yellow6Dark,
+  light: color.blue9Light,
+  dark: color.blue6Dark,
 };
 
 export const palettes = (() => {

@@ -34,6 +34,7 @@ function Nav() {
           header: PostHeader,
           presentation: "containedTransparentModal",
           animation: "fade",
+          gestureDirection: "horizontal",
         }}
       />
       <Stack.Screen name="auth" />
