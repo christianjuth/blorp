@@ -23,7 +23,7 @@ function Img({ alt, src }: { alt?: string; src?: string }) {
     return null;
   }
   return (
-    <View maxWidth={250}>
+    <View maxWidth={250} w="100%">
       <Image imageUrl={src} />
     </View>
   );
@@ -35,10 +35,14 @@ function Div({ children }: { children?: React.ReactNode }) {
   return <Text color={color}>{children}</Text>;
 }
 
+function Hr() {
+  return <View h={1} w="100%" bg="$color0" />;
+}
+
 function P({ children }: { children?: React.ReactNode }) {
   const color = useContextColor();
   return (
-    <Text tag="p" mb="$2" color={color}>
+    <Text tag="p" mb="$2" color={color} dsp="block">
       {children}
     </Text>
   );
@@ -84,13 +88,17 @@ function Blockquote({ children }: { children?: React.ReactNode }) {
     <Text
       fontStyle="italic"
       fontSize="$4"
-      marginLeft="$3"
+      marginLeft="$1.5"
       borderLeftWidth="$1.5"
       borderLeftColor="$gray9"
       paddingLeft="$2"
       py="$1"
       mb="$2"
       color={color}
+      opacity={0.6}
+      tag="blockquote"
+      dsp="flex"
+      fd="column"
     >
       {children}
     </Text>
@@ -273,7 +281,7 @@ export function Markdown({
               img: Img, // Handle images with a custom component if needed
               code: Code,
               pre: Pre,
-              hr: Div,
+              hr: Hr,
               table: Div,
               thead: Div,
               tbody: Div,

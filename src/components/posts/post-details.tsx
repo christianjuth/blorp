@@ -1,4 +1,4 @@
-import { Text, View } from "tamagui";
+import { Text, View, YStack } from "tamagui";
 import { Image } from "~/src/components/image";
 import { Markdown } from "~/src/components/markdown";
 import { Voting } from "~/src/components/posts/post-buttons";
@@ -11,8 +11,8 @@ export function PostDetail({ postView }: { postView: PostView }) {
   const body = post?.body;
 
   return (
-    <View
-      $sm={{
+    <YStack
+      $md={{
         px: "$2.5",
       }}
       py="$2.5"
@@ -37,6 +37,6 @@ export function PostDetail({ postView }: { postView: PostView }) {
       <View dsp="flex" fd="row" ai="flex-start">
         {postView && <Voting postView={postView} />}
       </View>
-    </View>
+    </YStack>
   );
 }

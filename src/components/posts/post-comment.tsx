@@ -1,13 +1,10 @@
 import { CommentView } from "lemmy-js-client";
-import { memo, useMemo } from "react";
-import { View, Text, Avatar, useTheme, useThemeName } from "tamagui";
+import { View, Text } from "tamagui";
 import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
-import { FlatList } from "react-native";
 import { Byline } from "../byline";
-import { FeedGutters } from "../feed-gutters";
 
-function PostComment({
+export function PostComment({
   commentMap,
   level,
   opId,
@@ -58,7 +55,7 @@ function PostComment({
       mt={level === 0 ? "$2" : undefined}
       py={level === 0 ? "$3" : "$2"}
       bg="$color1"
-      $sm={{
+      $md={{
         px: level === 0 ? "$2.5" : undefined,
       }}
       flex={1}
@@ -88,8 +85,6 @@ function PostComment({
   );
 }
 
-const Memoed = memo(PostComment);
-
 interface CommentMap {
   comment?: CommentView;
   sort: number;
@@ -100,7 +95,7 @@ interface CommentMapTopLevel {
   [key: number]: CommentMap;
 }
 
-function buildCommentMap(commentViews: CommentView[]) {
+export function buildCommentMap(commentViews: CommentView[]) {
   const map: CommentMapTopLevel = {};
 
   let i = 0;
@@ -121,45 +116,4 @@ function buildCommentMap(commentViews: CommentView[]) {
   }
 
   return map;
-}
-
-export function PostComments({
-  header,
-  commentViews,
-  loadMore,
-  opId,
-}: {
-  commentViews: CommentView[];
-  header: JSX.Element | null;
-  loadMore: () => any;
-  opId: number | undefined;
-}) {
-  const theme = useTheme();
-
-  const structured = useMemo(() => {
-    const map = buildCommentMap(commentViews);
-    const topLevelItems = _.entries(map).sort(
-      ([id1, a], [id2, b]) => a.sort - b.sort,
-    );
-    return { map, topLevelItems };
-  }, [commentViews]);
-
-  return (
-    <FlatList
-      ListHeaderComponent={header}
-      data={structured.topLevelItems}
-      renderItem={(row) => (
-        <FeedGutters>
-          <Memoed commentMap={row.item[1]} level={0} opId={opId} />
-          <></>
-        </FeedGutters>
-      )}
-      keyExtractor={([id]) => id}
-      onEndReached={loadMore}
-      onEndReachedThreshold={0.5}
-      contentContainerStyle={{
-        backgroundColor: theme.color1.val,
-      }}
-    />
-  );
 }

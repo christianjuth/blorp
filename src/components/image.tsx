@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Image as RNImage, Platform } from "react-native";
 import { measureImage } from "../lib/lemmy";
-import { useTheme } from "tamagui";
+import { useTheme, Text } from "tamagui";
+import _ from "lodash";
 
 export function Image({
   imageUrl,
@@ -58,7 +59,7 @@ export function Image({
       key={imageUrl}
       source={{ uri: imageUrl }}
       style={{
-        aspectRatio: aspectRatio ?? 1,
+        aspectRatio: (_.isNaN(aspectRatio) ? undefined : aspectRatio) ?? 1,
         flex: 1,
         backgroundColor: theme.gray3.val,
         borderRadius,

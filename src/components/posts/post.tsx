@@ -19,9 +19,8 @@ export function PostCard({ postView }: { postView: PostView }) {
         bbw={2}
         tag="a"
         mx="auto"
-        // w="100%"
         flex={1}
-        $sm={{
+        $md={{
           px: "$2.5",
         }}
       >

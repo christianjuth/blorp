@@ -4,11 +4,20 @@ import { View, XStack, XStackProps } from "tamagui";
 export function FeedGutters({ children, ...props }: XStackProps) {
   const [first, second] = React.Children.toArray(children);
   return (
-    <XStack maxWidth={1000} w="100%" mx="auto" {...props} gap="$4">
+    <XStack
+      maxWidth={1000}
+      w="100%"
+      mx="auto"
+      {...props}
+      gap="$5"
+      $gtMd={{ px: "$4" }}
+    >
       {second ? (
         <>
           {first}
-          <View w={300}>{second}</View>
+          <View w={300} $md={{ dsp: "none" }}>
+            {second}
+          </View>
         </>
       ) : (
         first

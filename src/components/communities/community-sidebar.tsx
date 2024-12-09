@@ -31,9 +31,9 @@ export function Sidebar() {
       l="$0"
       r="$0"
       t="$4"
-      bg="$gray3"
+      bg="$color3"
       position="absolute"
-      br="$3"
+      br="$4"
       zIndex="$5"
       w={COMMUNITY_SIDEBAR_WIDTH}
     >
@@ -50,7 +50,7 @@ export function Sidebar() {
         </XStack>
 
         <XStack>
-          <YStack gap="$1" flex={2}>
+          <YStack gap="$1" flex={1}>
             <Text fontWeight="bold" fontSize="$4">
               {abbriviateNumber(counts.subscribers)}
             </Text>
@@ -59,7 +59,7 @@ export function Sidebar() {
             </Text>
           </YStack>
 
-          <YStack gap="$1" flex={2}>
+          <YStack gap="$1" flex={1}>
             <Text fontWeight="bold" fontSize="$4">
               {abbriviateNumber(counts.posts)}
             </Text>
@@ -79,7 +79,7 @@ export function Sidebar() {
         </XStack>
       </YStack>
       {community.description && (
-        <View p="$3" btc="$borderColor" btw={1}>
+        <View p="$3" btc="$color0" btw={1}>
           <Markdown markdown={community.description} color="$color11" />
         </View>
       )}

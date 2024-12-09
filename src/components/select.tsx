@@ -30,7 +30,14 @@ export function Select<V extends string>({
   return (
     <TSelect disablePreventBodyScroll {...props}>
       {trigger ? (
-        <TSelect.Trigger unstyled bw={0} w="auto" p={0} minHeight={0}>
+        <TSelect.Trigger
+          unstyled
+          bw={0}
+          w="auto"
+          p={0}
+          minHeight={0}
+          bg="transparent"
+        >
           {trigger}
         </TSelect.Trigger>
       ) : (
