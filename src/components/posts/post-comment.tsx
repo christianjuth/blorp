@@ -3,9 +3,9 @@ import { memo, useMemo } from "react";
 import { View, Text, Avatar, useTheme, useThemeName } from "tamagui";
 import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
-import { RelativeTime } from "~/src/components/relative-time";
 import { FlatList } from "react-native";
 import { Byline } from "../byline";
+import { FeedGutters } from "../feed-gutters";
 
 function PostComment({
   commentMap,
@@ -61,6 +61,7 @@ function PostComment({
       $sm={{
         px: level === 0 ? "$2.5" : undefined,
       }}
+      flex={1}
     >
       <Byline
         avatar={avatar}
@@ -148,9 +149,10 @@ export function PostComments({
       ListHeaderComponent={header}
       data={structured.topLevelItems}
       renderItem={(row) => (
-        <View key={row.item[0]} maxWidth={750} mx="auto" w="100%">
+        <FeedGutters>
           <Memoed commentMap={row.item[1]} level={0} opId={opId} />
-        </View>
+          <></>
+        </FeedGutters>
       )}
       keyExtractor={([id]) => id}
       onEndReached={loadMore}

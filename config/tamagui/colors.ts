@@ -1,4 +1,14 @@
-import { gray, grayDark, blue, blueDark } from "@tamagui/colors";
+import {
+  gray,
+  grayDark,
+  blue,
+  blueDark,
+  slate,
+  slateDark,
+  slateA,
+  slateDarkA,
+} from "@tamagui/colors";
+import _ from "lodash";
 
 // adopted from the one website: https://onestack.dev
 // you can also just use @tamagui/config/v3
@@ -39,12 +49,16 @@ const colorTokens = {
   light: {
     blue,
     // yellow,
-    gray,
+    gray: _.mapKeys(slate, (value, key) =>
+      key.replace("slate", "gray"),
+    ) as typeof gray,
   },
   dark: {
     blue: blueDark,
     // yellow: yellowDark,
-    gray: grayDark,
+    gray: _.mapKeys(slateDark, (value, key) =>
+      key.replace("slate", "gray"),
+    ) as typeof grayDark,
   },
 };
 
@@ -194,23 +208,40 @@ export const palettes = (() => {
     color.black025,
     color.black05,
     color.black075,
-    color.black1,
-    color.black2,
-    color.black3,
-    color.black4,
-    color.black5,
-    color.black6,
-    color.black7,
-    color.black8,
-    color.black9,
-    color.black10,
-    color.black11,
-    color.black12,
+    "hsl(200, 7.0%, 7%)",
+    // slateDark.slate1,
+    slateDark.slate2,
+    slateDark.slate3,
+    slateDark.slate4,
+    slateDark.slate5,
+    slateDark.slate6,
+    slateDark.slate7,
+    slateDark.slate8,
+    slateDark.slate9,
+    slateDark.slate10,
+    slateDark.slate11,
+    slateDark.slate12,
+    // color.black1,
+    // color.black2,
+    // color.black3,
+    // color.black4,
+    // color.black5,
+    // color.black6,
+    // color.black7,
+    // color.black8,
+    // color.black9,
+    // color.black10,
+    // color.black11,
+    // color.black12,
     "#fff",
-    color.white075,
-    color.white05,
-    color.white025,
-    color.white0,
+    slateA.slateA12,
+    slateA.slateA10,
+    slateA.slateA8,
+    slateA.slateA1,
+    // color.white075,
+    // color.white05,
+    // color.white025,
+    // color.white0,
     brandColor.light,
   ];
 

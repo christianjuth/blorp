@@ -8,20 +8,19 @@ import { Byline } from "../byline";
 export function PostCard({ postView }: { postView: PostView }) {
   const { post, creator, community, counts } = postView;
   const server = new URL(post.ap_id);
-  const href = `/communities/${community.id}/posts/${post.id}`;
   const thumbnail = post?.thumbnail_url;
 
   return (
-    <Link href={href as any} asChild>
+    <Link href={`/c/${community.id}/posts/${post.id}`} asChild>
       <YStack
         py="$2.5"
         gap="$2"
         bbc="$color5"
-        bbw={1}
+        bbw={2}
         tag="a"
-        maxWidth={750}
         mx="auto"
-        w="100%"
+        // w="100%"
+        flex={1}
         $sm={{
           px: "$2.5",
         }}

@@ -4,7 +4,10 @@ import { ComentSortSelect, PostSortSelect } from "./lemmy-sort";
 import { View, Text, Button, XStack } from "tamagui";
 import { ChevronLeft, X } from "@tamagui/lucide-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Platform } from "react-native";
+import { Platform, Image } from "react-native";
+import { useParams, useNavigation } from "one";
+import { useEffect } from "react";
+import { useCommunity } from "~/src/lib/lemmy";
 
 const useCustomHeaderHeight = () => {
   const insets = useSafeAreaInsets();
@@ -69,6 +72,12 @@ export function PostHeader(props: NativeStackHeaderProps) {
 export function CommunityHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
+  const { communityId } = useParams<{ communityId: string }>();
+
+  const community = useCommunity({
+    id: communityId,
+  });
+
   const { height, insetTop } = useCustomHeaderHeight();
   return (
     <XStack
@@ -82,7 +91,21 @@ export function CommunityHeader(
       ai="center"
       pt={insetTop}
       h={height - 1}
+      pos="relative"
     >
+      <View $gtMd={{ dsp: "none" }}>
+        <Image
+          source={{ uri: community.data?.community_view.community.banner }}
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+          }}
+        />
+      </View>
+
       <View flex={1} flexBasis={0} ai="flex-start">
         {"back" in props && (
           <Button

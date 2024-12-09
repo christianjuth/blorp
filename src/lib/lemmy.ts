@@ -18,7 +18,7 @@ import {
   GetPostsResponse,
 } from "lemmy-js-client";
 import { Image as Image } from "react-native";
-import { useSettings } from "~/src/stores/settings";
+import { useSorts } from "~/src/stores/settings";
 
 const imageAspectRatioCache = new Map<
   string,
@@ -76,7 +76,7 @@ export function getPostFromCache(
 export function usePost(form: GetPost) {
   const queryClient = useQueryClient();
 
-  const postSort = useSettings((s) => s.postSort);
+  const postSort = useSorts((s) => s.postSort);
 
   const cachedPosts = queryClient.getQueryData<
     InfiniteData<GetPostsResponse, unknown>
@@ -105,7 +105,7 @@ export function usePost(form: GetPost) {
 }
 
 export function usePostComments(form: GetComments) {
-  const commentSort = useSettings((s) => s.commentSort);
+  const commentSort = useSorts((s) => s.commentSort);
   const sort = form.sort ?? commentSort;
   return useInfiniteQuery({
     queryKey: ["getComments", `getComments-${sort}-${form.post_id}`],
@@ -176,11 +176,13 @@ export function useListCommunities(form: ListCommunities) {
   });
 }
 
-export function useCommunity(form: GetCommunity) {
+export function useCommunity(form: { id?: string | number }) {
   return useQuery({
     queryKey: ["getCommunity", `getCommunity-${form.id}`],
     queryFn: async () => {
-      const res = await lemmy.getCommunity(form);
+      const res = await lemmy.getCommunity({
+        id: +form.id!,
+      });
       return res;
     },
     enabled: !!form.id,

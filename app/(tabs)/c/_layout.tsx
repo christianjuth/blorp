@@ -24,7 +24,7 @@ export default function Layout() {
       <Stack.Screen
         name="[communityId]/index"
         options={{
-          title: "Yolo",
+          title: "loading...",
           header: CommunityHeader,
         }}
       />

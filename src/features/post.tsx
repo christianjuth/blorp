@@ -1,22 +1,21 @@
-import { useParams, useNavigation } from "one";
+import { useNavigation } from "one";
 import { PostComments } from "~/src/components/posts/post-comment";
 import { useEffect } from "react";
 import { usePost, usePostComments } from "~/src/lib/lemmy";
 import { PostDetail } from "~/src/components/posts/post-details";
+import {
+  Sidebar,
+  COMMUNITY_SIDEBAR_WIDTH,
+} from "~/src/components/communities/community-sidebar";
+import { FeedGutters } from "../components/feed-gutters";
 
 const EMPTY_ARR = [];
 
-export default function Post() {
+export function Post({ postId }: { postId?: string }) {
   const nav = useNavigation();
-
-  const { postId, communityId } = useParams<{
-    postId: string;
-    communityId: string;
-  }>();
 
   const { data } = usePost({
     id: postId ? parseInt(postId) : undefined,
-    comment_id: communityId ? +communityId : undefined,
   });
 
   const comments = usePostComments({
@@ -39,10 +38,19 @@ export default function Post() {
     ? comments.data.pages.map((p) => p.comments).flat()
     : EMPTY_ARR;
 
+  if (!postView) {
+    return null;
+  }
+
   return (
     <PostComments
       commentViews={allComments}
-      header={postView ? <PostDetail postView={postView} /> : null}
+      header={
+        <FeedGutters>
+          <PostDetail postView={postView} />
+          <Sidebar />
+        </FeedGutters>
+      }
       loadMore={() => {
         if (comments.hasNextPage && !comments.isFetchingNextPage) {
           comments.fetchNextPage();
@@ -51,7 +59,4 @@ export default function Post() {
       opId={postView?.creator.id}
     />
   );
-}
-export async function generateStaticParams() {
-  return [];
 }

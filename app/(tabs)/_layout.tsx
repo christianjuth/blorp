@@ -22,7 +22,7 @@ export default function Layout() {
       />
 
       <Tabs.Screen
-        name="communities"
+        name="c"
         options={{
           title: "Communities",
           tabBarIcon: ({ color }) => <Users color={color} />,

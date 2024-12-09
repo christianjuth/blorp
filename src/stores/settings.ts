@@ -10,7 +10,7 @@ type SettingsStore = {
   setPostSort: (sort: PostSortType) => void;
 };
 
-export const useSettings = create<SettingsStore>()(
+export const useSorts = create<SettingsStore>()(
   persist(
     (set) => ({
       commentSort: "Hot",

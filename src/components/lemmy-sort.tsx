@@ -7,7 +7,7 @@ import {
   Sword,
   Hourglass,
 } from "@tamagui/lucide-icons";
-import { useSettings } from "~/src/stores/settings";
+import { useSorts } from "~/src/stores/settings";
 
 const COMMENT_SORT_OPTIONS: Option<CommentSortType, CommentSortType>[] = [
   {
@@ -43,8 +43,8 @@ function getIconForSort(sort: CommentSortType) {
 }
 
 export function ComentSortSelect() {
-  const commentSort = useSettings((s) => s.commentSort);
-  const setCommentSort = useSettings((s) => s.setCommentSort);
+  const commentSort = useSorts((s) => s.commentSort);
+  const setCommentSort = useSorts((s) => s.setCommentSort);
   return (
     <Select
       options={COMMENT_SORT_OPTIONS}
@@ -100,8 +100,8 @@ function getIconForPostSort(sort: PostSortType) {
 }
 
 export function PostSortSelect() {
-  const postSort = useSettings((s) => s.postSort);
-  const setPostSort = useSettings((s) => s.setPostSort);
+  const postSort = useSorts((s) => s.postSort);
+  const setPostSort = useSorts((s) => s.setPostSort);
   return (
     <Select
       options={POST_SORT_OPTIONS}

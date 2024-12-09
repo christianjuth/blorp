@@ -6,9 +6,9 @@ export function MainAppTemplate({ children }: { children: React.ReactNode }) {
   return (
     <View h="100%" dsp="flex" fd="row" $sm={{ dsp: "contents" }}>
       <View
-        w={320}
+        w={270}
         backgroundColor="$color1"
-        brc="$color7"
+        brc="$color5"
         brw={1}
         $sm={{ dsp: "none" }}
       >

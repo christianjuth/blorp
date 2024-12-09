@@ -6,7 +6,7 @@ import { abbriviateNumber } from "~/src/lib/format";
 export function Community({ communityView }: { communityView: CommunityView }) {
   const { community, counts } = communityView;
   return (
-    <Link href={`/communities/${community.id}`} key={community.id} asChild>
+    <Link href={`/c/${community.id}`} key={community.id} asChild>
       <XStack ai="center" gap="$2" tag="a" p="$2">
         <Avatar size="$3.5" borderRadius="$12">
           <Avatar.Image src={community.icon} />

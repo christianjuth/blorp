@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Image as RNImage, Platform } from "react-native";
 import { measureImage } from "../lib/lemmy";
 import { useTheme } from "tamagui";
-import Animated from "react-native-reanimated";
 
 export function Image({
   imageUrl,
@@ -20,7 +19,7 @@ export function Image({
       <img
         src={imageUrl}
         style={{
-          width: "100%",
+          flex: 1,
           borderRadius,
           borderWidth: 1,
           borderColor: theme.gray4.val,
@@ -60,7 +59,7 @@ export function Image({
       source={{ uri: imageUrl }}
       style={{
         aspectRatio: aspectRatio ?? 1,
-        width: "100%",
+        flex: 1,
         backgroundColor: theme.gray3.val,
         borderRadius,
         borderWidth: 1,

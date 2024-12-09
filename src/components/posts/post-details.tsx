@@ -12,9 +12,6 @@ export function PostDetail({ postView }: { postView: PostView }) {
 
   return (
     <View
-      maxWidth={750}
-      mx="auto"
-      w="100%"
       $sm={{
         px: "$2.5",
       }}
@@ -22,6 +19,7 @@ export function PostDetail({ postView }: { postView: PostView }) {
       bbc="$color5"
       bbw={1}
       gap="$2"
+      flex={1}
     >
       <Text fontWeight={500} fontSize="$8" lineHeight="$7">
         {postView.post.name}

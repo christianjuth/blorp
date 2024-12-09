@@ -29,7 +29,7 @@ function Nav() {
         }}
       />
       <Stack.Screen
-        name="communities/[communityId]/posts/[postId]"
+        name="c/[communityId]/posts/[postId]"
         options={{
           header: PostHeader,
           presentation: "containedTransparentModal",
