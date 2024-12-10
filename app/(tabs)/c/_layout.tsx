@@ -12,6 +12,9 @@ export default function Layout() {
         contentStyle: {
           backgroundColor: theme.color1.val,
         },
+        headerStyle: {
+          backgroundColor: theme.color1.val,
+        },
       }}
     >
       <Stack.Screen

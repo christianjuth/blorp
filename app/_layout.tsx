@@ -2,7 +2,7 @@ import "./_layout.css";
 import "./tamagui.css";
 
 import { LoadProgressBar } from "one";
-import { isWeb } from "tamagui";
+import { isWeb, View } from "tamagui";
 import { MainAppTemplate } from "~/src/components/main-app-template";
 import { Providers } from "~/src/components/providers";
 
