@@ -5,8 +5,7 @@ import { View, Text, Button, XStack } from "tamagui";
 import { ChevronLeft, X } from "@tamagui/lucide-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform, Image } from "react-native";
-import { useParams, useNavigation } from "one";
-import { useEffect } from "react";
+import { useParams } from "one";
 import { useCommunity } from "~/src/lib/lemmy";
 
 const useCustomHeaderHeight = () => {

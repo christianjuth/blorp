@@ -9809,9 +9809,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lemmy-try@workspace:.":
+"lemmy@workspace:.":
   version: 0.0.0-use.local
-  resolution: "lemmy-try@workspace:."
+  resolution: "lemmy@workspace:."
   dependencies:
     "@biomejs/biome": "npm:^1.8.3"
     "@jsamr/counter-style": "npm:^2.0.2"

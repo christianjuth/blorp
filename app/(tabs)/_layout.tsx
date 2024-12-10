@@ -1,17 +1,26 @@
 import { Tabs } from "one";
 import { Home, Users } from "@tamagui/lucide-icons";
-import { useShouldUseReactNavigation } from "~/src/lib/navigation";
 import { CommunityHeader } from "~/src/components/headers";
+import { useTheme, useMedia } from "tamagui";
 
 function Hide() {
   return null;
 }
 
 export default function Layout() {
-  const shouldUseTabView = useShouldUseReactNavigation();
+  const theme = useTheme();
+  const isLgScreen = useMedia().gtSm;
 
   return (
-    <Tabs tabBar={shouldUseTabView ? undefined : Hide}>
+    <Tabs
+      tabBar={isLgScreen ? Hide : undefined}
+      screenOptions={{
+        tabBarStyle: {
+          backgroundColor: theme.color1.val,
+          borderTopColor: theme.color4.val,
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
