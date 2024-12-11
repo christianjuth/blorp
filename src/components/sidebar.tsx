@@ -1,6 +1,7 @@
-import { YStack } from "tamagui";
+import { XStack, YStack, Text } from "tamagui";
 import { useListCommunities } from "~/src/lib/lemmy";
 import { Community } from "./community";
+import { Home, Users } from "@tamagui/lucide-icons";
 
 export function Sidebar() {
   const { data } = useListCommunities({
@@ -12,6 +13,11 @@ export function Sidebar() {
 
   return (
     <YStack>
+      <XStack>
+        <Home />
+        <Text>Home</Text>
+      </XStack>
+
       {communities?.map((view) => (
         <Community key={view.community.id} communityView={view} />
       ))}

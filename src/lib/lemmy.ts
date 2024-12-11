@@ -18,7 +18,7 @@ import {
   GetPostsResponse,
 } from "lemmy-js-client";
 import { Image as Image } from "react-native";
-import { useSorts } from "~/src/stores/settings";
+import { useSorts } from "~/src/stores/sorts";
 
 const imageAspectRatioCache = new Map<
   string,

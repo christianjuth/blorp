@@ -58,7 +58,7 @@ export function PostHeader(props: NativeStackHeaderProps) {
           </Button>
         )}
       </View>
-      <Text fontWeight="bold" fontSize="$5">
+      <Text fontWeight="bold" fontSize="$5" overflow="hidden">
         {props.options.title ?? "Post"}
       </Text>
       <View flex={1} flexBasis={0} ai="flex-end">
@@ -115,7 +115,7 @@ export function CommunityHeader(
             fd="row"
             ai="center"
             bw={0}
-            onPress={props.navigation.goBack}
+            onPress={() => props.navigation.pop(1)}
             h="auto"
           >
             <>
@@ -127,7 +127,7 @@ export function CommunityHeader(
           </Button>
         )}
       </View>
-      <Text fontWeight="bold" fontSize="$5">
+      <Text fontWeight="bold" fontSize="$5" overflow="hidden">
         {props.options.title ?? "Home"}
       </Text>
       <View flex={1} flexBasis={0} ai="flex-end">

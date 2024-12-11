@@ -1,6 +1,6 @@
 import { PostsFeed } from "../components/posts/posts-feed";
 import { usePosts } from "../lib/lemmy";
-import { useSorts } from "../stores/settings";
+import { useSorts } from "../stores/sorts";
 
 export function Feed({ communityId }: { communityId?: number }) {
   const postSort = useSorts((s) => s.postSort);

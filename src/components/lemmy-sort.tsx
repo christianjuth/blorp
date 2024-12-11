@@ -7,7 +7,7 @@ import {
   Sword,
   Hourglass,
 } from "@tamagui/lucide-icons";
-import { useSorts } from "~/src/stores/settings";
+import { useSorts } from "~/src/stores/sorts";
 
 const COMMENT_SORT_OPTIONS: Option<CommentSortType, CommentSortType>[] = [
   {
