@@ -16,7 +16,7 @@ export function PostsFeed({
 }: {
   posts: UseInfiniteQueryResult<InfiniteData<GetPostsResponse, unknown>, Error>;
 }) {
-  const { communityId } = useParams<{ communityId: string }>();
+  const { communityName } = useParams<{ communityName: string }>();
 
   const theme = useTheme();
 
@@ -37,8 +37,8 @@ export function PostsFeed({
         typeof item === "string" ? (
           <FeedGutters>
             <View flex={1} />
-            {communityId ? (
-              <Sidebar communityId={communityId} />
+            {communityName ? (
+              <Sidebar communityName={communityName} />
             ) : (
               <PopularCommunitiesSidebar />
             )}

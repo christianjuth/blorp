@@ -24,13 +24,13 @@ export function PostComments({
   commentViews,
   loadMore,
   opId,
-  communityId,
+  communityName,
 }: {
   postView: PostView;
   commentViews: CommentView[];
   loadMore: () => any;
   opId: number | undefined;
-  communityId?: string;
+  communityName?: string;
 }) {
   const theme = useTheme();
 
@@ -50,7 +50,11 @@ export function PostComments({
           return (
             <FeedGutters>
               <View flex={1} />
-              {communityId ? <Sidebar communityId={communityId} /> : <></>}
+              {communityName ? (
+                <Sidebar communityName={communityName} />
+              ) : (
+                <></>
+              )}
             </FeedGutters>
           );
         }
@@ -84,10 +88,10 @@ export function PostComments({
 
 export function Post({
   postId,
-  communityId,
+  communityName,
 }: {
   postId?: string;
-  communityId?: string;
+  communityName?: string;
 }) {
   const nav = useNavigation();
 
@@ -129,7 +133,7 @@ export function Post({
         }
       }}
       opId={postView?.creator.id}
-      communityId={communityId}
+      communityName={communityName}
     />
   );
 }

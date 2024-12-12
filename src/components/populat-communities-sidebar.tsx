@@ -1,6 +1,6 @@
 import { View, Text, XStack, ScrollView, Avatar, YStack } from "tamagui";
 import { Link } from "one";
-import { useListCommunities } from "~/src/lib/lemmy";
+import { createCommunitySlug, useListCommunities } from "~/src/lib/lemmy";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { useCustomHeaderHeight } from "~/src/components/headers";
@@ -16,9 +16,9 @@ function SmallComunityCard({
   communityView: CommunityView;
 }) {
   const { community, counts } = communityView;
-
+  const slug = createCommunitySlug(community);
   return (
-    <Link href={`/c/${community.id}`} key={community.id} asChild replace>
+    <Link href={`/c/${slug}`} asChild replace>
       <XStack ai="center" gap="$3" tag="a">
         <Avatar size="$2.5" borderRadius="$12">
           <Avatar.Image src={community.icon} />

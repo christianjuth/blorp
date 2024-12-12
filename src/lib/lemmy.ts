@@ -1,4 +1,5 @@
 import {
+  Community,
   GetCommunity,
   GetPosts,
   LemmyHttp,
@@ -19,6 +20,27 @@ import {
 } from "lemmy-js-client";
 import { Image as Image } from "react-native";
 import { useSorts } from "~/src/stores/sorts";
+import { useAuth } from "../stores/auth";
+
+function getLemmyServer({ actor_id }: { actor_id: string }) {
+  const server = new URL(actor_id);
+  return server.host;
+}
+
+export function createCommunitySlug(
+  community: Pick<Community, "actor_id" | "name">,
+) {
+  const server = getLemmyServer(community);
+  return `${community.name}@${server}`;
+}
+
+export function parseCommunitySlug(slug: string) {
+  const [communityName, lemmyServer] = slug.split("@");
+  return {
+    communityName,
+    lemmyServer,
+  };
+}
 
 const imageAspectRatioCache = new Map<
   string,
@@ -51,8 +73,18 @@ export async function measureImage(src: string) {
 }
 
 // Build the client
-const baseUrl = "https://lemmy.world";
-export const lemmy: LemmyHttp = new LemmyHttp(baseUrl);
+
+class Lemmy {
+  hosts: Map<string, LemmyHttp> = new Map();
+
+  getClient(baseUrl = "https://lemmy.world") {
+    if (!this.hosts.has(baseUrl)) {
+      this.hosts.set(baseUrl, new LemmyHttp(baseUrl));
+    }
+    return this.hosts.get(baseUrl)!;
+  }
+}
+const lemmy = new Lemmy();
 
 export function getPostFromCache(
   cache: InfiniteData<GetPostsResponse, unknown> | undefined,
@@ -91,7 +123,7 @@ export function usePost(form: GetPost) {
   return useQuery<Partial<GetPostResponse>>({
     queryKey,
     queryFn: async () => {
-      const res = await lemmy.getPost(form);
+      const res = await lemmy.getClient().getPost(form);
       if (res.post_view.post.thumbnail_url) {
         measureImage(res.post_view.post.thumbnail_url);
       }
@@ -112,8 +144,6 @@ export function usePost(form: GetPost) {
 }
 
 export function usePostComments(form: GetComments) {
-  const queryClient = useQueryClient();
-
   const commentSort = useSorts((s) => s.commentSort);
   const sort = form.sort ?? commentSort;
 
@@ -123,7 +153,7 @@ export function usePostComments(form: GetComments) {
     queryKey,
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
-      const { comments } = await lemmy.getComments({
+      const { comments } = await lemmy.getClient().getComments({
         ...form,
         limit,
         page: pageParam,
@@ -144,19 +174,16 @@ export function usePostComments(form: GetComments) {
       }
       return prev;
     },
-    // initialData: () => queryClient.getQueryData<any>(queryKey),
   });
 }
 
 export function usePosts(form: GetPosts) {
-  const queryClient = useQueryClient();
-
-  const queryKey = [`getPosts-${form.community_id ?? ""}-${form.sort}`];
+  const queryKey = [`getPosts-${form.community_name ?? ""}-${form.sort}`];
 
   return useInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await lemmy.getPosts({
+      const res = await lemmy.getClient().getPosts({
         ...form,
         page_cursor: pageParam === "init" ? undefined : pageParam,
       });
@@ -171,20 +198,17 @@ export function usePosts(form: GetPosts) {
     },
     getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: "init",
-    // initialData: () => queryClient.getQueryData<any>(queryKey),
   });
 }
 
 export function useListCommunities(form: ListCommunities) {
-  const queryClient = useQueryClient();
-
   const queryKey = ["listCommunities"];
 
   return useInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
-      const { communities } = await lemmy.listCommunities({
+      const { communities } = await lemmy.getClient().listCommunities({
         ...form,
         page: pageParam,
       });
@@ -195,24 +219,23 @@ export function useListCommunities(form: ListCommunities) {
     },
     getNextPageParam: (data) => data.nextPage,
     initialPageParam: 1,
-    // initialData: () => queryClient.getQueryData<any>(queryKey),
   });
 }
 
-export function useCommunity(form: { id?: string | number }) {
-  const queryClient = useQueryClient();
+export function useCommunity(form: { name?: string; instance?: string }) {
+  const instance = form.instance ?? useAuth().instance;
 
-  const queryKey = ["getCommunity", `getCommunity-${form.id}`];
+  const queryKey = ["getCommunity", `getCommunity-${instance}-${form.name}`];
 
   return useQuery({
     queryKey,
     queryFn: async () => {
-      const res = await lemmy.getCommunity({
-        id: +form.id!,
+      const res = await lemmy.getClient(instance).getCommunity({
+        // id: +form.id!,
+        name: form.name,
       });
       return res;
     },
-    enabled: !!form.id,
-    // initialData: () => queryClient.getQueryData<GetCommunity>(queryKey),
+    enabled: !!form.name,
   });
 }

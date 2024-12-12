@@ -4,7 +4,10 @@ import { persist } from "zustand/middleware";
 import { createStorage } from "./storage";
 import _ from "lodash";
 
-type CommunityPartial = Pick<Community, "name" | "id" | "title" | "icon">;
+type CommunityPartial = Pick<
+  Community,
+  "name" | "id" | "title" | "icon" | "actor_id"
+>;
 
 type RecentCommunityStore = {
   recentlyVisited: CommunityPartial[];
@@ -23,6 +26,7 @@ export const useRecentCommunities = create<RecentCommunityStore>()(
           "id",
           "title",
           "icon",
+          "actor_id",
         ]);
         const prev = get().recentlyVisited;
         const update = _.slice(

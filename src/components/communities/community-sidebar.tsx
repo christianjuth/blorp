@@ -1,5 +1,4 @@
 import { View, Text, XStack, YStack, ScrollView } from "tamagui";
-import { useParams } from "one";
 import { useCommunity } from "~/src/lib/lemmy";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -13,12 +12,12 @@ dayjs.extend(localizedFormat);
 
 export const COMMUNITY_SIDEBAR_WIDTH = 300;
 
-export function Sidebar({ communityId }: { communityId: string | number }) {
+export function Sidebar({ communityName }: { communityName: string }) {
   const header = useCustomHeaderHeight();
   const dimensions = useWindowDimensions();
 
   const { data } = useCommunity({
-    id: communityId,
+    name: communityName,
   });
 
   if (!data) {

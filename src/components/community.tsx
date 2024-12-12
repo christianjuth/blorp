@@ -2,12 +2,13 @@ import { CommunityView } from "lemmy-js-client";
 import { Text, YStack, Avatar, XStack } from "tamagui";
 import { Link } from "one";
 import { abbriviateNumber } from "~/src/lib/format";
+import { createCommunitySlug } from "../lib/lemmy";
 
 export function Community({ communityView }: { communityView: CommunityView }) {
   const { community, counts } = communityView;
-
+  const slug = createCommunitySlug(community);
   return (
-    <Link href={`/c/${community.id}`} key={community.id} asChild push>
+    <Link href={`/c/${slug}`} asChild push>
       <XStack ai="center" gap="$2" tag="a" p="$2">
         <Avatar size="$3.5" borderRadius="$12">
           <Avatar.Image src={community.icon} />

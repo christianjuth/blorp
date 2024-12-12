@@ -7,10 +7,10 @@ import { useRecentCommunities } from "~/src/stores/recent-communities";
 export default function Community() {
   const nav = useNavigation();
 
-  const { communityId } = useParams<{ communityId: string }>();
+  const { communityName } = useParams<{ communityName: string }>();
 
   const community = useCommunity({
-    id: communityId ? +communityId : undefined,
+    name: communityName,
   });
 
   const updateRecent = useRecentCommunities((s) => s.update);
@@ -27,7 +27,7 @@ export default function Community() {
     nav.setOptions({ title: communityTitle ?? "" });
   }, [communityTitle]);
 
-  return <Feed communityId={communityId ? +communityId : undefined} />;
+  return <Feed communityName={communityName} />;
 }
 export async function generateStaticParams() {
   return [];

@@ -4,14 +4,16 @@ import { Link } from "one";
 import * as routes from "~/src/lib/routes";
 import { useRecentCommunities } from "../stores/recent-communities";
 import { Community } from "lemmy-js-client";
+import { createCommunitySlug } from "../lib/lemmy";
 
 function SmallComunityCard({
   community,
 }: {
-  community: Pick<Community, "icon" | "title" | "name" | "id">;
+  community: Pick<Community, "icon" | "title" | "name" | "id" | "actor_id">;
 }) {
+  const slug = createCommunitySlug(community);
   return (
-    <Link href={`/c/${community.id}`} key={community.id} asChild replace>
+    <Link href={`/c/${slug}`} key={community.id} asChild replace>
       <XStack ai="center" gap="$2" tag="a">
         <Avatar size="$2.5" borderRadius="$12">
           <Avatar.Image src={community.icon} />

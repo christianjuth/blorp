@@ -4,14 +4,14 @@ import { PostView } from "lemmy-js-client";
 import { Voting } from "./post-buttons";
 import { Link } from "one";
 import { Byline } from "../byline";
+import { createCommunitySlug } from "~/src/lib/lemmy";
 
 export function PostCard({ postView }: { postView: PostView }) {
   const { post, creator, community, counts } = postView;
-  const server = new URL(post.ap_id);
   const thumbnail = post?.thumbnail_url;
-
+  const slug = createCommunitySlug(community);
   return (
-    <Link href={`/c/${community.id}/posts/${post.id}`} asChild>
+    <Link href={`/c/${slug}/posts/${post.id}`} asChild>
       <YStack
         py="$4"
         gap="$2"

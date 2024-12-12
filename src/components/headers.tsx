@@ -71,10 +71,10 @@ export function PostHeader(props: NativeStackHeaderProps) {
 export function CommunityHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
-  const { communityId } = useParams<{ communityId: string }>();
+  const { communityName } = useParams<{ communityName: string }>();
 
   const community = useCommunity({
-    id: communityId,
+    name: communityName,
   });
 
   const { height, insetTop } = useCustomHeaderHeight();

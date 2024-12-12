@@ -4,10 +4,10 @@ import { useCommunity } from "~/src/lib/lemmy";
 import { View } from "tamagui";
 
 export function CommunityBanner() {
-  const { communityId } = useParams<{ communityId: string }>();
+  const { communityName } = useParams<{ communityName: string }>();
 
   const { data, isLoading } = useCommunity({
-    id: communityId,
+    name: communityName,
   });
 
   const banner = data?.community_view.community.banner;
