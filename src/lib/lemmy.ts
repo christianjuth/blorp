@@ -21,6 +21,7 @@ import {
 import { Image as Image } from "react-native";
 import { useSorts } from "~/src/stores/sorts";
 import { useAuth } from "../stores/auth";
+import { useMemo } from "react";
 
 function getLemmyServer({ actor_id }: { actor_id: string }) {
   const server = new URL(actor_id);
@@ -105,7 +106,9 @@ export function getPostFromCache(
   return undefined;
 }
 
-export function usePost(form: GetPost) {
+export function usePost(form: { id?: string; communityName?: string }) {
+  const postId = form.id ? +form.id : undefined;
+
   const queryClient = useQueryClient();
 
   const postSort = useSorts((s) => s.postSort);
@@ -116,30 +119,38 @@ export function usePost(form: GetPost) {
 
   const cachedPosts2 = queryClient.getQueryData<
     InfiniteData<GetPostsResponse, unknown>
-  >([`getPosts-${form.comment_id}-${postSort}`]);
+  >([`getPosts-${form.communityName}-${postSort}`]);
 
   const queryKey = ["getPost", `getPost-${form.id}`];
+
+  const prevData = queryClient.getQueryData<GetPostResponse>(queryKey);
+  const fromCache = {
+    post_view:
+      getPostFromCache(cachedPosts, postId) ??
+      getPostFromCache(cachedPosts2, postId),
+  };
+
+  const initialData = useMemo(
+    () => ({
+      ...prevData,
+      post_view: prevData?.post_view ?? fromCache.post_view,
+    }),
+    [prevData, fromCache],
+  );
 
   return useQuery<Partial<GetPostResponse>>({
     queryKey,
     queryFn: async () => {
-      const res = await lemmy.getClient().getPost(form);
+      const res = await lemmy.getClient().getPost({
+        id: postId,
+      });
       if (res.post_view.post.thumbnail_url) {
         measureImage(res.post_view.post.thumbnail_url);
       }
       return res;
     },
     enabled: !!form.id,
-    initialData: () => {
-      const prev = queryClient.getQueryData<GetPostResponse>(queryKey);
-      return (
-        prev ?? {
-          post_view:
-            getPostFromCache(cachedPosts, form.id) ??
-            getPostFromCache(cachedPosts2, form.id),
-        }
-      );
-    },
+    initialData,
   });
 }
 

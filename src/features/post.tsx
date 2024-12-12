@@ -96,7 +96,8 @@ export function Post({
   const nav = useNavigation();
 
   const { data } = usePost({
-    id: postId ? parseInt(postId) : undefined,
+    id: postId,
+    communityName,
   });
 
   const comments = usePostComments({
