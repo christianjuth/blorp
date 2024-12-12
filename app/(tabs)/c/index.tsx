@@ -6,7 +6,7 @@ export default function Communities() {
   const { data, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useListCommunities({
       limit: 50,
-      sort: "TopDay",
+      sort: "TopWeek",
     });
 
   const communities = data?.pages.map((p) => p.communities).flat();

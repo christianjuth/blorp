@@ -213,7 +213,10 @@ export function usePosts(form: GetPosts) {
 }
 
 export function useListCommunities(form: ListCommunities) {
-  const queryKey = ["listCommunities"];
+  const queryKey = [
+    "listCommunities",
+    `useListCommunities-${form.sort}-${form.limit}`,
+  ];
 
   return useInfiniteQuery({
     queryKey,

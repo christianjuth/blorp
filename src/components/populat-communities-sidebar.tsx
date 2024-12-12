@@ -31,7 +31,6 @@ function SmallComunityCard({
             <Text fontSize="$4">{community.title.substring(0, 1)}</Text>
           </Avatar.Fallback>
         </Avatar>
-
         <YStack gap="$0.5">
           <Text fontSize="$3.5">c/{community.name}</Text>
           <Text fontSize="$3" color="$color10">
@@ -48,7 +47,7 @@ export function PopularCommunitiesSidebar() {
   const dimensions = useWindowDimensions();
 
   const { data } = useListCommunities({
-    sort: "TopAll",
+    sort: "TopWeek",
     limit: 20,
   });
 
