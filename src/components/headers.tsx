@@ -77,6 +77,8 @@ export function CommunityHeader(
     name: communityName,
   });
 
+  console.log(props);
+
   const { height, insetTop } = useCustomHeaderHeight();
   return (
     <XStack
@@ -106,7 +108,7 @@ export function CommunityHeader(
       </View>
 
       <View flex={1} flexBasis={0} ai="flex-start">
-        {"back" in props && (
+        {"back" in props && props.back && (
           <Button
             unstyled
             p={0}
