@@ -86,8 +86,10 @@ export function usePost(form: GetPost) {
     InfiniteData<GetPostsResponse, unknown>
   >([`getPosts-${form.comment_id}-${postSort}`]);
 
+  const queryKey = ["getPost", `getPost-${form.id}`];
+
   return useQuery<Partial<GetPostResponse>>({
-    queryKey: ["getPost", `getPost-${form.id}`],
+    queryKey,
     queryFn: async () => {
       const res = await lemmy.getPost(form);
       if (res.post_view.post.thumbnail_url) {
@@ -96,19 +98,29 @@ export function usePost(form: GetPost) {
       return res;
     },
     enabled: !!form.id,
-    initialData: () => ({
-      post_view:
-        getPostFromCache(cachedPosts, form.id) ??
-        getPostFromCache(cachedPosts2, form.id),
-    }),
+    initialData: () => {
+      const prev = queryClient.getQueryData<GetPostResponse>(queryKey);
+      return (
+        prev ?? {
+          post_view:
+            getPostFromCache(cachedPosts, form.id) ??
+            getPostFromCache(cachedPosts2, form.id),
+        }
+      );
+    },
   });
 }
 
 export function usePostComments(form: GetComments) {
+  const queryClient = useQueryClient();
+
   const commentSort = useSorts((s) => s.commentSort);
   const sort = form.sort ?? commentSort;
+
+  const queryKey = ["getComments", `getComments-${sort}-${form.post_id}`];
+
   return useInfiniteQuery({
-    queryKey: ["getComments", `getComments-${sort}-${form.post_id}`],
+    queryKey,
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
       const { comments } = await lemmy.getComments({
@@ -132,12 +144,17 @@ export function usePostComments(form: GetComments) {
       }
       return prev;
     },
+    // initialData: () => queryClient.getQueryData<any>(queryKey),
   });
 }
 
 export function usePosts(form: GetPosts) {
+  const queryClient = useQueryClient();
+
+  const queryKey = [`getPosts-${form.community_id ?? ""}-${form.sort}`];
+
   return useInfiniteQuery({
-    queryKey: [`getPosts-${form.community_id ?? ""}-${form.sort}`],
+    queryKey,
     queryFn: async ({ pageParam }) => {
       const res = await lemmy.getPosts({
         ...form,
@@ -154,12 +171,17 @@ export function usePosts(form: GetPosts) {
     },
     getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: "init",
+    // initialData: () => queryClient.getQueryData<any>(queryKey),
   });
 }
 
 export function useListCommunities(form: ListCommunities) {
+  const queryClient = useQueryClient();
+
+  const queryKey = ["listCommunities"];
+
   return useInfiniteQuery({
-    queryKey: ["listCommunities"],
+    queryKey,
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
       const { communities } = await lemmy.listCommunities({
@@ -173,12 +195,17 @@ export function useListCommunities(form: ListCommunities) {
     },
     getNextPageParam: (data) => data.nextPage,
     initialPageParam: 1,
+    // initialData: () => queryClient.getQueryData<any>(queryKey),
   });
 }
 
 export function useCommunity(form: { id?: string | number }) {
+  const queryClient = useQueryClient();
+
+  const queryKey = ["getCommunity", `getCommunity-${form.id}`];
+
   return useQuery({
-    queryKey: ["getCommunity", `getCommunity-${form.id}`],
+    queryKey,
     queryFn: async () => {
       const res = await lemmy.getCommunity({
         id: +form.id!,
@@ -186,5 +213,6 @@ export function useCommunity(form: { id?: string | number }) {
       return res;
     },
     enabled: !!form.id,
+    // initialData: () => queryClient.getQueryData<GetCommunity>(queryKey),
   });
 }

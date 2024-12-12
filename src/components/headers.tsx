@@ -8,7 +8,7 @@ import { Platform, Image } from "react-native";
 import { useParams } from "one";
 import { useCommunity } from "~/src/lib/lemmy";
 
-const useCustomHeaderHeight = () => {
+export const useCustomHeaderHeight = () => {
   const insets = useSafeAreaInsets();
 
   // Default header heights based on platform

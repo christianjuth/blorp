@@ -24,7 +24,7 @@ export function MainAppTemplate({ children }: { children: React.ReactNode }) {
         >
           <ScrollView>
             <SafeAreaView>
-              <View p="$3">
+              <View p="$5">
                 <Sidebar />
               </View>
             </SafeAreaView>

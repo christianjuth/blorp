@@ -4928,7 +4928,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.61.5":
+"@tanstack/query-persist-client-core@npm:5.61.5":
+  version: 5.61.5
+  resolution: "@tanstack/query-persist-client-core@npm:5.61.5"
+  dependencies:
+    "@tanstack/query-core": "npm:5.61.5"
+  checksum: 10c0/7d384a6b403e6858c62b72c0e273ef131bf1c789f9b8e368396033e53d9267bd59061960bb32da9d51e726c0ae3b35d5bff758edbbbde1a98b4b5838102770d2
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query-persist-client@npm:5.61.5":
+  version: 5.61.5
+  resolution: "@tanstack/react-query-persist-client@npm:5.61.5"
+  dependencies:
+    "@tanstack/query-persist-client-core": "npm:5.61.5"
+  peerDependencies:
+    "@tanstack/react-query": ^5.61.5
+    react: ^18 || ^19
+  checksum: 10c0/8f01f5a8f2952989ad1b0fa386f1c4937d79fae3e56c3322a5d2aa9e510bab337df3a208d6572515a92e7b8d2a47947c09c37a69f1924c44019c127eec1d4122
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:5.61.5":
   version: 5.61.5
   resolution: "@tanstack/react-query@npm:5.61.5"
   dependencies:
@@ -8839,6 +8860,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"idb@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "idb@npm:8.0.0"
+  checksum: 10c0/d27547e03939d3d269cea38c3d4528569621ec134c717ebfc1ff816dce18e4f77372dba1d930384a9949ac56dc600e3790f98f1812a4164004e71fec302ee491
+  languageName: node
+  linkType: hard
+
 "ieee754@npm:^1.1.13":
   version: 1.2.1
   resolution: "ieee754@npm:1.2.1"
@@ -9827,7 +9855,8 @@ __metadata:
     "@tamagui/react-native-media-driver": "npm:1.117.0"
     "@tamagui/shorthands": "npm:1.117.0"
     "@tamagui/vite-plugin": "npm:1.117.0"
-    "@tanstack/react-query": "npm:^5.61.5"
+    "@tanstack/react-query": "npm:5.61.5"
+    "@tanstack/react-query-persist-client": "npm:5.61.5"
     "@tanstack/react-virtual": "npm:^3.10.9"
     "@types/lodash": "npm:^4.17.13"
     "@types/react": "npm:^18.3.11"
@@ -9836,6 +9865,7 @@ __metadata:
     expo: "npm:~51.0.39"
     expo-modules-core: "npm:^1.12.24"
     expo-system-ui: "npm:~3.0.7"
+    idb: "npm:^8.0.0"
     lemmy-js-client: "npm:0.20.0-pkce.1"
     lodash: "npm:^4.17.21"
     markdown-to-jsx: "npm:^7.7.0"

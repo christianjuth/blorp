@@ -6,6 +6,8 @@ import { FlatList } from "react-native";
 import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { CommunityBanner } from "../communities/community-banner";
 import { FeedGutters } from "../feed-gutters";
+import { useParams } from "one";
+import { PopularCommunitiesSidebar } from "../populat-communities-sidebar";
 
 const EMPTY_ARR = [];
 
@@ -14,6 +16,8 @@ export function PostsFeed({
 }: {
   posts: UseInfiniteQueryResult<InfiniteData<GetPostsResponse, unknown>, Error>;
 }) {
+  const { communityId } = useParams<{ communityId: string }>();
+
   const theme = useTheme();
 
   const {
@@ -33,7 +37,11 @@ export function PostsFeed({
         typeof item === "string" ? (
           <FeedGutters>
             <View flex={1} />
-            <Sidebar />
+            {communityId ? (
+              <Sidebar communityId={communityId} />
+            ) : (
+              <PopularCommunitiesSidebar />
+            )}
           </FeedGutters>
         ) : (
           <FeedGutters>
@@ -61,7 +69,7 @@ export function PostsFeed({
         }
       }}
       ListHeaderComponent={() => (
-        <FeedGutters pt="$2.5">
+        <FeedGutters>
           <CommunityBanner />
         </FeedGutters>
       )}

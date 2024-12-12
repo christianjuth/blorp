@@ -13,10 +13,10 @@ export function PostCard({ postView }: { postView: PostView }) {
   return (
     <Link href={`/c/${community.id}/posts/${post.id}`} asChild>
       <YStack
-        py="$2.5"
+        py="$4"
         gap="$2"
         bbc="$color5"
-        bbw={2}
+        bbw={1}
         tag="a"
         mx="auto"
         flex={1}

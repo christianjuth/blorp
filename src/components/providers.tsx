@@ -2,8 +2,30 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TamaguiProvider } from "tamagui";
 import { useColorScheme } from "react-native";
 import config from "~/config/tamagui/tamagui.config";
+import { persistQueryClient } from "@tanstack/react-query-persist-client";
+import { createStoragePersister } from "./query-storage";
 
-const queryClient = new QueryClient();
+const ONE_WEEK = 1000 * 60 * 24 * 7;
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // gcTime: ONE_WEEK,
+      gcTime: Infinity,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: false,
+      networkMode: "online",
+    },
+  },
+});
+
+(async () => {
+  const persister = await createStoragePersister();
+  persistQueryClient({
+    queryClient,
+    persister,
+  });
+})();
 
 const TamaguiRootProvider = ({ children }: { children: React.ReactNode }) => {
   const scheme = useColorScheme();
