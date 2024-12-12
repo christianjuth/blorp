@@ -8,6 +8,8 @@ import { CommunityBanner } from "../communities/community-banner";
 import { FeedGutters } from "../feed-gutters";
 import { useParams } from "one";
 import { PopularCommunitiesSidebar } from "../populat-communities-sidebar";
+import { useScrollToTop } from "@react-navigation/native";
+import { useRef } from "react";
 
 const EMPTY_ARR = [];
 
@@ -16,6 +18,9 @@ export function PostsFeed({
 }: {
   posts: UseInfiniteQueryResult<InfiniteData<GetPostsResponse, unknown>, Error>;
 }) {
+  const ref = useRef(null);
+  useScrollToTop(ref);
+
   const { communityName } = useParams<{ communityName: string }>();
 
   const theme = useTheme();
@@ -32,6 +37,7 @@ export function PostsFeed({
 
   return (
     <FlatList
+      ref={ref}
       data={["sidebar", ...data]}
       renderItem={({ item }) =>
         typeof item === "string" ? (

@@ -37,15 +37,15 @@ export function Sidebar() {
 
   return (
     <YStack gap="$3" py="$2">
-      <Link href={routes.home}>
-        <XStack ai="center" gap="$2">
+      <Link href={routes.home} replace asChild>
+        <XStack ai="center" gap="$2" tag="a">
           <Home />
           <Text>Home</Text>
         </XStack>
       </Link>
 
-      <Link href={routes.communities}>
-        <XStack ai="center" gap="$2">
+      <Link href={routes.communities} replace asChild>
+        <XStack ai="center" gap="$2" tag="a">
           <Users />
           <Text>Communities</Text>
         </XStack>

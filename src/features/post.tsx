@@ -14,6 +14,8 @@ import { memo, useMemo } from "react";
 import { useTheme, View } from "tamagui";
 import _ from "lodash";
 import { FlatList } from "react-native";
+import { useScrollToTop } from "@react-navigation/native";
+import { useRef } from "react";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -32,6 +34,9 @@ export function PostComments({
   opId: number | undefined;
   communityName?: string;
 }) {
+  const ref = useRef(null);
+  useScrollToTop(ref);
+
   const theme = useTheme();
 
   const structured = useMemo(() => {
@@ -44,6 +49,7 @@ export function PostComments({
 
   return (
     <FlatList
+      ref={ref}
       data={["sidebar", "post", ...structured.topLevelItems] as const}
       renderItem={({ item }) => {
         if (item === "sidebar") {
