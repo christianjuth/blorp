@@ -1,3 +1,5 @@
 export const home = "/";
 
-export const communities = "/c";
+export const communities = "/communities";
+
+export const auth = "/auth";

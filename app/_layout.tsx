@@ -2,13 +2,13 @@ import "./_layout.css";
 import "./tamagui.css";
 
 import { LoadProgressBar } from "one";
-import { isWeb, View } from "tamagui";
+import { isWeb } from "tamagui";
 import { MainAppTemplate } from "~/src/components/main-app-template";
 import { Providers } from "~/src/components/providers";
 
 import { Stack } from "one";
 import { useTheme } from "tamagui";
-import { PostHeader } from "~/src/components/headers";
+import { ModalHeader, PostHeader } from "~/src/components/headers";
 
 function Nav() {
   const theme = useTheme();
@@ -33,11 +33,21 @@ function Nav() {
         options={{
           header: PostHeader,
           presentation: "containedTransparentModal",
-          animation: "fade",
+          animation: "slide_from_bottom",
+          // animation: "fade",
           gestureDirection: "horizontal",
         }}
       />
-      <Stack.Screen name="auth" />
+      <Stack.Screen
+        name="auth"
+        options={{
+          presentation: "containedTransparentModal",
+          animation: "slide_from_bottom",
+          header: ModalHeader,
+          headerTitle: "Auth",
+          title: "Auth",
+        }}
+      />
     </Stack>
   );
 }

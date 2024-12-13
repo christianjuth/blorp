@@ -1,5 +1,11 @@
 import { XStack, YStack, Text, View, Avatar } from "tamagui";
-import { Home, Users } from "@tamagui/lucide-icons";
+import {
+  Home,
+  Users,
+  Plus,
+  MessageCircleMore,
+  Bell,
+} from "@tamagui/lucide-icons";
 import { Link } from "one";
 import * as routes from "~/src/lib/routes";
 import { useRecentCommunities } from "../stores/recent-communities";
@@ -48,6 +54,27 @@ export function Sidebar() {
         <XStack ai="center" gap="$2" tag="a">
           <Users />
           <Text>Communities</Text>
+        </XStack>
+      </Link>
+
+      <Link href={routes.communities} replace asChild>
+        <XStack ai="center" gap="$2" tag="a">
+          <Plus />
+          <Text>Create</Text>
+        </XStack>
+      </Link>
+
+      <Link href={routes.communities} replace asChild>
+        <XStack ai="center" gap="$2" tag="a">
+          <MessageCircleMore />
+          <Text>Chat</Text>
+        </XStack>
+      </Link>
+
+      <Link href={routes.communities} replace asChild>
+        <XStack ai="center" gap="$2" tag="a">
+          <Bell />
+          <Text>Inbox</Text>
         </XStack>
       </Link>
 

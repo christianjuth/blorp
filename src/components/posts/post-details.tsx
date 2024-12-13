@@ -29,7 +29,7 @@ export function PostDetail({ postView }: { postView: PostView }) {
 
       <Byline
         avatar={postView.community.icon}
-        author={postView.community.name}
+        author={postView.creator.name}
         publishedDate={post.published}
         comunityName={postView.community.name}
       />

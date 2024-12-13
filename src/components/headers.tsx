@@ -77,8 +77,6 @@ export function CommunityHeader(
     name: communityName,
   });
 
-  console.log(props);
-
   const { height, insetTop } = useCustomHeaderHeight();
   return (
     <XStack
@@ -135,6 +133,46 @@ export function CommunityHeader(
       <View flex={1} flexBasis={0} ai="flex-end">
         <PostSortSelect />
       </View>
+    </XStack>
+  );
+}
+
+export function ModalHeader(props: NativeStackHeaderProps) {
+  const { height, insetTop } = useCustomHeaderHeight();
+  return (
+    <XStack
+      bg="$color1"
+      bbc="$color4"
+      bbw={1}
+      btw={0}
+      btc="transparent"
+      w="unset"
+      px="$3"
+      ai="center"
+      pt={insetTop}
+      h={height - 1}
+    >
+      <View flex={1} flexBasis={0} ai="flex-start">
+        {props.back && (
+          <Button
+            unstyled
+            p={0}
+            bg="transparent"
+            dsp="flex"
+            fd="row"
+            ai="center"
+            bw={0}
+            onPress={props.navigation.goBack}
+            h="auto"
+          >
+            <X color="$accentColor" />
+          </Button>
+        )}
+      </View>
+      <Text fontWeight="bold" fontSize="$5" overflow="hidden">
+        {props.options.title}
+      </Text>
+      <View flex={1} flexBasis={0} ai="flex-end"></View>
     </XStack>
   );
 }

@@ -18,14 +18,14 @@ export default function Layout() {
       }}
     >
       <Stack.Screen
-        name="index"
+        name="communities/index"
         options={{
           title: "Communities",
         }}
       />
 
       <Stack.Screen
-        name="[communityName]/index"
+        name="c/[communityName]/index"
         options={{
           title: "loading...",
           header: CommunityHeader,

@@ -16,6 +16,7 @@ import _ from "lodash";
 import { FlatList } from "react-native";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -34,6 +35,8 @@ export function PostComments({
   opId: number | undefined;
   communityName?: string;
 }) {
+  const insets = useSafeAreaInsets();
+
   const ref = useRef(null);
   useScrollToTop(ref);
 
@@ -88,6 +91,9 @@ export function PostComments({
         backgroundColor: theme.color1.val,
       }}
       stickyHeaderIndices={[0]}
+      contentInset={{
+        bottom: insets.bottom,
+      }}
     />
   );
 }

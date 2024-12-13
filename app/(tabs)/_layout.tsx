@@ -1,5 +1,11 @@
 import { Tabs } from "one";
-import { Home, Users } from "@tamagui/lucide-icons";
+import {
+  Home,
+  Users,
+  Plus,
+  MessageCircleMore,
+  Bell,
+} from "@tamagui/lucide-icons";
 import { CommunityHeader } from "~/src/components/headers";
 import { useTheme, useMedia } from "tamagui";
 
@@ -31,11 +37,35 @@ export default function Layout() {
       />
 
       <Tabs.Screen
-        name="c"
+        name="(stack)"
         options={{
           title: "Communities",
           tabBarIcon: ({ color }) => <Users color={color} />,
           headerShown: false,
+        }}
+      />
+
+      <Tabs.Screen
+        name="create"
+        options={{
+          title: "Create",
+          tabBarIcon: ({ color }) => <Plus color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: "Chat",
+          tabBarIcon: ({ color }) => <MessageCircleMore color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="inbox"
+        options={{
+          title: "Inbox",
+          tabBarIcon: ({ color }) => <Bell color={color} />,
         }}
       />
     </Tabs>
