@@ -7032,7 +7032,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dequal@npm:2.0.3, dequal@npm:^2.0.0":
+"dequal@npm:^2.0.0":
   version: 2.0.3
   resolution: "dequal@npm:2.0.3"
   checksum: 10c0/f98860cdf58b64991ae10205137c0e97d384c3a4edc7f807603887b7c4b850af1224a33d88012009f150861cbee4fa2d322c4cc04b9313bee312e47f6ecaa888
@@ -9914,8 +9914,6 @@ __metadata:
     react: "npm:^18.3.1"
     react-markdown: "npm:^9.0.1"
     react-native: "npm:0.74.5"
-    react-native-collapsible-tab-view: "npm:^8.0.0"
-    react-native-pager-view: "npm:^6.6.1"
     react-native-reanimated: "npm:~3.10.1"
     react-native-safe-area-context: "npm:4.10.5"
     react-native-screens: "npm:3.31.1"
@@ -12533,24 +12531,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-collapsible-tab-view@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "react-native-collapsible-tab-view@npm:8.0.0"
-  dependencies:
-    use-deep-compare: "npm:^1.1.0"
-  peerDependencies:
-    "@shopify/flash-list": ">=1.0.0"
-    react: "*"
-    react-native: "*"
-    react-native-pager-view: "*"
-    react-native-reanimated: ">=3.8.1"
-  peerDependenciesMeta:
-    "@shopify/flash-list":
-      optional: true
-  checksum: 10c0/967299ea6e667015bfa6f606b1d3822b0b64db8e8c9919abc87bf42be2bd7d806debc156832fcc332267d26904981a489e86bd221747d4f3cc0e90d73ce20881
-  languageName: node
-  linkType: hard
-
 "react-native-gesture-handler@npm:^2.18.1":
   version: 2.21.2
   resolution: "react-native-gesture-handler@npm:2.21.2"
@@ -12563,16 +12543,6 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10c0/4eca796efe9e55f312f332c07eee76adf0b29971945b72856d375f7e9a6f21a7ef5363d707b71d030c5ebccc0a3cf085713ee0365c14bc538f2f918a87986e36
-  languageName: node
-  linkType: hard
-
-"react-native-pager-view@npm:^6.6.1":
-  version: 6.6.1
-  resolution: "react-native-pager-view@npm:6.6.1"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: 10c0/31dfc7aea625b749e182073a5416b6cd7501289a38effd0631cfa9f938b51dee7bb2f57d66a31a407f2bb15742b90a9520bfeb59d9881e8fbb0681a73ddcd89f
   languageName: node
   linkType: hard
 
@@ -14795,17 +14765,6 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 10c0/d232c37160fe3970c99255da19b5fb5299fb5926a5d6141d928a87feb47732c323d29be2f8137d3b1e5499c70d284cd1d9cfad703cc58179db8be24d7dd8f1f2
-  languageName: node
-  linkType: hard
-
-"use-deep-compare@npm:^1.1.0":
-  version: 1.3.0
-  resolution: "use-deep-compare@npm:1.3.0"
-  dependencies:
-    dequal: "npm:2.0.3"
-  peerDependencies:
-    react: ">=16.8.0"
-  checksum: 10c0/4d78970793622dc4e6d3edcd0097df28a59168cbae07a8340578ac8d1bae790760be658b0e290d230281687b996e9711180b2e6311b131721a5d3b9562e828dd
   languageName: node
   linkType: hard
 
