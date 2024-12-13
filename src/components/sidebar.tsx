@@ -57,21 +57,21 @@ export function Sidebar() {
         </XStack>
       </Link>
 
-      <Link href={routes.communities} replace asChild>
+      <Link href={routes.create} replace asChild>
         <XStack ai="center" gap="$2" tag="a">
           <Plus />
           <Text>Create</Text>
         </XStack>
       </Link>
 
-      <Link href={routes.communities} replace asChild>
+      <Link href={routes.chat} replace asChild>
         <XStack ai="center" gap="$2" tag="a">
           <MessageCircleMore />
           <Text>Chat</Text>
         </XStack>
       </Link>
 
-      <Link href={routes.communities} replace asChild>
+      <Link href={routes.inbox} replace asChild>
         <XStack ai="center" gap="$2" tag="a">
           <Bell />
           <Text>Inbox</Text>

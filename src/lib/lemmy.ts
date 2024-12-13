@@ -1,5 +1,6 @@
 import {
   Community,
+  CreatePostLike,
   GetCommunity,
   GetPosts,
   LemmyHttp,
@@ -11,6 +12,7 @@ import {
   useInfiniteQuery,
   InfiniteData,
   useQueryClient,
+  useMutation,
 } from "@tanstack/react-query";
 import {
   GetComments,
@@ -87,6 +89,21 @@ class Lemmy {
 }
 const lemmy = new Lemmy();
 
+function useLemmyClient() {
+  const jwt = useAuth((s) => s.jwt);
+  const instance = useAuth((s) => s.instance);
+
+  return useMemo(() => {
+    const client = new LemmyHttp(instance);
+
+    if (jwt) {
+      client.setHeaders({ Authorization: `Bearer ${jwt}` });
+    }
+
+    return client;
+  }, []);
+}
+
 export function getPostFromCache(
   cache: InfiniteData<GetPostsResponse, unknown> | undefined,
   postId: number | undefined,
@@ -107,6 +124,8 @@ export function getPostFromCache(
 }
 
 export function usePost(form: { id?: string; communityName?: string }) {
+  const client = useLemmyClient();
+
   const postId = form.id ? +form.id : undefined;
 
   const queryClient = useQueryClient();
@@ -121,7 +140,7 @@ export function usePost(form: { id?: string; communityName?: string }) {
     InfiniteData<GetPostsResponse, unknown>
   >([`getPosts-${form.communityName}-${postSort}`]);
 
-  const queryKey = ["getPost", `getPost-${form.id}`];
+  const queryKey = ["getPost", form.id];
 
   const prevData = queryClient.getQueryData<GetPostResponse>(queryKey);
   const fromCache = {
@@ -141,7 +160,7 @@ export function usePost(form: { id?: string; communityName?: string }) {
   return useQuery<Partial<GetPostResponse>>({
     queryKey,
     queryFn: async () => {
-      const res = await lemmy.getClient().getPost({
+      const res = await client.getPost({
         id: postId,
       });
       if (res.post_view.post.thumbnail_url) {
@@ -189,12 +208,14 @@ export function usePostComments(form: GetComments) {
 }
 
 export function usePosts(form: GetPosts) {
+  const client = useLemmyClient();
+
   const queryKey = [`getPosts-${form.community_name ?? ""}-${form.sort}`];
 
   return useInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await lemmy.getClient().getPosts({
+      const res = await client.getPosts({
         ...form,
         page_cursor: pageParam === "init" ? undefined : pageParam,
       });
@@ -235,7 +256,6 @@ export function useListCommunities(form: ListCommunities) {
     initialPageParam: 1,
   });
 }
-
 export function useCommunity(form: { name?: string; instance?: string }) {
   const instance = form.instance ?? useAuth().instance;
 
@@ -251,5 +271,41 @@ export function useCommunity(form: { name?: string; instance?: string }) {
       return res;
     },
     enabled: !!form.name,
+  });
+}
+
+export function useLogin() {
+  const client = useLemmyClient();
+
+  const setJwt = useAuth((s) => s.setJwt);
+
+  return useMutation({
+    mutationFn: async (form: Login) => {
+      const res = await client.login(form);
+      if (res.jwt) {
+        setJwt(res.jwt);
+        if (res.jwt) {
+          client.setHeaders({ Authorization: `Bearer ${res.jwt}` });
+        }
+      }
+      return res;
+    },
+  });
+}
+
+export function useVote() {
+  const queryClient = useQueryClient();
+  const client = useLemmyClient();
+
+  return useMutation({
+    mutationFn: async (form: CreatePostLike) => {
+      const res = await client.likePost(form);
+      return res;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["getPost", String(data.post_view.post.id)],
+      });
+    },
   });
 }

@@ -5,15 +5,17 @@ import { createStorage } from "./storage";
 type AuthStore = {
   instance: string;
   jwt?: string;
+  setJwt: (jwt: string) => void;
 };
 
 export const useAuth = create<AuthStore>()(
   persist(
     (set) => ({
       instance: "https://lemmy.world",
+      setJwt: (jwt) => set({ jwt }),
     }),
     {
-      name: "sorts",
+      name: "auth",
       storage: createStorage<AuthStore>(),
     },
   ),
