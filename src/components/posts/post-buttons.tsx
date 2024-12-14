@@ -1,14 +1,25 @@
 import { PostView } from "lemmy-js-client";
-import { Button, View, Text } from "tamagui";
+import { Button, View, Text, useTheme } from "tamagui";
 import { ArrowBigUp, ArrowBigDown, Expand } from "@tamagui/lucide-icons";
 import { abbriviateNumber } from "~/src/lib/format";
-import { useVote } from "~/src/lib/lemmy";
+import { useVote, usePost } from "~/src/lib/lemmy";
 
 export function Voting({ postView }: { postView: PostView }) {
   const vote = useVote();
 
-  const isUpvoted = postView.my_vote && postView.my_vote > 0;
-  const isDownvoted = postView.my_vote && postView.my_vote < 0;
+  const theme = useTheme();
+
+  const { data } = usePost(
+    {
+      id: String(postView.post.id),
+    },
+    false,
+  );
+
+  const myVote = data.post_view?.my_vote ?? postView.my_vote ?? 0;
+
+  const isUpvoted = myVote > 0;
+  const isDownvoted = myVote < 0;
 
   return (
     <View
@@ -21,10 +32,10 @@ export function Voting({ postView }: { postView: PostView }) {
     >
       <Button
         aspectRatio={1}
-        bg={isUpvoted ? "$accentColor" : "$color5"}
+        bg="$color5"
         h="$2"
         borderRadius="$12"
-        p={4}
+        p={3}
         hoverStyle={{ bg: "$color7" }}
         onPress={() =>
           vote.mutate({
@@ -34,15 +45,25 @@ export function Voting({ postView }: { postView: PostView }) {
         }
         disabled={vote.isPending}
       >
-        <ArrowBigUp />
+        <ArrowBigUp
+          fill={isUpvoted ? theme.accentBackground.val : undefined}
+          color={isUpvoted ? "$accentBackground" : undefined}
+        />
       </Button>
-      <Text fontSize="$5">{abbriviateNumber(postView.counts.upvotes)}</Text>
+      <Text
+        fontSize="$5"
+        color={
+          isUpvoted ? "$accentBackground" : isDownvoted ? "$red" : undefined
+        }
+      >
+        {abbriviateNumber(postView.counts.score)}
+      </Text>
       <Button
         aspectRatio={1}
-        bg={isDownvoted ? "$accentColor" : "$color5"}
+        bg="$color5"
         h="$2"
         borderRadius="$12"
-        p={4}
+        p={3}
         hoverStyle={{ bg: "$color7" }}
         onPress={() =>
           vote.mutate({
@@ -52,7 +73,10 @@ export function Voting({ postView }: { postView: PostView }) {
         }
         disabled={vote.isPending}
       >
-        <ArrowBigDown />
+        <ArrowBigDown
+          fill={isDownvoted ? theme.red.val : undefined}
+          color={isDownvoted ? "$red" : undefined}
+        />
       </Button>
     </View>
   );

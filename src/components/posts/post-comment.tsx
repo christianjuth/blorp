@@ -1,8 +1,9 @@
 import { CommentView } from "lemmy-js-client";
-import { View, Text } from "tamagui";
+import { View, Text, XStack, YStack } from "tamagui";
 import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
 import { Byline } from "../byline";
+import { CommentVoting } from "../comments/comment-buttons";
 
 export function PostComment({
   commentMap,
@@ -51,7 +52,7 @@ export function PostComment({
   const hideContent = comment.removed || comment.deleted;
 
   return (
-    <View
+    <YStack
       mt={level === 0 ? "$2" : undefined}
       py={level === 0 ? "$3" : "$2"}
       bg="$color1"
@@ -59,20 +60,26 @@ export function PostComment({
         px: level === 0 ? "$2.5" : undefined,
       }}
       flex={1}
+      w="100%"
     >
       <Byline
         avatar={avatar}
-        author={creator.name}
+        author={String(creator.id)}
         publishedDate={comment.published}
         highlightAuthor={creator.id === opId}
       />
 
-      <View blw={2} blc={color} p="$2" mt="$1" ml={9} gap="$2">
+      <View blw={2} blc={color} p="$2" pr={0} mt="$1" ml={9} ai="flex-start">
         {comment.deleted && <Text fontStyle="italic">deleted</Text>}
         {comment.removed && <Text fontStyle="italic">removed</Text>}
 
         {!hideContent && <Markdown markdown={comment.content} />}
-        {sorted.map(([id, map]) => (
+
+        <XStack jc="flex-end" w="100%" mb="$2">
+          <CommentVoting postView={commentView} />
+        </XStack>
+
+        {sorted.map(([id, map], i) => (
           <PostComment
             key={id}
             commentMap={map}
@@ -81,7 +88,7 @@ export function PostComment({
           />
         ))}
       </View>
-    </View>
+    </YStack>
   );
 }
 

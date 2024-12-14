@@ -27,14 +27,14 @@ export function PostDetail({ postView }: { postView: PostView }) {
       {thumbnail && <Image imageUrl={thumbnail} priority borderRadius={15} />}
       {body && <Markdown markdown={body} />}
 
-      <Byline
-        avatar={postView.community.icon}
-        author={postView.creator.name}
-        publishedDate={post.published}
-        comunityName={postView.community.name}
-      />
-
-      <View dsp="flex" fd="row" ai="flex-start">
+      <View dsp="flex" fd="row" ai="center">
+        <Byline
+          avatar={postView.community.icon}
+          author={postView.creator.name}
+          publishedDate={post.published}
+          comunityName={postView.community.name}
+        />
+        <View flex={1} />
         {postView && <Voting postView={postView} />}
       </View>
     </YStack>

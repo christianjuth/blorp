@@ -3,7 +3,7 @@ import {
   PostComment,
   buildCommentMap,
 } from "~/src/components/posts/post-comment";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePost, usePostComments } from "~/src/lib/lemmy";
 import { PostDetail } from "~/src/components/posts/post-details";
 import { Sidebar } from "~/src/components/communities/community-sidebar";

@@ -14,6 +14,12 @@ export default {
         // will call AppRegistry.registerComponent(app.key)
         key: "one-example",
       },
+
+      deps: {
+        "react-native-markdown-display": {
+          "**/*.js": ["jsx"],
+        },
+      },
     }),
 
     tamaguiPlugin({

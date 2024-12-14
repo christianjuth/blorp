@@ -7,6 +7,7 @@ import {
   slateDark,
   slateA,
   slateDarkA,
+  red,
 } from "@tamagui/colors";
 import _ from "lodash";
 
@@ -74,7 +75,8 @@ export const darkColors = {
 
   blue: "hsla(210, 60%, 40%, 0.6)",
   green: "hsla(120, 60%, 40%, 0.6)",
-  red: "hsla(0, 60%, 40%, 0.6)",
+  // red: "hsla(0, 60%, 40%, 0.6)",
+  red: red.red10,
   purple: "hsla(270, 60%, 40%, 0.6)",
   pink: "hsla(330, 60%, 40%, 0.6)",
 
@@ -142,7 +144,7 @@ export const color = {
 
 export const brandColor = {
   light: color.blue9Light,
-  dark: color.blue6Dark,
+  dark: color.blue9Dark,
 };
 
 export const palettes = (() => {

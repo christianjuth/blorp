@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
 import { Image as RNImage, Platform } from "react-native";
 import { measureImage } from "../lib/lemmy";
-import { useTheme, Text } from "tamagui";
+import { useTheme } from "tamagui";
 import _ from "lodash";
 
 export function Image({
   imageUrl,
   priority,
   borderRadius,
+  maxWidth,
 }: {
   imageUrl: string;
   priority?: boolean;
   borderRadius?: number;
+  maxWidth?: number;
 }) {
   const theme = useTheme();
 
@@ -25,6 +27,8 @@ export function Image({
           borderWidth: 1,
           borderColor: theme.gray4.val,
           borderStyle: "solid",
+          width: maxWidth ? "100%" : undefined,
+          maxWidth: maxWidth,
         }}
         fetchPriority={priority ? "high" : undefined}
       />
@@ -65,6 +69,8 @@ export function Image({
         borderRadius,
         borderWidth: 1,
         borderColor: theme.gray2.val,
+        width: maxWidth ? "100%" : undefined,
+        maxWidth: maxWidth,
       }}
       resizeMethod="scale"
       resizeMode="cover"

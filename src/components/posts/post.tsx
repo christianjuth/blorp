@@ -1,4 +1,4 @@
-import { Text, View, YStack } from "tamagui";
+import { Text, View, XStack, YStack } from "tamagui";
 import { Image } from "~/src/components/image";
 import { PostView } from "lemmy-js-client";
 import { Voting } from "./post-buttons";
@@ -10,24 +10,33 @@ export function PostCard({ postView }: { postView: PostView }) {
   const { post, creator, community, counts } = postView;
   const thumbnail = post?.thumbnail_url;
   const slug = createCommunitySlug(community);
+
   return (
-    <Link href={`/c/${slug}/posts/${post.id}`} asChild>
-      <YStack
-        py="$4"
-        gap="$2"
-        bbc="$color5"
-        bbw={1}
-        tag="a"
-        mx="auto"
-        flex={1}
-        $md={{
-          px: "$2.5",
-        }}
-      >
-        <Text fontWeight={500} fontSize="$8" lineHeight="$7">
-          {post.name}
-        </Text>
-        {thumbnail && <Image imageUrl={thumbnail} priority borderRadius={15} />}
+    <YStack
+      py="$4"
+      gap="$2"
+      bbc="$color5"
+      bbw={1}
+      tag="a"
+      mx="auto"
+      flex={1}
+      $md={{
+        px: "$2.5",
+      }}
+    >
+      <Link href={`/c/${slug}/posts/${post.id}`} asChild>
+        <YStack gap="$2">
+          <Text fontWeight={500} fontSize="$8" lineHeight="$7">
+            {post.name}
+          </Text>
+
+          {thumbnail && (
+            <Image imageUrl={thumbnail} priority borderRadius={15} />
+          )}
+        </YStack>
+      </Link>
+
+      <XStack jc="space-between" ai="center">
         <Byline
           avatar={community.icon}
           author={creator.name}
@@ -37,7 +46,7 @@ export function PostCard({ postView }: { postView: PostView }) {
         <View dsp="flex" fd="row" ai="flex-start">
           {postView && <Voting postView={postView} />}
         </View>
-      </YStack>
-    </Link>
+      </XStack>
+    </YStack>
   );
 }

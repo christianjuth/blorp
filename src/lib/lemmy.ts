@@ -123,7 +123,10 @@ export function getPostFromCache(
   return undefined;
 }
 
-export function usePost(form: { id?: string; communityName?: string }) {
+export function usePost(
+  form: { id?: string; communityName?: string },
+  enabled = true,
+) {
   const client = useLemmyClient();
 
   const postId = form.id ? +form.id : undefined;
@@ -168,7 +171,7 @@ export function usePost(form: { id?: string; communityName?: string }) {
       }
       return res;
     },
-    enabled: !!form.id,
+    enabled: !!form.id && enabled,
     initialData,
   });
 }
@@ -301,6 +304,31 @@ export function useVote() {
     mutationFn: async (form: CreatePostLike) => {
       const res = await client.likePost(form);
       return res;
+    },
+    onMutate: (newVote) => {
+      const prevPost = queryClient.getQueryData<Partial<GetPostResponse>>([
+        "getPost",
+        String(newVote.post_id),
+      ]);
+
+      const diff = newVote.score - (prevPost?.post_view?.my_vote ?? 0);
+
+      const patchedPost = {
+        ...prevPost,
+        post_view: {
+          ...prevPost?.post_view,
+          my_vote: newVote.score,
+          counts: {
+            ...prevPost?.post_view?.counts,
+            score: (prevPost?.post_view?.counts.score ?? 0) + diff,
+          },
+        },
+      };
+
+      queryClient.setQueryData(
+        ["getPost", String(newVote.post_id)],
+        patchedPost,
+      );
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({
