@@ -23,7 +23,18 @@ _testing_
 __this is a test__
 
 
+1. Item one
+    - Item one
+2. Item two
+    - Item one
+3. Item three
+    - Item one
 
+
+* Item one
+   * Item one
+* Item two
+* Item three
 
 `;
 

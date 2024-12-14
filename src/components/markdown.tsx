@@ -1,4 +1,11 @@
-import { Button, GetThemeValueForKey, Text, useTheme, View } from "tamagui";
+import {
+  Button,
+  GetThemeValueForKey,
+  Text,
+  useTheme,
+  View,
+  YStack,
+} from "tamagui";
 import disc from "@jsamr/counter-style/presets/disc";
 import decimal from "@jsamr/counter-style/presets/decimal";
 import MarkedList from "@jsamr/react-native-li";
@@ -37,7 +44,7 @@ function Div({ children }: { children?: React.ReactNode }) {
 }
 
 function Hr() {
-  return <View h={1} w="100%" bg="$color7" my="$2" />;
+  return <View h={1} w="100%" bg="$color7" />;
 }
 
 function P({ children }: { children?: React.ReactNode }) {
@@ -118,6 +125,7 @@ function Ul({ children }: { children?: React.ReactNode }) {
           marginTop: 2,
           marginBottom: 2,
         }}
+        // renderMarker={(t) => <Text>{console.log(t)}</Text>}
       >
         {children}
       </MarkedList>
@@ -185,7 +193,7 @@ function Spoiler({
   const color = useContextColor();
 
   return (
-    <View dsp="flex" fd="column">
+    <YStack gap="$2.5">
       <Button
         onPress={() => setIsVisible(!isVisible)}
         unstyled
@@ -195,9 +203,14 @@ function Spoiler({
         p={0}
         py="$1"
         ai="flex-start"
+        dsp="flex"
+        fd="row"
       >
+        <Text fontSize="$5" textAlign="left" color={color} w={10}>
+          {isVisible ? "\u25BC" : "\u25B6"}
+        </Text>
         <Text fontSize="$5" textAlign="left" color={color}>
-          {isVisible ? "\u25BC" : "\u25B6"} {title}
+          {title}
         </Text>
       </Button>
       {isVisible &&
@@ -206,44 +219,8 @@ function Spoiler({
             {child}
           </Text>
         ))}
-    </View>
+    </YStack>
   );
-}
-
-function preprocessMarkdown(markdown: string): string {
-  // Define regex for code blocks and spoilers
-  const codeBlockRegex = /```[\s\S]*?```/g;
-  const spoilerRegex = /(^|\n)\s*::: spoiler (.+?)\n([\s\S]+?)\n:::/g;
-
-  // Array to store code blocks
-  const codeBlocks: string[] = [];
-
-  // Extract code blocks and replace them with placeholders
-  const markdownWithoutCodeBlocks = markdown.replace(
-    codeBlockRegex,
-    (match) => {
-      codeBlocks.push(match);
-      return `PLACEHOLDER_CODE_BLOCK_${codeBlocks.length - 1}`;
-    },
-  );
-
-  // Replace spoilers outside of code blocks
-  const processedMarkdown = markdownWithoutCodeBlocks.replace(
-    spoilerRegex,
-    (_, newline: string, title: string, hiddenText: string) =>
-      `${newline}\n<Spoiler title="${title}">${hiddenText}</Spoiler>\n`,
-  );
-
-  // Restore code blocks from placeholders
-  return processedMarkdown.replace(
-    /PLACEHOLDER_CODE_BLOCK_(\d+)/g,
-    (_, index: string) => codeBlocks[parseInt(index, 10)],
-  );
-}
-
-interface SpoilerTokenMeta {
-  title: string;
-  content: string;
 }
 
 export function markdownItLemmySpoiler(md: MarkdownIt) {
@@ -316,11 +293,11 @@ const renderRules: RenderRules = {
   // unknown: (node, children, parent, styles) => null,
 
   // // The main container
-  // body: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_body}>
-  //     {children}
-  //   </View>
-  // ),
+  body: (node, children, parent, styles) => (
+    <YStack key={node.key} style={styles._VIEW_SAFE_body} gap="$2.5">
+      {children}
+    </YStack>
+  ),
 
   // // Headings
   // heading1: (node, children, parent, styles) => (
@@ -381,89 +358,14 @@ const renderRules: RenderRules = {
 
   // // Lists
   // bullet_list: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_bullet_list}>
-  //     {children}
-  //   </View>
+  //   <Ul key={node.key}>{children}</Ul>
   // ),
   // ordered_list: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_ordered_list}>
-  //     {children}
-  //   </View>
+  //   <Ol key={node.key}>{children}</Ol>
   // ),
-  // // this is a unique and quite annoying render rule because it has
-  // // child items that can be styled (the list icon and the list content)
-  // // outside of the AST tree so there are some work arounds in the
-  // // AST renderer specifically to get the styling right here
-  // // list_item: (node, children, parent, styles, inheritedStyles = {}) => {
-  // //   // we need to grab any text specific stuff here that is applied on the list_item style
-  // //   // and apply it onto bullet_list_icon. the AST renderer has some workaround code to make
-  // //   // the content classes apply correctly to the child AST tree items as well
-  // //   // as code that forces the creation of the inheritedStyles object for list_items
-  // //   const refStyle = {
-  // //     ...inheritedStyles,
-  // //     ...StyleSheet.flatten(styles.list_item),
-  // //   };
-
-  // //   const arr = Object.keys(refStyle);
-
-  // //   const modifiedInheritedStylesObj = {};
-
-  // //   for (let b = 0; b < arr.length; b++) {
-  // //     if (textStyleProps.includes(arr[b])) {
-  // //       modifiedInheritedStylesObj[arr[b]] = refStyle[arr[b]];
-  // //     }
-  // //   }
-
-  // //   if (hasParents(parent, "bullet_list")) {
-  // //     return (
-  // //       <View key={node.key} style={styles._VIEW_SAFE_list_item}>
-  // //         <Text
-  // //           style={[modifiedInheritedStylesObj, styles.bullet_list_icon]}
-  // //           accessible={false}
-  // //         >
-  // //           {Platform.select({
-  // //             android: "\u2022",
-  // //             ios: "\u00B7",
-  // //             default: "\u2022",
-  // //           })}
-  // //         </Text>
-  // //         <View style={styles._VIEW_SAFE_bullet_list_content}>{children}</View>
-  // //       </View>
-  // //     );
-  // //   }
-
-  // //   if (hasParents(parent, "ordered_list")) {
-  // //     const orderedListIndex = parent.findIndex(
-  // //       (el) => el.type === "ordered_list",
-  // //     );
-
-  // //     const orderedList = parent[orderedListIndex];
-  // //     let listItemNumber;
-
-  // //     if (orderedList.attributes && orderedList.attributes.start) {
-  // //       listItemNumber = orderedList.attributes.start + node.index;
-  // //     } else {
-  // //       listItemNumber = node.index + 1;
-  // //     }
-
-  // //     return (
-  // //       <View key={node.key} style={styles._VIEW_SAFE_list_item}>
-  // //         <Text style={[modifiedInheritedStylesObj, styles.ordered_list_icon]}>
-  // //           {listItemNumber}
-  // //           {node.markup}
-  // //         </Text>
-  // //         <View style={styles._VIEW_SAFE_ordered_list_content}>{children}</View>
-  // //       </View>
-  // //     );
-  // //   }
-
-  // //   // we should not need this, but just in case
-  // //   return (
-  // //     <View key={node.key} style={styles._VIEW_SAFE_list_item}>
-  // //       {children}
-  // //     </View>
-  // //   );
-  // // },
+  // list_item: (node, children, parent, styles, inheritedStyles = {}) => {
+  //   return <Li key={node.key}>{children}</Li>;
+  // },
 
   // // Code
   // code_inline: (node, children, parent, styles, inheritedStyles = {}) => (
@@ -559,46 +461,14 @@ const renderRules: RenderRules = {
   // // ),
 
   // // Images
-  // // image: (
-  // //   node,
-  // //   children,
-  // //   parent,
-  // //   styles,
-  // //   allowedImageHandlers,
-  // //   defaultImageHandler,
-  // // ) => {
-  // //   const { src, alt } = node.attributes;
-
-  // //   // we check that the source starts with at least one of the elements in allowedImageHandlers
-  // //   const show =
-  // //     allowedImageHandlers.filter((value) => {
-  // //       return src.toLowerCase().startsWith(value.toLowerCase());
-  // //     }).length > 0;
-
-  // //   if (show === false && defaultImageHandler === null) {
-  // //     return null;
-  // //   }
-
-  // //   const imageProps = {
-  // //     indicator: true,
-  // //     key: node.key,
-  // //     style: styles._VIEW_SAFE_image,
-  // //     source: {
-  // //       uri: show === true ? src : `${defaultImageHandler}${src}`,
-  // //     },
-  // //   };
-
-  // //   if (alt) {
-  // //     imageProps.accessible = true;
-  // //     imageProps.accessibilityLabel = alt;
-  // //   }
-
-  // //   return <FitImage {...imageProps} />;
-  // // },
+  image: (node) => {
+    const { src, alt } = node.attributes;
+    return <Image maxWidth={250} imageUrl={src} />;
+  },
 
   // // Text Output
   text: (node, children, parent, styles, inheritedStyles = {}) => (
-    <Text key={node.key} style={inheritedStyles}>
+    <Text key={node.key} fontSize={14} style={inheritedStyles}>
       {node.content}
     </Text>
   ),
@@ -607,11 +477,11 @@ const renderRules: RenderRules = {
   //     {children}
   //   </Text>
   // ),
-  // paragraph: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_paragraph}>
-  //     {children}
-  //   </View>
-  // ),
+  paragraph: (node, children, parent, styles) => (
+    <View key={node.key} tag="p" my="$0">
+      {children}
+    </View>
+  ),
   // hardbreak: (node, children, parent, styles) => (
   //   <Text key={node.key} style={styles.hardbreak}>
   //     {"\n"}
@@ -639,7 +509,7 @@ const renderRules: RenderRules = {
       {children}
     </Text>
   ),
-  lemmy_spoiler: (node) => (
+  lemmy_spoiler: (node: any) => (
     <Spoiler title={node.sourceMeta?.title}>
       <Markdown markdown={node.content} />
     </Spoiler>

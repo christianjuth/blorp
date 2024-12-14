@@ -85,7 +85,7 @@ export function PostComment({
         {!hideContent && <Markdown markdown={comment.content} />}
 
         <XStack jc="flex-end" w="100%" mb="$1">
-          <CommentVoting postView={commentView} />
+          <CommentVoting commentView={commentView} />
         </XStack>
 
         {sorted.map(([id, map], i) => (

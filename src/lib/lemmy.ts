@@ -1,5 +1,7 @@
 import {
+  CommentView,
   Community,
+  CreateCommentLike,
   CreatePostLike,
   GetCommunity,
   GetPosts,
@@ -179,14 +181,15 @@ export function usePost(
 export function usePostComments(form: GetComments) {
   const commentSort = useSorts((s) => s.commentSort);
   const sort = form.sort ?? commentSort;
+  const client = useLemmyClient();
 
-  const queryKey = ["getComments", `getComments-${sort}-${form.post_id}`];
+  const queryKey = ["getComments", String(form.post_id), sort];
 
   return useInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
-      const { comments } = await lemmy.getClient().getComments({
+      const { comments } = await client.getComments({
         ...form,
         limit,
         page: pageParam,
@@ -335,5 +338,55 @@ export function useVote() {
         queryKey: ["getPost", String(data.post_view.post.id)],
       });
     },
+  });
+}
+
+interface CustumCreateCommentLike extends CreateCommentLike {
+  post_id: number;
+}
+
+export function useLikeComment() {
+  const commentSort = useSorts((s) => s.commentSort);
+  const queryClient = useQueryClient();
+  const client = useLemmyClient();
+
+  return useMutation({
+    mutationFn: ({ post_id, ...form }: CustumCreateCommentLike) =>
+      client.likeComment(form),
+    onMutate: ({ post_id, comment_id, score }) => {
+      const prevPost = queryClient.getQueryData<
+        InfiniteData<
+          {
+            comments: CommentView[];
+            nextPage: number | null;
+          },
+          unknown
+        >
+      >(["getComments", String(post_id), commentSort]);
+
+      for (const p of prevPost?.pages ?? []) {
+        for (const c of p.comments) {
+          if (c.comment.id === comment_id) {
+            const diff = score - (c.my_vote ?? 0);
+            c.my_vote = score;
+            c.counts.score += diff;
+          }
+        }
+      }
+
+      queryClient.setQueryData(
+        ["getComments", String(post_id), commentSort],
+        prevPost,
+      );
+    },
+    // onSuccess: (res) => {
+    //   queryClient.invalidateQueries({
+    //     queryKey: [
+    //       "getComments",
+    //       String(res.comment_view.post.id),
+    //       commentSort,
+    //     ],
+    //   });
+    // },
   });
 }

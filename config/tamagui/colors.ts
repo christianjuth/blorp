@@ -94,7 +94,8 @@ export const lightColors = {
 
   blue: "hsla(210, 60%, 80%, 0.7)",
   green: "hsla(120, 60%, 80%, 0.8)",
-  red: "hsla(0, 60%, 80%, 0.7)",
+  // red: "hsla(0, 60%, 80%, 0.7)",
+  red: red.red10,
   purple: "hsla(270, 60%, 80%, 0.7)",
   pink: "hsla(330, 60%, 80%, 0.7)",
 
