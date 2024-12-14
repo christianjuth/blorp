@@ -1,4 +1,5 @@
 import {
+  CommentSortType,
   CommentView,
   Community,
   CreateCommentLike,
@@ -76,20 +77,6 @@ export async function measureImage(src: string) {
     imageAspectRatioCache.delete(src);
   });
 }
-
-// Build the client
-
-class Lemmy {
-  hosts: Map<string, LemmyHttp> = new Map();
-
-  getClient(baseUrl = "https://lemmy.world") {
-    if (!this.hosts.has(baseUrl)) {
-      this.hosts.set(baseUrl, new LemmyHttp(baseUrl));
-    }
-    return this.hosts.get(baseUrl)!;
-  }
-}
-const lemmy = new Lemmy();
 
 function useLemmyClient() {
   const jwt = useAuth((s) => s.jwt);
@@ -240,6 +227,8 @@ export function usePosts(form: GetPosts) {
 }
 
 export function useListCommunities(form: ListCommunities) {
+  const client = useLemmyClient();
+
   const queryKey = [
     "listCommunities",
     `useListCommunities-${form.sort}-${form.limit}`,
@@ -249,7 +238,7 @@ export function useListCommunities(form: ListCommunities) {
     queryKey,
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
-      const { communities } = await lemmy.getClient().listCommunities({
+      const { communities } = await client.listCommunities({
         ...form,
         page: pageParam,
       });
@@ -263,15 +252,14 @@ export function useListCommunities(form: ListCommunities) {
   });
 }
 export function useCommunity(form: { name?: string; instance?: string }) {
-  const instance = form.instance ?? useAuth().instance;
+  const client = useLemmyClient();
 
-  const queryKey = ["getCommunity", `getCommunity-${instance}-${form.name}`];
+  const queryKey = ["getCommunity", `getCommunity-${form.name}`];
 
   return useQuery({
     queryKey,
     queryFn: async () => {
-      const res = await lemmy.getClient(instance).getCommunity({
-        // id: +form.id!,
+      const res = await client.getCommunity({
         name: form.name,
       });
       return res;
@@ -346,7 +334,6 @@ interface CustumCreateCommentLike extends CreateCommentLike {
 }
 
 export function useLikeComment() {
-  const commentSort = useSorts((s) => s.commentSort);
   const queryClient = useQueryClient();
   const client = useLemmyClient();
 
@@ -354,30 +341,44 @@ export function useLikeComment() {
     mutationFn: ({ post_id, ...form }: CustumCreateCommentLike) =>
       client.likeComment(form),
     onMutate: ({ post_id, comment_id, score }) => {
-      const prevPost = queryClient.getQueryData<
-        InfiniteData<
-          {
-            comments: CommentView[];
-            nextPage: number | null;
-          },
-          unknown
-        >
-      >(["getComments", String(post_id), commentSort]);
+      const SORTS: CommentSortType[] = [
+        "Hot",
+        "Top",
+        "New",
+        "Old",
+        "Controversial",
+      ];
 
-      for (const p of prevPost?.pages ?? []) {
-        for (const c of p.comments) {
-          if (c.comment.id === comment_id) {
-            const diff = score - (c.my_vote ?? 0);
-            c.my_vote = score;
-            c.counts.score += diff;
+      for (const sort of SORTS) {
+        const comments = queryClient.getQueryData<
+          InfiniteData<
+            {
+              comments: CommentView[];
+              nextPage: number | null;
+            },
+            unknown
+          >
+        >(["getComments", String(post_id), sort]);
+
+        if (!comments) {
+          continue;
+        }
+
+        for (const p of comments.pages) {
+          for (const c of p.comments) {
+            if (c.comment.id === comment_id) {
+              const diff = score - (c.my_vote ?? 0);
+              c.my_vote = score;
+              c.counts.score += diff;
+            }
           }
         }
-      }
 
-      queryClient.setQueryData(
-        ["getComments", String(post_id), commentSort],
-        prevPost,
-      );
+        queryClient.setQueryData(
+          ["getComments", String(post_id), sort],
+          comments,
+        );
+      }
     },
     // onSuccess: (res) => {
     //   queryClient.invalidateQueries({

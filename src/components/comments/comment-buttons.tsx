@@ -12,8 +12,6 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
 
   const theme = useTheme();
 
-  console.log(commentView.my_vote);
-
   return (
     <View dsp="flex" fd="row" ai="center" borderRadius="$12" gap="$1">
       <Button
