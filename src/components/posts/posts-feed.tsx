@@ -2,7 +2,7 @@ import { PostCard } from "~/src/components/posts/post";
 import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
 import { GetPostsResponse } from "lemmy-js-client";
 import { useTheme, View } from "tamagui";
-import { FlatList } from "react-native";
+// import { FlatList } from "react-native";
 import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { CommunityBanner } from "../communities/community-banner";
 import { FeedGutters } from "../feed-gutters";
@@ -10,6 +10,7 @@ import { useParams } from "one";
 import { PopularCommunitiesSidebar } from "../populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
+import { FlashList } from "@shopify/flash-list";
 
 const EMPTY_ARR = [];
 
@@ -36,7 +37,7 @@ export function PostsFeed({
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
   return (
-    <FlatList
+    <FlashList
       ref={ref}
       data={["sidebar", ...data]}
       renderItem={({ item }) =>
@@ -79,7 +80,7 @@ export function PostsFeed({
           <CommunityBanner />
         </FeedGutters>
       )}
-      stickyHeaderIndices={[1]}
+      stickyHeaderIndices={[0]}
     />
   );
 }

@@ -61,6 +61,7 @@ export function PopularCommunitiesSidebar() {
       r="$0"
       t="$0"
       py="$4"
+      bg="$color1"
     >
       <ScrollView bg="$color3" br="$4" zIndex="$5" p="$4">
         <YStack gap="$3">

@@ -36,6 +36,7 @@ export function Sidebar({ communityName }: { communityName: string }) {
       r="$0"
       t="$0"
       py="$4"
+      bg="$color1"
     >
       <ScrollView bg="$color3" br="$4" zIndex="$5" w={COMMUNITY_SIDEBAR_WIDTH}>
         <YStack p="$3" gap="$3">
