@@ -64,18 +64,27 @@ export function PostComment({
     >
       <Byline
         avatar={avatar}
-        author={String(creator.id)}
+        author={creator.name}
         publishedDate={comment.published}
         highlightAuthor={creator.id === opId}
       />
 
-      <View blw={2} blc={color} p="$2" pr={0} mt="$1" ml={9} ai="flex-start">
+      <View
+        blw={2}
+        blc={color}
+        p="$2"
+        pr={0}
+        pb={0}
+        mt="$1"
+        ml={9}
+        ai="flex-start"
+      >
         {comment.deleted && <Text fontStyle="italic">deleted</Text>}
         {comment.removed && <Text fontStyle="italic">removed</Text>}
 
         {!hideContent && <Markdown markdown={comment.content} />}
 
-        <XStack jc="flex-end" w="100%" mb="$2">
+        <XStack jc="flex-end" w="100%" mb="$1">
           <CommentVoting postView={commentView} />
         </XStack>
 
