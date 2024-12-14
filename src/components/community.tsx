@@ -9,7 +9,7 @@ export function Community({ communityView }: { communityView: CommunityView }) {
   const slug = createCommunitySlug(community);
   return (
     <Link href={`/c/${slug}`} asChild push>
-      <XStack ai="center" gap="$2" tag="a" p="$2">
+      <XStack ai="center" gap="$2" tag="a" p="$2" overflow="hidden">
         <Avatar size="$3.5" borderRadius="$12">
           <Avatar.Image src={community.icon} />
           <Avatar.Fallback
