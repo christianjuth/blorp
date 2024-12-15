@@ -3,6 +3,8 @@ import { Button, View, Text, useTheme } from "tamagui";
 import { ArrowBigUp, ArrowBigDown, Expand } from "@tamagui/lucide-icons";
 import { abbriviateNumber } from "~/src/lib/format";
 import { useVote, usePost } from "~/src/lib/lemmy";
+import * as Haptics from "expo-haptics";
+import { Platform } from "react-native";
 
 export function Voting({ postView }: { postView: PostView }) {
   const vote = useVote();
@@ -26,56 +28,75 @@ export function Voting({ postView }: { postView: PostView }) {
       dsp="flex"
       fd="row"
       ai="center"
-      bg="$color5"
       borderRadius="$12"
-      gap="$1.5"
+      bw={1}
+      bc="$color5"
     >
       <Button
-        aspectRatio={1}
-        bg="$color5"
         h="$2"
         borderRadius="$12"
-        p={3}
-        hoverStyle={{ bg: "$color7" }}
-        onPress={() =>
+        p={0}
+        pl={7}
+        bg="transparent"
+        onPress={() => {
+          if (Platform.OS !== "web") {
+            Haptics.impactAsync(
+              isUpvoted
+                ? Haptics.ImpactFeedbackStyle.Medium
+                : Haptics.ImpactFeedbackStyle.Rigid,
+            );
+          }
           vote.mutate({
             post_id: postView.post.id,
             score: isUpvoted ? 0 : 1,
-          })
-        }
+          });
+        }}
         disabled={vote.isPending}
+        gap="$1"
       >
-        <ArrowBigUp
-          fill={isUpvoted ? theme.accentBackground.val : undefined}
-          color={isUpvoted ? "$accentBackground" : undefined}
-        />
+        <>
+          <ArrowBigUp
+            fill={isUpvoted ? theme.accentBackground.val : undefined}
+            color={isUpvoted ? "$accentBackground" : undefined}
+            size="$1"
+          />
+          <Text
+            fontSize="$5"
+            color={
+              isUpvoted ? "$accentBackground" : isDownvoted ? "$red" : undefined
+            }
+            px={2}
+          >
+            {abbriviateNumber(postView.counts.score)}
+          </Text>
+        </>
       </Button>
-      <Text
-        fontSize="$5"
-        color={
-          isUpvoted ? "$accentBackground" : isDownvoted ? "$red" : undefined
-        }
-      >
-        {abbriviateNumber(postView.counts.score)}
-      </Text>
+      <View h={16} w={1} bg="$color6" mx={4} />
       <Button
-        aspectRatio={1}
-        bg="$color5"
         h="$2"
         borderRadius="$12"
-        p={3}
-        hoverStyle={{ bg: "$color7" }}
-        onPress={() =>
+        p={0}
+        pr={7}
+        bg="transparent"
+        onPress={() => {
+          if (Platform.OS !== "web") {
+            Haptics.impactAsync(
+              isUpvoted
+                ? Haptics.ImpactFeedbackStyle.Medium
+                : Haptics.ImpactFeedbackStyle.Rigid,
+            );
+          }
           vote.mutate({
             post_id: postView.post.id,
             score: isDownvoted ? 0 : -1,
-          })
-        }
+          });
+        }}
         disabled={vote.isPending}
       >
         <ArrowBigDown
           fill={isDownvoted ? theme.red.val : undefined}
           color={isDownvoted ? "$red" : undefined}
+          size="$1"
         />
       </Button>
     </View>

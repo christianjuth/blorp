@@ -13,20 +13,26 @@ export function PostCard({ postView }: { postView: PostView }) {
 
   return (
     <YStack
-      py="$4"
-      gap="$2"
-      bbc="$color5"
-      bbw={1}
+      py="$2"
+      bbc="$color2"
+      bbw={7}
       tag="a"
       mx="auto"
       flex={1}
       $md={{
         px: "$2.5",
       }}
+      gap="$1.5"
     >
+      <Byline
+        avatar={community.icon}
+        author={creator.name}
+        publishedDate={post.published}
+      />
+
       <Link href={`/c/${slug}/posts/${post.id}`} asChild>
-        <YStack gap="$2">
-          <Text fontWeight={500} fontSize="$8" lineHeight="$7">
+        <YStack gap="$1">
+          <Text fontWeight={500} fontSize="$6" lineHeight="$3">
             {post.name}
           </Text>
 
@@ -36,16 +42,8 @@ export function PostCard({ postView }: { postView: PostView }) {
         </YStack>
       </Link>
 
-      <XStack jc="space-between" ai="center">
-        <Byline
-          avatar={community.icon}
-          author={creator.name}
-          publishedDate={post.published}
-        />
-
-        <View dsp="flex" fd="row" ai="flex-start">
-          {postView && <Voting postView={postView} />}
-        </View>
+      <XStack jc="flex-end" ai="center">
+        {postView && <Voting postView={postView} />}
       </XStack>
     </YStack>
   );

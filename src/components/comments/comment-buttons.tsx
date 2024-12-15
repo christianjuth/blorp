@@ -3,6 +3,8 @@ import { Button, View, Text, useTheme } from "tamagui";
 import { ArrowBigUp, ArrowBigDown } from "@tamagui/lucide-icons";
 import { abbriviateNumber } from "~/src/lib/format";
 import { useLikeComment } from "~/src/lib/lemmy";
+import * as Haptics from "expo-haptics";
+import { Platform } from "react-native";
 
 export function CommentVoting({ commentView }: { commentView: CommentView }) {
   const vote = useLikeComment();
@@ -15,15 +17,25 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
   return (
     <View dsp="flex" fd="row" ai="center" borderRadius="$12" gap="$1">
       <Button
-        onPress={() =>
+        onPress={() => {
+          if (Platform.OS !== "web") {
+            Haptics.impactAsync(
+              isUpvoted
+                ? Haptics.ImpactFeedbackStyle.Medium
+                : Haptics.ImpactFeedbackStyle.Rigid,
+            );
+          }
           vote.mutate({
             post_id: commentView.post.id,
             comment_id: commentView.comment.id,
             score: isUpvoted ? 0 : 1,
-          })
-        }
+          });
+        }}
         disabled={vote.isPending}
-        dsp="contents"
+        unstyled
+        bg="transparent"
+        bw={0}
+        p={0}
       >
         <ArrowBigUp
           size="$1"
@@ -40,15 +52,25 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
         {abbriviateNumber(commentView.counts.score)}
       </Text>
       <Button
-        onPress={() =>
+        onPress={() => {
+          if (Platform.OS !== "web") {
+            Haptics.impactAsync(
+              isUpvoted
+                ? Haptics.ImpactFeedbackStyle.Medium
+                : Haptics.ImpactFeedbackStyle.Rigid,
+            );
+          }
           vote.mutate({
             post_id: commentView.post.id,
             comment_id: commentView.comment.id,
             score: isDownvoted ? 0 : -1,
-          })
-        }
+          });
+        }}
         disabled={vote.isPending}
-        dsp="contents"
+        unstyled
+        bg="transparent"
+        bw={0}
+        p={0}
       >
         <ArrowBigDown
           size="$1"

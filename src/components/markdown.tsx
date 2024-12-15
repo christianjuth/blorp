@@ -332,7 +332,7 @@ const renderRules: RenderRules = {
   // ),
 
   // // Horizontal Rule
-  hr: (node, children, parent, styles) => <Hr />,
+  hr: (node, children, parent, styles) => <Hr key={node.key} />,
 
   // // Emphasis
   // strong: (node, children, parent, styles) => (
@@ -463,7 +463,7 @@ const renderRules: RenderRules = {
   // // Images
   image: (node) => {
     const { src, alt } = node.attributes;
-    return <Image maxWidth={250} imageUrl={src} />;
+    return <Image maxWidth={250} imageUrl={src} key={node.key} />;
   },
 
   // // Text Output
@@ -478,7 +478,7 @@ const renderRules: RenderRules = {
   //   </Text>
   // ),
   paragraph: (node, children, parent, styles) => (
-    <View key={node.key} tag="p" my="$0">
+    <View key={node.key} my="$0">
       {children}
     </View>
   ),
@@ -510,7 +510,7 @@ const renderRules: RenderRules = {
     </Text>
   ),
   lemmy_spoiler: (node: any) => (
-    <Spoiler title={node.sourceMeta?.title}>
+    <Spoiler title={node.sourceMeta?.title} key={node.key}>
       <Markdown markdown={node.content} />
     </Spoiler>
   ),

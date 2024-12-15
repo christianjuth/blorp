@@ -7814,6 +7814,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-haptics@npm:^13.0.1":
+  version: 13.0.1
+  resolution: "expo-haptics@npm:13.0.1"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/30037b569c256c4f332c679045c01cdd0fb74c64d8fed6be0b59da9ef10293732ab7e2d3d4deda7c566be8398bcb1ce78973ebf97bd3729d287eaf159087248c
+  languageName: node
+  linkType: hard
+
 "expo-keep-awake@npm:~13.0.2":
   version: 13.0.2
   resolution: "expo-keep-awake@npm:13.0.2"
@@ -10000,6 +10009,7 @@ __metadata:
     "@vxrn/color-scheme": "npm:1.1.334"
     dayjs: "npm:^1.11.13"
     expo: "npm:~51.0.39"
+    expo-haptics: "npm:^13.0.1"
     expo-modules-core: "npm:^1.12.24"
     expo-system-ui: "npm:~3.0.7"
     html-react-parser: "npm:^5.2.0"
