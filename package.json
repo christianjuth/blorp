@@ -39,7 +39,7 @@
     "dayjs": "^1.11.13",
     "expo": "~51.0.39",
     "expo-haptics": "^13.0.1",
-    "expo-modules-core": "^1.12.24",
+    "expo-modules-core": "1.12.11",
     "expo-system-ui": "~3.0.7",
     "html-react-parser": "^5.2.0",
     "idb": "^8.0.0",

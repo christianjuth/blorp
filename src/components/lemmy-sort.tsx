@@ -39,7 +39,7 @@ const COMMENT_SORT_OPTIONS: Option<CommentSortType, CommentSortType>[] = [
 
 function getIconForSort(sort: CommentSortType) {
   const Icon = COMMENT_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
-  return Icon ? <Icon /> : undefined;
+  return Icon ? <Icon color="$color1" /> : undefined;
 }
 
 export function ComentSortSelect() {

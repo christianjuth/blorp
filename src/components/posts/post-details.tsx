@@ -16,8 +16,8 @@ export function PostDetail({ postView }: { postView: PostView }) {
         px: "$2.5",
       }}
       py="$2.5"
-      bbc="$color2"
-      bbw={7}
+      bbc="$color3"
+      bbw={8}
       gap="$2"
       flex={1}
     >
@@ -32,7 +32,11 @@ export function PostDetail({ postView }: { postView: PostView }) {
         {post.name}
       </Text>
 
-      {thumbnail && <Image imageUrl={thumbnail} priority borderRadius={15} />}
+      {thumbnail && (
+        <View $md={{ mx: "$-2.5" }}>
+          <Image imageUrl={thumbnail} priority />
+        </View>
+      )}
       {body && <Markdown markdown={body} />}
 
       <XStack jc="flex-end" ai="center" mt="$1.5">

@@ -8,7 +8,11 @@ import { Providers } from "~/src/components/providers";
 
 import { Stack } from "one";
 import { useTheme } from "tamagui";
-import { ModalHeader, PostHeader } from "~/src/components/headers";
+import {
+  CommunityHeader,
+  ModalHeader,
+  PostHeader,
+} from "~/src/components/headers";
 
 function Nav() {
   const theme = useTheme();
@@ -32,10 +36,6 @@ function Nav() {
         name="c/[communityName]/posts/[postId]"
         options={{
           header: PostHeader,
-          presentation: "containedTransparentModal",
-          animation: "slide_from_bottom",
-          // animation: "fade",
-          gestureDirection: "horizontal",
         }}
       />
       <Stack.Screen

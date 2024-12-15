@@ -8,6 +8,8 @@ import {
 } from "@tamagui/lucide-icons";
 import { CommunityHeader } from "~/src/components/headers";
 import { useTheme, useMedia } from "tamagui";
+import { BlurBackground } from "~/src/components/nav/blur-background";
+import { Platform } from "react-native";
 
 function Hide() {
   return null;
@@ -22,9 +24,11 @@ export default function Layout() {
       tabBar={isLgScreen ? Hide : undefined}
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: theme.color1.val,
           borderTopColor: theme.color4.val,
+          position: "absolute",
+          backgroundColor: "transparent",
         },
+        tabBarBackground: BlurBackground,
       }}
     >
       <Tabs.Screen
@@ -33,6 +37,7 @@ export default function Layout() {
           title: "Home",
           tabBarIcon: ({ color }) => <Home color={color} />,
           header: CommunityHeader,
+          headerTransparent: Platform.OS !== "web" ? true : false,
         }}
       />
 

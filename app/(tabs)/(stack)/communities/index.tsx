@@ -4,8 +4,11 @@ import { Community } from "~/src/components/community";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { View, useWindowDimensions } from "tamagui";
+import { useCustomHeaderHeight } from "~/src/components/headers";
 
 export default function Communities() {
+  const header = useCustomHeaderHeight();
+
   const ref = useRef(null);
   useScrollToTop(ref);
 
@@ -37,6 +40,9 @@ export default function Communities() {
       }}
       onEndReachedThreshold={0.5}
       estimatedItemSize={54}
+      contentInset={{ top: header.height }}
+      scrollIndicatorInsets={{ top: header.height }}
+      automaticallyAdjustsScrollIndicatorInsets={false}
     />
   );
 }

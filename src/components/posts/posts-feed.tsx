@@ -2,8 +2,10 @@ import { PostCard } from "~/src/components/posts/post";
 import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
 import { GetPostsResponse } from "lemmy-js-client";
 import { useTheme, View } from "tamagui";
-// import { FlatList } from "react-native";
-import { Sidebar } from "~/src/components/communities/community-sidebar";
+import {
+  Sidebar,
+  SmallScreenSidebar,
+} from "~/src/components/communities/community-sidebar";
 import { CommunityBanner } from "../communities/community-banner";
 import { FeedGutters } from "../feed-gutters";
 import { useParams } from "one";
@@ -11,6 +13,7 @@ import { PopularCommunitiesSidebar } from "../populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { FlashList } from "@shopify/flash-list";
+import { useCustomHeaderHeight } from "../headers";
 
 const EMPTY_ARR = [];
 
@@ -19,6 +22,8 @@ export function PostsFeed({
 }: {
   posts: UseInfiniteQueryResult<InfiniteData<GetPostsResponse, unknown>, Error>;
 }) {
+  const header = useCustomHeaderHeight();
+
   const ref = useRef(null);
   useScrollToTop(ref);
 
@@ -38,25 +43,45 @@ export function PostsFeed({
 
   return (
     <FlashList
+      contentInset={{
+        top: header.height,
+      }}
+      automaticallyAdjustsScrollIndicatorInsets={false}
+      scrollIndicatorInsets={{
+        top: header.height,
+      }}
       ref={ref}
-      data={["sidebar", ...data]}
-      renderItem={({ item }) =>
-        typeof item === "string" ? (
-          <FeedGutters>
-            <View flex={1} />
-            {communityName ? (
-              <Sidebar communityName={communityName} />
-            ) : (
-              <PopularCommunitiesSidebar />
-            )}
-          </FeedGutters>
-        ) : (
+      data={["sidebar-desktop", "sidebar-mobile", ...data] as const}
+      renderItem={({ item }) => {
+        if (item === "sidebar-desktop") {
+          return (
+            <FeedGutters>
+              <View flex={1} />
+              {communityName ? (
+                <Sidebar communityName={communityName} />
+              ) : (
+                <PopularCommunitiesSidebar />
+              )}
+            </FeedGutters>
+          );
+        }
+
+        if (item === "sidebar-mobile") {
+          return communityName ? (
+            <FeedGutters>
+              <SmallScreenSidebar communityName={communityName} />
+              <></>
+            </FeedGutters>
+          ) : null;
+        }
+
+        return (
           <FeedGutters>
             <PostCard postView={item} />
             <></>
           </FeedGutters>
-        )
-      }
+        );
+      }}
       onEndReached={() => {
         if (hasNextPage && !isFetchingNextPage) {
           fetchNextPage();

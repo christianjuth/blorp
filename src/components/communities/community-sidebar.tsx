@@ -89,3 +89,73 @@ export function Sidebar({ communityName }: { communityName: string }) {
     </View>
   );
 }
+
+export function SmallScreenSidebar({
+  communityName,
+}: {
+  communityName: string;
+}) {
+  const { data } = useCommunity({
+    name: communityName,
+  });
+
+  if (!data) {
+    return null;
+  }
+
+  const communityView = data.community_view;
+  const community = communityView.community;
+  const counts = communityView.counts;
+
+  return (
+    <YStack
+      bg="$color1"
+      bbc="$color3"
+      bbw={8}
+      flex={1}
+      p="$3"
+      gap="$3"
+      $gtMd={{ dsp: "none" }}
+    >
+      <Text fontSize="$5" fontWeight="bold">
+        {community.title}
+      </Text>
+
+      <XStack ai="center" gap="$1.5">
+        <CakeSlice size="$1" color="$color11" />
+        <Text fontSize="$3" color="$color11">
+          Created {dayjs(community.published).format("LL")}
+        </Text>
+      </XStack>
+
+      <XStack>
+        <YStack gap="$1" flex={1}>
+          <Text fontWeight="bold" fontSize="$4">
+            {abbriviateNumber(counts.subscribers)}
+          </Text>
+          <Text fontSize="$3" color="$color11">
+            Members
+          </Text>
+        </YStack>
+
+        <YStack gap="$1" flex={1}>
+          <Text fontWeight="bold" fontSize="$4">
+            {abbriviateNumber(counts.posts)}
+          </Text>
+          <Text fontSize="$3" color="$color11">
+            Posts
+          </Text>
+        </YStack>
+
+        <YStack gap="$1" flex={1}>
+          <Text fontWeight="bold" fontSize="$4">
+            {abbriviateNumber(counts.comments)}
+          </Text>
+          <Text fontSize="$3" color="$color11">
+            Comments
+          </Text>
+        </YStack>
+      </XStack>
+    </YStack>
+  );
+}

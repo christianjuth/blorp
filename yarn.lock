@@ -7859,6 +7859,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-modules-core@npm:1.12.11":
+  version: 1.12.11
+  resolution: "expo-modules-core@npm:1.12.11"
+  dependencies:
+    invariant: "npm:^2.2.4"
+  checksum: 10c0/7edceaa4a25274776f8fe35842d97c3cabbb5d7ee0e397c94653a1a95059c2c48fb74b8de141421335d85a5816a1f4c11b5a6cfc41bd1b33d14a11b87d84232a
+  languageName: node
+  linkType: hard
+
 "expo-modules-core@npm:1.12.26, expo-modules-core@npm:^1.12.24":
   version: 1.12.26
   resolution: "expo-modules-core@npm:1.12.26"
@@ -10010,7 +10019,7 @@ __metadata:
     dayjs: "npm:^1.11.13"
     expo: "npm:~51.0.39"
     expo-haptics: "npm:^13.0.1"
-    expo-modules-core: "npm:^1.12.24"
+    expo-modules-core: "npm:1.12.11"
     expo-system-ui: "npm:~3.0.7"
     html-react-parser: "npm:^5.2.0"
     idb: "npm:^8.0.0"

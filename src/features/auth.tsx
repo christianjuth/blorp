@@ -31,7 +31,6 @@ export function Auth() {
       }}
       mx="auto"
       onSubmit={() => {
-        console.log("HERE");
         mutate({
           username_or_email: userName,
           password: password,
