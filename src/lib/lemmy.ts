@@ -2,6 +2,7 @@ import {
   CommentSortType,
   CommentView,
   Community,
+  CommunityView,
   CreateCommentLike,
   CreatePostLike,
   GetCommunity,
@@ -9,6 +10,10 @@ import {
   LemmyHttp,
   ListCommunities,
   Login,
+  Person,
+  Post,
+  PostSortType,
+  PostView,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -23,10 +28,14 @@ import {
   GetPostResponse,
   GetPostsResponse,
 } from "lemmy-js-client";
-import { Image as Image } from "react-native";
+import { Image as RNImage } from "react-native";
 import { useSorts } from "~/src/stores/sorts";
 import { useAuth } from "../stores/auth";
 import { useMemo } from "react";
+import FastImage from "../components/fast-image";
+import _ from "lodash";
+import throttledQueue from "throttled-queue";
+import { usePostsStore } from "../stores/posts";
 
 function getLemmyServer({ actor_id }: { actor_id: string }) {
   const server = new URL(actor_id);
@@ -53,18 +62,24 @@ const imageAspectRatioCache = new Map<
   Promise<{ width: number; height: number }>
 >();
 
+export const imageSizeCache = new Map<
+  string,
+  { width: number; height: number }
+>();
+
 export async function measureImage(src: string) {
   if (imageAspectRatioCache.has(src)) {
-    return imageAspectRatioCache.get(src);
+    return await imageAspectRatioCache.get(src);
   }
 
   const p = new Promise<{
     width: number;
     height: number;
   }>((resolve, reject) => {
-    Image.getSize(
+    RNImage.getSize(
       src,
       (width, height) => {
+        imageSizeCache.set(src, { width, height });
         resolve({ width, height });
       },
       reject,
@@ -76,6 +91,8 @@ export async function measureImage(src: string) {
   p.catch(() => {
     imageAspectRatioCache.delete(src);
   });
+
+  return await p;
 }
 
 function useLemmyClient() {
@@ -94,7 +111,7 @@ function useLemmyClient() {
 }
 
 export function getPostFromCache(
-  cache: InfiniteData<GetPostsResponse, unknown> | undefined,
+  cache: InfiniteData<FlattenedGetPostResponse, unknown> | undefined,
   postId: number | undefined,
 ) {
   if (!postId || !cache) {
@@ -112,6 +129,58 @@ export function getPostFromCache(
   return undefined;
 }
 
+type CachedPost = {
+  post_view?: Partial<GetPostResponse["post_view"]>;
+  moderators?: GetPostResponse["moderators"];
+  cross_posts?: GetPostResponse["cross_posts"];
+  community_view?: GetPostResponse["community_view"];
+};
+
+export function cachedPostIsReady(
+  post: CachedPost,
+): post is Partial<GetPostResponse> {
+  return !!post.post_view?.post;
+}
+
+export type FlattenedPost = {
+  optimisticMyVote?: number;
+  myVote?: number;
+  score: number;
+  post: Post;
+  community: {
+    name: string;
+    title: string;
+    icon?: string;
+    slug: string;
+  };
+  creator: Pick<Person, "id" | "name" | "avatar">;
+};
+export type FlattenedGetPostResponse = {
+  posts: FlattenedPost[];
+};
+
+function flattenPost(postView: PostView): FlattenedPost {
+  const community = postView.community;
+  const creator = postView.creator;
+  const post = postView.post;
+  return {
+    myVote: postView.my_vote,
+    score: postView.counts.score,
+    post,
+    community: {
+      name: community.name,
+      title: community.title,
+      icon: community.icon,
+      slug: createCommunitySlug(postView.community),
+    },
+    creator: {
+      id: creator.id,
+      name: creator.name,
+      avatar: creator.avatar,
+    },
+  };
+}
+
 export function usePost(
   form: { id?: string; communityName?: string },
   enabled = true,
@@ -120,47 +189,34 @@ export function usePost(
 
   const postId = form.id ? +form.id : undefined;
 
-  const queryClient = useQueryClient();
-
-  const postSort = useSorts((s) => s.postSort);
-
-  const cachedPosts = queryClient.getQueryData<
-    InfiniteData<GetPostsResponse, unknown>
-  >([`getPosts--${postSort}`]);
-
-  const cachedPosts2 = queryClient.getQueryData<
-    InfiniteData<GetPostsResponse, unknown>
-  >([`getPosts-${form.communityName}-${postSort}`]);
-
   const queryKey = ["getPost", form.id];
 
-  const prevData = queryClient.getQueryData<GetPostResponse>(queryKey);
-  const fromCache = {
-    post_view:
-      getPostFromCache(cachedPosts, postId) ??
-      getPostFromCache(cachedPosts2, postId),
-  };
-
-  const initialData = useMemo(
-    () => ({
-      ...prevData,
-      post_view: prevData?.post_view ?? fromCache.post_view,
-    }),
-    [prevData, fromCache],
+  const initialData = usePostsStore((s) =>
+    form.id ? s.posts[form.id]?.data : undefined,
   );
 
-  return useQuery<Partial<GetPostResponse>>({
+  const cachePost = usePostsStore((s) => s.cachePost);
+
+  return useQuery<FlattenedPost>({
     queryKey,
     queryFn: async () => {
       const res = await client.getPost({
         id: postId,
       });
-      if (res.post_view.post.thumbnail_url) {
-        measureImage(res.post_view.post.thumbnail_url);
+      const thumbnail = res.post_view.post.thumbnail_url;
+      if (thumbnail) {
+        measureImage(thumbnail);
+        FastImage.preload([
+          {
+            uri: thumbnail,
+          },
+        ]);
       }
-      return res;
+      const post = flattenPost(res.post_view);
+      cachePost(post);
+      return post;
     },
-    enabled: !!form.id && enabled,
+    enabled: !!form.id,
     initialData,
   });
 }
@@ -203,26 +259,56 @@ export function usePostComments(form: GetComments) {
 export function usePosts(form: GetPosts) {
   const client = useLemmyClient();
 
-  const queryKey = [`getPosts-${form.community_name ?? ""}-${form.sort}`];
+  const queryKey = form.community_name
+    ? ["getPosts", form.sort, form.community_name]
+    : ["getPosts", form.sort];
+
+  const getPosts = useMemo(() => {
+    const throttle = throttledQueue(1, 1000 * 8);
+    return (form: GetPosts) => throttle(() => client.getPosts(form));
+  }, [client]);
+
+  const cachePosts = usePostsStore((s) => s.cachePosts);
 
   return useInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await client.getPosts({
+      const res = await getPosts({
         ...form,
         page_cursor: pageParam === "init" ? undefined : pageParam,
       });
 
+      const posts = res.posts.map(flattenPost);
+      cachePosts(posts);
+
+      let i = 0;
       for (const { post } of res.posts) {
-        if (post.thumbnail_url) {
-          measureImage(post.thumbnail_url);
+        const thumbnail = post.thumbnail_url;
+        if (thumbnail) {
+          setTimeout(() => {
+            measureImage(thumbnail);
+            FastImage.preload([
+              {
+                uri: thumbnail,
+              },
+            ]);
+          }, i);
+          i += 50;
         }
       }
 
-      return res;
+      return {
+        posts: posts.map((p) => p.post.id),
+        next_page: res.next_page,
+      };
     },
     getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: "init",
+    notifyOnChangeProps: "all",
+    staleTime: 1000 * 60 * 5,
+    // refetchOnWindowFocus: false,
+    // refetchOnMount: true,
+    // staleTime: Infinity,
   });
 }
 
@@ -265,6 +351,7 @@ export function useCommunity(form: { name?: string; instance?: string }) {
       return res;
     },
     enabled: !!form.name,
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -287,44 +374,35 @@ export function useLogin() {
   });
 }
 
-export function useVote() {
-  const queryClient = useQueryClient();
+export function useLikePost(postId: number) {
   const client = useLemmyClient();
 
+  const post = usePostsStore((s) => s.posts[postId]?.data);
+  const cachePost = usePostsStore((s) => s.cachePost);
+
   return useMutation({
-    mutationFn: async (form: CreatePostLike) => {
-      const res = await client.likePost(form);
+    mutationKey: ["likePost", postId],
+    mutationFn: async (score: -1 | 0 | 1) => {
+      const res = await client.likePost({
+        post_id: postId,
+        score,
+      });
       return res;
     },
-    onMutate: (newVote) => {
-      const prevPost = queryClient.getQueryData<Partial<GetPostResponse>>([
-        "getPost",
-        String(newVote.post_id),
-      ]);
-
-      const diff = newVote.score - (prevPost?.post_view?.my_vote ?? 0);
-
-      const patchedPost = {
-        ...prevPost,
-        post_view: {
-          ...prevPost?.post_view,
-          my_vote: newVote.score,
-          counts: {
-            ...prevPost?.post_view?.counts,
-            score: (prevPost?.post_view?.counts.score ?? 0) + diff,
-          },
-        },
-      };
-
-      queryClient.setQueryData(
-        ["getPost", String(newVote.post_id)],
-        patchedPost,
-      );
+    onMutate: (myVote) => {
+      cachePost({
+        ...post,
+        optimisticMyVote: myVote,
+      });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: ["getPost", String(data.post_view.post.id)],
+      cachePost({
+        ..._.omit(post, ["optimisticMyVote"]),
+        ...flattenPost(data.post_view),
       });
+    },
+    onError: () => {
+      cachePost(_.omit(post, ["optimisticMyVote"]));
     },
   });
 }

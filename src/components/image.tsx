@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
-import { Image as RNImage, Platform } from "react-native";
-import { measureImage } from "../lib/lemmy";
-import { useTheme } from "tamagui";
+import {
+  // Image as RNImage,
+  Platform,
+} from "react-native";
+import { imageSizeCache, measureImage } from "../lib/lemmy";
+import { useTheme, Text } from "tamagui";
 import _ from "lodash";
+import RNImage from "./fast-image";
 
 export function Image({
   imageUrl,
@@ -41,7 +45,7 @@ export function Image({
         height: number;
       }
     | undefined
-  >(undefined);
+  >(imageSizeCache.get(imageUrl));
 
   useEffect(() => {
     measureImage(imageUrl)
@@ -50,7 +54,9 @@ export function Image({
           setDimensions(data);
         }
       })
-      .catch(() => {});
+      .catch((e) => {
+        console.log(e);
+      });
   }, [imageUrl]);
 
   // Calculate aspect ratio

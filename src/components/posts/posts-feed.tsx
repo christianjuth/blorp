@@ -1,6 +1,5 @@
 import { PostCard } from "~/src/components/posts/post";
 import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
-import { GetPostsResponse } from "lemmy-js-client";
 import { useTheme, View } from "tamagui";
 import {
   Sidebar,
@@ -12,15 +11,18 @@ import { useParams } from "one";
 import { PopularCommunitiesSidebar } from "../populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
-import { FlashList } from "@shopify/flash-list";
 import { useCustomHeaderHeight } from "../headers";
+import { FlashList } from "@shopify/flash-list";
 
 const EMPTY_ARR = [];
 
 export function PostsFeed({
   posts,
 }: {
-  posts: UseInfiniteQueryResult<InfiniteData<GetPostsResponse, unknown>, Error>;
+  posts: UseInfiniteQueryResult<
+    InfiniteData<{ posts: number[] }, unknown>,
+    Error
+  >;
 }) {
   const header = useCustomHeaderHeight();
 
@@ -77,7 +79,7 @@ export function PostsFeed({
 
         return (
           <FeedGutters>
-            <PostCard postView={item} />
+            <PostCard postId={item} />
             <></>
           </FeedGutters>
         );
@@ -88,9 +90,7 @@ export function PostsFeed({
         }
       }}
       onEndReachedThreshold={0.5}
-      keyExtractor={(item) =>
-        typeof item === "string" ? item : String(item.post.id)
-      }
+      keyExtractor={(item) => String(item)}
       contentContainerStyle={{
         backgroundColor: theme.color1.val,
       }}
@@ -106,6 +106,7 @@ export function PostsFeed({
         </FeedGutters>
       )}
       stickyHeaderIndices={[0]}
+      estimatedItemSize={400}
     />
   );
 }

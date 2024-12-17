@@ -19,6 +19,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.christianjuth.lemmy-connect",
       "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
         "UISupportedInterfaceOrientations": [
           "UIInterfaceOrientationPortrait",
           "UIInterfaceOrientationLandscapeLeft",

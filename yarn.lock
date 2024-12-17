@@ -4930,52 +4930,52 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-broadcast-client-experimental@npm:5.61.5":
-  version: 5.61.5
-  resolution: "@tanstack/query-broadcast-client-experimental@npm:5.61.5"
+"@tanstack/query-broadcast-client-experimental@npm:5.62.7":
+  version: 5.62.7
+  resolution: "@tanstack/query-broadcast-client-experimental@npm:5.62.7"
   dependencies:
-    "@tanstack/query-core": "npm:5.61.5"
+    "@tanstack/query-core": "npm:5.62.7"
     broadcast-channel: "npm:^7.0.0"
-  checksum: 10c0/5adc4bf91ccbaf75b854ac1deda312edab43581a433c84d716b6250471b702b4c0bd3f9d4579c0ed1f3a4af9e11251df6417ea2a3fd658c4a257a4ae4c66cbac
+  checksum: 10c0/80b5cafde69c30fd7332bd6517d4da2591436221f3696769bc54d91f6182d07ff70165d535b85d975938c9b4c046e99713897ecf13e51e11506aca656e0c677c
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.61.5":
-  version: 5.61.5
-  resolution: "@tanstack/query-core@npm:5.61.5"
-  checksum: 10c0/597af37641eb7e4123259f2f4244de977de98b1cab245a246f892b73bceac78d02e49f3368304e74691ab5ed74aa2b203b0a17045406f0303bbf962696856db9
+"@tanstack/query-core@npm:5.62.7":
+  version: 5.62.7
+  resolution: "@tanstack/query-core@npm:5.62.7"
+  checksum: 10c0/d7aa83571b56e7bf1b608b8f56c90a9e9e759ba5a8899686182e8961c94432d1b6437b066a228765250498a3009623a30c5ca17b2714ddb30e2d727adea9aa0c
   languageName: node
   linkType: hard
 
-"@tanstack/query-persist-client-core@npm:5.61.5":
-  version: 5.61.5
-  resolution: "@tanstack/query-persist-client-core@npm:5.61.5"
+"@tanstack/query-persist-client-core@npm:5.62.7":
+  version: 5.62.7
+  resolution: "@tanstack/query-persist-client-core@npm:5.62.7"
   dependencies:
-    "@tanstack/query-core": "npm:5.61.5"
-  checksum: 10c0/7d384a6b403e6858c62b72c0e273ef131bf1c789f9b8e368396033e53d9267bd59061960bb32da9d51e726c0ae3b35d5bff758edbbbde1a98b4b5838102770d2
+    "@tanstack/query-core": "npm:5.62.7"
+  checksum: 10c0/ec6476688e2f38f04b5430c19450233525b42a2db7b99f4778b48e6eb11273534a3eceb5d314af20d7abc239c146afba8d328c3bdf876acfd1570f0b8488d83c
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-persist-client@npm:5.61.5":
-  version: 5.61.5
-  resolution: "@tanstack/react-query-persist-client@npm:5.61.5"
+"@tanstack/react-query-persist-client@npm:5.62.7":
+  version: 5.62.7
+  resolution: "@tanstack/react-query-persist-client@npm:5.62.7"
   dependencies:
-    "@tanstack/query-persist-client-core": "npm:5.61.5"
+    "@tanstack/query-persist-client-core": "npm:5.62.7"
   peerDependencies:
-    "@tanstack/react-query": ^5.61.5
+    "@tanstack/react-query": ^5.62.7
     react: ^18 || ^19
-  checksum: 10c0/8f01f5a8f2952989ad1b0fa386f1c4937d79fae3e56c3322a5d2aa9e510bab337df3a208d6572515a92e7b8d2a47947c09c37a69f1924c44019c127eec1d4122
+  checksum: 10c0/b0a8c5bde89491d7cf8a3fbe54029d3ce583d71498b7d4507470b99bed73d2b35dcb488cf292a97377baa9e13902ab71f5cf5f338764c9c41d3996567111d217
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:5.61.5":
-  version: 5.61.5
-  resolution: "@tanstack/react-query@npm:5.61.5"
+"@tanstack/react-query@npm:5.62.7":
+  version: 5.62.7
+  resolution: "@tanstack/react-query@npm:5.62.7"
   dependencies:
-    "@tanstack/query-core": "npm:5.61.5"
+    "@tanstack/query-core": "npm:5.62.7"
   peerDependencies:
     react: ^18 || ^19
-  checksum: 10c0/1c535836025622a13f7a53947bc715147a34a5f98bcda32c0afd56f605073f21788b19f3e47e21876cad2cff7c9cd3b25cadd12eba5ddcc4c7e37f75d0742c32
+  checksum: 10c0/4a99bf3f3cdce6a24b6356377697e4b8cc31b0b160942a32d0619b928aec44c42dad61070d9d127512e6139bc4e62e7fe0722054f8152e21a1b8743a1dbd39e0
   languageName: node
   linkType: hard
 
@@ -7859,15 +7859,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-modules-core@npm:1.12.11":
-  version: 1.12.11
-  resolution: "expo-modules-core@npm:1.12.11"
-  dependencies:
-    invariant: "npm:^2.2.4"
-  checksum: 10c0/7edceaa4a25274776f8fe35842d97c3cabbb5d7ee0e397c94653a1a95059c2c48fb74b8de141421335d85a5816a1f4c11b5a6cfc41bd1b33d14a11b87d84232a
-  languageName: node
-  linkType: hard
-
 "expo-modules-core@npm:1.12.26, expo-modules-core@npm:^1.12.24":
   version: 1.12.26
   resolution: "expo-modules-core@npm:1.12.26"
@@ -10009,9 +10000,9 @@ __metadata:
     "@tamagui/react-native-media-driver": "npm:1.117.0"
     "@tamagui/shorthands": "npm:1.117.0"
     "@tamagui/vite-plugin": "npm:1.117.0"
-    "@tanstack/query-broadcast-client-experimental": "npm:5.61.5"
-    "@tanstack/react-query": "npm:5.61.5"
-    "@tanstack/react-query-persist-client": "npm:5.61.5"
+    "@tanstack/query-broadcast-client-experimental": "npm:5.62.7"
+    "@tanstack/react-query": "npm:5.62.7"
+    "@tanstack/react-query-persist-client": "npm:5.62.7"
     "@tanstack/react-virtual": "npm:^3.10.9"
     "@types/lodash": "npm:^4.17.13"
     "@types/react": "npm:^18.3.11"
@@ -10019,7 +10010,7 @@ __metadata:
     dayjs: "npm:^1.11.13"
     expo: "npm:~51.0.39"
     expo-haptics: "npm:^13.0.1"
-    expo-modules-core: "npm:1.12.11"
+    expo-modules-core: "npm:^1.12.24"
     expo-system-ui: "npm:~3.0.7"
     html-react-parser: "npm:^5.2.0"
     idb: "npm:^8.0.0"
@@ -10034,6 +10025,7 @@ __metadata:
     react: "npm:^18.3.1"
     react-markdown: "npm:^9.0.1"
     react-native: "npm:0.74.5"
+    react-native-fast-image: "npm:^8.6.3"
     react-native-markdown-display: "npm:^7.0.2"
     react-native-reanimated: "npm:~3.10.1"
     react-native-safe-area-context: "npm:4.10.5"
@@ -10045,6 +10037,8 @@ __metadata:
     remark-rehype: "npm:^11.1.1"
     remark-unlink: "npm:^5.0.0"
     tamagui: "npm:1.117.0"
+    throttled-queue: "npm:^2.1.4"
+    type-fest: "npm:^4.30.1"
     unified: "npm:^11.0.5"
     vite: "npm:6.0.0-beta.1"
     zustand: "npm:^5.0.2"
@@ -12728,6 +12722,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-fast-image@npm:^8.6.3":
+  version: 8.6.3
+  resolution: "react-native-fast-image@npm:8.6.3"
+  peerDependencies:
+    react: ^17 || ^18
+    react-native: ">=0.60.0"
+  checksum: 10c0/4ebeae53ffeadf1e7e5e133c1cfda81f9efe978f9ece10c732a0338149fe9104681bfdabc8427dad7c934b02bfcbd0e205bb6ca43e2844abc6054630ebe34454
+  languageName: node
+  linkType: hard
+
 "react-native-fit-image@npm:^1.5.5":
   version: 1.5.5
   resolution: "react-native-fit-image@npm:1.5.5"
@@ -14524,6 +14528,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"throttled-queue@npm:^2.1.4":
+  version: 2.1.4
+  resolution: "throttled-queue@npm:2.1.4"
+  checksum: 10c0/29e53960eff8089c3714ef3188bf6459d808b4c0d946d56f631d426970bd6562a1f33abafa206359ab24a065fb56afbbfa3a120e3d7327765e8e4729f975c5fa
+  languageName: node
+  linkType: hard
+
 "through2@npm:^2.0.1":
   version: 2.0.5
   resolution: "through2@npm:2.0.5"
@@ -14693,6 +14704,13 @@ __metadata:
   version: 3.13.1
   resolution: "type-fest@npm:3.13.1"
   checksum: 10c0/547d22186f73a8c04590b70dcf63baff390078c75ea8acd366bbd510fd0646e348bd1970e47ecf795b7cff0b41d26e9c475c1fedd6ef5c45c82075fbf916b629
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:^4.30.1":
+  version: 4.30.1
+  resolution: "type-fest@npm:4.30.1"
+  checksum: 10c0/7ee8084aa764c9703f92e4c3546e0943909a1b508c93a02f1e528b877803b4af2cd68982d1d36578738a14026d5f5a3049d840aa11fca1d690d13a1612222da1
   languageName: node
   linkType: hard
 

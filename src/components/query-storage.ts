@@ -32,8 +32,8 @@ export const persist = async (queryClient: QueryClient) => {
   });
 
   // Enable multi-tab synchronization
-  broadcastQueryClient({
-    queryClient,
-    broadcastChannel: "react-query-sync",
-  });
+  // broadcastQueryClient({
+  //   queryClient,
+  //   broadcastChannel: "react-query-sync",
+  // });
 };

@@ -3,8 +3,13 @@ import {
   PostComment,
   buildCommentMap,
 } from "~/src/components/posts/post-comment";
-import { useEffect, useState } from "react";
-import { usePost, usePostComments } from "~/src/lib/lemmy";
+import { useEffect, useId } from "react";
+import {
+  cachedPostIsReady,
+  FlattenedPost,
+  usePost,
+  usePostComments,
+} from "~/src/lib/lemmy";
 import { PostDetail } from "~/src/components/posts/post-details";
 import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { FeedGutters } from "../components/feed-gutters";
@@ -13,7 +18,8 @@ import { CommentView, PostView } from "lemmy-js-client";
 import { memo, useMemo } from "react";
 import { useTheme, View } from "tamagui";
 import _ from "lodash";
-import { FlatList } from "react-native";
+// import { FlatList } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,13 +29,13 @@ const MemoedPostComment = memo(PostComment);
 const EMPTY_ARR = [];
 
 export function PostComments({
-  postView,
+  postId,
   commentViews,
   loadMore,
   opId,
   communityName,
 }: {
-  postView: PostView;
+  postId: number | string;
   commentViews: CommentView[];
   loadMore: () => any;
   opId: number | undefined;
@@ -51,7 +57,7 @@ export function PostComments({
   }, [commentViews]);
 
   return (
-    <FlatList
+    <FlashList
       ref={ref}
       data={["sidebar", "post", ...structured.topLevelItems] as const}
       renderItem={({ item }) => {
@@ -71,7 +77,7 @@ export function PostComments({
         if (item === "post") {
           return (
             <FeedGutters>
-              <PostDetail postView={postView} />
+              <PostDetail postId={postId} />
               <></>
             </FeedGutters>
           );
@@ -120,32 +126,34 @@ export function Post({
     saved_only: false,
   });
 
-  const postView = data?.post_view;
-
-  const communityTitle = postView?.community.title;
+  const communityTitle = data?.community?.title;
 
   useEffect(() => {
     nav.setOptions({ title: communityTitle ?? "" });
   }, [communityTitle]);
 
+  // if (!cachedPostIsReady(data)) {
+  //   return null;
+  // }
+
   const allComments = comments.data
     ? comments.data.pages.map((p) => p.comments).flat()
     : EMPTY_ARR;
 
-  if (!postView) {
+  if (!data) {
     return null;
   }
 
   return (
     <PostComments
       commentViews={allComments}
-      postView={postView}
+      postId={postId}
       loadMore={() => {
         if (comments.hasNextPage && !comments.isFetchingNextPage) {
           comments.fetchNextPage();
         }
       }}
-      opId={postView?.creator.id}
+      opId={data?.creator?.id}
       communityName={communityName}
     />
   );

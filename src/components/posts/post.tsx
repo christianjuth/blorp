@@ -1,16 +1,19 @@
 import { Text, View, XStack, YStack } from "tamagui";
 import { Image } from "~/src/components/image";
-import { PostView } from "lemmy-js-client";
 import { Voting } from "./post-buttons";
 import { Link } from "one";
 import { Byline } from "../byline";
-import { createCommunitySlug } from "~/src/lib/lemmy";
 import { useState } from "react";
+import { usePostsStore } from "~/src/stores/posts";
 
-export function PostCard({ postView }: { postView: PostView }) {
-  const { post, creator, community, counts } = postView;
-  const thumbnail = post?.thumbnail_url;
-  const slug = createCommunitySlug(community);
+export function PostCard({ postId }: { postId: number }) {
+  const postView = usePostsStore((s) => s.posts[postId]?.data);
+
+  if (!postView) {
+    return null;
+  }
+
+  const { community, creator, post } = postView;
 
   const [pressed, setPressed] = useState(false);
 
@@ -38,7 +41,7 @@ export function PostCard({ postView }: { postView: PostView }) {
         publishedDate={post.published}
       />
 
-      <Link href={`/c/${slug}/posts/${post.id}`} asChild>
+      <Link href={`/c/${community.slug}/posts/${post.id}`} asChild>
         <YStack
           gap="$1"
           onPressIn={() => setPressed(true)}
@@ -48,16 +51,16 @@ export function PostCard({ postView }: { postView: PostView }) {
             {post.name}
           </Text>
 
-          {thumbnail && (
+          {post.thumbnail_url && (
             <View $md={{ mx: "$-2.5" }}>
-              <Image imageUrl={thumbnail} priority />
+              <Image imageUrl={post.thumbnail_url} priority />
             </View>
           )}
         </YStack>
       </Link>
 
       <XStack jc="flex-end" ai="center">
-        {postView && <Voting postView={postView} />}
+        {postView && <Voting postId={postId} />}
       </XStack>
     </YStack>
   );

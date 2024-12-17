@@ -2,10 +2,16 @@ import { Text, View, XStack, YStack } from "tamagui";
 import { Image } from "~/src/components/image";
 import { Markdown } from "~/src/components/markdown";
 import { Voting } from "~/src/components/posts/post-buttons";
-import { PostView } from "lemmy-js-client";
 import { Byline } from "../byline";
+import { usePostsStore } from "~/src/stores/posts";
 
-export function PostDetail({ postView }: { postView: PostView }) {
+export function PostDetail({ postId }: { postId: number | string }) {
+  const postView = usePostsStore((s) => s.posts[postId]?.data);
+
+  if (!postView) {
+    return null;
+  }
+
   const post = postView.post;
   const thumbnail = post?.thumbnail_url;
   const body = post?.body;
@@ -40,7 +46,7 @@ export function PostDetail({ postView }: { postView: PostView }) {
       {body && <Markdown markdown={body} />}
 
       <XStack jc="flex-end" ai="center" mt="$1.5">
-        {postView && <Voting postView={postView} />}
+        {postView && <Voting postId={postId} />}
       </XStack>
     </YStack>
   );

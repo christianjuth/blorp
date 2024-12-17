@@ -5,8 +5,8 @@ import { View, Text, Button, XStack, useMedia } from "tamagui";
 import { ChevronLeft, X } from "@tamagui/lucide-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform, Image } from "react-native";
-import { useParams } from "one";
 import { useCommunity } from "~/src/lib/lemmy";
+// import Image from "react-native-fast-image";
 
 export const useCustomHeaderHeight = () => {
   const insets = useSafeAreaInsets();
@@ -123,6 +123,7 @@ export function CommunityHeader(
             left: 0,
             opacity: media.gtMd ? 0 : 1,
           }}
+          resizeMode="center"
         />
       )}
 
@@ -153,7 +154,19 @@ export function CommunityHeader(
       >
         {communityName ?? "Home"}
       </Text>
-      <View flex={1} flexBasis={0} ai="flex-end"></View>
+      <View flex={1} flexBasis={0} ai="flex-end">
+        <View
+          dsp="flex"
+          ai="center"
+          jc="center"
+          h="$2.5"
+          w="$2.5"
+          bg="$color05"
+          borderRadius="$12"
+        >
+          <PostSortSelect />
+        </View>
+      </View>
     </XStack>
   );
 }
@@ -213,6 +226,7 @@ export function PostHeader(
             left: 0,
             opacity: media.gtMd ? 0 : 1,
           }}
+          resizeMode="center"
           blurRadius={50}
         />
       )}

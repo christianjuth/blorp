@@ -96,7 +96,7 @@ const POST_SORT_OPTIONS: Option<PostSortType, PostSortType>[] = [
 
 function getIconForPostSort(sort: PostSortType) {
   const Icon = POST_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
-  return Icon ? <Icon /> : undefined;
+  return Icon ? <Icon color="$color1" /> : undefined;
 }
 
 export function PostSortSelect() {

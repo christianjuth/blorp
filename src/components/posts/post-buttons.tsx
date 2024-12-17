@@ -1,27 +1,32 @@
-import { PostView } from "lemmy-js-client";
 import { Button, View, Text, useTheme } from "tamagui";
 import { ArrowBigUp, ArrowBigDown, Expand } from "@tamagui/lucide-icons";
 import { abbriviateNumber } from "~/src/lib/format";
-import { useVote, usePost } from "~/src/lib/lemmy";
-import * as Haptics from "expo-haptics";
-import { Platform } from "react-native";
+import { useLikePost, FlattenedPost } from "~/src/lib/lemmy";
+import { voteHaptics } from "~/src/lib/voting";
+import { usePostsStore } from "~/src/stores/posts";
 
-export function Voting({ postView }: { postView: PostView }) {
-  const vote = useVote();
+export function Voting({ postId }: { postId: number | string }) {
+  const postView = usePostsStore((s) => s.posts[postId]?.data);
+
+  if (!postView) {
+    return null;
+  }
+
+  const vote = useLikePost(postView.post.id);
 
   const theme = useTheme();
 
-  const { data } = usePost(
-    {
-      id: String(postView.post.id),
-    },
-    false,
-  );
-
-  const myVote = data.post_view?.my_vote ?? postView.my_vote ?? 0;
+  const myVote = postView.optimisticMyVote ?? postView.myVote ?? 0;
 
   const isUpvoted = myVote > 0;
   const isDownvoted = myVote < 0;
+
+  const diff =
+    typeof postView.optimisticMyVote === "number"
+      ? postView.optimisticMyVote - (postView.myVote ?? 0)
+      : 0;
+
+  const score = postView.score + diff;
 
   return (
     <View
@@ -39,17 +44,9 @@ export function Voting({ postView }: { postView: PostView }) {
         pl={7}
         bg="transparent"
         onPress={() => {
-          if (Platform.OS !== "web") {
-            Haptics.impactAsync(
-              isUpvoted
-                ? Haptics.ImpactFeedbackStyle.Medium
-                : Haptics.ImpactFeedbackStyle.Rigid,
-            );
-          }
-          vote.mutate({
-            post_id: postView.post.id,
-            score: isUpvoted ? 0 : 1,
-          });
+          const newVote = isUpvoted ? 0 : 1;
+          voteHaptics(newVote);
+          vote.mutate(newVote);
         }}
         disabled={vote.isPending}
         gap="$1"
@@ -67,7 +64,7 @@ export function Voting({ postView }: { postView: PostView }) {
             }
             px={2}
           >
-            {abbriviateNumber(postView.counts.score)}
+            {abbriviateNumber(score)}
           </Text>
         </>
       </Button>
@@ -79,17 +76,9 @@ export function Voting({ postView }: { postView: PostView }) {
         pr={7}
         bg="transparent"
         onPress={() => {
-          if (Platform.OS !== "web") {
-            Haptics.impactAsync(
-              isUpvoted
-                ? Haptics.ImpactFeedbackStyle.Medium
-                : Haptics.ImpactFeedbackStyle.Rigid,
-            );
-          }
-          vote.mutate({
-            post_id: postView.post.id,
-            score: isDownvoted ? 0 : -1,
-          });
+          const newVote = isDownvoted ? 0 : -1;
+          voteHaptics(newVote);
+          vote.mutate(newVote);
         }}
         disabled={vote.isPending}
       >
