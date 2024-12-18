@@ -1,8 +1,8 @@
 import { Text, View, XStack, YStack } from "tamagui";
 import { Image } from "~/src/components/image";
-import { Voting } from "./post-buttons";
+import { PostCommentsButton, Voting } from "./post-buttons";
 import { Link } from "one";
-import { Byline } from "../byline";
+import { PostByline } from "./post-byline";
 import { useState } from "react";
 import { usePostsStore } from "~/src/stores/posts";
 
@@ -13,7 +13,7 @@ export function PostCard({ postId }: { postId: number }) {
     return null;
   }
 
-  const { community, creator, post } = postView;
+  const { community, post } = postView;
 
   const [pressed, setPressed] = useState(false);
 
@@ -35,11 +35,7 @@ export function PostCard({ postId }: { postId: number }) {
       opacity={pressed ? 0.8 : 1}
       animation="100ms"
     >
-      <Byline
-        avatar={community.icon}
-        author={creator.name}
-        publishedDate={post.published}
-      />
+      <PostByline postView={postView} />
 
       <Link href={`/c/${community.slug}/posts/${post.id}`} asChild>
         <YStack
@@ -59,7 +55,8 @@ export function PostCard({ postId }: { postId: number }) {
         </YStack>
       </Link>
 
-      <XStack jc="flex-end" ai="center">
+      <XStack jc="flex-end" ai="center" gap="$2">
+        {postView && <PostCommentsButton postView={postView} />}
         {postView && <Voting postId={postId} />}
       </XStack>
     </YStack>

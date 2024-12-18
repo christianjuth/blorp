@@ -1,4 +1,4 @@
-import { Feed } from "~/src/features/feed";
+import { Feed } from "~/src/features/community-feed";
 import { useParams, useNavigation } from "one";
 import { useEffect } from "react";
 import { useCommunity } from "~/src/lib/lemmy";

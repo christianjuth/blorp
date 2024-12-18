@@ -1,4 +1,4 @@
-import { CommentSortType, PostSortType } from "lemmy-js-client";
+import { CommentSortType, ListingType, PostSortType } from "lemmy-js-client";
 import { Option, Select } from "~/src/components/select";
 import {
   Flame,
@@ -6,8 +6,10 @@ import {
   Clock3,
   Sword,
   Hourglass,
+  ChevronDown,
 } from "@tamagui/lucide-icons";
-import { useSorts } from "~/src/stores/sorts";
+import { useFiltersStore } from "~/src/stores/filters";
+import { Text, XStack } from "tamagui";
 
 const COMMENT_SORT_OPTIONS: Option<CommentSortType, CommentSortType>[] = [
   {
@@ -39,12 +41,12 @@ const COMMENT_SORT_OPTIONS: Option<CommentSortType, CommentSortType>[] = [
 
 function getIconForSort(sort: CommentSortType) {
   const Icon = COMMENT_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
-  return Icon ? <Icon color="$color1" /> : undefined;
+  return Icon ? <Icon color="$accentColor" /> : undefined;
 }
 
 export function ComentSortSelect() {
-  const commentSort = useSorts((s) => s.commentSort);
-  const setCommentSort = useSorts((s) => s.setCommentSort);
+  const commentSort = useFiltersStore((s) => s.commentSort);
+  const setCommentSort = useFiltersStore((s) => s.setCommentSort);
   return (
     <Select
       options={COMMENT_SORT_OPTIONS}
@@ -96,12 +98,12 @@ const POST_SORT_OPTIONS: Option<PostSortType, PostSortType>[] = [
 
 function getIconForPostSort(sort: PostSortType) {
   const Icon = POST_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
-  return Icon ? <Icon color="$color1" /> : undefined;
+  return Icon ? <Icon color="$accentColor" /> : undefined;
 }
 
 export function PostSortSelect() {
-  const postSort = useSorts((s) => s.postSort);
-  const setPostSort = useSorts((s) => s.setPostSort);
+  const postSort = useFiltersStore((s) => s.postSort);
+  const setPostSort = useFiltersStore((s) => s.setPostSort);
   return (
     <Select
       options={POST_SORT_OPTIONS}
@@ -109,6 +111,48 @@ export function PostSortSelect() {
       value={postSort}
       onValueChange={setPostSort}
       trigger={getIconForPostSort(postSort)}
+    />
+  );
+}
+
+const HOME_FILTER: Option<ListingType, ListingType>[] = [
+  {
+    label: "All",
+    value: "All",
+    // icon: Flame,
+  },
+  {
+    label: "Local",
+    value: "Local",
+    // icon: Flame,
+  },
+  {
+    label: "Subscribed",
+    value: "Subscribed",
+    // icon: ArrowUpCircle,
+  },
+  // {
+  //   label: "ModeratorView",
+  //   value: "ModeratorView",
+  //   // icon: ArrowUpCircle,
+  // },
+];
+
+export function HomeFilter() {
+  const homeFilter = useFiltersStore((s) => s.homeFilter);
+  const setHomeFilter = useFiltersStore((s) => s.setHomeFilter);
+  return (
+    <Select
+      options={HOME_FILTER}
+      title="Show posts..."
+      value={homeFilter}
+      onValueChange={setHomeFilter}
+      trigger={
+        <XStack ai="center" gap="$1">
+          <Text fontWeight="bold">{homeFilter}</Text>
+          <ChevronDown size="$1" />
+        </XStack>
+      }
     />
   );
 }

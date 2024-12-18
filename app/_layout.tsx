@@ -8,11 +8,7 @@ import { Providers } from "~/src/components/providers";
 
 import { Stack } from "one";
 import { useTheme } from "tamagui";
-import {
-  CommunityHeader,
-  ModalHeader,
-  PostHeader,
-} from "~/src/components/headers";
+import { ModalHeader, PostHeader } from "~/src/components/headers";
 
 function Nav() {
   const theme = useTheme();

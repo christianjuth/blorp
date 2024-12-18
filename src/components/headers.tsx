@@ -1,11 +1,12 @@
 import type { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import type { BottomTabHeaderProps } from "@react-navigation/bottom-tabs";
-import { ComentSortSelect, PostSortSelect } from "./lemmy-sort";
+import { ComentSortSelect, HomeFilter, PostSortSelect } from "./lemmy-sort";
 import { View, Text, Button, XStack, useMedia } from "tamagui";
 import { ChevronLeft, X } from "@tamagui/lucide-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform, Image } from "react-native";
 import { useCommunity } from "~/src/lib/lemmy";
+import { BlurBackground } from "./nav/blur-background";
 // import Image from "react-native-fast-image";
 
 export const useCustomHeaderHeight = () => {
@@ -68,30 +69,14 @@ export const useCustomHeaderHeight = () => {
 //   );
 // }
 
-export function CommunityHeader(
+export function HomeHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
-  const media = useMedia();
-
-  const params = props.route.params;
-  const communityName =
-    params &&
-    "communityName" in params &&
-    typeof params.communityName === "string"
-      ? params.communityName
-      : undefined;
-
-  const community = useCommunity({
-    name: communityName,
-  });
-
-  const banner = community.data?.community_view.community.banner;
-
   const { height, insetTop } = useCustomHeaderHeight();
   return (
     <XStack
       bbc="$color4"
-      bbw={banner ? 0 : 0.5}
+      bbw={0.5}
       btw={0}
       btc="transparent"
       w="unset"
@@ -101,31 +86,7 @@ export function CommunityHeader(
       h={height - 1}
       pos="relative"
     >
-      <View
-        bg="$color1"
-        opacity={0.95}
-        pos="absolute"
-        t={0}
-        r={0}
-        b={0}
-        l={0}
-      />
-
-      {banner && (
-        <Image
-          source={{ uri: banner }}
-          style={{
-            objectFit: "cover",
-            position: "absolute",
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            opacity: media.gtMd ? 0 : 1,
-          }}
-          resizeMode="center"
-        />
-      )}
+      <BlurBackground />
 
       <View flex={1} flexBasis={0} ai="flex-start">
         {"back" in props && props.back && (
@@ -145,33 +106,15 @@ export function CommunityHeader(
           </Button>
         )}
       </View>
-      <Text
-        fontWeight="bold"
-        fontSize="$5"
-        overflow="hidden"
-        pos="relative"
-        $md={{ dsp: banner ? "none" : undefined }}
-      >
-        {communityName ?? "Home"}
-      </Text>
+      <HomeFilter />
       <View flex={1} flexBasis={0} ai="flex-end">
-        <View
-          dsp="flex"
-          ai="center"
-          jc="center"
-          h="$2.5"
-          w="$2.5"
-          bg="$color05"
-          borderRadius="$12"
-        >
-          <PostSortSelect />
-        </View>
+        <PostSortSelect />
       </View>
     </XStack>
   );
 }
 
-export function PostHeader(
+export function CommunityHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
   const media = useMedia();
@@ -184,17 +127,11 @@ export function PostHeader(
       ? params.communityName
       : undefined;
 
-  const community = useCommunity({
-    name: communityName,
-  });
-
-  const banner = community.data?.community_view.community.banner;
-
   const { height, insetTop } = useCustomHeaderHeight();
   return (
     <XStack
       bbc="$color4"
-      bbw={banner ? 0 : 0.5}
+      bbw={0.5}
       btw={0}
       btc="transparent"
       w="unset"
@@ -204,72 +141,87 @@ export function PostHeader(
       h={height - 1}
       pos="relative"
     >
-      <View
-        bg="$color1"
-        opacity={0.95}
-        pos="absolute"
-        t={0}
-        r={0}
-        b={0}
-        l={0}
-      />
-
-      {banner && (
-        <Image
-          source={{ uri: banner }}
-          style={{
-            objectFit: "cover",
-            position: "absolute",
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            opacity: media.gtMd ? 0 : 1,
-          }}
-          resizeMode="center"
-          blurRadius={50}
-        />
-      )}
+      <BlurBackground />
 
       <View flex={1} flexBasis={0} ai="flex-start">
         {"back" in props && props.back && (
           <Button
             unstyled
-            bg="$color05"
+            p={2}
+            bg="transparent"
             borderRadius="$12"
+            dsp="flex"
+            fd="row"
+            ai="center"
             bw={0}
             onPress={() => props.navigation.pop(1)}
-            dsp="flex"
-            ai="center"
-            jc="center"
-            h="$2.5"
-            w="$2.5"
+            h="auto"
           >
-            <ChevronLeft color="$color1" size="$2" />
+            <ChevronLeft color="$accentColor" size="$2" />
           </Button>
         )}
       </View>
-      <Text
-        fontWeight="bold"
-        fontSize="$5"
-        overflow="hidden"
-        pos="relative"
-        color={banner && media.md ? "white" : undefined}
-      >
+
+      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+        {communityName ?? "Home"}
+      </Text>
+      <View flex={1} flexBasis={0} ai="flex-end">
+        <PostSortSelect />
+      </View>
+    </XStack>
+  );
+}
+
+export function PostHeader(
+  props: NativeStackHeaderProps | BottomTabHeaderProps,
+) {
+  const params = props.route.params;
+  const communityName =
+    params &&
+    "communityName" in params &&
+    typeof params.communityName === "string"
+      ? params.communityName
+      : undefined;
+
+  const { height, insetTop } = useCustomHeaderHeight();
+  return (
+    <XStack
+      bbc="$color4"
+      bbw={0.5}
+      btw={0}
+      btc="transparent"
+      w="unset"
+      px="$3"
+      ai="center"
+      pt={insetTop}
+      h={height - 1}
+      pos="relative"
+    >
+      <BlurBackground />
+
+      <View flex={1} flexBasis={0} ai="flex-start">
+        {"back" in props && props.back && (
+          <Button
+            unstyled
+            p={2}
+            bg="transparent"
+            borderRadius="$12"
+            dsp="flex"
+            fd="row"
+            ai="center"
+            bw={0}
+            onPress={() => props.navigation.pop(1)}
+            h="auto"
+          >
+            <ChevronLeft color="$accentColor" size="$2" />
+          </Button>
+        )}
+      </View>
+      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
         {communityName}
       </Text>
       <View flex={1} flexBasis={0} ai="flex-end">
-        <View
-          dsp="flex"
-          ai="center"
-          jc="center"
-          h="$2.5"
-          w="$2.5"
-          bg="$color05"
-          borderRadius="$12"
-        >
-          <ComentSortSelect />
-        </View>
+        <ComentSortSelect />
       </View>
     </XStack>
   );

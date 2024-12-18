@@ -1,8 +1,11 @@
 import { Text, View, XStack, YStack } from "tamagui";
 import { Image } from "~/src/components/image";
 import { Markdown } from "~/src/components/markdown";
-import { Voting } from "~/src/components/posts/post-buttons";
-import { Byline } from "../byline";
+import {
+  Voting,
+  PostCommentsButton,
+} from "~/src/components/posts/post-buttons";
+import { PostByline } from "./post-byline";
 import { usePostsStore } from "~/src/stores/posts";
 
 export function PostDetail({ postId }: { postId: number | string }) {
@@ -27,12 +30,7 @@ export function PostDetail({ postId }: { postId: number | string }) {
       gap="$2"
       flex={1}
     >
-      <Byline
-        avatar={postView.community.icon}
-        author={postView.creator.name}
-        publishedDate={post.published}
-        comunityName={postView.community.name}
-      />
+      <PostByline postView={postView} />
 
       <Text fontWeight={500} fontSize="$6" lineHeight="$3">
         {post.name}
@@ -45,7 +43,8 @@ export function PostDetail({ postId }: { postId: number | string }) {
       )}
       {body && <Markdown markdown={body} />}
 
-      <XStack jc="flex-end" ai="center" mt="$1.5">
+      <XStack jc="flex-end" ai="center" mt="$1.5" gap="$2">
+        {postView && <PostCommentsButton postView={postView} />}
         {postView && <Voting postId={postId} />}
       </XStack>
     </YStack>

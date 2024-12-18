@@ -3,22 +3,16 @@ import {
   PostComment,
   buildCommentMap,
 } from "~/src/components/posts/post-comment";
-import { useEffect, useId } from "react";
-import {
-  cachedPostIsReady,
-  FlattenedPost,
-  usePost,
-  usePostComments,
-} from "~/src/lib/lemmy";
+import { useEffect } from "react";
+import { usePost, usePostComments } from "~/src/lib/lemmy";
 import { PostDetail } from "~/src/components/posts/post-details";
 import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { FeedGutters } from "../components/feed-gutters";
 
-import { CommentView, PostView } from "lemmy-js-client";
+import { CommentView } from "lemmy-js-client";
 import { memo, useMemo } from "react";
 import { useTheme, View } from "tamagui";
 import _ from "lodash";
-// import { FlatList } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
@@ -32,12 +26,16 @@ export function PostComments({
   postId,
   commentViews,
   loadMore,
+  onRefresh,
+  refreshing,
   opId,
   communityName,
 }: {
   postId: number | string;
   commentViews: CommentView[];
-  loadMore: () => any;
+  loadMore: () => void;
+  onRefresh: () => void;
+  refreshing: boolean;
   opId: number | undefined;
   communityName?: string;
 }) {
@@ -100,6 +98,8 @@ export function PostComments({
       contentInset={{
         bottom: insets.bottom,
       }}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
     />
   );
 }
@@ -113,7 +113,7 @@ export function Post({
 }) {
   const nav = useNavigation();
 
-  const { data } = usePost({
+  const post = usePost({
     id: postId,
     communityName,
   });
@@ -126,21 +126,17 @@ export function Post({
     saved_only: false,
   });
 
-  const communityTitle = data?.community?.title;
+  const communityTitle = post.data?.community?.title;
 
   useEffect(() => {
     nav.setOptions({ title: communityTitle ?? "" });
   }, [communityTitle]);
 
-  // if (!cachedPostIsReady(data)) {
-  //   return null;
-  // }
-
   const allComments = comments.data
     ? comments.data.pages.map((p) => p.comments).flat()
     : EMPTY_ARR;
 
-  if (!data) {
+  if (!post.data || !postId) {
     return null;
   }
 
@@ -153,8 +149,17 @@ export function Post({
           comments.fetchNextPage();
         }
       }}
-      opId={data?.creator?.id}
+      opId={post.data?.creator?.id}
       communityName={communityName}
+      onRefresh={() => {
+        if (!comments.isRefetching) {
+          comments.refetch();
+        }
+        if (!post.isRefetching) {
+          post.refetch();
+        }
+      }}
+      refreshing={comments.isRefetching || post.isRefetching}
     />
   );
 }

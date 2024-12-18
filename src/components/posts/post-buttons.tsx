@@ -1,5 +1,5 @@
 import { Button, View, Text, useTheme } from "tamagui";
-import { ArrowBigUp, ArrowBigDown, Expand } from "@tamagui/lucide-icons";
+import { ArrowBigUp, ArrowBigDown, MessageCircle } from "@tamagui/lucide-icons";
 import { abbriviateNumber } from "~/src/lib/format";
 import { useLikePost, FlattenedPost } from "~/src/lib/lemmy";
 import { voteHaptics } from "~/src/lib/voting";
@@ -26,7 +26,7 @@ export function Voting({ postId }: { postId: number | string }) {
       ? postView.optimisticMyVote - (postView.myVote ?? 0)
       : 0;
 
-  const score = postView.score + diff;
+  const score = postView.counts.score + diff;
 
   return (
     <View
@@ -92,19 +92,19 @@ export function Voting({ postId }: { postId: number | string }) {
   );
 }
 
-export function ExpandPost({ toggleExpand }: { toggleExpand: () => any }) {
+export function PostCommentsButton({ postView }: { postView: FlattenedPost }) {
   return (
     <Button
-      aspectRatio={1.5}
       h="$2"
-      bg="$color5"
+      bg="transparent"
       borderRadius="$12"
-      p="$3"
-      hoverStyle={{ bg: "$color7" }}
-      onPress={toggleExpand}
-      $md={{ dsp: "none" }}
+      px="$2.5"
+      py={0}
+      bw={1}
+      bc="$color5"
     >
-      <Expand />
+      <MessageCircle size={17} />
+      <Text fontSize="$5">{postView.counts.comments}</Text>
     </Button>
   );
 }

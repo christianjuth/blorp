@@ -6,7 +6,7 @@ import {
   MessageCircleMore,
   Bell,
 } from "@tamagui/lucide-icons";
-import { CommunityHeader } from "~/src/components/headers";
+import { CommunityHeader, HomeHeader } from "~/src/components/headers";
 import { useTheme, useMedia } from "tamagui";
 import { BlurBackground } from "~/src/components/nav/blur-background";
 import { Platform } from "react-native";
@@ -36,13 +36,13 @@ export default function Layout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => <Home color={color} />,
-          header: CommunityHeader,
+          header: HomeHeader,
           headerTransparent: Platform.OS !== "web" ? true : false,
         }}
       />
 
       <Tabs.Screen
-        name="(stack)"
+        name="(communities)"
         options={{
           title: "Communities",
           tabBarIcon: ({ color }) => <Users color={color} />,

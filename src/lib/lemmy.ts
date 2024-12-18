@@ -12,6 +12,7 @@ import {
   Login,
   Person,
   Post,
+  PostAggregates,
   PostSortType,
   PostView,
 } from "lemmy-js-client";
@@ -29,7 +30,7 @@ import {
   GetPostsResponse,
 } from "lemmy-js-client";
 import { Image as RNImage } from "react-native";
-import { useSorts } from "~/src/stores/sorts";
+import { useFiltersStore } from "~/src/stores/filters";
 import { useAuth } from "../stores/auth";
 import { useMemo } from "react";
 import FastImage from "../components/fast-image";
@@ -129,23 +130,9 @@ export function getPostFromCache(
   return undefined;
 }
 
-type CachedPost = {
-  post_view?: Partial<GetPostResponse["post_view"]>;
-  moderators?: GetPostResponse["moderators"];
-  cross_posts?: GetPostResponse["cross_posts"];
-  community_view?: GetPostResponse["community_view"];
-};
-
-export function cachedPostIsReady(
-  post: CachedPost,
-): post is Partial<GetPostResponse> {
-  return !!post.post_view?.post;
-}
-
 export type FlattenedPost = {
   optimisticMyVote?: number;
   myVote?: number;
-  score: number;
   post: Post;
   community: {
     name: string;
@@ -154,6 +141,7 @@ export type FlattenedPost = {
     slug: string;
   };
   creator: Pick<Person, "id" | "name" | "avatar">;
+  counts: Pick<PostAggregates, "score" | "comments">;
 };
 export type FlattenedGetPostResponse = {
   posts: FlattenedPost[];
@@ -165,7 +153,6 @@ function flattenPost(postView: PostView): FlattenedPost {
   const post = postView.post;
   return {
     myVote: postView.my_vote,
-    score: postView.counts.score,
     post,
     community: {
       name: community.name,
@@ -178,6 +165,7 @@ function flattenPost(postView: PostView): FlattenedPost {
       name: creator.name,
       avatar: creator.avatar,
     },
+    counts: _.pick(postView.counts, ["score", "comments"]),
   };
 }
 
@@ -222,7 +210,7 @@ export function usePost(
 }
 
 export function usePostComments(form: GetComments) {
-  const commentSort = useSorts((s) => s.commentSort);
+  const commentSort = useFiltersStore((s) => s.commentSort);
   const sort = form.sort ?? commentSort;
   const client = useLemmyClient();
 
@@ -259,13 +247,28 @@ export function usePostComments(form: GetComments) {
 export function usePosts(form: GetPosts) {
   const client = useLemmyClient();
 
-  const queryKey = form.community_name
-    ? ["getPosts", form.sort, form.community_name]
-    : ["getPosts", form.sort];
+  const postSort = useFiltersStore((s) => s.postSort);
+  const sort = form.sort ?? postSort;
+
+  const queryKey = ["getPosts", sort];
+
+  if (form.community_name) {
+    queryKey.push("community", form.community_name);
+  }
+
+  if (form.type_) {
+    queryKey.push("type", form.type_);
+  }
 
   const getPosts = useMemo(() => {
     const throttle = throttledQueue(1, 1000 * 8);
-    return (form: GetPosts) => throttle(() => client.getPosts(form));
+    return (form: GetPosts) =>
+      throttle(() =>
+        client.getPosts({
+          ...form,
+          show_read: true,
+        }),
+      );
   }, [client]);
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
@@ -356,6 +359,7 @@ export function useCommunity(form: { name?: string; instance?: string }) {
 }
 
 export function useLogin() {
+  const queryClient = useQueryClient();
   const client = useLemmyClient();
 
   const setJwt = useAuth((s) => s.setJwt);
@@ -364,6 +368,7 @@ export function useLogin() {
     mutationFn: async (form: Login) => {
       const res = await client.login(form);
       if (res.jwt) {
+        queryClient.clear();
         setJwt(res.jwt);
         if (res.jwt) {
           client.setHeaders({ Authorization: `Bearer ${res.jwt}` });
@@ -401,8 +406,11 @@ export function useLikePost(postId: number) {
         ...flattenPost(data.post_view),
       });
     },
-    onError: () => {
-      cachePost(_.omit(post, ["optimisticMyVote"]));
+    onError: (err) => {
+      cachePost({
+        ...post,
+        optimisticMyVote: undefined,
+      });
     },
   });
 }
