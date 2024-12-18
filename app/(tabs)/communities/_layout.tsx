@@ -17,7 +17,7 @@ export default function Layout() {
       }}
     >
       <Stack.Screen
-        name="communities/index"
+        name="index"
         options={{
           title: "Communities",
           headerTransparent: Platform.OS !== "web" ? true : false,

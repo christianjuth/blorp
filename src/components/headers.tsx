@@ -30,8 +30,6 @@ export const useCustomHeaderHeight = () => {
   };
 };
 
-const HEADER_HEIGHT = 60;
-
 function useHeaderAnimation() {
   const { scrollY } = useScrollContext();
   const header = useCustomHeaderHeight();
@@ -158,6 +156,8 @@ export function HomeHeader(
 export function CommunityHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
+  const styles = useHeaderAnimation();
+
   const params = props.route.params;
   const communityName =
     params &&
@@ -168,46 +168,54 @@ export function CommunityHeader(
 
   const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <XStack
-      bbc="$color4"
-      bbw={0.5}
-      btw={0}
-      btc="transparent"
-      w="unset"
-      px="$3"
-      ai="center"
-      pt={insetTop}
-      h={height - 1}
-      pos="relative"
-    >
+    <Animated.View style={[styles.container, { position: "relative" }]}>
       <BlurBackground />
 
-      <View flex={1} flexBasis={0} ai="flex-start">
-        {"back" in props && props.back && (
-          <Button
-            unstyled
-            p={2}
-            bg="transparent"
-            borderRadius="$12"
-            dsp="flex"
-            fd="row"
-            ai="center"
-            bw={0}
-            onPress={() => props.navigation.pop(1)}
-            h="auto"
-          >
-            <ChevronLeft color="$accentColor" size="$2" />
-          </Button>
-        )}
-      </View>
+      <Animated.View style={styles.content}>
+        <XStack
+          bbc="$color4"
+          bbw={0.5}
+          btw={0}
+          btc="transparent"
+          w="unset"
+          px="$3"
+          ai="center"
+          pt={insetTop}
+          h={height - 1}
+        >
+          <View flex={1} flexBasis={0} ai="flex-start">
+            {"back" in props && props.back && (
+              <Button
+                unstyled
+                p={2}
+                bg="transparent"
+                borderRadius="$12"
+                dsp="flex"
+                fd="row"
+                ai="center"
+                bw={0}
+                onPress={() => props.navigation.pop(1)}
+                h="auto"
+              >
+                <ChevronLeft color="$accentColor" size="$2" />
+              </Button>
+            )}
+          </View>
 
-      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-        {communityName ?? "Home"}
-      </Text>
-      <View flex={1} flexBasis={0} ai="flex-end">
-        <PostSortSelect />
-      </View>
-    </XStack>
+          <Text
+            fontWeight="bold"
+            fontSize="$5"
+            overflow="hidden"
+            pos="relative"
+          >
+            {communityName ?? "Home"}
+          </Text>
+          <View flex={1} flexBasis={0} ai="flex-end">
+            <PostSortSelect />
+          </View>
+        </XStack>
+      </Animated.View>
+    </Animated.View>
   );
 }
 

@@ -6,43 +6,34 @@ import {
   MessageCircleMore,
   Settings,
 } from "@tamagui/lucide-icons";
-import { CommunityHeader, HomeHeader } from "~/src/components/headers";
-import { useTheme, useMedia } from "tamagui";
-import { BlurBackground } from "~/src/components/nav/blur-background";
-import { Platform } from "react-native";
-
-function Hide() {
-  return null;
-}
+import { useTheme } from "tamagui";
+import { CustomBottomTabBar } from "~/src/components/nav/bottom-tab-bar";
 
 export default function Layout() {
   const theme = useTheme();
-  const isLgScreen = useMedia().gtSm;
 
   return (
     <Tabs
-      tabBar={isLgScreen ? Hide : undefined}
+      tabBar={(props) => <CustomBottomTabBar {...props} />}
       screenOptions={{
         tabBarStyle: {
           borderTopColor: theme.color4.val,
-          position: "absolute",
           backgroundColor: "transparent",
         },
-        tabBarBackground: BlurBackground,
+        tabBarBackground: () => <></>,
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="(home)"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => <Home color={color} />,
-          header: HomeHeader,
-          headerTransparent: Platform.OS !== "web" ? true : false,
+          headerShown: false,
         }}
       />
 
       <Tabs.Screen
-        name="(communities)"
+        name="communities"
         options={{
           title: "Communities",
           tabBarIcon: ({ color }) => <Users color={color} />,
