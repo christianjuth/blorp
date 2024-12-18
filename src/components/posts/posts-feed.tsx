@@ -12,7 +12,11 @@ import { PopularCommunitiesSidebar } from "../populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { useCustomHeaderHeight } from "../headers";
-import { FlashList } from "@shopify/flash-list";
+import { AnimatedFlashList, FlashList } from "@shopify/flash-list";
+import { useScrollContext } from "../providers";
+import Animated from "react-native-reanimated";
+
+const ReanimatedFlashList = Animated.createAnimatedComponent(FlashList);
 
 const EMPTY_ARR = [];
 
@@ -25,6 +29,8 @@ export function PostsFeed({
   >;
 }) {
   const header = useCustomHeaderHeight();
+
+  const { scrollHandler } = useScrollContext();
 
   const ref = useRef(null);
   useScrollToTop(ref);
@@ -44,7 +50,7 @@ export function PostsFeed({
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
   return (
-    <FlashList
+    <ReanimatedFlashList
       contentInset={{
         top: header.height,
       }}
@@ -52,7 +58,7 @@ export function PostsFeed({
       scrollIndicatorInsets={{
         top: header.height,
       }}
-      ref={ref}
+      // ref={ref}
       data={["sidebar-desktop", "sidebar-mobile", ...data] as const}
       renderItem={({ item }) => {
         if (item === "sidebar-desktop") {
@@ -106,7 +112,9 @@ export function PostsFeed({
         </FeedGutters>
       )}
       stickyHeaderIndices={[0]}
-      estimatedItemSize={400}
+      // estimatedItemSize={400}
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
     />
   );
 }

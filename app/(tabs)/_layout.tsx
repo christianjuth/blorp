@@ -4,7 +4,7 @@ import {
   Users,
   Plus,
   MessageCircleMore,
-  Bell,
+  Settings,
 } from "@tamagui/lucide-icons";
 import { CommunityHeader, HomeHeader } from "~/src/components/headers";
 import { useTheme, useMedia } from "tamagui";
@@ -67,10 +67,10 @@ export default function Layout() {
       />
 
       <Tabs.Screen
-        name="inbox"
+        name="settings"
         options={{
-          title: "Inbox",
-          tabBarIcon: ({ color }) => <Bell color={color} />,
+          title: "Settings",
+          tabBarIcon: ({ color }) => <Settings color={color} />,
         }}
       />
     </Tabs>

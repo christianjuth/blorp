@@ -10037,7 +10037,7 @@ __metadata:
     react-native: "npm:0.74.5"
     react-native-fast-image: "npm:^8.6.3"
     react-native-markdown-display: "npm:^7.0.2"
-    react-native-reanimated: "npm:~3.10.1"
+    react-native-reanimated: "npm:~3.12.1"
     react-native-safe-area-context: "npm:4.10.5"
     react-native-screens: "npm:3.31.1"
     react-native-svg: "npm:15.2.0"
@@ -12781,9 +12781,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-reanimated@npm:~3.10.1":
-  version: 3.10.1
-  resolution: "react-native-reanimated@npm:3.10.1"
+"react-native-reanimated@npm:~3.12.1":
+  version: 3.12.1
+  resolution: "react-native-reanimated@npm:3.12.1"
   dependencies:
     "@babel/plugin-transform-arrow-functions": "npm:^7.0.0-0"
     "@babel/plugin-transform-nullish-coalescing-operator": "npm:^7.0.0-0"
@@ -12797,7 +12797,7 @@ __metadata:
     "@babel/core": ^7.0.0-0
     react: "*"
     react-native: "*"
-  checksum: 10c0/0154123649214bd8a83710056594590d9b5f073c5f8911f5b59a0a4f5dcca671d98b475bc4f3bb106b6c8b5c3dcb645a4973efdbe8dbd997bfae2797bd83f546
+  checksum: 10c0/6eb9f77e8296abaad17469198ab4c6a00d17be95fac27f6eaf9660daed7a0cbbe4624862959a9b629b098fc9ed922fba037c8637656dc32ce32bd989c55005a5
   languageName: node
   linkType: hard
 
