@@ -19,6 +19,11 @@ export function PostDetail({ postId }: { postId: number | string }) {
   const thumbnail = post?.thumbnail_url;
   const body = post?.body;
 
+  const imageDetails = postView.imageDetails;
+  const aspectRatio = imageDetails
+    ? imageDetails.width / imageDetails.height
+    : undefined;
+
   return (
     <YStack
       $md={{
@@ -38,7 +43,7 @@ export function PostDetail({ postId }: { postId: number | string }) {
 
       {thumbnail && (
         <View $md={{ mx: "$-2.5" }}>
-          <Image imageUrl={thumbnail} priority />
+          <Image imageUrl={thumbnail} aspectRatio={aspectRatio} priority />
         </View>
       )}
       {body && <Markdown markdown={body} />}

@@ -12,11 +12,15 @@ import { PopularCommunitiesSidebar } from "../populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { useCustomHeaderHeight } from "../headers";
-import { AnimatedFlashList, FlashList } from "@shopify/flash-list";
+import { FlashList, FlashListProps } from "@shopify/flash-list";
 import { useScrollContext } from "../providers";
 import Animated from "react-native-reanimated";
+import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
 
-const ReanimatedFlashList = Animated.createAnimatedComponent(FlashList);
+const ReanimatedFlashList =
+  Animated.createAnimatedComponent<
+    FlashListProps<"sidebar-desktop" | "sidebar-mobile" | number>
+  >(FlashList);
 
 const EMPTY_ARR = [];
 
@@ -28,6 +32,7 @@ export function PostsFeed({
     Error
   >;
 }) {
+  const tabBar = useCustomTabBarHeight();
   const header = useCustomHeaderHeight();
 
   const { scrollHandler } = useScrollContext();
@@ -53,12 +58,14 @@ export function PostsFeed({
     <ReanimatedFlashList
       contentInset={{
         top: header.height,
+        bottom: tabBar.height,
       }}
       automaticallyAdjustsScrollIndicatorInsets={false}
       scrollIndicatorInsets={{
         top: header.height,
+        bottom: tabBar.height,
       }}
-      // ref={ref}
+      ref={ref}
       data={["sidebar-desktop", "sidebar-mobile", ...data] as const}
       renderItem={({ item }) => {
         if (item === "sidebar-desktop") {
@@ -113,7 +120,7 @@ export function PostsFeed({
       )}
       stickyHeaderIndices={[0]}
       // estimatedItemSize={400}
-      onScroll={scrollHandler}
+      onScroll={communityName ? undefined : scrollHandler}
       scrollEventThrottle={16}
     />
   );

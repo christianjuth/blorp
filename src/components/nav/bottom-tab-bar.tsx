@@ -1,7 +1,7 @@
 import { BottomTabBarProps, BottomTabBar } from "@react-navigation/bottom-tabs";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { View, useMedia } from "tamagui";
+import { useMedia } from "tamagui";
 import { useScrollContext } from "../providers";
 import { interpolate, useAnimatedStyle } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
@@ -12,7 +12,7 @@ export const useCustomTabBarHeight = () => {
 
   // Default header heights based on platform
   const defaultHeaderHeight = Platform.select({
-    ios: 50, // Default header height on iOS
+    ios: 45, // Default header height on iOS
     android: 56, // Default header height on Android
     default: 65, // Default header height for web or other platforms
   });
@@ -40,16 +40,17 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
     return {
       transform: [{ translateY }],
     };
-  });
+  }, [scrollY, tabBar.height]);
 
   const content = useAnimatedStyle(() => {
     const opacity = interpolate(scrollY.value, [0, 1], [1, 0], "clamp");
     return {
       opacity,
     };
-  });
+  }, [scrollY]);
 
-  // const isLgScreen = useMedia().gtSm;
+  const isLgScreen = useMedia().gtSm;
+
   return (
     <Animated.View
       style={[
@@ -59,6 +60,7 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
           bottom: 0,
           left: 0,
           right: 0,
+          display: isLgScreen ? "none" : undefined,
         },
       ]}
     >

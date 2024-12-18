@@ -5,18 +5,27 @@ import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { View, useWindowDimensions } from "tamagui";
 import { useCustomHeaderHeight } from "~/src/components/headers";
+import { useFiltersStore } from "~/src/stores/filters";
 
 export default function Communities() {
+  const communitySort = useFiltersStore((s) => s.communitySort);
+
   const header = useCustomHeaderHeight();
 
   const ref = useRef(null);
   useScrollToTop(ref);
 
-  const { data, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useListCommunities({
-      limit: 50,
-      sort: "TopWeek",
-    });
+  const {
+    data,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    isRefetching,
+    refetch,
+  } = useListCommunities({
+    limit: 50,
+    sort: communitySort,
+  });
 
   const communities = data?.pages.map((p) => p.communities).flat();
 
@@ -43,6 +52,8 @@ export default function Communities() {
       contentInset={{ top: header.height }}
       scrollIndicatorInsets={{ top: header.height }}
       automaticallyAdjustsScrollIndicatorInsets={false}
+      refreshing={isRefetching}
+      onRefresh={refetch}
     />
   );
 }

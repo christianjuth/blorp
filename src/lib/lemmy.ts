@@ -7,6 +7,7 @@ import {
   CreatePostLike,
   GetCommunity,
   GetPosts,
+  ImageDetails,
   LemmyHttp,
   ListCommunities,
   Login,
@@ -142,6 +143,7 @@ export type FlattenedPost = {
   };
   creator: Pick<Person, "id" | "name" | "avatar">;
   counts: Pick<PostAggregates, "score" | "comments">;
+  imageDetails?: Pick<ImageDetails, "height" | "width">;
 };
 export type FlattenedGetPostResponse = {
   posts: FlattenedPost[];
@@ -166,13 +168,13 @@ function flattenPost(postView: PostView): FlattenedPost {
       avatar: creator.avatar,
     },
     counts: _.pick(postView.counts, ["score", "comments"]),
+    imageDetails: postView.image_details
+      ? _.pick(postView.image_details, ["width", "height"])
+      : undefined,
   };
 }
 
-export function usePost(
-  form: { id?: string; communityName?: string },
-  enabled = true,
-) {
+export function usePost(form: { id?: string; communityName?: string }) {
   const client = useLemmyClient();
 
   const postId = form.id ? +form.id : undefined;
@@ -184,27 +186,40 @@ export function usePost(
   );
 
   const cachePost = usePostsStore((s) => s.cachePost);
+  const patchPost = usePostsStore((s) => s.patchPost);
 
   return useQuery<FlattenedPost>({
     queryKey,
     queryFn: async () => {
+      if (!postId) {
+        throw new Error("Missing post id");
+      }
       const res = await client.getPost({
         id: postId,
       });
+      const post = flattenPost(res.post_view);
+      const cachedPost = cachePost(post);
       const thumbnail = res.post_view.post.thumbnail_url;
+
       if (thumbnail) {
-        measureImage(thumbnail);
+        if (!cachedPost.imageDetails) {
+          measureImage(thumbnail).then((data) => {
+            if (data) {
+              patchPost(postId, {
+                imageDetails: data,
+              });
+            }
+          });
+        }
         FastImage.preload([
           {
             uri: thumbnail,
           },
         ]);
       }
-      const post = flattenPost(res.post_view);
-      cachePost(post);
       return post;
     },
-    enabled: !!form.id,
+    enabled: _.isNumber(postId),
     initialData,
   });
 }
@@ -269,9 +284,10 @@ export function usePosts(form: GetPosts) {
           show_read: true,
         }),
       );
-  }, [client]);
+  }, [client, queryKey]);
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
+  const patchPost = usePostsStore((s) => s.patchPost);
 
   return useInfiniteQuery({
     queryKey,
@@ -282,14 +298,20 @@ export function usePosts(form: GetPosts) {
       });
 
       const posts = res.posts.map(flattenPost);
-      cachePosts(posts);
+      const cachedPosts = cachePosts(posts);
 
       let i = 0;
       for (const { post } of res.posts) {
         const thumbnail = post.thumbnail_url;
         if (thumbnail) {
           setTimeout(() => {
-            measureImage(thumbnail);
+            if (!cachedPosts[post.id]?.data.imageDetails) {
+              measureImage(thumbnail).then((data) => {
+                patchPost(post.id, {
+                  imageDetails: data,
+                });
+              });
+            }
             FastImage.preload([
               {
                 uri: thumbnail,
@@ -318,10 +340,15 @@ export function usePosts(form: GetPosts) {
 export function useListCommunities(form: ListCommunities) {
   const client = useLemmyClient();
 
-  const queryKey = [
-    "listCommunities",
-    `useListCommunities-${form.sort}-${form.limit}`,
-  ];
+  const queryKey = ["listCommunities"];
+
+  if (form.sort) {
+    queryKey.push("sort", form.sort);
+  }
+
+  if (form.limit) {
+    queryKey.push("limit", String(form.limit));
+  }
 
   return useInfiniteQuery({
     queryKey,

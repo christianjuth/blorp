@@ -2,8 +2,7 @@ import { Stack } from "one";
 import { useTheme } from "tamagui";
 import { Platform } from "react-native";
 
-import { CommunityHeader } from "~/src/components/headers";
-import { BlurBackground } from "~/src/components/nav/blur-background";
+import { CommunityHeader, CommunitysHeader } from "~/src/components/headers";
 
 export default function Layout() {
   const theme = useTheme();
@@ -20,8 +19,8 @@ export default function Layout() {
         name="index"
         options={{
           title: "Communities",
+          header: CommunitysHeader,
           headerTransparent: Platform.OS !== "web" ? true : false,
-          headerBackground: BlurBackground,
         }}
       />
 

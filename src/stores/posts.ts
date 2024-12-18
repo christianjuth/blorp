@@ -11,29 +11,55 @@ type CachedPost = {
 
 type SortsStore = {
   posts: Record<string, CachedPost>;
-  cachePost: (post: FlattenedPost) => void;
-  cachePosts: (post: FlattenedPost[]) => void;
+  patchPost: (
+    id: FlattenedPost["post"]["id"],
+    post: Partial<FlattenedPost>,
+  ) => FlattenedPost;
+  cachePost: (post: FlattenedPost) => FlattenedPost;
+  cachePosts: (post: FlattenedPost[]) => Record<string, CachedPost>;
 };
 
 export const usePostsStore = create<SortsStore>()(
   persist(
     (set, get) => ({
       posts: {},
+      patchPost: (postId, patch) => {
+        const posts = get().posts;
+        const prevPost = posts[postId];
+        const updatedPostData = {
+          ...prevPost.data,
+          ...patch,
+        };
+        if (prevPost) {
+          set({
+            posts: {
+              ...posts,
+              [postId]: {
+                data: updatedPostData,
+                lastUsed: Date.now(),
+              },
+            },
+          });
+        }
+        return updatedPostData;
+      },
       cachePost: (view) => {
         const posts = get().posts;
         const prevPostData = posts[view.post.id]?.data ?? {};
+        const updatedPostData = {
+          ..._.pick(prevPostData, ["optimisticMyVote", "imageDetails"]),
+          ...view,
+        };
         set({
           posts: {
             ...posts,
             [view.post.id]: {
-              data: {
-                ..._.pick(prevPostData, "optimisticMyVote"),
-                ...view,
-              },
+              data: updatedPostData,
               lastUsed: Date.now(),
             },
           },
         });
+        return updatedPostData;
       },
       cachePosts: (views) => {
         const prev = get().posts;
@@ -44,19 +70,23 @@ export const usePostsStore = create<SortsStore>()(
           const prevPostData = newPosts[view.post.id]?.data ?? {};
           newPosts[view.post.id] = {
             data: {
-              ..._.pick(prevPostData, "optimisticMyVote"),
+              ..._.pick(prevPostData, ["optimisticMyVote", "imageDetails"]),
               ...view,
             },
             lastUsed: Date.now(),
           };
         }
 
+        const updatedPosts = {
+          ...prev,
+          ...newPosts,
+        };
+
         set({
-          posts: {
-            ...prev,
-            ...newPosts,
-          },
+          posts: updatedPosts,
         });
+
+        return updatedPosts;
       },
     }),
     {

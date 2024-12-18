@@ -1,4 +1,9 @@
-import { CommentSortType, ListingType, PostSortType } from "lemmy-js-client";
+import {
+  CommentSortType,
+  CommunitySortType,
+  ListingType,
+  PostSortType,
+} from "lemmy-js-client";
 import { Option, Select } from "~/src/components/select";
 import {
   Flame,
@@ -10,6 +15,58 @@ import {
 } from "@tamagui/lucide-icons";
 import { useFiltersStore } from "~/src/stores/filters";
 import { Text, XStack } from "tamagui";
+
+const COMMUNITY_SORT_OPTIONS: Option<CommunitySortType, CommunitySortType>[] = [
+  {
+    label: "Hot",
+    value: "Hot",
+    icon: ArrowUpCircle,
+  },
+  {
+    label: "Active",
+    value: "Active",
+    icon: Flame,
+  },
+  // {
+  //   label: "Scaled",
+  //   value: "Scaled",
+  //   // icon: Clock3,
+  // },
+  {
+    label: "Controversial",
+    value: "Controversial",
+    icon: Sword,
+  },
+  {
+    label: "New",
+    value: "New",
+    icon: Clock3,
+  },
+  {
+    label: "Old",
+    value: "Old",
+    icon: Hourglass,
+  },
+];
+
+function getIconForCommunitySort(sort: CommunitySortType) {
+  const Icon = COMMUNITY_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
+  return Icon ? <Icon color="$accentColor" /> : undefined;
+}
+
+export function CommunitySortSelect() {
+  const communitySort = useFiltersStore((s) => s.communitySort);
+  const setCommunitySort = useFiltersStore((s) => s.setCommunitySort);
+  return (
+    <Select
+      options={COMMUNITY_SORT_OPTIONS}
+      title="Sort Communities By"
+      value={communitySort}
+      onValueChange={setCommunitySort}
+      trigger={getIconForCommunitySort(communitySort)}
+    />
+  );
+}
 
 const COMMENT_SORT_OPTIONS: Option<CommentSortType, CommentSortType>[] = [
   {

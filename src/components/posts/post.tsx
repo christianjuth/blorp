@@ -17,6 +17,11 @@ export function PostCard({ postId }: { postId: number }) {
 
   const [pressed, setPressed] = useState(false);
 
+  const imageDetails = postView.imageDetails;
+  const aspectRatio = imageDetails
+    ? imageDetails.width / imageDetails.height
+    : undefined;
+
   return (
     <YStack
       py="$4"
@@ -31,7 +36,6 @@ export function PostCard({ postId }: { postId: number }) {
         py: "$2",
       }}
       gap="$1.5"
-      // bg={pressed ? "$color3" : "$color1"}
       opacity={pressed ? 0.8 : 1}
       animation="100ms"
     >
@@ -49,7 +53,7 @@ export function PostCard({ postId }: { postId: number }) {
 
           {post.thumbnail_url && (
             <View $md={{ mx: "$-2.5" }}>
-              <Image imageUrl={post.thumbnail_url} priority />
+              <Image imageUrl={post.thumbnail_url} aspectRatio={aspectRatio} />
             </View>
           )}
         </YStack>

@@ -3,13 +3,15 @@ import { TamaguiProvider } from "tamagui";
 import { useColorScheme } from "react-native";
 import config from "~/config/tamagui/tamagui.config";
 import { persist } from "./query-storage";
-import { createContext, useContext, useRef } from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 import { useCustomHeaderHeight } from "./headers";
 import {
   useSharedValue,
   useAnimatedScrollHandler,
   SharedValue,
+  withTiming,
 } from "react-native-reanimated";
+import { useNavigation } from "one";
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
 
@@ -59,6 +61,17 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({ children }) => {
       }
     },
   });
+
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("state", (e) => {
+      scrollY.value = withTiming(0, { duration: 200 });
+    });
+
+    // Cleanup the listener on unmount
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <ScrollContext.Provider value={{ scrollY, scrollHandler }}>

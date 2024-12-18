@@ -13,11 +13,13 @@ export function Image({
   priority,
   borderRadius,
   maxWidth,
+  aspectRatio,
 }: {
   imageUrl: string;
   priority?: boolean;
   borderRadius?: number;
   maxWidth?: number;
+  aspectRatio?: number;
 }) {
   const theme = useTheme();
 
@@ -33,6 +35,7 @@ export function Image({
           borderStyle: "solid",
           width: maxWidth ? "100%" : undefined,
           maxWidth: maxWidth,
+          objectFit: "contain",
         }}
         fetchPriority={priority ? "high" : undefined}
       />
@@ -48,6 +51,10 @@ export function Image({
   >(imageSizeCache.get(imageUrl));
 
   useEffect(() => {
+    // if (_.isNumber(aspectRatio)) {
+    //   return;
+    // }
+
     measureImage(imageUrl)
       .then((data) => {
         if (data) {
@@ -57,19 +64,20 @@ export function Image({
       .catch((e) => {
         console.log(e);
       });
-  }, [imageUrl]);
+  }, [imageUrl, aspectRatio]);
 
   // Calculate aspect ratio
-  const aspectRatio = dimensions
-    ? dimensions.width / dimensions.height
-    : undefined;
+  aspectRatio =
+    aspectRatio ??
+    (dimensions ? dimensions.width / dimensions.height : undefined);
+  aspectRatio = _.isNaN(aspectRatio) ? 1 : (aspectRatio ?? 1);
 
   return (
     <RNImage
       key={imageUrl}
       source={{ uri: imageUrl }}
       style={{
-        aspectRatio: (_.isNaN(aspectRatio) ? undefined : aspectRatio) ?? 1,
+        aspectRatio: aspectRatio,
         flex: 1,
         backgroundColor: theme.gray3.val,
         borderRadius,
@@ -77,9 +85,12 @@ export function Image({
         borderColor: theme.gray2.val,
         width: maxWidth ? "100%" : undefined,
         maxWidth: maxWidth,
+        // THIS IS A HACK
+        // aspect ratio doesn't seem to be working
+        // with react native fast image
+        height: maxWidth ? maxWidth / aspectRatio : undefined,
       }}
-      resizeMethod="scale"
-      resizeMode="cover"
+      resizeMode="contain"
     />
   );
 }
