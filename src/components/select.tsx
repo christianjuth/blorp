@@ -1,15 +1,15 @@
 import React from "react";
-import { Check, ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
-import type { IconProps } from "@tamagui/helpers-icon";
+import { Check, ChevronDown } from "@tamagui/lucide-icons";
 
 import type { FontSizeTokens, SelectProps as TSelectProps } from "tamagui";
 import { Adapt, Select as TSelect, Sheet, YStack, getFontSize } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TextStyle } from "react-native";
 
 export type Option<V, L = string> = {
   label: L;
   value: V;
-  icon?: React.ComponentType<IconProps>;
+  icon?: React.ComponentType<{ size?: number; color?: string }>;
 };
 
 export interface SelectProps<V extends string> extends TSelectProps {
@@ -143,7 +143,7 @@ export function Select<V extends string>({
                     >
                       {Icon && (
                         <TSelect.Icon mr="$2.5">
-                          <Icon size="$1" />
+                          <Icon size={18} />
                         </TSelect.Icon>
                       )}
                       <TSelect.ItemText mr="auto">

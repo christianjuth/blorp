@@ -7,7 +7,17 @@
       "android"
     ],
     "plugins": [
-      "vxrn/expo-plugin"
+      "vxrn/expo-plugin",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./node_modules/@react-native-vector-icons/fontawesome6/fonts/FontAwesome6_Brands.ttf",
+            "./node_modules/@react-native-vector-icons/fontawesome6/fonts/FontAwesome6_Regular.ttf",
+            "./node_modules/@react-native-vector-icons/fontawesome6/fonts/FontAwesome6_Solid.ttf"
+          ]
+        }
+      ]
     ],
     "icon": "./public/app-icon.png",
     "splash": {

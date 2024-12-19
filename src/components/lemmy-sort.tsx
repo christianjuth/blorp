@@ -13,19 +13,35 @@ import {
   Hourglass,
   ChevronDown,
 } from "@tamagui/lucide-icons";
+import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 import { useFiltersStore } from "~/src/stores/filters";
-import { Text, XStack } from "tamagui";
+import { Text, useTheme, XStack } from "tamagui";
+import { ComponentProps } from "react";
+
+function createIcon(defaultProps: ComponentProps<typeof FontAwesome6>) {
+  return (
+    props: Omit<ComponentProps<typeof FontAwesome6>, "name" | "iconStyle">,
+  ) => {
+    return <FontAwesome6 {...defaultProps} {...props} />;
+  };
+}
+
+const PersonRunning = createIcon({
+  name: "person-running",
+  iconStyle: "solid",
+  size: 18,
+});
 
 const COMMUNITY_SORT_OPTIONS: Option<CommunitySortType, string>[] = [
   {
     label: "Top All",
     value: "TopAll",
-    icon: Clock3,
+    icon: ArrowUpCircle,
   },
   {
     label: "Hot",
     value: "Hot",
-    icon: ArrowUpCircle,
+    icon: Flame,
   },
   {
     label: "Active",
@@ -54,14 +70,16 @@ const COMMUNITY_SORT_OPTIONS: Option<CommunitySortType, string>[] = [
   },
 ];
 
-function getIconForCommunitySort(sort: CommunitySortType) {
-  const Icon = COMMUNITY_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
-  return Icon ? <Icon color="$accentColor" /> : undefined;
-}
-
 export function CommunitySortSelect() {
   const communitySort = useFiltersStore((s) => s.communitySort);
   const setCommunitySort = useFiltersStore((s) => s.setCommunitySort);
+  const theme = useTheme();
+
+  function getIconForCommunitySort(sort: CommunitySortType) {
+    const Icon = COMMUNITY_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
+    return Icon ? <Icon color={theme.accentColor.val} /> : undefined;
+  }
+
   return (
     <Select
       options={COMMUNITY_SORT_OPTIONS}
@@ -124,7 +142,7 @@ const POST_SORT_OPTIONS: Option<PostSortType, PostSortType>[] = [
   {
     label: "Active",
     value: "Active",
-    icon: Flame,
+    icon: PersonRunning,
   },
   {
     label: "Hot",
@@ -158,18 +176,20 @@ const POST_SORT_OPTIONS: Option<PostSortType, PostSortType>[] = [
   },
 ];
 
-function getIconForPostSort(sort: PostSortType) {
-  const Icon = POST_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
-  return Icon ? <Icon color="$accentColor" /> : undefined;
-}
-
 export function PostSortSelect() {
   const postSort = useFiltersStore((s) => s.postSort);
   const setPostSort = useFiltersStore((s) => s.setPostSort);
+  const theme = useTheme();
+
+  function getIconForPostSort(sort: PostSortType) {
+    const Icon = POST_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
+    return Icon ? <Icon color={theme.accentColor.val} /> : undefined;
+  }
+
   return (
     <Select
       options={POST_SORT_OPTIONS}
-      title="Sort Comments By"
+      title="Sort Posts By"
       value={postSort}
       onValueChange={setPostSort}
       trigger={getIconForPostSort(postSort)}

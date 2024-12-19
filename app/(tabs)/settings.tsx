@@ -7,7 +7,7 @@ export default function HomePage() {
   const queryClient = useQueryClient();
   const [clearCachePressed, setClearCachePressed] = useState(false);
   return (
-    <View height="100%" bg="$background" p="$4" gap="$2">
+    <View height="100%" bg="$color3" p="$4" gap="$2">
       <Text p="$2">OTHER</Text>
 
       <YStack bg="$color1" br="$4">
