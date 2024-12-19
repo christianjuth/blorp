@@ -2,6 +2,7 @@ import type { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import type { BottomTabHeaderProps } from "@react-navigation/bottom-tabs";
 import {
   ComentSortSelect,
+  CommunityFilter,
   CommunitySortSelect,
   HomeFilter,
   PostSortSelect,
@@ -206,15 +207,7 @@ export function CommunitysHeader(
               </Button>
             )}
           </View>
-
-          <Text
-            fontWeight="bold"
-            fontSize="$5"
-            overflow="hidden"
-            pos="relative"
-          >
-            Communities
-          </Text>
+          <CommunityFilter />
           <View flex={1} flexBasis={0} ai="flex-end">
             <CommunitySortSelect />
           </View>

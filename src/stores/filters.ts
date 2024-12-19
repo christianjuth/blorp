@@ -17,6 +17,8 @@ type SortsStore = {
   setPostSort: (sort: PostSortType) => void;
   homeFilter: ListingType;
   setHomeFilter: (type: ListingType) => void;
+  communityFilter: ListingType;
+  setCommunityFilter: (type: ListingType) => void;
 };
 
 export const useFiltersStore = create<SortsStore>()(
@@ -28,6 +30,11 @@ export const useFiltersStore = create<SortsStore>()(
       setCommentSort: (commentSort) => set({ commentSort }),
       postSort: "Active",
       setPostSort: (postSort) => set({ postSort }),
+      communityFilter: "Local",
+      setCommunityFilter: (type) =>
+        set({
+          communityFilter: type,
+        }),
       homeFilter: "Local",
       setHomeFilter: (type) =>
         set({

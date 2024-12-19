@@ -350,6 +350,10 @@ export function useListCommunities(form: ListCommunities) {
     queryKey.push("limit", String(form.limit));
   }
 
+  if (form.type_) {
+    queryKey.push("type", form.type_);
+  }
+
   return useInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {

@@ -1,2 +1,3 @@
-- [_] Make sidebar scroll when height too high
-- [ ] Fix images in markdown on native
+- [X] Add link context so stacks understand what tab they are in
+- [ ] Update flashlist background on moble to be gray
+- [X] Update communities screen to allow filtering by all, local, subscribed

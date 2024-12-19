@@ -16,7 +16,12 @@ import {
 import { useFiltersStore } from "~/src/stores/filters";
 import { Text, XStack } from "tamagui";
 
-const COMMUNITY_SORT_OPTIONS: Option<CommunitySortType, CommunitySortType>[] = [
+const COMMUNITY_SORT_OPTIONS: Option<CommunitySortType, string>[] = [
+  {
+    label: "Top All",
+    value: "TopAll",
+    icon: Clock3,
+  },
   {
     label: "Hot",
     value: "Hot",
@@ -172,7 +177,7 @@ export function PostSortSelect() {
   );
 }
 
-const HOME_FILTER: Option<ListingType, ListingType>[] = [
+const LISTING_TYPE_OPTIONS: Option<ListingType, ListingType>[] = [
   {
     label: "All",
     value: "All",
@@ -200,13 +205,32 @@ export function HomeFilter() {
   const setHomeFilter = useFiltersStore((s) => s.setHomeFilter);
   return (
     <Select
-      options={HOME_FILTER}
+      options={LISTING_TYPE_OPTIONS}
       title="Show posts..."
       value={homeFilter}
       onValueChange={setHomeFilter}
       trigger={
         <XStack ai="center" gap="$1">
           <Text fontWeight="bold">{homeFilter}</Text>
+          <ChevronDown size="$1" />
+        </XStack>
+      }
+    />
+  );
+}
+
+export function CommunityFilter() {
+  const communityFilter = useFiltersStore((s) => s.communityFilter);
+  const setCommunityFilter = useFiltersStore((s) => s.setCommunityFilter);
+  return (
+    <Select
+      options={LISTING_TYPE_OPTIONS}
+      title="Show posts..."
+      value={communityFilter}
+      onValueChange={setCommunityFilter}
+      trigger={
+        <XStack ai="center" gap="$1">
+          <Text fontWeight="bold">{communityFilter}</Text>
           <ChevronDown size="$1" />
         </XStack>
       }

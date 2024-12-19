@@ -9,6 +9,7 @@ import { useFiltersStore } from "~/src/stores/filters";
 
 export default function Communities() {
   const communitySort = useFiltersStore((s) => s.communitySort);
+  const communityFilter = useFiltersStore((s) => s.communityFilter);
   const media = useMedia();
 
   const header = useCustomHeaderHeight();
@@ -26,6 +27,7 @@ export default function Communities() {
   } = useListCommunities({
     limit: 50,
     sort: communitySort,
+    type_: communityFilter,
   });
 
   const communities = data?.pages.map((p) => p.communities).flat();
