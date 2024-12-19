@@ -119,9 +119,9 @@ export function PostsFeed({
         </FeedGutters>
       )}
       stickyHeaderIndices={[0]}
-      // estimatedItemSize={400}
       onScroll={communityName ? undefined : scrollHandler}
       scrollEventThrottle={16}
+      estimatedItemSize={475}
     />
   );
 }

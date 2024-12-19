@@ -31,4 +31,9 @@ export default {
       outputCSS: "./app/tamagui.css",
     }),
   ],
+  resolve: {
+    alias: {
+      punycode: "punycode/",
+    },
+  },
 } satisfies UserConfig;

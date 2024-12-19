@@ -111,6 +111,7 @@ export function PostComments({
       }}
       onRefresh={onRefresh}
       refreshing={refreshing}
+      estimatedItemSize={450}
     />
   );
 }

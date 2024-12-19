@@ -28,10 +28,11 @@ export function PostDetail({ postId }: { postId: number | string }) {
     <YStack
       $md={{
         px: "$2.5",
+        bbw: 8,
       }}
       py="$2.5"
       bbc="$color3"
-      bbw={8}
+      bbw={1}
       gap="$2"
       flex={1}
     >

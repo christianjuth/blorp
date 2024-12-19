@@ -21,7 +21,7 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
   const theme = useTheme();
 
   return (
-    <View dsp="flex" fd="row" ai="center" borderRadius="$12" gap="$1">
+    <View dsp="flex" fd="row" ai="center" borderRadius="$12" gap={6}>
       <Button
         onPress={() => {
           const newVote = isUpvoted ? 0 : 1;
@@ -48,13 +48,13 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
         <ArrowBigUp
           size="$1"
           fill={isUpvoted ? theme.accentBackground.val : undefined}
-          color={isUpvoted ? "$accentBackground" : undefined}
+          color={isUpvoted ? "$accentBackground" : "$color11"}
         />
       </Button>
       <Text
         fontSize="$4"
         color={
-          isUpvoted ? "$accentBackground" : isDownvoted ? "$red" : undefined
+          isUpvoted ? "$accentBackground" : isDownvoted ? "$red" : "$color11"
         }
       >
         {abbriviateNumber(commentView.counts.score)}
@@ -85,7 +85,7 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
         <ArrowBigDown
           size="$1"
           fill={isDownvoted ? theme.red.val : undefined}
-          color={isDownvoted ? "$red" : undefined}
+          color={isDownvoted ? "$red" : "$color11"}
         />
       </Button>
     </View>

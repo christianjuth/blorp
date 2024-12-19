@@ -84,7 +84,7 @@ export function PostComment({
 
         {!hideContent && <Markdown markdown={comment.content} />}
 
-        <XStack jc="flex-end" w="100%" mb="$1">
+        <XStack jc="flex-end" w="100%" mt="$1.5" mb="$1" mr="$1">
           <CommentVoting commentView={commentView} />
         </XStack>
 
