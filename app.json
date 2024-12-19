@@ -37,6 +37,9 @@
     "userInterfaceStyle": "automatic",
     "android": {
       "package": "com.christianjuth.lemmy"
+    },
+    "updates": {
+      "enabled": false
     }
   }
 }

@@ -11,9 +11,9 @@ import { useParams } from "one";
 import { PopularCommunitiesSidebar } from "../populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
-import { useCustomHeaderHeight } from "../headers";
+import { useCustomHeaderHeight } from "../nav/hooks";
 import { FlashList, FlashListProps } from "@shopify/flash-list";
-import { useScrollContext } from "../providers";
+import { useScrollContext } from "../nav/scroll-animation-context";
 import Animated from "react-native-reanimated";
 import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
 

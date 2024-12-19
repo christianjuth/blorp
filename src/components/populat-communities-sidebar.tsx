@@ -3,7 +3,7 @@ import { Link } from "one";
 import { createCommunitySlug, useListCommunities } from "~/src/lib/lemmy";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { useCustomHeaderHeight } from "~/src/components/headers";
+import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { useWindowDimensions } from "react-native";
 import { CommunityView } from "lemmy-js-client";
 import { abbriviateNumber } from "~/src/lib/format";

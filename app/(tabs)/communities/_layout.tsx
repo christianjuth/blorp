@@ -2,36 +2,54 @@ import { Stack } from "one";
 import { useTheme } from "tamagui";
 import { Platform } from "react-native";
 
-import { CommunityHeader, CommunitysHeader } from "~/src/components/headers";
+import {
+  CommunityHeader,
+  CommunitysHeader,
+  PostHeader,
+} from "~/src/components/headers";
+import { LinkContext } from "~/src/components/communities/link-context";
 
 export default function Layout() {
   const theme = useTheme();
   return (
-    <Stack
-      screenOptions={{
-        headerTintColor: theme.gray12.val,
-        contentStyle: {
-          backgroundColor: theme.color1.val,
-        },
+    <LinkContext.Provider
+      value={{
+        root: "/communities/",
       }}
     >
-      <Stack.Screen
-        name="index"
-        options={{
-          title: "Communities",
-          header: CommunitysHeader,
-          headerTransparent: Platform.OS !== "web" ? true : false,
+      <Stack
+        screenOptions={{
+          headerTintColor: theme.gray12.val,
+          contentStyle: {
+            backgroundColor: theme.color1.val,
+          },
         }}
-      />
+      >
+        <Stack.Screen
+          name="index"
+          options={{
+            title: "Communities",
+            header: (props) => <CommunitysHeader {...props} />,
+            headerTransparent: Platform.OS !== "web" ? true : false,
+          }}
+        />
 
-      <Stack.Screen
-        name="c/[communityName]/index"
-        options={{
-          title: "loading...",
-          header: CommunityHeader,
-          headerTransparent: Platform.OS !== "web" ? true : false,
-        }}
-      />
-    </Stack>
+        <Stack.Screen
+          name="c/[communityName]/index"
+          options={{
+            title: "loading...",
+            header: (props) => <CommunityHeader {...props} />,
+            headerTransparent: Platform.OS !== "web" ? true : false,
+          }}
+        />
+
+        <Stack.Screen
+          name="c/[communityName]/posts/[postId]"
+          options={{
+            header: PostHeader,
+          }}
+        />
+      </Stack>
+    </LinkContext.Provider>
   );
 }

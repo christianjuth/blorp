@@ -6,37 +6,16 @@ import {
   HomeFilter,
   PostSortSelect,
 } from "./lemmy-sort";
-import { View, Text, Button, XStack, useMedia } from "tamagui";
+import { View, Text, Button, XStack } from "tamagui";
 import { ChevronLeft, X } from "@tamagui/lucide-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Platform } from "react-native";
 import { BlurBackground } from "./nav/blur-background";
-import { useScrollContext } from "./providers";
-import Animated, {
-  interpolate,
-  useAnimatedStyle,
-} from "react-native-reanimated";
-import { useMemo } from "react";
+import Animated from "react-native-reanimated";
+import { useCustomHeaderHeight } from "./nav/hooks";
+import { useScrollContext } from "./nav/scroll-animation-context";
+import { useMedia } from "tamagui";
+import { useAnimatedStyle, interpolate } from "react-native-reanimated";
 
-export const useCustomHeaderHeight = () => {
-  const insets = useSafeAreaInsets();
-
-  // Default header heights based on platform
-  const defaultHeaderHeight = Platform.select({
-    ios: 40, // Default header height on iOS
-    android: 56, // Default header height on Android
-    default: 65, // Default header height for web or other platforms
-  });
-
-  // Add safe area top inset to ensure the header accounts for the status bar
-  const height = defaultHeaderHeight + insets.top;
-  return {
-    height,
-    insetTop: insets.top,
-  };
-};
-
-function useHeaderAnimation() {
+export function useHeaderAnimation() {
   const { scrollY } = useScrollContext();
   const header = useCustomHeaderHeight();
   const media = useMedia();
@@ -130,8 +109,8 @@ export function CommunityHeader(
     typeof params.communityName === "string"
       ? params.communityName
       : undefined;
-
   const { height, insetTop } = useCustomHeaderHeight();
+
   return (
     <Animated.View style={[styles.container, { position: "relative" }]}>
       <BlurBackground />

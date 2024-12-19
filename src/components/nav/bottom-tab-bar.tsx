@@ -2,7 +2,7 @@ import { BottomTabBarProps, BottomTabBar } from "@react-navigation/bottom-tabs";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMedia } from "tamagui";
-import { useScrollContext } from "../providers";
+import { useScrollContext } from "./scroll-animation-context";
 import { interpolate, useAnimatedStyle } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
 import { BlurBackground } from "./blur-background";

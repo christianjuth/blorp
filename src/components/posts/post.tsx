@@ -5,8 +5,10 @@ import { Link } from "one";
 import { PostByline } from "./post-byline";
 import { useState } from "react";
 import { usePostsStore } from "~/src/stores/posts";
+import { useLinkContext } from "../communities/link-context";
 
 export function PostCard({ postId }: { postId: number }) {
+  const linkCtx = useLinkContext();
   const postView = usePostsStore((s) => s.posts[postId]?.data);
 
   if (!postView) {
@@ -41,7 +43,10 @@ export function PostCard({ postId }: { postId: number }) {
     >
       <PostByline postView={postView} />
 
-      <Link href={`/c/${community.slug}/posts/${post.id}`} asChild>
+      <Link
+        href={`${linkCtx.root}c/${community.slug}/posts/${post.id}`}
+        asChild
+      >
         <YStack
           gap="$1"
           onPressIn={() => setPressed(true)}

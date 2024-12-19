@@ -2,9 +2,11 @@ import { View, Text, Avatar, YStack, XStack } from "tamagui";
 import { RelativeTime } from "~/src/components/relative-time";
 import { FlattenedPost } from "~/src/lib/lemmy";
 import { Link } from "one";
+import { useLinkContext } from "../communities/link-context";
 
 export function PostByline({ postView }: { postView: FlattenedPost }) {
   const { creator, community, post } = postView;
+  const linkCtx = useLinkContext();
 
   return (
     <View dsp="flex" fd="row" ai="center">
@@ -23,7 +25,7 @@ export function PostByline({ postView }: { postView: FlattenedPost }) {
       </Avatar>
 
       <YStack gap="$1">
-        <Link href={`/c/${community.slug}`} push>
+        <Link href={`${linkCtx.root}c/${community.slug}`} push>
           <Text fontSize="$2" fontWeight={500} color="$color12" tag="a">
             c/{community.slug}
           </Text>

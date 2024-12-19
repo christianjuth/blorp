@@ -3089,6 +3089,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rollup/pluginutils@npm:^5.1.0":
+  version: 5.1.4
+  resolution: "@rollup/pluginutils@npm:5.1.4"
+  dependencies:
+    "@types/estree": "npm:^1.0.0"
+    estree-walker: "npm:^2.0.2"
+    picomatch: "npm:^4.0.2"
+  peerDependencies:
+    rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+  peerDependenciesMeta:
+    rollup:
+      optional: true
+  checksum: 10c0/6d58fbc6f1024eb4b087bc9bf59a1d655a8056a60c0b4021d3beaeec3f0743503f52467fd89d2cf0e7eccf2831feb40a05ad541a17637ea21ba10b21c2004deb
+  languageName: node
+  linkType: hard
+
 "@rollup/rollup-android-arm-eabi@npm:4.27.4":
   version: 4.27.4
   resolution: "@rollup/rollup-android-arm-eabi@npm:4.27.4"
@@ -10051,6 +10067,7 @@ __metadata:
     type-fest: "npm:^4.30.1"
     unified: "npm:^11.0.5"
     vite: "npm:6.0.0-beta.1"
+    vite-plugin-circular-dependency: "npm:^0.5.0"
     zustand: "npm:^5.0.2"
   languageName: unknown
   linkType: soft
@@ -15199,6 +15216,16 @@ __metadata:
     picocolors: "npm:^1.0.0"
     source-map: "npm:^0.7.4"
   checksum: 10c0/518c8e50be44c1fef0bd754a86bb992349d8aa5df338215188c4e76df5a503f53290442fedb2ca2bd3cafff2eff9d0434bd56d9b5ac4a5a1cf14550e354a141f
+  languageName: node
+  linkType: hard
+
+"vite-plugin-circular-dependency@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "vite-plugin-circular-dependency@npm:0.5.0"
+  dependencies:
+    "@rollup/pluginutils": "npm:^5.1.0"
+    chalk: "npm:^4.1.2"
+  checksum: 10c0/506cb0008d94562deff8bcc1db386c8ae623f2608da1e9ac8206efa3c8b050ad2e2fd74dc61e72169dfb0f483241dda22e272fe67afa139710b51352b0f2a615
   languageName: node
   linkType: hard
 

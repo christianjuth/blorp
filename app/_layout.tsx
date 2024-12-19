@@ -29,12 +29,6 @@ function Nav() {
         }}
       />
       <Stack.Screen
-        name="c/[communityName]/posts/[postId]"
-        options={{
-          header: PostHeader,
-        }}
-      />
-      <Stack.Screen
         name="auth"
         options={{
           presentation: "containedTransparentModal",

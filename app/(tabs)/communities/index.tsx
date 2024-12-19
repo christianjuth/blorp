@@ -3,12 +3,13 @@ import { FlashList } from "@shopify/flash-list";
 import { Community } from "~/src/components/community";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
-import { View, useWindowDimensions } from "tamagui";
-import { useCustomHeaderHeight } from "~/src/components/headers";
+import { View, useMedia } from "tamagui";
+import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { useFiltersStore } from "~/src/stores/filters";
 
 export default function Communities() {
   const communitySort = useFiltersStore((s) => s.communitySort);
+  const media = useMedia();
 
   const header = useCustomHeaderHeight();
 
@@ -29,11 +30,16 @@ export default function Communities() {
 
   const communities = data?.pages.map((p) => p.communities).flat();
 
-  const w = useWindowDimensions();
+  let numCols = 1;
+  if (media.gtXl) {
+    numCols = 3;
+  } else if (media.gtLg) {
+    numCols = 2;
+  }
 
   return (
     <FlashList
-      numColumns={Math.ceil(w.width / 500)}
+      numColumns={numCols}
       ref={ref}
       data={communities}
       renderItem={(item) => (

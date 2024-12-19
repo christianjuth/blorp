@@ -400,6 +400,7 @@ export function useLogin() {
         if (res.jwt) {
           client.setHeaders({ Authorization: `Bearer ${res.jwt}` });
         }
+        queryClient.invalidateQueries();
       }
       return res;
     },

@@ -1,4 +1,4 @@
-import { useNavigation } from "one";
+import { useFocusEffect, useNavigation } from "one";
 import {
   PostComment,
   buildCommentMap,
@@ -15,7 +15,7 @@ import { useTheme, View } from "tamagui";
 import _ from "lodash";
 import { FlashList } from "@shopify/flash-list";
 import { useScrollToTop } from "@react-navigation/native";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const MemoedPostComment = memo(PostComment);
@@ -39,6 +39,17 @@ export function PostComments({
   opId: number | undefined;
   communityName?: string;
 }) {
+  const navigation = useNavigation();
+  useFocusEffect(() => {
+    const parent = navigation.getParent();
+    parent?.setOptions({ tabBarStyle: { display: "none" } });
+
+    return () => {
+      // Reset the tab bar visibility when leaving the screen
+      parent?.setOptions({ tabBarStyle: { display: "flex" } });
+    };
+  });
+
   const insets = useSafeAreaInsets();
 
   const ref = useRef(null);
@@ -140,6 +151,16 @@ export function Post({
     return null;
   }
 
+  const [refreshing, setRefreshing] = useState(false);
+  const refresh = async () => {
+    if (refreshing) {
+      return;
+    }
+    setRefreshing(true);
+    await Promise.all([post.refetch(), comments.refetch()]);
+    setRefreshing(false);
+  };
+
   return (
     <PostComments
       commentViews={allComments}
@@ -151,15 +172,8 @@ export function Post({
       }}
       opId={post.data?.creator?.id}
       communityName={communityName}
-      onRefresh={() => {
-        if (!comments.isRefetching) {
-          comments.refetch();
-        }
-        if (!post.isRefetching) {
-          post.refetch();
-        }
-      }}
-      refreshing={comments.isRefetching || post.isRefetching}
+      onRefresh={refresh}
+      refreshing={refreshing}
     />
   );
 }

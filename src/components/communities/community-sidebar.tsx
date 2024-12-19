@@ -5,7 +5,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import { Markdown } from "../markdown";
 import { CakeSlice } from "@tamagui/lucide-icons";
 import { abbriviateNumber } from "~/src/lib/format";
-import { useCustomHeaderHeight } from "../headers";
+import { useCustomHeaderHeight } from "../nav/hooks";
 import { useWindowDimensions } from "react-native";
 
 dayjs.extend(localizedFormat);

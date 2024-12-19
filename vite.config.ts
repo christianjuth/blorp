@@ -1,9 +1,11 @@
 import type { UserConfig } from "vite";
 import { one } from "one/vite";
 import { tamaguiPlugin } from "@tamagui/vite-plugin";
+import circleDependency from "vite-plugin-circular-dependency";
 
 export default {
   plugins: [
+    circleDependency(),
     one({
       web: {
         defaultRenderMode: "spa",
