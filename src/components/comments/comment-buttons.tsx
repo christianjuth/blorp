@@ -3,9 +3,8 @@ import { Button, View, useTheme } from "tamagui";
 import { ArrowBigUp, ArrowBigDown } from "@tamagui/lucide-icons";
 import { useLikeComment } from "~/src/lib/lemmy";
 import { voteHaptics } from "~/src/lib/voting";
-import { useEffect, useState } from "react";
-import { AnimatedRollingNumber } from "react-native-animated-rolling-numbers";
-import { useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatedRollingNumber } from "~/src/components/animated-digit";
 
 const DISABLE_ANIMATION = {
   duration: 0,
@@ -27,6 +26,17 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
 
   const score = commentView.counts.score;
   const [animate, setAnimate] = useState(false);
+
+  const textColor = isUpvoted
+    ? theme.accentBackground.val
+    : isDownvoted
+      ? theme.red.val
+      : theme.color.val;
+  const textStyle = useMemo(() => {
+    return {
+      color: textColor,
+    };
+  }, [textColor]);
 
   return (
     <View dsp="flex" fd="row" ai="center" borderRadius="$12">
@@ -64,13 +74,7 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
       <AnimatedRollingNumber
         enableCompactNotation
         value={score}
-        textStyle={{
-          color: isUpvoted
-            ? theme.accentBackground.val
-            : isDownvoted
-              ? theme.red.val
-              : theme.color11.val,
-        }}
+        textStyle={textStyle}
         spinningAnimationConfig={
           // THIS IS A HACK
           // Find a better way to disable animation for init value

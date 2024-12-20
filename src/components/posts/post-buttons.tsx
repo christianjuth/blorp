@@ -3,8 +3,8 @@ import { ArrowBigUp, ArrowBigDown, MessageCircle } from "@tamagui/lucide-icons";
 import { useLikePost, FlattenedPost } from "~/src/lib/lemmy";
 import { voteHaptics } from "~/src/lib/voting";
 import { usePostsStore } from "~/src/stores/posts";
-import { AnimatedRollingNumber } from "react-native-animated-rolling-numbers";
-import { useRef, useState } from "react";
+import { AnimatedRollingNumber } from "~/src/components/animated-digit";
+import { useMemo, useState } from "react";
 
 const DISABLE_ANIMATION = {
   duration: 0,
@@ -29,6 +29,17 @@ export function Voting({ postId }: { postId: number | string }) {
 
   const score = postView?.counts.score + diff;
   const [animate, setAnimate] = useState(false);
+
+  const textColor = isUpvoted
+    ? theme.accentBackground.val
+    : isDownvoted
+      ? theme.red.val
+      : theme.color.val;
+  const textStyle = useMemo(() => {
+    return {
+      color: textColor,
+    };
+  }, [textColor]);
 
   if (!postView) {
     return null;
@@ -67,13 +78,7 @@ export function Voting({ postId }: { postId: number | string }) {
           <AnimatedRollingNumber
             enableCompactNotation
             value={score}
-            textStyle={{
-              color: isUpvoted
-                ? theme.accentBackground.val
-                : isDownvoted
-                  ? theme.red.val
-                  : theme.color.val,
-            }}
+            textStyle={textStyle}
             spinningAnimationConfig={
               // THIS IS A HACK
               // Find a better way to disable animation for init value
