@@ -4,6 +4,7 @@ import FastImage from "~/src/components/fast-image";
 import { useState } from "react";
 import { Switch } from "tamagui";
 import { useSettingsStore } from "~/src/stores/settings";
+import { useLogout } from "~/src/lib/lemmy";
 
 function SettingsButton({
   onClick,
@@ -67,11 +68,17 @@ function Divider() {
 
 export default function SettingsPage() {
   const queryClient = useQueryClient();
-
   const settings = useSettingsStore();
+  const logout = useLogout();
 
   return (
     <View height="100%" bg="$color3" p="$4" gap="$2">
+      <Text p="$2">ACCOUNT</Text>
+
+      <YStack bg="$color1" br="$4">
+        <SettingsButton onClick={logout}>Logout</SettingsButton>
+      </YStack>
+
       <Text p="$2">OTHER</Text>
 
       <YStack bg="$color1" br="$4">

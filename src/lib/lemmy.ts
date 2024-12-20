@@ -109,7 +109,7 @@ function useLemmyClient() {
     }
 
     return client;
-  }, []);
+  }, [jwt]);
 }
 
 export function getPostFromCache(
@@ -409,6 +409,20 @@ export function useLogin() {
       return res;
     },
   });
+}
+
+export function useLogout() {
+  const queryClient = useQueryClient();
+  const client = useLemmyClient();
+
+  const setJwt = useAuth((s) => s.setJwt);
+
+  return () => {
+    client.logout();
+    setJwt(undefined);
+    queryClient.clear();
+    queryClient.invalidateQueries();
+  };
 }
 
 export function useLikePost(postId: number) {

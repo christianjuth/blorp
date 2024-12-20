@@ -5,7 +5,7 @@ import { createStorage } from "./storage";
 type AuthStore = {
   instance: string;
   jwt?: string;
-  setJwt: (jwt: string) => void;
+  setJwt: (jwt: string | undefined) => void;
 };
 
 export const useAuth = create<AuthStore>()(
