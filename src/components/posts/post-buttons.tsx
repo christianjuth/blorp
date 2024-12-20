@@ -1,32 +1,38 @@
 import { Button, View, Text, useTheme } from "tamagui";
 import { ArrowBigUp, ArrowBigDown, MessageCircle } from "@tamagui/lucide-icons";
-import { abbriviateNumber } from "~/src/lib/format";
 import { useLikePost, FlattenedPost } from "~/src/lib/lemmy";
 import { voteHaptics } from "~/src/lib/voting";
 import { usePostsStore } from "~/src/stores/posts";
+import { AnimatedRollingNumber } from "react-native-animated-rolling-numbers";
+import { useRef, useState } from "react";
+
+const DISABLE_ANIMATION = {
+  duration: 0,
+};
 
 export function Voting({ postId }: { postId: number | string }) {
   const postView = usePostsStore((s) => s.posts[postId]?.data);
 
-  if (!postView) {
-    return null;
-  }
-
-  const vote = useLikePost(postView.post.id);
+  const vote = useLikePost(postView?.post.id);
 
   const theme = useTheme();
 
-  const myVote = postView.optimisticMyVote ?? postView.myVote ?? 0;
+  const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
 
   const isUpvoted = myVote > 0;
   const isDownvoted = myVote < 0;
 
   const diff =
-    typeof postView.optimisticMyVote === "number"
-      ? postView.optimisticMyVote - (postView.myVote ?? 0)
+    typeof postView?.optimisticMyVote === "number"
+      ? postView?.optimisticMyVote - (postView?.myVote ?? 0)
       : 0;
 
-  const score = postView.counts.score + diff;
+  const score = postView?.counts.score + diff;
+  const [animate, setAnimate] = useState(false);
+
+  if (!postView) {
+    return null;
+  }
 
   return (
     <View
@@ -44,28 +50,36 @@ export function Voting({ postId }: { postId: number | string }) {
         pl={7}
         bg="transparent"
         onPress={() => {
+          setAnimate(true);
           const newVote = isUpvoted ? 0 : 1;
           voteHaptics(newVote);
           vote.mutate(newVote);
         }}
         disabled={vote.isPending}
-        gap="$1"
       >
         <>
           <ArrowBigUp
             fill={isUpvoted ? theme.accentBackground.val : undefined}
             color={isUpvoted ? "$accentBackground" : undefined}
             size="$1"
+            mr="$1"
           />
-          <Text
-            fontSize="$5"
-            color={
-              isUpvoted ? "$accentBackground" : isDownvoted ? "$red" : undefined
+          <AnimatedRollingNumber
+            enableCompactNotation
+            value={score}
+            textStyle={{
+              color: isUpvoted
+                ? theme.accentBackground.val
+                : isDownvoted
+                  ? theme.red.val
+                  : theme.color.val,
+            }}
+            spinningAnimationConfig={
+              // THIS IS A HACK
+              // Find a better way to disable animation for init value
+              !animate ? DISABLE_ANIMATION : undefined
             }
-            px={2}
-          >
-            {abbriviateNumber(score)}
-          </Text>
+          />
         </>
       </Button>
       <View h={16} w={1} bg="$color6" mx={4} />
@@ -76,6 +90,7 @@ export function Voting({ postId }: { postId: number | string }) {
         pr={7}
         bg="transparent"
         onPress={() => {
+          setAnimate(true);
           const newVote = isDownvoted ? 0 : -1;
           voteHaptics(newVote);
           vote.mutate(newVote);
@@ -86,6 +101,7 @@ export function Voting({ postId }: { postId: number | string }) {
           fill={isDownvoted ? theme.red.val : undefined}
           color={isDownvoted ? "$red" : undefined}
           size="$1"
+          ml="$1"
         />
       </Button>
     </View>

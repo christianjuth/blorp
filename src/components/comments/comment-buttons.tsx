@@ -1,10 +1,15 @@
 import { CommentView } from "lemmy-js-client";
-import { Button, View, Text, useTheme } from "tamagui";
+import { Button, View, useTheme } from "tamagui";
 import { ArrowBigUp, ArrowBigDown } from "@tamagui/lucide-icons";
-import { abbriviateNumber } from "~/src/lib/format";
 import { useLikeComment } from "~/src/lib/lemmy";
 import { voteHaptics } from "~/src/lib/voting";
 import { useEffect, useState } from "react";
+import { AnimatedRollingNumber } from "react-native-animated-rolling-numbers";
+import { useRef } from "react";
+
+const DISABLE_ANIMATION = {
+  duration: 0,
+};
 
 export function CommentVoting({ commentView }: { commentView: CommentView }) {
   const vote = useLikeComment();
@@ -20,10 +25,14 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
 
   const theme = useTheme();
 
+  const score = commentView.counts.score;
+  const [animate, setAnimate] = useState(false);
+
   return (
-    <View dsp="flex" fd="row" ai="center" borderRadius="$12" gap={6}>
+    <View dsp="flex" fd="row" ai="center" borderRadius="$12">
       <Button
         onPress={() => {
+          setAnimate(true);
           const newVote = isUpvoted ? 0 : 1;
           setMyVote(newVote);
           voteHaptics(newVote);
@@ -44,6 +53,7 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
         bg="transparent"
         bw={0}
         p={0}
+        mr={6}
       >
         <ArrowBigUp
           size="$1"
@@ -51,16 +61,25 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
           color={isUpvoted ? "$accentBackground" : "$color11"}
         />
       </Button>
-      <Text
-        fontSize="$4"
-        color={
-          isUpvoted ? "$accentBackground" : isDownvoted ? "$red" : "$color11"
+      <AnimatedRollingNumber
+        enableCompactNotation
+        value={score}
+        textStyle={{
+          color: isUpvoted
+            ? theme.accentBackground.val
+            : isDownvoted
+              ? theme.red.val
+              : theme.color11.val,
+        }}
+        spinningAnimationConfig={
+          // THIS IS A HACK
+          // Find a better way to disable animation for init value
+          !animate ? DISABLE_ANIMATION : undefined
         }
-      >
-        {abbriviateNumber(commentView.counts.score)}
-      </Text>
+      />
       <Button
         onPress={() => {
+          setAnimate(true);
           const newVote = isDownvoted ? 0 : -1;
           voteHaptics(newVote);
           setMyVote(newVote);
@@ -81,6 +100,7 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
         bg="transparent"
         bw={0}
         p={0}
+        ml={6}
       >
         <ArrowBigDown
           size="$1"

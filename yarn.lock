@@ -10414,6 +10414,7 @@ __metadata:
     react: "npm:^18.3.1"
     react-markdown: "npm:^9.0.1"
     react-native: "npm:0.74.5"
+    react-native-animated-rolling-numbers: "npm:^1.0.3"
     react-native-fast-image: "npm:^8.6.3"
     react-native-markdown-display: "npm:^7.0.2"
     react-native-reanimated: "npm:~3.12.1"
@@ -13155,6 +13156,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-animated-rolling-numbers@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "react-native-animated-rolling-numbers@npm:1.0.3"
+  dependencies:
+    react-native-reanimated: "npm:^3.15.1"
+  peerDependencies:
+    react: ">=18.0.0"
+    react-native: ">=0.70.0"
+    react-native-reanimated: ">=2.0.0"
+  checksum: 10c0/21491d0457804db8a7001ded7ba5d741cb6a7f0ff72f29c88bf60c59a91228f05100aac702bfaf256a350967795e5404d9b12106da05ddb2f748b4aa24adff20
+  languageName: node
+  linkType: hard
+
 "react-native-fast-image@npm:^8.6.3":
   version: 8.6.3
   resolution: "react-native-fast-image@npm:8.6.3"
@@ -13204,7 +13218,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-reanimated@npm:^3":
+"react-native-reanimated@npm:^3, react-native-reanimated@npm:^3.15.1":
   version: 3.16.5
   resolution: "react-native-reanimated@npm:3.16.5"
   dependencies:
