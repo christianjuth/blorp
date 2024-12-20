@@ -23,3 +23,8 @@ a {
 a, button {
   cursor: pointer;
 }
+
+@font-face {
+  src: url(/font-awesome/fa-solid-900.woff2);
+  font-family: "FontAwesome6_Solid";
+}

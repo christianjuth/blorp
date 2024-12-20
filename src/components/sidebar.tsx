@@ -4,7 +4,7 @@ import {
   Users,
   Plus,
   MessageCircleMore,
-  Bell,
+  Settings,
 } from "@tamagui/lucide-icons";
 import { Link } from "one";
 import * as routes from "~/src/lib/routes";
@@ -29,10 +29,14 @@ function SmallComunityCard({
             ai="center"
             jc="center"
           >
-            <Text fontSize="$4">{community.title.substring(0, 1)}</Text>
+            <Text fontSize="$4" allowFontScaling>
+              {community.title.substring(0, 1)}
+            </Text>
           </Avatar.Fallback>
         </Avatar>
-        <Text fontSize="$3.5">c/{community.name}</Text>
+        <Text fontSize="$3.5" allowFontScaling>
+          c/{community.name}
+        </Text>
       </XStack>
     </Link>
   );
@@ -71,10 +75,10 @@ export function Sidebar() {
         </XStack>
       </Link>
 
-      <Link href={routes.inbox} replace asChild>
+      <Link href={routes.settings} replace asChild>
         <XStack ai="center" gap="$2" tag="a">
-          <Bell />
-          <Text>Inbox</Text>
+          <Settings />
+          <Text>Settings</Text>
         </XStack>
       </Link>
 

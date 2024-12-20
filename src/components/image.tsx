@@ -36,6 +36,7 @@ export function Image({
           width: maxWidth ? "100%" : undefined,
           maxWidth: maxWidth,
           objectFit: "contain",
+          aspectRatio,
         }}
         fetchPriority={priority ? "high" : undefined}
       />
@@ -51,9 +52,9 @@ export function Image({
   >(imageSizeCache.get(imageUrl));
 
   useEffect(() => {
-    // if (_.isNumber(aspectRatio)) {
-    //   return;
-    // }
+    if (_.isNumber(aspectRatio)) {
+      return;
+    }
 
     measureImage(imageUrl)
       .then((data) => {

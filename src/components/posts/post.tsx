@@ -11,25 +11,24 @@ export function PostCard({ postId }: { postId: number }) {
   const linkCtx = useLinkContext();
   const postView = usePostsStore((s) => s.posts[postId]?.data);
 
+  const [pressed, setPressed] = useState(false);
+
+  const imageDetails = postView?.imageDetails;
+  const aspectRatio = imageDetails
+    ? imageDetails.width / imageDetails.height
+    : undefined;
+
   if (!postView) {
     return null;
   }
 
   const { community, post } = postView;
 
-  const [pressed, setPressed] = useState(false);
-
-  const imageDetails = postView.imageDetails;
-  const aspectRatio = imageDetails
-    ? imageDetails.width / imageDetails.height
-    : undefined;
-
   return (
     <YStack
       py="$4"
       bbc="$color3"
       bbw={1}
-      tag="a"
       mx="auto"
       flex={1}
       $md={{
@@ -51,6 +50,7 @@ export function PostCard({ postId }: { postId: number }) {
           gap="$1"
           onPressIn={() => setPressed(true)}
           onPressOut={() => setPressed(false)}
+          tag="a"
         >
           <Text fontWeight={500} fontSize="$6" lineHeight="$3">
             {post.name}

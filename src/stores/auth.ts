@@ -11,7 +11,7 @@ type AuthStore = {
 export const useAuth = create<AuthStore>()(
   persist(
     (set) => ({
-      instance: "https://lemmy.world",
+      instance: "https://lemmy.ml",
       setJwt: (jwt) => set({ jwt }),
     }),
     {

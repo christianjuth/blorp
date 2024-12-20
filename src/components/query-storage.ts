@@ -1,39 +1,33 @@
+import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
+
 import { QueryClient } from "@tanstack/react-query";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
-import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
-import { openDB } from "idb";
+import { createDb } from "../lib/create-storage";
 
 export const persist = async (queryClient: QueryClient) => {
-  const db = await openDB("ReactQuery", 1, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains("react-query-cache")) {
-        db.createObjectStore("react-query-cache");
-      }
-    },
-  });
-
+  const db = createDb("react-query");
   const persister = {
     persistClient: async (client) => {
-      await db.put("react-query-cache", client, "client");
+      await db.setItem("react-query-cache", JSON.stringify(client));
     },
     restoreClient: async () => {
-      const cache = await db.get("react-query-cache", "client");
-      return cache || undefined;
+      const cache = await db.getItem("react-query-cache");
+      return cache ? JSON.parse(cache) : undefined;
     },
     removeClient: async () => {
-      await db.delete("react-query-cache", "client");
+      await db.removeItem("react-query-cache");
     },
   };
 
-  // Persist the QueryClient state to IndexedDB
+  // Persist the QueryClient state to AsyncStorage
   persistQueryClient({
     queryClient,
     persister,
   });
 
   // Enable multi-tab synchronization
-  // broadcastQueryClient({
-  //   queryClient,
-  //   broadcastChannel: "react-query-sync",
-  // });
+  broadcastQueryClient({
+    queryClient,
+    broadcastChannel: "react-query-sync",
+  });
 };

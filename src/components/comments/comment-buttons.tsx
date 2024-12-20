@@ -31,7 +31,7 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
     ? theme.accentBackground.val
     : isDownvoted
       ? theme.red.val
-      : theme.color.val;
+      : theme.color11.val;
   const textStyle = useMemo(() => {
     return {
       color: textColor,

@@ -10,7 +10,7 @@ export default function Page() {
 
   useEffect(() => {
     if (jwt) {
-      router.replace(routes.home);
+      router.canGoBack() ? router.back() : router.replace(routes.home);
     }
   }, [jwt]);
 

@@ -26,7 +26,7 @@ export function PostByline({ postView }: { postView: FlattenedPost }) {
 
       <YStack gap="$1">
         <Link href={`${linkCtx.root}c/${community.slug}`} push>
-          <Text fontSize="$2" fontWeight={500} color="$color12" tag="a">
+          <Text fontSize="$2" fontWeight={500} color="$color12">
             c/{community.slug}
           </Text>
         </Link>

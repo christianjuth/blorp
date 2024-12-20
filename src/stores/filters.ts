@@ -30,12 +30,12 @@ export const useFiltersStore = create<SortsStore>()(
       setCommentSort: (commentSort) => set({ commentSort }),
       postSort: "Active",
       setPostSort: (postSort) => set({ postSort }),
-      communityFilter: "Local",
+      communityFilter: "All",
       setCommunityFilter: (type) =>
         set({
           communityFilter: type,
         }),
-      homeFilter: "Local",
+      homeFilter: "All",
       setHomeFilter: (type) =>
         set({
           homeFilter: type,

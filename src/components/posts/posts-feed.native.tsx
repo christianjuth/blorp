@@ -12,8 +12,15 @@ import { PopularCommunitiesSidebar } from "../populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { useCustomHeaderHeight } from "../nav/hooks";
+import { FlashList, FlashListProps } from "@shopify/flash-list";
+import { useScrollContext } from "../nav/scroll-animation-context";
+import Animated from "react-native-reanimated";
 import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
-import { FlatList } from "react-native";
+
+const ReanimatedFlashList =
+  Animated.createAnimatedComponent<
+    FlashListProps<"sidebar-desktop" | "sidebar-mobile" | number>
+  >(FlashList);
 
 const EMPTY_ARR = [];
 
@@ -27,6 +34,8 @@ export function PostsFeed({
 }) {
   const tabBar = useCustomTabBarHeight();
   const header = useCustomHeaderHeight();
+
+  const { scrollHandler } = useScrollContext();
 
   const ref = useRef(null);
   useScrollToTop(ref);
@@ -46,7 +55,7 @@ export function PostsFeed({
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
   return (
-    <FlatList
+    <ReanimatedFlashList
       contentInset={{
         top: header.height,
         bottom: tabBar.height,
@@ -109,8 +118,10 @@ export function PostsFeed({
           <CommunityBanner />
         </FeedGutters>
       )}
-      stickyHeaderIndices={[1]}
+      stickyHeaderIndices={[0]}
+      onScroll={communityName ? undefined : scrollHandler}
       scrollEventThrottle={16}
+      estimatedItemSize={475}
     />
   );
 }

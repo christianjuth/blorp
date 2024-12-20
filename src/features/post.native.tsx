@@ -13,7 +13,7 @@ import { CommentView } from "lemmy-js-client";
 import { memo, useMemo } from "react";
 import { useTheme, View } from "tamagui";
 import _ from "lodash";
-import { FlatList } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -66,7 +66,7 @@ export function PostComments({
   }, [commentViews]);
 
   return (
-    <FlatList
+    <FlashList
       ref={ref}
       data={["sidebar", "post", ...structured.topLevelItems] as const}
       renderItem={({ item }) => {
@@ -111,6 +111,7 @@ export function PostComments({
       }}
       onRefresh={onRefresh}
       refreshing={refreshing}
+      estimatedItemSize={450}
     />
   );
 }
