@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { View, useMedia } from "tamagui";
 import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { useFiltersStore } from "~/src/stores/filters";
+import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
 
 export default function Communities() {
   const communitySort = useFiltersStore((s) => s.communitySort);
@@ -13,6 +14,7 @@ export default function Communities() {
   const media = useMedia();
 
   const header = useCustomHeaderHeight();
+  const tabBar = useCustomTabBarHeight();
 
   const ref = useRef(null);
   useScrollToTop(ref);
@@ -57,7 +59,7 @@ export default function Communities() {
       }}
       onEndReachedThreshold={0.5}
       estimatedItemSize={54}
-      contentInset={{ top: header.height }}
+      contentInset={{ top: header.height, bottom: tabBar.height }}
       scrollIndicatorInsets={{ top: header.height }}
       automaticallyAdjustsScrollIndicatorInsets={false}
       refreshing={isRefetching}

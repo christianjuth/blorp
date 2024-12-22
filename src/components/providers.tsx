@@ -4,6 +4,7 @@ import { useColorScheme } from "react-native";
 import config from "~/config/tamagui/tamagui.config";
 import { persist } from "./query-storage";
 import { ScrollProvider } from "./nav/scroll-animation-context";
+import { AuthProvider } from "./auth";
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
 
@@ -38,7 +39,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <TamaguiRootProvider>
       <ScrollProvider>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </QueryClientProvider>
       </ScrollProvider>
     </TamaguiRootProvider>

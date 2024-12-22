@@ -47,21 +47,13 @@ export function PostsFeed({
 
   return (
     <FlatList
-      contentInset={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
       automaticallyAdjustsScrollIndicatorInsets={false}
-      scrollIndicatorInsets={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
       ref={ref}
-      data={["sidebar-desktop", "sidebar-mobile", ...data] as const}
+      data={["banner", "sidebar-desktop", "sidebar-mobile", ...data] as const}
       renderItem={({ item }) => {
         if (item === "sidebar-desktop") {
           return (
-            <FeedGutters>
+            <FeedGutters pt={header.height}>
               <View flex={1} />
               {communityName ? (
                 <Sidebar communityName={communityName} />
@@ -81,6 +73,14 @@ export function PostsFeed({
           ) : null;
         }
 
+        if (item === "banner") {
+          return (
+            <FeedGutters transform={[{ translateY: header.height }]}>
+              <CommunityBanner />
+            </FeedGutters>
+          );
+        }
+
         return (
           <FeedGutters>
             <PostCard postId={item} />
@@ -97,6 +97,7 @@ export function PostsFeed({
       keyExtractor={(item) => String(item)}
       contentContainerStyle={{
         backgroundColor: theme.color1.val,
+        paddingBottom: tabBar.height,
       }}
       refreshing={isRefetching}
       onRefresh={() => {
@@ -104,11 +105,6 @@ export function PostsFeed({
           refetch();
         }
       }}
-      ListHeaderComponent={() => (
-        <FeedGutters>
-          <CommunityBanner />
-        </FeedGutters>
-      )}
       stickyHeaderIndices={[1]}
       scrollEventThrottle={16}
     />

@@ -4,7 +4,7 @@ import {
   ListingType,
   PostSortType,
 } from "lemmy-js-client";
-import { Option, Select } from "~/src/components/select";
+import { Option, Select } from "~/src/components/ui/select";
 import {
   Flame,
   ArrowUpCircle,
@@ -22,7 +22,14 @@ function createIcon(defaultProps: ComponentProps<typeof FontAwesome6>) {
   return (
     props: Omit<ComponentProps<typeof FontAwesome6>, "name" | "iconStyle">,
   ) => {
-    return <FontAwesome6 {...defaultProps} {...props} />;
+    const theme = useTheme();
+    return (
+      <FontAwesome6
+        {...defaultProps}
+        {...props}
+        color={props.color ?? theme.color.val}
+      />
+    );
   };
 }
 

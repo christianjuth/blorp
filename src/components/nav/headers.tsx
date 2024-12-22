@@ -6,13 +6,13 @@ import {
   CommunitySortSelect,
   HomeFilter,
   PostSortSelect,
-} from "./lemmy-sort";
+} from "../lemmy-sort";
 import { View, Text, Button, XStack } from "tamagui";
 import { ChevronLeft, X } from "@tamagui/lucide-icons";
-import { BlurBackground } from "./nav/blur-background";
+import { BlurBackground } from "./blur-background";
 import Animated from "react-native-reanimated";
-import { useCustomHeaderHeight } from "./nav/hooks";
-import { useScrollContext } from "./nav/scroll-animation-context";
+import { useCustomHeaderHeight } from "./hooks";
+import { useScrollContext } from "./scroll-animation-context";
 import { useMedia } from "tamagui";
 import { useAnimatedStyle, interpolate } from "react-native-reanimated";
 
@@ -75,7 +75,7 @@ export function HomeHeader(
               <Button
                 unstyled
                 p={2}
-                bg="$color075"
+                bg="transparent"
                 borderRadius="$12"
                 dsp="flex"
                 fd="row"

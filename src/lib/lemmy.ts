@@ -33,11 +33,12 @@ import {
 import { Image as RNImage } from "react-native";
 import { useFiltersStore } from "~/src/stores/filters";
 import { useAuth } from "../stores/auth";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import FastImage from "../components/fast-image";
 import _ from "lodash";
 import throttledQueue from "throttled-queue";
 import { usePostsStore } from "../stores/posts";
+import { useRequireAuth } from "~/src/components/auth";
 
 function getLemmyServer({ actor_id }: { actor_id: string }) {
   const server = new URL(actor_id);
@@ -426,6 +427,7 @@ export function useLogout() {
 }
 
 export function useLikePost(postId: number) {
+  const requireAuth = useRequireAuth();
   const client = useLemmyClient();
 
   const post = usePostsStore((s) => s.posts[postId]?.data);
@@ -434,6 +436,7 @@ export function useLikePost(postId: number) {
   return useMutation({
     mutationKey: ["likePost", postId],
     mutationFn: async (score: -1 | 0 | 1) => {
+      await requireAuth();
       const res = await client.likePost({
         post_id: postId,
         score,
@@ -466,12 +469,16 @@ interface CustumCreateCommentLike extends CreateCommentLike {
 }
 
 export function useLikeComment() {
+  const requireAuth = useRequireAuth();
+
   const queryClient = useQueryClient();
   const client = useLemmyClient();
 
   return useMutation({
-    mutationFn: ({ post_id, ...form }: CustumCreateCommentLike) =>
-      client.likeComment(form),
+    mutationFn: async ({ post_id, ...form }: CustumCreateCommentLike) => {
+      await requireAuth();
+      return await client.likeComment(form);
+    },
     onMutate: ({ post_id, comment_id, score }) => {
       const SORTS: CommentSortType[] = [
         "Hot",

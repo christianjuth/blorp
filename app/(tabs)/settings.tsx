@@ -5,6 +5,8 @@ import { useState } from "react";
 import { Switch } from "tamagui";
 import { useSettingsStore } from "~/src/stores/settings";
 import { useLogout } from "~/src/lib/lemmy";
+import { useAuth } from "~/src/stores/auth";
+import { useRequireAuth } from "~/src/components/auth";
 
 function SettingsButton({
   onClick,
@@ -21,15 +23,23 @@ function SettingsButton({
           return;
         }
         setPressed(true);
-        await onClick();
-        setPressed(false);
+        const p = onClick();
+        if (p instanceof Promise) {
+          p.finally(() => {
+            setPressed(false);
+          });
+        } else {
+          setPressed(false);
+        }
       }}
       unstyled
       h="$4"
       px="$3.5"
       jc="center"
+      ai="flex-start"
       br="$4"
-      bg={pressed ? "$color4" : undefined}
+      bg={pressed ? "$color4" : "transparent"}
+      bw={0}
     >
       <Text color="$accentColor" fontSize="$5">
         {children}
@@ -70,18 +80,22 @@ export default function SettingsPage() {
   const queryClient = useQueryClient();
   const settings = useSettingsStore();
   const logout = useLogout();
+  const requireAuth = useRequireAuth();
+  const isLoggedIn = useAuth((s) => !!s.jwt);
 
   return (
-    <View height="100%" bg="$color3" p="$4" gap="$2">
+    <View height="100%" bg="$color1" p="$4" gap="$2">
       <Text p="$2">ACCOUNT</Text>
 
-      <YStack bg="$color1" br="$4">
-        <SettingsButton onClick={logout}>Logout</SettingsButton>
+      <YStack bg="$color2" br="$4">
+        <SettingsButton onClick={isLoggedIn ? logout : requireAuth}>
+          {isLoggedIn ? "Logout" : "Login"}
+        </SettingsButton>
       </YStack>
 
       <Text p="$2">OTHER</Text>
 
-      <YStack bg="$color1" br="$4">
+      <YStack bg="$color2" br="$4">
         <SettingsToggle
           value={settings.cacheImages}
           onToggle={(newVal) => {

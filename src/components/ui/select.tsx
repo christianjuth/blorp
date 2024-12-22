@@ -4,7 +4,6 @@ import { Check, ChevronDown } from "@tamagui/lucide-icons";
 import type { FontSizeTokens, SelectProps as TSelectProps } from "tamagui";
 import { Adapt, Select as TSelect, Sheet, YStack, getFontSize } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TextStyle } from "react-native";
 
 export type Option<V, L = string> = {
   label: L;
@@ -65,13 +64,7 @@ export function Select<V extends string>({
               bg: "$color3",
             }}
           >
-            <Sheet.ScrollView
-              // bg="$color1"
-              // $theme-dark={{
-              //   bg: "$color3",
-              // }}
-              pb={insets.bottom}
-            >
+            <Sheet.ScrollView pb={insets.bottom}>
               <Adapt.Contents />
             </Sheet.ScrollView>
           </Sheet.Frame>

@@ -27,14 +27,12 @@ export function PostCard({ postId }: { postId: number }) {
   return (
     <YStack
       py="$4"
-      bbc="$color3"
+      bbc="$color4"
       bbw={1}
       mx="auto"
       flex={1}
       $md={{
         px: "$2.5",
-        bbw: 8,
-        py: "$2",
       }}
       gap="$1.5"
       opacity={pressed ? 0.8 : 1}

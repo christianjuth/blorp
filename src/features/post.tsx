@@ -8,7 +8,6 @@ import { usePost, usePostComments } from "~/src/lib/lemmy";
 import { PostDetail } from "~/src/components/posts/post-details";
 import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { FeedGutters } from "../components/feed-gutters";
-
 import { CommentView } from "lemmy-js-client";
 import { memo, useMemo } from "react";
 import { useTheme, View } from "tamagui";
@@ -17,6 +16,7 @@ import { FlatList } from "react-native";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useCustomHeaderHeight } from "../components/nav/hooks";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -39,6 +39,8 @@ export function PostComments({
   opId: number | undefined;
   communityName?: string;
 }) {
+  const header = useCustomHeaderHeight();
+
   const navigation = useNavigation();
   useFocusEffect(() => {
     const parent = navigation.getParent();
@@ -72,7 +74,7 @@ export function PostComments({
       renderItem={({ item }) => {
         if (item === "sidebar") {
           return (
-            <FeedGutters>
+            <FeedGutters pt={header.height}>
               <View flex={1} />
               {communityName ? (
                 <Sidebar communityName={communityName} />

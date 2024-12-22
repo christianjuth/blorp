@@ -6,7 +6,7 @@ import {
   CommunityHeader,
   CommunitysHeader,
   PostHeader,
-} from "~/src/components/headers";
+} from "~/src/components/nav/headers";
 import { LinkContext } from "~/src/components/communities/link-context";
 
 export default function Layout() {
@@ -30,7 +30,7 @@ export default function Layout() {
           options={{
             title: "Communities",
             header: (props) => <CommunitysHeader {...props} />,
-            headerTransparent: Platform.OS !== "web" ? true : false,
+            headerTransparent: true,
           }}
         />
 
@@ -39,7 +39,7 @@ export default function Layout() {
           options={{
             title: "loading...",
             header: (props) => <CommunityHeader {...props} />,
-            headerTransparent: Platform.OS !== "web" ? true : false,
+            headerTransparent: true,
           }}
         />
 

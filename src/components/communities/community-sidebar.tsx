@@ -38,7 +38,15 @@ export function Sidebar({ communityName }: { communityName: string }) {
       py="$4"
       bg="$color1"
     >
-      <ScrollView bg="$color3" br="$4" zIndex="$5" w={COMMUNITY_SIDEBAR_WIDTH}>
+      <ScrollView
+        bg="$color3"
+        $theme-dark={{
+          bg: "$background",
+        }}
+        br="$4"
+        zIndex="$5"
+        w={COMMUNITY_SIDEBAR_WIDTH}
+      >
         <YStack p="$3" gap="$3">
           <Text fontSize="$5" fontWeight="bold">
             {community.title}
