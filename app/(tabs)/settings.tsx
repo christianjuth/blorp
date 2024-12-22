@@ -1,12 +1,12 @@
 import { View, Text, Button, YStack, XStack } from "tamagui";
 import { useQueryClient } from "@tanstack/react-query";
-import FastImage from "~/src/components/fast-image";
 import { useState } from "react";
 import { Switch } from "tamagui";
 import { useSettingsStore } from "~/src/stores/settings";
 import { useLogout } from "~/src/lib/lemmy";
 import { useAuth } from "~/src/stores/auth";
-import { useRequireAuth } from "~/src/components/auth";
+import { useRequireAuth } from "~/src/components/auth-context";
+import { Image as ExpoImage } from "expo-image";
 
 function SettingsButton({
   onClick,
@@ -101,7 +101,7 @@ export default function SettingsPage() {
           onToggle={(newVal) => {
             settings.setCacheImages(newVal);
             if (!newVal) {
-              FastImage.clearDiskCache();
+              ExpoImage.clearDiskCache();
             }
           }}
         >
@@ -118,7 +118,7 @@ export default function SettingsPage() {
             try {
               await Promise.all([
                 queryClient.invalidateQueries(),
-                FastImage.clearDiskCache(),
+                ExpoImage.clearDiskCache(),
               ]);
             } catch (err) {}
           }}

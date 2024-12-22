@@ -3,8 +3,8 @@ import { Text, YStack, Avatar, XStack } from "tamagui";
 import { Link } from "one";
 import { abbriviateNumber } from "~/src/lib/format";
 import { createCommunitySlug } from "../lib/lemmy";
-import FastImage from "~/src/components/fast-image";
 import { useState } from "react";
+import { Image } from "expo-image";
 
 export function Community({ communityView }: { communityView: CommunityView }) {
   const { community, counts } = communityView;
@@ -19,12 +19,14 @@ export function Community({ communityView }: { communityView: CommunityView }) {
             <YStack
               fullscreen
               zIndex={1}
-              bg={iconReady ? "$color1" : undefined}
+              bg={iconReady ? "$background" : undefined}
               borderRadius="$12"
               overflow="hidden"
             >
-              <FastImage
-                source={{ uri: community.icon }}
+              <Image
+                source={{
+                  uri: community.icon,
+                }}
                 style={{
                   position: "absolute",
                   top: 0,
@@ -32,7 +34,6 @@ export function Community({ communityView }: { communityView: CommunityView }) {
                   bottom: 0,
                   left: 0,
                 }}
-                resizeMode="cover"
                 onLoad={() => setIconReady(true)}
               />
             </YStack>

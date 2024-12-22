@@ -17,14 +17,14 @@ export function MainAppTemplate({ children }: { children: React.ReactNode }) {
       <View h="100%" dsp="flex" fd="row" $sm={{ dsp: "contents" }}>
         <View
           w={270}
-          backgroundColor="$color1"
+          backgroundColor="$background"
           brc="$color5"
           brw={1}
           $sm={{ dsp: "none" }}
         >
           <ScrollView>
             <SafeAreaView>
-              <View p="$5">
+              <View>
                 <Sidebar />
               </View>
             </SafeAreaView>

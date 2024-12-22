@@ -105,7 +105,7 @@ export function PostComments({
       onEndReached={loadMore}
       onEndReachedThreshold={0.5}
       contentContainerStyle={{
-        backgroundColor: theme.color1.val,
+        backgroundColor: theme.background.val,
       }}
       stickyHeaderIndices={[0]}
       contentInset={{

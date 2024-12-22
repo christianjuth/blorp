@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "LemConnect",
-    "slug": "lemmy-connect",
+    "name": "Blorp",
+    "slug": "blorp",
     "platforms": [
       "ios",
       "android"
@@ -27,7 +27,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.christianjuth.lemmy-connect",
+      "bundleIdentifier": "com.christianjuth.blorp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UISupportedInterfaceOrientations": [
@@ -46,7 +46,7 @@
     "orientation": "default",
     "userInterfaceStyle": "automatic",
     "android": {
-      "package": "com.christianjuth.lemmy"
+      "package": "com.christianjuth.blorp"
     },
     "updates": {
       "enabled": false

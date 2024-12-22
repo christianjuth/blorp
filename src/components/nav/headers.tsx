@@ -61,8 +61,6 @@ export function HomeHeader(
         <XStack
           bbc="$color4"
           bbw={0.5}
-          btw={0}
-          btc="transparent"
           w="unset"
           px="$3"
           ai="center"
@@ -276,7 +274,7 @@ export function ModalHeader(props: NativeStackHeaderProps) {
   const { height, insetTop } = useCustomHeaderHeight();
   return (
     <XStack
-      bg="$color1"
+      bg="$background"
       bbc="$color4"
       bbw={1}
       btw={0}

@@ -5,12 +5,15 @@ import { useLikeComment } from "~/src/lib/lemmy";
 import { voteHaptics } from "~/src/lib/voting";
 import { useEffect, useMemo, useState } from "react";
 import { AnimatedRollingNumber } from "~/src/components/animated-digit";
+import { useRequireAuth } from "../auth-context";
 
 const DISABLE_ANIMATION = {
   duration: 0,
 };
 
 export function CommentVoting({ commentView }: { commentView: CommentView }) {
+  const requireAuth = useRequireAuth();
+
   const vote = useLikeComment();
 
   const [myVote, setMyVote] = useState(commentView.my_vote ?? 0);
@@ -42,21 +45,23 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
     <View dsp="flex" fd="row" ai="center" borderRadius="$12">
       <Button
         onPress={() => {
-          setAnimate(true);
-          const newVote = isUpvoted ? 0 : 1;
-          setMyVote(newVote);
-          voteHaptics(newVote);
-          // THIS IS A HACK
-          // I'm not sure why but having this not
-          // wrapped in set timeout cases a delay
-          // in setMyVote() rerendering comp
-          setTimeout(() => {
-            vote.mutate({
-              post_id: commentView.post.id,
-              comment_id: commentView.comment.id,
-              score: newVote,
-            });
-          }, 0);
+          requireAuth().then(() => {
+            setAnimate(true);
+            const newVote = isUpvoted ? 0 : 1;
+            setMyVote(newVote);
+            voteHaptics(newVote);
+            // THIS IS A HACK
+            // I'm not sure why but having this not
+            // wrapped in set timeout cases a delay
+            // in setMyVote() rerendering comp
+            setTimeout(() => {
+              vote.mutate({
+                post_id: commentView.post.id,
+                comment_id: commentView.comment.id,
+                score: newVote,
+              });
+            }, 0);
+          });
         }}
         disabled={vote.isPending}
         unstyled
@@ -83,21 +88,23 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
       />
       <Button
         onPress={() => {
-          setAnimate(true);
-          const newVote = isDownvoted ? 0 : -1;
-          voteHaptics(newVote);
-          setMyVote(newVote);
-          // THIS IS A HACK
-          // I'm not sure why but having this not
-          // wrapped in set timeout cases a delay
-          // in setMyVote() rerendering comp
-          setTimeout(() => {
-            vote.mutate({
-              post_id: commentView.post.id,
-              comment_id: commentView.comment.id,
-              score: newVote,
-            });
-          }, 0);
+          requireAuth().then(() => {
+            setAnimate(true);
+            const newVote = isDownvoted ? 0 : -1;
+            voteHaptics(newVote);
+            setMyVote(newVote);
+            // THIS IS A HACK
+            // I'm not sure why but having this not
+            // wrapped in set timeout cases a delay
+            // in setMyVote() rerendering comp
+            setTimeout(() => {
+              vote.mutate({
+                post_id: commentView.post.id,
+                comment_id: commentView.comment.id,
+                score: newVote,
+              });
+            }, 0);
+          });
         }}
         disabled={vote.isPending}
         unstyled

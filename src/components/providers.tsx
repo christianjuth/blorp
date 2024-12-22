@@ -4,7 +4,7 @@ import { useColorScheme } from "react-native";
 import config from "~/config/tamagui/tamagui.config";
 import { persist } from "./query-storage";
 import { ScrollProvider } from "./nav/scroll-animation-context";
-import { AuthProvider } from "./auth";
+import { AuthProvider } from "./auth-context";
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
 

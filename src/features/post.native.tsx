@@ -17,6 +17,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useCustomHeaderHeight } from "../components/nav/hooks";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -39,6 +40,8 @@ export function PostComments({
   opId: number | undefined;
   communityName?: string;
 }) {
+  const header = useCustomHeaderHeight();
+
   const navigation = useNavigation();
   useFocusEffect(() => {
     const parent = navigation.getParent();
@@ -103,12 +106,18 @@ export function PostComments({
       onEndReached={loadMore}
       onEndReachedThreshold={0.5}
       contentContainerStyle={{
-        backgroundColor: theme.color1.val,
+        backgroundColor: theme.background.val,
       }}
       stickyHeaderIndices={[0]}
       contentInset={{
+        top: header.height,
         bottom: insets.bottom,
       }}
+      scrollIndicatorInsets={{
+        top: header.height,
+        bottom: insets.bottom,
+      }}
+      automaticallyAdjustsScrollIndicatorInsets={false}
       onRefresh={onRefresh}
       refreshing={refreshing}
       estimatedItemSize={450}

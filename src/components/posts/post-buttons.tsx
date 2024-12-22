@@ -5,12 +5,15 @@ import { voteHaptics } from "~/src/lib/voting";
 import { usePostsStore } from "~/src/stores/posts";
 import { AnimatedRollingNumber } from "~/src/components/animated-digit";
 import { useMemo, useState } from "react";
+import { useRequireAuth } from "../auth-context";
 
 const DISABLE_ANIMATION = {
   duration: 0,
 };
 
 export function Voting({ postId }: { postId: number | string }) {
+  const requireAuth = useRequireAuth();
+
   const postView = usePostsStore((s) => s.posts[postId]?.data);
 
   const vote = useLikePost(postView?.post.id);
@@ -61,10 +64,12 @@ export function Voting({ postId }: { postId: number | string }) {
         pl={7}
         bg="transparent"
         onPress={() => {
-          setAnimate(true);
-          const newVote = isUpvoted ? 0 : 1;
-          voteHaptics(newVote);
-          vote.mutate(newVote);
+          requireAuth().then(() => {
+            setAnimate(true);
+            const newVote = isUpvoted ? 0 : 1;
+            voteHaptics(newVote);
+            vote.mutate(newVote);
+          });
         }}
         disabled={vote.isPending}
       >
@@ -95,10 +100,12 @@ export function Voting({ postId }: { postId: number | string }) {
         pr={7}
         bg="transparent"
         onPress={() => {
-          setAnimate(true);
-          const newVote = isDownvoted ? 0 : -1;
-          voteHaptics(newVote);
-          vote.mutate(newVote);
+          requireAuth().then(() => {
+            setAnimate(true);
+            const newVote = isDownvoted ? 0 : -1;
+            voteHaptics(newVote);
+            vote.mutate(newVote);
+          });
         }}
         disabled={vote.isPending}
       >

@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
-import {
-  // Image as RNImage,
-  Platform,
-} from "react-native";
+import { Platform } from "react-native";
 import { imageSizeCache, measureImage } from "../lib/lemmy";
-import { useTheme, Text } from "tamagui";
+import { useTheme } from "tamagui";
 import _ from "lodash";
-import RNImage from "./fast-image";
+import { Image as ExpoImage } from "expo-image";
+import { useSettingsStore } from "../stores/settings";
 
 export function Image({
   imageUrl,
@@ -21,6 +19,7 @@ export function Image({
   maxWidth?: number;
   aspectRatio?: number;
 }) {
+  const cacheImages = useSettingsStore((s) => s.cacheImages);
   const theme = useTheme();
 
   if (Platform.OS === "web") {
@@ -74,8 +73,8 @@ export function Image({
   aspectRatio = _.isNaN(aspectRatio) ? 1 : (aspectRatio ?? 1);
 
   return (
-    <RNImage
-      key={imageUrl}
+    <ExpoImage
+      // key={imageUrl}
       source={{ uri: imageUrl }}
       style={{
         aspectRatio: aspectRatio,
@@ -91,7 +90,8 @@ export function Image({
         // with react native fast image
         height: maxWidth ? maxWidth / aspectRatio : undefined,
       }}
-      resizeMode="contain"
+      contentFit="contain"
+      cachePolicy={cacheImages ? "disk" : "memory"}
     />
   );
 }

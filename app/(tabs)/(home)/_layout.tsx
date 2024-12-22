@@ -20,7 +20,7 @@ export default function Layout() {
         screenOptions={{
           headerTintColor: theme.gray12.val,
           contentStyle: {
-            backgroundColor: theme.color1.val,
+            backgroundColor: theme.background.val,
           },
         }}
       >

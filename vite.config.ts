@@ -2,6 +2,7 @@ import type { UserConfig } from "vite";
 import { one } from "one/vite";
 import { tamaguiPlugin } from "@tamagui/vite-plugin";
 import circleDependency from "vite-plugin-circular-dependency";
+import path from "path";
 
 export default {
   plugins: [
@@ -14,7 +15,7 @@ export default {
       app: {
         // set to the key of your native app
         // will call AppRegistry.registerComponent(app.key)
-        key: "one-example",
+        key: "blorp",
       },
 
       deps: {
@@ -34,6 +35,10 @@ export default {
   resolve: {
     alias: {
       punycode: "punycode/",
+      "expo-modules-core": path.resolve(
+        __dirname,
+        "node_modules/expo-modules-core/",
+      ),
     },
   },
 } satisfies UserConfig;

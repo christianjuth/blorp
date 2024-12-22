@@ -2863,6 +2863,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native/assets-registry@npm:~0.74.83":
+  version: 0.74.88
+  resolution: "@react-native/assets-registry@npm:0.74.88"
+  checksum: 10c0/ad9291fe645aa77687a5c2da229ce5507dd128794693630cdfa096ff08d27a6596ddd426cb53fa6aef6ce81381d75afc1ce7d315f807c2f10778219dda5e9772
+  languageName: node
+  linkType: hard
+
 "@react-native/babel-plugin-codegen@npm:0.74.87":
   version: 0.74.87
   resolution: "@react-native/babel-plugin-codegen@npm:0.74.87"
@@ -8153,6 +8160,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-image@npm:1.12.9":
+  version: 1.12.9
+  resolution: "expo-image@npm:1.12.9"
+  dependencies:
+    "@react-native/assets-registry": "npm:~0.74.83"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/9c9b020978036c9a81134759024eae5d931d8f2c6480619197ee06251ff57a4a34edac1e4a1442adcba52d942c3af2da8f66534c9f8a7518fc4d77d3b711863b
+  languageName: node
+  linkType: hard
+
 "expo-keep-awake@npm:~13.0.2":
   version: 13.0.2
   resolution: "expo-keep-awake@npm:13.0.2"
@@ -10379,6 +10397,7 @@ __metadata:
     expo: "npm:~51.0.39"
     expo-blur: "npm:^13.0.2"
     expo-haptics: "npm:^13.0.1"
+    expo-image: "npm:1.12.9"
     expo-modules-core: "npm:^1.12.24"
     expo-system-ui: "npm:~3.0.7"
     html-react-parser: "npm:^5.2.0"
@@ -10395,7 +10414,6 @@ __metadata:
     react-markdown: "npm:^9.0.1"
     react-native: "npm:0.74.5"
     react-native-animated-rolling-numbers: "npm:^1.0.3"
-    react-native-fast-image: "npm:^8.6.3"
     react-native-markdown-display: "npm:^7.0.2"
     react-native-reanimated: "npm:~3.12.1"
     react-native-safe-area-context: "npm:4.10.5"
@@ -13146,16 +13164,6 @@ __metadata:
     react-native: ">=0.70.0"
     react-native-reanimated: ">=2.0.0"
   checksum: 10c0/21491d0457804db8a7001ded7ba5d741cb6a7f0ff72f29c88bf60c59a91228f05100aac702bfaf256a350967795e5404d9b12106da05ddb2f748b4aa24adff20
-  languageName: node
-  linkType: hard
-
-"react-native-fast-image@npm:^8.6.3":
-  version: 8.6.3
-  resolution: "react-native-fast-image@npm:8.6.3"
-  peerDependencies:
-    react: ^17 || ^18
-    react-native: ">=0.60.0"
-  checksum: 10c0/4ebeae53ffeadf1e7e5e133c1cfda81f9efe978f9ece10c732a0338149fe9104681bfdabc8427dad7c934b02bfcbd0e205bb6ca43e2844abc6054630ebe34454
   languageName: node
   linkType: hard
 

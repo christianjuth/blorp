@@ -5,6 +5,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useAuth } from "~/src/stores/auth";
 import {
   Dialog,
   Adapt,
@@ -16,7 +17,6 @@ import {
   Button,
   YStack,
 } from "tamagui";
-import { useAuth } from "~/src/stores/auth";
 import { useLogin } from "../lib/lemmy";
 import { Input } from "~/src/components/ui/input";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

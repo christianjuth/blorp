@@ -1,6 +1,5 @@
 import { Stack } from "one";
 import { useTheme } from "tamagui";
-import { Platform } from "react-native";
 
 import {
   CommunityHeader,
@@ -21,7 +20,7 @@ export default function Layout() {
         screenOptions={{
           headerTintColor: theme.gray12.val,
           contentStyle: {
-            backgroundColor: theme.color1.val,
+            backgroundColor: theme.background.val,
           },
         }}
       >

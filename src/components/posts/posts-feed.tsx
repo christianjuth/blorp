@@ -96,7 +96,7 @@ export function PostsFeed({
       onEndReachedThreshold={0.5}
       keyExtractor={(item) => String(item)}
       contentContainerStyle={{
-        backgroundColor: theme.color1.val,
+        backgroundColor: theme.background.val,
         paddingBottom: tabBar.height,
       }}
       refreshing={isRefetching}
