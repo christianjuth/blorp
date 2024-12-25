@@ -5,6 +5,7 @@ import config from "~/config/tamagui/tamagui.config";
 import { persist } from "./query-storage";
 import { ScrollProvider } from "./nav/scroll-animation-context";
 import { AuthProvider } from "./auth-context";
+import { Onboarding } from "../features/onboarding";
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
 
@@ -39,6 +40,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <TamaguiRootProvider>
       <ScrollProvider>
         <QueryClientProvider client={queryClient}>
+          <Onboarding />
           <AuthProvider>{children}</AuthProvider>
         </QueryClientProvider>
       </ScrollProvider>

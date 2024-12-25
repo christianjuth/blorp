@@ -8,6 +8,8 @@ import {
   slateA,
   slateDarkA,
   red,
+  cyan,
+  cyanDark,
 } from "@tamagui/colors";
 import _ from "lodash";
 
@@ -48,14 +50,14 @@ import _ from "lodash";
 
 const colorTokens = {
   light: {
-    blue,
+    cyan,
     // yellow,
     gray: _.mapKeys(slate, (value, key) =>
       key.replace("slate", "gray"),
     ) as typeof gray,
   },
   dark: {
-    blue: blueDark,
+    cyan: cyanDark,
     // yellow: yellowDark,
     gray: _.mapKeys(slateDark, (value, key) =>
       key.replace("slate", "gray"),
@@ -69,7 +71,7 @@ export const darkShadowColor = "rgba(0,0,0,0.12)";
 export const darkShadowColorStrong = "rgba(0,0,0,0.2)";
 
 export const darkColors = {
-  ...colorTokens.dark.blue,
+  ...colorTokens.dark.cyan,
   // ...colorTokens.dark.yellow,
   ...colorTokens.dark.gray,
 
@@ -88,7 +90,7 @@ export const darkColors = {
 };
 
 export const lightColors = {
-  ...colorTokens.light.blue,
+  ...colorTokens.light.cyan,
   // ...colorTokens.light.yellow,
   ...colorTokens.light.gray,
 
@@ -144,8 +146,8 @@ export const color = {
 };
 
 export const brandColor = {
-  light: color.blue9Light,
-  dark: color.blue9Dark,
+  light: "#CE46E6", // color.cyan8Light,
+  dark: "#CE46E6", // color.cyan9Dark,
 };
 
 export const palettes = (() => {

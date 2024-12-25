@@ -36,7 +36,7 @@ export function Sidebar({ communityName }: { communityName: string }) {
       r="$0"
       t="$0"
       py="$4"
-      bg="$color1"
+      bg="$background"
     >
       <ScrollView
         bg="$color3"
@@ -117,9 +117,9 @@ export function SmallScreenSidebar({
 
   return (
     <YStack
-      bg="$color1"
+      bg="$background"
       bbc="$color3"
-      bbw={8}
+      bbw={1}
       flex={1}
       p="$3"
       gap="$3"

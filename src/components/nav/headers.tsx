@@ -309,3 +309,93 @@ export function ModalHeader(props: NativeStackHeaderProps) {
     </XStack>
   );
 }
+
+export function StackHeader(props: NativeStackHeaderProps) {
+  const { height, insetTop } = useCustomHeaderHeight();
+  return (
+    <XStack
+      bbc="$color4"
+      bbw={0.5}
+      btw={0}
+      btc="transparent"
+      w="unset"
+      px="$3"
+      ai="center"
+      pt={insetTop}
+      h={height - 1}
+      pos="relative"
+    >
+      <BlurBackground />
+
+      <View flex={1} flexBasis={0} ai="flex-start">
+        {"back" in props && props.back && (
+          <Button
+            unstyled
+            p={2}
+            bg="transparent"
+            borderRadius="$12"
+            dsp="flex"
+            fd="row"
+            ai="center"
+            bw={0}
+            onPress={() => props.navigation.pop(1)}
+            h="auto"
+          >
+            <ChevronLeft color="$accentColor" size="$2" />
+          </Button>
+        )}
+      </View>
+      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+        {props.route.name}
+      </Text>
+      <View flex={1} flexBasis={0} ai="flex-end">
+        <ComentSortSelect />
+      </View>
+    </XStack>
+  );
+}
+
+export function BottomTabBarHeader(props: BottomTabHeaderProps) {
+  const { height, insetTop } = useCustomHeaderHeight();
+  return (
+    <XStack
+      bbc="$color4"
+      bbw={0.5}
+      btw={0}
+      btc="transparent"
+      w="unset"
+      px="$3"
+      ai="center"
+      pt={insetTop}
+      h={height - 1}
+      pos="relative"
+    >
+      <BlurBackground />
+
+      <View flex={1} flexBasis={0} ai="flex-start">
+        {props.navigation.canGoBack() && (
+          <Button
+            unstyled
+            p={2}
+            bg="transparent"
+            borderRadius="$12"
+            dsp="flex"
+            fd="row"
+            ai="center"
+            bw={0}
+            onPress={() => props.navigation.goBack()}
+            h="auto"
+          >
+            <ChevronLeft color="$accentColor" size="$2" />
+          </Button>
+        )}
+      </View>
+      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+        {props.route.name}
+      </Text>
+      <View flex={1} flexBasis={0} ai="flex-end">
+        <ComentSortSelect />
+      </View>
+    </XStack>
+  );
+}

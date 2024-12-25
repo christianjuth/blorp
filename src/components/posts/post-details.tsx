@@ -28,7 +28,6 @@ export function PostDetail({ postId }: { postId: number | string }) {
     <YStack
       $md={{
         px: "$2.5",
-        bbw: 8,
       }}
       py="$2.5"
       bbc="$color3"

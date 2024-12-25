@@ -1,4 +1,4 @@
-import { View, Text, Button, YStack, XStack } from "tamagui";
+import { View, Text, Button, YStack, XStack, ScrollView } from "tamagui";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Switch } from "tamagui";
@@ -7,6 +7,8 @@ import { useLogout } from "~/src/lib/lemmy";
 import { useAuth } from "~/src/stores/auth";
 import { useRequireAuth } from "~/src/components/auth-context";
 import { Image as ExpoImage } from "expo-image";
+import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
+import { FeedGutters } from "~/src/components/feed-gutters";
 
 function SettingsButton({
   onClick,
@@ -83,49 +85,62 @@ export default function SettingsPage() {
   const requireAuth = useRequireAuth();
   const isLoggedIn = useAuth((s) => !!s.jwt);
 
+  const header = useCustomHeaderHeight();
+
   return (
-    <View height="100%" bg="$color1" p="$4" gap="$2">
-      <Text p="$2">ACCOUNT</Text>
+    <ScrollView
+      contentContainerStyle={{
+        paddingTop: header.height,
+      }}
+      height="100%"
+      bg="$background"
+      p="$4"
+    >
+      <FeedGutters>
+        <YStack flex={1} gap="$2">
+          <Text p="$2">ACCOUNT</Text>
 
-      <YStack bg="$color2" br="$4">
-        <SettingsButton onClick={isLoggedIn ? logout : requireAuth}>
-          {isLoggedIn ? "Logout" : "Login"}
-        </SettingsButton>
-      </YStack>
+          <YStack bg="$color2" br="$4">
+            <SettingsButton onClick={isLoggedIn ? logout : requireAuth}>
+              {isLoggedIn ? "Logout" : "Login"}
+            </SettingsButton>
+          </YStack>
 
-      <Text p="$2">OTHER</Text>
+          <Text p="$2">OTHER</Text>
 
-      <YStack bg="$color2" br="$4">
-        <SettingsToggle
-          value={settings.cacheImages}
-          onToggle={(newVal) => {
-            settings.setCacheImages(newVal);
-            if (!newVal) {
-              ExpoImage.clearDiskCache();
-            }
-          }}
-        >
-          Cache images
-        </SettingsToggle>
+          <YStack bg="$color2" br="$4">
+            <SettingsToggle
+              value={settings.cacheImages}
+              onToggle={(newVal) => {
+                settings.setCacheImages(newVal);
+                if (!newVal) {
+                  ExpoImage.clearDiskCache();
+                }
+              }}
+            >
+              Cache images
+            </SettingsToggle>
 
-        <Divider />
+            <Divider />
 
-        <SettingsButton
-          onClick={async () => {
-            try {
-              queryClient.clear();
-            } catch (err) {}
-            try {
-              await Promise.all([
-                queryClient.invalidateQueries(),
-                ExpoImage.clearDiskCache(),
-              ]);
-            } catch (err) {}
-          }}
-        >
-          Clear cache
-        </SettingsButton>
-      </YStack>
-    </View>
+            <SettingsButton
+              onClick={async () => {
+                try {
+                  queryClient.clear();
+                } catch (err) {}
+                try {
+                  await Promise.all([
+                    queryClient.invalidateQueries(),
+                    ExpoImage.clearDiskCache(),
+                  ]);
+                } catch (err) {}
+              }}
+            >
+              Clear cache
+            </SettingsButton>
+          </YStack>
+        </YStack>
+      </FeedGutters>
+    </ScrollView>
   );
 }

@@ -1,4 +1,4 @@
-import { XStack, YStack, Text, View, Avatar } from "tamagui";
+import { XStack, YStack, Text, View, Avatar, useThemeName } from "tamagui";
 import {
   Home,
   Users,
@@ -12,7 +12,8 @@ import { useRecentCommunities } from "../stores/recent-communities";
 import { Community } from "lemmy-js-client";
 import { createCommunitySlug } from "../lib/lemmy";
 import { Image } from "expo-image";
-import Logo from "~/assets/logo.svg";
+import LogoDark from "~/assets/logo-dark.svg";
+import LogoLight from "~/assets/logo-light.svg";
 import { useCustomHeaderHeight } from "./nav/hooks";
 
 function SmallComunityCard({
@@ -48,49 +49,61 @@ function SmallComunityCard({
 export function Sidebar() {
   const communities = useRecentCommunities((s) => s.recentlyVisited);
   const header = useCustomHeaderHeight();
+  const themeName = useThemeName();
 
   return (
     <>
-      <YStack h={header.height} px="$4" jc="center">
-        <Image
-          source={Logo}
-          style={{ height: 38, width: 90 }}
-          contentFit="contain"
-        />
-      </YStack>
+      <Link href={routes.home} replace>
+        <YStack h={header.height} px="$4" jc="center">
+          {themeName === "dark" && (
+            <Image
+              source={LogoDark}
+              style={{ height: 38, width: 90 }}
+              contentFit="contain"
+            />
+          )}
+          {themeName === "light" && (
+            <Image
+              source={LogoLight}
+              style={{ height: 38, width: 90 }}
+              contentFit="contain"
+            />
+          )}
+        </YStack>
+      </Link>
       <YStack gap="$3" p="$4" py="$2">
         <Link href={routes.home} replace asChild>
           <XStack ai="center" gap="$2.5" tag="a">
-            <Home />
-            <Text>Home</Text>
+            <Home color="$color11" />
+            <Text color="$color11">Feed</Text>
           </XStack>
         </Link>
 
         <Link href={routes.communities} replace asChild>
           <XStack ai="center" gap="$2.5" tag="a">
-            <Users />
-            <Text>Communities</Text>
+            <Users color="$color11" />
+            <Text color="$color11">Communities</Text>
           </XStack>
         </Link>
 
         <Link href={routes.create} replace asChild>
           <XStack ai="center" gap="$2.5" tag="a">
-            <Plus />
-            <Text>Create</Text>
+            <Plus color="$color11" />
+            <Text color="$color11">Create</Text>
           </XStack>
         </Link>
 
         <Link href={routes.chat} replace asChild>
           <XStack ai="center" gap="$2.5" tag="a">
-            <MessageCircleMore />
-            <Text>Chat</Text>
+            <MessageCircleMore color="$color11" />
+            <Text color="$color11">Chat</Text>
           </XStack>
         </Link>
 
         <Link href={routes.settings} replace asChild>
           <XStack ai="center" gap="$2.5" tag="a">
-            <Settings />
-            <Text>Settings</Text>
+            <Settings color="$color11" />
+            <Text color="$color11">Settings</Text>
           </XStack>
         </Link>
 

@@ -7,6 +7,7 @@ import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { useWindowDimensions } from "react-native";
 import { CommunityView } from "lemmy-js-client";
 import { abbriviateNumber } from "~/src/lib/format";
+import { useFiltersStore } from "../stores/filters";
 
 dayjs.extend(localizedFormat);
 
@@ -43,12 +44,15 @@ function SmallComunityCard({
 }
 
 export function PopularCommunitiesSidebar() {
+  const homeFilter = useFiltersStore((s) => s.homeFilter);
+
   const header = useCustomHeaderHeight();
   const dimensions = useWindowDimensions();
 
   const { data } = useListCommunities({
     sort: "TopWeek",
     limit: 20,
+    type_: homeFilter,
   });
 
   const communities = data?.pages.map((p) => p.communities).flat();
@@ -61,7 +65,7 @@ export function PopularCommunitiesSidebar() {
       r="$0"
       t="$0"
       py="$4"
-      bg="$color1"
+      bg="$background"
     >
       <ScrollView
         bg="$color3"

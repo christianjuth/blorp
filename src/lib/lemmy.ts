@@ -30,6 +30,7 @@ import _ from "lodash";
 import throttledQueue from "throttled-queue";
 import { usePostsStore } from "../stores/posts";
 import { useSettingsStore } from "../stores/settings";
+import { z } from "zod";
 
 function getLemmyServer({ actor_id }: { actor_id: string }) {
   const server = new URL(actor_id);
@@ -91,7 +92,7 @@ export async function measureImage(src: string) {
 
 function useLemmyClient() {
   const jwt = useAuth((s) => s.jwt);
-  const instance = useAuth((s) => s.instance);
+  const instance = useAuth((s) => s.instance) ?? "http://lemmy.ml";
 
   return useMemo(() => {
     const client = new LemmyHttp(instance);
@@ -100,8 +101,10 @@ function useLemmyClient() {
       client.setHeaders({ Authorization: `Bearer ${jwt}` });
     }
 
-    return client;
-  }, [jwt]);
+    const queryKeyPrefix = ["instance", instance] as const;
+
+    return { client, queryKeyPrefix };
+  }, [jwt, instance]);
 }
 
 export function getPostFromCache(
@@ -167,11 +170,11 @@ function flattenPost(postView: PostView): FlattenedPost {
 }
 
 export function usePost(form: { id?: string; communityName?: string }) {
-  const client = useLemmyClient();
+  const { client, queryKeyPrefix } = useLemmyClient();
 
   const postId = form.id ? +form.id : undefined;
 
-  const queryKey = ["getPost", form.id];
+  const queryKey = [...queryKeyPrefix, "getPost", form.id];
 
   const initialData = usePostsStore((s) =>
     form.id ? s.posts[form.id]?.data : undefined,
@@ -219,9 +222,14 @@ export function usePost(form: { id?: string; communityName?: string }) {
 export function usePostComments(form: GetComments) {
   const commentSort = useFiltersStore((s) => s.commentSort);
   const sort = form.sort ?? commentSort;
-  const client = useLemmyClient();
+  const { client, queryKeyPrefix } = useLemmyClient();
 
-  const queryKey = ["getComments", String(form.post_id), sort];
+  const queryKey = [
+    ...queryKeyPrefix,
+    "getComments",
+    String(form.post_id),
+    sort,
+  ];
 
   return useInfiniteQuery({
     queryKey,
@@ -252,12 +260,12 @@ export function usePostComments(form: GetComments) {
 }
 
 export function usePosts(form: GetPosts) {
-  const client = useLemmyClient();
+  const { client, queryKeyPrefix } = useLemmyClient();
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
 
-  const queryKey = ["getPosts", sort];
+  const queryKey = [...queryKeyPrefix, "getPosts", sort];
 
   if (form.community_name) {
     queryKey.push("community", form.community_name);
@@ -330,9 +338,9 @@ export function usePosts(form: GetPosts) {
 }
 
 export function useListCommunities(form: ListCommunities) {
-  const client = useLemmyClient();
+  const { client, queryKeyPrefix } = useLemmyClient();
 
-  const queryKey = ["listCommunities"];
+  const queryKey = [...queryKeyPrefix, "listCommunities"];
 
   if (form.sort) {
     queryKey.push("sort", form.sort);
@@ -364,9 +372,13 @@ export function useListCommunities(form: ListCommunities) {
   });
 }
 export function useCommunity(form: { name?: string; instance?: string }) {
-  const client = useLemmyClient();
+  const { client, queryKeyPrefix } = useLemmyClient();
 
-  const queryKey = ["getCommunity", `getCommunity-${form.name}`];
+  const queryKey = [
+    ...queryKeyPrefix,
+    "getCommunity",
+    `getCommunity-${form.name}`,
+  ];
 
   return useQuery({
     queryKey,
@@ -383,7 +395,7 @@ export function useCommunity(form: { name?: string; instance?: string }) {
 
 export function useLogin() {
   const queryClient = useQueryClient();
-  const client = useLemmyClient();
+  const { client } = useLemmyClient();
 
   const setJwt = useAuth((s) => s.setJwt);
 
@@ -405,20 +417,21 @@ export function useLogin() {
 
 export function useLogout() {
   const queryClient = useQueryClient();
-  const client = useLemmyClient();
-
+  const { client } = useLemmyClient();
   const setJwt = useAuth((s) => s.setJwt);
+  const setInstance = useAuth((s) => s.setInstance);
 
   return () => {
     client.logout();
     setJwt(undefined);
+    setInstance(undefined);
     queryClient.clear();
     queryClient.invalidateQueries();
   };
 }
 
 export function useLikePost(postId: number) {
-  const client = useLemmyClient();
+  const { client } = useLemmyClient();
 
   const post = usePostsStore((s) => s.posts[postId]?.data);
   const cachePost = usePostsStore((s) => s.cachePost);
@@ -459,7 +472,7 @@ interface CustumCreateCommentLike extends CreateCommentLike {
 
 export function useLikeComment() {
   const queryClient = useQueryClient();
-  const client = useLemmyClient();
+  const { client } = useLemmyClient();
 
   return useMutation({
     mutationFn: async ({ post_id, ...form }: CustumCreateCommentLike) => {
@@ -514,5 +527,40 @@ export function useLikeComment() {
     //     ],
     //   });
     // },
+  });
+}
+
+export function useInstances() {
+  return useQuery({
+    queryKey: ["getInstances"],
+    queryFn: async () => {
+      const res = await fetch(
+        "https://data.lemmyverse.net/data/instance.full.json",
+      );
+      const data = await res.json();
+
+      try {
+        return z
+          .array(
+            z.object({
+              name: z.string(),
+              baseurl: z.string(),
+              url: z.string(),
+              score: z.number(),
+              open: z.boolean().optional(),
+              private: z.boolean().optional(),
+              counts: z.object({
+                users_active_month: z.number(),
+                posts: z.number(),
+              }),
+              tags: z.array(z.string()),
+              nsfw: z.boolean().optional(),
+            }),
+          )
+          .parse(data);
+      } catch (error) {
+        return undefined;
+      }
+    },
   });
 }

@@ -88,7 +88,7 @@ export function Image({
         // THIS IS A HACK
         // aspect ratio doesn't seem to be working
         // with react native fast image
-        height: maxWidth ? maxWidth / aspectRatio : undefined,
+        // height: maxWidth ? maxWidth / aspectRatio : undefined,
       }}
       contentFit="contain"
       cachePolicy={cacheImages ? "disk" : "memory"}

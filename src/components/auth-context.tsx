@@ -105,6 +105,8 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
             // animation="lazy"
             enterStyle={{ opacity: 0 }}
             exitStyle={{ opacity: 0 }}
+            backgroundColor="black"
+            opacity={0.4}
           />
         </Sheet>
       </Adapt>
@@ -113,9 +115,10 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
         <Dialog.Overlay
           key="overlay"
           animation="200ms"
-          opacity={0.5}
           enterStyle={{ opacity: 0 }}
           exitStyle={{ opacity: 0 }}
+          backgroundColor="black"
+          opacity={0.4}
         />
 
         <Dialog.Content

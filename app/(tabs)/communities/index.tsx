@@ -7,6 +7,8 @@ import { View, useMedia } from "tamagui";
 import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { useFiltersStore } from "~/src/stores/filters";
 import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
+import { Platform } from "react-native";
+import { FeedGutters } from "~/src/components/feed-gutters";
 
 export default function Communities() {
   const communitySort = useFiltersStore((s) => s.communitySort);
@@ -42,28 +44,38 @@ export default function Communities() {
   }
 
   return (
-    <FlashList
-      numColumns={numCols}
-      ref={ref}
-      data={communities}
-      renderItem={(item) => (
-        <View h={54} overflow="hidden" w="100%">
-          <Community communityView={item.item} />
-        </View>
-      )}
-      keyExtractor={(item) => String(item.community.id)}
-      onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+    <FeedGutters h="100%">
+      <FlashList
+        numColumns={numCols}
+        ref={ref}
+        data={communities}
+        renderItem={(item) => (
+          <View h={54} overflow="hidden" w="100%">
+            <Community communityView={item.item} />
+          </View>
+        )}
+        keyExtractor={(item) => String(item.community.id)}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        estimatedItemSize={54}
+        contentInset={{ top: header.height, bottom: tabBar.height }}
+        scrollIndicatorInsets={{ top: header.height }}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        refreshing={isRefetching}
+        onRefresh={refetch}
+        contentContainerStyle={
+          Platform.OS === "web"
+            ? {
+                paddingTop: header.height,
+              }
+            : undefined
         }
-      }}
-      onEndReachedThreshold={0.5}
-      estimatedItemSize={54}
-      contentInset={{ top: header.height, bottom: tabBar.height }}
-      scrollIndicatorInsets={{ top: header.height }}
-      automaticallyAdjustsScrollIndicatorInsets={false}
-      refreshing={isRefetching}
-      onRefresh={refetch}
-    />
+        scrollEventThrottle={100}
+      />
+    </FeedGutters>
   );
 }

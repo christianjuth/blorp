@@ -55,7 +55,9 @@ export function PostComment({
     <YStack
       mt={level === 0 ? "$2" : undefined}
       py={level === 0 ? "$3" : "$2"}
-      bg="$color1"
+      bg="$background"
+      bbc="$color3"
+      bbw={level === 0 ? 1 : 0}
       $md={{
         px: level === 0 ? "$2.5" : undefined,
       }}

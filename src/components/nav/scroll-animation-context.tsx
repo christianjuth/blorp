@@ -33,7 +33,7 @@ export const ScrollProvider: React.FC<ScrollProviderProps> = ({ children }) => {
       }
       const diff = y - prevScrollY.value;
       prevScrollY.value = y;
-      scrollY.value += diff * 0.03;
+      scrollY.value += diff * 0.02;
       if (scrollY.value > 1) {
         scrollY.value = 1;
       } else if (scrollY.value < 0) {

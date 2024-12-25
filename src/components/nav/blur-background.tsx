@@ -17,7 +17,7 @@ export function BlurBackground() {
       />
       <View
         bg="$background"
-        opacity={0.7}
+        opacity={0.6}
         pos="absolute"
         t={0}
         r={0}

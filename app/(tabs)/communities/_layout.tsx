@@ -22,6 +22,7 @@ export default function Layout() {
           contentStyle: {
             backgroundColor: theme.background.val,
           },
+          headerTransparent: true,
         }}
       >
         <Stack.Screen

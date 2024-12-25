@@ -16,7 +16,8 @@ import {
 import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 import { useFiltersStore } from "~/src/stores/filters";
 import { Text, useTheme, XStack } from "tamagui";
-import { ComponentProps } from "react";
+import { ComponentProps, useMemo } from "react";
+import { useAuth } from "../stores/auth";
 
 function createIcon(defaultProps: ComponentProps<typeof FontAwesome6>) {
   return (
@@ -204,41 +205,52 @@ export function PostSortSelect() {
   );
 }
 
-const LISTING_TYPE_OPTIONS: Option<ListingType, ListingType>[] = [
-  {
-    label: "All",
-    value: "All",
-    // icon: Flame,
-  },
-  {
-    label: "Local",
-    value: "Local",
-    // icon: Flame,
-  },
-  {
-    label: "Subscribed",
-    value: "Subscribed",
-    // icon: ArrowUpCircle,
-  },
-  // {
-  //   label: "ModeratorView",
-  //   value: "ModeratorView",
-  //   // icon: ArrowUpCircle,
-  // },
-];
-
 export function HomeFilter() {
-  const homeFilter = useFiltersStore((s) => s.homeFilter);
-  const setHomeFilter = useFiltersStore((s) => s.setHomeFilter);
+  const instance = useAuth((s) => s.instance);
+  const listingType = useFiltersStore((s) => s.listingType);
+  const setListingType = useFiltersStore((s) => s.setListingType);
+
+  const LISTING_TYPE_OPTIONS: Option<ListingType, string>[] = useMemo(
+    () => [
+      {
+        label: "Lemmyway Galaxy",
+        value: "All",
+        // icon: Flame,
+      },
+      {
+        label: `Home planet (${instance ? new URL(instance).host : ""})`,
+        value: "Local",
+        // icon: Flame,
+      },
+      {
+        label: "Subscriptions",
+        value: "Subscribed",
+        // icon: ArrowUpCircle,
+      },
+      // {
+      //   label: "ModeratorView",
+      //   value: "ModeratorView",
+      //   // icon: ArrowUpCircle,
+      // },
+    ],
+    [instance],
+  );
+
   return (
     <Select
       options={LISTING_TYPE_OPTIONS}
-      title="Show posts..."
-      value={homeFilter}
-      onValueChange={setHomeFilter}
+      title="Explore posts..."
+      value={listingType}
+      onValueChange={setListingType}
       trigger={
         <XStack ai="center" gap="$1">
-          <Text fontWeight="bold">{homeFilter}</Text>
+          <Text fontWeight="bold">
+            {
+              LISTING_TYPE_OPTIONS.find(
+                (option) => option.value === listingType,
+              )?.label
+            }
+          </Text>
           <ChevronDown size="$1" />
         </XStack>
       }
@@ -247,17 +259,52 @@ export function HomeFilter() {
 }
 
 export function CommunityFilter() {
-  const communityFilter = useFiltersStore((s) => s.communityFilter);
-  const setCommunityFilter = useFiltersStore((s) => s.setCommunityFilter);
+  const instance = useAuth((s) => s.instance);
+
+  const listingType = useFiltersStore((s) => s.listingType);
+  const setListingType = useFiltersStore((s) => s.setListingType);
+
+  const LISTING_TYPE_OPTIONS: Option<ListingType, string>[] = useMemo(
+    () => [
+      {
+        label: "Lemmy Galaxy (all)",
+        value: "All",
+        // icon: Flame,
+      },
+      {
+        label: `Home planet (${instance ? new URL(instance).host : ""})`,
+        value: "Local",
+        // icon: Flame,
+      },
+      {
+        label: "Subscriptions",
+        value: "Subscribed",
+        // icon: ArrowUpCircle,
+      },
+      // {
+      //   label: "ModeratorView",
+      //   value: "ModeratorView",
+      //   // icon: ArrowUpCircle,
+      // },
+    ],
+    [instance],
+  );
+
   return (
     <Select
       options={LISTING_TYPE_OPTIONS}
       title="Show posts..."
-      value={communityFilter}
-      onValueChange={setCommunityFilter}
+      value={listingType}
+      onValueChange={setListingType}
       trigger={
         <XStack ai="center" gap="$1">
-          <Text fontWeight="bold">{communityFilter}</Text>
+          <Text fontWeight="bold">
+            {
+              LISTING_TYPE_OPTIONS.find(
+                (option) => option.value === listingType,
+              )?.label
+            }
+          </Text>
           <ChevronDown size="$1" />
         </XStack>
       }

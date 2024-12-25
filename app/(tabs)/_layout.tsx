@@ -7,6 +7,7 @@ import {
   Settings,
 } from "@tamagui/lucide-icons";
 import { useTheme } from "tamagui";
+import { BottomTabBarHeader } from "~/src/components/nav/headers";
 import { CustomBottomTabBar } from "~/src/components/nav/bottom-tab-bar";
 
 export default function Layout() {
@@ -20,7 +21,8 @@ export default function Layout() {
           borderTopColor: theme.color4.val,
           backgroundColor: "transparent",
         },
-        tabBarBackground: () => <></>,
+        header: BottomTabBarHeader,
+        tabBarActiveTintColor: theme.accentColor.val,
       }}
     >
       <Tabs.Screen
@@ -62,6 +64,7 @@ export default function Layout() {
         options={{
           title: "Settings",
           tabBarIcon: ({ color }) => <Settings color={color} />,
+          headerTransparent: true,
         }}
       />
     </Tabs>
