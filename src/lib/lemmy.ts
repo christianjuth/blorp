@@ -556,40 +556,47 @@ export function useLikeComment() {
   });
 }
 
+interface CreateCommentWithPath extends CreateComment {
+  parentPath: string;
+}
+
 export function useCreateComment() {
   const queryClient = useQueryClient();
   const { client, queryKeyPrefix } = useLemmyClient();
+  const myProfile = useAuth((s) => s.site?.my_user?.local_user_view.person);
 
   return useMutation({
-    mutationFn: async (form: CreateComment) => {
+    mutationFn: async ({ parentPath, ...form }: CreateCommentWithPath) => {
       return await client.createComment(form);
     },
-    onMutate: ({ post_id, parent_id, content }) => {
+    onMutate: ({ post_id, parentPath, parent_id, content }) => {
       const date = new Date();
       const isoDate = date.toISOString();
-      const postId = 1;
+      const postId = _.random() * -1;
       const newComment: FlattenedComment = {
         comment: {
           id: -1,
           content,
           post_id: postId,
-          creator_id: -1,
+          creator_id: myProfile?.id ?? -1,
           removed: false,
           published: isoDate,
           deleted: false,
           local: false,
-          path: `0.${postId}`,
+          path: `${parentPath}.${postId}`,
           distinguished: false,
           ap_id: "",
           language_id: -1,
         },
         creator: {
-          id: -1,
-          name: "Jon Doe",
+          id: myProfile?.id ?? -1,
+          name: myProfile?.name ?? "",
+          avatar: myProfile?.avatar,
         },
         counts: {
-          score: 0,
+          score: 1,
         },
+        myVote: 1,
       };
 
       const SORTS: CommentSortType[] = [
@@ -622,32 +629,54 @@ export function useCreateComment() {
           firstPage.comments.unshift(newComment);
         }
 
-        for (const p of comments.pages) {
-          const c = p.comments[0];
-          // for (const c of p.comments) {
-          //   if (c.comment.id === comment_id) {
-          //     const diff = score - (c.my_vote ?? 0);
-          //     c.my_vote = score;
-          //     c.counts.score += diff;
-          //   }
-          // }
-        }
-
         queryClient.setQueryData(
           [...queryKeyPrefix, "getComments", String(post_id), sort],
           comments,
         );
       }
+
+      return newComment;
     },
-    // onSuccess: (res) => {
-    //   queryClient.invalidateQueries({
-    //     queryKey: [
-    //       "getComments",
-    //       String(res.comment_view.post.id),
-    //       commentSort,
-    //     ],
-    //   });
-    // },
+    onSuccess: (res, form, ctx) => {
+      const setledCommentId = res.comment_view.comment.id;
+
+      const SORTS: CommentSortType[] = [
+        "Hot",
+        "Top",
+        "New",
+        "Old",
+        "Controversial",
+      ];
+
+      for (const sort of SORTS) {
+        const comments = queryClient.getQueryData<
+          InfiniteData<
+            {
+              comments: FlattenedComment[];
+              nextPage: number | null;
+            },
+            unknown
+          >
+        >([...queryKeyPrefix, "getComments", String(form.post_id), sort]);
+
+        if (!comments) {
+          continue;
+        }
+
+        for (const p of comments.pages) {
+          for (const c of p.comments) {
+            if (c.comment.id === ctx.comment.id) {
+              c.comment.id = setledCommentId;
+            }
+          }
+        }
+
+        queryClient.setQueryData(
+          [...queryKeyPrefix, "getComments", String(form.post_id), sort],
+          comments,
+        );
+      }
+    },
   });
 }
 

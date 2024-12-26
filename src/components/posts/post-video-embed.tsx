@@ -14,6 +14,7 @@ export function PostVideoEmbed({
       pos="relative"
       $md={{
         mx: "$-2.5",
+        br: 0,
       }}
       br="$3"
       bg="$color5"

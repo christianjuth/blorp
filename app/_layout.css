@@ -24,6 +24,10 @@ a, button {
   cursor: pointer;
 }
 
+form {
+  margin-bottom: 0;
+}
+
 @font-face {
   src: url(/font-awesome/fa-solid-900.woff2);
   font-family: "FontAwesome6_Solid";

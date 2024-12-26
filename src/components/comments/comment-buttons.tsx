@@ -1,5 +1,5 @@
-import { Button, View, useTheme } from "tamagui";
-import { ArrowBigUp, ArrowBigDown } from "@tamagui/lucide-icons";
+import { Button, View, useTheme, Text, XStack } from "tamagui";
+import { ArrowBigUp, ArrowBigDown, MessageCircle } from "@tamagui/lucide-icons";
 import { FlattenedComment, useLikeComment } from "~/src/lib/lemmy";
 import { voteHaptics } from "~/src/lib/voting";
 import { useMemo, useState } from "react";
@@ -122,5 +122,22 @@ export function CommentVoting({
         />
       </Button>
     </View>
+  );
+}
+
+export function CommentReplyButton({
+  onPress,
+  commentView,
+}: {
+  onPress: () => void;
+  commentView: FlattenedComment;
+}) {
+  return (
+    <Button unstyled bg="transparent" bw={0} p={0} ml={6} onPress={onPress}>
+      <XStack gap="$1" ai="center">
+        <MessageCircle size="$1" />
+        <Text fontSize="$3">Reply</Text>
+      </XStack>
+    </Button>
   );
 }

@@ -1,10 +1,14 @@
-import { CommentView } from "lemmy-js-client";
 import { View, Text, XStack, YStack } from "tamagui";
 import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
 import { Byline } from "../byline";
-import { CommentVoting } from "../comments/comment-buttons";
+import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
 import { FlattenedComment } from "~/src/lib/lemmy";
+import {
+  InlineCommentReply,
+  useCommentReaplyContext,
+} from "../comments/comment-reply-modal";
+import { useState } from "react";
 
 export function PostComment({
   commentMap,
@@ -17,6 +21,9 @@ export function PostComment({
   opId: number | undefined;
   myUserId: number | undefined;
 }) {
+  const replyCtx = useCommentReaplyContext();
+  const [replying, setReplying] = useState(false);
+
   const { comment: commentView, sort, ...rest } = commentMap;
   if (!commentView) {
     return null;
@@ -66,6 +73,7 @@ export function PostComment({
       }}
       flex={1}
       w="100%"
+      opacity={comment.id < 0 ? 0.5 : undefined}
     >
       <Byline
         avatar={avatar}
@@ -95,9 +103,26 @@ export function PostComment({
 
         {!hideContent && <Markdown markdown={comment.content} />}
 
-        <XStack jc="flex-end" w="100%" mt="$1.5" mb="$1" mr="$1">
+        <XStack jc="flex-end" w="100%" mt="$1.5" mb="$1" mr="$1" gap="$3">
+          <CommentReplyButton
+            commentView={commentView}
+            onPress={() => {
+              setReplying(true);
+              replyCtx.setParentComment(commentView);
+            }}
+          />
           <CommentVoting commentView={commentView} />
         </XStack>
+
+        {replying && (
+          <InlineCommentReply
+            postId={comment.post_id}
+            onCancel={() => setReplying(false)}
+            onSubmit={() => setReplying(false)}
+            parent={commentView}
+            autoFocus
+          />
+        )}
 
         {sorted.map(([id, map], i) => (
           <PostComment
@@ -114,7 +139,7 @@ export function PostComment({
 }
 
 interface CommentMap {
-  comment?: CommentView;
+  comment?: FlattenedComment;
   sort: number;
   [key: number]: CommentMap;
 }

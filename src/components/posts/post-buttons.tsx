@@ -130,6 +130,7 @@ export function PostCommentsButton({ postView }: { postView: FlattenedPost }) {
       py={0}
       bw={1}
       bc="$color5"
+      tag="a"
     >
       <MessageCircle size={17} />
       <Text fontSize="$5">{postView.counts.comments}</Text>

@@ -1,18 +1,30 @@
-import { createContext, useState } from "react";
-import { CommentId, PostId } from "lemmy-js-client";
-import { Button, Form, Input, View, XStack } from "tamagui";
+import { createContext, useContext, useState } from "react";
+import { PostId } from "lemmy-js-client";
+import { Button, Form, View, XStack, Text } from "tamagui";
 import { KeyboardAvoidingView } from "react-native";
 import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
 import { BlurBackground } from "../nav/blur-background";
-import { useCreateComment } from "~/src/lib/lemmy";
+import {
+  FlattenedComment,
+  FlattenedPost,
+  useCreateComment,
+} from "~/src/lib/lemmy";
 import { FeedGutters } from "../feed-gutters";
+import {
+  MarkdownTextInput,
+  parseExpensiMark,
+} from "@expensify/react-native-live-markdown";
 
 const Context = createContext<{
-  parentCommentId?: CommentId;
-  setParentCommentId: (id: CommentId) => void;
+  parentComment?: FlattenedComment;
+  setParentComment: (comment: FlattenedComment | undefined) => void;
 }>({
-  setParentCommentId: () => {},
+  setParentComment: () => {},
 });
+
+export function useCommentReaplyContext() {
+  return useContext(Context);
+}
 
 export function CommentReplyContext({
   postId,
@@ -22,7 +34,7 @@ export function CommentReplyContext({
   children: React.ReactNode;
 }) {
   const bottomTabBar = useCustomTabBarHeight();
-  const [parentCommentId, setParentCommentId] = useState<CommentId>();
+  const [parentComment, setParentComment] = useState<FlattenedComment>();
   const [focused, setFocused] = useState(false);
   const [content, setContent] = useState("");
 
@@ -31,8 +43,8 @@ export function CommentReplyContext({
   return (
     <Context.Provider
       value={{
-        parentCommentId,
-        setParentCommentId,
+        parentComment,
+        setParentComment,
       }}
     >
       {children}
@@ -51,46 +63,60 @@ export function CommentReplyContext({
             createComment.mutate({
               post_id: postId,
               content,
+              parent_id: parentComment?.comment.id,
+              parentPath: parentComment?.comment.path ?? "0",
             });
+            setFocused(false);
+            setParentComment(undefined);
             setContent("");
+          }}
+          $gtMd={{
+            dsp: "none",
           }}
         >
           <FeedGutters w="100%">
             <View
-              shadowColor="$color11"
-              shadowOffset={{
-                width: 0,
-                height: -5,
-              }}
-              shadowRadius={5}
-              shadowOpacity={0.1}
-              bg={focused ? "$background" : undefined}
+              btw={0.5}
+              bc="$color4"
               minHeight={bottomTabBar.height}
               flex={1}
             >
               <BlurBackground />
               <View px="$4">
-                <Input
+                {parentComment && (
+                  <Text>Replying to {parentComment?.creator.name}</Text>
+                )}
+                <MarkdownTextInput
                   placeholder="Add a comment..."
-                  bg="transparent"
-                  bw={0}
-                  p={0}
                   onFocus={() => setFocused(true)}
-                  onBlur={() => setFocused(false)}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      setFocused(false);
+                      setParentComment(undefined);
+                    }, 100);
+                  }}
                   value={content}
                   onChangeText={setContent}
+                  parser={parseExpensiMark}
+                  style={{
+                    borderWidth: 0,
+                    paddingVertical: 10,
+                  }}
+                  multiline
+                  autoFocus={!!parentComment}
+                  key={parentComment?.comment.id}
                 />
-                <XStack
-                  minHeight={bottomTabBar.insetBottom}
-                  jc="flex-end"
-                  h={focused ? undefined : bottomTabBar.insetBottom}
-                >
-                  <Form.Trigger asChild>
-                    <Button bg="$accentBackground" size="$2.5" br="$12">
-                      Reply
-                    </Button>
-                  </Form.Trigger>
-                </XStack>
+                {focused ? (
+                  <XStack minHeight={bottomTabBar.insetBottom} jc="flex-end">
+                    <Form.Trigger asChild>
+                      <Button bg="$accentBackground" size="$2.5" br="$12">
+                        Reply
+                      </Button>
+                    </Form.Trigger>
+                  </XStack>
+                ) : (
+                  <View h={bottomTabBar.insetBottom} />
+                )}
               </View>
             </View>
             <></>
@@ -98,5 +124,79 @@ export function CommentReplyContext({
         </Form>
       </KeyboardAvoidingView>
     </Context.Provider>
+  );
+}
+
+export function InlineCommentReply({
+  postId,
+  parent,
+  onCancel,
+  onSubmit,
+  autoFocus,
+}: {
+  postId: number | string;
+  parent?: FlattenedComment;
+  onCancel?: () => void;
+  onSubmit?: () => void;
+  autoFocus?: boolean;
+}) {
+  const [focused, setFocused] = useState(autoFocus ?? false);
+  const [content, setContent] = useState("");
+
+  const createComment = useCreateComment();
+  return (
+    <Form
+      onSubmit={() => {
+        createComment.mutate({
+          post_id: +postId,
+          content,
+          parent_id: parent?.comment.id,
+          parentPath: parent?.comment.path ?? "0",
+        });
+        onSubmit?.();
+        setContent("");
+        setFocused(false);
+      }}
+      $md={{
+        dsp: "none",
+      }}
+      w="100%"
+    >
+      <View px="$3" bw={1} bc="$color5" br="$6">
+        <MarkdownTextInput
+          placeholder="Add a comment..."
+          onFocus={() => setFocused(true)}
+          value={content}
+          onChangeText={setContent}
+          parser={parseExpensiMark}
+          style={{
+            borderWidth: 0,
+            paddingVertical: 10,
+          }}
+          multiline
+          autoFocus
+        />
+        {focused && (
+          <XStack jc="flex-end" py="$2">
+            <Button
+              size="$2.5"
+              br="$12"
+              onPress={() => {
+                setFocused(false);
+                onCancel?.();
+              }}
+            >
+              Cancel
+            </Button>
+
+            <Form.Trigger asChild>
+              <Button bg="$accentBackground" size="$2.5" br="$12">
+                Comment
+              </Button>
+            </Form.Trigger>
+          </XStack>
+        )}
+      </View>
+    </Form>
   );
 }

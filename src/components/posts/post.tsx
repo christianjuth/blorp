@@ -63,7 +63,7 @@ export function PostCard({
     <YStack
       py="$4"
       bbc="$color4"
-      bbw={1}
+      bbw={detailView ? 0 : 1}
       mx="auto"
       flex={1}
       $md={{
@@ -72,6 +72,7 @@ export function PostCard({
       gap="$1.5"
       opacity={pressed ? 0.8 : 1}
       animation="100ms"
+      w="100%"
     >
       <PostByline postView={postView} />
 

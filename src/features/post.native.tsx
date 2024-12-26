@@ -9,17 +9,16 @@ import { PostCard } from "~/src/components/posts/post";
 import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { FeedGutters } from "../components/feed-gutters";
 
-import { CommentView } from "lemmy-js-client";
 import { memo, useMemo } from "react";
 import { useTheme, View } from "tamagui";
 import _ from "lodash";
 import { FlashList } from "@shopify/flash-list";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCustomHeaderHeight } from "../components/nav/hooks";
 import { CommentReplyContext } from "../components/comments/comment-reply-modal";
 import { useAuth } from "../stores/auth";
+import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -45,6 +44,7 @@ export function PostComments({
   communityName?: string;
 }) {
   const header = useCustomHeaderHeight();
+  const tabBar = useCustomTabBarHeight();
 
   const navigation = useNavigation();
   useFocusEffect(() => {
@@ -58,8 +58,6 @@ export function PostComments({
       });
     };
   });
-
-  const insets = useSafeAreaInsets();
 
   const ref = useRef(null);
   useScrollToTop(ref);
@@ -122,11 +120,11 @@ export function PostComments({
       stickyHeaderIndices={[0]}
       contentInset={{
         top: header.height,
-        bottom: insets.bottom,
+        bottom: tabBar.height,
       }}
       scrollIndicatorInsets={{
         top: header.height,
-        bottom: insets.bottom,
+        bottom: tabBar.height,
       }}
       automaticallyAdjustsScrollIndicatorInsets={false}
       onRefresh={onRefresh}

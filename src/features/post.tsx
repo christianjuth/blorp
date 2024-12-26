@@ -9,15 +9,18 @@ import { PostCard } from "~/src/components/posts/post";
 import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { FeedGutters } from "../components/feed-gutters";
 import { memo, useMemo } from "react";
-import { useTheme, View } from "tamagui";
+import { useTheme, View, YStack } from "tamagui";
 import _ from "lodash";
 import { FlatList } from "react-native";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCustomHeaderHeight } from "../components/nav/hooks";
-import { CommentReplyContext } from "../components/comments/comment-reply-modal";
+import {
+  CommentReplyContext,
+  InlineCommentReply,
+} from "../components/comments/comment-reply-modal";
 import { useAuth } from "../stores/auth";
+import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -43,6 +46,7 @@ export function PostComments({
   communityName?: string;
 }) {
   const header = useCustomHeaderHeight();
+  const tabBar = useCustomTabBarHeight();
 
   const navigation = useNavigation();
   useFocusEffect(() => {
@@ -56,8 +60,6 @@ export function PostComments({
       });
     };
   });
-
-  const insets = useSafeAreaInsets();
 
   const ref = useRef(null);
   useScrollToTop(ref);
@@ -93,7 +95,10 @@ export function PostComments({
         if (item === "post") {
           return (
             <FeedGutters>
-              <PostCard postId={postId} detailView />
+              <YStack flex={1}>
+                <PostCard postId={postId} detailView />
+                <InlineCommentReply postId={postId} />
+              </YStack>
               <></>
             </FeedGutters>
           );
@@ -116,11 +121,9 @@ export function PostComments({
       onEndReachedThreshold={0.5}
       contentContainerStyle={{
         backgroundColor: theme.background.val,
+        paddingBottom: tabBar.height,
       }}
       stickyHeaderIndices={[0]}
-      contentInset={{
-        bottom: insets.bottom,
-      }}
       onRefresh={onRefresh}
       refreshing={refreshing}
     />
@@ -135,7 +138,6 @@ export function Post({
   communityName?: string;
 }) {
   const myUserId = useAuth((s) => s.site?.my_user?.local_user_view.person.id);
-  const site = useAuth((s) => s.site);
   const nav = useNavigation();
 
   const post = usePost({
