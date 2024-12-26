@@ -5,14 +5,14 @@ export function Byline({
   avatar,
   author,
   publishedDate,
-  highlightAuthor,
   comunityName,
+  authorType,
 }: {
   avatar?: string;
   author: string;
   publishedDate: string;
-  highlightAuthor?: boolean;
   comunityName?: string;
+  authorType?: "OP" | "Me";
 }) {
   return (
     <View dsp="flex" fd="row" ai="center">
@@ -38,12 +38,9 @@ export function Byline({
           </Text>
         </>
       )}
-      <Text
-        fontSize="$3"
-        fontWeight={500}
-        color={highlightAuthor ? "$accentColor" : "$color11"}
-      >
+      <Text fontSize="$3" fontWeight={500}>
         {author}
+        {authorType && <Text color={"$accentColor"}> ({authorType})</Text>}
       </Text>
       <RelativeTime
         prefix=" • "

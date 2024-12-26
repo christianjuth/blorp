@@ -12,12 +12,14 @@ export function Image({
   borderRadius,
   maxWidth,
   aspectRatio,
+  objectFit = "contain",
 }: {
   imageUrl: string;
   priority?: boolean;
   borderRadius?: number;
   maxWidth?: number;
   aspectRatio?: number;
+  objectFit?: "contain" | "cover";
 }) {
   const cacheImages = useSettingsStore((s) => s.cacheImages);
   const theme = useTheme();
@@ -31,7 +33,6 @@ export function Image({
   >(imageSizeCache.get(imageUrl));
 
   useEffect(() => {
-    console.log(aspectRatio, imageUrl);
     if (_.isNumber(aspectRatio)) {
       return;
     }
@@ -67,7 +68,8 @@ export function Image({
           borderStyle: "solid",
           width: maxWidth ? "100%" : undefined,
           maxWidth: maxWidth,
-          objectFit: "contain",
+          objectFit,
+          aspectRatio,
         }}
         fetchPriority={priority ? "high" : undefined}
       />
@@ -90,7 +92,7 @@ export function Image({
         maxWidth: "100%",
         height: undefined,
       }}
-      contentFit="contain"
+      contentFit={objectFit}
       cachePolicy={cacheImages ? "disk" : "memory"}
       onLoad={({ source }) => {
         setDimensions({

@@ -1,9 +1,8 @@
-import { CommentView } from "lemmy-js-client";
 import { Button, View, useTheme } from "tamagui";
 import { ArrowBigUp, ArrowBigDown } from "@tamagui/lucide-icons";
-import { useLikeComment } from "~/src/lib/lemmy";
+import { FlattenedComment, useLikeComment } from "~/src/lib/lemmy";
 import { voteHaptics } from "~/src/lib/voting";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AnimatedRollingNumber } from "~/src/components/animated-digit";
 import { useRequireAuth } from "../auth-context";
 
@@ -11,23 +10,28 @@ const DISABLE_ANIMATION = {
   duration: 0,
 };
 
-export function CommentVoting({ commentView }: { commentView: CommentView }) {
+export function CommentVoting({
+  commentView,
+}: {
+  commentView: FlattenedComment;
+}) {
   const requireAuth = useRequireAuth();
 
   const vote = useLikeComment();
 
-  const [myVote, setMyVote] = useState(commentView.my_vote ?? 0);
+  const myVote = commentView?.optimisticMyVote ?? commentView?.myVote ?? 0;
 
   const isUpvoted = myVote > 0;
   const isDownvoted = myVote < 0;
 
-  useEffect(() => {
-    setMyVote((prev) => commentView.my_vote ?? prev);
-  }, [commentView]);
+  const diff =
+    typeof commentView?.optimisticMyVote === "number"
+      ? commentView?.optimisticMyVote - (commentView?.myVote ?? 0)
+      : 0;
 
   const theme = useTheme();
 
-  const score = commentView.counts.score;
+  const score = commentView?.counts.score + diff;
   const [animate, setAnimate] = useState(false);
 
   const textColor = isUpvoted
@@ -48,7 +52,6 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
           requireAuth().then(() => {
             setAnimate(true);
             const newVote = isUpvoted ? 0 : 1;
-            setMyVote(newVote);
             voteHaptics(newVote);
             // THIS IS A HACK
             // I'm not sure why but having this not
@@ -56,7 +59,7 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
             // in setMyVote() rerendering comp
             setTimeout(() => {
               vote.mutate({
-                post_id: commentView.post.id,
+                post_id: commentView.comment.post_id,
                 comment_id: commentView.comment.id,
                 score: newVote,
               });
@@ -92,14 +95,13 @@ export function CommentVoting({ commentView }: { commentView: CommentView }) {
             setAnimate(true);
             const newVote = isDownvoted ? 0 : -1;
             voteHaptics(newVote);
-            setMyVote(newVote);
             // THIS IS A HACK
             // I'm not sure why but having this not
             // wrapped in set timeout cases a delay
             // in setMyVote() rerendering comp
             setTimeout(() => {
               vote.mutate({
-                post_id: commentView.post.id,
+                post_id: commentView.comment.post_id,
                 comment_id: commentView.comment.id,
                 score: newVote,
               });

@@ -1,7 +1,10 @@
 import {
+  CommentAggregates,
   CommentSortType,
   CommentView,
+  Comment,
   Community,
+  CreateComment,
   CreateCommentLike,
   GetPosts,
   ImageDetails,
@@ -169,6 +172,28 @@ function flattenPost(postView: PostView): FlattenedPost {
   };
 }
 
+export type FlattenedComment = {
+  optimisticMyVote?: number;
+  myVote?: number;
+  comment: Comment;
+  creator: Pick<Person, "id" | "name" | "avatar">;
+  counts: Pick<CommentAggregates, "score">;
+};
+
+export type FlattenedGetCommentsResponse = {
+  posts: FlattenedComment[];
+};
+
+function flattenComment(commentView: CommentView): FlattenedComment {
+  const comment = commentView.comment;
+  return {
+    myVote: commentView.my_vote,
+    comment,
+    creator: _.pick(commentView.creator, ["id", "name", "avatar"]),
+    counts: _.pick(commentView.counts, ["score"]),
+  };
+}
+
 export function usePost(form: { id?: string; communityName?: string }) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
@@ -242,7 +267,7 @@ export function usePostComments(form: GetComments) {
         sort,
       });
       return {
-        comments,
+        comments: comments.map(flattenComment),
         nextPage: comments.length < limit ? null : pageParam + 1,
       };
     },
@@ -251,7 +276,7 @@ export function usePostComments(form: GetComments) {
     initialPageParam: 1,
     placeholderData: (prev) => {
       const firstComment = prev?.pages[0]?.comments?.[0];
-      if (!firstComment || firstComment.post.id !== form.post_id) {
+      if (!firstComment || firstComment.comment.post_id !== form.post_id) {
         return undefined;
       }
       return prev;
@@ -398,6 +423,7 @@ export function useLogin() {
   const { client } = useLemmyClient();
 
   const setJwt = useAuth((s) => s.setJwt);
+  const setSite = useAuth((s) => s.setSite);
 
   return useMutation({
     mutationFn: async (form: Login) => {
@@ -408,6 +434,8 @@ export function useLogin() {
         if (res.jwt) {
           client.setHeaders({ Authorization: `Bearer ${res.jwt}` });
         }
+        const site = await client.getSite();
+        setSite(site);
         queryClient.invalidateQueries();
       }
       return res;
@@ -472,7 +500,7 @@ interface CustumCreateCommentLike extends CreateCommentLike {
 
 export function useLikeComment() {
   const queryClient = useQueryClient();
-  const { client } = useLemmyClient();
+  const { client, queryKeyPrefix } = useLemmyClient();
 
   return useMutation({
     mutationFn: async ({ post_id, ...form }: CustumCreateCommentLike) => {
@@ -491,12 +519,12 @@ export function useLikeComment() {
         const comments = queryClient.getQueryData<
           InfiniteData<
             {
-              comments: CommentView[];
+              comments: FlattenedComment[];
               nextPage: number | null;
             },
             unknown
           >
-        >(["getComments", String(post_id), sort]);
+        >([...queryKeyPrefix, "getComments", String(post_id), sort]);
 
         if (!comments) {
           continue;
@@ -505,15 +533,108 @@ export function useLikeComment() {
         for (const p of comments.pages) {
           for (const c of p.comments) {
             if (c.comment.id === comment_id) {
-              const diff = score - (c.my_vote ?? 0);
-              c.my_vote = score;
-              c.counts.score += diff;
+              c.optimisticMyVote = score;
             }
           }
         }
 
         queryClient.setQueryData(
-          ["getComments", String(post_id), sort],
+          [...queryKeyPrefix, "getComments", String(post_id), sort],
+          comments,
+        );
+      }
+    },
+    // onSuccess: (res) => {
+    //   queryClient.invalidateQueries({
+    //     queryKey: [
+    //       "getComments",
+    //       String(res.comment_view.post.id),
+    //       commentSort,
+    //     ],
+    //   });
+    // },
+  });
+}
+
+export function useCreateComment() {
+  const queryClient = useQueryClient();
+  const { client, queryKeyPrefix } = useLemmyClient();
+
+  return useMutation({
+    mutationFn: async (form: CreateComment) => {
+      return await client.createComment(form);
+    },
+    onMutate: ({ post_id, parent_id, content }) => {
+      const date = new Date();
+      const isoDate = date.toISOString();
+      const postId = 1;
+      const newComment: FlattenedComment = {
+        comment: {
+          id: -1,
+          content,
+          post_id: postId,
+          creator_id: -1,
+          removed: false,
+          published: isoDate,
+          deleted: false,
+          local: false,
+          path: `0.${postId}`,
+          distinguished: false,
+          ap_id: "",
+          language_id: -1,
+        },
+        creator: {
+          id: -1,
+          name: "Jon Doe",
+        },
+        counts: {
+          score: 0,
+        },
+      };
+
+      const SORTS: CommentSortType[] = [
+        "Hot",
+        "Top",
+        "New",
+        "Old",
+        "Controversial",
+      ];
+
+      for (const sort of SORTS) {
+        let comments = queryClient.getQueryData<
+          InfiniteData<
+            {
+              comments: FlattenedComment[];
+              nextPage: number | null;
+            },
+            unknown
+          >
+        >([...queryKeyPrefix, "getComments", String(post_id), sort]);
+
+        if (!comments) {
+          continue;
+        }
+
+        comments = _.cloneDeep(comments);
+
+        const firstPage = comments.pages[0];
+        if (firstPage) {
+          firstPage.comments.unshift(newComment);
+        }
+
+        for (const p of comments.pages) {
+          const c = p.comments[0];
+          // for (const c of p.comments) {
+          //   if (c.comment.id === comment_id) {
+          //     const diff = score - (c.my_vote ?? 0);
+          //     c.my_vote = score;
+          //     c.counts.score += diff;
+          //   }
+          // }
+        }
+
+        queryClient.setQueryData(
+          [...queryKeyPrefix, "getComments", String(post_id), sort],
           comments,
         );
       }

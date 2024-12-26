@@ -4,15 +4,18 @@ import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
 import { Byline } from "../byline";
 import { CommentVoting } from "../comments/comment-buttons";
+import { FlattenedComment } from "~/src/lib/lemmy";
 
 export function PostComment({
   commentMap,
   level,
   opId,
+  myUserId,
 }: {
   commentMap: CommentMap;
   level: number;
   opId: number | undefined;
+  myUserId: number | undefined;
 }) {
   const { comment: commentView, sort, ...rest } = commentMap;
   if (!commentView) {
@@ -68,7 +71,13 @@ export function PostComment({
         avatar={avatar}
         author={creator.name}
         publishedDate={comment.published}
-        highlightAuthor={creator.id === opId}
+        authorType={
+          creator.id === opId
+            ? "OP"
+            : creator.id === myUserId
+              ? "Me"
+              : undefined
+        }
       />
 
       <View
@@ -96,6 +105,7 @@ export function PostComment({
             commentMap={map}
             level={level + 1}
             opId={opId}
+            myUserId={myUserId}
           />
         ))}
       </View>
@@ -113,7 +123,7 @@ interface CommentMapTopLevel {
   [key: number]: CommentMap;
 }
 
-export function buildCommentMap(commentViews: CommentView[]) {
+export function buildCommentMap(commentViews: FlattenedComment[]) {
   const map: CommentMapTopLevel = {};
 
   let i = 0;

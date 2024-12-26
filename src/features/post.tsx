@@ -4,11 +4,10 @@ import {
   buildCommentMap,
 } from "~/src/components/posts/post-comment";
 import { useEffect } from "react";
-import { usePost, usePostComments } from "~/src/lib/lemmy";
-import { PostDetail } from "~/src/components/posts/post-details";
+import { FlattenedComment, usePost, usePostComments } from "~/src/lib/lemmy";
+import { PostCard } from "~/src/components/posts/post";
 import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { FeedGutters } from "../components/feed-gutters";
-import { CommentView } from "lemmy-js-client";
 import { memo, useMemo } from "react";
 import { useTheme, View } from "tamagui";
 import _ from "lodash";
@@ -17,6 +16,8 @@ import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCustomHeaderHeight } from "../components/nav/hooks";
+import { CommentReplyContext } from "../components/comments/comment-reply-modal";
+import { useAuth } from "../stores/auth";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -29,14 +30,16 @@ export function PostComments({
   onRefresh,
   refreshing,
   opId,
+  myUserId,
   communityName,
 }: {
   postId: number | string;
-  commentViews: CommentView[];
+  commentViews: FlattenedComment[];
   loadMore: () => void;
   onRefresh: () => void;
   refreshing: boolean;
   opId: number | undefined;
+  myUserId: number | undefined;
   communityName?: string;
 }) {
   const header = useCustomHeaderHeight();
@@ -90,7 +93,7 @@ export function PostComments({
         if (item === "post") {
           return (
             <FeedGutters>
-              <PostDetail postId={postId} />
+              <PostCard postId={postId} detailView />
               <></>
             </FeedGutters>
           );
@@ -98,7 +101,12 @@ export function PostComments({
 
         return (
           <FeedGutters>
-            <MemoedPostComment commentMap={item[1]} level={0} opId={opId} />
+            <MemoedPostComment
+              commentMap={item[1]}
+              level={0}
+              opId={opId}
+              myUserId={myUserId}
+            />
             <></>
           </FeedGutters>
         );
@@ -126,6 +134,8 @@ export function Post({
   postId?: string;
   communityName?: string;
 }) {
+  const myUserId = useAuth((s) => s.site?.my_user?.local_user_view.person.id);
+  const site = useAuth((s) => s.site);
   const nav = useNavigation();
 
   const post = usePost({
@@ -148,7 +158,15 @@ export function Post({
   }, [communityTitle]);
 
   const allComments = comments.data
-    ? comments.data.pages.map((p) => p.comments).flat()
+    ? comments.data.pages
+        .map((p) => p.comments)
+        .flat()
+        .sort((a, b) => {
+          if (b.creator.id === myUserId) {
+            return 1;
+          }
+          return 0;
+        })
     : EMPTY_ARR;
 
   if (!post.data || !postId) {
@@ -166,18 +184,21 @@ export function Post({
   };
 
   return (
-    <PostComments
-      commentViews={allComments}
-      postId={postId}
-      loadMore={() => {
-        if (comments.hasNextPage && !comments.isFetchingNextPage) {
-          comments.fetchNextPage();
-        }
-      }}
-      opId={post.data?.creator?.id}
-      communityName={communityName}
-      onRefresh={refresh}
-      refreshing={refreshing}
-    />
+    <CommentReplyContext postId={+postId}>
+      <PostComments
+        commentViews={allComments}
+        postId={postId}
+        loadMore={() => {
+          if (comments.hasNextPage && !comments.isFetchingNextPage) {
+            comments.fetchNextPage();
+          }
+        }}
+        opId={post.data?.creator?.id}
+        myUserId={myUserId}
+        communityName={communityName}
+        onRefresh={refresh}
+        refreshing={refreshing}
+      />
+    </CommentReplyContext>
   );
 }
