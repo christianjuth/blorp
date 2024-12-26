@@ -49,7 +49,9 @@ export function PostComments({
 
     return () => {
       // Reset the tab bar visibility when leaving the screen
-      parent?.setOptions({ tabBarStyle: { display: "flex" } });
+      parent?.setOptions({
+        tabBarStyle: { display: "flex", backgroundColor: "transparent" },
+      });
     };
   });
 

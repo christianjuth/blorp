@@ -463,7 +463,11 @@ const renderRules: RenderRules = {
   // // Images
   image: (node) => {
     const { src, alt } = node.attributes;
-    return <Image maxWidth={250} imageUrl={src} key={node.key} />;
+    return (
+      <View key={node.key} w="100%" dsp="flex" fd="row" jc="flex-start">
+        <Image maxWidth={250} imageUrl={src} />
+      </View>
+    );
   },
 
   // // Text Output

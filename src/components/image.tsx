@@ -22,26 +22,6 @@ export function Image({
   const cacheImages = useSettingsStore((s) => s.cacheImages);
   const theme = useTheme();
 
-  if (Platform.OS === "web") {
-    return (
-      <img
-        src={imageUrl}
-        style={{
-          flex: 1,
-          borderRadius,
-          borderWidth: 1,
-          borderColor: theme.gray4.val,
-          borderStyle: "solid",
-          width: maxWidth ? "100%" : undefined,
-          maxWidth: maxWidth,
-          objectFit: "contain",
-          aspectRatio,
-        }}
-        fetchPriority={priority ? "high" : undefined}
-      />
-    );
-  }
-
   const [dimensions, setDimensions] = useState<
     | {
         width: number;
@@ -51,6 +31,7 @@ export function Image({
   >(imageSizeCache.get(imageUrl));
 
   useEffect(() => {
+    console.log(aspectRatio, imageUrl);
     if (_.isNumber(aspectRatio)) {
       return;
     }
@@ -67,31 +48,57 @@ export function Image({
   }, [imageUrl, aspectRatio]);
 
   // Calculate aspect ratio
-  aspectRatio =
+  let calculatedAspectRatio =
     aspectRatio ??
     (dimensions ? dimensions.width / dimensions.height : undefined);
-  aspectRatio = _.isNaN(aspectRatio) ? 1 : (aspectRatio ?? 1);
+  calculatedAspectRatio = _.isNaN(calculatedAspectRatio)
+    ? 1
+    : (calculatedAspectRatio ?? 1);
+
+  if (Platform.OS === "web") {
+    return (
+      <img
+        src={imageUrl}
+        style={{
+          // flex: 1,
+          borderRadius,
+          borderWidth: 1,
+          borderColor: theme.gray4.val,
+          borderStyle: "solid",
+          width: maxWidth ? "100%" : undefined,
+          maxWidth: maxWidth,
+          objectFit: "contain",
+        }}
+        fetchPriority={priority ? "high" : undefined}
+      />
+    );
+  }
 
   return (
     <ExpoImage
-      // key={imageUrl}
+      key={imageUrl}
       source={{ uri: imageUrl }}
       style={{
-        aspectRatio: aspectRatio,
-        flex: 1,
+        // Don't use flex 1
+        // it causes issues on native
+        aspectRatio: calculatedAspectRatio,
         backgroundColor: theme.gray3.val,
         borderRadius,
         borderWidth: 1,
         borderColor: theme.gray2.val,
-        width: maxWidth ? "100%" : undefined,
-        maxWidth: maxWidth,
-        // THIS IS A HACK
-        // aspect ratio doesn't seem to be working
-        // with react native fast image
-        // height: maxWidth ? maxWidth / aspectRatio : undefined,
+        width: maxWidth ? maxWidth : "100%",
+        maxWidth: "100%",
+        height: undefined,
       }}
       contentFit="contain"
       cachePolicy={cacheImages ? "disk" : "memory"}
+      onLoad={({ source }) => {
+        setDimensions({
+          height: source.height,
+          width: source.width,
+        });
+      }}
+      priority={priority ? "high" : undefined}
     />
   );
 }

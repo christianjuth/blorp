@@ -22,6 +22,9 @@ export default {
         "react-native-markdown-display": {
           "**/*.js": ["jsx"],
         },
+        "expo-linear-gradient": {
+          "**/*.js": ["jsx"],
+        },
       },
     }),
 

@@ -24,6 +24,7 @@ export function Community({ communityView }: { communityView: CommunityView }) {
               overflow="hidden"
             >
               <Image
+                key={community.icon}
                 source={{
                   uri: community.icon,
                 }}
