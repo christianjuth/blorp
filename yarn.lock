@@ -1845,18 +1845,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expensify/react-native-live-markdown@npm:^0.1.211":
-  version: 0.1.211
-  resolution: "@expensify/react-native-live-markdown@npm:0.1.211"
-  peerDependencies:
-    expensify-common: ">=2.0.108"
-    react: "*"
-    react-native: "*"
-    react-native-reanimated: ">=3.16.4"
-  checksum: 10c0/19e69f2af370d4b886b721653e82e6f4aabff94a8da76bbb649b79c1a566936f3b62206ffa7c4c615f81e38ec3af3335f02c41641ba7ca5ae54eb202041727cc
-  languageName: node
-  linkType: hard
-
 "@expo/bunyan@npm:^4.0.0":
   version: 4.0.1
   resolution: "@expo/bunyan@npm:4.0.1"
@@ -11135,7 +11123,6 @@ __metadata:
   resolution: "lemmy@workspace:."
   dependencies:
     "@biomejs/biome": "npm:^1.8.3"
-    "@expensify/react-native-live-markdown": "npm:^0.1.211"
     "@jsamr/counter-style": "npm:^2.0.2"
     "@jsamr/react-native-li": "npm:^2.3.1"
     "@react-native-async-storage/async-storage": "npm:1.23.1"

@@ -1,19 +1,11 @@
 import { createContext, useContext, useState } from "react";
 import { PostId } from "lemmy-js-client";
-import { Button, Form, View, XStack, Text } from "tamagui";
+import { Button, Form, View, XStack, Text, Input, TextArea } from "tamagui";
 import { KeyboardAvoidingView } from "react-native";
 import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
 import { BlurBackground } from "../nav/blur-background";
-import {
-  FlattenedComment,
-  FlattenedPost,
-  useCreateComment,
-} from "~/src/lib/lemmy";
+import { FlattenedComment, useCreateComment } from "~/src/lib/lemmy";
 import { FeedGutters } from "../feed-gutters";
-import {
-  MarkdownTextInput,
-  parseExpensiMark,
-} from "@expensify/react-native-live-markdown";
 
 const Context = createContext<{
   parentComment?: FlattenedComment;
@@ -86,7 +78,7 @@ export function CommentReplyContext({
                 {parentComment && (
                   <Text>Replying to {parentComment?.creator.name}</Text>
                 )}
-                <MarkdownTextInput
+                <TextArea
                   placeholder="Add a comment..."
                   onFocus={() => setFocused(true)}
                   onBlur={() => {
@@ -97,20 +89,23 @@ export function CommentReplyContext({
                   }}
                   value={content}
                   onChangeText={setContent}
-                  parser={parseExpensiMark}
                   style={{
                     borderWidth: 0,
                     paddingVertical: 10,
                   }}
                   multiline
                   autoFocus={!!parentComment}
-                  key={parentComment?.comment.id}
+                  p={0}
+                  py="$2"
+                  bw={0}
+                  h={focused ? undefined : "$3.5"}
+                  bg="transparent"
                 />
                 {focused ? (
                   <XStack minHeight={bottomTabBar.insetBottom} jc="flex-end">
                     <Form.Trigger asChild>
                       <Button bg="$accentBackground" size="$2.5" br="$12">
-                        Reply
+                        {parentComment ? "Reply" : "Comment"}
                       </Button>
                     </Form.Trigger>
                   </XStack>
@@ -163,18 +158,23 @@ export function InlineCommentReply({
       w="100%"
     >
       <View px="$3" bw={1} bc="$color5" br="$6">
-        <MarkdownTextInput
+        <TextArea
           placeholder="Add a comment..."
           onFocus={() => setFocused(true)}
           value={content}
           onChangeText={setContent}
-          parser={parseExpensiMark}
-          style={{
-            borderWidth: 0,
-            paddingVertical: 10,
+          onBlur={() => {
+            if (content.trim() === "") {
+              setFocused(false);
+              onCancel?.();
+            }
           }}
-          multiline
-          autoFocus
+          autoFocus={autoFocus}
+          p={0}
+          py="$2"
+          bw={0}
+          h={focused ? undefined : "$3.5"}
+          bg="transparent"
         />
         {focused && (
           <XStack jc="flex-end" py="$2">
@@ -191,7 +191,7 @@ export function InlineCommentReply({
 
             <Form.Trigger asChild>
               <Button bg="$accentBackground" size="$2.5" br="$12">
-                Comment
+                {parent ? "Reply" : "Comment"}
               </Button>
             </Form.Trigger>
           </XStack>
