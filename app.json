@@ -27,7 +27,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.christianjuth.blorp",
+      "bundleIdentifier": "xyz.blorpblorp.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UISupportedInterfaceOrientations": [
@@ -46,10 +46,14 @@
     "orientation": "default",
     "userInterfaceStyle": "automatic",
     "android": {
-      "package": "com.christianjuth.blorp"
+      "package": "xyz.blorpblorp.app"
     },
     "updates": {
       "enabled": false
-    }
+    },
+    "associatedDomains": [
+      "applinks:blorpblorp.xyz",
+      "applinks:www.blorpblorp.xyz"
+    ]
   }
 }
