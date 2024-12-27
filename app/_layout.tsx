@@ -48,7 +48,7 @@ export default function Layout() {
       {isWeb && (
         <>
           <meta name="apple-itunes-app" content="app-id=6739925430" />
-          o
+
           <meta charSet="utf-8" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
           <meta
