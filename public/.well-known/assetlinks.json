@@ -1,0 +1,11 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.blorpblorp.myapp",
+      "sha256_cert_fingerprints": ["YOUR_APP_SIGNATURE_HASH"]
+    }
+  }
+]
+

@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "LTS4T488BH.com.blorpblorp.myapp",
+        "paths": ["*"]
+      }
+    ]
+  }
+}
