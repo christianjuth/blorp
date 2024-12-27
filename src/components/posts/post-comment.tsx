@@ -101,7 +101,11 @@ export function PostComment({
         {comment.deleted && <Text fontStyle="italic">deleted</Text>}
         {comment.removed && <Text fontStyle="italic">removed</Text>}
 
-        {!hideContent && <Markdown markdown={comment.content} />}
+        {!hideContent && (
+          <View>
+            <Markdown markdown={comment.content} />
+          </View>
+        )}
 
         <XStack jc="flex-end" w="100%" mt="$1.5" mb="$1" mr="$1" gap="$3">
           <CommentReplyButton

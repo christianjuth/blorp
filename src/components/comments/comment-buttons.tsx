@@ -46,7 +46,7 @@ export function CommentVoting({
   }, [textColor]);
 
   return (
-    <View dsp="flex" fd="row" ai="center" borderRadius="$12">
+    <XStack dsp="flex" fd="row" ai="center" borderRadius="$12">
       <Button
         onPress={() => {
           requireAuth().then(() => {
@@ -71,24 +71,29 @@ export function CommentVoting({
         bg="transparent"
         bw={0}
         p={0}
-        mr={6}
+        py="$1"
+        fd="row"
+        ai="center"
       >
-        <ArrowBigUp
-          size="$1"
-          fill={isUpvoted ? theme.accentBackground.val : undefined}
-          color={isUpvoted ? "$accentBackground" : "$color11"}
-        />
+        <>
+          <ArrowBigUp
+            size="$1"
+            fill={isUpvoted ? theme.accentBackground.val : undefined}
+            color={isUpvoted ? "$accentBackground" : "$color11"}
+            mr={6}
+          />
+          <AnimatedRollingNumber
+            enableCompactNotation
+            value={score}
+            textStyle={textStyle}
+            spinningAnimationConfig={
+              // THIS IS A HACK
+              // Find a better way to disable animation for init value
+              !animate ? DISABLE_ANIMATION : undefined
+            }
+          />
+        </>
       </Button>
-      <AnimatedRollingNumber
-        enableCompactNotation
-        value={score}
-        textStyle={textStyle}
-        spinningAnimationConfig={
-          // THIS IS A HACK
-          // Find a better way to disable animation for init value
-          !animate ? DISABLE_ANIMATION : undefined
-        }
-      />
       <Button
         onPress={() => {
           requireAuth().then(() => {
@@ -113,7 +118,8 @@ export function CommentVoting({
         bg="transparent"
         bw={0}
         p={0}
-        ml={6}
+        pl={6}
+        py="$1"
       >
         <ArrowBigDown
           size="$1"
@@ -121,7 +127,7 @@ export function CommentVoting({
           color={isDownvoted ? "$red" : "$color11"}
         />
       </Button>
-    </View>
+    </XStack>
   );
 }
 
@@ -135,8 +141,10 @@ export function CommentReplyButton({
   return (
     <Button unstyled bg="transparent" bw={0} p={0} ml={6} onPress={onPress}>
       <XStack gap="$1" ai="center">
-        <MessageCircle size="$1" />
-        <Text fontSize="$3">Reply</Text>
+        <MessageCircle size="$1" color="$color11" />
+        <Text fontSize="$3" color="$color11">
+          Reply
+        </Text>
       </XStack>
     </Button>
   );

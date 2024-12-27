@@ -649,7 +649,7 @@ export function useCreateComment() {
       ];
 
       for (const sort of SORTS) {
-        const comments = queryClient.getQueryData<
+        let comments = queryClient.getQueryData<
           InfiniteData<
             {
               comments: FlattenedComment[];
@@ -662,6 +662,8 @@ export function useCreateComment() {
         if (!comments) {
           continue;
         }
+
+        comments = _.cloneDeep(comments);
 
         for (const p of comments.pages) {
           for (const c of p.comments) {

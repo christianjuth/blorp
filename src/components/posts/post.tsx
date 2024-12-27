@@ -34,11 +34,13 @@ export function PostCard({
   const { community, post } = postView;
   const body = post?.body;
 
+  const urlContentType = post.url_content_type;
+
   let embedType: "image" | "video" | "article" = "article";
 
-  if (post.url_content_type?.indexOf("image/") !== -1) {
+  if (urlContentType && urlContentType.indexOf("image/") !== -1) {
     embedType = "image";
-  } else if (post.url_content_type?.indexOf("video/") !== -1) {
+  } else if (urlContentType && urlContentType.indexOf("video/") !== -1) {
     embedType = "video";
   }
 
@@ -68,6 +70,7 @@ export function PostCard({
       flex={1}
       $md={{
         px: "$2.5",
+        bbw: 1,
       }}
       gap="$1.5"
       opacity={pressed ? 0.8 : 1}

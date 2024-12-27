@@ -33,7 +33,7 @@ export function PostVideoEmbed({
         }}
         controls
         resizeMode="contain"
-        paused={autoPlay}
+        paused={!autoPlay}
       />
     </View>
   );

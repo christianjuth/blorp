@@ -1,17 +1,29 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { PostId } from "lemmy-js-client";
-import { Button, Form, View, XStack, Text, Input, TextArea } from "tamagui";
+import {
+  Button,
+  Form,
+  View,
+  XStack,
+  Text,
+  YStack,
+  Input,
+  useMedia,
+} from "tamagui";
 import { KeyboardAvoidingView } from "react-native";
 import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
 import { BlurBackground } from "../nav/blur-background";
 import { FlattenedComment, useCreateComment } from "~/src/lib/lemmy";
 import { FeedGutters } from "../feed-gutters";
+import _ from "lodash";
 
 const Context = createContext<{
   parentComment?: FlattenedComment;
   setParentComment: (comment: FlattenedComment | undefined) => void;
+  focus: () => void;
 }>({
   setParentComment: () => {},
+  focus: _.noop,
 });
 
 export function useCommentReaplyContext() {
@@ -25,10 +37,13 @@ export function CommentReplyContext({
   postId: PostId;
   children: React.ReactNode;
 }) {
+  const inputRef = useRef<Input>(null);
+
   const bottomTabBar = useCustomTabBarHeight();
   const [parentComment, setParentComment] = useState<FlattenedComment>();
   const [focused, setFocused] = useState(false);
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState<Record<number, string>>({});
+  const media = useMedia();
 
   const createComment = useCreateComment();
 
@@ -36,10 +51,31 @@ export function CommentReplyContext({
     <Context.Provider
       value={{
         parentComment,
-        setParentComment,
+        setParentComment: (val) => {
+          setParentComment(val);
+          if (media.md) {
+            inputRef.current?.focus();
+          }
+        },
+        focus: () => inputRef.current?.focus(),
       }}
     >
       {children}
+
+      {focused && (
+        <View
+          pos="absolute"
+          t={0}
+          r={0}
+          b={0}
+          l={0}
+          onPress={() => {
+            setFocused(false);
+            inputRef.current?.blur();
+            setParentComment(undefined);
+          }}
+        />
+      )}
 
       <KeyboardAvoidingView
         behavior="padding"
@@ -54,13 +90,12 @@ export function CommentReplyContext({
           onSubmit={() => {
             createComment.mutate({
               post_id: postId,
-              content,
+              content: content[parentComment?.comment.id ?? 0],
               parent_id: parentComment?.comment.id,
               parentPath: parentComment?.comment.path ?? "0",
             });
-            setFocused(false);
+            inputRef.current?.blur();
             setParentComment(undefined);
-            setContent("");
           }}
           $gtMd={{
             dsp: "none",
@@ -74,27 +109,28 @@ export function CommentReplyContext({
               flex={1}
             >
               <BlurBackground />
-              <View px="$4">
+              <YStack px="$4">
                 {parentComment && (
-                  <Text>Replying to {parentComment?.creator.name}</Text>
+                  <Text pt="$2">Replying to {parentComment?.creator.name}</Text>
                 )}
-                <TextArea
+
+                <Input
+                  ref={inputRef}
                   placeholder="Add a comment..."
                   onFocus={() => setFocused(true)}
-                  onBlur={() => {
-                    setTimeout(() => {
-                      setFocused(false);
-                      setParentComment(undefined);
-                    }, 100);
-                  }}
-                  value={content}
-                  onChangeText={setContent}
+                  onBlur={() => setFocused(false)}
+                  value={content[parentComment?.comment.id ?? 0]}
+                  onChangeText={(val) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      [parentComment?.comment.id ?? 0]: val,
+                    }))
+                  }
                   style={{
                     borderWidth: 0,
                     paddingVertical: 10,
                   }}
                   multiline
-                  autoFocus={!!parentComment}
                   p={0}
                   py="$2"
                   bw={0}
@@ -103,6 +139,16 @@ export function CommentReplyContext({
                 />
                 {focused ? (
                   <XStack minHeight={bottomTabBar.insetBottom} jc="flex-end">
+                    <Button
+                      size="$2.5"
+                      br="$12"
+                      onPress={() => {
+                        inputRef.current?.blur();
+                        setParentComment(undefined);
+                      }}
+                    >
+                      Cancel
+                    </Button>
                     <Form.Trigger asChild>
                       <Button bg="$accentBackground" size="$2.5" br="$12">
                         {parentComment ? "Reply" : "Comment"}
@@ -112,7 +158,7 @@ export function CommentReplyContext({
                 ) : (
                   <View h={bottomTabBar.insetBottom} />
                 )}
-              </View>
+              </YStack>
             </View>
             <></>
           </FeedGutters>
@@ -138,7 +184,13 @@ export function InlineCommentReply({
   const [focused, setFocused] = useState(autoFocus ?? false);
   const [content, setContent] = useState("");
 
+  const media = useMedia();
   const createComment = useCreateComment();
+
+  if (autoFocus && !media.gtMd) {
+    return null;
+  }
+
   return (
     <Form
       onSubmit={() => {
@@ -158,7 +210,7 @@ export function InlineCommentReply({
       w="100%"
     >
       <View px="$3" bw={1} bc="$color5" br="$6">
-        <TextArea
+        <Input
           placeholder="Add a comment..."
           onFocus={() => setFocused(true)}
           value={content}
