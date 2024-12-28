@@ -439,6 +439,7 @@ export function useCommunity(form: { name?: string; instance?: string }) {
 }
 
 export function useLogin() {
+  const queryClient = useQueryClient();
   const { client } = useLemmyClient();
 
   const setJwt = useAuth((s) => s.setJwt);
@@ -448,12 +449,11 @@ export function useLogin() {
     mutationFn: async (form: Login) => {
       const res = await client.login(form);
       if (res.jwt) {
-        if (res.jwt) {
-          client.setHeaders({ Authorization: `Bearer ${res.jwt}` });
-        }
+        client.setHeaders({ Authorization: `Bearer ${res.jwt}` });
         const site = await client.getSite();
         setSite(site);
         setJwt(res.jwt);
+        queryClient.invalidateQueries();
       }
       return res;
     },
