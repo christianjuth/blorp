@@ -5,6 +5,7 @@ import {
   CommunityHeader,
   HomeHeader,
   PostHeader,
+  StackHeader,
 } from "~/src/components/nav/headers";
 import { LinkContext } from "~/src/components/communities/link-context";
 
@@ -13,7 +14,7 @@ export default function Layout() {
   return (
     <LinkContext.Provider
       value={{
-        root: "/",
+        root: "/inbox/",
       }}
     >
       <Stack
@@ -22,14 +23,14 @@ export default function Layout() {
           contentStyle: {
             backgroundColor: theme.background.val,
           },
+          header: (props) => <StackHeader {...props} />,
         }}
       >
         <Stack.Screen
           name="index"
           options={{
-            title: "Home",
-            header: HomeHeader,
-            headerTransparent: true,
+            title: "Inbox",
+            headerTitle: "Inbox",
           }}
         />
 

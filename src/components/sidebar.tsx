@@ -93,10 +93,10 @@ export function Sidebar() {
           </XStack>
         </Link>
 
-        <Link href={routes.chat} replace asChild>
+        <Link href={routes.inbox} replace asChild>
           <XStack ai="center" gap="$2.5" tag="a">
             <MessageCircleMore color="$color11" />
-            <Text color="$color11">Chat</Text>
+            <Text color="$color11">Inbox</Text>
           </XStack>
         </Link>
 

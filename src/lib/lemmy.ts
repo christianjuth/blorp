@@ -15,6 +15,7 @@ import {
   Post,
   PostAggregates,
   PostView,
+  GetReplies,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -258,6 +259,10 @@ export function usePostComments(form: GetComments) {
     String(form.post_id),
     sort,
   ];
+
+  if (form.parent_id) {
+    queryKey.push("parent", String(form.parent_id));
+  }
 
   return useInfiniteQuery({
     queryKey,
@@ -677,6 +682,23 @@ export function useCreateComment() {
         );
       }
     },
+  });
+}
+
+export function useReplies(form: GetReplies) {
+  const { client, queryKeyPrefix } = useLemmyClient();
+  return useInfiniteQuery({
+    queryKey: [...queryKeyPrefix, "getReplies"],
+    queryFn: async ({ pageParam }) => {
+      const limit = form.limit ?? 50;
+      const { replies } = await client.getReplies(form);
+      return {
+        replies,
+        nextPage: replies.length < limit ? null : pageParam + 1,
+      };
+    },
+    initialPageParam: 1,
+    getNextPageParam: (prev) => prev.nextPage,
   });
 }
 

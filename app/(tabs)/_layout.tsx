@@ -21,7 +21,7 @@ export default function Layout() {
           borderTopColor: theme.color4.val,
           backgroundColor: "transparent",
         },
-        header: BottomTabBarHeader,
+        header: (props) => <BottomTabBarHeader {...props} />,
         tabBarActiveTintColor: theme.accentColor.val,
       }}
     >
@@ -52,10 +52,11 @@ export default function Layout() {
       />
 
       <Tabs.Screen
-        name="chat"
+        name="inbox"
         options={{
-          title: "Chat",
+          title: "Inbox",
           tabBarIcon: ({ color }) => <MessageCircleMore color={color} />,
+          headerShown: false,
         }}
       />
 

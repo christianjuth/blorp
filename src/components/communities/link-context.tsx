@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 
 export const LinkContext = createContext<{
-  root: "/" | "/communities/";
+  root: "/" | "/communities/" | "/inbox/";
 }>({
   root: "/",
 });

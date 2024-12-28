@@ -173,13 +173,20 @@ export function buildCommentMap(
   commentViews: {
     path: string;
   }[],
+  parentId?: string,
 ) {
   const map: CommentMapTopLevel = {};
 
   let i = 0;
   for (const view of commentViews) {
     let loc = map;
-    const [_, ...path] = view.path.split(".");
+    let viewPath = view.path;
+
+    if (parentId && viewPath.indexOf(parentId) > -1) {
+      viewPath = "0." + viewPath.substring(viewPath.indexOf(parentId));
+    }
+
+    const [_, ...path] = viewPath.split(".");
 
     while (path.length > 1) {
       const front = path.shift()!;

@@ -346,11 +346,9 @@ export function StackHeader(props: NativeStackHeaderProps) {
         )}
       </View>
       <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-        {props.route.name}
+        {props.options.headerTitle ?? props.route.name}
       </Text>
-      <View flex={1} flexBasis={0} ai="flex-end">
-        <ComentSortSelect />
-      </View>
+      <View flex={1} flexBasis={0} ai="flex-end"></View>
     </XStack>
   );
 }

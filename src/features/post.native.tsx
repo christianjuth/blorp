@@ -33,6 +33,7 @@ export function PostComments({
   opId,
   myUserId,
   communityName,
+  commentId,
 }: {
   postId: number | string;
   commentViews: {
@@ -44,6 +45,7 @@ export function PostComments({
   opId: number | undefined;
   myUserId: number | undefined;
   communityName?: string;
+  commentId?: string;
 }) {
   const header = useCustomHeaderHeight();
   const tabBar = useCustomTabBarHeight();
@@ -67,7 +69,7 @@ export function PostComments({
   const theme = useTheme();
 
   const structured = useMemo(() => {
-    const map = buildCommentMap(commentViews);
+    const map = buildCommentMap(commentViews, commentId);
     const topLevelItems = _.entries(map).sort(
       ([id1, a], [id2, b]) => a.sort - b.sort,
     );
@@ -142,10 +144,14 @@ export function PostComments({
 export function Post({
   postId,
   communityName,
+  commentPath,
 }: {
   postId?: string;
   communityName?: string;
+  commentPath?: string;
 }) {
+  const [commentId] = commentPath?.split(".") ?? [];
+
   const myUserId = useAuth(
     (s) => s.site?.my_user?.local_user_view.local_user.id,
   );
@@ -158,6 +164,7 @@ export function Post({
 
   const comments = usePostComments({
     post_id: postId ? parseInt(postId) : undefined,
+    parent_id: commentId ? +commentId : undefined,
     limit: 50,
     type_: "All",
     max_depth: 6,
@@ -182,10 +189,6 @@ export function Post({
         })
     : EMPTY_ARR;
 
-  if (!post.data || !postId) {
-    return null;
-  }
-
   const [refreshing, setRefreshing] = useState(false);
   const refresh = async () => {
     if (refreshing) {
@@ -195,6 +198,10 @@ export function Post({
     await Promise.all([post.refetch(), comments.refetch()]);
     setRefreshing(false);
   };
+
+  if (!post.data || !postId) {
+    return null;
+  }
 
   return (
     <CommentReplyContext postId={+postId}>
@@ -211,6 +218,7 @@ export function Post({
         communityName={communityName}
         onRefresh={refresh}
         refreshing={refreshing}
+        commentId={commentId}
       />
     </CommentReplyContext>
   );
