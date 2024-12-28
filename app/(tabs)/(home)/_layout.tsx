@@ -28,7 +28,7 @@ export default function Layout() {
           name="index"
           options={{
             title: "Home",
-            header: HomeHeader,
+            header: (props) => <HomeHeader {...props} />,
             headerTransparent: true,
           }}
         />
@@ -45,7 +45,7 @@ export default function Layout() {
         <Stack.Screen
           name="c/[communityName]/posts/[postId]/index"
           options={{
-            header: PostHeader,
+            header: (props) => <PostHeader {...props} />,
             headerTransparent: true,
           }}
         />
@@ -53,7 +53,7 @@ export default function Layout() {
         <Stack.Screen
           name="c/[communityName]/posts/[postId]/comments/[commentPath]"
           options={{
-            header: PostHeader,
+            header: (props) => <PostHeader {...props} />,
             headerTransparent: true,
           }}
         />

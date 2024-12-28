@@ -152,9 +152,7 @@ export function Post({
 }) {
   const [commentId] = commentPath?.split(".") ?? [];
 
-  const myUserId = useAuth(
-    (s) => s.site?.my_user?.local_user_view.local_user.id,
-  );
+  const myUserId = useAuth((s) => s.site?.my_user?.local_user_view.person.id);
   const nav = useNavigation();
 
   const post = usePost({

@@ -33,7 +33,7 @@ function Nav() {
         options={{
           presentation: "containedTransparentModal",
           animation: "slide_from_bottom",
-          header: ModalHeader,
+          header: (props) => <ModalHeader {...props} />,
           headerTitle: "Auth",
           title: "Auth",
         }}

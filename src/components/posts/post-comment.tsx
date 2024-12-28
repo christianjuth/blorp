@@ -1,14 +1,105 @@
-import { View, Text, XStack, YStack } from "tamagui";
+import { View, Text, XStack, YStack, Avatar, Button, useMedia } from "tamagui";
 import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
-import { Byline } from "../byline";
 import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
 import {
   InlineCommentReply,
   useCommentReaplyContext,
 } from "../comments/comment-reply-modal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCommentsStore } from "~/src/stores/comments";
+import { RelativeTime } from "../relative-time";
+import { ActionMenu } from "~/src/components/ui/action-menu";
+import { Ellipsis } from "@tamagui/lucide-icons";
+import { Comment } from "lemmy-js-client";
+import { useDeleteComment } from "~/src/lib/lemmy";
+
+function Byline({
+  avatar,
+  author,
+  publishedDate,
+  authorType,
+  comment,
+  myUserId,
+  toggleEdit,
+}: {
+  avatar?: string;
+  author: string;
+  publishedDate: string;
+  authorType?: "OP" | "Me";
+  comment: Comment;
+  myUserId?: number;
+  toggleEdit: () => void;
+}) {
+  const replyCtx = useCommentReaplyContext();
+
+  const deleteComment = useDeleteComment();
+
+  const isMyComment = comment.creator_id === myUserId;
+
+  return (
+    <XStack ai="center">
+      <Avatar size={21} mr="$2">
+        <Avatar.Image src={avatar} borderRadius="$12" />
+        <Avatar.Fallback
+          backgroundColor="$color8"
+          borderRadius="$12"
+          ai="center"
+          jc="center"
+        >
+          <Text fontSize="$1">{author?.substring(0, 1).toUpperCase()}</Text>
+        </Avatar.Fallback>
+      </Avatar>
+      <Text fontSize="$3" fontWeight={500}>
+        {author}
+        {authorType && <Text color={"$accentColor"}> ({authorType})</Text>}
+      </Text>
+      <RelativeTime
+        prefix=" • "
+        time={publishedDate}
+        color="$color11"
+        fontSize="$3"
+      />
+
+      <View flex={1} />
+
+      <ActionMenu
+        actions={[
+          {
+            label: "Report",
+            onClick: () => {},
+          },
+          ...(isMyComment && !comment.deleted
+            ? [
+                {
+                  label: "Edit",
+                  onClick: () => {
+                    toggleEdit();
+                    replyCtx.setComment(comment);
+                  },
+                },
+              ]
+            : []),
+          ...(isMyComment
+            ? [
+                {
+                  label: comment.deleted ? "Undelete" : "Delete",
+                  onClick: () => {
+                    deleteComment.mutate({
+                      comment_id: comment.id,
+                      path: comment.path,
+                      deleted: !comment.deleted,
+                    });
+                  },
+                },
+              ]
+            : []),
+        ]}
+        trigger={<Ellipsis size={16} />}
+      />
+    </XStack>
+  );
+}
 
 export function PostComment({
   commentMap,
@@ -24,6 +115,7 @@ export function PostComment({
   noBorder?: boolean;
 }) {
   const replyCtx = useCommentReaplyContext();
+  const [editing, setEditing] = useState(false);
   const [replying, setReplying] = useState(false);
 
   const { comment: commentPath, sort, ...rest } = commentMap;
@@ -31,6 +123,10 @@ export function PostComment({
   const commentView = useCommentsStore((s) =>
     commentPath ? s.comments[commentPath.path]?.data : undefined,
   );
+
+  useEffect(() => {
+    setEditing(false);
+  }, [commentView?.comment.content]);
 
   if (!commentView) {
     return null;
@@ -83,6 +179,9 @@ export function PostComment({
       opacity={comment.id < 0 ? 0.5 : undefined}
     >
       <Byline
+        myUserId={myUserId}
+        toggleEdit={() => setEditing(true)}
+        comment={comment}
         avatar={avatar}
         author={creator.name}
         publishedDate={comment.published}
@@ -109,9 +208,19 @@ export function PostComment({
         {comment.removed && <Text fontStyle="italic">removed</Text>}
 
         {!hideContent && (
-          <View>
+          <View $gtMd={{ dsp: editing ? "none" : undefined }}>
             <Markdown markdown={comment.content} />
           </View>
+        )}
+
+        {editing && (
+          <InlineCommentReply
+            postId={comment.post_id}
+            comment={comment}
+            autoFocus
+            onCancel={() => setEditing(false)}
+            onSubmit={() => setEditing(false)}
+          />
         )}
 
         <XStack

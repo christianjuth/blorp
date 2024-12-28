@@ -16,6 +16,7 @@ import {
   PostAggregates,
   PostView,
   GetReplies,
+  DeleteComment,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -97,6 +98,7 @@ export async function measureImage(src: string) {
 
 function useLemmyClient() {
   const jwt = useAuth((s) => s.jwt);
+  const myUserId = useAuth((s) => s.site?.my_user?.local_user_view.person.id);
   const instance = useAuth((s) => s.instance) ?? "http://lemmy.ml";
 
   return useMemo(() => {
@@ -106,10 +108,13 @@ function useLemmyClient() {
       client.setHeaders({ Authorization: `Bearer ${jwt}` });
     }
 
-    const queryKeyPrefix = ["instance", instance] as const;
+    const queryKeyPrefix = ["instance", instance];
+    if (myUserId) {
+      queryKeyPrefix.push("user", String(myUserId));
+    }
 
     return { client, queryKeyPrefix };
-  }, [jwt, instance]);
+  }, [jwt, instance, myUserId]);
 }
 
 export function getPostFromCache(
@@ -434,7 +439,6 @@ export function useCommunity(form: { name?: string; instance?: string }) {
 }
 
 export function useLogin() {
-  const queryClient = useQueryClient();
   const { client } = useLemmyClient();
 
   const setJwt = useAuth((s) => s.setJwt);
@@ -444,16 +448,17 @@ export function useLogin() {
     mutationFn: async (form: Login) => {
       const res = await client.login(form);
       if (res.jwt) {
-        queryClient.clear();
-        setJwt(res.jwt);
         if (res.jwt) {
           client.setHeaders({ Authorization: `Bearer ${res.jwt}` });
         }
         const site = await client.getSite();
         setSite(site);
-        queryClient.invalidateQueries();
+        setJwt(res.jwt);
       }
       return res;
+    },
+    onError: (err) => {
+      console.log("Err", err);
     },
   });
 }
@@ -462,12 +467,14 @@ export function useLogout() {
   const queryClient = useQueryClient();
   const { client } = useLemmyClient();
   const setJwt = useAuth((s) => s.setJwt);
+  const setSite = useAuth((s) => s.setSite);
   const setInstance = useAuth((s) => s.setInstance);
 
   return () => {
     client.logout();
     setJwt(undefined);
     setInstance(undefined);
+    setSite(undefined);
     queryClient.clear();
     queryClient.invalidateQueries();
   };
@@ -524,17 +531,17 @@ export function useLikeComment() {
       return await client.likeComment(form);
     },
     onMutate: ({ score, path }) => {
-      patchComment(path, {
+      patchComment(path, () => ({
         optimisticMyVote: score,
-      });
+      }));
     },
     onSuccess: (data) => {
       cacheComment(flattenComment(data.comment_view));
     },
     onError: (err, { path }) => {
-      patchComment(path, {
+      patchComment(path, () => ({
         optimisticMyVote: undefined,
-      });
+      }));
     },
   });
 }
@@ -681,6 +688,68 @@ export function useCreateComment() {
           comments,
         );
       }
+    },
+  });
+}
+
+export function useEditComment() {
+  const queryClient = useQueryClient();
+  const { client, queryKeyPrefix } = useLemmyClient();
+  const cacheComment = useCommentsStore((s) => s.cacheComment);
+  const patchComment = useCommentsStore((s) => s.patchComment);
+  const removeComment = useCommentsStore((s) => s.removeComment);
+
+  return useMutation({
+    mutationFn: async ({
+      path,
+      ...form
+    }: {
+      comment_id: number;
+      content: string;
+      path: string;
+    }) => {
+      return await client.editComment(form);
+    },
+    onMutate: ({ path, content }) => {
+      patchComment(path, (prev) => ({
+        comment: {
+          ...prev.comment,
+          content,
+        },
+      }));
+    },
+    onSuccess: ({ comment_view }) => {
+      cacheComment(comment_view);
+    },
+  });
+}
+
+export function useDeleteComment() {
+  const { client } = useLemmyClient();
+  const patchComment = useCommentsStore((s) => s.patchComment);
+  const cacheComment = useCommentsStore((s) => s.cacheComment);
+  return useMutation({
+    mutationFn: async ({
+      path,
+      ...form
+    }: {
+      comment_id: number;
+      path: string;
+      deleted: boolean;
+    }) => {
+      return await client.deleteComment(form);
+    },
+    onMutate: ({ path, deleted }) => {
+      patchComment(path, (prev) => ({
+        ...prev,
+        comment: {
+          ...prev.comment,
+          deleted,
+        },
+      }));
+    },
+    onSuccess: ({ comment_view }) => {
+      cacheComment(comment_view);
     },
   });
 }

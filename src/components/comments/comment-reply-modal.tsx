@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { PostId } from "lemmy-js-client";
+import { createContext, useContext, useRef, useState } from "react";
+import { PostId, Comment } from "lemmy-js-client";
 import {
   Button,
   Form,
@@ -13,15 +13,21 @@ import {
 import { KeyboardAvoidingView } from "react-native";
 import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
 import { BlurBackground } from "../nav/blur-background";
-import { FlattenedComment, useCreateComment } from "~/src/lib/lemmy";
+import {
+  FlattenedComment,
+  useCreateComment,
+  useEditComment,
+} from "~/src/lib/lemmy";
 import { FeedGutters } from "../feed-gutters";
 import _ from "lodash";
 
 const Context = createContext<{
+  setComment: (comment: Comment | undefined) => void;
   parentComment?: FlattenedComment;
   setParentComment: (comment: FlattenedComment | undefined) => void;
   focus: () => void;
 }>({
+  setComment: () => {},
   setParentComment: () => {},
   focus: _.noop,
 });
@@ -41,16 +47,30 @@ export function CommentReplyContext({
 
   const bottomTabBar = useCustomTabBarHeight();
   const [parentComment, setParentComment] = useState<FlattenedComment>();
+  const [comment, setComment] = useState<Comment>();
   const [focused, setFocused] = useState(false);
   const [content, setContent] = useState<Record<number, string>>({});
   const media = useMedia();
 
   const createComment = useCreateComment();
+  const editComment = useEditComment();
 
   return (
     <Context.Provider
       value={{
         parentComment,
+        setComment: (comment) => {
+          if (comment) {
+            setContent((prev) => ({
+              ...prev,
+              [comment.id]: comment.content,
+            }));
+          }
+          setComment(comment);
+          if (media.md) {
+            inputRef.current?.focus();
+          }
+        },
         setParentComment: (val) => {
           setParentComment(val);
           if (media.md) {
@@ -88,14 +108,23 @@ export function CommentReplyContext({
       >
         <Form
           onSubmit={() => {
-            createComment.mutate({
-              post_id: postId,
-              content: content[parentComment?.comment.id ?? 0],
-              parent_id: parentComment?.comment.id,
-              parentPath: parentComment?.comment.path ?? "0",
-            });
+            if (comment) {
+              editComment.mutate({
+                path: comment.path,
+                comment_id: comment.id,
+                content: content[comment.id],
+              });
+            } else {
+              createComment.mutate({
+                post_id: postId,
+                content: content[parentComment?.comment.id ?? 0],
+                parent_id: parentComment?.comment.id,
+                parentPath: parentComment?.comment.path ?? "0",
+              });
+            }
             inputRef.current?.blur();
             setParentComment(undefined);
+            setComment(undefined);
           }}
           $gtMd={{
             dsp: "none",
@@ -113,17 +142,24 @@ export function CommentReplyContext({
                 {parentComment && (
                   <Text pt="$2">Replying to {parentComment?.creator.name}</Text>
                 )}
+                {comment && <Text pt="$2">Editing</Text>}
 
                 <Input
                   ref={inputRef}
                   placeholder="Add a comment..."
                   onFocus={() => setFocused(true)}
-                  onBlur={() => setFocused(false)}
-                  value={content[parentComment?.comment.id ?? 0]}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      setFocused(false);
+                    }, 0);
+                  }}
+                  value={
+                    content[comment?.id ?? parentComment?.comment.id ?? 0] ?? ""
+                  }
                   onChangeText={(val) =>
                     setContent((prev) => ({
                       ...prev,
-                      [parentComment?.comment.id ?? 0]: val,
+                      [comment?.id ?? parentComment?.comment.id ?? 0]: val,
                     }))
                   }
                   style={{
@@ -144,15 +180,20 @@ export function CommentReplyContext({
                       size="$2.5"
                       br="$12"
                       onPress={() => {
-                        inputRef.current?.blur();
                         setParentComment(undefined);
+                        setComment(undefined);
+                        inputRef.current?.blur();
                       }}
                     >
                       Cancel
                     </Button>
                     <Form.Trigger asChild>
                       <Button bg="$accentBackground" size="$2.5" br="$12">
-                        {parentComment ? "Reply" : "Comment"}
+                        {comment
+                          ? "Update"
+                          : parentComment
+                            ? "Reply"
+                            : "Comment"}
                       </Button>
                     </Form.Trigger>
                   </XStack>
@@ -170,12 +211,14 @@ export function CommentReplyContext({
 }
 
 export function InlineCommentReply({
+  comment,
   postId,
   parent,
   onCancel,
   onSubmit,
   autoFocus,
 }: {
+  comment?: Comment;
   postId: number | string;
   parent?: FlattenedComment;
   onCancel?: () => void;
@@ -183,10 +226,11 @@ export function InlineCommentReply({
   autoFocus?: boolean;
 }) {
   const [focused, setFocused] = useState(autoFocus ?? false);
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState(comment?.content ?? "");
 
   const media = useMedia();
   const createComment = useCreateComment();
+  const editComment = useEditComment();
 
   if (autoFocus && !media.gtMd) {
     return null;
@@ -195,12 +239,20 @@ export function InlineCommentReply({
   return (
     <Form
       onSubmit={() => {
-        createComment.mutate({
-          post_id: +postId,
-          content,
-          parent_id: parent?.comment.id,
-          parentPath: parent?.comment.path ?? "0",
-        });
+        if (comment) {
+          editComment.mutate({
+            path: comment.path,
+            comment_id: comment.id,
+            content: content,
+          });
+        } else {
+          createComment.mutate({
+            post_id: +postId,
+            content,
+            parent_id: parent?.comment.id,
+            parentPath: parent?.comment.path ?? "0",
+          });
+        }
         onSubmit?.();
         setContent("");
         setFocused(false);
@@ -245,7 +297,7 @@ export function InlineCommentReply({
 
             <Form.Trigger asChild>
               <Button bg="$accentBackground" size="$2.5" br="$12">
-                {parent ? "Reply" : "Comment"}
+                {comment ? "Update" : parent ? "Reply" : "Comment"}
               </Button>
             </Form.Trigger>
           </XStack>

@@ -15,7 +15,7 @@ type SortsStore = {
   comments: Record<CommentPath, CachedComment>;
   patchComment: (
     path: FlattenedComment["comment"]["path"],
-    comment: Partial<FlattenedComment>,
+    comment: (prev: FlattenedComment) => Partial<FlattenedComment>,
   ) => FlattenedComment;
   cacheComment: (comment: FlattenedComment) => FlattenedComment;
   cacheComments: (
@@ -28,14 +28,14 @@ export const useCommentsStore = create<SortsStore>()(
   persist(
     (set, get) => ({
       comments: {},
-      patchComment: (path, patch) => {
+      patchComment: (path, patchFn) => {
         const prev = get().comments;
-        const prevPost = prev[path];
+        const prevComment = prev[path];
         const updatedCommentData = {
-          ...prevPost.data,
-          ...patch,
+          ...prevComment.data,
+          ...patchFn(prevComment.data),
         };
-        if (prevPost) {
+        if (prevComment) {
           set({
             comments: {
               ...prev,

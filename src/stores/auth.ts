@@ -9,7 +9,7 @@ type AuthStore = {
   jwt?: string;
   setJwt: (jwt: string | undefined) => void;
   site?: GetSiteResponse;
-  setSite: (site: GetSiteResponse) => void;
+  setSite: (site: GetSiteResponse | undefined) => void;
 };
 
 export const useAuth = create<AuthStore>()(

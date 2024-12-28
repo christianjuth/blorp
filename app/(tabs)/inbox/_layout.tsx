@@ -46,7 +46,7 @@ export default function Layout() {
         <Stack.Screen
           name="c/[communityName]/posts/[postId]/index"
           options={{
-            header: PostHeader,
+            header: (props) => <PostHeader {...props} />,
             headerTransparent: true,
           }}
         />
@@ -54,7 +54,7 @@ export default function Layout() {
         <Stack.Screen
           name="c/[communityName]/posts/[postId]/comments/[commentPath]"
           options={{
-            header: PostHeader,
+            header: (props) => <PostHeader {...props} />,
             headerTransparent: true,
           }}
         />
