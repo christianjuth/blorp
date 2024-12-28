@@ -26,6 +26,10 @@
       "backgroundColor": "#000000"
     },
     "ios": {
+      "associatedDomains": [
+        "applinks:blorpblorp.xyz",
+        "applinks:www.blorpblorp.xyz"
+      ],
       "supportsTablet": true,
       "bundleIdentifier": "xyz.blorpblorp.app",
       "infoPlist": {
@@ -50,10 +54,6 @@
     },
     "updates": {
       "enabled": false
-    },
-    "associatedDomains": [
-      "applinks:blorpblorp.xyz",
-      "applinks:www.blorpblorp.xyz"
-    ]
+    }
   }
 }
