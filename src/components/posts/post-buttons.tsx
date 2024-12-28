@@ -63,11 +63,11 @@ export function Voting({ postId }: { postId: number | string }) {
         p={0}
         pl={7}
         bg="transparent"
-        onPress={() => {
+        onPress={async () => {
+          const newVote = isUpvoted ? 0 : 1;
+          voteHaptics(newVote);
           requireAuth().then(() => {
             setAnimate(true);
-            const newVote = isUpvoted ? 0 : 1;
-            voteHaptics(newVote);
             vote.mutate(newVote);
           });
         }}
@@ -99,11 +99,11 @@ export function Voting({ postId }: { postId: number | string }) {
         p={0}
         pr={7}
         bg="transparent"
-        onPress={() => {
+        onPress={async () => {
+          const newVote = isDownvoted ? 0 : -1;
+          voteHaptics(newVote);
           requireAuth().then(() => {
             setAnimate(true);
-            const newVote = isDownvoted ? 0 : -1;
-            voteHaptics(newVote);
             vote.mutate(newVote);
           });
         }}

@@ -4,7 +4,7 @@ import {
   buildCommentMap,
 } from "~/src/components/posts/post-comment";
 import { useEffect } from "react";
-import { FlattenedComment, usePost, usePostComments } from "~/src/lib/lemmy";
+import { usePost, usePostComments } from "~/src/lib/lemmy";
 import { PostCard } from "~/src/components/posts/post";
 import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { FeedGutters } from "../components/feed-gutters";
@@ -37,7 +37,9 @@ export function PostComments({
   communityName,
 }: {
   postId: number | string;
-  commentViews: FlattenedComment[];
+  commentViews: {
+    path: string;
+  }[];
   loadMore: () => void;
   onRefresh: () => void;
   refreshing: boolean;
@@ -164,7 +166,7 @@ export function Post({
         .map((p) => p.comments)
         .flat()
         .sort((a, b) => {
-          if (b.creator.id === myUserId) {
+          if (b.creatorId === myUserId) {
             return 1;
           }
           return 0;

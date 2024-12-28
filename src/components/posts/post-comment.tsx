@@ -3,28 +3,35 @@ import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
 import { Byline } from "../byline";
 import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
-import { FlattenedComment } from "~/src/lib/lemmy";
 import {
   InlineCommentReply,
   useCommentReaplyContext,
 } from "../comments/comment-reply-modal";
 import { useState } from "react";
+import { useCommentsStore } from "~/src/stores/comments";
 
 export function PostComment({
   commentMap,
   level,
   opId,
   myUserId,
+  noBorder = false,
 }: {
   commentMap: CommentMap;
   level: number;
   opId: number | undefined;
   myUserId: number | undefined;
+  noBorder?: boolean;
 }) {
   const replyCtx = useCommentReaplyContext();
   const [replying, setReplying] = useState(false);
 
-  const { comment: commentView, sort, ...rest } = commentMap;
+  const { comment: commentPath, sort, ...rest } = commentMap;
+
+  const commentView = useCommentsStore((s) =>
+    commentPath ? s.comments[commentPath.path]?.data : undefined,
+  );
+
   if (!commentView) {
     return null;
   }
@@ -67,7 +74,7 @@ export function PostComment({
       py={level === 0 ? "$3" : "$2"}
       bg="$background"
       bbc="$color3"
-      bbw={level === 0 ? 1 : 0}
+      bbw={level === 0 && !noBorder ? 1 : 0}
       $md={{
         px: level === 0 ? "$2.5" : undefined,
       }}
@@ -107,7 +114,15 @@ export function PostComment({
           </View>
         )}
 
-        <XStack jc="flex-end" w="100%" mt="$1.5" mb="$1" mr="$1" gap="$3">
+        <XStack
+          ai="center"
+          jc="flex-end"
+          w="100%"
+          mt="$1.5"
+          mb="$1"
+          mr="$1"
+          gap="$3"
+        >
           <CommentReplyButton
             commentView={commentView}
             onPress={() => {
@@ -143,7 +158,9 @@ export function PostComment({
 }
 
 interface CommentMap {
-  comment?: FlattenedComment;
+  comment?: {
+    path: string;
+  };
   sort: number;
   [key: number]: CommentMap;
 }
@@ -152,13 +169,17 @@ interface CommentMapTopLevel {
   [key: number]: CommentMap;
 }
 
-export function buildCommentMap(commentViews: FlattenedComment[]) {
+export function buildCommentMap(
+  commentViews: {
+    path: string;
+  }[],
+) {
   const map: CommentMapTopLevel = {};
 
   let i = 0;
   for (const view of commentViews) {
     let loc = map;
-    const [_, ...path] = view.comment.path.split(".");
+    const [_, ...path] = view.path.split(".");
 
     while (path.length > 1) {
       const front = path.shift()!;

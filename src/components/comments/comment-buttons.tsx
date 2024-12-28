@@ -1,5 +1,10 @@
-import { Button, View, useTheme, Text, XStack } from "tamagui";
-import { ArrowBigUp, ArrowBigDown, MessageCircle } from "@tamagui/lucide-icons";
+import { Button, useTheme, Text, XStack } from "tamagui";
+import {
+  ArrowBigUp,
+  ArrowBigDown,
+  MessageCircle,
+  Reply,
+} from "@tamagui/lucide-icons";
 import { FlattenedComment, useLikeComment } from "~/src/lib/lemmy";
 import { voteHaptics } from "~/src/lib/voting";
 import { useMemo, useState } from "react";
@@ -48,22 +53,17 @@ export function CommentVoting({
   return (
     <XStack dsp="flex" fd="row" ai="center" borderRadius="$12">
       <Button
-        onPress={() => {
+        onPress={async () => {
+          const newVote = isUpvoted ? 0 : 1;
+          voteHaptics(newVote);
           requireAuth().then(() => {
             setAnimate(true);
-            const newVote = isUpvoted ? 0 : 1;
-            voteHaptics(newVote);
-            // THIS IS A HACK
-            // I'm not sure why but having this not
-            // wrapped in set timeout cases a delay
-            // in setMyVote() rerendering comp
-            setTimeout(() => {
-              vote.mutate({
-                post_id: commentView.comment.post_id,
-                comment_id: commentView.comment.id,
-                score: newVote,
-              });
-            }, 0);
+            vote.mutate({
+              post_id: commentView.comment.post_id,
+              comment_id: commentView.comment.id,
+              score: newVote,
+              path: commentView.comment.path,
+            });
           });
         }}
         disabled={vote.isPending}
@@ -95,22 +95,17 @@ export function CommentVoting({
         </>
       </Button>
       <Button
-        onPress={() => {
+        onPress={async () => {
+          const newVote = isDownvoted ? 0 : -1;
+          voteHaptics(newVote);
           requireAuth().then(() => {
             setAnimate(true);
-            const newVote = isDownvoted ? 0 : -1;
-            voteHaptics(newVote);
-            // THIS IS A HACK
-            // I'm not sure why but having this not
-            // wrapped in set timeout cases a delay
-            // in setMyVote() rerendering comp
-            setTimeout(() => {
-              vote.mutate({
-                post_id: commentView.comment.post_id,
-                comment_id: commentView.comment.id,
-                score: newVote,
-              });
-            }, 0);
+            vote.mutate({
+              post_id: commentView.comment.post_id,
+              comment_id: commentView.comment.id,
+              score: newVote,
+              path: commentView.comment.path,
+            });
           });
         }}
         disabled={vote.isPending}
@@ -141,7 +136,7 @@ export function CommentReplyButton({
   return (
     <Button unstyled bg="transparent" bw={0} p={0} ml={6} onPress={onPress}>
       <XStack gap="$1" ai="center">
-        <MessageCircle size="$1" color="$color11" />
+        <Reply size="$1" color="$color11" />
         <Text fontSize="$3" color="$color11">
           Reply
         </Text>

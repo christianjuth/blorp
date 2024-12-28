@@ -34,6 +34,7 @@ import throttledQueue from "throttled-queue";
 import { usePostsStore } from "../stores/posts";
 import { useSettingsStore } from "../stores/settings";
 import { z } from "zod";
+import { useCommentsStore } from "../stores/comments";
 
 function getLemmyServer({ actor_id }: { actor_id: string }) {
   const server = new URL(actor_id);
@@ -249,6 +250,8 @@ export function usePostComments(form: GetComments) {
   const sort = form.sort ?? commentSort;
   const { client, queryKeyPrefix } = useLemmyClient();
 
+  const cacheComments = useCommentsStore((s) => s.cacheComments);
+
   const queryKey = [
     ...queryKeyPrefix,
     "getComments",
@@ -266,8 +269,15 @@ export function usePostComments(form: GetComments) {
         page: pageParam,
         sort,
       });
+
+      cacheComments(comments.map(flattenComment));
+
       return {
-        comments: comments.map(flattenComment),
+        comments: comments.map((c) => ({
+          path: c.comment.path,
+          postId: c.comment.post_id,
+          creatorId: c.creator.id,
+        })),
         nextPage: comments.length < limit ? null : pageParam + 1,
       };
     },
@@ -276,7 +286,7 @@ export function usePostComments(form: GetComments) {
     initialPageParam: 1,
     placeholderData: (prev) => {
       const firstComment = prev?.pages[0]?.comments?.[0];
-      if (!firstComment || firstComment.comment.post_id !== form.post_id) {
+      if (!firstComment || firstComment.postId !== form.post_id) {
         return undefined;
       }
       return prev;
@@ -496,63 +506,31 @@ export function useLikePost(postId: number) {
 
 interface CustumCreateCommentLike extends CreateCommentLike {
   post_id: number;
+  path: string;
 }
 
 export function useLikeComment() {
-  const queryClient = useQueryClient();
-  const { client, queryKeyPrefix } = useLemmyClient();
+  const { client } = useLemmyClient();
+  const patchComment = useCommentsStore((s) => s.patchComment);
+  const cacheComment = useCommentsStore((s) => s.cacheComment);
 
   return useMutation({
-    mutationFn: async ({ post_id, ...form }: CustumCreateCommentLike) => {
+    mutationFn: async ({ post_id, path, ...form }: CustumCreateCommentLike) => {
       return await client.likeComment(form);
     },
-    onMutate: ({ post_id, comment_id, score }) => {
-      const SORTS: CommentSortType[] = [
-        "Hot",
-        "Top",
-        "New",
-        "Old",
-        "Controversial",
-      ];
-
-      for (const sort of SORTS) {
-        const comments = queryClient.getQueryData<
-          InfiniteData<
-            {
-              comments: FlattenedComment[];
-              nextPage: number | null;
-            },
-            unknown
-          >
-        >([...queryKeyPrefix, "getComments", String(post_id), sort]);
-
-        if (!comments) {
-          continue;
-        }
-
-        for (const p of comments.pages) {
-          for (const c of p.comments) {
-            if (c.comment.id === comment_id) {
-              c.optimisticMyVote = score;
-            }
-          }
-        }
-
-        queryClient.setQueryData(
-          [...queryKeyPrefix, "getComments", String(post_id), sort],
-          comments,
-        );
-      }
+    onMutate: ({ score, path }) => {
+      patchComment(path, {
+        optimisticMyVote: score,
+      });
     },
-    // onSuccess: (res) => {
-    //   queryClient.invalidateQueries({
-    //     queryKey: [
-    //       "getComments",
-    //       String(res.comment_view.post.id),
-    //       commentSort,
-    //     ],
-    //   });
-    // },
+    onSuccess: (data) => {
+      cacheComment(flattenComment(data.comment_view));
+    },
+    onError: (err, { path }) => {
+      patchComment(path, {
+        optimisticMyVote: undefined,
+      });
+    },
   });
 }
 
@@ -564,6 +542,9 @@ export function useCreateComment() {
   const queryClient = useQueryClient();
   const { client, queryKeyPrefix } = useLemmyClient();
   const myProfile = useAuth((s) => s.site?.my_user?.local_user_view.person);
+  const commentSort = useFiltersStore((s) => s.commentSort);
+  const cacheComment = useCommentsStore((s) => s.cacheComment);
+  const removeComment = useCommentsStore((s) => s.removeComment);
 
   return useMutation({
     mutationFn: async ({ parentPath, ...form }: CreateCommentWithPath) => {
@@ -572,18 +553,18 @@ export function useCreateComment() {
     onMutate: ({ post_id, parentPath, parent_id, content }) => {
       const date = new Date();
       const isoDate = date.toISOString();
-      const postId = _.random() * -1;
+      const commentId = _.random(1, 1000000) * -1;
       const newComment: FlattenedComment = {
         comment: {
-          id: -1,
+          id: commentId,
           content,
-          post_id: postId,
+          post_id,
           creator_id: myProfile?.id ?? -1,
           removed: false,
           published: isoDate,
           deleted: false,
           local: false,
-          path: `${parentPath}.${postId}`,
+          path: `${parentPath}.${commentId}`,
           distinguished: false,
           ap_id: "",
           language_id: -1,
@@ -599,19 +580,26 @@ export function useCreateComment() {
         myVote: 1,
       };
 
-      const SORTS: CommentSortType[] = [
+      cacheComment(newComment);
+
+      const SORTS = new Set<CommentSortType>([
+        commentSort,
         "Hot",
         "Top",
         "New",
         "Old",
         "Controversial",
-      ];
+      ]);
 
-      for (const sort of SORTS) {
+      for (const sort of Array.from(SORTS)) {
         let comments = queryClient.getQueryData<
           InfiniteData<
             {
-              comments: FlattenedComment[];
+              comments: {
+                path: string;
+                postId: number;
+                creatorId: number;
+              }[];
               nextPage: number | null;
             },
             unknown
@@ -626,7 +614,11 @@ export function useCreateComment() {
 
         const firstPage = comments.pages[0];
         if (firstPage) {
-          firstPage.comments.unshift(newComment);
+          firstPage.comments.unshift({
+            path: newComment.comment.path,
+            creatorId: newComment.creator.id,
+            postId: newComment.comment.post_id,
+          });
         }
 
         queryClient.setQueryData(
@@ -638,7 +630,7 @@ export function useCreateComment() {
       return newComment;
     },
     onSuccess: (res, form, ctx) => {
-      const setledCommentId = res.comment_view.comment.id;
+      const settledCommentPath = res.comment_view.comment.path;
 
       const SORTS: CommentSortType[] = [
         "Hot",
@@ -648,11 +640,18 @@ export function useCreateComment() {
         "Controversial",
       ];
 
+      cacheComment(res.comment_view);
+      removeComment(ctx.comment.path);
+
       for (const sort of SORTS) {
         let comments = queryClient.getQueryData<
           InfiniteData<
             {
-              comments: FlattenedComment[];
+              comments: {
+                path: string;
+                postId: number;
+                creatorId: number;
+              }[];
               nextPage: number | null;
             },
             unknown
@@ -663,12 +662,11 @@ export function useCreateComment() {
           continue;
         }
 
-        comments = _.cloneDeep(comments);
-
-        for (const p of comments.pages) {
+        outer: for (const p of comments.pages) {
           for (const c of p.comments) {
-            if (c.comment.id === ctx.comment.id) {
-              c.comment.id = setledCommentId;
+            if (c.path === ctx.comment.path) {
+              c.path = settledCommentPath;
+              break outer;
             }
           }
         }

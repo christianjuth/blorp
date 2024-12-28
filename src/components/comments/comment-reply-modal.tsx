@@ -136,6 +136,7 @@ export function CommentReplyContext({
                   bw={0}
                   h={focused ? undefined : "$3.5"}
                   bg="transparent"
+                  outlineColor="transparent"
                 />
                 {focused ? (
                   <XStack minHeight={bottomTabBar.insetBottom} jc="flex-end">
@@ -227,6 +228,7 @@ export function InlineCommentReply({
           bw={0}
           h={focused ? undefined : "$3.5"}
           bg="transparent"
+          outlineColor="transparent"
         />
         {focused && (
           <XStack jc="flex-end" py="$2">

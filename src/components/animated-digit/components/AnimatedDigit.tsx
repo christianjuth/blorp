@@ -84,7 +84,7 @@ export const AnimatedDigit: React.FC<AnimatedDigitProps> = ({
     withTiming(
       -newValue,
       spinningAnimationConfig || {
-        duration: variant === "number" ? 600 : 100,
+        duration: variant === "number" ? 400 : 100,
         easing: Easing.elastic(1),
       },
       (finished, current) => runOnJS(animationCallback)?.(finished, current),

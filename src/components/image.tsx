@@ -63,9 +63,6 @@ export function Image({
         style={{
           // flex: 1,
           borderRadius,
-          borderWidth: 1,
-          borderColor: theme.gray4.val,
-          borderStyle: "solid",
           width: maxWidth ? "100%" : undefined,
           maxWidth: maxWidth,
           objectFit,
@@ -85,9 +82,6 @@ export function Image({
         // it causes issues on native
         aspectRatio: calculatedAspectRatio,
         backgroundColor: theme.gray3.val,
-        borderRadius,
-        borderWidth: 1,
-        borderColor: theme.gray2.val,
         width: maxWidth ? maxWidth : "100%",
         maxWidth: "100%",
         height: undefined,

@@ -1,1 +1,1 @@
-export function voteHaptics(score: number) {}
+export async function voteHaptics(score: number) {}

@@ -10109,6 +10109,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"immer@npm:^10.1.1":
+  version: 10.1.1
+  resolution: "immer@npm:10.1.1"
+  checksum: 10c0/b749e10d137ccae91788f41bd57e9387f32ea6d6ea8fd7eb47b23fd7766681575efc7f86ceef7fe24c3bc9d61e38ff5d2f49c2663b2b0c056e280a4510923653
+  languageName: node
+  linkType: hard
+
 "import-fresh@npm:^2.0.0":
   version: 2.0.0
   resolution: "import-fresh@npm:2.0.0"
@@ -11159,6 +11166,7 @@ __metadata:
     expo-system-ui: "npm:~3.0.7"
     html-react-parser: "npm:^5.2.0"
     idb: "npm:^8.0.0"
+    immer: "npm:^10.1.1"
     lemmy-js-client: "npm:0.20.0-pkce.1"
     lodash: "npm:^4.17.21"
     markdown-to-jsx: "npm:^7.7.0"
