@@ -285,6 +285,7 @@ function tokenizeLemmySpoiler(
 
 const markdownItInstance = MarkdownIt({
   tyographer: true,
+  linkify: true,
 });
 markdownItInstance.use(markdownItLemmySpoiler);
 

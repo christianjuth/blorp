@@ -116,6 +116,7 @@ export function PostComments({
               level={0}
               opId={opId}
               myUserId={myUserId}
+              communityName={communityName}
             />
             <></>
           </FeedGutters>

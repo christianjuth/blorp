@@ -693,11 +693,9 @@ export function useCreateComment() {
 }
 
 export function useEditComment() {
-  const queryClient = useQueryClient();
-  const { client, queryKeyPrefix } = useLemmyClient();
+  const { client } = useLemmyClient();
   const cacheComment = useCommentsStore((s) => s.cacheComment);
   const patchComment = useCommentsStore((s) => s.patchComment);
-  const removeComment = useCommentsStore((s) => s.removeComment);
 
   return useMutation({
     mutationFn: async ({

@@ -1,10 +1,5 @@
-import { Button, useTheme, Text, XStack } from "tamagui";
-import {
-  ArrowBigUp,
-  ArrowBigDown,
-  MessageCircle,
-  Reply,
-} from "@tamagui/lucide-icons";
+import { Button, useTheme, Text, XStack, ButtonProps } from "tamagui";
+import { ArrowBigUp, ArrowBigDown, Reply } from "@tamagui/lucide-icons";
 import { FlattenedComment, useLikeComment } from "~/src/lib/lemmy";
 import { voteHaptics } from "~/src/lib/voting";
 import { useMemo, useState } from "react";
@@ -80,7 +75,7 @@ export function CommentVoting({
             size="$1"
             fill={isUpvoted ? theme.accentBackground.val : undefined}
             color={isUpvoted ? "$accentBackground" : "$color11"}
-            mr={6}
+            mr={5}
           />
           <AnimatedRollingNumber
             enableCompactNotation
@@ -113,7 +108,7 @@ export function CommentVoting({
         bg="transparent"
         bw={0}
         p={0}
-        pl={6}
+        pl={5}
         py="$1"
       >
         <ArrowBigDown
@@ -126,15 +121,9 @@ export function CommentVoting({
   );
 }
 
-export function CommentReplyButton({
-  onPress,
-  commentView,
-}: {
-  onPress: () => void;
-  commentView: FlattenedComment;
-}) {
+export function CommentReplyButton(props: Omit<ButtonProps, "children">) {
   return (
-    <Button unstyled bg="transparent" bw={0} p={0} ml={6} onPress={onPress}>
+    <Button unstyled bg="transparent" bw={0} p={0} ml={6} {...props}>
       <XStack gap="$1" ai="center">
         <Reply size="$1" color="$color11" />
         <Text fontSize="$3" color="$color11">

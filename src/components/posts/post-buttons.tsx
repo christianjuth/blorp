@@ -120,7 +120,14 @@ export function Voting({ postId }: { postId: number | string }) {
   );
 }
 
-export function PostCommentsButton({ postView }: { postView: FlattenedPost }) {
+export function PostCommentsButton({
+  postView,
+  ...rest
+}: {
+  postView: FlattenedPost;
+  onPress?: () => void;
+  href?: string;
+}) {
   return (
     <Button
       h="$2"
@@ -131,6 +138,7 @@ export function PostCommentsButton({ postView }: { postView: FlattenedPost }) {
       bw={1}
       bc="$color5"
       tag="a"
+      {...rest}
     >
       <MessageCircle size={17} />
       <Text fontSize="$5">{postView.counts.comments}</Text>

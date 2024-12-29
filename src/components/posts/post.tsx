@@ -9,6 +9,7 @@ import { useLinkContext } from "../communities/link-context";
 import { PostArticleEmbed } from "./post-article-embed";
 import { Markdown } from "~/src/components/markdown";
 import { PostVideoEmbed } from "./post-video-embed";
+import { useCommentReaplyContext } from "../comments/comment-reply-modal";
 
 export function PostCard({
   postId,
@@ -17,6 +18,7 @@ export function PostCard({
   postId: number | string;
   detailView?: boolean;
 }) {
+  const replyCtx = useCommentReaplyContext();
   const linkCtx = useLinkContext();
   const postView = usePostsStore((s) => s.posts[postId]?.data);
 
@@ -100,7 +102,9 @@ export function PostCard({
       {detailView && body && <Markdown markdown={body} />}
 
       <XStack jc="flex-end" ai="center" gap="$2">
-        {postView && (
+        {detailView ? (
+          <PostCommentsButton postView={postView} onPress={replyCtx.focus} />
+        ) : (
           <Link href={postDetailsLink} asChild>
             <PostCommentsButton postView={postView} />
           </Link>

@@ -3,7 +3,6 @@ import { useTheme } from "tamagui";
 
 import {
   CommunityHeader,
-  HomeHeader,
   PostHeader,
   StackHeader,
 } from "~/src/components/nav/headers";
@@ -24,6 +23,7 @@ export default function Layout() {
             backgroundColor: theme.background.val,
           },
           header: (props) => <StackHeader {...props} />,
+          headerTransparent: true,
         }}
       >
         <Stack.Screen

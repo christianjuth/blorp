@@ -1,4 +1,4 @@
-import { View, Text, XStack, YStack, Avatar, Button, useMedia } from "tamagui";
+import { View, Text, XStack, YStack, Avatar } from "tamagui";
 import { Markdown } from "~/src/components/markdown";
 import _ from "lodash";
 import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
@@ -11,32 +11,22 @@ import { useCommentsStore } from "~/src/stores/comments";
 import { RelativeTime } from "../relative-time";
 import { ActionMenu } from "~/src/components/ui/action-menu";
 import { Ellipsis } from "@tamagui/lucide-icons";
-import { Comment } from "lemmy-js-client";
 import { useDeleteComment } from "~/src/lib/lemmy";
+import { Share } from "react-native";
 
 function Byline({
   avatar,
   author,
   publishedDate,
   authorType,
-  comment,
-  myUserId,
-  toggleEdit,
+  onPress,
 }: {
   avatar?: string;
   author: string;
   publishedDate: string;
   authorType?: "OP" | "Me";
-  comment: Comment;
-  myUserId?: number;
-  toggleEdit: () => void;
+  onPress?: () => void;
 }) {
-  const replyCtx = useCommentReaplyContext();
-
-  const deleteComment = useDeleteComment();
-
-  const isMyComment = comment.creator_id === myUserId;
-
   return (
     <XStack ai="center">
       <Avatar size={21} mr="$2">
@@ -61,42 +51,7 @@ function Byline({
         fontSize="$3"
       />
 
-      <View flex={1} />
-
-      <ActionMenu
-        actions={[
-          {
-            label: "Report",
-            onClick: () => {},
-          },
-          ...(isMyComment && !comment.deleted
-            ? [
-                {
-                  label: "Edit",
-                  onClick: () => {
-                    toggleEdit();
-                    replyCtx.setComment(comment);
-                  },
-                },
-              ]
-            : []),
-          ...(isMyComment
-            ? [
-                {
-                  label: comment.deleted ? "Undelete" : "Delete",
-                  onClick: () => {
-                    deleteComment.mutate({
-                      comment_id: comment.id,
-                      path: comment.path,
-                      deleted: !comment.deleted,
-                    });
-                  },
-                },
-              ]
-            : []),
-        ]}
-        trigger={<Ellipsis size={16} />}
-      />
+      <View flex={1} onPress={onPress} h="100%" />
     </XStack>
   );
 }
@@ -107,16 +62,19 @@ export function PostComment({
   opId,
   myUserId,
   noBorder = false,
+  communityName,
 }: {
   commentMap: CommentMap;
   level: number;
   opId: number | undefined;
   myUserId: number | undefined;
   noBorder?: boolean;
+  communityName: string;
 }) {
   const replyCtx = useCommentReaplyContext();
   const [editing, setEditing] = useState(false);
   const [replying, setReplying] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const { comment: commentPath, sort, ...rest } = commentMap;
 
@@ -127,6 +85,10 @@ export function PostComment({
   useEffect(() => {
     setEditing(false);
   }, [commentView?.comment.content]);
+
+  const deleteComment = useDeleteComment();
+
+  const isMyComment = commentView?.comment.creator_id === myUserId;
 
   if (!commentView) {
     return null;
@@ -179,9 +141,6 @@ export function PostComment({
       opacity={comment.id < 0 ? 0.5 : undefined}
     >
       <Byline
-        myUserId={myUserId}
-        toggleEdit={() => setEditing(true)}
-        comment={comment}
         avatar={avatar}
         author={creator.name}
         publishedDate={comment.published}
@@ -192,6 +151,7 @@ export function PostComment({
               ? "Me"
               : undefined
         }
+        onPress={() => setCollapsed((c) => !c)}
       />
 
       <View
@@ -203,6 +163,7 @@ export function PostComment({
         mt="$1"
         ml={9}
         ai="flex-start"
+        dsp={collapsed ? "none" : undefined}
       >
         {comment.deleted && <Text fontStyle="italic">deleted</Text>}
         {comment.removed && <Text fontStyle="italic">removed</Text>}
@@ -232,8 +193,49 @@ export function PostComment({
           mr="$1"
           gap="$3"
         >
+          <ActionMenu
+            actions={[
+              {
+                label: "Report",
+                onClick: () => {},
+              },
+              {
+                label: "Share",
+                onClick: () =>
+                  Share.share({
+                    url: `https://blorpblorp.xyz/c/${communityName}/posts/${comment.post_id}/comments/${comment.id}`,
+                  }),
+              },
+              ...(isMyComment && !comment.deleted
+                ? [
+                    {
+                      label: "Edit",
+                      onClick: () => {
+                        setEditing((e) => !e);
+                        replyCtx.setComment(comment);
+                      },
+                    },
+                  ]
+                : []),
+              ...(isMyComment
+                ? [
+                    {
+                      label: comment.deleted ? "Undelete" : "Delete",
+                      onClick: () => {
+                        deleteComment.mutate({
+                          comment_id: comment.id,
+                          path: comment.path,
+                          deleted: !comment.deleted,
+                        });
+                      },
+                    },
+                  ]
+                : []),
+            ]}
+            trigger={<Ellipsis size={16} />}
+          />
+
           <CommentReplyButton
-            commentView={commentView}
             onPress={() => {
               setReplying(true);
               replyCtx.setParentComment(commentView);

@@ -8868,6 +8868,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-sharing@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "expo-sharing@npm:12.0.1"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/9e66755ab3fbed482e700f8a9e0544fbc9abd3bb8e13b60df0d024e97c28c477e18058243410c51f5a39bd04e0775fffc252affa279eb3f3cdcc21aa0321aacf
+  languageName: node
+  linkType: hard
+
 "expo-system-ui@npm:~3.0.7":
   version: 3.0.7
   resolution: "expo-system-ui@npm:3.0.7"
@@ -11163,6 +11172,7 @@ __metadata:
     expo-image: "npm:1.12.9"
     expo-linear-gradient: "npm:^13.0.2"
     expo-modules-core: "npm:^1.12.24"
+    expo-sharing: "npm:^12.0.1"
     expo-system-ui: "npm:~3.0.7"
     html-react-parser: "npm:^5.2.0"
     idb: "npm:^8.0.0"

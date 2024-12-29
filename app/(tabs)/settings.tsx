@@ -9,6 +9,7 @@ import { useRequireAuth } from "~/src/components/auth-context";
 import { Image as ExpoImage } from "expo-image";
 import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { FeedGutters } from "~/src/components/feed-gutters";
+import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
 
 function SettingsButton({
   onClick,
@@ -86,11 +87,13 @@ export default function SettingsPage() {
   const isLoggedIn = useAuth((s) => !!s.jwt);
 
   const header = useCustomHeaderHeight();
+  const tabBar = useCustomTabBarHeight();
 
   return (
     <ScrollView
       contentContainerStyle={{
         paddingTop: header.height,
+        paddingBottom: tabBar.height,
       }}
       height="100%"
       bg="$background"

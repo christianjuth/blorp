@@ -1,10 +1,11 @@
 import { CommentReplyView } from "lemmy-js-client";
 import { Link } from "one";
-import { Platform } from "react-native";
-import { Text, YStack, ScrollView } from "tamagui";
+import { FlatList } from "react-native";
+import { Text, YStack, ScrollView, isWeb } from "tamagui";
 import { FeedGutters } from "~/src/components/feed-gutters";
 import { Markdown } from "~/src/components/markdown";
 import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
+import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { RelativeTime } from "~/src/components/relative-time";
 import { createCommunitySlug, useReplies } from "~/src/lib/lemmy";
 
@@ -42,6 +43,7 @@ function Reply({
 }
 
 export default function HomePage() {
+  const header = useCustomHeaderHeight();
   const tabBar = useCustomTabBarHeight();
 
   const replies = useReplies({});
@@ -49,35 +51,45 @@ export default function HomePage() {
   const allReplies = replies.data?.pages.flatMap((p) => p.replies);
 
   return (
-    <ScrollView
-      h="100%"
-      bg="$background"
-      scrollIndicatorInsets={{
-        bottom: tabBar.height,
-      }}
-      contentInset={{
-        bottom: tabBar.height,
-      }}
-      automaticallyAdjustContentInsets={false}
-      contentContainerStyle={
-        Platform.OS == "web"
-          ? {
-              paddingBottom: tabBar.height,
-            }
-          : undefined
-      }
-    >
-      <FeedGutters>
-        <YStack w="100%">
-          {allReplies?.map((r, i) => (
-            <Reply
-              key={r.comment_reply.id}
-              replyView={r}
-              noBorder={i + 1 === allReplies.length}
-            />
-          ))}
-        </YStack>
-      </FeedGutters>
-    </ScrollView>
+    <FeedGutters bg="$background">
+      <FlatList
+        data={allReplies}
+        scrollIndicatorInsets={{
+          top: header.height,
+          bottom: tabBar.height,
+        }}
+        contentInset={{
+          top: header.height,
+          bottom: tabBar.height,
+        }}
+        automaticallyAdjustContentInsets={false}
+        contentContainerStyle={
+          isWeb
+            ? {
+                top: header.height,
+                paddingBottom: tabBar.height,
+              }
+            : undefined
+        }
+        renderItem={({ item, index }) => (
+          <Reply
+            key={item.comment_reply.id}
+            replyView={item}
+            noBorder={index + 1 === allReplies?.length}
+          />
+        )}
+        refreshing={replies.isRefetching}
+        onRefresh={() => {
+          if (!replies.isRefetching) {
+            replies.refetch();
+          }
+        }}
+        onEndReached={() => {
+          if (replies.hasNextPage) {
+            replies.fetchNextPage();
+          }
+        }}
+      />
+    </FeedGutters>
   );
 }

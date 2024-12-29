@@ -113,6 +113,7 @@ export function PostComments({
               opId={opId}
               myUserId={myUserId}
               noBorder={item[0] === lastComment?.[0]}
+              communityName={communityName}
             />
             <></>
           </FeedGutters>
