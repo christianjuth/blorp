@@ -8774,7 +8774,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-file-system@npm:~17.0.1":
+"expo-file-system@npm:^17.0.1, expo-file-system@npm:~17.0.1":
   version: 17.0.1
   resolution: "expo-file-system@npm:17.0.1"
   peerDependencies:
@@ -11168,6 +11168,7 @@ __metadata:
     expensify-common: "npm:^2.0.111"
     expo: "npm:~51.0.39"
     expo-blur: "npm:^13.0.2"
+    expo-file-system: "npm:^17.0.1"
     expo-haptics: "npm:^13.0.1"
     expo-image: "npm:1.12.9"
     expo-linear-gradient: "npm:^13.0.2"

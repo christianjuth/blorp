@@ -3,13 +3,22 @@ import { RelativeTime } from "~/src/components/relative-time";
 import { FlattenedPost } from "~/src/lib/lemmy";
 import { Link } from "one";
 import { useLinkContext } from "../communities/link-context";
+import { ActionMenu } from "../ui/action-menu";
+import { Share } from "react-native";
+import { Ellipsis } from "@tamagui/lucide-icons";
 
-export function PostByline({ postView }: { postView: FlattenedPost }) {
+export function PostByline({
+  postView,
+  detailView,
+}: {
+  postView: FlattenedPost;
+  detailView: boolean;
+}) {
   const { creator, community, post } = postView;
   const linkCtx = useLinkContext();
 
   return (
-    <View dsp="flex" fd="row" ai="center">
+    <XStack dsp="flex" fd="row" ai="center">
       <Avatar size={25} mr="$2">
         <Avatar.Image src={creator.avatar} borderRadius="$12" />
         <Avatar.Fallback
@@ -43,6 +52,26 @@ export function PostByline({ postView }: { postView: FlattenedPost }) {
           />
         </XStack>
       </YStack>
-    </View>
+
+      <View flex={1} />
+
+      <ActionMenu
+        placement="bottom-end"
+        actions={[
+          {
+            label: "Report",
+            onClick: () => {},
+          },
+          {
+            label: "Share",
+            onClick: () =>
+              Share.share({
+                url: `https://blorpblorp.xyz/c/${postView.community.slug}/posts/${postView.post.id}`,
+              }),
+          },
+        ]}
+        trigger={<Ellipsis size={16} />}
+      />
+    </XStack>
   );
 }

@@ -194,6 +194,7 @@ export function PostComment({
           gap="$3"
         >
           <ActionMenu
+            placement="top"
             actions={[
               {
                 label: "Report",

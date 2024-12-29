@@ -44,6 +44,7 @@
     "expensify-common": "^2.0.111",
     "expo": "~51.0.39",
     "expo-blur": "^13.0.2",
+    "expo-file-system": "^17.0.1",
     "expo-haptics": "^13.0.1",
     "expo-image": "1.12.9",
     "expo-linear-gradient": "^13.0.2",

@@ -34,6 +34,7 @@ export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
           imageUrl={post.thumbnail_url}
           aspectRatio={16 / 9}
           objectFit="cover"
+          disableShare
         />
       )}
       {url && (
