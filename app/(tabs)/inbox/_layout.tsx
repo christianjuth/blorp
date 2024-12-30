@@ -6,7 +6,7 @@ import {
   PostHeader,
   StackHeader,
 } from "~/src/components/nav/headers";
-import { LinkContext } from "~/src/components/communities/link-context";
+import { LinkContext } from "~/src/components/nav/link-context";
 
 export default function Layout() {
   const theme = useTheme();
@@ -36,6 +36,15 @@ export default function Layout() {
 
         <Stack.Screen
           name="c/[communityName]/index"
+          options={{
+            title: "loading...",
+            header: (props) => <CommunityHeader {...props} />,
+            headerTransparent: true,
+          }}
+        />
+
+        <Stack.Screen
+          name="c/[communityName]/s/[search]"
           options={{
             title: "loading...",
             header: (props) => <CommunityHeader {...props} />,

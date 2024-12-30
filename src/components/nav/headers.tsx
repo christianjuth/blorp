@@ -7,7 +7,7 @@ import {
   HomeFilter,
   PostSortSelect,
 } from "../lemmy-sort";
-import { View, Text, Button, XStack } from "tamagui";
+import { View, Text, Button, XStack, Input, Form } from "tamagui";
 import { ChevronLeft, X } from "@tamagui/lucide-icons";
 import { BlurBackground } from "./blur-background";
 import Animated from "react-native-reanimated";
@@ -15,6 +15,9 @@ import { useCustomHeaderHeight } from "./hooks";
 import { useScrollContext } from "./scroll-animation-context";
 import { useMedia } from "tamagui";
 import { useAnimatedStyle, interpolate } from "react-native-reanimated";
+import { useRouter } from "one";
+import { useState } from "react";
+import { useLinkContext } from "./link-context";
 
 export function useHeaderAnimation() {
   const { scrollY } = useScrollContext();
@@ -99,6 +102,9 @@ export function HomeHeader(
 export function CommunityHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
+  const linkCtx = useLinkContext();
+
+  const router = useRouter();
   const styles = useHeaderAnimation();
 
   const params = props.route.params;
@@ -108,7 +114,15 @@ export function CommunityHeader(
     typeof params.communityName === "string"
       ? params.communityName
       : undefined;
+
+  const initSearch =
+    params && "search" in params && typeof params.search === "string"
+      ? params.search
+      : undefined;
+
   const { height, insetTop } = useCustomHeaderHeight();
+
+  const [search, setSearch] = useState(initSearch);
 
   return (
     <Animated.View style={[styles.container, { position: "relative" }]}>
@@ -123,12 +137,12 @@ export function CommunityHeader(
           w="unset"
           px="$3"
           ai="center"
-          pt={insetTop}
+          pt={insetTop - 10}
           h={height - 1}
           gap="$2"
           jc="space-between"
         >
-          <View ai="flex-start">
+          <View ai="flex-start" w="$2">
             {"back" in props && props.back && (
               <Button
                 unstyled
@@ -147,17 +161,33 @@ export function CommunityHeader(
             )}
           </View>
 
-          <Text
-            fontWeight="bold"
-            fontSize="$5"
-            numberOfLines={1}
-            textOverflow="ellipsis"
+          {/* <Text */}
+          {/*   fontWeight="bold" */}
+          {/*   fontSize="$5" */}
+          {/*   numberOfLines={1} */}
+          {/*   textOverflow="ellipsis" */}
+          {/*   flex={1} */}
+          {/*   textAlign="center" */}
+          {/* > */}
+          {/*   {communityName ?? "Home"} */}
+          {/* </Text> */}
+
+          <Input
+            bg="$color4"
+            br="$12"
+            h="$3"
+            bc="$color4"
+            placeholder={`Search ${communityName}`}
             flex={1}
-            textAlign="center"
-          >
-            {communityName ?? "Home"}
-          </Text>
-          <View ai="flex-end">
+            maxWidth={500}
+            value={search}
+            onChangeText={setSearch}
+            onSubmitEditing={() => {
+              router.push(`${linkCtx.root}c/${communityName}/s/${search}`);
+            }}
+          />
+
+          <View ai="center" w="$2">
             <PostSortSelect />
           </View>
         </XStack>

@@ -44,7 +44,7 @@ function SmallComunityCard({
 }
 
 export function PopularCommunitiesSidebar() {
-  const homeFilter = useFiltersStore((s) => s.homeFilter);
+  const listingType = useFiltersStore((s) => s.listingType);
 
   const header = useCustomHeaderHeight();
   const dimensions = useWindowDimensions();
@@ -52,7 +52,7 @@ export function PopularCommunitiesSidebar() {
   const { data } = useListCommunities({
     sort: "TopWeek",
     limit: 20,
-    type_: homeFilter,
+    type_: listingType,
   });
 
   const communities = data?.pages.map((p) => p.communities).flat();

@@ -35,7 +35,7 @@ export function PostComments({
   opId,
   myUserId,
   communityName,
-  commentId,
+  commentPath,
 }: {
   postId: number | string;
   commentViews: {
@@ -47,7 +47,7 @@ export function PostComments({
   opId: number | undefined;
   myUserId: number | undefined;
   communityName?: string;
-  commentId?: string;
+  commentPath?: string;
 }) {
   const header = useCustomHeaderHeight();
   const tabBar = useCustomTabBarHeight();
@@ -72,7 +72,7 @@ export function PostComments({
   const theme = useTheme();
 
   const structured = useMemo(() => {
-    const map = buildCommentMap(commentViews, commentId);
+    const map = buildCommentMap(commentViews, commentPath);
     const topLevelItems = _.entries(map).sort(
       ([id1, a], [id2, b]) => a.sort - b.sort,
     );
@@ -211,7 +211,7 @@ export function Post({
         communityName={communityName}
         onRefresh={refresh}
         refreshing={refreshing}
-        commentId={commentId}
+        commentPath={commentPath}
       />
     </CommentReplyContext>
   );

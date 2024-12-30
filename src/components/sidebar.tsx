@@ -34,6 +34,7 @@ function SmallComunityCard({
             jc="center"
           >
             <Text fontSize="$4" allowFontScaling>
+              {" "}
               {community.title.substring(0, 1)}
             </Text>
           </Avatar.Fallback>

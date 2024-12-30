@@ -11,7 +11,7 @@ import decimal from "@jsamr/counter-style/presets/decimal";
 import MarkedList from "@jsamr/react-native-li";
 import React, { useState, createContext, useContext, Fragment } from "react";
 import _ from "lodash";
-import { Image } from "./image";
+import { Image, shareImage } from "./image";
 import Md, {
   MarkdownIt,
   tokensToAST,
@@ -465,7 +465,19 @@ const renderRules: RenderRules = {
   image: (node) => {
     const { src, alt } = node.attributes;
     return (
-      <View key={node.key} w="100%" dsp="flex" fd="row" jc="flex-start">
+      <View
+        key={node.key}
+        w="100%"
+        dsp="flex"
+        fd="row"
+        jc="flex-start"
+        onLongPress={() => {
+          console.log(src);
+          if (typeof src === "string") {
+            shareImage(src);
+          }
+        }}
+      >
         <Image maxWidth={250} imageUrl={src} />
       </View>
     );

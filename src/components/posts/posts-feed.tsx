@@ -43,7 +43,10 @@ export function PostsFeed({
   const ref = useRef(null);
   useScrollToTop(ref);
 
-  const { communityName } = useParams<{ communityName: string }>();
+  const { communityName, search } = useParams<{
+    communityName: string;
+    search: string;
+  }>();
 
   const theme = useTheme();
 
@@ -86,6 +89,9 @@ export function PostsFeed({
         }
 
         if (item === "banner") {
+          if (search) {
+            return null;
+          }
           return (
             <FeedGutters transform={[{ translateY: header.height }]}>
               <CommunityBanner />

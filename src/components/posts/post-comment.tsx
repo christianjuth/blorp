@@ -69,7 +69,7 @@ export function PostComment({
   opId: number | undefined;
   myUserId: number | undefined;
   noBorder?: boolean;
-  communityName: string;
+  communityName?: string;
 }) {
   const replyCtx = useCommentReaplyContext();
   const [editing, setEditing] = useState(false);
@@ -262,6 +262,7 @@ export function PostComment({
             level={level + 1}
             opId={opId}
             myUserId={myUserId}
+            communityName={communityName}
           />
         ))}
       </View>
@@ -285,17 +286,26 @@ export function buildCommentMap(
   commentViews: {
     path: string;
   }[],
-  parentId?: string,
+  commentPath?: string,
 ) {
   const map: CommentMapTopLevel = {};
+
+  const firstCommentInPath = commentPath?.split(".")?.[0];
 
   let i = 0;
   for (const view of commentViews) {
     let loc = map;
     let viewPath = view.path;
 
-    if (parentId && viewPath.indexOf(parentId) > -1) {
-      viewPath = "0." + viewPath.substring(viewPath.indexOf(parentId));
+    if (firstCommentInPath && viewPath.indexOf(firstCommentInPath) > -1) {
+      viewPath =
+        "0." + viewPath.substring(viewPath.indexOf(firstCommentInPath));
+    }
+
+    if (commentPath && viewPath.length > commentPath.length) {
+      if (viewPath.indexOf(commentPath) === -1) {
+        continue;
+      }
     }
 
     const [_, ...path] = viewPath.split(".");
@@ -307,10 +317,13 @@ export function buildCommentMap(
     }
 
     const front = path.shift()!;
+
     loc[front] = loc[front] ?? {};
     loc[front].comment = view;
     loc[front].sort = i++;
   }
+
+  console.log(map);
 
   return map;
 }

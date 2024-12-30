@@ -2,18 +2,12 @@ import { View, Text, Avatar, YStack, XStack } from "tamagui";
 import { RelativeTime } from "~/src/components/relative-time";
 import { FlattenedPost } from "~/src/lib/lemmy";
 import { Link } from "one";
-import { useLinkContext } from "../communities/link-context";
+import { useLinkContext } from "../nav/link-context";
 import { ActionMenu } from "../ui/action-menu";
-import { Share } from "react-native";
+import { Share, Linking } from "react-native";
 import { Ellipsis } from "@tamagui/lucide-icons";
 
-export function PostByline({
-  postView,
-  detailView,
-}: {
-  postView: FlattenedPost;
-  detailView: boolean;
-}) {
+export function PostByline({ postView }: { postView: FlattenedPost }) {
   const { creator, community, post } = postView;
   const linkCtx = useLinkContext();
 
@@ -68,6 +62,16 @@ export function PostByline({
               Share.share({
                 url: `https://blorpblorp.xyz/c/${postView.community.slug}/posts/${postView.post.id}`,
               }),
+          },
+          {
+            label: "View original",
+            onClick: async () => {
+              const url = postView.post.ap_id;
+              const supported = await Linking.canOpenURL(url);
+              if (supported) {
+                Linking.openURL(url);
+              }
+            },
           },
         ]}
         trigger={<Ellipsis size={16} />}

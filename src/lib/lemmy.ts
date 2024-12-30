@@ -17,6 +17,7 @@ import {
   PostView,
   GetReplies,
   DeleteComment,
+  Search,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -149,18 +150,30 @@ export type FlattenedPost = {
   creator: Pick<Person, "id" | "name" | "avatar">;
   counts: Pick<PostAggregates, "score" | "comments">;
   imageDetails?: Pick<ImageDetails, "height" | "width">;
+  crossPosts?: Array<Omit<FlattenedPost, "crossPosts">>;
 };
 export type FlattenedGetPostResponse = {
   posts: FlattenedPost[];
 };
 
-function flattenPost(postView: PostView): FlattenedPost {
+function flattenPost({
+  post_view: postView,
+  cross_posts: crossPosts,
+}: {
+  post_view: PostView;
+  cross_posts?: Array<PostView>;
+}): FlattenedPost {
   const community = postView.community;
   const creator = postView.creator;
   const post = postView.post;
   return {
     myVote: postView.my_vote,
     post,
+    crossPosts: crossPosts?.map((post_view) =>
+      flattenPost({
+        post_view,
+      }),
+    ),
     community: {
       name: community.name,
       title: community.title,
@@ -226,7 +239,7 @@ export function usePost(form: { id?: string; communityName?: string }) {
       const res = await client.getPost({
         id: postId,
       });
-      const post = flattenPost(res.post_view);
+      const post = flattenPost(res);
       const cachedPost = cachePost(post);
       const thumbnail = res.post_view.post.thumbnail_url;
 
@@ -344,7 +357,7 @@ export function usePosts(form: GetPosts) {
         page_cursor: pageParam === "init" ? undefined : pageParam,
       });
 
-      const posts = res.posts.map(flattenPost);
+      const posts = res.posts.map((post_view) => flattenPost({ post_view }));
       const cachedPosts = cachePosts(posts);
 
       let i = 0;
@@ -504,7 +517,7 @@ export function useLikePost(postId: number) {
     onSuccess: (data) => {
       cachePost({
         ..._.omit(post, ["optimisticMyVote"]),
-        ...flattenPost(data.post_view),
+        ...flattenPost(data),
       });
     },
     onError: (err) => {
@@ -766,6 +779,81 @@ export function useReplies(form: GetReplies) {
     },
     initialPageParam: 1,
     getNextPageParam: (prev) => prev.nextPage,
+  });
+}
+
+export function useSearch(form: Search) {
+  const { client, queryKeyPrefix } = useLemmyClient();
+
+  const postSort = useFiltersStore((s) => s.postSort);
+  const sort = form.sort ?? postSort;
+
+  const queryKey = [...queryKeyPrefix, "search", form.q, sort];
+
+  if (form.community_name) {
+    queryKey.push("community", form.community_name);
+  }
+
+  if (form.type_) {
+    queryKey.push("type", form.type_);
+  }
+
+  const limit = form.limit ?? 50;
+
+  const search = useMemo(() => {
+    const throttle = throttledQueue(1, 1000 * 8);
+    return (form: Search) => throttle(() => client.search(form));
+  }, [client, queryKey]);
+
+  const cachePosts = usePostsStore((s) => s.cachePosts);
+  const patchPost = usePostsStore((s) => s.patchPost);
+
+  const cacheImages = useSettingsStore((s) => s.cacheImages);
+
+  return useInfiniteQuery({
+    queryKey,
+    queryFn: async ({ pageParam }) => {
+      const res = await search({
+        ...form,
+        page: pageParam,
+        limit,
+      });
+
+      const posts = res.posts.map((post_view) => flattenPost({ post_view }));
+      const cachedPosts = cachePosts(posts);
+
+      let i = 0;
+      for (const { post } of res.posts) {
+        const thumbnail = post.thumbnail_url;
+        if (thumbnail) {
+          setTimeout(() => {
+            if (!cachedPosts[post.id]?.data.imageDetails) {
+              measureImage(thumbnail).then((data) => {
+                patchPost(post.id, {
+                  imageDetails: data,
+                });
+              });
+            }
+            ExpoImage.prefetch([thumbnail], {
+              cachePolicy: cacheImages ? "disk" : "memory",
+            });
+          }, i);
+          i += 50;
+        }
+      }
+
+      return {
+        posts: posts.map((p) => p.post.id),
+        next_page: posts.length < limit ? null : pageParam + 1,
+      };
+    },
+    getNextPageParam: (lastPage) => lastPage.next_page,
+    initialPageParam: 1,
+    notifyOnChangeProps: "all",
+    staleTime: 1000 * 60 * 5,
+    // refetchOnWindowFocus: false,
+    // refetchOnMount: true,
+    // staleTime: Infinity,
   });
 }
 

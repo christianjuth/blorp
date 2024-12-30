@@ -1,14 +1,15 @@
 import { Text, View, XStack, YStack } from "tamagui";
-import { Image } from "~/src/components/image";
+import { Image, shareImage } from "~/src/components/image";
 import { PostCommentsButton, Voting } from "./post-buttons";
 import { Link } from "one";
 import { PostByline } from "./post-byline";
 import { useState } from "react";
 import { usePostsStore } from "~/src/stores/posts";
-import { useLinkContext } from "../communities/link-context";
+import { useLinkContext } from "../nav/link-context";
 import { PostArticleEmbed } from "./post-article-embed";
 import { Markdown } from "~/src/components/markdown";
 import { PostVideoEmbed } from "./post-video-embed";
+import { Pressable } from "react-native";
 import { useCommentReaplyContext } from "../comments/comment-reply-modal";
 
 export function PostCard({
@@ -20,18 +21,17 @@ export function PostCard({
 }) {
   const replyCtx = useCommentReaplyContext();
   const linkCtx = useLinkContext();
-  const postView = usePostsStore((s) => s.posts[postId]?.data);
-
   const [pressed, setPressed] = useState(false);
-
-  const imageDetails = postView?.imageDetails;
-  const aspectRatio = imageDetails
-    ? imageDetails.width / imageDetails.height
-    : undefined;
+  let postView = usePostsStore((s) => s.posts[postId]?.data);
 
   if (!postView) {
     return null;
   }
+
+  const imageDetails = postView.imageDetails;
+  const aspectRatio = imageDetails
+    ? imageDetails.width / imageDetails.height
+    : undefined;
 
   const { community, post } = postView;
   const body = post?.body;
@@ -49,7 +49,13 @@ export function PostCard({
   const postDetailsLink =
     `${linkCtx.root}c/${community.slug}/posts/${post.id}` as const;
 
-  const content = (
+  const crossPost = detailView
+    ? postView.crossPosts?.find(
+        ({ post }) => post.published.localeCompare(postView.post.published) < 0,
+      )
+    : undefined;
+
+  const titleWithOptionalImage = (
     <YStack gap="$1">
       <Text fontWeight={500} fontSize="$6" lineHeight="$3">
         {post.name}
@@ -61,6 +67,41 @@ export function PostCard({
         </View>
       )}
     </YStack>
+  );
+
+  const preview = (
+    <>
+      {detailView ? (
+        <Pressable
+          onLongPress={() => {
+            if (embedType === "image" && post.thumbnail_url) {
+              shareImage(post.thumbnail_url);
+            }
+          }}
+        >
+          {titleWithOptionalImage}
+        </Pressable>
+      ) : (
+        <Link
+          href={postDetailsLink}
+          onPressIn={() => setPressed(true)}
+          onPressOut={() => setPressed(false)}
+          asChild
+          onLongPress={() => {
+            if (embedType === "image" && post.thumbnail_url) {
+              shareImage(post.thumbnail_url);
+            }
+          }}
+        >
+          <View tag="a">{titleWithOptionalImage}</View>
+        </Link>
+      )}
+
+      {embedType === "article" && <PostArticleEmbed postView={postView} />}
+      {embedType === "video" && post.url && (
+        <PostVideoEmbed url={post.url} autoPlay={detailView} />
+      )}
+    </>
   );
 
   return (
@@ -81,22 +122,27 @@ export function PostCard({
     >
       <PostByline postView={postView} />
 
-      {detailView ? (
-        content
-      ) : (
+      {crossPost ? (
         <Link
-          href={postDetailsLink}
-          onPressIn={() => setPressed(true)}
-          onPressOut={() => setPressed(false)}
-          asChild
+          href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${crossPost.post.id}`}
         >
-          <View tag="a">{content}</View>
+          <YStack bg="$color4" br="$3">
+            <Text p="$2" color="$color11" fontSize="$3">
+              {crossPost.post.name}
+            </Text>
+            <View mx="$2.5">{preview}</View>
+            <XStack gap="$3">
+              <Text p="$2" color="$color11" fontSize="$3">
+                {crossPost.community.name}
+              </Text>
+              <Text p="$2" color="$color11" fontSize="$3">
+                {crossPost.counts.score}
+              </Text>
+            </XStack>
+          </YStack>
         </Link>
-      )}
-
-      {embedType === "article" && <PostArticleEmbed postView={postView} />}
-      {embedType === "video" && post.url && (
-        <PostVideoEmbed url={post.url} autoPlay={detailView} />
+      ) : (
+        preview
       )}
 
       {detailView && body && <Markdown markdown={body} />}

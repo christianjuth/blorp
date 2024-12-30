@@ -11,10 +11,19 @@ export const useCustomHeaderHeight = () => {
     default: 65, // Default header height for web or other platforms
   });
 
+  const insetOffset = Platform.select({
+    ios: 8, // Default header height on iOS
+    android: 0, // Default header height on Android
+    default: 0, // Default header height for web or other platforms
+  });
+
   // Add safe area top inset to ensure the header accounts for the status bar
   const height = defaultHeaderHeight + insets.top;
+
+  const insetTop = Math.max(insets.top - insetOffset, 0);
+
   return {
     height,
-    insetTop: insets.top,
+    insetTop,
   };
 };

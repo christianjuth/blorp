@@ -1,4 +1,4 @@
-import { View, Text, Button, YStack, XStack, ScrollView } from "tamagui";
+import { View, Text, Button, YStack, XStack, ScrollView, isWeb } from "tamagui";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Switch } from "tamagui";
@@ -103,7 +103,7 @@ export default function SettingsPage() {
         <YStack flex={1} gap="$2">
           <Text p="$2">ACCOUNT</Text>
 
-          <YStack bg="$color2" br="$4">
+          <YStack bg="$color3" br="$4">
             <SettingsButton onClick={isLoggedIn ? logout : requireAuth}>
               {isLoggedIn ? "Logout" : "Login"}
             </SettingsButton>
@@ -111,10 +111,13 @@ export default function SettingsPage() {
 
           <Text p="$2">OTHER</Text>
 
-          <YStack bg="$color2" br="$4">
+          <YStack bg="$color3" br="$4">
             <SettingsToggle
-              value={settings.cacheImages}
+              value={isWeb ? false : settings.cacheImages}
               onToggle={(newVal) => {
+                if (isWeb) {
+                  return;
+                }
                 settings.setCacheImages(newVal);
                 if (!newVal) {
                   ExpoImage.clearDiskCache();

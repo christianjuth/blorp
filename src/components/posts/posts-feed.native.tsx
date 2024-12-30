@@ -40,7 +40,10 @@ export function PostsFeed({
   const ref = useRef(null);
   useScrollToTop(ref);
 
-  const { communityName } = useParams<{ communityName: string }>();
+  const { communityName, search } = useParams<{
+    communityName: string;
+    search: string;
+  }>();
 
   const theme = useTheme();
 
@@ -114,7 +117,7 @@ export function PostsFeed({
         }
       }}
       ListHeaderComponent={() => (
-        <FeedGutters>
+        <FeedGutters dsp={search ? "none" : undefined}>
           <CommunityBanner />
         </FeedGutters>
       )}

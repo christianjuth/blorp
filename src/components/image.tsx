@@ -9,7 +9,7 @@ import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { impactAsync, ImpactFeedbackStyle } from "~/src/lib/haptics";
 
-const shareImage = async (imageUrl: string) => {
+export const shareImage = async (imageUrl: string) => {
   try {
     // Download the image to a local file
     const fileUri = `${FileSystem.cacheDirectory}shared-image.jpg`;
@@ -103,36 +103,27 @@ export function Image({
   }
 
   return (
-    <Pressable
-      onLongPress={() => {
-        if (!disableShare) {
-          shareImage(imageUrl);
-        }
+    <ExpoImage
+      key={imageUrl}
+      source={{ uri: imageUrl }}
+      style={{
+        // Don't use flex 1
+        // it causes issues on native
+        aspectRatio: calculatedAspectRatio,
+        backgroundColor: theme.gray3.val,
+        width: maxWidth ? maxWidth : "100%",
+        maxWidth: "100%",
+        height: undefined,
       }}
-      delayLongPress={200}
-    >
-      <ExpoImage
-        key={imageUrl}
-        source={{ uri: imageUrl }}
-        style={{
-          // Don't use flex 1
-          // it causes issues on native
-          aspectRatio: calculatedAspectRatio,
-          backgroundColor: theme.gray3.val,
-          width: maxWidth ? maxWidth : "100%",
-          maxWidth: "100%",
-          height: undefined,
-        }}
-        contentFit={objectFit}
-        cachePolicy={cacheImages ? "disk" : "memory"}
-        onLoad={({ source }) => {
-          setDimensions({
-            height: source.height,
-            width: source.width,
-          });
-        }}
-        priority={priority ? "high" : undefined}
-      />
-    </Pressable>
+      contentFit={objectFit}
+      cachePolicy={cacheImages ? "disk" : "memory"}
+      onLoad={({ source }) => {
+        setDimensions({
+          height: source.height,
+          width: source.width,
+        });
+      }}
+      priority={priority ? "high" : undefined}
+    />
   );
 }
