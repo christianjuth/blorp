@@ -68,7 +68,7 @@ export function PopularCommunitiesSidebar() {
       bg="$background"
     >
       <ScrollView
-        bg="$color3"
+        bg="$color2"
         $theme-dark={{
           bg: "$background",
         }}

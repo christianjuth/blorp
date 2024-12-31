@@ -8,7 +8,7 @@ import { useAuth } from "~/src/stores/auth";
 import { useRequireAuth } from "~/src/components/auth-context";
 import { Image as ExpoImage } from "expo-image";
 import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
-import { FeedGutters } from "~/src/components/feed-gutters";
+import { ContentGutters } from "~/src/components/gutters";
 import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
 
 function SettingsButton({
@@ -99,7 +99,7 @@ export default function SettingsPage() {
       bg="$background"
       p="$4"
     >
-      <FeedGutters>
+      <ContentGutters>
         <YStack flex={1} gap="$2">
           <Text p="$2">ACCOUNT</Text>
 
@@ -146,7 +146,7 @@ export default function SettingsPage() {
             </SettingsButton>
           </YStack>
         </YStack>
-      </FeedGutters>
+      </ContentGutters>
     </ScrollView>
   );
 }

@@ -25,19 +25,24 @@ import {
   InfiniteData,
   useQueryClient,
   useMutation,
+  UseInfiniteQueryOptions,
+  DefaultError,
+  QueryKey,
+  UseInfiniteQueryResult,
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
 import { Image as RNImage } from "react-native";
 import { useFiltersStore } from "~/src/stores/filters";
 import { useAuth } from "../stores/auth";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Image as ExpoImage } from "expo-image";
 import _ from "lodash";
-import throttledQueue from "throttled-queue";
 import { usePostsStore } from "../stores/posts";
 import { useSettingsStore } from "../stores/settings";
 import { z } from "zod";
 import { useCommentsStore } from "../stores/comments";
+import { useThrottleQueue } from "./throttle-queue";
+import { useIsFocused } from "@react-navigation/native";
 
 function getLemmyServer({ actor_id }: { actor_id: string }) {
   const server = new URL(actor_id);
@@ -236,6 +241,7 @@ export function usePost(form: { id?: string; communityName?: string }) {
       if (!postId) {
         throw new Error("Missing post id");
       }
+
       const res = await client.getPost({
         id: postId,
       });
@@ -282,7 +288,7 @@ export function usePostComments(form: GetComments) {
     queryKey.push("parent", String(form.parent_id));
   }
 
-  return useInfiniteQuery({
+  return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
@@ -333,27 +339,17 @@ export function usePosts(form: GetPosts) {
     queryKey.push("type", form.type_);
   }
 
-  const getPosts = useMemo(() => {
-    const throttle = throttledQueue(1, 1000 * 8);
-    return (form: GetPosts) =>
-      throttle(() =>
-        client.getPosts({
-          ...form,
-          show_read: true,
-        }),
-      );
-  }, [client, queryKey]);
-
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const patchPost = usePostsStore((s) => s.patchPost);
 
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
-  return useInfiniteQuery({
+  return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await getPosts({
+      const res = await client.getPosts({
         ...form,
+        show_read: true,
         page_cursor: pageParam === "init" ? undefined : pageParam,
       });
 
@@ -395,6 +391,60 @@ export function usePosts(form: GetPosts) {
   });
 }
 
+function useThrottledInfiniteQuery<
+  TQueryFnData,
+  TError = DefaultError,
+  TData = InfiniteData<TQueryFnData>,
+  TQueryKey extends QueryKey = QueryKey,
+  TPageParam = unknown,
+>(
+  options: UseInfiniteQueryOptions<
+    TQueryFnData,
+    TError,
+    TData,
+    TQueryFnData,
+    TQueryKey,
+    TPageParam
+  >,
+): UseInfiniteQueryResult<TData, TError> {
+  const throttleQueue = useThrottleQueue(options.queryKey);
+  const queryFn = options.queryFn;
+
+  const focused = useIsFocused();
+
+  useEffect(() => {
+    if (focused) {
+      throttleQueue.play();
+    } else {
+      throttleQueue.pause();
+    }
+  }, [throttleQueue, focused]);
+
+  const query = useInfiniteQuery({
+    ...options,
+    ...(_.isFunction(queryFn)
+      ? {
+          queryFn: (ctx: any) => {
+            return throttleQueue.enqueue<TQueryFnData>(
+              async () => await queryFn(ctx),
+            );
+          },
+        }
+      : {}),
+  });
+  return {
+    ...query,
+    fetchNextPage: () => {
+      if (focused) {
+        const p = query.fetchNextPage();
+        throttleQueue.flush();
+        return p;
+      }
+      return undefined as any;
+    },
+  };
+}
+
 export function useListCommunities(form: ListCommunities) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
@@ -412,7 +462,7 @@ export function useListCommunities(form: ListCommunities) {
     queryKey.push("type", form.type_);
   }
 
-  return useInfiniteQuery({
+  return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
@@ -767,7 +817,7 @@ export function useDeleteComment() {
 
 export function useReplies(form: GetReplies) {
   const { client, queryKeyPrefix } = useLemmyClient();
-  return useInfiniteQuery({
+  return useThrottledInfiniteQuery({
     queryKey: [...queryKeyPrefix, "getReplies"],
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
@@ -810,7 +860,7 @@ export function useSearch(form: Search) {
 
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
-  return useInfiniteQuery({
+  return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const res = await search({

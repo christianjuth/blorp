@@ -24,7 +24,7 @@ export function CommunityBanner() {
         style={{
           aspectRatio: 5,
           objectFit: "cover",
-          // borderRadius: 12,
+          borderRadius: 12,
           backgroundColor: "#eee",
           width: "100%",
         }}
@@ -39,7 +39,7 @@ export function CommunityBanner() {
         l="$4"
         transform={[
           {
-            translateY: -40,
+            translateY: -60,
           },
         ]}
         borderRadius="$12"

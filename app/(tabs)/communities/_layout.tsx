@@ -3,7 +3,7 @@ import { useTheme } from "tamagui";
 
 import {
   CommunityHeader,
-  CommunitysHeader,
+  CommunitiesHeader,
   PostHeader,
 } from "~/src/components/nav/headers";
 import { LinkContext } from "~/src/components/nav/link-context";
@@ -29,7 +29,7 @@ export default function Layout() {
           name="index"
           options={{
             title: "Communities",
-            header: (props) => <CommunitysHeader {...props} />,
+            header: (props) => <CommunitiesHeader {...props} />,
             headerTransparent: true,
           }}
         />

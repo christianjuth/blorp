@@ -20,3 +20,7 @@ export function Feed() {
 
   return <PostsFeed posts={posts} />;
 }
+
+export async function generateStaticParams() {
+  return [];
+}

@@ -7,7 +7,7 @@ import {
   HomeFilter,
   PostSortSelect,
 } from "../lemmy-sort";
-import { View, Text, Button, XStack, Input, Form } from "tamagui";
+import { View, Text, Button, XStack, Input, Avatar } from "tamagui";
 import { ChevronLeft, X } from "@tamagui/lucide-icons";
 import { BlurBackground } from "./blur-background";
 import Animated from "react-native-reanimated";
@@ -15,9 +15,63 @@ import { useCustomHeaderHeight } from "./hooks";
 import { useScrollContext } from "./scroll-animation-context";
 import { useMedia } from "tamagui";
 import { useAnimatedStyle, interpolate } from "react-native-reanimated";
-import { useRouter } from "one";
+import { Link, useRouter } from "one";
 import { useState } from "react";
 import { useLinkContext } from "./link-context";
+import { MagnafineGlass } from "../icons";
+import { ContentGutters } from "../gutters";
+import { useAuth } from "~/src/stores/auth";
+import { HeaderGutters } from "../gutters";
+
+function UserAvatar() {
+  const user = useAuth((s) => s.site?.my_user?.local_user_view.person);
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <Avatar size={25}>
+      <Avatar.Image src={user.avatar} borderRadius="$12" />
+      <Avatar.Fallback
+        backgroundColor="$color8"
+        borderRadius="$12"
+        ai="center"
+        jc="center"
+      >
+        <Text fontSize="$1">{user.name?.substring(0, 1).toUpperCase()}</Text>
+      </Avatar.Fallback>
+    </Avatar>
+  );
+}
+
+function SearchBar() {
+  const linkCtx = useLinkContext();
+  const router = useRouter();
+  const [search, setSearch] = useState("");
+  return (
+    <Input
+      bg="$color4"
+      bw={0}
+      $gtMd={{
+        opacity: 0.7,
+      }}
+      $md={{
+        dsp: "none",
+      }}
+      br="$12"
+      h="$3"
+      bc="$color4"
+      placeholder={`Search`}
+      flex={1}
+      value={search}
+      onChangeText={setSearch}
+      onSubmitEditing={() => {
+        router.push(`${linkCtx.root}s/${search}`);
+      }}
+    />
+  );
+}
 
 export function useHeaderAnimation() {
   const { scrollY } = useScrollContext();
@@ -53,6 +107,8 @@ export function useHeaderAnimation() {
 export function HomeHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
+  const linkCtx = useLinkContext();
+
   const styles = useHeaderAnimation();
   const { height, insetTop } = useCustomHeaderHeight();
 
@@ -61,39 +117,44 @@ export function HomeHeader(
       <BlurBackground />
 
       <Animated.View style={styles.content}>
-        <XStack
-          bbc="$color4"
-          bbw={0.5}
-          w="unset"
-          px="$3"
-          ai="center"
-          pt={insetTop}
-          h={height - 1}
-          pos="relative"
-        >
-          <View flex={1} flexBasis={0} ai="flex-start">
-            {"back" in props && props.back && (
-              <Button
-                unstyled
-                p={2}
-                bg="transparent"
-                borderRadius="$12"
-                dsp="flex"
-                fd="row"
-                ai="center"
-                bw={0}
-                onPress={() => props.navigation.pop(1)}
-                h="auto"
-              >
-                <ChevronLeft color="$color1" size="$2" />
-              </Button>
-            )}
-          </View>
-          <HomeFilter />
-          <View flex={1} flexBasis={0} ai="flex-end">
-            <PostSortSelect />
-          </View>
-        </XStack>
+        <View bbc="$color4" bbw={0.5} w="100%">
+          <HeaderGutters
+            ai="center"
+            pt={insetTop}
+            h={height - 1}
+            pos="relative"
+            px="$3"
+            jc="space-between"
+          >
+            <>
+              {"back" in props && props.back && (
+                <Button
+                  unstyled
+                  p={0}
+                  bg="transparent"
+                  borderRadius="$12"
+                  dsp="flex"
+                  fd="row"
+                  ai="center"
+                  bw={0}
+                  onPress={() => props.navigation.pop(1)}
+                  h="auto"
+                >
+                  <ChevronLeft color="$accentColor" size="$1.5" />
+                </Button>
+              )}
+              <HomeFilter />
+            </>
+            <SearchBar />
+            <>
+              {/* <Link href={`${linkCtx.root}s/q`}> */}
+              {/*   <MagnafineGlass /> */}
+              {/* </Link> */}
+              <PostSortSelect />
+              <UserAvatar />
+            </>
+          </HeaderGutters>
+        </View>
       </Animated.View>
     </Animated.View>
   );
@@ -129,119 +190,160 @@ export function CommunityHeader(
       <BlurBackground />
 
       <Animated.View style={styles.content}>
-        <XStack
-          bbc="$color4"
-          bbw={0.5}
-          btw={0}
-          btc="transparent"
-          w="unset"
-          px="$3"
-          ai="center"
-          pt={insetTop - 10}
-          h={height - 1}
-          gap="$2"
-          jc="space-between"
-        >
-          <View ai="flex-start" w="$2">
-            {"back" in props && props.back && (
-              <Button
-                unstyled
-                p={2}
-                bg="transparent"
-                borderRadius="$12"
-                dsp="flex"
-                fd="row"
-                ai="center"
-                bw={0}
-                onPress={() => props.navigation.pop(1)}
-                h="auto"
-              >
-                <ChevronLeft color="$accentColor" size="$2" />
-              </Button>
-            )}
-          </View>
+        <View bbc="$color4" bbw={0.5} w="100%">
+          <HeaderGutters pt={insetTop} h={height - 1}>
+            <>
+              {"back" in props && props.back && (
+                <Button
+                  unstyled
+                  p={2}
+                  bg="transparent"
+                  borderRadius="$12"
+                  dsp="flex"
+                  fd="row"
+                  ai="center"
+                  bw={0}
+                  onPress={() => props.navigation.pop(1)}
+                  h="auto"
+                >
+                  <ChevronLeft color="$accentColor" size="$2" />
+                </Button>
+              )}
+            </>
 
-          {/* <Text */}
-          {/*   fontWeight="bold" */}
-          {/*   fontSize="$5" */}
-          {/*   numberOfLines={1} */}
-          {/*   textOverflow="ellipsis" */}
-          {/*   flex={1} */}
-          {/*   textAlign="center" */}
-          {/* > */}
-          {/*   {communityName ?? "Home"} */}
-          {/* </Text> */}
+            <Input
+              bg="$color4"
+              br="$12"
+              h="$3"
+              bc="$color4"
+              placeholder={`Search ${communityName}`}
+              flex={1}
+              maxWidth={500}
+              value={search}
+              onChangeText={setSearch}
+              onSubmitEditing={() => {
+                router.push(`${linkCtx.root}c/${communityName}/s/${search}`);
+              }}
+            />
 
-          <Input
-            bg="$color4"
-            br="$12"
-            h="$3"
-            bc="$color4"
-            placeholder={`Search ${communityName}`}
-            flex={1}
-            maxWidth={500}
-            value={search}
-            onChangeText={setSearch}
-            onSubmitEditing={() => {
-              router.push(`${linkCtx.root}c/${communityName}/s/${search}`);
-            }}
-          />
-
-          <View ai="center" w="$2">
-            <PostSortSelect />
-          </View>
-        </XStack>
+            <>
+              <PostSortSelect />
+              <UserAvatar />
+            </>
+          </HeaderGutters>
+        </View>
       </Animated.View>
     </Animated.View>
   );
 }
 
-export function CommunitysHeader(
+export function SearchHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
+  const linkCtx = useLinkContext();
+
+  const router = useRouter();
   const styles = useHeaderAnimation();
+
+  const params = props.route.params;
+  const communityName =
+    params &&
+    "communityName" in params &&
+    typeof params.communityName === "string"
+      ? params.communityName
+      : undefined;
+
+  const initSearch =
+    params && "search" in params && typeof params.search === "string"
+      ? params.search
+      : undefined;
+
   const { height, insetTop } = useCustomHeaderHeight();
+
+  const [search, setSearch] = useState(initSearch);
+
   return (
     <Animated.View style={[styles.container, { position: "relative" }]}>
       <BlurBackground />
 
       <Animated.View style={styles.content}>
-        <XStack
-          bbc="$color4"
-          bbw={0.5}
-          btw={0}
-          btc="transparent"
-          w="unset"
-          px="$3"
-          ai="center"
-          pt={insetTop}
-          h={height - 1}
-        >
-          <View flex={1} flexBasis={0} ai="flex-start">
-            {"back" in props && props.back && (
-              <Button
-                unstyled
-                p={2}
-                bg="transparent"
-                borderRadius="$12"
-                dsp="flex"
-                fd="row"
-                ai="center"
-                bw={0}
-                onPress={() => props.navigation.pop(1)}
-                h="auto"
-              >
-                <ChevronLeft color="$accentColor" size="$2" />
-              </Button>
-            )}
-          </View>
-          <CommunityFilter />
-          <View flex={1} flexBasis={0} ai="flex-end">
-            <CommunitySortSelect />
-          </View>
-        </XStack>
+        <View bbc="$color4" bbw={0.5} w="100%">
+          <ContentGutters
+            ai="center"
+            pt={insetTop}
+            h={height - 1}
+            pos="relative"
+            // flex={1}
+            fd="row"
+            px="$3"
+            gap="$2.5"
+            jc="space-between"
+          >
+            <>
+              <View w="33%">
+                {"back" in props && props.back && (
+                  <Button
+                    unstyled
+                    p={0}
+                    bg="transparent"
+                    borderRadius="$12"
+                    dsp="flex"
+                    fd="row"
+                    ai="center"
+                    bw={0}
+                    onPress={() => props.navigation.pop(1)}
+                    h="auto"
+                  >
+                    <ChevronLeft color="$accentColor" size="$1.5" />
+                  </Button>
+                )}
+              </View>
+              <SearchBar />
+              <XStack w="33%" jc="flex-end" ai="center" gap="$3">
+                {/* <Link href={`${linkCtx.root}s/q`}> */}
+                {/*   <MagnafineGlass /> */}
+                {/* </Link> */}
+                <PostSortSelect />
+                <UserAvatar />
+              </XStack>
+            </>
+          </ContentGutters>
+        </View>
       </Animated.View>
     </Animated.View>
+  );
+}
+
+export function CommunitiesHeader(
+  props: NativeStackHeaderProps | BottomTabHeaderProps,
+) {
+  const { height, insetTop } = useCustomHeaderHeight();
+  return (
+    <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
+      <BlurBackground />
+      <HeaderGutters pt={insetTop} h={height - 1}>
+        <>
+          {"back" in props && props.back && (
+            <Button
+              unstyled
+              p={2}
+              bg="transparent"
+              borderRadius="$12"
+              dsp="flex"
+              fd="row"
+              ai="center"
+              bw={0}
+              onPress={() => props.navigation.pop(1)}
+              h="auto"
+            >
+              <ChevronLeft color="$accentColor" size="$2" />
+            </Button>
+          )}
+        </>
+        <CommunityFilter />
+        <CommunitySortSelect />
+      </HeaderGutters>
+    </View>
   );
 }
 
@@ -258,45 +360,33 @@ export function PostHeader(
 
   const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <XStack
-      bbc="$color4"
-      bbw={0.5}
-      btw={0}
-      btc="transparent"
-      w="unset"
-      px="$3"
-      ai="center"
-      pt={insetTop}
-      h={height - 1}
-      pos="relative"
-    >
+    <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
       <BlurBackground />
-
-      <View flex={1} flexBasis={0} ai="flex-start">
-        {"back" in props && props.back && (
-          <Button
-            unstyled
-            p={2}
-            bg="transparent"
-            borderRadius="$12"
-            dsp="flex"
-            fd="row"
-            ai="center"
-            bw={0}
-            onPress={() => props.navigation.pop(1)}
-            h="auto"
-          >
-            <ChevronLeft color="$accentColor" size="$2" />
-          </Button>
-        )}
-      </View>
-      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-        {communityName}
-      </Text>
-      <View flex={1} flexBasis={0} ai="flex-end">
+      <HeaderGutters pt={insetTop} h={height - 1}>
+        <>
+          {"back" in props && props.back && (
+            <Button
+              unstyled
+              p={2}
+              bg="transparent"
+              borderRadius="$12"
+              dsp="flex"
+              fd="row"
+              ai="center"
+              bw={0}
+              onPress={() => props.navigation.pop(1)}
+              h="auto"
+            >
+              <ChevronLeft color="$accentColor" size="$2" />
+            </Button>
+          )}
+        </>
+        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+          {communityName}
+        </Text>
         <ComentSortSelect />
-      </View>
-    </XStack>
+      </HeaderGutters>
+    </View>
   );
 }
 

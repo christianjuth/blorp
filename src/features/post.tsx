@@ -7,20 +7,18 @@ import { useEffect } from "react";
 import { usePost, usePostComments } from "~/src/lib/lemmy";
 import { PostCard } from "~/src/components/posts/post";
 import { Sidebar } from "~/src/components/communities/community-sidebar";
-import { FeedGutters } from "../components/feed-gutters";
+import { ContentGutters } from "../components/gutters";
+
 import { memo, useMemo } from "react";
-import { useTheme, View, YStack } from "tamagui";
+import { isWeb, useTheme, View } from "tamagui";
 import _ from "lodash";
-import { FlatList } from "react-native";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
 import { useCustomHeaderHeight } from "../components/nav/hooks";
-import {
-  CommentReplyContext,
-  InlineCommentReply,
-} from "../components/comments/comment-reply-modal";
+import { CommentReplyContext } from "../components/comments/comment-reply-modal";
 import { useAuth } from "../stores/auth";
 import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
+import { FlashList } from "../components/flashlist";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -35,7 +33,7 @@ export function PostComments({
   opId,
   myUserId,
   communityName,
-  commentPath,
+  commentId,
 }: {
   postId: number | string;
   commentViews: {
@@ -47,13 +45,12 @@ export function PostComments({
   opId: number | undefined;
   myUserId: number | undefined;
   communityName?: string;
-  commentPath?: string;
+  commentId?: string;
 }) {
   const header = useCustomHeaderHeight();
   const tabBar = useCustomTabBarHeight();
 
   const navigation = useNavigation();
-
   useFocusEffect(() => {
     const parent = navigation.getParent();
     parent?.setOptions({ tabBarStyle: { display: "none" } });
@@ -72,66 +69,80 @@ export function PostComments({
   const theme = useTheme();
 
   const structured = useMemo(() => {
-    const map = buildCommentMap(commentViews, commentPath);
+    const map = buildCommentMap(commentViews, commentId);
     const topLevelItems = _.entries(map).sort(
       ([id1, a], [id2, b]) => a.sort - b.sort,
     );
     return { map, topLevelItems };
   }, [commentViews]);
 
+  const lastComment = structured.topLevelItems.at(-1);
+
   return (
-    <FlatList
+    <FlashList
       ref={ref}
       data={["sidebar", "post", ...structured.topLevelItems] as const}
       renderItem={({ item }) => {
         if (item === "sidebar") {
           return (
-            <FeedGutters pt={header.height}>
+            <ContentGutters $platform-web={{ pt: header.height }}>
               <View flex={1} />
               {communityName ? (
                 <Sidebar communityName={communityName} />
               ) : (
                 <></>
               )}
-            </FeedGutters>
+            </ContentGutters>
           );
         }
 
         if (item === "post") {
           return (
-            <FeedGutters>
-              <YStack flex={1}>
-                <PostCard postId={postId} detailView />
-                <InlineCommentReply postId={postId} />
-              </YStack>
+            <ContentGutters>
+              <PostCard postId={postId} detailView />
               <></>
-            </FeedGutters>
+            </ContentGutters>
           );
         }
 
         return (
-          <FeedGutters>
+          <ContentGutters>
             <MemoedPostComment
               commentMap={item[1]}
               level={0}
               opId={opId}
               myUserId={myUserId}
+              noBorder={item[0] === lastComment?.[0]}
               communityName={communityName}
             />
             <></>
-          </FeedGutters>
+          </ContentGutters>
         );
       }}
       keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
       onEndReached={loadMore}
       onEndReachedThreshold={0.5}
-      contentContainerStyle={{
-        backgroundColor: theme.background.val,
-        paddingBottom: tabBar.height,
-      }}
+      // contentContainerStyle={
+      //   isWeb
+      //     ? {
+      //         top: header.height,
+      //         bottom: tabBar.height,
+      //       }
+      //     : undefined
+      // }
       stickyHeaderIndices={[0]}
+      contentInset={{
+        top: header.height,
+        bottom: tabBar.height,
+      }}
+      scrollIndicatorInsets={{
+        top: header.height,
+        bottom: tabBar.height,
+      }}
+      automaticallyAdjustsScrollIndicatorInsets={false}
       onRefresh={onRefresh}
       refreshing={refreshing}
+      estimatedItemSize={450}
     />
   );
 }
@@ -176,7 +187,7 @@ export function Post({
         .flat()
         .sort((a, b) => {
           if (b.creatorId === myUserId) {
-            return 1;
+            return -1;
           }
           return 0;
         })
@@ -211,7 +222,7 @@ export function Post({
         communityName={communityName}
         onRefresh={refresh}
         refreshing={refreshing}
-        commentPath={commentPath}
+        commentId={commentId}
       />
     </CommentReplyContext>
   );

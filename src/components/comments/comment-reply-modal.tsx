@@ -18,7 +18,7 @@ import {
   useCreateComment,
   useEditComment,
 } from "~/src/lib/lemmy";
-import { FeedGutters } from "../feed-gutters";
+import { ContentGutters } from "../gutters";
 import _ from "lodash";
 
 const Context = createContext<{
@@ -130,7 +130,7 @@ export function CommentReplyContext({
             dsp: "none",
           }}
         >
-          <FeedGutters w="100%">
+          <ContentGutters w="100%">
             <View
               btw={0.5}
               bc="$color4"
@@ -203,7 +203,7 @@ export function CommentReplyContext({
               </YStack>
             </View>
             <></>
-          </FeedGutters>
+          </ContentGutters>
         </Form>
       </KeyboardAvoidingView>
     </Context.Provider>

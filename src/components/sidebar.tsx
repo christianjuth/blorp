@@ -101,13 +101,6 @@ export function Sidebar() {
           </XStack>
         </Link>
 
-        <Link href={routes.settings} replace asChild>
-          <XStack ai="center" gap="$2.5" tag="a">
-            <Settings color="$color11" />
-            <Text color="$color11">Settings</Text>
-          </XStack>
-        </Link>
-
         <View h={1} flex={1} bg="$color4" my="$2" />
 
         <Text color="$color10" fontSize="$3">
@@ -116,6 +109,15 @@ export function Sidebar() {
         {communities.map((c) => (
           <SmallComunityCard key={c.id} community={c} />
         ))}
+
+        <View h={1} flex={1} bg="$color4" my="$2" />
+
+        <Link href={routes.settings} replace asChild>
+          <XStack ai="center" gap="$2.5" tag="a">
+            <Settings color="$color11" />
+            <Text color="$color11">Settings</Text>
+          </XStack>
+        </Link>
       </YStack>
     </>
   );

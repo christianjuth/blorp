@@ -12,7 +12,7 @@ export const useCustomHeaderHeight = () => {
   });
 
   const insetOffset = Platform.select({
-    ios: 8, // Default header height on iOS
+    ios: 5, // Default header height on iOS
     android: 0, // Default header height on Android
     default: 0, // Default header height for web or other platforms
   });

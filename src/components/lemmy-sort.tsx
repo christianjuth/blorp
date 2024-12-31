@@ -15,7 +15,7 @@ import {
 } from "@tamagui/lucide-icons";
 import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 import { useFiltersStore } from "~/src/stores/filters";
-import { Text, useTheme, XStack } from "tamagui";
+import { Text, useTheme, View, XStack } from "tamagui";
 import { ComponentProps, useMemo } from "react";
 import { useAuth } from "../stores/auth";
 
@@ -195,13 +195,39 @@ export function PostSortSelect() {
   }
 
   return (
-    <Select
-      options={POST_SORT_OPTIONS}
-      title="Sort Posts By"
-      value={postSort}
-      onValueChange={setPostSort}
-      trigger={getIconForPostSort(postSort)}
-    />
+    <View $gtMd={{ dsp: "none" }}>
+      <Select
+        options={POST_SORT_OPTIONS}
+        title="Sort Posts By"
+        value={postSort}
+        onValueChange={setPostSort}
+        trigger={getIconForPostSort(postSort)}
+      />
+    </View>
+  );
+}
+
+export function PostSortBar() {
+  const postSort = useFiltersStore((s) => s.postSort);
+  const setPostSort = useFiltersStore((s) => s.setPostSort);
+
+  return (
+    <View $md={{ dsp: "none" }} pt="$4" bbw={1} flex={1} pb="$2" bbc="$color4">
+      <Select
+        options={POST_SORT_OPTIONS}
+        title="Sort Posts By"
+        value={postSort}
+        onValueChange={setPostSort}
+        trigger={
+          <XStack gap="$1" ai="center" bg="$color4" py="$2" px="$3" br="$12">
+            <Text fontWeight={500} color="$color11">
+              {postSort}
+            </Text>
+            <ChevronDown size={15} color="$color11" />
+          </XStack>
+        }
+      />
+    </View>
   );
 }
 
@@ -244,7 +270,7 @@ export function HomeFilter() {
       onValueChange={setListingType}
       trigger={
         <XStack ai="center" gap="$1">
-          <Text fontWeight="bold">
+          <Text fontWeight={900} fontSize="$5">
             {
               LISTING_TYPE_OPTIONS.find(
                 (option) => option.value === listingType,

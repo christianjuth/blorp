@@ -1,5 +1,4 @@
 import { useListCommunities } from "~/src/lib/lemmy";
-import { FlashList } from "@shopify/flash-list";
 import { Community } from "~/src/components/community";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
@@ -8,11 +7,12 @@ import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { useFiltersStore } from "~/src/stores/filters";
 import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
 import { Platform } from "react-native";
-import { FeedGutters } from "~/src/components/feed-gutters";
+import { ContentGutters } from "~/src/components/gutters";
+import { FlashList } from "~/src/components/flashlist";
 
 export default function Communities() {
   const communitySort = useFiltersStore((s) => s.communitySort);
-  const communityFilter = useFiltersStore((s) => s.communityFilter);
+  const listingType = useFiltersStore((s) => s.listingType);
   const media = useMedia();
 
   const header = useCustomHeaderHeight();
@@ -31,7 +31,7 @@ export default function Communities() {
   } = useListCommunities({
     limit: 50,
     sort: communitySort,
-    type_: communityFilter,
+    type_: listingType,
   });
 
   const communities = data?.pages.map((p) => p.communities).flat();
@@ -44,13 +44,14 @@ export default function Communities() {
   }
 
   return (
-    <FeedGutters h="100%">
+    <ContentGutters h="100%">
       <FlashList
+        key={numCols}
         numColumns={numCols}
         ref={ref}
         data={communities}
         renderItem={(item) => (
-          <View h={54} overflow="hidden" w="100%">
+          <View h={54} overflow="hidden" w={`${100 / numCols}%`}>
             <Community communityView={item.item} />
           </View>
         )}
@@ -76,6 +77,6 @@ export default function Communities() {
         }
         scrollEventThrottle={100}
       />
-    </FeedGutters>
+    </ContentGutters>
   );
 }

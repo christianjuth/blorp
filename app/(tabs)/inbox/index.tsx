@@ -2,7 +2,7 @@ import { CommentReplyView } from "lemmy-js-client";
 import { Link } from "one";
 import { FlatList } from "react-native";
 import { Text, YStack, isWeb } from "tamagui";
-import { FeedGutters } from "~/src/components/feed-gutters";
+import { ContentGutters } from "~/src/components/gutters";
 import { Markdown } from "~/src/components/markdown";
 import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
 import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
@@ -21,7 +21,7 @@ function Reply({
   const parent = path.at(-2);
   const newPath = [parent, replyView.comment.id].filter(Boolean).join(".");
   return (
-    <FeedGutters>
+    <ContentGutters>
       <Link
         href={`/inbox/c/${communitySlug}/posts/${replyView.post.id}/comments/${newPath}`}
         asChild
@@ -47,7 +47,7 @@ function Reply({
           <RelativeTime time={replyView.comment.published} color="$color10" />
         </YStack>
       </Link>
-    </FeedGutters>
+    </ContentGutters>
   );
 }
 

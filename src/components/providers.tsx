@@ -6,6 +6,7 @@ import { persist } from "./query-storage";
 import { ScrollProvider } from "./nav/scroll-animation-context";
 import { AuthProvider } from "./auth-context";
 import { Onboarding } from "../features/onboarding";
+import _ from "lodash";
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
 
