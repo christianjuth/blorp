@@ -87,7 +87,7 @@ export function PostsFeed({
       renderItem={({ item }) => {
         if (item === "sidebar-desktop") {
           return (
-            <ContentGutters pt={header.height}>
+            <ContentGutters $platform-web={{ pt: header.height }}>
               <View flex={1} />
               {communityName ? (
                 <Sidebar communityName={communityName} />
@@ -114,7 +114,9 @@ export function PostsFeed({
             return null;
           }
           return (
-            <ContentGutters transform={[{ translateY: header.height }]}>
+            <ContentGutters
+              transform={[{ translateY: isWeb ? header.height : 0 }]}
+            >
               <CommunityBanner />
             </ContentGutters>
           );
@@ -189,7 +191,6 @@ export function PostsFeed({
       onEndReachedThreshold={0.5}
       keyExtractor={(item) => String(item)}
       contentContainerStyle={{
-        backgroundColor: theme.background.val,
         paddingBottom: isWeb ? tabBar.height : 0,
       }}
       refreshing={isRefetching}
@@ -202,6 +203,14 @@ export function PostsFeed({
       scrollEventThrottle={16}
       estimatedItemSize={475}
       onScroll={!isWeb && communityName ? undefined : scrollHandler}
+      contentInset={{
+        top: header.height,
+        bottom: tabBar.height,
+      }}
+      scrollIndicatorInsets={{
+        top: header.height,
+        bottom: tabBar.height,
+      }}
     />
   );
 }
