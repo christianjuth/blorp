@@ -105,7 +105,7 @@ export async function measureImage(src: string) {
 function useLemmyClient() {
   const jwt = useAuth((s) => s.jwt);
   const myUserId = useAuth((s) => s.site?.my_user?.local_user_view.person.id);
-  const instance = useAuth((s) => s.instance) ?? "http://lemmy.ml";
+  const instance = useAuth((s) => s.instance) ?? "https://lemmy.ml";
 
   return useMemo(() => {
     const client = new LemmyHttp(instance);
@@ -219,15 +219,13 @@ function flattenComment(commentView: CommentView): FlattenedComment {
   };
 }
 
-export function usePost(form: { id?: string; communityName?: string }) {
+export function usePost({ ap_id }: { ap_id?: string }) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
-  const postId = form.id ? +form.id : undefined;
-
-  const queryKey = [...queryKeyPrefix, "getPost", form.id];
+  const queryKey = [...queryKeyPrefix, "getPost", ap_id];
 
   const initialData = usePostsStore((s) =>
-    form.id ? s.posts[form.id]?.data : undefined,
+    ap_id ? s.posts[ap_id]?.data : undefined,
   );
 
   const cachePost = usePostsStore((s) => s.cachePost);
@@ -238,22 +236,24 @@ export function usePost(form: { id?: string; communityName?: string }) {
   return useQuery<FlattenedPost>({
     queryKey,
     queryFn: async () => {
-      if (!postId) {
-        throw new Error("Missing post id");
+      if (!ap_id) {
+        throw new Error("ap_id undefined");
       }
-
-      const res = await client.getPost({
-        id: postId,
+      const { post: resPost } = await client.resolveObject({
+        q: ap_id,
       });
-      const post = flattenPost(res);
+      if (!resPost) {
+        throw new Error("fetchd object is not type post");
+      }
+      const post = flattenPost({ post_view: resPost });
       const cachedPost = cachePost(post);
-      const thumbnail = res.post_view.post.thumbnail_url;
+      const thumbnail = post.post.thumbnail_url;
 
       if (thumbnail) {
         if (!cachedPost.imageDetails) {
           measureImage(thumbnail).then((data) => {
             if (data) {
-              patchPost(postId, {
+              patchPost(ap_id, {
                 imageDetails: data,
               });
             }
@@ -265,7 +265,7 @@ export function usePost(form: { id?: string; communityName?: string }) {
       }
       return post;
     },
-    enabled: _.isNumber(postId),
+    enabled: !!ap_id,
     initialData,
   });
 }
@@ -363,7 +363,7 @@ export function usePosts(form: GetPosts) {
           setTimeout(() => {
             if (!cachedPosts[post.id]?.data.imageDetails) {
               measureImage(thumbnail).then((data) => {
-                patchPost(post.id, {
+                patchPost(post.ap_id, {
                   imageDetails: data,
                 });
               });
@@ -377,7 +377,7 @@ export function usePosts(form: GetPosts) {
       }
 
       return {
-        posts: posts.map((p) => p.post.id),
+        posts: posts.map((p) => p.post.ap_id),
         next_page: res.next_page,
       };
     },
@@ -874,7 +874,7 @@ export function useSearch(form: Search) {
           setTimeout(() => {
             if (!cachedPosts[post.id]?.data.imageDetails) {
               measureImage(thumbnail).then((data) => {
-                patchPost(post.id, {
+                patchPost(post.ap_id, {
                   imageDetails: data,
                 });
               });

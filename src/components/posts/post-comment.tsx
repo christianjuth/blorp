@@ -323,7 +323,5 @@ export function buildCommentMap(
     loc[front].sort = i++;
   }
 
-  console.log(map);
-
   return map;
 }

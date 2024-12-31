@@ -11,10 +11,10 @@ const DISABLE_ANIMATION = {
   duration: 0,
 };
 
-export function Voting({ postId }: { postId: number | string }) {
+export function Voting({ apId }: { apId: string }) {
   const requireAuth = useRequireAuth();
 
-  const postView = usePostsStore((s) => s.posts[postId]?.data);
+  const postView = usePostsStore((s) => s.posts[apId]?.data);
 
   const vote = useLikePost(postView?.post.id);
 

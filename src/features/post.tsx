@@ -10,7 +10,7 @@ import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 
 import { memo, useMemo } from "react";
-import { isWeb, useTheme, View } from "tamagui";
+import { useTheme, View } from "tamagui";
 import _ from "lodash";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
@@ -25,7 +25,7 @@ const MemoedPostComment = memo(PostComment);
 const EMPTY_ARR = [];
 
 export function PostComments({
-  postId,
+  apId,
   commentViews,
   loadMore,
   onRefresh,
@@ -35,7 +35,7 @@ export function PostComments({
   communityName,
   commentId,
 }: {
-  postId: number | string;
+  apId: string;
   commentViews: {
     path: string;
   }[];
@@ -99,7 +99,7 @@ export function PostComments({
         if (item === "post") {
           return (
             <ContentGutters>
-              <PostCard postId={postId} detailView />
+              <PostCard apId={apId} detailView />
               <></>
             </ContentGutters>
           );
@@ -148,26 +148,27 @@ export function PostComments({
 }
 
 export function Post({
-  postId,
+  apId,
   communityName,
   commentPath,
 }: {
-  postId?: string;
+  apId?: string;
   communityName?: string;
   commentPath?: string;
 }) {
+  const decodedApId = apId ? decodeURIComponent(apId) : undefined;
+
   const [commentId] = commentPath?.split(".") ?? [];
 
   const myUserId = useAuth((s) => s.site?.my_user?.local_user_view.person.id);
   const nav = useNavigation();
 
   const post = usePost({
-    id: postId,
-    communityName,
+    ap_id: decodedApId,
   });
 
   const comments = usePostComments({
-    post_id: postId ? parseInt(postId) : undefined,
+    post_id: post.data?.post.id,
     parent_id: commentId ? +commentId : undefined,
     limit: 50,
     type_: "All",
@@ -203,15 +204,15 @@ export function Post({
     setRefreshing(false);
   };
 
-  if (!post.data || !postId) {
+  if (!post.data || !decodedApId) {
     return null;
   }
 
   return (
-    <CommentReplyContext postId={+postId}>
+    <CommentReplyContext postId={post.data.post.id}>
       <PostComments
         commentViews={allComments}
-        postId={postId}
+        apId={decodedApId}
         loadMore={() => {
           if (comments.hasNextPage && !comments.isFetchingNextPage) {
             comments.fetchNextPage();

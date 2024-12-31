@@ -7,7 +7,7 @@ export default function Page() {
     communityName: string;
   }>();
 
-  return <Post postId={postId} communityName={communityName} />;
+  return <Post apId={postId} communityName={communityName} />;
 }
 export async function generateStaticParams() {
   return [];

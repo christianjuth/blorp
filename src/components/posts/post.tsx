@@ -13,16 +13,16 @@ import { Pressable } from "react-native";
 import { useCommentReaplyContext } from "../comments/comment-reply-modal";
 
 export function PostCard({
-  postId,
+  apId,
   detailView = false,
 }: {
-  postId: number | string;
+  apId: string;
   detailView?: boolean;
 }) {
   const replyCtx = useCommentReaplyContext();
   const linkCtx = useLinkContext();
   const [pressed, setPressed] = useState(false);
-  let postView = usePostsStore((s) => s.posts[postId]?.data);
+  let postView = usePostsStore((s) => s.posts[apId]?.data);
 
   if (!postView) {
     return null;
@@ -47,7 +47,7 @@ export function PostCard({
   }
 
   const postDetailsLink =
-    `${linkCtx.root}c/${community.slug}/posts/${post.id}` as const;
+    `${linkCtx.root}c/${community.slug}/posts/${encodeURIComponent(post.ap_id)}` as const;
 
   const crossPost = detailView
     ? postView.crossPosts?.find(
@@ -124,7 +124,7 @@ export function PostCard({
 
       {crossPost ? (
         <Link
-          href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${crossPost.post.id}`}
+          href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${encodeURIComponent(crossPost.post.ap_id)}`}
         >
           <YStack bg="$color4" br="$3">
             <Text p="$2" color="$color11" fontSize="$3">
@@ -155,7 +155,7 @@ export function PostCard({
             <PostCommentsButton postView={postView} />
           </Link>
         )}
-        {postView && <Voting postId={postId} />}
+        {postView && <Voting apId={apId} />}
       </XStack>
     </YStack>
   );

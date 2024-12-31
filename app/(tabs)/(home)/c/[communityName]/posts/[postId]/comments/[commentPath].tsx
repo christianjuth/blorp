@@ -10,7 +10,7 @@ export default function Page() {
 
   return (
     <Post
-      postId={postId}
+      apId={postId}
       communityName={communityName}
       commentPath={commentPath}
     />

@@ -12,7 +12,7 @@ type CachedPost = {
 type SortsStore = {
   posts: Record<string, CachedPost>;
   patchPost: (
-    id: FlattenedPost["post"]["id"],
+    id: FlattenedPost["post"]["ap_id"],
     post: Partial<FlattenedPost>,
   ) => FlattenedPost;
   cachePost: (post: FlattenedPost) => FlattenedPost;
@@ -23,9 +23,9 @@ export const usePostsStore = create<SortsStore>()(
   persist(
     (set, get) => ({
       posts: {},
-      patchPost: (postId, patch) => {
+      patchPost: (apId, patch) => {
         const posts = get().posts;
-        const prevPost = posts[postId];
+        const prevPost = posts[apId];
         const updatedPostData = {
           ...prevPost.data,
           ...patch,
@@ -34,7 +34,7 @@ export const usePostsStore = create<SortsStore>()(
           set({
             posts: {
               ...posts,
-              [postId]: {
+              [apId]: {
                 data: updatedPostData,
                 lastUsed: Date.now(),
               },
@@ -53,7 +53,7 @@ export const usePostsStore = create<SortsStore>()(
         set({
           posts: {
             ...posts,
-            [view.post.id]: {
+            [view.post.ap_id]: {
               data: updatedPostData,
               lastUsed: Date.now(),
             },
@@ -67,8 +67,8 @@ export const usePostsStore = create<SortsStore>()(
         const newPosts: Record<string, CachedPost> = {};
 
         for (const view of views) {
-          const prevPostData = newPosts[view.post.id]?.data ?? {};
-          newPosts[view.post.id] = {
+          const prevPostData = newPosts[view.post.ap_id]?.data ?? {};
+          newPosts[view.post.ap_id] = {
             data: {
               ..._.pick(prevPostData, ["optimisticMyVote", "imageDetails"]),
               ...view,

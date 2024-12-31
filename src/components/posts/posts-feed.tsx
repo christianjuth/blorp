@@ -25,7 +25,7 @@ export function PostsFeed({
   posts,
 }: {
   posts: UseInfiniteQueryResult<
-    InfiniteData<{ posts: number[] }, unknown>,
+    InfiniteData<{ posts: string[] }, unknown>,
     Error
   >;
 }) {
@@ -164,7 +164,7 @@ export function PostsFeed({
             {/* )} */}
 
             <ContentGutters>
-              <PostCard postId={item} />
+              <PostCard apId={item} />
               <></>
             </ContentGutters>
           </>
