@@ -108,6 +108,7 @@ export function PostComments({
         return (
           <ContentGutters>
             <MemoedPostComment
+              postApId={apId}
               commentMap={item[1]}
               level={0}
               opId={opId}

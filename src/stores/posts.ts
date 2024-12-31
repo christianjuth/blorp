@@ -45,7 +45,7 @@ export const usePostsStore = create<SortsStore>()(
       },
       cachePost: (view) => {
         const posts = get().posts;
-        const prevPostData = posts[view.post.id]?.data ?? {};
+        const prevPostData = posts[view.post.ap_id]?.data ?? {};
         const updatedPostData = {
           ..._.pick(prevPostData, ["optimisticMyVote", "imageDetails"]),
           ...view,

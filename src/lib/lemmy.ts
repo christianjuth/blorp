@@ -123,25 +123,6 @@ function useLemmyClient() {
   }, [jwt, instance, myUserId]);
 }
 
-export function getPostFromCache(
-  cache: InfiniteData<FlattenedGetPostResponse, unknown> | undefined,
-  postId: number | undefined,
-) {
-  if (!postId || !cache) {
-    return undefined;
-  }
-
-  for (const page of cache.pages) {
-    for (const view of page.posts) {
-      if (view.post.id === postId) {
-        return view;
-      }
-    }
-  }
-
-  return undefined;
-}
-
 export type FlattenedPost = {
   optimisticMyVote?: number;
   myVote?: number;
@@ -361,7 +342,7 @@ export function usePosts(form: GetPosts) {
         const thumbnail = post.thumbnail_url;
         if (thumbnail) {
           setTimeout(() => {
-            if (!cachedPosts[post.id]?.data.imageDetails) {
+            if (!cachedPosts[post.ap_id]?.data.imageDetails) {
               measureImage(thumbnail).then((data) => {
                 patchPost(post.ap_id, {
                   imageDetails: data,
@@ -543,17 +524,20 @@ export function useLogout() {
   };
 }
 
-export function useLikePost(postId: number) {
+export function useLikePost(apId: string) {
   const { client } = useLemmyClient();
 
-  const post = usePostsStore((s) => s.posts[postId]?.data);
+  const post = usePostsStore((s) => s.posts[apId]?.data);
   const cachePost = usePostsStore((s) => s.cachePost);
 
   return useMutation({
-    mutationKey: ["likePost", postId],
+    mutationKey: ["likePost", apId],
     mutationFn: async (score: -1 | 0 | 1) => {
+      if (!post) {
+        throw new Error("post not found");
+      }
       const res = await client.likePost({
-        post_id: postId,
+        post_id: post.post.id,
         score,
       });
       return res;
@@ -872,7 +856,7 @@ export function useSearch(form: Search) {
         const thumbnail = post.thumbnail_url;
         if (thumbnail) {
           setTimeout(() => {
-            if (!cachedPosts[post.id]?.data.imageDetails) {
+            if (!cachedPosts[post.ap_id]?.data.imageDetails) {
               measureImage(thumbnail).then((data) => {
                 patchPost(post.ap_id, {
                   imageDetails: data,
@@ -888,7 +872,7 @@ export function useSearch(form: Search) {
       }
 
       return {
-        posts: posts.map((p) => p.post.id),
+        posts: posts.map((p) => p.post.ap_id),
         next_page: posts.length < limit ? null : pageParam + 1,
       };
     },

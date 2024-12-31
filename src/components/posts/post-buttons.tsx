@@ -16,7 +16,7 @@ export function Voting({ apId }: { apId: string }) {
 
   const postView = usePostsStore((s) => s.posts[apId]?.data);
 
-  const vote = useLikePost(postView?.post.id);
+  const vote = useLikePost(apId);
 
   const theme = useTheme();
 

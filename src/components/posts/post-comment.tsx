@@ -57,6 +57,7 @@ function Byline({
 }
 
 export function PostComment({
+  postApId,
   commentMap,
   level,
   opId,
@@ -64,6 +65,7 @@ export function PostComment({
   noBorder = false,
   communityName,
 }: {
+  postApId: string;
   commentMap: CommentMap;
   level: number;
   opId: number | undefined;
@@ -204,7 +206,7 @@ export function PostComment({
                 label: "Share",
                 onClick: () =>
                   Share.share({
-                    url: `https://blorpblorp.xyz/c/${communityName}/posts/${comment.post_id}/comments/${comment.id}`,
+                    url: `https://blorpblorp.xyz/c/${communityName}/posts/${postApId}/comments/${comment.id}`,
                   }),
               },
               ...(isMyComment && !comment.deleted
@@ -257,6 +259,7 @@ export function PostComment({
 
         {sorted.map(([id, map], i) => (
           <PostComment
+            postApId={postApId}
             key={id}
             commentMap={map}
             level={level + 1}
