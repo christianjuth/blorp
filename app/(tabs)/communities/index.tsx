@@ -2,7 +2,7 @@ import { useListCommunities } from "~/src/lib/lemmy";
 import { Community } from "~/src/components/community";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
-import { View, useMedia } from "tamagui";
+import { View, isWeb, useMedia } from "tamagui";
 import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { useFiltersStore } from "~/src/stores/filters";
 import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
@@ -51,7 +51,11 @@ export default function Communities() {
         ref={ref}
         data={communities}
         renderItem={(item) => (
-          <View h={54} overflow="hidden" w={`${100 / numCols}%`}>
+          <View
+            h={54}
+            overflow="hidden"
+            w={isWeb ? `${100 / numCols}%` : undefined}
+          >
             <Community communityView={item.item} />
           </View>
         )}

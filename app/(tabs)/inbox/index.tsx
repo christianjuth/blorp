@@ -23,7 +23,7 @@ function Reply({
   return (
     <ContentGutters>
       <Link
-        href={`/inbox/c/${communitySlug}/posts/${replyView.post.ap_id}/comments/${newPath}`}
+        href={`/inbox/c/${communitySlug}/posts/${encodeURIComponent(replyView.post.ap_id)}/comments/${newPath}`}
         asChild
       >
         <YStack

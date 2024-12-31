@@ -60,7 +60,7 @@ export function PostByline({ postView }: { postView: FlattenedPost }) {
             label: "Share",
             onClick: () =>
               Share.share({
-                url: `https://blorpblorp.xyz/c/${postView.community.slug}/posts/${postView.post.ap_id}`,
+                url: `https://blorpblorp.xyz/c/${postView.community.slug}/posts/${encodeURIComponent(postView.post.ap_id)}`,
               }),
           },
           {

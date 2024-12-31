@@ -206,7 +206,7 @@ export function PostComment({
                 label: "Share",
                 onClick: () =>
                   Share.share({
-                    url: `https://blorpblorp.xyz/c/${communityName}/posts/${postApId}/comments/${comment.id}`,
+                    url: `https://blorpblorp.xyz/c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
                   }),
               },
               ...(isMyComment && !comment.deleted

@@ -212,7 +212,15 @@ export function PostSortBar() {
   const setPostSort = useFiltersStore((s) => s.setPostSort);
 
   return (
-    <View $md={{ dsp: "none" }} pt="$4" bbw={1} flex={1} pb="$2" bbc="$color4">
+    <XStack
+      $md={{ dsp: "none" }}
+      pt="$4"
+      bbw={1}
+      flex={1}
+      pb="$2"
+      bbc="$color4"
+      jc="flex-start"
+    >
       <Select
         options={POST_SORT_OPTIONS}
         title="Sort Posts By"
@@ -227,7 +235,7 @@ export function PostSortBar() {
           </XStack>
         }
       />
-    </View>
+    </XStack>
   );
 }
 
