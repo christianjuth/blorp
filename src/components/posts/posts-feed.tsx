@@ -17,7 +17,16 @@ import { useAuth } from "~/src/stores/auth";
 import { useInstances } from "~/src/lib/lemmy";
 import { useFiltersStore } from "~/src/stores/filters";
 import { PostSortBar } from "../lemmy-sort";
-import { FlashList } from "../flashlist";
+import { FlashList, FlashListProps } from "../flashlist";
+import Animated from "react-native-reanimated";
+import { useScrollContext } from "../nav/scroll-animation-context";
+
+const ReanimatedFlashList =
+  Animated.createAnimatedComponent<
+    FlashListProps<
+      "banner" | "post-sort-bar" | "sidebar-desktop" | "sidebar-mobile" | string
+    >
+  >(FlashList);
 
 const EMPTY_ARR = [];
 
@@ -29,6 +38,8 @@ export function PostsFeed({
     Error
   >;
 }) {
+  const { scrollHandler } = useScrollContext();
+
   const listingType = useFiltersStore((s) => s.listingType);
   const setListingType = useFiltersStore((s) => s.setListingType);
 
@@ -61,7 +72,7 @@ export function PostsFeed({
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
   return (
-    <FlashList
+    <ReanimatedFlashList
       automaticallyAdjustsScrollIndicatorInsets={false}
       ref={ref}
       data={
@@ -190,6 +201,7 @@ export function PostsFeed({
       stickyHeaderIndices={[1]}
       scrollEventThrottle={16}
       estimatedItemSize={475}
+      onScroll={!isWeb && communityName ? undefined : scrollHandler}
     />
   );
 }

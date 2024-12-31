@@ -22,7 +22,7 @@ type SortsStore = {
 export const useFiltersStore = create<SortsStore>()(
   persist(
     (set) => ({
-      communitySort: "Active",
+      communitySort: "TopAll",
       setCommunitySort: (communitySort) => set({ communitySort }),
       commentSort: "Hot",
       setCommentSort: (commentSort) => set({ commentSort }),
