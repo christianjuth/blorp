@@ -850,11 +850,6 @@ export function useSearch(form: Search) {
 
   const limit = form.limit ?? 50;
 
-  const search = useMemo(() => {
-    const throttle = throttledQueue(1, 1000 * 8);
-    return (form: Search) => throttle(() => client.search(form));
-  }, [client, queryKey]);
-
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const patchPost = usePostsStore((s) => s.patchPost);
 
@@ -863,7 +858,7 @@ export function useSearch(form: Search) {
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await search({
+      const res = await client.search({
         ...form,
         page: pageParam,
         limit,
