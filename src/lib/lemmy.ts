@@ -83,6 +83,11 @@ export async function measureImage(src: string) {
     width: number;
     height: number;
   }>((resolve, reject) => {
+    if (src.endsWith(".gif")) {
+      reject();
+      return;
+    }
+
     RNImage.getSize(
       src,
       (width, height) => {

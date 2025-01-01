@@ -1,5 +1,6 @@
 {
   "expo": {
+    "newArchEnabled": true,
     "name": "Blorp",
     "slug": "blorp",
     "platforms": [

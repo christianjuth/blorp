@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Platform, Pressable, Share } from "react-native";
+import { Platform, Share } from "react-native";
 import { imageSizeCache, measureImage } from "../lib/lemmy";
 import { useTheme } from "tamagui";
 import _ from "lodash";
@@ -11,11 +11,11 @@ import { impactAsync, ImpactFeedbackStyle } from "~/src/lib/haptics";
 
 export const shareImage = async (imageUrl: string) => {
   try {
+    impactAsync(ImpactFeedbackStyle.Heavy);
+
     // Download the image to a local file
     const fileUri = `${FileSystem.cacheDirectory}shared-image.jpg`;
     const downloadedFile = await FileSystem.downloadAsync(imageUrl, fileUri);
-
-    impactAsync(ImpactFeedbackStyle.Heavy);
 
     if (!(await Sharing.isAvailableAsync())) {
       // If sharing is not available, share via URL instead

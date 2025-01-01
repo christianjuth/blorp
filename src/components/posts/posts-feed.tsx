@@ -20,6 +20,7 @@ import { PostSortBar } from "../lemmy-sort";
 import { FlashList, FlashListProps } from "../flashlist";
 import Animated from "react-native-reanimated";
 import { useScrollContext } from "../nav/scroll-animation-context";
+// import { FlatList } from "react-native";
 
 const ReanimatedFlashList =
   Animated.createAnimatedComponent<
@@ -71,9 +72,12 @@ export function PostsFeed({
 
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
+  const List = !isWeb && communityName ? FlashList : ReanimatedFlashList;
+
   return (
-    <ReanimatedFlashList
+    <List
       automaticallyAdjustsScrollIndicatorInsets={false}
+      // @ts-ignore-error
       ref={ref}
       data={
         [
@@ -189,7 +193,7 @@ export function PostsFeed({
         }
       }}
       onEndReachedThreshold={0.5}
-      keyExtractor={(item) => String(item)}
+      keyExtractor={(item) => item}
       contentContainerStyle={{
         paddingBottom: isWeb ? tabBar.height : 0,
       }}
