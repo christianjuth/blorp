@@ -231,7 +231,15 @@ export function usePost({ ap_id }: { ap_id?: string }) {
       if (!resPost) {
         throw new Error("fetchd object is not type post");
       }
-      const post = flattenPost({ post_view: resPost });
+
+      const res2 = await client.getPost({
+        id: resPost.post.id,
+      });
+
+      const post = flattenPost({
+        post_view: resPost,
+        cross_posts: res2.cross_posts,
+      });
       const cachedPost = cachePost(post);
       const thumbnail = post.post.thumbnail_url;
 

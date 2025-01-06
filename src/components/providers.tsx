@@ -41,7 +41,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <TamaguiRootProvider>
       <ScrollProvider>
         <QueryClientProvider client={queryClient}>
-          <Onboarding />
           <AuthProvider>{children}</AuthProvider>
         </QueryClientProvider>
       </ScrollProvider>

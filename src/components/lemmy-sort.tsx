@@ -241,26 +241,31 @@ export function PostSortBar() {
 
 export function HomeFilter() {
   const instance = useAuth((s) => s.instance);
+  const jwt = useAuth((s) => s.jwt);
   const listingType = useFiltersStore((s) => s.listingType);
   const setListingType = useFiltersStore((s) => s.setListingType);
 
   const LISTING_TYPE_OPTIONS: Option<ListingType, string>[] = useMemo(
     () => [
       {
-        label: "Lemmyway Galaxy",
+        label: "All",
         value: "All",
         // icon: Flame,
       },
       {
-        label: `Home planet (${instance ? new URL(instance).host : ""})`,
+        label: `Local (${instance ? new URL(instance).host : ""})`,
         value: "Local",
         // icon: Flame,
       },
-      {
-        label: "Subscriptions",
-        value: "Subscribed",
-        // icon: ArrowUpCircle,
-      },
+      ...(jwt
+        ? ([
+            {
+              label: "Subscriptions",
+              value: "Subscribed",
+              // icon: ArrowUpCircle,
+            },
+          ] as const)
+        : []),
       // {
       //   label: "ModeratorView",
       //   value: "ModeratorView",

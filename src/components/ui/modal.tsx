@@ -23,7 +23,7 @@ export function Modal({
           moveOnKeyboardChange
         >
           <Sheet.Frame
-            padding="$4"
+            // padding="$4"
             gap="$4"
             bg="$color1"
             $theme-dark={{

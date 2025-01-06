@@ -10,11 +10,12 @@ import { Link } from "one";
 import * as routes from "~/src/lib/routes";
 import { useRecentCommunities } from "../stores/recent-communities";
 import { Community } from "lemmy-js-client";
-import { createCommunitySlug } from "../lib/lemmy";
+import { createCommunitySlug, useListCommunities } from "../lib/lemmy";
 import { Image } from "expo-image";
 import LogoDark from "~/assets/logo-dark.svg";
 import LogoLight from "~/assets/logo-light.svg";
 import { useCustomHeaderHeight } from "./nav/hooks";
+import { useAuth } from "../stores/auth";
 
 function SmallComunityCard({
   community,
@@ -48,9 +49,15 @@ function SmallComunityCard({
 }
 
 export function Sidebar() {
-  const communities = useRecentCommunities((s) => s.recentlyVisited);
+  const recentCommunities = useRecentCommunities((s) => s.recentlyVisited);
   const header = useCustomHeaderHeight();
   const themeName = useThemeName();
+  const jwt = useAuth((s) => s.jwt);
+
+  const subscribedCommunities = useListCommunities({
+    type_: "Subscribed",
+    limit: 20,
+  });
 
   return (
     <>
@@ -72,6 +79,7 @@ export function Sidebar() {
           )}
         </YStack>
       </Link>
+
       <YStack gap="$3" p="$4" py="$2">
         <Link href={routes.home} replace asChild>
           <XStack ai="center" gap="$2.5" tag="a">
@@ -103,14 +111,36 @@ export function Sidebar() {
 
         <View h={1} flex={1} bg="$color4" my="$2" />
 
-        <Text color="$color10" fontSize="$3">
-          RECENT
-        </Text>
-        {communities.map((c) => (
-          <SmallComunityCard key={c.id} community={c} />
-        ))}
+        {recentCommunities.length > 0 && (
+          <>
+            <Text color="$color10" fontSize="$3">
+              RECENT
+            </Text>
+            {recentCommunities.map((c) => (
+              <SmallComunityCard key={c.id} community={c} />
+            ))}
 
-        <View h={1} flex={1} bg="$color4" my="$2" />
+            <View h={1} flex={1} bg="$color4" my="$2" />
+          </>
+        )}
+
+        {jwt && (
+          <>
+            <Text color="$color10" fontSize="$3">
+              COMMUNITIES
+            </Text>
+            {subscribedCommunities.data?.pages
+              .flatMap((p) => p.communities)
+              .map((c) => (
+                <SmallComunityCard
+                  key={c.community.id}
+                  community={c.community}
+                />
+              ))}
+
+            <View h={1} flex={1} bg="$color4" my="$2" />
+          </>
+        )}
 
         <Link href={routes.settings} replace asChild>
           <XStack ai="center" gap="$2.5" tag="a">

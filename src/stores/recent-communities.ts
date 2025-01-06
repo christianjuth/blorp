@@ -30,7 +30,7 @@ export const useRecentCommunities = create<RecentCommunityStore>()(
         ]);
         const prev = get().recentlyVisited;
         const update = _.slice(
-          _.uniqBy([partialCommunity, ...prev], "id"),
+          _.uniqBy([partialCommunity, ...prev], "actor_id"),
           0,
           MAX_VISITED,
         );

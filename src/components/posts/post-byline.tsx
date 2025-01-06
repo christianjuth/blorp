@@ -5,14 +5,14 @@ import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
 import { ActionMenu } from "../ui/action-menu";
 import { Share, Linking } from "react-native";
-import { Ellipsis } from "@tamagui/lucide-icons";
+import { Ellipsis, Pin } from "@tamagui/lucide-icons";
 
 export function PostByline({ postView }: { postView: FlattenedPost }) {
   const { creator, community, post } = postView;
   const linkCtx = useLinkContext();
 
   return (
-    <XStack dsp="flex" fd="row" ai="center">
+    <XStack dsp="flex" fd="row" ai="center" gap="$2">
       <Avatar size={25} mr="$2">
         <Avatar.Image src={creator.avatar} borderRadius="$12" />
         <Avatar.Fallback
@@ -49,6 +49,10 @@ export function PostByline({ postView }: { postView: FlattenedPost }) {
 
       <View flex={1} />
 
+      {postView.post.featured_community && (
+        <Pin fill="#17B169" color="#17B169" size="$1" rotate="45deg" />
+      )}
+
       <ActionMenu
         placement="bottom-end"
         actions={[
@@ -64,7 +68,7 @@ export function PostByline({ postView }: { postView: FlattenedPost }) {
               }),
           },
           {
-            label: "View original",
+            label: "View source",
             onClick: async () => {
               const url = postView.post.ap_id;
               const supported = await Linking.canOpenURL(url);

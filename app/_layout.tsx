@@ -1,7 +1,7 @@
 import "./_layout.css";
 import "./tamagui.css";
 
-import { LoadProgressBar } from "one";
+import { LoadProgressBar, Slot } from "one";
 import { isWeb } from "tamagui";
 import { MainAppTemplate } from "~/src/components/main-app-template";
 import { Providers } from "~/src/components/providers";
@@ -10,37 +10,37 @@ import { Stack } from "one";
 import { useTheme } from "tamagui";
 import { ModalHeader } from "~/src/components/nav/headers";
 
-function Nav() {
-  const theme = useTheme();
-  return (
-    <Stack
-      screenOptions={{
-        headerTintColor: theme.gray12.val,
-        contentStyle: {
-          backgroundColor: theme.background.val,
-        },
-      }}
-    >
-      <Stack.Screen
-        name="(tabs)"
-        options={{
-          headerTitle: "Home",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="auth"
-        options={{
-          presentation: "containedTransparentModal",
-          animation: "slide_from_bottom",
-          header: (props) => <ModalHeader {...props} />,
-          headerTitle: "Auth",
-          title: "Auth",
-        }}
-      />
-    </Stack>
-  );
-}
+// function Nav() {
+//   const theme = useTheme();
+//   return (
+//     <Stack
+//       screenOptions={{
+//         headerTintColor: theme.gray12.val,
+//         contentStyle: {
+//           backgroundColor: theme.background.val,
+//         },
+//       }}
+//     >
+//       <Stack.Screen
+//         name="(tabs)"
+//         options={{
+//           headerTitle: "Home",
+//           headerShown: false,
+//         }}
+//       />
+//       <Stack.Screen
+//         name="auth"
+//         options={{
+//           presentation: "containedTransparentModal",
+//           animation: "slide_from_bottom",
+//           header: (props) => <ModalHeader {...props} />,
+//           headerTitle: "Auth",
+//           title: "Auth",
+//         }}
+//       />
+//     </Stack>
+//   );
+// }
 
 export default function Layout() {
   return (
@@ -136,7 +136,8 @@ export default function Layout() {
 
       <Providers>
         <MainAppTemplate>
-          <Nav />
+          {/* <Nav /> */}
+          <Slot />
         </MainAppTemplate>
       </Providers>
     </>

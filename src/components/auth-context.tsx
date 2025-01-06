@@ -16,10 +16,15 @@ import {
   Spinner,
   Button,
   YStack,
+  Text,
+  Input,
+  XStack,
 } from "tamagui";
-import { useLogin } from "../lib/lemmy";
-import { Input } from "~/src/components/ui/input";
+import { useInstances, useLogin } from "../lib/lemmy";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Modal } from "./ui/modal";
+import { FlatList } from "react-native";
+import { ChevronLeft } from "@tamagui/lucide-icons";
 
 const Context = createContext<{
   authenticate: () => Promise<void>;
@@ -73,80 +78,65 @@ export function useRequireAuth() {
 }
 
 function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
+  const [search, setSearch] = useState("");
+  const [instance, setInstanceLocal] = useState<{
+    url?: string;
+    baseurl?: string;
+  }>({});
+
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { mutate, status } = useLogin();
 
+  const instances = useInstances();
+
+  const filteredInstances = search
+    ? instances.data?.filter((i) => i.url.indexOf(search) > -1)
+    : instances.data;
+
+  const setInstance = useAuth((a) => a.setInstance);
+
   const insets = useSafeAreaInsets();
+
   return (
-    <Dialog modal open={open} onOpenChange={onClose}>
-      <Adapt when="sm" platform="touch">
-        <Sheet
-          animation="200ms"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPointsMode="fit"
-          moveOnKeyboardChange
-        >
-          <Sheet.Frame
-            padding="$4"
-            gap="$4"
-            bg="$color1"
-            $theme-dark={{
-              bg: "$color3",
-            }}
-          >
-            <Sheet.ScrollView pb={insets.bottom}>
-              <Adapt.Contents />
-            </Sheet.ScrollView>
-          </Sheet.Frame>
-          <Sheet.Overlay
-            // animation="lazy"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-            backgroundColor="black"
-            opacity={0.4}
-          />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="200ms"
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-          backgroundColor="black"
-          opacity={0.4}
-        />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={["transform", "opacity"]}
-          animation={[
-            "quicker",
-            {
-              opacity: {
-                overshootClamping: true,
-              },
-            },
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-          bg="$color1"
-          $theme-dark={{
-            bg: "$color3",
-          }}
-          w="100%"
-          maxWidth={400}
-        >
-          {/* <Dialog.Title>Login</Dialog.Title> */}
-
+    <Modal open={open} onClose={onClose}>
+      <YStack bg="$color2" p="$4" br="$4" gap="$3" w={400} maxWidth="100%">
+        {!instance.url ? (
+          <>
+            <Text>Pick the server you created your account on</Text>
+            <Input
+              placeholder="Enter URL or search for your server"
+              size="$3"
+              value={search}
+              onChangeText={setSearch}
+            />
+            <FlatList
+              data={filteredInstances}
+              keyExtractor={(i) => i.url}
+              renderItem={(i) => (
+                <Button p={0} bg="transparent" h="auto">
+                  <Text
+                    py="$2"
+                    onPress={() => {
+                      setInstanceLocal(i.item);
+                      setInstance(i.item.url);
+                    }}
+                    textAlign="left"
+                    mr="auto"
+                  >
+                    {i.item.baseurl}
+                  </Text>
+                </Button>
+              )}
+              style={{ maxHeight: 500 }}
+            />
+          </>
+        ) : (
           <Form
+            flexDirection="column"
+            alignItems="stretch"
+            width="100%"
+            gap="$4"
             onSubmit={() => {
               mutate({
                 username_or_email: userName,
@@ -154,76 +144,73 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
               });
             }}
           >
-            <YStack flexDirection="column" gap="$3">
-              <Input size="$4">
-                <Input.Label htmlFor="email">Email</Input.Label>
-                <Input.Box>
-                  <Input.Area
-                    id="email"
-                    placeholder="email@example.com"
-                    value={userName}
-                    onChangeText={setUsername}
-                  />
-                </Input.Box>
-              </Input>
-              <View flexDirection="column" gap="$1">
-                <Input size="$4">
-                  <View
-                    flexDirection="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <Input.Label htmlFor="password">Password</Input.Label>
-                    {/* <ForgotPasswordLink /> */}
-                  </View>
-                  <Input.Box>
-                    <Input.Area
-                      textContentType="password"
-                      secureTextEntry
-                      id="password"
-                      placeholder="Enter password"
-                      value={password}
-                      onChangeText={setPassword}
-                    />
-                  </Input.Box>
-                </Input>
-              </View>
+            <Button
+              onPress={() => setInstanceLocal({})}
+              p={0}
+              bg="transparent"
+              h="auto"
+              jc="flex-start"
+            >
+              <ChevronLeft color="$accentColor" />
+              <Text color="$accentColor">Back</Text>
+            </Button>
 
-              <Form.Trigger asChild>
-                <Button
-                  disabled={status === "pending"}
-                  width="100%"
-                  iconAfter={
-                    <AnimatePresence>
-                      {status === "pending" && (
-                        <Spinner
-                          color="$color"
-                          key="loading-spinner"
-                          opacity={1}
-                          scale={1}
-                          animation="quick"
-                          position="absolute"
-                          left="60%"
-                          enterStyle={{
-                            opacity: 0,
-                            scale: 0.5,
-                          }}
-                          exitStyle={{
-                            opacity: 0,
-                            scale: 0.5,
-                          }}
-                        />
-                      )}
-                    </AnimatePresence>
-                  }
-                >
-                  <Button.Text>Sign In</Button.Text>
-                </Button>
-              </Form.Trigger>
-            </YStack>
+            <Text fontWeight="bold">
+              You are logging in to {instance.baseurl}
+            </Text>
+
+            <Input
+              id="email"
+              placeholder="email@example.com"
+              value={userName}
+              onChangeText={setUsername}
+            />
+
+            <Input
+              textContentType="password"
+              secureTextEntry
+              id="password"
+              placeholder="Enter password"
+              value={password}
+              onChangeText={setPassword}
+            />
+
+            <Form.Trigger asChild>
+              <Button
+                bg="$accentColor"
+                disabled={status === "pending"}
+                // onPress={signIn}
+                width="100%"
+                iconAfter={
+                  <AnimatePresence>
+                    {status === "pending" && (
+                      <Spinner
+                        color="$color"
+                        key="loading-spinner"
+                        opacity={1}
+                        scale={1}
+                        animation="quick"
+                        position="absolute"
+                        left="60%"
+                        enterStyle={{
+                          opacity: 0,
+                          scale: 0.5,
+                        }}
+                        exitStyle={{
+                          opacity: 0,
+                          scale: 0.5,
+                        }}
+                      />
+                    )}
+                  </AnimatePresence>
+                }
+              >
+                <Button.Text>Sign In</Button.Text>
+              </Button>
+            </Form.Trigger>
           </Form>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
+        )}
+      </YStack>
+    </Modal>
   );
 }

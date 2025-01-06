@@ -7,7 +7,7 @@ import {
   HomeFilter,
   PostSortSelect,
 } from "../lemmy-sort";
-import { View, Text, Button, XStack, Input, Avatar } from "tamagui";
+import { View, Text, Button, XStack, Input, Avatar, YStack } from "tamagui";
 import { ChevronLeft, X } from "@tamagui/lucide-icons";
 import { BlurBackground } from "./blur-background";
 import Animated from "react-native-reanimated";
@@ -15,40 +15,80 @@ import { useCustomHeaderHeight } from "./hooks";
 import { useScrollContext } from "./scroll-animation-context";
 import { useMedia } from "tamagui";
 import { useAnimatedStyle, interpolate } from "react-native-reanimated";
-import { Link, useRouter } from "one";
+import { useParams, useRouter } from "one";
 import { useState } from "react";
 import { useLinkContext } from "./link-context";
 import { MagnafineGlass } from "../icons";
 import { ContentGutters } from "../gutters";
 import { useAuth } from "~/src/stores/auth";
 import { HeaderGutters } from "../gutters";
+import { useRequireAuth } from "../auth-context";
+import { Dropdown } from "../ui/dropdown";
+import { useLogout } from "~/src/lib/lemmy";
 
 function UserAvatar() {
+  const logout = useLogout();
   const user = useAuth((s) => s.site?.my_user?.local_user_view.person);
+  const requireAuth = useRequireAuth();
 
   if (!user) {
-    return null;
+    return (
+      <Button bg="$accentColor" br="$12" size="$3" onPress={requireAuth}>
+        Login
+      </Button>
+    );
   }
 
   return (
-    <Avatar size={25}>
-      <Avatar.Image src={user.avatar} borderRadius="$12" />
-      <Avatar.Fallback
-        backgroundColor="$color8"
-        borderRadius="$12"
-        ai="center"
-        jc="center"
-      >
-        <Text fontSize="$1">{user.name?.substring(0, 1).toUpperCase()}</Text>
-      </Avatar.Fallback>
-    </Avatar>
+    <Dropdown
+      placement="bottom-end"
+      trigger={
+        <Avatar size={30}>
+          <Avatar.Image src={user.avatar} borderRadius="$12" />
+          <Avatar.Fallback
+            backgroundColor="$color8"
+            borderRadius="$12"
+            ai="center"
+            jc="center"
+          >
+            <Text fontSize="$1">
+              {user.name?.substring(0, 1).toUpperCase()}
+            </Text>
+          </Avatar.Fallback>
+        </Avatar>
+      }
+    >
+      <YStack p="$2.5">
+        <XStack gap="$2" ai="center">
+          <Avatar size={30}>
+            <Avatar.Image src={user.avatar} borderRadius="$12" />
+            <Avatar.Fallback
+              backgroundColor="$color8"
+              borderRadius="$12"
+              ai="center"
+              jc="center"
+            >
+              <Text fontSize="$1">
+                {user.name?.substring(0, 1).toUpperCase()}
+              </Text>
+            </Avatar.Fallback>
+          </Avatar>
+          <Text fontSize="$4">u/{user.name}</Text>
+        </XStack>
+
+        <Button onPress={logout} bg="transparent" jc="flex-start" p={0} h="$4">
+          <Text>Logout</Text>
+        </Button>
+      </YStack>
+    </Dropdown>
   );
 }
 
 function SearchBar() {
   const linkCtx = useLinkContext();
   const router = useRouter();
-  const [search, setSearch] = useState("");
+  const { search: initSearch } = useParams<{ search: string }>();
+  const [search, setSearch] = useState(initSearch ?? "");
   return (
     <Input
       bg="$color4"
@@ -126,25 +166,7 @@ export function HomeHeader(
             px="$3"
             jc="space-between"
           >
-            <>
-              {"back" in props && props.back && (
-                <Button
-                  unstyled
-                  p={0}
-                  bg="transparent"
-                  borderRadius="$12"
-                  dsp="flex"
-                  fd="row"
-                  ai="center"
-                  bw={0}
-                  onPress={() => props.navigation.pop(1)}
-                  h="auto"
-                >
-                  <ChevronLeft color="$accentColor" size="$1.5" />
-                </Button>
-              )}
-              <HomeFilter />
-            </>
+            <HomeFilter />
             <SearchBar />
             <>
               {/* <Link href={`${linkCtx.root}s/q`}> */}

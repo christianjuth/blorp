@@ -12,7 +12,13 @@ dayjs.extend(localizedFormat);
 
 export const COMMUNITY_SIDEBAR_WIDTH = 300;
 
-export function Sidebar({ communityName }: { communityName: string }) {
+export function Sidebar({
+  communityName,
+  hideDescription = false,
+}: {
+  communityName: string;
+  hideDescription?: boolean;
+}) {
   const header = useCustomHeaderHeight();
   const dimensions = useWindowDimensions();
 
@@ -39,7 +45,7 @@ export function Sidebar({ communityName }: { communityName: string }) {
       bg="$background"
     >
       <ScrollView
-        bg="$color3"
+        bg="$color2"
         $theme-dark={{
           bg: "$background",
         }}
@@ -55,7 +61,7 @@ export function Sidebar({ communityName }: { communityName: string }) {
           <XStack ai="center" gap="$1.5">
             <CakeSlice size="$1" color="$color11" />
             <Text fontSize="$3" color="$color11">
-              Created {dayjs(community.published).format("LL")}
+              Created {dayjs(community.published).format("ll")}
             </Text>
           </XStack>
 
@@ -88,7 +94,7 @@ export function Sidebar({ communityName }: { communityName: string }) {
             </YStack>
           </XStack>
         </YStack>
-        {community.description && (
+        {community.description && !hideDescription && (
           <View p="$3" btc="$color0" btw={1}>
             <Markdown markdown={community.description} color="$color11" />
           </View>

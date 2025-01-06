@@ -18,6 +18,7 @@ import Md, {
   stringToTokens,
   RenderRules,
 } from "react-native-markdown-display";
+import { Link } from "one";
 
 const Context = createContext<{
   color: GetThemeValueForKey<"color">;
@@ -241,10 +242,10 @@ function tokenizeLemmySpoiler(
   const line = state.src.slice(startPos, endPos).trim();
 
   // Check if the line starts with the spoiler syntax
-  if (!line.startsWith("::: spoiler")) return false;
+  if (!line.startsWith(":::") || !/^:::\s*spoiler/.test(line)) return false;
 
   // Parse the spoiler title
-  const title = line.slice("::: spoiler".length).trim();
+  const title = line.replace(/^:::\s*spoiler/, "").trim();
   if (!title) return false;
 
   // Find the ending `:::`
@@ -265,7 +266,8 @@ function tokenizeLemmySpoiler(
   }
 
   // If we didn’t find the closing `:::`, this isn’t valid
-  if (nextLine >= endLine) return false;
+  // commenting this out since closing isn't actualy required
+  // if (nextLine >= endLine) return false;
 
   // Silent mode is for validation only
   if (silent) return true;
@@ -287,6 +289,27 @@ const markdownItInstance = MarkdownIt({
   tyographer: true,
   linkify: true,
 });
+
+// Access the linkify instance
+const linkify = markdownItInstance.linkify;
+
+// Add a custom rule for Lemmy links
+linkify.add("!", {
+  validate: (text, pos, self) => {
+    // Define the pattern: !username@instance
+    const tail = text.slice(pos);
+    const match = tail.match(/^[a-zA-Z0-9_]+@[a-zA-Z0-9.-]+/); // e.g., !linuxmemes@lemmy.world
+    if (match) {
+      return match[0].length;
+    }
+    return 0;
+  },
+  normalize: (match) => {
+    const url = match.url.substring(1);
+    match.url = `/c/${url}`;
+  },
+});
+
 markdownItInstance.use(markdownItLemmySpoiler);
 
 const renderRules: RenderRules = {
@@ -369,11 +392,19 @@ const renderRules: RenderRules = {
   // },
 
   // // Code
-  // code_inline: (node, children, parent, styles, inheritedStyles = {}) => (
-  //   <Text key={node.key} style={[inheritedStyles, styles.code_inline]}>
-  //     {node.content}
-  //   </Text>
-  // ),
+  code_inline: (node, children, parent, styles, inheritedStyles = {}) => (
+    <Text
+      key={node.key}
+      style={inheritedStyles}
+      p="$1"
+      px="$1.5"
+      bg="$color6"
+      fontSize="$3"
+      br="$1"
+    >
+      {node.content}
+    </Text>
+  ),
   // code_block: (node, children, parent, styles, inheritedStyles = {}) => {
   //   // we trim new lines off the end of code blocks because the parser sends an extra one.
   //   let { content } = node;
@@ -451,6 +482,12 @@ const renderRules: RenderRules = {
   //     {children}
   //   </Text>
   // ),
+  link: (node, children, parent, styles, onLinkPress) => (
+    <Link key={node.key} style={styles.link} href={node.attributes.href}>
+      {children}
+    </Link>
+  ),
+
   // // blocklink: (node, children, parent, styles, onLinkPress) => (
   // //   <TouchableWithoutFeedback
   // //     key={node.key}

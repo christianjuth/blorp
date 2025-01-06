@@ -48,6 +48,7 @@ export default function Communities() {
       <FlashList
         key={numCols}
         numColumns={numCols}
+        // @ts-expect-error
         ref={ref}
         data={communities}
         renderItem={(item) => (

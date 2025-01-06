@@ -1,42 +1,35 @@
+import { useSearch } from "../lib/lemmy";
 import { PostCard } from "~/src/components/posts/post";
 import { isWeb, View } from "tamagui";
 import {
   Sidebar,
   SmallScreenSidebar,
 } from "~/src/components/communities/community-sidebar";
-import { CommunityBanner } from "../components/communities/community-banner";
 import { ContentGutters } from "../components/gutters";
-import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { useCustomHeaderHeight } from "../components/nav/hooks";
 import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 import { PostSortBar } from "../components/lemmy-sort";
-import { FlashList, FlashListProps } from "../components/flashlist";
-import Animated from "react-native-reanimated";
-import { useScrollContext } from "../components/nav/scroll-animation-context";
+import { FlashList } from "../components/flashlist";
 import { useFiltersStore } from "../stores/filters";
 import { usePosts } from "../lib/lemmy";
 
-const ReanimatedFlashList =
-  Animated.createAnimatedComponent<
-    FlashListProps<
-      "banner" | "post-sort-bar" | "sidebar-desktop" | "sidebar-mobile" | string
-    >
-  >(FlashList);
-
 const EMPTY_ARR = [];
 
-export function HomeFeed({ communityName }: { communityName?: string }) {
-  const postSort = useFiltersStore((s) => s.postSort);
+export function SearchFeed({
+  search,
+  communityName,
+}: {
+  search?: string;
+  communityName?: string;
+}) {
+  // const postSort = useFiltersStore((s) => s.postSort);
 
-  const posts = usePosts({
-    limit: 50,
-    sort: postSort,
+  const searchResults = useSearch({
+    q: search ?? "",
     community_name: communityName,
   });
-
-  const { scrollHandler } = useScrollContext();
 
   const tabBar = useCustomTabBarHeight();
   const header = useCustomHeaderHeight();
@@ -50,25 +43,18 @@ export function HomeFeed({ communityName }: { communityName?: string }) {
     isFetchingNextPage,
     refetch,
     isRefetching,
-  } = posts;
+  } = searchResults;
 
-  const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
-
-  const List = !isWeb && communityName ? FlashList : ReanimatedFlashList;
+  const data =
+    searchResults.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
   return (
-    <List
+    <FlashList
       automaticallyAdjustsScrollIndicatorInsets={false}
       // @ts-expect-error
       ref={ref}
       data={
-        [
-          "banner",
-          "sidebar-desktop",
-          "sidebar-mobile",
-          "post-sort-bar",
-          ...data,
-        ] as const
+        ["sidebar-desktop", "sidebar-mobile", "post-sort-bar", ...data] as const
       }
       renderItem={({ item }) => {
         if (item === "sidebar-desktop") {
@@ -76,9 +62,9 @@ export function HomeFeed({ communityName }: { communityName?: string }) {
             <ContentGutters $platform-web={{ pt: header.height }}>
               <View flex={1} />
               {communityName ? (
-                <Sidebar communityName={communityName} />
+                <Sidebar communityName={communityName} hideDescription />
               ) : (
-                <PopularCommunitiesSidebar />
+                <></>
               )}
             </ContentGutters>
           );
@@ -92,16 +78,6 @@ export function HomeFeed({ communityName }: { communityName?: string }) {
             </ContentGutters>
           ) : (
             <></>
-          );
-        }
-
-        if (item === "banner") {
-          return (
-            <ContentGutters
-              transform={[{ translateY: isWeb ? header.height : 0 }]}
-            >
-              <CommunityBanner />
-            </ContentGutters>
           );
         }
 
@@ -137,10 +113,9 @@ export function HomeFeed({ communityName }: { communityName?: string }) {
           refetch();
         }
       }}
-      stickyHeaderIndices={[1]}
+      stickyHeaderIndices={[0]}
       scrollEventThrottle={16}
       estimatedItemSize={475}
-      onScroll={!isWeb && communityName ? undefined : scrollHandler}
       contentInset={{
         top: header.height,
         bottom: tabBar.height,

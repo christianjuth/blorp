@@ -73,6 +73,8 @@
     "react-native-svg": "15.2.0",
     "react-native-video": "^6.8.2",
     "react-native-web": "^0.19.12",
+    "react-native-webview": "13.8.6",
+    "react-native-youtube-iframe": "^2.3.0",
     "rehype-stringify": "^10.0.1",
     "remark": "^15.0.1",
     "remark-rehype": "^11.1.1",

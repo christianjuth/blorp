@@ -8,15 +8,23 @@ import {
   Spinner,
   View,
   Form,
+  Text,
 } from "tamagui";
 import { Input } from "~/src/components/ui/input";
-import { useLogin } from "../lib/lemmy";
+import { useLogin, useInstances } from "../lib/lemmy";
+import { Select } from "../components/ui/select";
+import { useAuth } from "../stores/auth";
 
 /** ------ EXAMPLE ------ */
 export function Auth() {
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { mutate, status } = useLogin();
+
+  const instances = useInstances();
+  const instance = useAuth((a) => a.instance);
+  const setInstance = useAuth((a) => a.setInstance);
+
   return (
     <Form
       flexDirection="column"
@@ -37,15 +45,30 @@ export function Auth() {
         });
       }}
     >
-      <H1
+      <Text
         alignSelf="center"
-        size="$8"
-        $xs={{
-          size: "$7",
-        }}
+        fontWeight="bold"
+        // size="$8"
+        // $xs={{
+        //   size: "$7",
+        // }}
       >
         Sign in to your account
-      </H1>
+      </Text>
+
+      <Select
+        native
+        options={
+          instances.data?.map((i) => ({
+            label: i.name,
+            value: i.url,
+          })) ?? []
+        }
+        value={instance ?? ""}
+        onValueChange={(val) => setInstance(val)}
+        title="Instance"
+      />
+
       <View flexDirection="column" gap="$3">
         <View flexDirection="column" gap="$1">
           <Input size="$4">

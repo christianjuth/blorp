@@ -1,8 +1,8 @@
-import { Feed } from "~/src/features/community-feed";
 import { useParams, useNavigation } from "one";
 import { useEffect } from "react";
 import { useCommunity } from "~/src/lib/lemmy";
 import { useRecentCommunities } from "~/src/stores/recent-communities";
+import { CommunityFeed } from "~/src/features/community-feed";
 
 export default function Community() {
   const nav = useNavigation();
@@ -27,7 +27,7 @@ export default function Community() {
     nav.setOptions({ title: communityTitle ?? "" });
   }, [communityTitle]);
 
-  return <Feed communityName={communityName} />;
+  return <CommunityFeed communityName={communityName} />;
 }
 export async function generateStaticParams() {
   return [];

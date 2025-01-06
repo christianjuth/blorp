@@ -11,6 +11,8 @@ import { Markdown } from "~/src/components/markdown";
 import { PostVideoEmbed } from "./post-video-embed";
 import { Pressable } from "react-native";
 import { useCommentReaplyContext } from "../comments/comment-reply-modal";
+import { isYouTubeVideoUrl } from "~/src/lib/youtube";
+import { YouTubeVideoEmbed } from "../youtube";
 
 export function PostCard({
   apId,
@@ -38,12 +40,20 @@ export function PostCard({
 
   const urlContentType = post.url_content_type;
 
-  let embedType: "image" | "video" | "article" = "article";
+  let embedType: "image" | "video" | "article" | "youtube" = "article";
 
-  if (urlContentType && urlContentType.indexOf("image/") !== -1) {
+  if (
+    (urlContentType && urlContentType.indexOf("image/") !== -1) ||
+    post.url?.endsWith(".jpeg") ||
+    post.url?.endsWith(".jpg") ||
+    post.url?.endsWith(".png") ||
+    post.url?.endsWith(".webp")
+  ) {
     embedType = "image";
   } else if (urlContentType && urlContentType.indexOf("video/") !== -1) {
     embedType = "video";
+  } else if (post.url && isYouTubeVideoUrl(post.url)) {
+    embedType = "youtube";
   }
 
   const postDetailsLink =
@@ -57,9 +67,11 @@ export function PostCard({
 
   const titleWithOptionalImage = (
     <YStack gap="$1">
-      <Text fontWeight={500} fontSize="$6" lineHeight="$3">
-        {post.name}
-      </Text>
+      {!crossPost && (
+        <Text fontWeight={500} fontSize="$6" lineHeight="$3">
+          {post.name}
+        </Text>
+      )}
 
       {post.thumbnail_url && embedType === "image" && (
         <View br="$5" overflow="hidden" $md={{ mx: "$-2.5", br: 0 }}>
@@ -101,6 +113,7 @@ export function PostCard({
       {embedType === "video" && post.url && (
         <PostVideoEmbed url={post.url} autoPlay={detailView} />
       )}
+      {embedType === "youtube" && <YouTubeVideoEmbed url={post.url} />}
     </>
   );
 
@@ -115,7 +128,7 @@ export function PostCard({
         px: "$2.5",
         bbw: 1,
       }}
-      gap="$1.5"
+      gap="$2"
       opacity={pressed ? 0.8 : 1}
       animation="100ms"
       w="100%"
@@ -123,29 +136,35 @@ export function PostCard({
       <PostByline postView={postView} />
 
       {crossPost ? (
-        <Link
-          href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${encodeURIComponent(crossPost.post.ap_id)}`}
-        >
-          <YStack bg="$color4" br="$3">
-            <Text p="$2" color="$color11" fontSize="$3">
-              {crossPost.post.name}
-            </Text>
-            <View mx="$2.5">{preview}</View>
-            <XStack gap="$3">
-              <Text p="$2" color="$color11" fontSize="$3">
-                {crossPost.community.name}
+        <>
+          <Text fontWeight={500} fontSize="$6" lineHeight="$3">
+            {post.name}
+          </Text>
+
+          <Link
+            href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${encodeURIComponent(crossPost.post.ap_id)}`}
+            asChild
+          >
+            <YStack bc="$color4" bw={1} br="$4" py="$2.5" gap="$2" tag="a">
+              <Text px="$3" color="$color11" fontSize="$3">
+                c/{crossPost.community.slug}
               </Text>
-              <Text p="$2" color="$color11" fontSize="$3">
-                {crossPost.counts.score}
+              <Text px="$3" fontWeight={500} fontSize="$5" lineHeight="$3">
+                {crossPost.post.name}
               </Text>
-            </XStack>
-          </YStack>
-        </Link>
+              <View mx="$2.5">{preview}</View>
+            </YStack>
+          </Link>
+        </>
       ) : (
         preview
       )}
 
-      {detailView && body && <Markdown markdown={body} />}
+      {detailView && body && (
+        <View pt="$1.5">
+          <Markdown markdown={body} />
+        </View>
+      )}
 
       <XStack jc="flex-end" ai="center" gap="$2">
         {detailView ? (
