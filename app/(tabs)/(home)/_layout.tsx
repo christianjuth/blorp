@@ -6,6 +6,7 @@ import {
   HomeHeader,
   PostHeader,
   SearchHeader,
+  UserHeader,
 } from "~/src/components/nav/headers";
 import { LinkContext } from "~/src/components/nav/link-context";
 
@@ -39,6 +40,15 @@ export default function Layout() {
           options={{
             title: "Search",
             header: (props) => <SearchHeader {...props} />,
+            headerTransparent: true,
+          }}
+        />
+
+        <Stack.Screen
+          name="u/[userId]"
+          options={{
+            title: "Search",
+            header: (props) => <UserHeader {...props} />,
             headerTransparent: true,
           }}
         />

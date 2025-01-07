@@ -34,9 +34,11 @@ export function PostByline({ postView }: { postView: FlattenedPost }) {
           </Text>
         </Link>
         <XStack>
-          <Text fontSize="$2" fontWeight={500} color="$color11">
-            u/{creator.name}
-          </Text>
+          <Link href={`${linkCtx.root}u/${postView.creator.id}`} push>
+            <Text fontSize="$2" fontWeight={500} color="$color11">
+              u/{creator.name}
+            </Text>
+          </Link>
 
           <RelativeTime
             prefix=" • "

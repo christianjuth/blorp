@@ -205,6 +205,90 @@ function flattenComment(commentView: CommentView): FlattenedComment {
   };
 }
 
+export function usePersonDetails({
+  person_id,
+}: {
+  person_id?: string | number;
+}) {
+  const { client, queryKeyPrefix } = useLemmyClient();
+
+  const queryKey = [...queryKeyPrefix, "getPersonDetails", person_id];
+
+  return useQuery({
+    queryKey,
+    queryFn: async () => {
+      if (!person_id) {
+        throw new Error("person_id undefined");
+      }
+      const { posts, comments, ...rest } = await client.getPersonDetails({
+        person_id: +person_id,
+        limit: 1,
+      });
+      return rest;
+    },
+    enabled: !!person_id,
+  });
+}
+
+export function usePersonPosts({ person_id }: { person_id?: string | number }) {
+  const { client, queryKeyPrefix } = useLemmyClient();
+
+  const queryKey = [...queryKeyPrefix, "getPersonPosts", person_id];
+
+  const cachePosts = usePostsStore((s) => s.cachePosts);
+  const patchPost = usePostsStore((s) => s.patchPost);
+
+  const cacheImages = useSettingsStore((s) => s.cacheImages);
+
+  return useThrottledInfiniteQuery({
+    queryKey,
+    queryFn: async ({ pageParam }) => {
+      const limit = 50;
+
+      if (!person_id) {
+        throw new Error("person_id undefined");
+      }
+      const res = await client.getPersonDetails({
+        person_id: +person_id,
+        limit,
+        page: pageParam,
+      });
+
+      const posts = res.posts.map((post_view) => flattenPost({ post_view }));
+      const cachedPosts = cachePosts(posts);
+
+      let i = 0;
+      for (const { post } of res.posts) {
+        const thumbnail = post.thumbnail_url;
+        if (thumbnail) {
+          setTimeout(() => {
+            if (!cachedPosts[post.ap_id]?.data.imageDetails) {
+              measureImage(thumbnail).then((data) => {
+                patchPost(post.ap_id, {
+                  imageDetails: data,
+                });
+              });
+            }
+            ExpoImage.prefetch([thumbnail], {
+              cachePolicy: cacheImages ? "disk" : "memory",
+            });
+          }, i);
+          i += 50;
+        }
+      }
+
+      return {
+        ...res,
+        posts: res.posts.map((p) => p.post.ap_id),
+        next_page: res.posts.length < limit ? null : pageParam + 1,
+      };
+    },
+    enabled: !!person_id,
+    initialPageParam: 1,
+    getNextPageParam: (d) => 1,
+  });
+}
+
 export function usePost({ ap_id }: { ap_id?: string }) {
   const { client, queryKeyPrefix } = useLemmyClient();
 

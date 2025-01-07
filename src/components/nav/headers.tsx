@@ -15,7 +15,7 @@ import { useCustomHeaderHeight } from "./hooks";
 import { useScrollContext } from "./scroll-animation-context";
 import { useMedia } from "tamagui";
 import { useAnimatedStyle, interpolate } from "react-native-reanimated";
-import { useParams, useRouter } from "one";
+import { Link, useParams, useRouter } from "one";
 import { useState } from "react";
 import { useLinkContext } from "./link-context";
 import { MagnafineGlass } from "../icons";
@@ -27,6 +27,7 @@ import { Dropdown } from "../ui/dropdown";
 import { useLogout } from "~/src/lib/lemmy";
 
 function UserAvatar() {
+  const linkCtx = useLinkContext();
   const logout = useLogout();
   const user = useAuth((s) => s.site?.my_user?.local_user_view.person);
   const requireAuth = useRequireAuth();
@@ -59,22 +60,24 @@ function UserAvatar() {
       }
     >
       <YStack p="$2.5">
-        <XStack gap="$2" ai="center">
-          <Avatar size={30}>
-            <Avatar.Image src={user.avatar} borderRadius="$12" />
-            <Avatar.Fallback
-              backgroundColor="$color8"
-              borderRadius="$12"
-              ai="center"
-              jc="center"
-            >
-              <Text fontSize="$1">
-                {user.name?.substring(0, 1).toUpperCase()}
-              </Text>
-            </Avatar.Fallback>
-          </Avatar>
-          <Text fontSize="$4">u/{user.name}</Text>
-        </XStack>
+        <Link href={`${linkCtx.root}u/${user.id}`} push>
+          <XStack gap="$2" ai="center">
+            <Avatar size={30}>
+              <Avatar.Image src={user.avatar} borderRadius="$12" />
+              <Avatar.Fallback
+                backgroundColor="$color8"
+                borderRadius="$12"
+                ai="center"
+                jc="center"
+              >
+                <Text fontSize="$1">
+                  {user.name?.substring(0, 1).toUpperCase()}
+                </Text>
+              </Avatar.Fallback>
+            </Avatar>
+            <Text fontSize="$4">u/{user.name}</Text>
+          </XStack>
+        </Link>
 
         <Button onPress={logout} bg="transparent" jc="flex-start" p={0} h="$4">
           <Text>Logout</Text>
@@ -364,6 +367,41 @@ export function CommunitiesHeader(
         </>
         <CommunityFilter />
         <CommunitySortSelect />
+      </HeaderGutters>
+    </View>
+  );
+}
+
+export function UserHeader(
+  props: NativeStackHeaderProps | BottomTabHeaderProps,
+) {
+  const { height, insetTop } = useCustomHeaderHeight();
+  return (
+    <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
+      <BlurBackground />
+      <HeaderGutters pt={insetTop} h={height - 1}>
+        <>
+          {"back" in props && props.back && (
+            <Button
+              unstyled
+              p={2}
+              bg="transparent"
+              borderRadius="$12"
+              dsp="flex"
+              fd="row"
+              ai="center"
+              bw={0}
+              onPress={() => props.navigation.pop(1)}
+              h="auto"
+            >
+              <ChevronLeft color="$accentColor" size="$2" />
+            </Button>
+          )}
+        </>
+        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+          {props.options.title}
+        </Text>
+        <ComentSortSelect />
       </HeaderGutters>
     </View>
   );

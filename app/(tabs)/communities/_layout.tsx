@@ -5,6 +5,7 @@ import {
   CommunityHeader,
   CommunitiesHeader,
   PostHeader,
+  UserHeader,
 } from "~/src/components/nav/headers";
 import { LinkContext } from "~/src/components/nav/link-context";
 
@@ -30,6 +31,15 @@ export default function Layout() {
           options={{
             title: "Communities",
             header: (props) => <CommunitiesHeader {...props} />,
+            headerTransparent: true,
+          }}
+        />
+
+        <Stack.Screen
+          name="u/[userId]"
+          options={{
+            title: "Search",
+            header: (props) => <UserHeader {...props} />,
             headerTransparent: true,
           }}
         />
