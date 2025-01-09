@@ -5,7 +5,7 @@ import config from "~/config/tamagui/tamagui.config";
 import { persist } from "./query-storage";
 import { ScrollProvider } from "./nav/scroll-animation-context";
 import { AuthProvider } from "./auth-context";
-import { Onboarding } from "../features/onboarding";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import _ from "lodash";
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
@@ -38,12 +38,14 @@ const TamaguiRootProvider = ({ children }: { children: React.ReactNode }) => {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <TamaguiRootProvider>
-      <ScrollProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>{children}</AuthProvider>
-        </QueryClientProvider>
-      </ScrollProvider>
-    </TamaguiRootProvider>
+    <SafeAreaProvider>
+      <TamaguiRootProvider>
+        <ScrollProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>{children}</AuthProvider>
+          </QueryClientProvider>
+        </ScrollProvider>
+      </TamaguiRootProvider>
+    </SafeAreaProvider>
   );
 }

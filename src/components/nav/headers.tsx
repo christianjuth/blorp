@@ -538,7 +538,7 @@ export function BottomTabBarHeader(props: BottomTabHeaderProps) {
           )}
         </>
         <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-          {props.route.name}
+          {props.route.name ?? props.options.title}
         </Text>
         <View flex={1} flexBasis={0} ai="flex-end">
           <ComentSortSelect />

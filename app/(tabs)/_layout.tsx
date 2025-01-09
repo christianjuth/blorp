@@ -18,11 +18,11 @@ export default function Layout() {
       tabBar={(props) => <CustomBottomTabBar {...props} />}
       screenOptions={{
         tabBarStyle: {
-          borderTopColor: theme.color4.val,
+          borderTopColor: theme.color4?.val,
           backgroundColor: "transparent",
         },
         header: (props) => <BottomTabBarHeader {...props} />,
-        tabBarActiveTintColor: theme.accentColor.val,
+        tabBarActiveTintColor: theme.accentColor?.val,
       }}
     >
       <Tabs.Screen
