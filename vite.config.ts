@@ -25,6 +25,9 @@ export default {
         "expo-linear-gradient": {
           "**/*.js": ["jsx"],
         },
+        "react-native-pell-rich-editor": {
+          "**/*.js": ["jsx"],
+        },
       },
     }),
 

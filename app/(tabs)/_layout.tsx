@@ -48,6 +48,7 @@ export default function Layout() {
         options={{
           title: "Create",
           tabBarIcon: ({ color }) => <Plus color={color} />,
+          headerTransparent: true,
         }}
       />
 

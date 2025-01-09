@@ -23,7 +23,11 @@ import {
 import { useInstances, useLogin } from "../lib/lemmy";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Modal } from "./ui/modal";
-import { FlatList } from "react-native";
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  useWindowDimensions,
+} from "react-native";
 import { ChevronLeft } from "@tamagui/lucide-icons";
 
 const Context = createContext<{
@@ -91,126 +95,140 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
   const instances = useInstances();
 
   const filteredInstances = search
-    ? instances.data?.filter((i) => i.url.indexOf(search) > -1)
+    ? instances.data?.filter(
+        (i) => i.url.toLowerCase().indexOf(search.toLowerCase()) > -1,
+      )
     : instances.data;
 
   const setInstance = useAuth((a) => a.setInstance);
 
   const insets = useSafeAreaInsets();
 
+  const windowDimensions = useWindowDimensions();
+
   return (
-    <Modal open={open} onClose={onClose}>
-      <YStack bg="$color2" p="$4" br="$4" gap="$3" w={400} maxWidth="100%">
-        {!instance.url ? (
-          <>
-            <Text>Pick the server you created your account on</Text>
-            <Input
-              placeholder="Enter URL or search for your server"
-              size="$3"
-              value={search}
-              onChangeText={setSearch}
-            />
-            <FlatList
-              data={filteredInstances}
-              keyExtractor={(i) => i.url}
-              renderItem={(i) => (
-                <Button p={0} bg="transparent" h="auto">
-                  <Text
-                    py="$2"
-                    onPress={() => {
-                      setInstanceLocal(i.item);
-                      setInstance(i.item.url);
-                    }}
-                    textAlign="left"
-                    mr="auto"
-                  >
-                    {i.item.baseurl}
-                  </Text>
-                </Button>
-              )}
-              style={{ maxHeight: 500 }}
-            />
-          </>
-        ) : (
-          <Form
-            flexDirection="column"
-            alignItems="stretch"
-            width="100%"
-            gap="$4"
-            onSubmit={() => {
-              mutate({
-                username_or_email: userName,
-                password: password,
-              });
-            }}
-          >
-            <Button
-              onPress={() => setInstanceLocal({})}
-              p={0}
-              bg="transparent"
-              h="auto"
-              jc="flex-start"
+    <Modal open={open} onClose={onClose} scrollable={false}>
+      <KeyboardAvoidingView behavior="padding">
+        <YStack
+          bg="$color2"
+          p="$4"
+          br="$4"
+          gap="$3"
+          w={400}
+          maxWidth="100%"
+          height={windowDimensions.height / 2}
+        >
+          {!instance.url ? (
+            <>
+              <Text>Pick the server you created your account on</Text>
+              <Input
+                placeholder="Enter URL or search for your server"
+                size="$3"
+                value={search}
+                onChangeText={setSearch}
+              />
+              <FlatList
+                data={filteredInstances}
+                keyExtractor={(i) => i.url}
+                renderItem={(i) => (
+                  <Button p={0} bg="transparent" h="auto">
+                    <Text
+                      py="$2"
+                      onPress={() => {
+                        setInstanceLocal(i.item);
+                        setInstance(i.item.url);
+                      }}
+                      textAlign="left"
+                      mr="auto"
+                    >
+                      {i.item.baseurl}
+                    </Text>
+                  </Button>
+                )}
+                style={{ maxHeight: 500 }}
+              />
+            </>
+          ) : (
+            <Form
+              flexDirection="column"
+              alignItems="stretch"
+              width="100%"
+              gap="$4"
+              onSubmit={() => {
+                mutate({
+                  username_or_email: userName,
+                  password: password,
+                });
+              }}
             >
-              <ChevronLeft color="$accentColor" />
-              <Text color="$accentColor">Back</Text>
-            </Button>
-
-            <Text fontWeight="bold">
-              You are logging in to {instance.baseurl}
-            </Text>
-
-            <Input
-              id="email"
-              placeholder="email@example.com"
-              value={userName}
-              onChangeText={setUsername}
-            />
-
-            <Input
-              textContentType="password"
-              secureTextEntry
-              id="password"
-              placeholder="Enter password"
-              value={password}
-              onChangeText={setPassword}
-            />
-
-            <Form.Trigger asChild>
               <Button
-                bg="$accentColor"
-                disabled={status === "pending"}
-                // onPress={signIn}
-                width="100%"
-                iconAfter={
-                  <AnimatePresence>
-                    {status === "pending" && (
-                      <Spinner
-                        color="$color"
-                        key="loading-spinner"
-                        opacity={1}
-                        scale={1}
-                        animation="quick"
-                        position="absolute"
-                        left="60%"
-                        enterStyle={{
-                          opacity: 0,
-                          scale: 0.5,
-                        }}
-                        exitStyle={{
-                          opacity: 0,
-                          scale: 0.5,
-                        }}
-                      />
-                    )}
-                  </AnimatePresence>
-                }
+                onPress={() => setInstanceLocal({})}
+                p={0}
+                bg="transparent"
+                h="auto"
+                jc="flex-start"
               >
-                <Button.Text>Sign In</Button.Text>
+                <ChevronLeft color="$accentColor" />
+                <Text color="$accentColor">Back</Text>
               </Button>
-            </Form.Trigger>
-          </Form>
-        )}
-      </YStack>
+
+              <Text fontWeight="bold">
+                You are logging in to {instance.baseurl}
+              </Text>
+
+              <Input
+                id="email"
+                placeholder="email@example.com"
+                value={userName}
+                onChangeText={setUsername}
+              />
+
+              <Input
+                textContentType="password"
+                secureTextEntry
+                id="password"
+                placeholder="Enter password"
+                value={password}
+                onChangeText={setPassword}
+              />
+
+              <Form.Trigger asChild>
+                <Button
+                  bg="$accentColor"
+                  disabled={status === "pending"}
+                  // onPress={signIn}
+                  width="100%"
+                  iconAfter={
+                    <AnimatePresence>
+                      {status === "pending" && (
+                        <Spinner
+                          color="$color"
+                          key="loading-spinner"
+                          opacity={1}
+                          scale={1}
+                          animation="quick"
+                          position="absolute"
+                          left="60%"
+                          enterStyle={{
+                            opacity: 0,
+                            scale: 0.5,
+                          }}
+                          exitStyle={{
+                            opacity: 0,
+                            scale: 0.5,
+                          }}
+                        />
+                      )}
+                    </AnimatePresence>
+                  }
+                >
+                  <Button.Text>Sign In</Button.Text>
+                </Button>
+              </Form.Trigger>
+            </Form>
+          )}
+        </YStack>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

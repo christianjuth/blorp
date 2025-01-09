@@ -211,54 +211,50 @@ export function CommunityHeader(
   const [search, setSearch] = useState(initSearch);
 
   return (
-    <Animated.View style={[styles.container, { position: "relative" }]}>
+    <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
       <BlurBackground />
 
-      <Animated.View style={styles.content}>
-        <View bbc="$color4" bbw={0.5} w="100%">
-          <HeaderGutters pt={insetTop} h={height - 1}>
-            <>
-              {"back" in props && props.back && (
-                <Button
-                  unstyled
-                  p={2}
-                  bg="transparent"
-                  borderRadius="$12"
-                  dsp="flex"
-                  fd="row"
-                  ai="center"
-                  bw={0}
-                  onPress={() => props.navigation.pop(1)}
-                  h="auto"
-                >
-                  <ChevronLeft color="$accentColor" size="$2" />
-                </Button>
-              )}
-            </>
+      <HeaderGutters pt={insetTop} h={height - 1}>
+        <>
+          {"back" in props && props.back && (
+            <Button
+              unstyled
+              p={2}
+              bg="transparent"
+              borderRadius="$12"
+              dsp="flex"
+              fd="row"
+              ai="center"
+              bw={0}
+              onPress={() => props.navigation.pop(1)}
+              h="auto"
+            >
+              <ChevronLeft color="$accentColor" size="$2" />
+            </Button>
+          )}
+        </>
 
-            <Input
-              bg="$color4"
-              br="$12"
-              h="$3"
-              bc="$color4"
-              placeholder={`Search ${communityName}`}
-              flex={1}
-              maxWidth={500}
-              value={search}
-              onChangeText={setSearch}
-              onSubmitEditing={() => {
-                router.push(`${linkCtx.root}c/${communityName}/s/${search}`);
-              }}
-            />
+        <Input
+          bg="$color4"
+          br="$12"
+          h="$3"
+          bc="$color4"
+          placeholder={`Search ${communityName}`}
+          flex={1}
+          maxWidth={500}
+          value={search}
+          onChangeText={setSearch}
+          onSubmitEditing={() => {
+            router.push(`${linkCtx.root}c/${communityName}/s/${search}`);
+          }}
+        />
 
-            <>
-              <PostSortSelect />
-              <UserAvatar />
-            </>
-          </HeaderGutters>
-        </View>
-      </Animated.View>
-    </Animated.View>
+        <>
+          <PostSortSelect />
+          <UserAvatar />
+        </>
+      </HeaderGutters>
+    </View>
   );
 }
 
@@ -288,54 +284,38 @@ export function SearchHeader(
   const [search, setSearch] = useState(initSearch);
 
   return (
-    <Animated.View style={[styles.container, { position: "relative" }]}>
+    <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
       <BlurBackground />
 
-      <Animated.View style={styles.content}>
-        <View bbc="$color4" bbw={0.5} w="100%">
-          <ContentGutters
-            ai="center"
-            pt={insetTop}
-            h={height - 1}
-            pos="relative"
-            // flex={1}
-            fd="row"
-            px="$3"
-            gap="$2.5"
-            jc="space-between"
-          >
-            <>
-              <View w="33%">
-                {"back" in props && props.back && (
-                  <Button
-                    unstyled
-                    p={0}
-                    bg="transparent"
-                    borderRadius="$12"
-                    dsp="flex"
-                    fd="row"
-                    ai="center"
-                    bw={0}
-                    onPress={() => props.navigation.pop(1)}
-                    h="auto"
-                  >
-                    <ChevronLeft color="$accentColor" size="$1.5" />
-                  </Button>
-                )}
-              </View>
-              <SearchBar />
-              <XStack w="33%" jc="flex-end" ai="center" gap="$3">
-                {/* <Link href={`${linkCtx.root}s/q`}> */}
-                {/*   <MagnafineGlass /> */}
-                {/* </Link> */}
-                <PostSortSelect />
-                <UserAvatar />
-              </XStack>
-            </>
-          </ContentGutters>
-        </View>
-      </Animated.View>
-    </Animated.View>
+      <HeaderGutters pt={insetTop} h={height - 1}>
+        <>
+          {"back" in props && props.back && (
+            <Button
+              unstyled
+              p={0}
+              bg="transparent"
+              borderRadius="$12"
+              dsp="flex"
+              fd="row"
+              ai="center"
+              bw={0}
+              onPress={() => props.navigation.pop(1)}
+              h="auto"
+            >
+              <ChevronLeft color="$accentColor" size="$1.5" />
+            </Button>
+          )}
+        </>
+        <SearchBar />
+        <>
+          {/* <Link href={`${linkCtx.root}s/q`}> */}
+          {/*   <MagnafineGlass /> */}
+          {/* </Link> */}
+          <PostSortSelect />
+          <UserAvatar />
+        </>
+      </HeaderGutters>
+    </View>
   );
 }
 
@@ -536,44 +516,34 @@ export function StackHeader(props: NativeStackHeaderProps) {
 export function BottomTabBarHeader(props: BottomTabHeaderProps) {
   const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <XStack
-      bbc="$color4"
-      bbw={0.5}
-      btw={0}
-      btc="transparent"
-      w="unset"
-      px="$3"
-      ai="center"
-      pt={insetTop}
-      h={height - 1}
-      pos="relative"
-    >
+    <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
       <BlurBackground />
-
-      <View flex={1} flexBasis={0} ai="flex-start">
-        {props.navigation.canGoBack() && (
-          <Button
-            unstyled
-            p={2}
-            bg="transparent"
-            borderRadius="$12"
-            dsp="flex"
-            fd="row"
-            ai="center"
-            bw={0}
-            onPress={() => props.navigation.goBack()}
-            h="auto"
-          >
-            <ChevronLeft color="$accentColor" size="$2" />
-          </Button>
-        )}
-      </View>
-      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-        {props.route.name}
-      </Text>
-      <View flex={1} flexBasis={0} ai="flex-end">
-        <ComentSortSelect />
-      </View>
-    </XStack>
+      <HeaderGutters pt={insetTop} h={height - 1}>
+        <>
+          {props.navigation.canGoBack() && (
+            <Button
+              unstyled
+              p={2}
+              bg="transparent"
+              borderRadius="$12"
+              dsp="flex"
+              fd="row"
+              ai="center"
+              bw={0}
+              onPress={() => props.navigation.goBack()}
+              h="auto"
+            >
+              <ChevronLeft color="$accentColor" size="$2" />
+            </Button>
+          )}
+        </>
+        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+          {props.route.name}
+        </Text>
+        <View flex={1} flexBasis={0} ai="flex-end">
+          <ComentSortSelect />
+        </View>
+      </HeaderGutters>
+    </View>
   );
 }

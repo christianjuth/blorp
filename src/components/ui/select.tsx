@@ -40,7 +40,7 @@ export function Select<V extends string>({
           {trigger}
         </TSelect.Trigger>
       ) : (
-        <TSelect.Trigger width={220} iconAfter={ChevronDown}>
+        <TSelect.Trigger width={220} iconAfter={ChevronDown} br={999999}>
           <TSelect.Value placeholder="Something" />
         </TSelect.Trigger>
       )}

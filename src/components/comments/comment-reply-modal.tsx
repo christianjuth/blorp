@@ -10,7 +10,7 @@ import {
   Input,
   useMedia,
 } from "tamagui";
-import { KeyboardAvoidingView } from "react-native";
+import { KeyboardAvoidingView, TextInput } from "react-native";
 import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
 import { BlurBackground } from "../nav/blur-background";
 import {
@@ -20,6 +20,7 @@ import {
 } from "~/src/lib/lemmy";
 import { ContentGutters } from "../gutters";
 import _ from "lodash";
+import { MarkdownEditor, MarkdownEditorState } from "../markdown-editor";
 
 const Context = createContext<{
   setComment: (comment: Comment | undefined) => void;
@@ -43,17 +44,28 @@ export function CommentReplyContext({
   postId: PostId;
   children: React.ReactNode;
 }) {
-  const inputRef = useRef<Input>(null);
+  const inputRef = useRef<TextInput>(null);
 
   const bottomTabBar = useCustomTabBarHeight();
   const [parentComment, setParentComment] = useState<FlattenedComment>();
   const [comment, setComment] = useState<Comment>();
   const [focused, setFocused] = useState(false);
-  const [content, setContent] = useState<Record<number, string>>({});
+  const [content, setContent] = useState<Record<number, MarkdownEditorState>>(
+    {},
+  );
   const media = useMedia();
 
   const createComment = useCreateComment();
   const editComment = useEditComment();
+
+  if (!content[comment?.id ?? parentComment?.comment.id ?? 0]) {
+    setContent((prev) => ({
+      ...prev,
+      [comment?.id ?? parentComment?.comment.id ?? 0]: new MarkdownEditorState(
+        "",
+      ),
+    }));
+  }
 
   return (
     <Context.Provider
@@ -63,7 +75,7 @@ export function CommentReplyContext({
           if (comment) {
             setContent((prev) => ({
               ...prev,
-              [comment.id]: comment.content,
+              [comment.id]: new MarkdownEditorState(comment.content),
             }));
           }
           setComment(comment);
@@ -112,12 +124,12 @@ export function CommentReplyContext({
               editComment.mutate({
                 path: comment.path,
                 comment_id: comment.id,
-                content: content[comment.id],
+                content: content[comment.id].getContent(),
               });
             } else {
               createComment.mutate({
                 post_id: postId,
-                content: content[parentComment?.comment.id ?? 0],
+                content: content[parentComment?.comment.id ?? 0].getContent(),
                 parent_id: parentComment?.comment.id,
                 parentPath: parentComment?.comment.path ?? "0",
               });
@@ -144,8 +156,8 @@ export function CommentReplyContext({
                 )}
                 {comment && <Text pt="$2">Editing</Text>}
 
-                <Input
-                  ref={inputRef}
+                <MarkdownEditor
+                  inputRef={inputRef}
                   placeholder="Add a comment..."
                   onFocus={() => setFocused(true)}
                   onBlur={() => {
@@ -153,26 +165,20 @@ export function CommentReplyContext({
                       setFocused(false);
                     }, 0);
                   }}
-                  value={
-                    content[comment?.id ?? parentComment?.comment.id ?? 0] ?? ""
-                  }
-                  onChangeText={(val) =>
-                    setContent((prev) => ({
-                      ...prev,
-                      [comment?.id ?? parentComment?.comment.id ?? 0]: val,
-                    }))
+                  editor={
+                    content[comment?.id ?? parentComment?.comment.id ?? 0]
                   }
                   style={{
                     borderWidth: 0,
                     paddingVertical: 10,
+                    backgroundColor: "transparent",
                   }}
-                  multiline
-                  p={0}
-                  py="$2"
-                  bw={0}
-                  h={focused ? undefined : "$3.5"}
-                  bg="transparent"
-                  outlineColor="transparent"
+                  // p={0}
+                  // py="$2"
+                  // bw={0}
+                  // h={focused ? undefined : "$3.5"}
+                  // bg="transparent"
+                  // outlineColor="transparent"
                 />
                 {focused ? (
                   <XStack minHeight={bottomTabBar.insetBottom} jc="flex-end">
@@ -263,7 +269,7 @@ export function InlineCommentReply({
       w="100%"
     >
       <View px="$3" bw={1} bc="$color5" br="$6">
-        <Input
+        <MarkdownEditor
           placeholder="Add a comment..."
           onFocus={() => setFocused(true)}
           value={content}
@@ -275,12 +281,12 @@ export function InlineCommentReply({
             }
           }}
           autoFocus={autoFocus}
-          p={0}
-          py="$2"
-          bw={0}
-          h={focused ? undefined : "$3.5"}
-          bg="transparent"
-          outlineColor="transparent"
+          // p={0}
+          // py="$2"
+          // bw={0}
+          // h={focused ? undefined : "$3.5"}
+          // bg="transparent"
+          // outlineColor="transparent"
         />
         {focused && (
           <XStack jc="flex-end" py="$2">

@@ -133,7 +133,11 @@ export function User({ userId }: { userId?: string }) {
         if (item === "banner") {
           return (
             <ContentGutters>
-              <XStack ai="center" flex={1} $md={{ px: "$2" }}>
+              <XStack
+                ai="center"
+                flex={1}
+                $md={{ px: "$2", bbw: 1, bbc: "$color4" }}
+              >
                 <Avatar size="$5" mr="$2">
                   <Avatar.Image src={person.avatar} borderRadius="$12" />
                   <Avatar.Fallback

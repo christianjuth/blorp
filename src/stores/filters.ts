@@ -28,7 +28,7 @@ export const useFiltersStore = create<SortsStore>()(
       setCommentSort: (commentSort) => set({ commentSort }),
       postSort: "Active",
       setPostSort: (postSort) => set({ postSort }),
-      listingType: "Local",
+      listingType: "All",
       setListingType: (listingType) =>
         set({
           listingType,

@@ -1,3 +1,4 @@
+import { KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Dialog, Adapt, Sheet } from "tamagui";
 
@@ -5,10 +6,12 @@ export function Modal({
   open,
   onClose,
   children,
+  scrollable = true,
 }: {
   open: boolean;
   onClose: () => any;
   children: React.ReactNode;
+  scrollable?: boolean;
 }) {
   const insets = useSafeAreaInsets();
   return (
@@ -30,9 +33,13 @@ export function Modal({
               bg: "$color3",
             }}
           >
-            <Sheet.ScrollView pb={insets.bottom}>
+            {scrollable ? (
+              <Sheet.ScrollView pb={insets.bottom}>
+                <Adapt.Contents />
+              </Sheet.ScrollView>
+            ) : (
               <Adapt.Contents />
-            </Sheet.ScrollView>
+            )}
           </Sheet.Frame>
           <Sheet.Overlay
             // animation="lazy"

@@ -5795,6 +5795,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/highlight.js@npm:^9.7.0":
+  version: 9.12.4
+  resolution: "@types/highlight.js@npm:9.12.4"
+  checksum: 10c0/c7eebcd90c639bf4710c6853a11e18b1616767ee91c05ceb16441d07bdade4c4eb83c27b06111197f6d7436b469f71dc4c4f76c4a27fe89b2d441afd232d68e2
+  languageName: node
+  linkType: hard
+
 "@types/istanbul-lib-coverage@npm:*, @types/istanbul-lib-coverage@npm:^2.0.0":
   version: 2.0.6
   resolution: "@types/istanbul-lib-coverage@npm:2.0.6"
@@ -5837,10 +5844,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/linkify-it@npm:*":
+  version: 5.0.0
+  resolution: "@types/linkify-it@npm:5.0.0"
+  checksum: 10c0/7bbbf45b9dde17bf3f184fee585aef0e7342f6954f0377a24e4ff42ab5a85d5b806aaa5c8d16e2faf2a6b87b2d94467a196b7d2b85c9c7de2f0eaac5487aaab8
+  languageName: node
+  linkType: hard
+
 "@types/lodash@npm:^4.17.13":
   version: 4.17.13
   resolution: "@types/lodash@npm:4.17.13"
   checksum: 10c0/c3d0b7efe7933ac0369b99f2f7bff9240d960680fdb74b41ed4bd1b3ca60cca1e31fe4046d9abbde778f941a41bc2a75eb629abf8659fa6c27b66efbbb0802a9
+  languageName: node
+  linkType: hard
+
+"@types/markdown-it@npm:10.0.3":
+  version: 10.0.3
+  resolution: "@types/markdown-it@npm:10.0.3"
+  dependencies:
+    "@types/highlight.js": "npm:^9.7.0"
+    "@types/linkify-it": "npm:*"
+    "@types/mdurl": "npm:*"
+    highlight.js: "npm:^9.7.0"
+  checksum: 10c0/da85eac80dbae47ecffb29834450d1e7e48c67e5ca116edd8bb9f226e5c4521e8c9d04af284924e746e66e84e421d953c676f57d3f896070629f772684f023e7
   languageName: node
   linkType: hard
 
@@ -5850,6 +5876,13 @@ __metadata:
   dependencies:
     "@types/unist": "npm:*"
   checksum: 10c0/84f403dbe582ee508fd9c7643ac781ad8597fcbfc9ccb8d4715a2c92e4545e5772cbd0dbdf18eda65789386d81b009967fdef01b24faf6640f817287f54d9c82
+  languageName: node
+  linkType: hard
+
+"@types/mdurl@npm:*":
+  version: 2.0.0
+  resolution: "@types/mdurl@npm:2.0.0"
+  checksum: 10c0/cde7bb571630ed1ceb3b92a28f7b59890bb38b8f34cd35326e2df43eebfc74985e6aa6fd4184e307393bad8a9e0783a519a3f9d13c8e03788c0f98e5ec869c5e
   languageName: node
   linkType: hard
 
@@ -9903,6 +9936,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"highlight.js@npm:^9.7.0":
+  version: 9.18.5
+  resolution: "highlight.js@npm:9.18.5"
+  checksum: 10c0/bad99a5bfd31825769f76718e54372d291b9c3ad197df3c3102066c5baa08ee611f6a2aa6ffdc7e1cd24c7d4025b0b6db965837a14cbc4d4d06f2ad2fbf07a3d
+  languageName: node
+  linkType: hard
+
 "hoist-non-react-statics@npm:^3.3.0":
   version: 3.3.2
   resolution: "hoist-non-react-statics@npm:3.3.2"
@@ -11162,6 +11202,7 @@ __metadata:
     "@tanstack/react-query": "npm:5.62.7"
     "@tanstack/react-query-persist-client": "npm:5.62.7"
     "@types/lodash": "npm:^4.17.13"
+    "@types/markdown-it": "npm:10.0.3"
     "@types/react": "npm:^18.3.11"
     "@types/react-native-safari-view": "npm:^2"
     "@vxrn/color-scheme": "npm:1.1.371"
@@ -11181,6 +11222,7 @@ __metadata:
     immer: "npm:^10.1.1"
     lemmy-js-client: "npm:0.20.0-pkce.1"
     lodash: "npm:^4.17.21"
+    markdown-it: "npm:10.0.0"
     markdown-to-jsx: "npm:^7.7.0"
     mdast-util-lemmy-spoiler: "npm:^2.0.0"
     micromark-extension-lemmy-spoiler: "npm:^2.0.0"
@@ -11191,6 +11233,7 @@ __metadata:
     react-markdown: "npm:^9.0.1"
     react-native: "npm:0.74.5"
     react-native-animated-rolling-numbers: "npm:^1.0.3"
+    react-native-cn-quill: "npm:^0.7.18"
     react-native-markdown-display: "npm:^7.0.2"
     react-native-reanimated: "npm:~3.16.6"
     react-native-safari-view: "npm:^2.1.0"
@@ -11209,7 +11252,7 @@ __metadata:
     type-fest: "npm:^4.30.1"
     unified: "npm:^11.0.5"
     use-deep-compare-effect: "npm:^1.8.1"
-    vite: "npm:^6.0.6"
+    vite: "npm:^6.0.7"
     vite-plugin-circular-dependency: "npm:^0.5.0"
     zod: "npm:^3.24.1"
     zustand: "npm:^5.0.2"
@@ -11646,7 +11689,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"markdown-it@npm:^10.0.0":
+"markdown-it@npm:10.0.0, markdown-it@npm:^10.0.0":
   version: 10.0.0
   resolution: "markdown-it@npm:10.0.0"
   dependencies:
@@ -14223,6 +14266,17 @@ __metadata:
     react-native: ">=0.70.0"
     react-native-reanimated: ">=2.0.0"
   checksum: 10c0/21491d0457804db8a7001ded7ba5d741cb6a7f0ff72f29c88bf60c59a91228f05100aac702bfaf256a350967795e5404d9b12106da05ddb2f748b4aa24adff20
+  languageName: node
+  linkType: hard
+
+"react-native-cn-quill@npm:^0.7.18":
+  version: 0.7.18
+  resolution: "react-native-cn-quill@npm:0.7.18"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-webview: ^11.0.0
+  checksum: 10c0/8ea8210f5f1f7623b77930d854778d3ed8fc31e5909990625b704cb973147d1c4e4078632bb7b0b05ab2cc7a43973e6b0143d1ef692ecd6f2d8f0a2a5113015c
   languageName: node
   linkType: hard
 
@@ -17055,7 +17109,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^6.0.5, vite@npm:^6.0.6":
+"vite@npm:^6.0.5":
   version: 6.0.6
   resolution: "vite@npm:6.0.6"
   dependencies:
@@ -17104,6 +17158,58 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10c0/144c3f80a7920a4b2fa14f00f99b58ece246455ca9313561a67a227b45dadac3343e406d3c1dbfafa79992ac88f54cb2b040b229997e432daf47594fe8cacec2
+  languageName: node
+  linkType: hard
+
+"vite@npm:^6.0.7":
+  version: 6.0.7
+  resolution: "vite@npm:6.0.7"
+  dependencies:
+    esbuild: "npm:^0.24.2"
+    fsevents: "npm:~2.3.3"
+    postcss: "npm:^8.4.49"
+    rollup: "npm:^4.23.0"
+  peerDependencies:
+    "@types/node": ^18.0.0 || ^20.0.0 || >=22.0.0
+    jiti: ">=1.21.0"
+    less: "*"
+    lightningcss: ^1.21.0
+    sass: "*"
+    sass-embedded: "*"
+    stylus: "*"
+    sugarss: "*"
+    terser: ^5.16.0
+    tsx: ^4.8.1
+    yaml: ^2.4.2
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  peerDependenciesMeta:
+    "@types/node":
+      optional: true
+    jiti:
+      optional: true
+    less:
+      optional: true
+    lightningcss:
+      optional: true
+    sass:
+      optional: true
+    sass-embedded:
+      optional: true
+    stylus:
+      optional: true
+    sugarss:
+      optional: true
+    terser:
+      optional: true
+    tsx:
+      optional: true
+    yaml:
+      optional: true
+  bin:
+    vite: bin/vite.js
+  checksum: 10c0/ae81047b4290a7206b9394a39a782d509e9610462e7946422ba22d5bc615b5a322c07e33d7bf9dd0b3312ec3f5c63353b725913d1519324bfdf539b4f1e03f52
   languageName: node
   linkType: hard
 
