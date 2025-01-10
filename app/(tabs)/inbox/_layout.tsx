@@ -31,7 +31,6 @@ export default function Layout() {
           name="index"
           options={{
             title: "Inbox",
-            headerTitle: "Inbox",
           }}
         />
 

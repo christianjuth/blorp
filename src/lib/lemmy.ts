@@ -929,6 +929,10 @@ export function useSearch(form: Search) {
     queryKey.push("type", form.type_);
   }
 
+  if (form.limit) {
+    queryKey.push("limit", String(form.limit));
+  }
+
   const limit = form.limit ?? 50;
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
@@ -968,7 +972,9 @@ export function useSearch(form: Search) {
         }
       }
 
+      const { communities, comments, users } = res;
       return {
+        communities,
         posts: posts.map((p) => p.post.ap_id),
         next_page: posts.length < limit ? null : pageParam + 1,
       };

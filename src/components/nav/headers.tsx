@@ -25,6 +25,7 @@ import { HeaderGutters } from "../gutters";
 import { useRequireAuth } from "../auth-context";
 import { Dropdown } from "../ui/dropdown";
 import { useLogout } from "~/src/lib/lemmy";
+import { useCreatePostStore } from "~/src/stores/create-post";
 
 function UserAvatar() {
   const linkCtx = useLinkContext();
@@ -506,7 +507,7 @@ export function StackHeader(props: NativeStackHeaderProps) {
         )}
       </View>
       <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-        {props.options.headerTitle ?? props.route.name}
+        {props.options.title ?? props.route.name}
       </Text>
       <View flex={1} flexBasis={0} ai="flex-end"></View>
     </XStack>
@@ -538,11 +539,101 @@ export function BottomTabBarHeader(props: BottomTabHeaderProps) {
           )}
         </>
         <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-          {props.route.name ?? props.options.title}
+          {props.options.title ?? props.route.name}
         </Text>
-        <View flex={1} flexBasis={0} ai="flex-end">
-          <ComentSortSelect />
-        </View>
+        <></>
+      </HeaderGutters>
+    </View>
+  );
+}
+
+export function CreatePostHeaderStepOne(props: BottomTabHeaderProps) {
+  const router = useRouter();
+  const { height, insetTop } = useCustomHeaderHeight();
+
+  const selectedCommunity = useCreatePostStore((s) => s.community);
+  const isPostReady = useCreatePostStore(
+    (s) => s.community && s.title.length > 0 && s.content.length > 0,
+  );
+  const reset = useCreatePostStore((s) => s.reset);
+
+  return (
+    <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
+      <BlurBackground />
+      <HeaderGutters pt={insetTop} h={height - 1}>
+        <>
+          {props.navigation.canGoBack() && (
+            <Button
+              unstyled
+              p={2}
+              bg="transparent"
+              borderRadius="$12"
+              dsp="flex"
+              fd="row"
+              ai="center"
+              bw={0}
+              onPress={() => props.navigation.goBack()}
+              h="auto"
+            >
+              <X color="$accentColor" size="$2" />
+            </Button>
+          )}
+        </>
+        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+          {props.options.title ?? props.route.name}
+        </Text>
+        {selectedCommunity ? (
+          <Button
+            bg={isPostReady ? "$accentColor" : "$color4"}
+            br="$12"
+            size="$3"
+            onPress={() => {
+              reset();
+              router.replace("/");
+            }}
+            disabled={!isPostReady}
+          >
+            Post
+          </Button>
+        ) : (
+          <Link href="/create/choose-community" asChild>
+            <Button bg="$accentColor" br="$12" size="$3">
+              Next
+            </Button>
+          </Link>
+        )}
+      </HeaderGutters>
+    </View>
+  );
+}
+
+export function CreatePostHeaderStepTwo(props: BottomTabHeaderProps) {
+  const { height, insetTop } = useCustomHeaderHeight();
+  return (
+    <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
+      <BlurBackground />
+      <HeaderGutters pt={insetTop} h={height - 1}>
+        <>
+          {props.navigation.canGoBack() && (
+            <Button
+              unstyled
+              p={2}
+              bg="transparent"
+              borderRadius="$12"
+              dsp="flex"
+              fd="row"
+              ai="center"
+              bw={0}
+              onPress={() => props.navigation.goBack()}
+              h="auto"
+            >
+              <X color="$accentColor" size="$2" />
+            </Button>
+          )}
+        </>
+        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+          {props.options.title ?? props.route.name}
+        </Text>
       </HeaderGutters>
     </View>
   );

@@ -1,8 +1,7 @@
 import { InputAccessoryView, TextInput, TextInputProps } from "react-native";
 
-import { useEffect, useId, useMemo, useState } from "react";
-import { Button, XStack, YStack, View, Text, useTheme, isWeb } from "tamagui";
-import { Markdown } from "./markdown";
+import { useEffect, useId, useState } from "react";
+import { Button, XStack, YStack, useTheme, isWeb } from "tamagui";
 import _ from "lodash";
 
 import {
@@ -59,7 +58,7 @@ export class MarkdownEditorState {
 
     return {
       content: this.content,
-      cursorPosition: this.cursorPosition,
+      // cursorPosition: this.cursorPosition,
     };
   }
 
@@ -425,10 +424,16 @@ export class MarkdownEditorState {
 interface MarkdownEditorProps
   extends Pick<
     TextInputProps,
-    "placeholder" | "onFocus" | "onBlur" | "style" | "autoFocus"
+    | "placeholder"
+    | "onFocus"
+    | "onBlur"
+    | "style"
+    | "autoFocus"
+    | "scrollEnabled"
+    | "onContentSizeChange"
   > {
   editor: MarkdownEditorState;
-  inputRef?: React.RefObject<TextInput>;
+  inputRef?: React.RefObject<TextInput> | React.MutableRefObject<TextInput>;
 }
 
 export const MarkdownEditor = ({
@@ -515,7 +520,7 @@ export const MarkdownEditor = ({
   );
 
   return (
-    <YStack flex={1} flexBasis="50%">
+    <YStack flex={1} flexBasis="50%" gap="$2">
       <XStack
         bbw={1}
         bbc="$color4"
