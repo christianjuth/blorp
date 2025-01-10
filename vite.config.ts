@@ -46,5 +46,12 @@ export default {
         "node_modules/expo-modules-core/",
       ),
     },
+    // Idk if this actually does anything,
+    // but it can't hurt right?
+    dedupe: [
+      "@react-navigation/bottom-tabs",
+      "@react-navigation/native",
+      "@react-navigation/native-stack",
+    ],
   },
 } satisfies UserConfig;

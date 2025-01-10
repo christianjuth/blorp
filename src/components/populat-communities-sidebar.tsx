@@ -33,7 +33,7 @@ function SmallComunityCard({
           </Avatar.Fallback>
         </Avatar>
         <YStack gap="$0.5">
-          <Text fontSize="$3.5">c/{community.name}</Text>
+          <Text fontSize="$3">c/{community.name}</Text>
           <Text fontSize="$3" color="$color10">
             {abbriviateNumber(counts.subscribers)} members
           </Text>

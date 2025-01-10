@@ -14,7 +14,7 @@ export function Community({ communityView }: { communityView: CommunityView }) {
   return (
     <Link href={`/communities/c/${slug}`} asChild push>
       <XStack ai="center" gap="$2" tag="a" p="$2" overflow="hidden">
-        <Avatar size="$3.5" borderRadius="$12">
+        <Avatar size="$3" borderRadius="$12">
           {community.icon && (
             <YStack
               fullscreen
@@ -49,7 +49,7 @@ export function Community({ communityView }: { communityView: CommunityView }) {
           </Avatar.Fallback>
         </Avatar>
         <YStack gap="$1" flex={1}>
-          <Text fontSize="$3.5" numberOfLines={1} textOverflow="ellipsis">
+          <Text fontSize="$3" numberOfLines={1} textOverflow="ellipsis">
             {community.title}
           </Text>
           <Text fontSize="$3">
