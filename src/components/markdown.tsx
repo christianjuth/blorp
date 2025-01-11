@@ -521,11 +521,19 @@ const renderRules: RenderRules = {
   },
 
   // // Text Output
-  text: (node, children, parent, styles, inheritedStyles = {}) => (
-    <Text key={node.key} fontSize={14} style={inheritedStyles}>
-      {node.content}
-    </Text>
-  ),
+  text: (node, children, parent, styles, inheritedStyles = {}) => {
+    const fontSize = inheritedStyles.fontSize;
+    return (
+      <Text
+        key={node.key}
+        lineHeight={_.isNumber(fontSize) ? fontSize * 1.2 : "$2"}
+        color="$color11"
+        style={inheritedStyles}
+      >
+        {node.content}
+      </Text>
+    );
+  },
   // textgroup: (node, children, parent, styles) => (
   //   <Text key={node.key} style={styles.textgroup}>
   //     {children}

@@ -1,4 +1,4 @@
-import { View, Text, XStack, YStack, ScrollView } from "tamagui";
+import { View, Text, XStack, YStack, ScrollView, Button } from "tamagui";
 import { useCommunity } from "~/src/lib/lemmy";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -7,6 +7,7 @@ import { CakeSlice } from "@tamagui/lucide-icons";
 import { abbriviateNumber } from "~/src/lib/format";
 import { useCustomHeaderHeight } from "../nav/hooks";
 import { useWindowDimensions } from "react-native";
+import { CommunityJoinButton } from "./community-join-button";
 
 dayjs.extend(localizedFormat);
 
@@ -131,15 +132,21 @@ export function SmallScreenSidebar({
       gap="$3"
       $gtMd={{ dsp: "none" }}
     >
-      <Text fontSize="$5" fontWeight="bold">
-        {community.title}
-      </Text>
+      <XStack ai="flex-start" jc="space-between">
+        <YStack gap="$3">
+          <Text fontSize="$5" fontWeight="bold">
+            {community.title}
+          </Text>
 
-      <XStack ai="center" gap="$1.5">
-        <CakeSlice size="$1" color="$color11" />
-        <Text fontSize="$3" color="$color11">
-          Created {dayjs(community.published).format("LL")}
-        </Text>
+          <XStack ai="center" gap="$1.5">
+            <CakeSlice size="$1" color="$color11" />
+            <Text fontSize="$3" color="$color11">
+              Created {dayjs(community.published).format("LL")}
+            </Text>
+          </XStack>
+        </YStack>
+
+        <CommunityJoinButton />
       </XStack>
 
       <XStack>

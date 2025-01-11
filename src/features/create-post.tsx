@@ -1,5 +1,5 @@
 import { ContentGutters } from "../components/gutters";
-import { YStack, Input, XStack } from "tamagui";
+import { YStack, Input, XStack, Text } from "tamagui";
 import { useRecentCommunities } from "../stores/recent-communities";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -9,12 +9,12 @@ import {
 import { KeyboardAvoidingView, Pressable, TextInput } from "react-native";
 import { useCreatePostStore } from "../stores/create-post";
 import { FlashList } from "~/src/components/flashlist";
-import { SmallComunityCard } from "../components/communities/community-card";
-import { useSearch } from "../lib/lemmy";
+import { SmallCommunityCard } from "../components/communities/community-card";
+import { useListCommunities, useSearch } from "../lib/lemmy";
 import { Link, useRouter } from "one";
 import _ from "lodash";
 import { Community } from "lemmy-js-client";
-import { ChevronDown } from "@tamagui/lucide-icons";
+import { ChevronDown, Check } from "@tamagui/lucide-icons";
 
 const EMPTY_ARR = [];
 
@@ -44,7 +44,7 @@ export function CreatePostStepOne() {
           {community && (
             <Link href="/create/choose-community" asChild>
               <XStack ai="center" gap="$2" tag="a">
-                <SmallComunityCard community={community} disableLink />
+                <SmallCommunityCard community={community} disableLink />
                 <ChevronDown />
               </XStack>
             </Link>
@@ -56,20 +56,20 @@ export function CreatePostStepOne() {
             fontSize="$6"
             value={title}
             onChangeText={setTitle}
-            bw={0}
-            p={5}
           />
 
-          <MarkdownEditor
-            editor={editor}
-            style={{
-              flex: 1,
-              fontSize: 16,
-              padding: 5,
-            }}
-            placeholder="Body..."
-            scrollEnabled
-          />
+          <YStack bw={1} bc="$color4" br="$6" flex={1} p="$3" pt="$2">
+            <MarkdownEditor
+              editor={editor}
+              style={{
+                flex: 1,
+                fontSize: 16,
+                padding: 5,
+              }}
+              placeholder="Body..."
+              scrollEnabled
+            />
+          </YStack>
         </YStack>
       </ContentGutters>
     </KeyboardAvoidingView>
@@ -87,23 +87,52 @@ export function CreatePostStepTwo() {
 
   const setCommunity = useCreatePostStore((s) => s.setCommunity);
 
-  const searchResults = useSearch({
+  const subscribedCommunitiesRes = useListCommunities({
+    type_: "Subscribed",
+    limit: 20,
+  });
+  const subscribedCommunities =
+    subscribedCommunitiesRes.data?.pages
+      .flatMap((p) => p.communities)
+      .map(({ community }) => community) ?? EMPTY_ARR;
+
+  const searchResultsRes = useSearch({
     q: search,
     type_: "Communities",
     limit: 10,
   });
 
-  const communities = searchResults.data?.pages.flatMap((p) =>
-    p.communities.map(({ community }) => community),
-  );
+  const searchResultsCommunities =
+    searchResultsRes.data?.pages.flatMap((p) =>
+      p.communities.map(({ community }) => community),
+    ) ?? EMPTY_ARR;
 
-  let data: Pick<Community, "name" | "id" | "title" | "icon" | "actor_id">[] =
-    recentCommunities.recentlyVisited;
+  let data: (
+    | Pick<Community, "name" | "id" | "title" | "icon" | "actor_id">
+    | "Selected"
+    | "Recent"
+    | "Subscribed"
+    | "Search results"
+  )[] = [
+    "Recent",
+    ...recentCommunities.recentlyVisited,
+    "Subscribed",
+    ...subscribedCommunities,
+  ];
+
   if (search) {
-    data = communities ?? EMPTY_ARR;
-  } else if (selectedCommunity) {
-    data = [selectedCommunity];
+    data = ["Search results", ...searchResultsCommunities];
   }
+  if (selectedCommunity) {
+    data = ["Selected", selectedCommunity, ...data];
+  }
+
+  data = _.uniqBy(data, (item) => {
+    if (typeof item === "string") {
+      return item;
+    }
+    return item.actor_id;
+  });
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
@@ -111,26 +140,44 @@ export function CreatePostStepTwo() {
         <YStack flex={1} gap="$2">
           <FlashList
             data={data}
-            renderItem={({ item }) => (
-              <Pressable
-                onPress={() => {
-                  setCommunity(item);
-                  router.back();
-                }}
-                style={{
-                  paddingVertical: 5,
-                }}
-              >
-                <SmallComunityCard community={item} disableLink />
-              </Pressable>
-            )}
+            renderItem={({ item }) => {
+              if (typeof item === "string") {
+                return (
+                  <Text color="$color10" fontSize="$2" mt="$3">
+                    {item}
+                  </Text>
+                );
+              }
+
+              return (
+                <Pressable
+                  onPress={() => {
+                    setCommunity(item);
+                    router.back();
+                  }}
+                >
+                  <XStack py="$2" ai="center" gap="$2">
+                    <SmallCommunityCard community={item} disableLink />
+                    {selectedCommunity &&
+                      item.actor_id === selectedCommunity?.actor_id && (
+                        <Check color="$accentColor" />
+                      )}
+                  </XStack>
+                </Pressable>
+              );
+            }}
             estimatedItemSize={50}
             ListHeaderComponent={
               <Input
                 onChangeText={debouncedSetSearch}
-                mb="$2"
                 placeholder="Search communities..."
               />
+            }
+            keyExtractor={(item) =>
+              typeof item === "string" ? item : item.actor_id
+            }
+            getItemType={(item) =>
+              typeof item === "string" ? "title" : "community"
             }
           />
         </YStack>

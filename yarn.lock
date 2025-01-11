@@ -5716,6 +5716,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/autosize@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "@types/autosize@npm:4.0.3"
+  checksum: 10c0/3167b4551b408176c2a60e7b0c8ba6cccb89a1486267c47a4c7f2acc78c917a3487be0910eedc5cdd2dc2ef9436781dc95031db1ebbb0f7ccbc6ce46f7064c6b
+  languageName: node
+  linkType: hard
+
 "@types/babel__core@npm:^7.1.14":
   version: 7.20.5
   resolution: "@types/babel__core@npm:7.20.5"
@@ -6525,6 +6532,13 @@ __metadata:
   version: 1.0.0
   resolution: "at-least-node@npm:1.0.0"
   checksum: 10c0/4c058baf6df1bc5a1697cf182e2029c58cd99975288a13f9e70068ef5d6f4e1f1fd7c4d2c3c4912eae44797d1725be9700995736deca441b39f3e66d8dee97ef
+  languageName: node
+  linkType: hard
+
+"autosize@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "autosize@npm:6.0.1"
+  checksum: 10c0/7d1b9823443c2cc3fc962a7c20ec60d62db6a98c889a39f71495b48decbfda2463e6561fb7a748f069d6778e419f2fa1a7ecd09baa02dc33c4a209f777da9ac8
   languageName: node
   linkType: hard
 
@@ -10704,11 +10718,13 @@ __metadata:
     "@tanstack/query-broadcast-client-experimental": "npm:5.62.7"
     "@tanstack/react-query": "npm:5.62.7"
     "@tanstack/react-query-persist-client": "npm:5.62.7"
+    "@types/autosize": "npm:^4.0.3"
     "@types/lodash": "npm:^4.17.13"
     "@types/markdown-it": "npm:10.0.3"
     "@types/react": "npm:^18.3.11"
     "@types/react-native-safari-view": "npm:^2"
     "@vxrn/color-scheme": "npm:1.1.392"
+    autosize: "npm:^6.0.1"
     dayjs: "npm:^1.11.13"
     expensify-common: "npm:^2.0.111"
     expo: "npm:^52.0.24"

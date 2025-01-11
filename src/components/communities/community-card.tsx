@@ -3,7 +3,7 @@ import { Link } from "one";
 import { Avatar, XStack, Text } from "tamagui";
 import { createCommunitySlug } from "~/src/lib/lemmy";
 
-export function SmallComunityCard({
+export function SmallCommunityCard({
   disableLink = false,
   community,
 }: {
@@ -25,7 +25,7 @@ export function SmallComunityCard({
           <Text fontSize="$4"> {community.title.substring(0, 1)}</Text>
         </Avatar.Fallback>
       </Avatar>
-      <Text fontSize="$3">c/{community.name}</Text>
+      <Text fontSize="$3">c/{slug}</Text>
     </XStack>
   );
 

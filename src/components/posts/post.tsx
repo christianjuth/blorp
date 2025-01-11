@@ -66,9 +66,13 @@ export function PostCard({
     : undefined;
 
   const titleWithOptionalImage = (
-    <YStack gap="$1">
+    <YStack gap="$2">
       {!crossPost && (
-        <Text fontWeight={500} fontSize="$6" lineHeight="$3">
+        <Text
+          fontWeight={500}
+          fontSize={detailView ? "$7" : "$6"}
+          lineHeight="$4"
+        >
           {post.name}
         </Text>
       )}
@@ -161,7 +165,7 @@ export function PostCard({
       )}
 
       {detailView && body && (
-        <View pt="$1.5">
+        <View pt="$2">
           <Markdown markdown={body} />
         </View>
       )}

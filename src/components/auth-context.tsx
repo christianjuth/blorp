@@ -120,10 +120,13 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
         >
           {!instance.url ? (
             <>
-              <Text>Pick the server you created your account on</Text>
+              <Text flexShrink={0}>
+                Pick the server you created your account on
+              </Text>
               <Input
                 placeholder="Enter URL or search for your server"
                 size="$3"
+                flexShrink={0}
                 value={search}
                 onChangeText={setSearch}
               />

@@ -1,7 +1,8 @@
+import { Dot } from "@tamagui/lucide-icons";
 import { CommentReplyView } from "lemmy-js-client";
 import { Link } from "one";
 import { FlatList } from "react-native";
-import { Text, YStack, isWeb } from "tamagui";
+import { Text, View, XStack, YStack, isWeb } from "tamagui";
 import { ContentGutters } from "~/src/components/gutters";
 import { Markdown } from "~/src/components/markdown";
 import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
@@ -34,15 +35,20 @@ function Reply({
           tag="a"
           w="100%"
         >
-          <Text lineHeight="$1.5">
-            <Text fontSize="$4" fontWeight="bold">
-              {replyView.creator.name}
+          <XStack>
+            {replyView.comment_reply.read ? null : (
+              <Dot m={-7.5} ml={-13} size="$3" color="$accentColor" />
+            )}
+            <Text lineHeight="$1.5">
+              <Text fontSize="$4" fontWeight="bold">
+                {replyView.creator.name}
+              </Text>
+              <Text> replied to your comment in </Text>
+              <Text fontSize="$4" fontWeight="bold">
+                {replyView.post.name}
+              </Text>
             </Text>
-            <Text> replied to your comment in </Text>
-            <Text fontSize="$4" fontWeight="bold">
-              {replyView.post.name}
-            </Text>
-          </Text>
+          </XStack>
           <Markdown markdown={replyView.comment.content} />
           <RelativeTime time={replyView.comment.published} color="$color10" />
         </YStack>

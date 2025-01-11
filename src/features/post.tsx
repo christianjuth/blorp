@@ -10,12 +10,15 @@ import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 
 import { memo, useMemo } from "react";
-import { useTheme, View } from "tamagui";
+import { useTheme, View, YStack } from "tamagui";
 import _ from "lodash";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
 import { useCustomHeaderHeight } from "../components/nav/hooks";
-import { CommentReplyContext } from "../components/comments/comment-reply-modal";
+import {
+  CommentReplyContext,
+  InlineCommentReply,
+} from "../components/comments/comment-reply-modal";
 import { useAuth } from "../stores/auth";
 import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 import { FlashList } from "../components/flashlist";
@@ -34,6 +37,7 @@ export function PostComments({
   myUserId,
   communityName,
   commentId,
+  postId,
 }: {
   apId: string;
   commentViews: {
@@ -46,6 +50,7 @@ export function PostComments({
   myUserId: number | undefined;
   communityName?: string;
   commentId?: string;
+  postId: number;
 }) {
   const header = useCustomHeaderHeight();
   const tabBar = useCustomTabBarHeight();
@@ -80,8 +85,11 @@ export function PostComments({
 
   return (
     <FlashList
+      // @ts-expect-error
       ref={ref}
-      data={["sidebar", "post", ...structured.topLevelItems] as const}
+      data={
+        ["sidebar", "post", "comment", ...structured.topLevelItems] as const
+      }
       renderItem={({ item }) => {
         if (item === "sidebar") {
           return (
@@ -100,6 +108,17 @@ export function PostComments({
           return (
             <ContentGutters>
               <PostCard apId={apId} detailView />
+              <></>
+            </ContentGutters>
+          );
+        }
+
+        if (item === "comment") {
+          return (
+            <ContentGutters>
+              <View flex={1}>
+                <InlineCommentReply postId={postId} />
+              </View>
               <></>
             </ContentGutters>
           );
@@ -225,6 +244,7 @@ export function Post({
         onRefresh={refresh}
         refreshing={refreshing}
         commentId={commentId}
+        postId={post.data.post.id}
       />
     </CommentReplyContext>
   );

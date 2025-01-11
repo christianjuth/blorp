@@ -7,7 +7,16 @@ import {
   HomeFilter,
   PostSortSelect,
 } from "../lemmy-sort";
-import { View, Text, Button, XStack, Input, Avatar, YStack } from "tamagui";
+import {
+  View,
+  Text,
+  Button,
+  XStack,
+  Input,
+  Avatar,
+  YStack,
+  isWeb,
+} from "tamagui";
 import { ChevronLeft, X } from "@tamagui/lucide-icons";
 import { BlurBackground } from "./blur-background";
 import Animated from "react-native-reanimated";
@@ -596,7 +605,11 @@ export function CreatePostHeaderStepOne(props: BottomTabHeaderProps) {
             Post
           </Button>
         ) : (
-          <Link href="/create/choose-community" asChild>
+          // Web seems to erase stack history on page reload,
+          // so replace works better on web, but on native
+          // it negativly impacts the modal animation
+          // so we replace on web and push on native
+          <Link href="/create/choose-community" asChild replace={isWeb}>
             <Button bg="$accentColor" br="$12" size="$3">
               Next
             </Button>
@@ -609,6 +622,7 @@ export function CreatePostHeaderStepOne(props: BottomTabHeaderProps) {
 
 export function CreatePostHeaderStepTwo(props: BottomTabHeaderProps) {
   const { height, insetTop } = useCustomHeaderHeight();
+  const router = useRouter();
   return (
     <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
       <BlurBackground />
@@ -624,7 +638,17 @@ export function CreatePostHeaderStepTwo(props: BottomTabHeaderProps) {
               fd="row"
               ai="center"
               bw={0}
-              onPress={() => props.navigation.goBack()}
+              onPress={() => {
+                // Web seems to erase stack history on page reload,
+                // so replace works better on web, but on native
+                // it negativly impacts the modal animation
+                // so we replace on web and pop on native
+                if (isWeb) {
+                  router.replace("/create");
+                } else {
+                  props.navigation.goBack();
+                }
+              }}
               h="auto"
             >
               <X color="$accentColor" size="$2" />

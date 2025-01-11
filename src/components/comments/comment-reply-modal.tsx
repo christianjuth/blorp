@@ -1,15 +1,6 @@
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, useContext, useMemo, useRef, useState } from "react";
 import { PostId, Comment } from "lemmy-js-client";
-import {
-  Button,
-  Form,
-  View,
-  XStack,
-  Text,
-  YStack,
-  Input,
-  useMedia,
-} from "tamagui";
+import { Button, Form, View, XStack, Text, YStack, useMedia } from "tamagui";
 import { KeyboardAvoidingView, TextInput } from "react-native";
 import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
 import { BlurBackground } from "../nav/blur-background";
@@ -173,12 +164,6 @@ export function CommentReplyContext({
                     paddingVertical: 10,
                     backgroundColor: "transparent",
                   }}
-                  // p={0}
-                  // py="$2"
-                  // bw={0}
-                  // h={focused ? undefined : "$3.5"}
-                  // bg="transparent"
-                  // outlineColor="transparent"
                 />
                 {focused ? (
                   <XStack minHeight={bottomTabBar.insetBottom} jc="flex-end">
@@ -232,7 +217,11 @@ export function InlineCommentReply({
   autoFocus?: boolean;
 }) {
   const [focused, setFocused] = useState(autoFocus ?? false);
-  const [content, setContent] = useState(comment?.content ?? "");
+
+  const editor = useMemo(
+    () => new MarkdownEditorState(comment?.content),
+    [comment?.updated],
+  );
 
   const media = useMedia();
   const createComment = useCreateComment();
@@ -249,19 +238,18 @@ export function InlineCommentReply({
           editComment.mutate({
             path: comment.path,
             comment_id: comment.id,
-            content: content,
+            content: editor.getContent(),
           });
         } else {
           createComment.mutate({
             post_id: +postId,
-            content,
+            content: editor.getContent(),
             parent_id: parent?.comment.id,
             parentPath: parent?.comment.path ?? "0",
           });
         }
         onSubmit?.();
-        setContent("");
-        setFocused(false);
+        editor.reset();
       }}
       $md={{
         dsp: "none",
@@ -272,21 +260,14 @@ export function InlineCommentReply({
         <MarkdownEditor
           placeholder="Add a comment..."
           onFocus={() => setFocused(true)}
-          value={content}
-          onChangeText={setContent}
+          editor={editor}
           onBlur={() => {
-            if (content.trim() === "") {
+            if (editor.getContent().trim() === "") {
               setFocused(false);
               onCancel?.();
             }
           }}
           autoFocus={autoFocus}
-          // p={0}
-          // py="$2"
-          // bw={0}
-          // h={focused ? undefined : "$3.5"}
-          // bg="transparent"
-          // outlineColor="transparent"
         />
         {focused && (
           <XStack jc="flex-end" py="$2">
