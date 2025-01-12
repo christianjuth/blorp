@@ -256,7 +256,7 @@ export function InlineCommentReply({
       }}
       w="100%"
     >
-      <View px="$3" bw={1} bc="$color5" br="$6">
+      <View px="$3" bw={1} bc="$color5" br="$5">
         <MarkdownEditor
           placeholder="Add a comment..."
           onFocus={() => setFocused(true)}

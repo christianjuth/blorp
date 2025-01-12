@@ -12,7 +12,11 @@ type CreatePostStore = {
   key: number;
   title: string;
   setTitle: (title: string) => any;
+  url?: string;
+  setUrl: (url: string) => any;
   content: string;
+  thumbnailUrl?: string;
+  setThumbnailUrl: (url: string) => any;
   setContent: (content: string) => any;
   community?: CommunityPartial;
   setCommunity: (community: CommunityPartial) => any;
@@ -24,9 +28,11 @@ export const useCreatePostStore = create<CreatePostStore>()(
     (set, get) => ({
       key: 0,
       title: "",
+      setUrl: (url) => set({ url }),
       setTitle: (title) => set({ title }),
       content: "",
       setContent: (content) => set({ content }),
+      setThumbnailUrl: (thumbnailUrl) => set({ thumbnailUrl }),
       setCommunity: (community) => set({ community }),
       reset: () =>
         set({

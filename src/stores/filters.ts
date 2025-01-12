@@ -17,6 +17,8 @@ type SortsStore = {
   setPostSort: (sort: PostSortType) => void;
   listingType: ListingType;
   setListingType: (type: ListingType) => void;
+  communitiesListingType: ListingType;
+  setCommunitiesListingType: (type: ListingType) => void;
 };
 
 export const useFiltersStore = create<SortsStore>()(
@@ -30,6 +32,11 @@ export const useFiltersStore = create<SortsStore>()(
       setPostSort: (postSort) => set({ postSort }),
       listingType: "All",
       setListingType: (listingType) =>
+        set({
+          listingType,
+        }),
+      communitiesListingType: "All",
+      setCommunitiesListingType: (listingType) =>
         set({
           listingType,
         }),

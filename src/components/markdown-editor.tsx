@@ -544,7 +544,7 @@ export const MarkdownEditor = ({
         $gtMd={{ size: "$2" }}
         br="$5"
       >
-        <Quote fill={theme.color.val} color="transparent" />
+        <Quote fill={theme.color.val} color="transparent" o={0.85} />
       </Button>
 
       <Button

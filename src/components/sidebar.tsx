@@ -34,7 +34,7 @@ function SmallComunityCard({
             ai="center"
             jc="center"
           >
-            <Text fontSize="$4"> {community.title.substring(0, 1)}</Text>
+            <Text fontSize="$4">{community.title.substring(0, 1)}</Text>
           </Avatar.Fallback>
         </Avatar>
         <Text fontSize="$3">c/{community.name}</Text>

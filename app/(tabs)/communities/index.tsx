@@ -12,7 +12,7 @@ import { FlashList } from "~/src/components/flashlist";
 
 export default function Communities() {
   const communitySort = useFiltersStore((s) => s.communitySort);
-  const listingType = useFiltersStore((s) => s.listingType);
+  const listingType = useFiltersStore((s) => s.communitiesListingType);
   const media = useMedia();
 
   const header = useCustomHeaderHeight();

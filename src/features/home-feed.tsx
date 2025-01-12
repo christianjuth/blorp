@@ -1,9 +1,6 @@
 import { PostCard } from "~/src/components/posts/post";
 import { isWeb, View } from "tamagui";
-import {
-  Sidebar,
-  SmallScreenSidebar,
-} from "~/src/components/communities/community-sidebar";
+import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { CommunityBanner } from "../components/communities/community-banner";
 import { ContentGutters } from "../components/gutters";
 import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
@@ -27,13 +24,12 @@ const ReanimatedFlashList =
 
 const EMPTY_ARR = [];
 
-export function HomeFeed({ communityName }: { communityName?: string }) {
+export function HomeFeed() {
   const postSort = useFiltersStore((s) => s.postSort);
 
   const posts = usePosts({
     limit: 50,
     sort: postSort,
-    community_name: communityName,
   });
 
   const { scrollHandler } = useScrollContext();
@@ -54,53 +50,20 @@ export function HomeFeed({ communityName }: { communityName?: string }) {
 
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
-  const List = !isWeb && communityName ? FlashList : ReanimatedFlashList;
+  const List = !isWeb ? FlashList : ReanimatedFlashList;
 
   return (
     <List
       automaticallyAdjustsScrollIndicatorInsets={false}
       // @ts-expect-error
       ref={ref}
-      data={
-        [
-          "banner",
-          "sidebar-desktop",
-          "sidebar-mobile",
-          "post-sort-bar",
-          ...data,
-        ] as const
-      }
+      data={["sidebar-desktop", "post-sort-bar", ...data] as const}
       renderItem={({ item }) => {
         if (item === "sidebar-desktop") {
           return (
             <ContentGutters $platform-web={{ pt: header.height }}>
               <View flex={1} />
-              {communityName ? (
-                <Sidebar communityName={communityName} />
-              ) : (
-                <PopularCommunitiesSidebar />
-              )}
-            </ContentGutters>
-          );
-        }
-
-        if (item === "sidebar-mobile") {
-          return communityName ? (
-            <ContentGutters>
-              <SmallScreenSidebar communityName={communityName} />
-              <></>
-            </ContentGutters>
-          ) : (
-            <></>
-          );
-        }
-
-        if (item === "banner") {
-          return (
-            <ContentGutters
-              transform={[{ translateY: isWeb ? header.height : 0 }]}
-            >
-              <CommunityBanner />
+              <PopularCommunitiesSidebar />
             </ContentGutters>
           );
         }
@@ -137,10 +100,10 @@ export function HomeFeed({ communityName }: { communityName?: string }) {
           refetch();
         }
       }}
-      stickyHeaderIndices={[1]}
+      stickyHeaderIndices={[0]}
       scrollEventThrottle={16}
       estimatedItemSize={475}
-      onScroll={!isWeb && communityName ? undefined : scrollHandler}
+      onScroll={!isWeb ? undefined : scrollHandler}
       contentInset={{
         top: header.height,
         bottom: tabBar.height,

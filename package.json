@@ -43,6 +43,7 @@
     "@types/lodash": "^4.17.13",
     "@vxrn/color-scheme": "1.1.392",
     "autosize": "^6.0.1",
+    "cheerio": "^0.22.0",
     "dayjs": "^1.11.13",
     "expensify-common": "^2.0.111",
     "expo": "^52.0.24",

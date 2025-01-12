@@ -300,8 +300,8 @@ export function HomeFilter() {
 export function CommunityFilter() {
   const instance = useAuth((s) => s.instance);
 
-  const listingType = useFiltersStore((s) => s.listingType);
-  const setListingType = useFiltersStore((s) => s.setListingType);
+  const listingType = useFiltersStore((s) => s.communitiesListingType);
+  const setListingType = useFiltersStore((s) => s.setCommunitiesListingType);
 
   const LISTING_TYPE_OPTIONS: Option<ListingType, string>[] = useMemo(
     () => [
