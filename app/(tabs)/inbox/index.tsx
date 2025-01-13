@@ -8,7 +8,8 @@ import { Markdown } from "~/src/components/markdown";
 import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
 import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { RelativeTime } from "~/src/components/relative-time";
-import { createCommunitySlug, useReplies } from "~/src/lib/lemmy";
+import { useReplies } from "~/src/lib/lemmy";
+import { createCommunitySlug } from "~/src/lib/community";
 
 function Reply({
   replyView,

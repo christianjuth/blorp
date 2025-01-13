@@ -25,12 +25,33 @@ export function ActionMenu<L extends string>({
   placement: PopoverProps["placement"];
 }) {
   const insets = useSafeAreaInsets();
+
+  const contents = (
+    <YStack>
+      {actions.map((a) => (
+        <Popover.Close asChild key={a.label} bg="transparent">
+          <Button
+            $gtMd={{
+              size: "$3",
+            }}
+            onPress={a.onClick}
+            bg="transparent"
+          >
+            <Text mr="auto">{a.label}</Text>
+          </Button>
+        </Popover.Close>
+      ))}
+    </YStack>
+  );
+
   return (
     <Popover size="$5" allowFlip offset={0} placement={placement}>
       <Popover.Trigger>{trigger}</Popover.Trigger>
 
       <Adapt when="sm" platform="touch">
         <Sheet
+          // native
+          // native={!!props.native}
           modal
           dismissOnSnapToBottom
           animationConfig={{
@@ -48,7 +69,8 @@ export function ActionMenu<L extends string>({
             }}
           >
             <Sheet.ScrollView pb={insets.bottom}>
-              <Adapt.Contents />
+              {/* <Adapt.Contents /> */}
+              {contents}
             </Sheet.ScrollView>
           </Sheet.Frame>
           <Sheet.Overlay
@@ -71,21 +93,7 @@ export function ActionMenu<L extends string>({
           bg: "$color3",
         }}
       >
-        <YStack>
-          {actions.map((a) => (
-            <Popover.Close asChild key={a.label} bg="transparent">
-              <Button
-                $gtMd={{
-                  size: "$3",
-                }}
-                onPress={a.onClick}
-                bg="transparent"
-              >
-                <Text mr="auto">{a.label}</Text>
-              </Button>
-            </Popover.Close>
-          ))}
-        </YStack>
+        {contents}
       </Popover.Content>
     </Popover>
   );

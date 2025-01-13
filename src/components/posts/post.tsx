@@ -17,9 +17,11 @@ import { YouTubeVideoEmbed } from "../youtube";
 export function PostCard({
   apId,
   detailView = false,
+  featuredContext,
 }: {
   apId: string;
   detailView?: boolean;
+  featuredContext?: "community";
 }) {
   const replyCtx = useCommentReaplyContext();
   const linkCtx = useLinkContext();
@@ -137,7 +139,7 @@ export function PostCard({
       animation="100ms"
       w="100%"
     >
-      <PostByline postView={postView} />
+      <PostByline postView={postView} featuredContext={featuredContext} />
 
       {crossPost ? (
         <>

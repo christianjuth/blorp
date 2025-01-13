@@ -8,6 +8,8 @@ import { abbriviateNumber } from "~/src/lib/format";
 import { useCustomHeaderHeight } from "../nav/hooks";
 import { useWindowDimensions } from "react-native";
 import { CommunityJoinButton } from "./community-join-button";
+import { Link } from "one";
+import { useLinkContext } from "../nav/link-context";
 
 dayjs.extend(localizedFormat);
 
@@ -43,6 +45,9 @@ export function Sidebar({
       r="$0"
       t="$0"
       py="$4"
+      $md={{
+        py: 0,
+      }}
       bg="$background"
     >
       <ScrollView
@@ -52,18 +57,26 @@ export function Sidebar({
         }}
         br="$4"
         zIndex="$5"
-        w={COMMUNITY_SIDEBAR_WIDTH}
       >
         <YStack p="$3" gap="$3">
-          <Text fontSize="$5" fontWeight="bold">
-            {community.title}
-          </Text>
+          <XStack ai="flex-start" jc="space-between">
+            <YStack gap="$3">
+              <Text fontSize="$5" fontWeight="bold">
+                {community.title}
+              </Text>
 
-          <XStack ai="center" gap="$1.5">
-            <CakeSlice size="$1" color="$color11" />
-            <Text fontSize="$3" color="$color11">
-              Created {dayjs(community.published).format("ll")}
-            </Text>
+              <XStack ai="center" gap="$1.5">
+                <CakeSlice size="$1" color="$color11" />
+                <Text fontSize="$3" color="$color11">
+                  Created {dayjs(community.published).format("ll")}
+                </Text>
+              </XStack>
+            </YStack>
+
+            <CommunityJoinButton
+              communityName={communityName}
+              $gtMd={{ dsp: "none" }}
+            />
           </XStack>
 
           <XStack>
@@ -110,6 +123,8 @@ export function SmallScreenSidebar({
 }: {
   communityName: string;
 }) {
+  const linkCtx = useLinkContext();
+
   const { data } = useCommunity({
     name: communityName,
   });
@@ -141,12 +156,12 @@ export function SmallScreenSidebar({
           <XStack ai="center" gap="$1.5">
             <CakeSlice size="$1" color="$color11" />
             <Text fontSize="$3" color="$color11">
-              Created {dayjs(community.published).format("LL")}
+              Created {dayjs(community.published).format("ll")}
             </Text>
           </XStack>
         </YStack>
 
-        <CommunityJoinButton />
+        <CommunityJoinButton communityName={communityName} />
       </XStack>
 
       <XStack>
@@ -177,6 +192,12 @@ export function SmallScreenSidebar({
           </Text>
         </YStack>
       </XStack>
+
+      <Link href={linkCtx.root + `c/${communityName}/sidebar`} asChild>
+        <Button ai="flex-start" jc="flex-start" p={0} pt="$1" h="auto" tag="a">
+          <Text color="$accentColor">Show more</Text>
+        </Button>
+      </Link>
     </YStack>
   );
 }

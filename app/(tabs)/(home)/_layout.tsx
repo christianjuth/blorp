@@ -63,6 +63,15 @@ export default function Layout() {
         />
 
         <Stack.Screen
+          name="c/[communityName]/sidebar"
+          options={{
+            title: "loading...",
+            header: (props) => <CommunityHeader {...props} />,
+            headerTransparent: true,
+          }}
+        />
+
+        <Stack.Screen
           name="c/[communityName]/s/[search]"
           options={{
             title: "loading...",

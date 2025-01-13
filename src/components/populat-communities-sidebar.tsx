@@ -1,6 +1,7 @@
 import { View, Text, XStack, ScrollView, Avatar, YStack } from "tamagui";
 import { Link } from "one";
-import { createCommunitySlug, useListCommunities } from "~/src/lib/lemmy";
+import { useListCommunities } from "~/src/lib/lemmy";
+import { createCommunitySlug } from "../lib/community";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { useCustomHeaderHeight } from "~/src/components/nav/hooks";

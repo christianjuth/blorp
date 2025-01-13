@@ -14,6 +14,7 @@ import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
 import { useFiltersStore } from "../stores/filters";
 import { usePosts } from "../lib/lemmy";
+import { CellRendererProps } from "react-native";
 
 const EMPTY_ARR = [];
 
@@ -102,7 +103,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
 
         return (
           <ContentGutters>
-            <PostCard apId={item} />
+            <PostCard apId={item} featuredContext="community" />
             <></>
           </ContentGutters>
         );
@@ -134,6 +135,16 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
         top: header.height,
         bottom: tabBar.height,
       }}
+      CellRendererComponent={isWeb ? CellRenderer : undefined}
     />
+  );
+}
+
+function CellRenderer<I>(props: CellRendererProps<I>) {
+  const { index, style, children, cellKey, ...rest } = props;
+  return (
+    <View {...rest} zIndex={index === 0 ? "$1" : undefined} style={[style]}>
+      {children}
+    </View>
   );
 }

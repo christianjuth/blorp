@@ -7,9 +7,23 @@ import { ActionMenu } from "../ui/action-menu";
 import { Share, Linking } from "react-native";
 import { Ellipsis, Pin } from "@tamagui/lucide-icons";
 
-export function PostByline({ postView }: { postView: FlattenedPost }) {
+export function PostByline({
+  postView,
+  featuredContext,
+}: {
+  postView: FlattenedPost;
+  featuredContext?: "community";
+}) {
   const { creator, community, post } = postView;
   const linkCtx = useLinkContext();
+
+  let pinned = false;
+  if (featuredContext === "community") {
+    pinned = postView.post.featured_community;
+  }
+  // else if (featuredContext === "site") {
+  //   pinned = post.featured_local;
+  // }
 
   return (
     <XStack dsp="flex" fd="row" ai="center" gap="$2">
@@ -51,7 +65,7 @@ export function PostByline({ postView }: { postView: FlattenedPost }) {
 
       <View flex={1} />
 
-      {postView.post.featured_community && (
+      {pinned && (
         <Pin fill="#17B169" color="#17B169" size="$1" rotate="45deg" />
       )}
 

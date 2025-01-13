@@ -1,8 +1,9 @@
 import { Image } from "react-native";
 import { useParams } from "one";
-import { createCommunitySlug, useCommunity } from "~/src/lib/lemmy";
+import { useCommunity } from "~/src/lib/lemmy";
 import { View, XStack, YStack, Text } from "tamagui";
 import { CommunityJoinButton } from "./community-join-button";
+import { createCommunitySlug } from "~/src/lib/community";
 
 export function CommunityBanner() {
   const { communityName } = useParams<{ communityName: string }>();
@@ -72,7 +73,7 @@ export function CommunityBanner() {
         <Text fontWeight="bold" fontSize="$7">
           c/{slug}
         </Text>
-        <CommunityJoinButton />
+        <CommunityJoinButton communityName={communityName} />
       </XStack>
     </YStack>
   );

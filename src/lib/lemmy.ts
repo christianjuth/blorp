@@ -18,6 +18,8 @@ import {
   GetReplies,
   DeleteComment,
   Search,
+  FollowCommunity,
+  CommunityId,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -43,18 +45,8 @@ import { z } from "zod";
 import { useCommentsStore } from "../stores/comments";
 import { useThrottleQueue } from "./throttle-queue";
 import { useIsFocused } from "@react-navigation/native";
-
-function getLemmyServer({ actor_id }: { actor_id: string }) {
-  const server = new URL(actor_id);
-  return server.host;
-}
-
-export function createCommunitySlug(
-  community: Pick<Community, "actor_id" | "name">,
-) {
-  const server = getLemmyServer(community);
-  return `${community.name}@${server}`;
-}
+import { useCommunitiesStore } from "../stores/communities";
+import { createCommunitySlug } from "./community";
 
 export function parseCommunitySlug(slug: string) {
   const [communityName, lemmyServer] = slug.split("@");
@@ -560,6 +552,8 @@ export function useListCommunities(form: ListCommunities) {
 export function useCommunity(form: { name?: string; instance?: string }) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
+  const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
+
   const queryKey = [
     ...queryKeyPrefix,
     "getCommunity",
@@ -571,6 +565,9 @@ export function useCommunity(form: { name?: string; instance?: string }) {
     queryFn: async () => {
       const res = await client.getCommunity({
         name: form.name,
+      });
+      cacheCommunity({
+        communityView: res.community_view,
       });
       return res;
     },
@@ -1020,6 +1017,47 @@ export function useInstances() {
       } catch (error) {
         return undefined;
       }
+    },
+  });
+}
+
+export function useFollowCommunity() {
+  const { client, queryKeyPrefix } = useLemmyClient();
+
+  const patchCommunity = useCommunitiesStore((s) => s.patchCommunity);
+  const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
+
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (form: { community: Community; follow: boolean }) => {
+      return client.followCommunity({
+        community_id: form.community.id,
+        follow: form.follow,
+      });
+    },
+    onMutate: (form) => {
+      const slug = createCommunitySlug(form.community);
+      patchCommunity(slug, {
+        optimisticSubscribed: "Pending",
+      });
+    },
+    onSuccess: (data) => {
+      cacheCommunity({
+        communityView: data.community_view,
+        optimisticSubscribed: undefined,
+      });
+    },
+    onError: (err, form) => {
+      const slug = createCommunitySlug(form.community);
+      patchCommunity(slug, {
+        optimisticSubscribed: undefined,
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeyPrefix, "listCommunities"],
+      });
     },
   });
 }

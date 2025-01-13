@@ -34,7 +34,8 @@ export function Dropdown({
             }}
           >
             <Sheet.ScrollView pb={insets.bottom}>
-              <Adapt.Contents />
+              {/* <Adapt.Contents /> */}
+              {children}
             </Sheet.ScrollView>
           </Sheet.Frame>
           <Sheet.Overlay

@@ -107,7 +107,7 @@ export function PostComments({
         if (item === "post") {
           return (
             <ContentGutters>
-              <PostCard apId={apId} detailView />
+              <PostCard apId={apId} featuredContext="community" detailView />
               <></>
             </ContentGutters>
           );
