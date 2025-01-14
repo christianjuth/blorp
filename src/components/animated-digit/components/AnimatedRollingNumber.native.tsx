@@ -90,35 +90,117 @@ export interface AnimatedRollingNumberProps
  */
 export const AnimatedRollingNumber: React.FC<AnimatedRollingNumberProps> = ({
   value,
-  // showMinusSign = true,
-  // showPlusSign = false,
-  // toFixed,
-  // useGrouping = false,
-  // formattedText,
-  // locale = "en-US",
-  // enableCompactNotation,
-  // compactToFixed,
-  // containerStyle,
-  // fixedOnlyForCompact = true,
-  // digitContainerStyle,
-  // numberTextProps,
-  // commaTextProps,
-  // dotTextProps,
-  // compactNotationTextProps,
-  // signTextProps,
+  showMinusSign = true,
+  showPlusSign = false,
+  toFixed,
+  useGrouping = false,
+  formattedText,
+  locale = "en-US",
+  enableCompactNotation,
+  compactToFixed,
+  containerStyle,
+  fixedOnlyForCompact = true,
+  digitContainerStyle,
+  numberTextProps,
+  commaTextProps,
+  dotTextProps,
+  compactNotationTextProps,
+  signTextProps,
   textStyle,
-  // numberStyle,
-  // commaStyle,
-  // dotStyle,
-  // compactNotationStyle,
-  // signStyle,
-  // textProps,
-  // spinningAnimationConfig,
-  // animationCallback,
-  // animateToNewValue,
+  numberStyle,
+  commaStyle,
+  dotStyle,
+  compactNotationStyle,
+  signStyle,
+  textProps,
+  spinningAnimationConfig,
+  animationCallback,
+  animateToNewValue,
   ...rest
 }) => {
-  return <Text style={textStyle}>{value}</Text>;
+  const [height, setHeight] = useState(0);
+  const numberValue = value < 0 && !showMinusSign ? Math.abs(value) : value;
+  const formattedNumber = useMemo(
+    () =>
+      formattedText ||
+      (enableCompactNotation &&
+        formatCompactNumber(
+          numberValue,
+          compactToFixed || toFixed,
+          fixedOnlyForCompact,
+          useGrouping,
+          locale
+        )) ||
+      numberValue.toLocaleString(locale, {
+        useGrouping,
+        minimumFractionDigits: toFixed,
+        maximumFractionDigits: toFixed,
+      }),
+    [
+      formattedText,
+      useGrouping,
+      value,
+      compactToFixed,
+      enableCompactNotation,
+      showMinusSign,
+      showPlusSign,
+      fixedOnlyForCompact,
+      locale,
+      toFixed,
+    ]
+  );
+
+  const number = useMemo(() => {
+    const numberWithSign = (
+      (showPlusSign && value >= 0 ? "+" : "") + formattedNumber
+    ).split("");
+    if (I18nManager.isRTL) {
+      return numberWithSign.reverse();
+    }
+    return numberWithSign;
+  }, [formattedNumber, value, showPlusSign]);
+
+  const handleLayout = useCallback(
+    (e: LayoutChangeEvent) => {
+      if (e.nativeEvent.layout.height !== height) {
+        setHeight(e.nativeEvent.layout.height);
+      }
+    },
+    [height]
+  );
+
+  return (
+    <Animated.View
+      layout={LinearTransition}
+      style={[styles.container, containerStyle]}
+      {...rest}
+    >
+      <View style={styles.innerContainer} onLayout={handleLayout}>
+        {number.map((char, index) => (
+          <AnimatedDigit
+            key={formattedNumber.length - index - 1}
+            value={char}
+            height={height}
+            containerStyle={digitContainerStyle}
+            textStyle={textStyle}
+            numberTextProps={numberTextProps}
+            commaTextProps={commaTextProps}
+            dotTextProps={dotTextProps}
+            compactNotationTextProps={compactNotationTextProps}
+            signTextProps={signTextProps}
+            numberStyle={numberStyle}
+            commaStyle={commaStyle}
+            dotStyle={dotStyle}
+            compactNotationStyle={compactNotationStyle}
+            signStyle={signStyle}
+            spinningAnimationConfig={spinningAnimationConfig}
+            animationCallback={animationCallback}
+            animateToNewValue={animateToNewValue}
+          />
+        ))}
+      </View>
+    </Animated.View>
+  );
 };
 
 const styles = StyleSheet.create({
