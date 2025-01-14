@@ -138,6 +138,7 @@ export default function SettingsPage() {
                   await Promise.all([
                     queryClient.invalidateQueries(),
                     ExpoImage.clearDiskCache(),
+                    ExpoImage.clearMemoryCache(),
                   ]);
                 } catch (err) {}
               }}

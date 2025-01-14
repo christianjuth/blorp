@@ -36,6 +36,7 @@ export const shareImage = async (imageUrl: string) => {
 export function Image({
   imageUrl,
   priority,
+  borderTopRadius,
   borderRadius,
   maxWidth,
   aspectRatio,
@@ -44,6 +45,7 @@ export function Image({
 }: {
   imageUrl: string;
   priority?: boolean;
+  borderTopRadius?: number;
   borderRadius?: number;
   maxWidth?: number;
   aspectRatio?: number;
@@ -92,6 +94,8 @@ export function Image({
         style={{
           // flex: 1,
           borderRadius,
+          borderTopRightRadius: borderTopRadius ?? borderRadius,
+          borderTopLeftRadius: borderTopRadius ?? borderRadius,
           width: maxWidth ? "100%" : undefined,
           maxWidth: maxWidth,
           objectFit,
@@ -104,7 +108,7 @@ export function Image({
 
   return (
     <ExpoImage
-      key={imageUrl}
+      recyclingKey={imageUrl}
       source={{ uri: imageUrl }}
       style={{
         // Don't use flex 1
@@ -114,8 +118,10 @@ export function Image({
         width: maxWidth ? maxWidth : "100%",
         maxWidth: "100%",
         height: undefined,
+        borderTopRightRadius: borderTopRadius ?? borderRadius,
+        borderTopLeftRadius: borderTopRadius ?? borderRadius,
       }}
-      contentFit={objectFit}
+      // contentFit={objectFit}
       cachePolicy={cacheImages ? "disk" : "memory"}
       onLoad={({ source }) => {
         setDimensions({

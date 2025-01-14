@@ -48,41 +48,6 @@ export function ActionMenu<L extends string>({
     <Popover size="$5" allowFlip offset={0} placement={placement}>
       <Popover.Trigger>{trigger}</Popover.Trigger>
 
-      <Adapt when="sm" platform="touch">
-        <Sheet
-          // native
-          // native={!!props.native}
-          modal
-          dismissOnSnapToBottom
-          animationConfig={{
-            type: "spring",
-            damping: 20,
-            mass: 1.2,
-            stiffness: 250,
-          }}
-          snapPointsMode="fit"
-        >
-          <Sheet.Frame
-            bg="$color1"
-            $theme-dark={{
-              bg: "$color3",
-            }}
-          >
-            <Sheet.ScrollView pb={insets.bottom}>
-              {/* <Adapt.Contents /> */}
-              {contents}
-            </Sheet.ScrollView>
-          </Sheet.Frame>
-          <Sheet.Overlay
-            // animation="lazy"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-            backgroundColor="black"
-            opacity={0.4}
-          />
-        </Sheet>
-      </Adapt>
-
       <Popover.Content
         borderWidth={1}
         borderColor="$borderColor"
@@ -95,6 +60,41 @@ export function ActionMenu<L extends string>({
       >
         {contents}
       </Popover.Content>
+
+      <Adapt when="sm" platform="touch">
+        <Popover.Sheet
+          // native
+          // native={!!props.native}
+          modal
+          dismissOnSnapToBottom
+          animationConfig={{
+            type: "spring",
+            damping: 20,
+            mass: 1.2,
+            stiffness: 250,
+          }}
+          snapPointsMode="fit"
+        >
+          <Popover.Sheet.Overlay
+            // animation="lazy"
+            enterStyle={{ opacity: 0 }}
+            exitStyle={{ opacity: 0 }}
+            backgroundColor="black"
+            opacity={0.4}
+          />
+          <Popover.Sheet.Frame
+            bg="$color1"
+            $theme-dark={{
+              bg: "$color3",
+            }}
+          >
+            <Popover.Sheet.ScrollView pb={insets.bottom}>
+              {/* <Adapt.Contents /> */}
+              {contents}
+            </Popover.Sheet.ScrollView>
+          </Popover.Sheet.Frame>
+        </Popover.Sheet>
+      </Adapt>
     </Popover>
   );
 }

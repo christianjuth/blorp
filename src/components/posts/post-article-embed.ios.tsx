@@ -13,8 +13,6 @@ export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
 
   return (
     <View
-      br="$5"
-      overflow="hidden"
       onPress={() => {
         const url = post.url;
         if (url) {
@@ -35,10 +33,19 @@ export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
           aspectRatio={16 / 9}
           objectFit="cover"
           disableShare
+          borderTopRadius={10}
         />
       )}
       {url && (
-        <Text p="$3" bg="$color5" color="$color11" numberOfLines={1}>
+        <Text
+          p="$3"
+          bg="$color5"
+          color="$color11"
+          numberOfLines={1}
+          br={post.thumbnail_url ? undefined : 10}
+          bbrr={10}
+          bblr={10}
+        >
           {url.host}
           {url.pathname}
         </Text>

@@ -75,6 +75,10 @@ export function Voting({ apId }: { apId: string }) {
       >
         <>
           <ArrowBigUp
+            // Not sure why this is nessesary, but
+            // it wasn't clearning the color without
+            // this when you undo your vote
+            key={isUpvoted ? 0 : 1}
             fill={isUpvoted ? theme.accentBackground.val : undefined}
             color={isUpvoted ? "$accentBackground" : undefined}
             size="$1"
@@ -110,6 +114,7 @@ export function Voting({ apId }: { apId: string }) {
         disabled={vote.isPending}
       >
         <ArrowBigDown
+          key={isDownvoted ? 0 : 1}
           fill={isDownvoted ? theme.red.val : undefined}
           color={isDownvoted ? "$red" : undefined}
           size="$1"

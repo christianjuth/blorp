@@ -127,7 +127,7 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
                 placeholder="Enter URL or search for your server"
                 size="$3"
                 flexShrink={0}
-                value={search}
+                // value={search}
                 onChangeText={setSearch}
               />
               <FlatList

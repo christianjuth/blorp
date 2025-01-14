@@ -91,29 +91,6 @@ function Italic({ children }: { children?: React.ReactNode }) {
   );
 }
 
-function Blockquote({ children }: { children?: React.ReactNode }) {
-  const color = useContextColor();
-  return (
-    <Text
-      fontStyle="italic"
-      fontSize="$4"
-      marginLeft="$1.5"
-      borderLeftWidth="$1.5"
-      borderLeftColor="$gray9"
-      paddingLeft="$2"
-      py="$1"
-      mb="$2"
-      color={color}
-      opacity={0.6}
-      tag="blockquote"
-      dsp="flex"
-      fd="column"
-    >
-      {children}
-    </Text>
-  );
-}
-
 function Ul({ children }: { children?: React.ReactNode }) {
   const theme = useTheme();
   // const color = useContextColor();
@@ -376,9 +353,23 @@ const renderRules: RenderRules = {
   // ),
 
   // Blockquotes
-  blockquote: (node, children, parent, styles) => (
-    <Blockquote key={node.key}>{children}</Blockquote>
-  ),
+  blockquote: function Blockquote(node, children, parent, styles) {
+    return (
+      <View
+        key={node.key}
+        style={_.omit(styles._VIEW_SAFE_blockquote, [
+          "backgroundColor",
+          "borderColor",
+        ])}
+        borderLeftColor="$gray9"
+        bg="$gray3"
+        paddingLeft="$2"
+        py="$1"
+      >
+        {children}
+      </View>
+    );
+  },
 
   // // Lists
   // bullet_list: (node, children, parent, styles) => (

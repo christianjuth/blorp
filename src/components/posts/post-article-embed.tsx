@@ -12,7 +12,7 @@ export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
 
   return (
     <a href={post.url} target="_blank" rel="noopener noreferrer">
-      <View br="$5" overflow="hidden">
+      <View br={10} overflow="hidden">
         {post.thumbnail_url && (
           <Image
             imageUrl={post.thumbnail_url}

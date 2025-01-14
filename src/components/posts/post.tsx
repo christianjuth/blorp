@@ -1,4 +1,4 @@
-import { Text, View, XStack, YStack } from "tamagui";
+import { Text, useMedia, View, XStack, YStack } from "tamagui";
 import { Image, shareImage } from "~/src/components/image";
 import { PostCommentsButton, Voting } from "./post-buttons";
 import { Link } from "one";
@@ -23,6 +23,8 @@ export function PostCard({
   detailView?: boolean;
   featuredContext?: "community";
 }) {
+  const media = useMedia();
+
   const replyCtx = useCommentReaplyContext();
   const linkCtx = useLinkContext();
   const [pressed, setPressed] = useState(false);
@@ -80,8 +82,12 @@ export function PostCard({
       )}
 
       {post.thumbnail_url && embedType === "image" && (
-        <View br="$5" overflow="hidden" $md={{ mx: "$-2.5", br: 0 }}>
-          <Image imageUrl={post.thumbnail_url} aspectRatio={aspectRatio} />
+        <View br="$5" $md={{ mx: "$-2.5", br: 0 }}>
+          <Image
+            imageUrl={post.thumbnail_url}
+            aspectRatio={aspectRatio}
+            borderRadius={media.gtMd ? 10 : 0}
+          />
         </View>
       )}
     </YStack>
@@ -149,6 +155,7 @@ export function PostCard({
 
           <Link
             href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${encodeURIComponent(crossPost.post.ap_id)}`}
+            push
             asChild
           >
             <YStack bc="$color4" bw={1} br="$4" py="$2.5" gap="$2" tag="a">
