@@ -9,7 +9,7 @@ jobs:
 
     permissions:
       # Required to checkout the code
-      contents: read
+      contents: write
       # Required to put a comment into the pull-request
       pull-requests: write
 
@@ -21,6 +21,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+          cache: 'yarn'
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: | 
+            .yarn/cache
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
       - name: Install dependencies
         run: |
@@ -34,3 +45,5 @@ jobs:
       - name: Report Coverage
         if: always()
         uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          comment-on: "pr,commit"
