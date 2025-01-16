@@ -20,8 +20,6 @@ export class MarkdownEditorState {
   private changeListeners: Map<number, ChangeListener>;
   private listenerIdCounter: number;
 
-  private newCursorPosition?: CursorPosition;
-
   private updates: Update[] = [];
 
   getState(): Omit<Update, "delay"> {
@@ -89,14 +87,6 @@ export class MarkdownEditorState {
       this.cursorPosition = { start, end };
     }
     this.notifyChange();
-  }
-
-  getSelection() {
-    const pos = this.newCursorPosition;
-    if (pos) {
-      this.cursorPosition = pos;
-    }
-    return pos;
   }
 
   isWrappedWithMarker(marker: string): boolean {
@@ -356,8 +346,6 @@ export class MarkdownEditorState {
   strikethrough(): void {
     this.updateContent("~~");
   }
-
-  toggleLinePrefix(prefix: string) {}
 
   toggleHeading(): void {
     const lines = this.content.split("\n");

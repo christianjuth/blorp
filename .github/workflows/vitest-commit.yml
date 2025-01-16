@@ -1,17 +1,14 @@
-name: Run Vitest
+name: Run Vitest on PR
 
 on:
-  pull_request:
+  push:
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     permissions:
-      # Required to checkout the code
       contents: write
-      # Required to put a comment into the pull-request
-      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -46,4 +43,4 @@ jobs:
         if: always()
         uses: davelosert/vitest-coverage-report-action@v2
         with:
-          comment-on: "pr,commit"
+          comment-on: "commit"

@@ -16,7 +16,8 @@
     "upgrade:tamagui": "$npm_execpath up '*tamagui*' '@tamagui/*'",
     "upgrade:one": "$npm_execpath up '*one*' '@vxrn/*'",
     "test": "vitest --coverage",
-    "test:watch": "vitest --coverage --watch"
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --watch --coverage --ui"
   },
   "installConfig": {
     "hoistingLimits": "workspaces"
