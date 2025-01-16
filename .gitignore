@@ -34,3 +34,12 @@ tsconfig.tsbuildinfo
 # generated code
 /ios
 /android
+
+# Test artifacts
+/coverage/
+
+# Tamagui
+/app/tamagui.css
+
+# Misc
+todo.md

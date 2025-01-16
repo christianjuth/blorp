@@ -120,7 +120,9 @@ function SearchBar() {
       value={search}
       onChangeText={setSearch}
       onSubmitEditing={() => {
-        router.push(`${linkCtx.root}s/${search}`);
+        if (linkCtx.root !== "/inbox/") {
+          router.push(`${linkCtx.root}s/test`);
+        }
       }}
     />
   );

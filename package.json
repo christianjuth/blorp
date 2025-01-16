@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "postinstall": "husky",
     "dev": "one dev",
     "dev:clean": "one dev --clean",
     "clean": "one clean",
@@ -14,7 +15,8 @@
     "android": "one run:android",
     "upgrade:tamagui": "$npm_execpath up '*tamagui*' '@tamagui/*'",
     "upgrade:one": "$npm_execpath up '*one*' '@vxrn/*'",
-    "test": "vitest"
+    "test": "vitest --coverage",
+    "test:watch": "vitest --coverage --watch"
   },
   "installConfig": {
     "hoistingLimits": "workspaces"
@@ -85,8 +87,14 @@
     "@types/react-native-safari-view": "^2",
     "@vitest/coverage-v8": "2.1.8",
     "@vitest/ui": "2.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
     "prettier": "3.4.1",
     "vite": "^6.0.7",
+    "vite-plugin-checker": "^0.8.0",
     "vitest": "^2.1.8"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "prettier --write"
   }
 }

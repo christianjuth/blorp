@@ -1,3 +1,4 @@
+import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { Stack } from "one";
 import { useTheme } from "tamagui";
 
@@ -23,6 +24,7 @@ export default function Layout() {
           contentStyle: {
             backgroundColor: theme.background.val,
           },
+          // @ts-expect-error
           header: (props) => <StackHeader {...props} />,
           headerTransparent: true,
         }}

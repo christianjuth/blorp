@@ -17,12 +17,14 @@ export default function Layout() {
   return (
     <MainAppTemplate>
       <Tabs
+        // @ts-expect-error
         tabBar={(props) => <CustomBottomTabBar {...props} />}
         screenOptions={{
           tabBarStyle: {
             borderTopColor: theme.color4?.val,
             backgroundColor: "transparent",
           },
+          // @ts-expect-error
           header: (props) => <BottomTabBarHeader {...props} />,
           tabBarActiveTintColor: theme.accentColor?.val,
         }}

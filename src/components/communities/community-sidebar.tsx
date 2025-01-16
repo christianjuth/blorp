@@ -193,7 +193,7 @@ export function SmallScreenSidebar({
         </YStack>
       </XStack>
 
-      <Link href={linkCtx.root + `c/${communityName}/sidebar`} asChild>
+      <Link href={`${linkCtx.root}c/${communityName}/sidebar`} asChild>
         <Button ai="flex-start" jc="flex-start" p={0} pt="$1" h="auto" tag="a">
           <Text color="$accentColor">Show more</Text>
         </Button>

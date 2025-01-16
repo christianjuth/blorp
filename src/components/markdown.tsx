@@ -9,7 +9,7 @@ import {
 import disc from "@jsamr/counter-style/presets/disc";
 import decimal from "@jsamr/counter-style/presets/decimal";
 import MarkedList from "@jsamr/react-native-li";
-import React, { useState, createContext, useContext, Fragment } from "react";
+import React, { useState, createContext, useContext } from "react";
 import _ from "lodash";
 import { Image, shareImage } from "./image";
 import Md, {
@@ -19,6 +19,7 @@ import Md, {
   RenderRules,
 } from "react-native-markdown-display";
 import { Link } from "one";
+import type ParserBlock from "markdown-it/lib/parser_block";
 
 const Context = createContext<{
   color: GetThemeValueForKey<"color">;
@@ -208,12 +209,12 @@ export function markdownItLemmySpoiler(md: MarkdownIt) {
   });
 }
 
-function tokenizeLemmySpoiler(
-  state: MarkdownIt.StateBlock,
-  startLine: number,
-  endLine: number,
-  silent: boolean,
-): boolean {
+const tokenizeLemmySpoiler: ParserBlock.RuleBlock = (
+  state,
+  startLine,
+  endLine,
+  silent,
+): boolean => {
   const startPos = state.bMarks[startLine] + state.tShift[startLine];
   const endPos = state.eMarks[startLine];
   const line = state.src.slice(startPos, endPos).trim();
@@ -260,10 +261,10 @@ function tokenizeLemmySpoiler(
   state.line = nextLine + 1;
 
   return true;
-}
+};
 
 const markdownItInstance = MarkdownIt({
-  tyographer: true,
+  typographer: true,
   linkify: true,
 });
 

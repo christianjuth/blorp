@@ -2,6 +2,7 @@ import type { UserConfig } from "vite";
 import { one } from "one/vite";
 import { tamaguiPlugin } from "@tamagui/vite-plugin";
 import circleDependency from "vite-plugin-circular-dependency";
+import vitePluginChecker from "vite-plugin-checker";
 import path from "path";
 
 export default {
@@ -29,6 +30,10 @@ export default {
           "**/*.js": ["jsx"],
         },
       },
+    }),
+
+    vitePluginChecker({
+      typescript: true,
     }),
 
     tamaguiPlugin({

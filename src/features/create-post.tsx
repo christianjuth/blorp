@@ -41,7 +41,7 @@ export function CreatePostStepOne() {
 
   useEffect(() => {
     return editor.addEventListener(() => {
-      setContent(editor.getContent());
+      setContent(editor.getState().content);
     });
   }, [editor]);
 

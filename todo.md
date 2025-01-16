@@ -1,4 +1,0 @@
-- [X] Add link context so stacks understand what tab they are in
-- [ ] Update flashlist background on moble to be gray
-- [X] Update communities screen to allow filtering by all, local, subscribed
-- [ ] Prompt login on auth required action (e.g. like post)
