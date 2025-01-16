@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     watch: false,
     coverage: {
-      reporter: ["text", "json", "html"],
+      reporter: ["text", "json-summary", "json", "html"],
       include: ["src/**"],
     },
   },

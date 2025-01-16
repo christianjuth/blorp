@@ -1,4 +1,4 @@
-name: Deploy Tamagui One App to Pages
+name: Deploy One to GitHub Pages
 
 on:
   push:
