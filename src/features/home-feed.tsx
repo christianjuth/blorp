@@ -50,10 +50,10 @@ export function HomeFeed() {
 
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
-  const List = !isWeb ? FlashList : ReanimatedFlashList;
+  const List = isWeb ? FlashList : ReanimatedFlashList;
 
   return (
-    <List
+    <ReanimatedFlashList
       automaticallyAdjustsScrollIndicatorInsets={false}
       // @ts-expect-error
       ref={ref}
@@ -103,7 +103,7 @@ export function HomeFeed() {
       stickyHeaderIndices={[0]}
       scrollEventThrottle={16}
       estimatedItemSize={475}
-      onScroll={!isWeb ? undefined : scrollHandler}
+      onScroll={isWeb ? undefined : scrollHandler}
       contentInset={{
         top: header.height,
         bottom: tabBar.height,

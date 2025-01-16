@@ -115,12 +115,13 @@ export function CommentReplyContext({
               editComment.mutate({
                 path: comment.path,
                 comment_id: comment.id,
-                content: content[comment.id].getContent(),
+                content: content[comment.id].getState().content,
               });
             } else {
               createComment.mutate({
                 post_id: postId,
-                content: content[parentComment?.comment.id ?? 0].getContent(),
+                content:
+                  content[parentComment?.comment.id ?? 0].getState().content,
                 parent_id: parentComment?.comment.id,
                 parentPath: parentComment?.comment.path ?? "0",
               });
@@ -238,12 +239,12 @@ export function InlineCommentReply({
           editComment.mutate({
             path: comment.path,
             comment_id: comment.id,
-            content: editor.getContent(),
+            content: editor.getState().content,
           });
         } else {
           createComment.mutate({
             post_id: +postId,
-            content: editor.getContent(),
+            content: editor.getState().content,
             parent_id: parent?.comment.id,
             parentPath: parent?.comment.path ?? "0",
           });
@@ -262,7 +263,7 @@ export function InlineCommentReply({
           onFocus={() => setFocused(true)}
           editor={editor}
           onBlur={() => {
-            if (editor.getContent().trim() === "") {
+            if (editor.getState().content.trim() === "") {
               setFocused(false);
               onCancel?.();
             }

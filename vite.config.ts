@@ -12,7 +12,7 @@ export default {
         defaultRenderMode: "spa",
       },
 
-      native: {
+      app: {
         // set to the key of your native app
         // will call AppRegistry.registerComponent(app.key)
         key: "blorp",

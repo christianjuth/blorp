@@ -12,7 +12,7 @@ export const useCustomTabBarHeight = () => {
 
   // Default header heights based on platform
   const defaultHeaderHeight = Platform.select({
-    ios: 45, // Default header height on iOS
+    ios: 49, // Default header height on iOS
     android: 56, // Default header height on Android
     default: 65, // Default header height for web or other platforms
   });
