@@ -44,6 +44,7 @@ export const useFiltersStore = create<SortsStore>()(
     {
       name: "filters",
       storage: createStorage<SortsStore>(),
+      version: 0,
     },
   ),
 );

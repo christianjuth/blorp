@@ -81,6 +81,7 @@ export function User({ userId }: { userId?: string }) {
                 zIndex="$5"
                 gap="$4"
                 pos="absolute"
+                w="100%"
               >
                 <Text fontWeight="bold" fontSize="$5">
                   {personView.person.display_name ?? personView.person.name}

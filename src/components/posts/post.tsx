@@ -51,7 +51,8 @@ export function PostCard({
     post.url?.endsWith(".jpeg") ||
     post.url?.endsWith(".jpg") ||
     post.url?.endsWith(".png") ||
-    post.url?.endsWith(".webp")
+    post.url?.endsWith(".webp") ||
+    post.url?.endsWith(".gif")
   ) {
     embedType = "image";
   } else if (urlContentType && urlContentType.indexOf("video/") !== -1) {

@@ -1,14 +1,4 @@
-import {
-  Button,
-  GetThemeValueForKey,
-  Text,
-  useTheme,
-  View,
-  YStack,
-} from "tamagui";
-import disc from "@jsamr/counter-style/presets/disc";
-import decimal from "@jsamr/counter-style/presets/decimal";
-import MarkedList from "@jsamr/react-native-li";
+import { Button, GetThemeValueForKey, Text, View, YStack } from "tamagui";
 import React, { useState, createContext, useContext } from "react";
 import _ from "lodash";
 import { Image, shareImage } from "./image";
@@ -19,7 +9,7 @@ import Md, {
   RenderRules,
 } from "react-native-markdown-display";
 import { Link } from "one";
-import type ParserBlock from "markdown-it/lib/parser_block";
+import type { RuleBlock } from "markdown-it/lib/parser_block.mjs";
 
 const Context = createContext<{
   color: GetThemeValueForKey<"color">;
@@ -32,133 +22,8 @@ function useContextColor() {
   return color;
 }
 
-function Img({ alt, src }: { alt?: string; src?: string }) {
-  if (!src) {
-    return null;
-  }
-  return <Image imageUrl={src} maxWidth={250} />;
-}
-
-// Define reusable components with styles
-function Div({ children }: { children?: React.ReactNode }) {
-  const color = useContextColor();
-  return <Text color={color}>{children}</Text>;
-}
-
 function Hr() {
   return <View h={1} w="100%" bg="$color7" />;
-}
-
-function P({ children }: { children?: React.ReactNode }) {
-  const color = useContextColor();
-  return (
-    <Text tag="p" mb="$2" color={color} dsp="block">
-      {children}
-    </Text>
-  );
-}
-
-function H1({ children }: { children?: React.ReactNode }) {
-  const color = useContextColor();
-  return (
-    <Text
-      fontSize="$6"
-      fontWeight="bold"
-      marginVertical="$2"
-      tag="h1"
-      width="100%"
-      color={color}
-    >
-      {children}
-    </Text>
-  );
-}
-
-function Strong({ children }: { children?: React.ReactNode }) {
-  const color = useContextColor();
-  return (
-    <Text fontWeight="bold" color={color}>
-      {children}
-    </Text>
-  );
-}
-
-function Italic({ children }: { children?: React.ReactNode }) {
-  const color = useContextColor();
-  return (
-    <Text fontStyle="italic" color={color}>
-      {children}
-    </Text>
-  );
-}
-
-function Ul({ children }: { children?: React.ReactNode }) {
-  const theme = useTheme();
-  // const color = useContextColor();
-  return (
-    <View py="$2.5">
-      <MarkedList
-        counterRenderer={disc}
-        markerTextStyle={{ color: theme.color11.val }}
-        lineStyle={{
-          marginTop: 2,
-          marginBottom: 2,
-        }}
-        // renderMarker={(t) => <Text>{console.log(t)}</Text>}
-      >
-        {children}
-      </MarkedList>
-    </View>
-  );
-}
-
-function Ol({ children }: { children?: React.ReactNode }) {
-  const theme = useTheme();
-  // const color = useContextColor();
-  return (
-    <View py="$2.5">
-      <MarkedList
-        counterRenderer={decimal}
-        markerTextStyle={{ color: theme.color11.val }}
-        lineStyle={{
-          marginTop: 2,
-          marginBottom: 2,
-        }}
-      >
-        {children}
-      </MarkedList>
-    </View>
-  );
-}
-
-function Li({ children }: { children?: React.ReactNode }) {
-  const color = useContextColor();
-  return <Text color={color}>{children}</Text>;
-}
-
-function Code({ children }: { children?: React.ReactNode }) {
-  const color = useContextColor();
-  return (
-    <Text
-      fontFamily="monospace"
-      fontSize="$2"
-      backgroundColor="$gray4"
-      borderRadius="$1"
-      padding="$3"
-      tag="code"
-      color={color}
-    >
-      {children}
-    </Text>
-  );
-}
-
-function Pre({ children }: { children?: React.ReactNode }) {
-  return (
-    <View borderRadius="$2" mb="$2">
-      {children}
-    </View>
-  );
 }
 
 function Spoiler({
@@ -209,7 +74,7 @@ export function markdownItLemmySpoiler(md: MarkdownIt) {
   });
 }
 
-const tokenizeLemmySpoiler: ParserBlock.RuleBlock = (
+const tokenizeLemmySpoiler: RuleBlock = (
   state,
   startLine,
   endLine,
@@ -361,11 +226,12 @@ const renderRules: RenderRules = {
         style={_.omit(styles._VIEW_SAFE_blockquote, [
           "backgroundColor",
           "borderColor",
+          "marginLeft",
         ])}
         borderLeftColor="$gray9"
         bg="$gray3"
-        paddingLeft="$2"
-        py="$1"
+        paddingLeft="$2.5"
+        py="$1.5"
       >
         {children}
       </View>

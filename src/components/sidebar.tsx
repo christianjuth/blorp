@@ -1,11 +1,5 @@
 import { XStack, YStack, Text, View, Avatar, useThemeName } from "tamagui";
-import {
-  Home,
-  Users,
-  Plus,
-  MessageCircleMore,
-  Settings,
-} from "@tamagui/lucide-icons";
+import { Home, Users, Plus, Settings } from "@tamagui/lucide-icons";
 import { Link } from "one";
 import * as routes from "~/src/lib/routes";
 import { useRecentCommunities } from "../stores/recent-communities";
@@ -48,7 +42,7 @@ export function Sidebar() {
   const recentCommunities = useRecentCommunities((s) => s.recentlyVisited);
   const header = useCustomHeaderHeight();
   const themeName = useThemeName();
-  const jwt = useAuth((s) => s.jwt);
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   const subscribedCommunities = useListCommunities({
     type_: "Subscribed",
@@ -91,20 +85,6 @@ export function Sidebar() {
           </XStack>
         </Link>
 
-        <Link href={routes.create} replace asChild>
-          <XStack ai="center" gap="$2.5" tag="a">
-            <Plus color="$color11" />
-            <Text color="$color11">Create</Text>
-          </XStack>
-        </Link>
-
-        <Link href={routes.inbox} replace asChild>
-          <XStack ai="center" gap="$2.5" tag="a">
-            <MessageCircleMore color="$color11" />
-            <Text color="$color11">Inbox</Text>
-          </XStack>
-        </Link>
-
         <View h={1} flex={1} bg="$color4" my="$2" />
 
         {recentCommunities.length > 0 && (
@@ -120,7 +100,7 @@ export function Sidebar() {
           </>
         )}
 
-        {jwt && (
+        {isLoggedIn && (
           <>
             <Text color="$color10" fontSize="$3">
               COMMUNITIES
@@ -138,11 +118,10 @@ export function Sidebar() {
           </>
         )}
 
-        <Link href={routes.settings} replace asChild>
-          <XStack ai="center" gap="$2.5" tag="a">
-            <Settings color="$color11" />
-            <Text color="$color11">Settings</Text>
-          </XStack>
+        <Link href={routes.privacy} replace asChild>
+          <Text color="$color11" tag="a">
+            Privacy Policy
+          </Text>
         </Link>
       </YStack>
     </>

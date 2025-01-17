@@ -72,6 +72,10 @@ export function CommentVoting({
       >
         <>
           <ArrowBigUp
+            // Not sure why this is nessesary, but
+            // it wasn't clearning the color without
+            // this when you undo your vote
+            key={isUpvoted ? 1 : 0}
             size="$1"
             fill={isUpvoted ? theme.accentBackground.val : undefined}
             color={isUpvoted ? "$accentBackground" : "$color11"}
@@ -112,6 +116,10 @@ export function CommentVoting({
         py="$1"
       >
         <ArrowBigDown
+          // Not sure why this is nessesary, but
+          // it wasn't clearning the color without
+          // this when you undo your vote
+          key={isDownvoted ? 1 : 0}
           size="$1"
           fill={isDownvoted ? theme.red.val : undefined}
           color={isDownvoted ? "$red" : "$color11"}

@@ -48,7 +48,12 @@ export function HeaderGutters({ children, ...props }: XStackProps) {
         {second}
       </XStack>
 
-      <XStack jc="flex-end" $gtMd={{ minWidth: "33%" }} ai="center" gap="$3">
+      <XStack
+        jc="flex-end"
+        ai="center"
+        gap="$3"
+        $gtMd={{ minWidth: "33%", gap: "$4" }}
+      >
         {third}
       </XStack>
     </XStack>

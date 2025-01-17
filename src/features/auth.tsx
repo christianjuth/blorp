@@ -22,8 +22,8 @@ export function Auth() {
   const { mutate, status } = useLogin();
 
   const instances = useInstances();
-  const instance = useAuth((a) => a.instance);
-  const setInstance = useAuth((a) => a.setInstance);
+  const instance = useAuth((s) => s.getSelectedAccount().instance);
+  const updateAccount = useAuth((s) => s.updateAccount);
 
   return (
     <Form
@@ -65,7 +65,11 @@ export function Auth() {
           })) ?? []
         }
         value={instance ?? ""}
-        onValueChange={(val) => setInstance(val)}
+        onValueChange={(val) =>
+          updateAccount({
+            instance: val,
+          })
+        }
         title="Instance"
       />
 

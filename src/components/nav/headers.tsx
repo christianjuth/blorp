@@ -7,17 +7,15 @@ import {
   HomeFilter,
   PostSortSelect,
 } from "../lemmy-sort";
+import { View, Text, XStack, Input, Avatar, YStack, isWeb } from "tamagui";
 import {
-  View,
-  Text,
-  Button,
-  XStack,
-  Input,
-  Avatar,
-  YStack,
-  isWeb,
-} from "tamagui";
-import { ChevronLeft, X } from "@tamagui/lucide-icons";
+  ChevronLeft,
+  X,
+  User,
+  LogOut,
+  Bell,
+  Settings,
+} from "@tamagui/lucide-icons";
 import { BlurBackground } from "./blur-background";
 import Animated from "react-native-reanimated";
 import { useCustomHeaderHeight } from "./hooks";
@@ -33,13 +31,17 @@ import { useAuth } from "~/src/stores/auth";
 import { HeaderGutters } from "../gutters";
 import { useRequireAuth } from "../auth-context";
 import { Dropdown } from "../ui/dropdown";
-import { useLogout } from "~/src/lib/lemmy";
+import { useLogout, useNotificationCount, useReplies } from "~/src/lib/lemmy";
 import { useCreatePostStore } from "~/src/stores/create-post";
+import { Button } from "../ui/button";
+import * as routes from "~/src/lib/routes";
 
 function UserAvatar() {
   const linkCtx = useLinkContext();
   const logout = useLogout();
-  const user = useAuth((s) => s.site?.my_user?.local_user_view.person);
+  const user = useAuth(
+    (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person,
+  );
   const requireAuth = useRequireAuth();
 
   if (!user) {
@@ -69,39 +71,109 @@ function UserAvatar() {
         </Avatar>
       }
     >
-      <YStack p="$2.5">
-        <Link href={`${linkCtx.root}u/${user.id}`} push>
-          <XStack gap="$2" ai="center">
-            <Avatar size={30}>
-              <Avatar.Image src={user.avatar} borderRadius="$12" />
-              <Avatar.Fallback
-                backgroundColor="$color8"
-                borderRadius="$12"
-                ai="center"
-                jc="center"
-              >
-                <Text fontSize="$1">
-                  {user.name?.substring(0, 1).toUpperCase()}
-                </Text>
-              </Avatar.Fallback>
-            </Avatar>
-            <Text fontSize="$4">u/{user.name}</Text>
-          </XStack>
-        </Link>
+      <YStack minWidth={200}>
+        <YStack ai="center" bbw={1} bbc="$color6" py="$2.5" gap="$2">
+          <Avatar size="$5">
+            <Avatar.Image src={user.avatar} borderRadius="$12" />
+            <Avatar.Fallback
+              backgroundColor="$color8"
+              borderRadius={99999}
+              ai="center"
+              jc="center"
+            >
+              <Text fontSize="$5">
+                {user.name?.substring(0, 1).toUpperCase()}
+              </Text>
+            </Avatar.Fallback>
+          </Avatar>
+          <Text fontSize="$4">u/{user.name}</Text>
+        </YStack>
 
-        <Button onPress={logout} bg="transparent" jc="flex-start" p={0} h="$4">
-          <Text>Logout</Text>
-        </Button>
+        <YStack py="$1.5">
+          <Dropdown.Close>
+            <Link href={`${linkCtx.root}u/${user.id}`} push asChild>
+              <XStack h="$3" tag="a" ai="center" px="$2.5" gap="$2.5">
+                <User size="$1" col="$color10" />
+                <Text>Profile</Text>
+              </XStack>
+            </Link>
+          </Dropdown.Close>
+
+          <Dropdown.Close>
+            <Link href={routes.settings} push asChild>
+              <XStack h="$3" tag="a" ai="center" px="$2.5" gap="$2.5">
+                <Settings size="$1" col="$color10" />
+                <Text>Settings</Text>
+              </XStack>
+            </Link>
+          </Dropdown.Close>
+
+          <Dropdown.Close>
+            <Button onPress={logout} asChild>
+              <XStack
+                h="$3"
+                ai="center"
+                px="$2.5"
+                gap="$2.5"
+                bg="transparent"
+                tag="button"
+                bw={0}
+              >
+                <LogOut size="$1" col="$color10" />
+                <Text>Logout</Text>
+              </XStack>
+            </Button>
+          </Dropdown.Close>
+        </YStack>
       </YStack>
     </Dropdown>
   );
 }
 
-function SearchBar() {
+function NotificationsBell() {
+  const notificationCount = useNotificationCount();
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+  if (!isLoggedIn) {
+    return null;
+  }
+  return (
+    <Link href="/inbox" style={{ position: "relative" }}>
+      <YStack
+        bg="red"
+        pos="absolute"
+        t={-5}
+        r={-9}
+        h={20}
+        w={20}
+        ai="center"
+        jc="center"
+        br={9999}
+        bw={2}
+        bc="$background"
+      >
+        <Text col="white" fontSize={11}>
+          {notificationCount}
+        </Text>
+      </YStack>
+      <Bell col="$accentColor" />
+    </Link>
+  );
+}
+
+function NavbarRightSide({ children }: { children?: React.ReactNode }) {
+  return (
+    <>
+      {children}
+      <NotificationsBell />
+      <UserAvatar />
+    </>
+  );
+}
+
+function SearchBar({ defaultValue }: { defaultValue?: string }) {
   const linkCtx = useLinkContext();
   const router = useRouter();
-  const { search: initSearch } = useParams<{ search: string }>();
-  const [search, setSearch] = useState(initSearch ?? "");
+  const [search, setSearch] = useState(defaultValue ?? "");
   return (
     <Input
       bg="$color4"
@@ -183,13 +255,9 @@ export function HomeHeader(
           >
             <HomeFilter />
             <SearchBar />
-            <>
-              {/* <Link href={`${linkCtx.root}s/q`}> */}
-              {/*   <MagnafineGlass /> */}
-              {/* </Link> */}
+            <NavbarRightSide>
               <PostSortSelect />
-              <UserAvatar />
-            </>
+            </NavbarRightSide>
           </HeaderGutters>
         </View>
       </Animated.View>
@@ -261,10 +329,9 @@ export function CommunityHeader(
           }}
         />
 
-        <>
+        <NavbarRightSide>
           <PostSortSelect />
-          <UserAvatar />
-        </>
+        </NavbarRightSide>
       </HeaderGutters>
     </View>
   );
@@ -293,8 +360,6 @@ export function SearchHeader(
 
   const { height, insetTop } = useCustomHeaderHeight();
 
-  const [search, setSearch] = useState(initSearch);
-
   return (
     <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
       <BlurBackground />
@@ -318,14 +383,10 @@ export function SearchHeader(
             </Button>
           )}
         </>
-        <SearchBar />
-        <>
-          {/* <Link href={`${linkCtx.root}s/q`}> */}
-          {/*   <MagnafineGlass /> */}
-          {/* </Link> */}
+        <SearchBar defaultValue={initSearch} />
+        <NavbarRightSide>
           <PostSortSelect />
-          <UserAvatar />
-        </>
+        </NavbarRightSide>
       </HeaderGutters>
     </View>
   );
@@ -358,7 +419,9 @@ export function CommunitiesHeader(
           )}
         </>
         <CommunityFilter />
-        <CommunitySortSelect />
+        <NavbarRightSide>
+          <CommunitySortSelect />
+        </NavbarRightSide>
       </HeaderGutters>
     </View>
   );
@@ -393,7 +456,9 @@ export function UserHeader(
         <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
           {props.options.title}
         </Text>
-        <ComentSortSelect />
+        <NavbarRightSide>
+          <PostSortSelect />
+        </NavbarRightSide>
       </HeaderGutters>
     </View>
   );
@@ -433,10 +498,18 @@ export function PostHeader(
             </Button>
           )}
         </>
-        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+        <Text
+          fontWeight="bold"
+          fontSize="$5"
+          overflow="hidden"
+          pos="relative"
+          numberOfLines={1}
+        >
           {communityName}
         </Text>
-        <ComentSortSelect />
+        <NavbarRightSide>
+          <ComentSortSelect />
+        </NavbarRightSide>
       </HeaderGutters>
     </View>
   );
@@ -485,43 +558,36 @@ export function ModalHeader(props: NativeStackHeaderProps) {
 export function StackHeader(props: NativeStackHeaderProps) {
   const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <XStack
-      bbc="$color4"
-      bbw={0.5}
-      btw={0}
-      btc="transparent"
-      w="unset"
-      px="$3"
-      ai="center"
-      pt={insetTop}
-      h={height - 1}
-      pos="relative"
-    >
+    <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
       <BlurBackground />
 
-      <View flex={1} flexBasis={0} ai="flex-start">
-        {"back" in props && props.back && (
-          <Button
-            unstyled
-            p={2}
-            bg="transparent"
-            borderRadius="$12"
-            dsp="flex"
-            fd="row"
-            ai="center"
-            bw={0}
-            onPress={() => props.navigation.pop(1)}
-            h="auto"
-          >
-            <ChevronLeft color="$accentColor" size="$2" />
-          </Button>
-        )}
-      </View>
-      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-        {props.options.title ?? props.route.name}
-      </Text>
-      <View flex={1} flexBasis={0} ai="flex-end"></View>
-    </XStack>
+      <HeaderGutters pt={insetTop} h={height - 1}>
+        <>
+          {"back" in props && props.back && (
+            <Button
+              unstyled
+              p={2}
+              bg="transparent"
+              borderRadius="$12"
+              dsp="flex"
+              fd="row"
+              ai="center"
+              bw={0}
+              onPress={() => props.navigation.pop(1)}
+              h="auto"
+            >
+              <ChevronLeft color="$accentColor" size="$2" />
+            </Button>
+          )}
+        </>
+
+        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+          {props.options.title ?? props.route.name}
+        </Text>
+
+        <NavbarRightSide />
+      </HeaderGutters>
+    </View>
   );
 }
 

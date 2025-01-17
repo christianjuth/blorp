@@ -112,19 +112,22 @@ export function CommentReplyContext({
         <Form
           onSubmit={() => {
             if (comment) {
+              const editor = content[comment.id];
               editComment.mutate({
                 path: comment.path,
                 comment_id: comment.id,
-                content: content[comment.id].getState().content,
+                content: editor.getState().content,
               });
+              editor.reset();
             } else {
+              const editor = content[parentComment?.comment.id ?? 0];
               createComment.mutate({
                 post_id: postId,
-                content:
-                  content[parentComment?.comment.id ?? 0].getState().content,
+                content: editor.getState().content,
                 parent_id: parentComment?.comment.id,
                 parentPath: parentComment?.comment.path ?? "0",
               });
+              editor.reset();
             }
             inputRef.current?.blur();
             setParentComment(undefined);
@@ -167,7 +170,11 @@ export function CommentReplyContext({
                   }}
                 />
                 {focused ? (
-                  <XStack minHeight={bottomTabBar.insetBottom} jc="flex-end">
+                  <XStack
+                    pb="$2"
+                    minHeight={bottomTabBar.insetBottom}
+                    jc="flex-end"
+                  >
                     <Button
                       size="$2.5"
                       br="$12"

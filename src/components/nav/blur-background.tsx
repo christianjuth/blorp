@@ -14,6 +14,7 @@ export function BlurBackground() {
           left: 0,
         }}
         tint={theme === "dark" ? "dark" : "light"}
+        intensity={100}
       />
       <View
         bg="$background"

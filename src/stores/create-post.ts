@@ -45,6 +45,7 @@ export const useCreatePostStore = create<CreatePostStore>()(
     {
       name: "create-post",
       storage: createStorage<CreatePostStore>(),
+      version: 0,
     },
   ),
 );

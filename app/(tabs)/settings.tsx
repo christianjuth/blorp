@@ -84,7 +84,7 @@ export default function SettingsPage() {
   const settings = useSettingsStore();
   const logout = useLogout();
   const requireAuth = useRequireAuth();
-  const isLoggedIn = useAuth((s) => !!s.jwt);
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   const header = useCustomHeaderHeight();
   const tabBar = useCustomTabBarHeight();

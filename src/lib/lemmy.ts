@@ -100,9 +100,12 @@ export async function measureImage(src: string) {
 }
 
 function useLemmyClient() {
-  const jwt = useAuth((s) => s.jwt);
-  const myUserId = useAuth((s) => s.site?.my_user?.local_user_view.person.id);
-  const instance = useAuth((s) => s.instance) ?? "https://lemmy.ml";
+  const jwt = useAuth((s) => s.getSelectedAccount().jwt);
+  const myUserId = useAuth(
+    (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
+  );
+  const instance =
+    useAuth((s) => s.getSelectedAccount().instance) ?? "https://lemmy.ml";
 
   return useMemo(() => {
     const client = new LemmyHttp(instance);
@@ -580,8 +583,7 @@ export function useLogin() {
   const queryClient = useQueryClient();
   const { client } = useLemmyClient();
 
-  const setJwt = useAuth((s) => s.setJwt);
-  const setSite = useAuth((s) => s.setSite);
+  const updateAccount = useAuth((s) => s.updateAccount);
 
   return useMutation({
     mutationFn: async (form: Login) => {
@@ -589,8 +591,10 @@ export function useLogin() {
       if (res.jwt) {
         client.setHeaders({ Authorization: `Bearer ${res.jwt}` });
         const site = await client.getSite();
-        setSite(site);
-        setJwt(res.jwt);
+        updateAccount({
+          site,
+          jwt: res.jwt,
+        });
         queryClient.invalidateQueries();
       }
       return res;
@@ -604,15 +608,14 @@ export function useLogin() {
 export function useLogout() {
   const queryClient = useQueryClient();
   const { client } = useLemmyClient();
-  const setJwt = useAuth((s) => s.setJwt);
-  const setSite = useAuth((s) => s.setSite);
-  const setInstance = useAuth((s) => s.setInstance);
+  const updateAccount = useAuth((s) => s.updateAccount);
 
   return () => {
     client.logout();
-    setJwt(undefined);
-    setInstance(undefined);
-    setSite(undefined);
+    updateAccount({
+      jwt: undefined,
+      site: undefined,
+    });
     queryClient.clear();
     queryClient.invalidateQueries();
   };
@@ -694,7 +697,9 @@ interface CreateCommentWithPath extends CreateComment {
 export function useCreateComment() {
   const queryClient = useQueryClient();
   const { client, queryKeyPrefix } = useLemmyClient();
-  const myProfile = useAuth((s) => s.site?.my_user?.local_user_view.person);
+  const myProfile = useAuth(
+    (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person,
+  );
   const commentSort = useFiltersStore((s) => s.commentSort);
   const cacheComment = useCommentsStore((s) => s.cacheComment);
   const removeComment = useCommentsStore((s) => s.removeComment);
@@ -895,11 +900,24 @@ export function useDeleteComment() {
 
 export function useReplies(form: GetReplies) {
   const { client, queryKeyPrefix } = useLemmyClient();
+  const queryKey = [...queryKeyPrefix, "getReplies"];
+
+  if (form.limit) {
+    queryKey.push("limit", String(form.limit));
+  }
+
+  if (form.sort) {
+    queryKey.push("limit", form.sort);
+  }
+
   return useThrottledInfiniteQuery({
-    queryKey: [...queryKeyPrefix, "getReplies"],
+    queryKey,
     queryFn: async ({ pageParam }) => {
       const limit = form.limit ?? 50;
-      const { replies } = await client.getReplies(form);
+      const { replies } = await client.getReplies({
+        ...form,
+        limit,
+      });
       return {
         replies,
         nextPage: replies.length < limit ? null : pageParam + 1,
@@ -908,6 +926,18 @@ export function useReplies(form: GetReplies) {
     initialPageParam: 1,
     getNextPageParam: (prev) => prev.nextPage,
   });
+}
+
+export function useNotificationCount() {
+  const replies = useReplies({});
+  const data = replies.data?.pages.flatMap((p) => p.replies) ?? [];
+  const count = data.reduce((acc, r) => {
+    if (!r.comment_reply.read) {
+      return acc + 1;
+    }
+    return acc;
+  }, 0);
+  return count;
 }
 
 export function useSearch(form: Search) {

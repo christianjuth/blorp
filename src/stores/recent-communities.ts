@@ -42,6 +42,7 @@ export const useRecentCommunities = create<RecentCommunityStore>()(
     {
       name: "recent-communities",
       storage: createStorage<RecentCommunityStore>(),
+      version: 0,
     },
   ),
 );

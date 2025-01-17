@@ -63,3 +63,5 @@ export function Dropdown({
     </Popover>
   );
 }
+
+Dropdown.Close = Popover.Close;

@@ -16,6 +16,7 @@ export const useSettingsStore = create<SettingsStore>()(
     {
       name: "settings",
       storage: createStorage<SettingsStore>(),
+      version: 0,
     },
   ),
 );

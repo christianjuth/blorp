@@ -10,9 +10,11 @@ import { useTheme } from "tamagui";
 import { BottomTabBarHeader } from "~/src/components/nav/headers";
 import { CustomBottomTabBar } from "~/src/components/nav/bottom-tab-bar";
 import { MainAppTemplate } from "~/src/components/main-app-template";
+import { useAuth } from "~/src/stores/auth";
 
 export default function Layout() {
   const theme = useTheme();
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   return (
     <MainAppTemplate>
@@ -56,14 +58,16 @@ export default function Layout() {
           }}
         />
 
-        <Tabs.Screen
-          name="inbox"
-          options={{
-            title: "Inbox",
-            tabBarIcon: ({ color }) => <MessageCircleMore color={color} />,
-            headerShown: false,
-          }}
-        />
+        {isLoggedIn && (
+          <Tabs.Screen
+            name="inbox"
+            options={{
+              title: "Inbox",
+              tabBarIcon: ({ color }) => <MessageCircleMore color={color} />,
+              headerShown: false,
+            }}
+          />
+        )}
 
         <Tabs.Screen
           name="settings"

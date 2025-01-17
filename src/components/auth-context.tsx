@@ -37,21 +37,21 @@ const Context = createContext<{
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const jwt = useAuth((s) => s.jwt);
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const [promise, setPromise] = useState<{
     resolve: (value: void) => any;
     reject: () => any;
   }>();
 
   useEffect(() => {
-    if (jwt) {
+    if (isLoggedIn) {
       promise?.resolve();
     }
-  }, [jwt, promise]);
+  }, [isLoggedIn, promise]);
 
   const authenticate = useCallback(() => {
     const p = new Promise<void>((resolve, reject) => {
-      if (jwt) {
+      if (isLoggedIn) {
         resolve();
       }
       setPromise({ resolve, reject });
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     p.then(() => setPromise(undefined)).catch(() => setPromise(undefined));
 
     return p;
-  }, [jwt]);
+  }, [isLoggedIn]);
 
   return (
     <Context.Provider
@@ -100,7 +100,7 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
       )
     : instances.data;
 
-  const setInstance = useAuth((a) => a.setInstance);
+  const updateAccount = useAuth((a) => a.updateAccount);
 
   const insets = useSafeAreaInsets();
 
@@ -139,7 +139,9 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
                       py="$2"
                       onPress={() => {
                         setInstanceLocal(i.item);
-                        setInstance(i.item.url);
+                        updateAccount({
+                          instance: i.item.url,
+                        });
                       }}
                       textAlign="left"
                       mr="auto"

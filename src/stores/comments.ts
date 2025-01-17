@@ -105,6 +105,7 @@ export const useCommentsStore = create<SortsStore>()(
     {
       name: "comments",
       storage: createStorage<SortsStore>(),
+      version: 0,
     },
   ),
 );

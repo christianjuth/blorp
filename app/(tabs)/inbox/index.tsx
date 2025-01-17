@@ -1,7 +1,7 @@
 import { Dot } from "@tamagui/lucide-icons";
 import { CommentReplyView } from "lemmy-js-client";
 import { Link } from "one";
-import { FlatList } from "react-native";
+import { FlashList } from "~/src/components/flashlist";
 import { Text, View, XStack, YStack, isWeb } from "tamagui";
 import { ContentGutters } from "~/src/components/gutters";
 import { Markdown } from "~/src/components/markdown";
@@ -34,7 +34,7 @@ function Reply({
           p="$4"
           gap="$2"
           tag="a"
-          w="100%"
+          flex={1}
         >
           <XStack>
             {replyView.comment_reply.read ? null : (
@@ -54,6 +54,7 @@ function Reply({
           <RelativeTime time={replyView.comment.published} color="$color10" />
         </YStack>
       </Link>
+      <></>
     </ContentGutters>
   );
 }
@@ -67,7 +68,7 @@ export default function HomePage() {
   const allReplies = replies.data?.pages.flatMap((p) => p.replies);
 
   return (
-    <FlatList
+    <FlashList
       data={allReplies}
       scrollIndicatorInsets={{
         top: header.height,
@@ -81,7 +82,7 @@ export default function HomePage() {
       contentContainerStyle={
         isWeb
           ? {
-              top: header.height,
+              paddingTop: header.height,
               paddingBottom: tabBar.height,
             }
           : undefined

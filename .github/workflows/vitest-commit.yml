@@ -1,4 +1,4 @@
-name: Run Vitest on PR
+name: Run Vitest on Commit
 
 on:
   push:

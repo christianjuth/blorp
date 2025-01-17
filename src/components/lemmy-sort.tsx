@@ -240,8 +240,8 @@ export function PostSortBar() {
 }
 
 export function HomeFilter() {
-  const instance = useAuth((s) => s.instance);
-  const jwt = useAuth((s) => s.jwt);
+  const instance = useAuth((s) => s.getSelectedAccount().instance);
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const listingType = useFiltersStore((s) => s.listingType);
   const setListingType = useFiltersStore((s) => s.setListingType);
 
@@ -257,7 +257,7 @@ export function HomeFilter() {
         value: "Local",
         // icon: Flame,
       },
-      ...(jwt
+      ...(isLoggedIn
         ? ([
             {
               label: "Subscriptions",
@@ -298,7 +298,7 @@ export function HomeFilter() {
 }
 
 export function CommunityFilter() {
-  const instance = useAuth((s) => s.instance);
+  const instance = useAuth((s) => s.getSelectedAccount().instance);
 
   const listingType = useFiltersStore((s) => s.communitiesListingType);
   const setListingType = useFiltersStore((s) => s.setCommunitiesListingType);

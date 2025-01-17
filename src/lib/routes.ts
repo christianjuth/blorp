@@ -9,3 +9,5 @@ export const create = "/create";
 export const inbox = "/inbox";
 
 export const settings = "/settings";
+
+export const privacy = "/privacy";

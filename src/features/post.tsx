@@ -10,7 +10,7 @@ import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 
 import { memo, useMemo } from "react";
-import { useTheme, View, YStack } from "tamagui";
+import { useMedia, useTheme, View, YStack } from "tamagui";
 import _ from "lodash";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
@@ -52,6 +52,8 @@ export function PostComments({
   commentId?: string;
   postId: number;
 }) {
+  const media = useMedia();
+
   const header = useCustomHeaderHeight();
   const tabBar = useCustomTabBarHeight();
 
@@ -82,6 +84,11 @@ export function PostComments({
   }, [commentViews]);
 
   const lastComment = structured.topLevelItems.at(-1);
+
+  let paddingBottom = structured.topLevelItems.length > 0 ? 10 : 20;
+  if (media.md) {
+    paddingBottom += tabBar.height;
+  }
 
   return (
     <FlashList
@@ -142,14 +149,9 @@ export function PostComments({
       keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
       onEndReached={loadMore}
       onEndReachedThreshold={0.5}
-      // contentContainerStyle={
-      //   isWeb
-      //     ? {
-      //         top: header.height,
-      //         bottom: tabBar.height,
-      //       }
-      //     : undefined
-      // }
+      contentContainerStyle={{
+        paddingBottom,
+      }}
       stickyHeaderIndices={[0]}
       contentInset={{
         top: header.height,
@@ -180,7 +182,9 @@ export function Post({
 
   const [commentId] = commentPath?.split(".") ?? [];
 
-  const myUserId = useAuth((s) => s.site?.my_user?.local_user_view.person.id);
+  const myUserId = useAuth(
+    (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
+  );
   const nav = useNavigation();
 
   const post = usePost({
