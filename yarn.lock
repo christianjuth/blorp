@@ -9519,6 +9519,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fuzzysort@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "fuzzysort@npm:3.1.0"
+  checksum: 10c0/da9bb32de16f2a5c2c000b99031d9f4f8a01380c12d5d3b67296443a1152c55987ce3c4ddbfe97481b0e9b6f2fb77d61dceba29a93ad36ee23ef5bab6a31afb8
+  languageName: node
+  linkType: hard
+
 "gensync@npm:^1.0.0-beta.2":
   version: 1.0.0-beta.2
   resolution: "gensync@npm:1.0.0-beta.2"
@@ -10804,6 +10811,7 @@ __metadata:
     expo-modules-core: "npm:~2.1.2"
     expo-sharing: "npm:~13.0.0"
     expo-system-ui: "npm:~4.0.7"
+    fuzzysort: "npm:^3.1.0"
     husky: "npm:^9.1.7"
     idb: "npm:^8.0.0"
     lemmy-js-client: "npm:0.20.0-pkce.1"

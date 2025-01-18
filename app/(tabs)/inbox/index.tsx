@@ -8,7 +8,7 @@ import { Markdown } from "~/src/components/markdown";
 import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
 import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { RelativeTime } from "~/src/components/relative-time";
-import { useReplies } from "~/src/lib/lemmy";
+import { useMarkReplyRead, useReplies } from "~/src/lib/lemmy";
 import { createCommunitySlug } from "~/src/lib/community";
 
 function Reply({
@@ -18,6 +18,7 @@ function Reply({
   replyView: CommentReplyView;
   noBorder?: boolean;
 }) {
+  const markRead = useMarkReplyRead();
   const communitySlug = createCommunitySlug(replyView.community);
   const path = replyView.comment.path.split(".");
   const parent = path.at(-2);
@@ -35,6 +36,12 @@ function Reply({
           gap="$2"
           tag="a"
           flex={1}
+          onPress={() => {
+            markRead.mutate({
+              comment_reply_id: replyView.comment_reply.id,
+              read: true,
+            });
+          }}
         >
           <XStack>
             {replyView.comment_reply.read ? null : (

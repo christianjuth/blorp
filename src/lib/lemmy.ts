@@ -20,6 +20,7 @@ import {
   Search,
   FollowCommunity,
   CommunityId,
+  MarkCommentReplyAsRead,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -457,10 +458,11 @@ export function usePosts(form: GetPosts) {
     getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: "init",
     notifyOnChangeProps: "all",
-    staleTime: 1000 * 60 * 5,
-    // refetchOnWindowFocus: false,
-    // refetchOnMount: true,
-    // staleTime: Infinity,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+    // refetchOnMount: false,
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
   });
 }
 
@@ -1060,7 +1062,7 @@ export function useFollowCommunity() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (form: { community: Community; follow: boolean }) => {
+    mutationFn: (form: { community: Community; follow: boolean }) => {
       return client.followCommunity({
         community_id: form.community.id,
         follow: form.follow,
@@ -1087,6 +1089,22 @@ export function useFollowCommunity() {
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [...queryKeyPrefix, "listCommunities"],
+      });
+    },
+  });
+}
+
+export function useMarkReplyRead() {
+  const { client, queryKeyPrefix } = useLemmyClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (form: MarkCommentReplyAsRead) => {
+      return client.markCommentReplyAsRead(form);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeyPrefix, "getReplies"],
       });
     },
   });

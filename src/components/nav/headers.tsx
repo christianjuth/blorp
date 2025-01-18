@@ -31,7 +31,7 @@ import { useAuth } from "~/src/stores/auth";
 import { HeaderGutters } from "../gutters";
 import { useRequireAuth } from "../auth-context";
 import { Dropdown } from "../ui/dropdown";
-import { useLogout, useNotificationCount, useReplies } from "~/src/lib/lemmy";
+import { useLogout, useNotificationCount } from "~/src/lib/lemmy";
 import { useCreatePostStore } from "~/src/stores/create-post";
 import { Button } from "../ui/button";
 import * as routes from "~/src/lib/routes";
@@ -137,25 +137,29 @@ function NotificationsBell() {
     return null;
   }
   return (
-    <Link href="/inbox" style={{ position: "relative" }}>
-      <YStack
-        bg="red"
-        pos="absolute"
-        t={-5}
-        r={-9}
-        h={20}
-        w={20}
-        ai="center"
-        jc="center"
-        br={9999}
-        bw={2}
-        bc="$background"
-      >
-        <Text col="white" fontSize={11}>
-          {notificationCount}
-        </Text>
-      </YStack>
-      <Bell col="$accentColor" />
+    <Link href="/inbox" asChild>
+      <View pos="relative" tag="a" $md={{ dsp: "none" }}>
+        <Bell col="$accentColor" />
+        {notificationCount > 0 && (
+          <YStack
+            bg="$background"
+            pos="absolute"
+            t={-5}
+            r={-9}
+            h={20}
+            w={20}
+            ai="center"
+            jc="center"
+            br={9999}
+          >
+            <YStack ai="center" jc="center" h={16} w={16} bg="red" br={9999}>
+              <Text color="white" fontSize={11}>
+                {notificationCount}
+              </Text>
+            </YStack>
+          </YStack>
+        )}
+      </View>
     </Link>
   );
 }

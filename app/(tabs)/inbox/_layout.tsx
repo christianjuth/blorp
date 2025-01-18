@@ -1,4 +1,3 @@
-import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { Stack } from "one";
 import { useTheme } from "tamagui";
 

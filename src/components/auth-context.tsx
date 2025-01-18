@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { useAuth } from "~/src/stores/auth";
@@ -29,6 +30,8 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { ChevronLeft } from "@tamagui/lucide-icons";
+import fuzzysort from "fuzzysort";
+import _ from "lodash";
 
 const Context = createContext<{
   authenticate: () => Promise<void>;
@@ -94,15 +97,25 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
 
   const instances = useInstances();
 
-  const filteredInstances = search
-    ? instances.data?.filter(
-        (i) => i.url.toLowerCase().indexOf(search.toLowerCase()) > -1,
-      )
-    : instances.data;
+  const defaultSort = useMemo(
+    () =>
+      _.sortBy(instances.data, (i) => i.counts.users_active_month).toReversed(),
+    [instances.data],
+  );
+
+  const sortedInstances =
+    search && instances.data
+      ? fuzzysort
+          .go(search, instances.data, {
+            keys: ["url", "name"],
+            scoreFn: (r) => r.score * _.clamp(r.obj.score, 1, 10),
+          })
+          .map((r) => r.obj)
+      : undefined;
 
   const updateAccount = useAuth((a) => a.updateAccount);
 
-  const insets = useSafeAreaInsets();
+  // const insets = useSafeAreaInsets();
 
   const windowDimensions = useWindowDimensions();
 
@@ -131,7 +144,7 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
                 onChangeText={setSearch}
               />
               <FlatList
-                data={filteredInstances}
+                data={sortedInstances ?? defaultSort}
                 keyExtractor={(i) => i.url}
                 renderItem={(i) => (
                   <Button p={0} bg="transparent" h="auto">
@@ -184,7 +197,7 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
               <Input
                 id="email"
                 placeholder="email@example.com"
-                value={userName}
+                defaultValue={userName}
                 onChangeText={setUsername}
               />
 
@@ -193,7 +206,7 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
                 secureTextEntry
                 id="password"
                 placeholder="Enter password"
-                value={password}
+                defaultValue={password}
                 onChangeText={setPassword}
               />
 
