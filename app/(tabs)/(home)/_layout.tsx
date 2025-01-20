@@ -1,5 +1,5 @@
 import { Stack } from "one";
-import { useTheme } from "tamagui";
+import { isWeb, useMedia, useTheme } from "tamagui";
 
 import {
   CommunityHeader,
@@ -11,6 +11,7 @@ import {
 import { LinkContext } from "~/src/components/nav/link-context";
 
 export default function Layout() {
+  const media = useMedia();
   const theme = useTheme();
   return (
     <LinkContext.Provider
@@ -24,6 +25,7 @@ export default function Layout() {
           contentStyle: {
             backgroundColor: theme.background.val,
           },
+          animation: media.gtMd ? "none" : "default",
         }}
       >
         <Stack.Screen
@@ -31,7 +33,7 @@ export default function Layout() {
           options={{
             title: "Home",
             header: (props) => <HomeHeader {...props} />,
-            headerTransparent: true,
+            headerTransparent: !isWeb && media.md,
           }}
         />
 
@@ -40,7 +42,6 @@ export default function Layout() {
           options={{
             title: "Search",
             header: (props) => <SearchHeader {...props} />,
-            headerTransparent: true,
           }}
         />
 
@@ -49,7 +50,6 @@ export default function Layout() {
           options={{
             title: "Search",
             header: (props) => <UserHeader {...props} />,
-            headerTransparent: true,
           }}
         />
 
@@ -58,7 +58,6 @@ export default function Layout() {
           options={{
             title: "loading...",
             header: (props) => <CommunityHeader {...props} />,
-            headerTransparent: true,
           }}
         />
 
@@ -67,7 +66,6 @@ export default function Layout() {
           options={{
             title: "loading...",
             header: (props) => <CommunityHeader {...props} />,
-            headerTransparent: true,
           }}
         />
 
@@ -76,7 +74,6 @@ export default function Layout() {
           options={{
             title: "loading...",
             header: (props) => <CommunityHeader {...props} />,
-            headerTransparent: true,
           }}
         />
 
@@ -84,7 +81,6 @@ export default function Layout() {
           name="c/[communityName]/posts/[postId]/index"
           options={{
             header: (props) => <PostHeader {...props} />,
-            headerTransparent: true,
           }}
         />
 
@@ -92,7 +88,6 @@ export default function Layout() {
           name="c/[communityName]/posts/[postId]/comments/[commentPath]"
           options={{
             header: (props) => <PostHeader {...props} />,
-            headerTransparent: true,
           }}
         />
       </Stack>

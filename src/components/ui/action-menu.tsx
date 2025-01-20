@@ -76,11 +76,10 @@ export function ActionMenu<L extends string>({
           snapPointsMode="fit"
         >
           <Popover.Sheet.Overlay
-            // animation="lazy"
+            animation="100ms"
             enterStyle={{ opacity: 0 }}
             exitStyle={{ opacity: 0 }}
-            backgroundColor="black"
-            opacity={0.4}
+            backgroundColor="rgba(0,0,0,0.4)"
           />
           <Popover.Sheet.Frame
             bg="$color1"

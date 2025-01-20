@@ -1,11 +1,13 @@
 import { BottomTabBarProps, BottomTabBar } from "@react-navigation/bottom-tabs";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useMedia } from "tamagui";
+import { ScrollView, useMedia, useTheme } from "tamagui";
 import { useScrollContext } from "./scroll-animation-context";
 import { interpolate, useAnimatedStyle } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
 import { BlurBackground } from "./blur-background";
+import { Sidebar } from "./sidebar";
+import { SafeAreaView } from "one";
 
 export const useCustomTabBarHeight = () => {
   const insets = useSafeAreaInsets();
@@ -28,6 +30,7 @@ export const useCustomTabBarHeight = () => {
 export function CustomBottomTabBar(props: BottomTabBarProps) {
   const { scrollY } = useScrollContext();
   const tabBar = useCustomTabBarHeight();
+  const theme = useTheme();
 
   // Animated style for the header
   const container = useAnimatedStyle(() => {
@@ -51,6 +54,22 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
 
   const isLgScreen = useMedia().gtSm;
 
+  if (isLgScreen) {
+    return (
+      <ScrollView
+        style={{
+          maxWidth: 270,
+          borderRightWidth: 1,
+          borderColor: theme.color4.val,
+        }}
+      >
+        <SafeAreaView>
+          <Sidebar config={props} />
+        </SafeAreaView>
+      </ScrollView>
+    );
+  }
+
   return (
     <Animated.View
       style={[
@@ -60,7 +79,7 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
           bottom: 0,
           left: 0,
           right: 0,
-          display: isLgScreen ? "none" : undefined,
+          // display: isLgScreen ? "none" : undefined,
         },
       ]}
     >

@@ -269,13 +269,38 @@ export function HomeHeader(
   );
 }
 
+function BackButton({ onPress }: { onPress?: () => any }) {
+  if (!onPress) {
+    return <></>;
+  }
+
+  return (
+    <Button
+      unstyled
+      p={2}
+      px={0}
+      bg="transparent"
+      borderRadius="$12"
+      dsp="flex"
+      fd="row"
+      ai="center"
+      bw={0}
+      onPress={onPress}
+      h="auto"
+      w="auto"
+      mx={-7}
+    >
+      <ChevronLeft color="$accentColor" size="$2" />
+    </Button>
+  );
+}
+
 export function CommunityHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
   const linkCtx = useLinkContext();
 
   const router = useRouter();
-  const styles = useHeaderAnimation();
 
   const params = props.route.params;
   const communityName =
@@ -299,24 +324,13 @@ export function CommunityHeader(
       <BlurBackground />
 
       <HeaderGutters pt={insetTop} h={height - 1}>
-        <>
-          {"back" in props && props.back && (
-            <Button
-              unstyled
-              p={2}
-              bg="transparent"
-              borderRadius="$12"
-              dsp="flex"
-              fd="row"
-              ai="center"
-              bw={0}
-              onPress={() => props.navigation.pop(1)}
-              h="auto"
-            >
-              <ChevronLeft color="$accentColor" size="$2" />
-            </Button>
-          )}
-        </>
+        <BackButton
+          onPress={
+            "back" in props && props.back
+              ? () => props.navigation.pop(1)
+              : undefined
+          }
+        />
 
         <Input
           bg="$color4"
@@ -484,24 +498,13 @@ export function PostHeader(
     <View bbc="$color4" bbw={0.5} w="100%" pos="relative">
       <BlurBackground />
       <HeaderGutters pt={insetTop} h={height - 1}>
-        <>
-          {"back" in props && props.back && (
-            <Button
-              unstyled
-              p={2}
-              bg="transparent"
-              borderRadius="$12"
-              dsp="flex"
-              fd="row"
-              ai="center"
-              bw={0}
-              onPress={() => props.navigation.pop(1)}
-              h="auto"
-            >
-              <ChevronLeft color="$accentColor" size="$2" />
-            </Button>
-          )}
-        </>
+        <BackButton
+          onPress={
+            "back" in props && props.back
+              ? () => props.navigation.pop(1)
+              : undefined
+          }
+        />
         <Text
           fontWeight="bold"
           fontSize="$5"

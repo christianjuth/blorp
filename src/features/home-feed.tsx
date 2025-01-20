@@ -1,15 +1,13 @@
 import { PostCard } from "~/src/components/posts/post";
-import { isWeb, View } from "tamagui";
-import { Sidebar } from "~/src/components/communities/community-sidebar";
-import { CommunityBanner } from "../components/communities/community-banner";
+import { isWeb, useMedia, View } from "tamagui";
 import { ContentGutters } from "../components/gutters";
 import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { useCustomHeaderHeight } from "../components/nav/hooks";
 import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
-import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList, FlashListProps } from "../components/flashlist";
+import { PostSortBar } from "../components/lemmy-sort";
 import Animated from "react-native-reanimated";
 import { useScrollContext } from "../components/nav/scroll-animation-context";
 import { useFiltersStore } from "../stores/filters";
@@ -25,6 +23,7 @@ const ReanimatedFlashList =
 const EMPTY_ARR = [];
 
 export function HomeFeed() {
+  const media = useMedia();
   const postSort = useFiltersStore((s) => s.postSort);
 
   const posts = usePosts({
@@ -53,15 +52,14 @@ export function HomeFeed() {
   const List = isWeb ? FlashList : ReanimatedFlashList;
 
   return (
-    <ReanimatedFlashList
-      automaticallyAdjustsScrollIndicatorInsets={false}
+    <List
       // @ts-expect-error
       ref={ref}
       data={["sidebar-desktop", "post-sort-bar", ...data] as const}
       renderItem={({ item }) => {
         if (item === "sidebar-desktop") {
           return (
-            <ContentGutters $platform-web={{ pt: header.height }}>
+            <ContentGutters>
               <View flex={1} />
               <PopularCommunitiesSidebar />
             </ContentGutters>
@@ -103,15 +101,14 @@ export function HomeFeed() {
       stickyHeaderIndices={[0]}
       scrollEventThrottle={16}
       estimatedItemSize={475}
-      onScroll={isWeb ? undefined : scrollHandler}
       contentInset={{
-        top: header.height,
-        bottom: tabBar.height,
+        top: !isWeb && media.md ? header.height : undefined,
       }}
       scrollIndicatorInsets={{
-        top: header.height,
-        bottom: tabBar.height,
+        top: !isWeb && media.md ? header.height : undefined,
       }}
+      automaticallyAdjustsScrollIndicatorInsets={false}
+      onScroll={isWeb ? undefined : scrollHandler}
     />
   );
 }

@@ -8,7 +8,7 @@ export function ContentGutters({ children, ...props }: XStackProps) {
       maxWidth={1000}
       w="100%"
       mx="auto"
-      gap="$5"
+      gap="$6"
       $gtMd={{ px: "$4" }}
       {...props}
     >

@@ -39,11 +39,10 @@ export function Dropdown({
             </Sheet.ScrollView>
           </Sheet.Frame>
           <Sheet.Overlay
-            // animation="lazy"
+            animation="100ms"
             enterStyle={{ opacity: 0 }}
             exitStyle={{ opacity: 0 }}
-            backgroundColor="black"
-            opacity={0.4}
+            backgroundColor="rgba(0,0,0,0.4)"
           />
         </Sheet>
       </Adapt>

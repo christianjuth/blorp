@@ -7,21 +7,30 @@ import {
   Settings,
   Bell,
 } from "@tamagui/lucide-icons";
-import { useTheme } from "tamagui";
+import { useMedia, useTheme, View } from "tamagui";
 import { BottomTabBarHeader } from "~/src/components/nav/headers";
 import { CustomBottomTabBar } from "~/src/components/nav/bottom-tab-bar";
-import { MainAppTemplate } from "~/src/components/main-app-template";
 import { useAuth } from "~/src/stores/auth";
 import { useNotificationCount } from "~/src/lib/lemmy";
+import { Platform } from "react-native";
+
+function WebMaxHeight({ children }: { children: React.ReactNode }) {
+  if (Platform.OS !== "web") {
+    return children;
+  }
+
+  return <View h="100svh">{children}</View>;
+}
 
 export default function Layout() {
   const theme = useTheme();
+  const media = useMedia();
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   const notificationCount = useNotificationCount();
 
   return (
-    <MainAppTemplate>
+    <WebMaxHeight>
       <Tabs
         // @ts-expect-error
         tabBar={(props) => <CustomBottomTabBar {...props} />}
@@ -33,6 +42,8 @@ export default function Layout() {
           // @ts-expect-error
           header: (props) => <BottomTabBarHeader {...props} />,
           tabBarActiveTintColor: theme.accentColor?.val,
+          // popToTopOnBlur: false,
+          tabBarPosition: media.gtMd ? "left" : "bottom",
         }}
       >
         <Tabs.Screen
@@ -62,18 +73,16 @@ export default function Layout() {
           }}
         />
 
-        {isLoggedIn ? (
-          <Tabs.Screen
-            name="inbox"
-            options={{
-              title: "Inbox",
-              tabBarIcon: ({ color }) => <Bell color={color} />,
-              headerShown: false,
-              tabBarBadge:
-                notificationCount > 0 ? notificationCount : undefined,
-            }}
-          />
-        ) : null}
+        <Tabs.Screen
+          name="inbox"
+          options={{
+            title: "Inbox",
+            tabBarIcon: ({ color }) => <Bell color={color} />,
+            headerShown: false,
+            tabBarBadge: notificationCount > 0 ? notificationCount : undefined,
+            tabBarVisible: false,
+          }}
+        />
 
         <Tabs.Screen
           name="settings"
@@ -84,6 +93,6 @@ export default function Layout() {
           }}
         />
       </Tabs>
-    </MainAppTemplate>
+    </WebMaxHeight>
   );
 }

@@ -45,7 +45,6 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
 
   return (
     <FlashList
-      automaticallyAdjustsScrollIndicatorInsets={false}
       // @ts-expect-error
       ref={ref}
       data={
@@ -60,7 +59,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
       renderItem={({ item }) => {
         if (item === "sidebar-desktop") {
           return (
-            <ContentGutters $platform-web={{ pt: header.height }}>
+            <ContentGutters>
               <View flex={1} />
               {communityName ? (
                 <Sidebar communityName={communityName} />
@@ -84,9 +83,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
 
         if (item === "banner") {
           return (
-            <ContentGutters
-              transform={[{ translateY: isWeb ? header.height : 0 }]}
-            >
+            <ContentGutters>
               <CommunityBanner />
             </ContentGutters>
           );
@@ -125,26 +122,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
         }
       }}
       stickyHeaderIndices={[1]}
-      scrollEventThrottle={16}
       estimatedItemSize={475}
-      contentInset={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
-      scrollIndicatorInsets={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
-      CellRendererComponent={isWeb ? CellRenderer : undefined}
     />
-  );
-}
-
-function CellRenderer<I>(props: CellRendererProps<I>) {
-  const { index, style, children, cellKey, ...rest } = props;
-  return (
-    <View {...rest} zIndex={index === 0 ? "$1" : undefined} style={[style]}>
-      {children}
-    </View>
   );
 }

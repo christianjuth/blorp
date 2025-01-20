@@ -44,21 +44,10 @@ export function Sidebar({
       l="$0"
       r="$0"
       t="$0"
-      py="$4"
-      $md={{
-        py: 0,
-      }}
       bg="$background"
     >
-      <ScrollView
-        bg="$color2"
-        $theme-dark={{
-          bg: "$background",
-        }}
-        br="$4"
-        zIndex="$5"
-      >
-        <YStack p="$3" gap="$3">
+      <ScrollView zIndex="$5">
+        <YStack py="$3" gap="$3">
           <XStack ai="flex-start" jc="space-between">
             <YStack gap="$3">
               <Text fontSize="$5" fontWeight="bold">
@@ -109,7 +98,7 @@ export function Sidebar({
           </XStack>
         </YStack>
         {community.description && !hideDescription && (
-          <View p="$3" btc="$color0" btw={1}>
+          <View py="$3" btc="$color0" btw={1}>
             <Markdown markdown={community.description} color="$color11" />
           </View>
         )}

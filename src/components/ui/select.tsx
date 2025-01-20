@@ -2,7 +2,16 @@ import React from "react";
 import { Check, ChevronDown } from "@tamagui/lucide-icons";
 
 import type { FontSizeTokens, SelectProps as TSelectProps } from "tamagui";
-import { Adapt, Select as TSelect, Sheet, YStack, getFontSize } from "tamagui";
+import {
+  Adapt,
+  Select as TSelect,
+  Sheet,
+  YStack,
+  getFontSize,
+  Popover,
+  View,
+  XStack,
+} from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export type Option<V, L = string> = {
@@ -45,7 +54,7 @@ export function Select<V extends string>({
         </TSelect.Trigger>
       )}
 
-      <Adapt when="sm" platform="touch">
+      <Adapt platform="touch">
         <Sheet
           native={!!props.native}
           modal
@@ -63,41 +72,29 @@ export function Select<V extends string>({
             $theme-dark={{
               bg: "$color3",
             }}
+            $gtMd={{
+              w: "50%",
+              transform: [
+                {
+                  translateX: "50%",
+                },
+              ],
+            }}
           >
             <Sheet.ScrollView pb={insets.bottom}>
               <Adapt.Contents />
             </Sheet.ScrollView>
           </Sheet.Frame>
           <Sheet.Overlay
-            // animation="lazy"
+            animation="100ms"
             enterStyle={{ opacity: 0 }}
             exitStyle={{ opacity: 0 }}
-            backgroundColor="black"
-            opacity={0.4}
+            backgroundColor="rgba(0,0,0,0.4)"
           />
         </Sheet>
       </Adapt>
 
       <TSelect.Content zIndex={200000}>
-        {/* <TSelect.ScrollUpButton */}
-        {/*   alignItems="center" */}
-        {/*   justifyContent="center" */}
-        {/*   position="relative" */}
-        {/*   width="100%" */}
-        {/*   height="$3" */}
-        {/* > */}
-        {/*   <YStack zIndex={10}> */}
-        {/*     <ChevronUp size={20} /> */}
-        {/*   </YStack> */}
-        {/*   <LinearGradient */}
-        {/*     start={[0, 0]} */}
-        {/*     end={[0, 1]} */}
-        {/*     fullscreen */}
-        {/*     colors={["$background", "transparent"]} */}
-        {/*     borderRadius="$4" */}
-        {/*   /> */}
-        {/* </TSelect.ScrollUpButton> */}
-
         <TSelect.Viewport
           // to do animations:
           // animation="quick"
@@ -169,25 +166,6 @@ export function Select<V extends string>({
             </YStack>
           )}
         </TSelect.Viewport>
-
-        {/* <TSelect.ScrollDownButton */}
-        {/*   alignItems="center" */}
-        {/*   justifyContent="center" */}
-        {/*   position="relative" */}
-        {/*   width="100%" */}
-        {/*   height="$3" */}
-        {/* > */}
-        {/*   <YStack zIndex={10}> */}
-        {/*     <ChevronDown size={20} /> */}
-        {/*   </YStack> */}
-        {/*   <LinearGradient */}
-        {/*     start={[0, 0]} */}
-        {/*     end={[0, 1]} */}
-        {/*     fullscreen */}
-        {/*     colors={["transparent", "$background"]} */}
-        {/*     borderRadius="$4" */}
-        {/*   /> */}
-        {/* </TSelect.ScrollDownButton> */}
       </TSelect.Content>
     </TSelect>
   );

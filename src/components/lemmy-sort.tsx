@@ -302,24 +302,29 @@ export function CommunityFilter() {
 
   const listingType = useFiltersStore((s) => s.communitiesListingType);
   const setListingType = useFiltersStore((s) => s.setCommunitiesListingType);
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   const LISTING_TYPE_OPTIONS: Option<ListingType, string>[] = useMemo(
     () => [
       {
-        label: "Lemmy Galaxy (all)",
+        label: "All",
         value: "All",
         // icon: Flame,
       },
       {
-        label: `Home planet (${instance ? new URL(instance).host : ""})`,
+        label: `Local (${instance ? new URL(instance).host : ""})`,
         value: "Local",
         // icon: Flame,
       },
-      {
-        label: "Subscriptions",
-        value: "Subscribed",
-        // icon: ArrowUpCircle,
-      },
+      ...(isLoggedIn
+        ? ([
+            {
+              label: "Subscriptions",
+              value: "Subscribed",
+              // icon: ArrowUpCircle,
+            },
+          ] as const)
+        : []),
       // {
       //   label: "ModeratorView",
       //   value: "ModeratorView",

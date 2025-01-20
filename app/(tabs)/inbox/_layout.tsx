@@ -1,5 +1,5 @@
 import { Stack } from "one";
-import { useTheme } from "tamagui";
+import { useMedia, useTheme } from "tamagui";
 
 import {
   CommunityHeader,
@@ -11,6 +11,7 @@ import { LinkContext } from "~/src/components/nav/link-context";
 
 export default function Layout() {
   const theme = useTheme();
+  const media = useMedia();
   return (
     <LinkContext.Provider
       value={{
@@ -26,6 +27,7 @@ export default function Layout() {
           // @ts-expect-error
           header: (props) => <StackHeader {...props} />,
           headerTransparent: true,
+          animation: media.gtMd ? "none" : "default",
         }}
       >
         <Stack.Screen

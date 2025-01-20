@@ -1,16 +1,18 @@
 import { XStack, YStack, Text, View, Avatar, useThemeName } from "tamagui";
 import { Home, Users, Plus, Settings } from "@tamagui/lucide-icons";
-import { Link } from "one";
+import { Link, useNavigation } from "one";
 import * as routes from "~/src/lib/routes";
-import { useRecentCommunities } from "../stores/recent-communities";
+import { useRecentCommunities } from "~/src/stores/recent-communities";
 import { Community } from "lemmy-js-client";
-import { useListCommunities } from "../lib/lemmy";
-import { createCommunitySlug } from "../lib/community";
+import { useListCommunities } from "~/src/lib/lemmy";
+import { createCommunitySlug } from "~/src/lib/community";
 import { Image } from "expo-image";
 import LogoDark from "~/assets/logo-dark.svg";
 import LogoLight from "~/assets/logo-light.svg";
-import { useCustomHeaderHeight } from "./nav/hooks";
-import { useAuth } from "../stores/auth";
+import { useCustomHeaderHeight } from "./hooks";
+import { useAuth } from "~/src/stores/auth";
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { CommonActions } from "@react-navigation/native";
 
 function SmallComunityCard({
   community,
@@ -38,7 +40,10 @@ function SmallComunityCard({
   );
 }
 
-export function Sidebar() {
+// function TabItem() {
+// }
+
+export function Sidebar({ config }: { config?: BottomTabBarProps }) {
   const recentCommunities = useRecentCommunities((s) => s.recentlyVisited);
   const header = useCustomHeaderHeight();
   const themeName = useThemeName();
@@ -49,41 +54,77 @@ export function Sidebar() {
     limit: 20,
   });
 
+  const routeByName = (name: string) => {
+    return () => {
+      if (!config) {
+        return;
+      }
+      const route = config.state.routes.find((r) => r.name === name);
+      if (!route) {
+        return;
+      }
+      const event = config.navigation.emit({
+        type: "tabPress",
+        target: route.state?.key,
+        canPreventDefault: true,
+      });
+
+      const focused = false;
+
+      if (!focused && !event.defaultPrevented) {
+        config.navigation.dispatch({
+          ...CommonActions.navigate(route),
+          target: route.state?.key,
+        });
+      }
+    };
+  };
+
   return (
     <>
-      <Link href={routes.home} replace>
-        <YStack h={header.height} px="$4" jc="center">
-          {themeName === "dark" && (
-            <Image
-              source={LogoDark}
-              style={{ height: 38, width: 90 }}
-              contentFit="contain"
-            />
-          )}
-          {themeName === "light" && (
-            <Image
-              source={LogoLight}
-              style={{ height: 38, width: 90 }}
-              contentFit="contain"
-            />
-          )}
-        </YStack>
-      </Link>
+      <YStack
+        h={header.height}
+        px="$4"
+        jc="center"
+        onPress={routeByName("(home)")}
+        tag="button"
+      >
+        {themeName === "dark" && (
+          <Image
+            source={LogoDark}
+            style={{ height: 38, width: 90 }}
+            contentFit="contain"
+          />
+        )}
+        {themeName === "light" && (
+          <Image
+            source={LogoLight}
+            style={{ height: 38, width: 90 }}
+            contentFit="contain"
+          />
+        )}
+      </YStack>
 
       <YStack gap="$3" p="$4" py="$2">
-        <Link href={routes.home} replace asChild>
-          <XStack ai="center" gap="$2.5" tag="a">
-            <Home color="$color11" />
-            <Text color="$color11">Feed</Text>
-          </XStack>
-        </Link>
+        <XStack
+          ai="center"
+          gap="$2.5"
+          onPress={routeByName("(home)")}
+          tag="button"
+        >
+          <Home color="$color11" />
+          <Text color="$color11">Feed</Text>
+        </XStack>
 
-        <Link href={routes.communities} replace asChild>
-          <XStack ai="center" gap="$2.5" tag="a">
-            <Users color="$color11" />
-            <Text color="$color11">Communities</Text>
-          </XStack>
-        </Link>
+        <XStack
+          ai="center"
+          gap="$2.5"
+          onPress={routeByName("communities")}
+          tag="button"
+        >
+          <Users color="$color11" />
+          <Text color="$color11">Communities</Text>
+        </XStack>
 
         <View h={1} flex={1} bg="$color4" my="$2" />
 
@@ -124,6 +165,8 @@ export function Sidebar() {
           </Text>
         </Link>
       </YStack>
+
+      <View h="$1" />
     </>
   );
 }

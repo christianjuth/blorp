@@ -153,15 +153,6 @@ export function PostComments({
         paddingBottom,
       }}
       stickyHeaderIndices={[0]}
-      contentInset={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
-      scrollIndicatorInsets={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
-      automaticallyAdjustsScrollIndicatorInsets={false}
       onRefresh={onRefresh}
       refreshing={refreshing}
       estimatedItemSize={450}

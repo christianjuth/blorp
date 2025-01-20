@@ -36,6 +36,7 @@ button {
   font-size: unset;
   background: unset;
   border-width: 0;
+  padding: 0;
 }
 
 form {

@@ -3,10 +3,7 @@ import { Community } from "~/src/components/community";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { View, isWeb, useMedia } from "tamagui";
-import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { useFiltersStore } from "~/src/stores/filters";
-import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
-import { Platform } from "react-native";
 import { ContentGutters } from "~/src/components/gutters";
 import { FlashList } from "~/src/components/flashlist";
 
@@ -14,9 +11,6 @@ export default function Communities() {
   const communitySort = useFiltersStore((s) => s.communitySort);
   const listingType = useFiltersStore((s) => s.communitiesListingType);
   const media = useMedia();
-
-  const header = useCustomHeaderHeight();
-  const tabBar = useCustomTabBarHeight();
 
   const ref = useRef(null);
   useScrollToTop(ref);
@@ -55,7 +49,7 @@ export default function Communities() {
           <View
             h={54}
             overflow="hidden"
-            w={isWeb ? `${100 / numCols}%` : undefined}
+            w={isWeb ? `${100 / numCols}%` : "100%"}
           >
             <Community communityView={item.item} />
           </View>
@@ -68,18 +62,8 @@ export default function Communities() {
         }}
         onEndReachedThreshold={0.5}
         estimatedItemSize={54}
-        contentInset={{ top: header.height, bottom: tabBar.height }}
-        scrollIndicatorInsets={{ top: header.height }}
-        automaticallyAdjustsScrollIndicatorInsets={false}
         refreshing={isRefetching}
         onRefresh={refetch}
-        contentContainerStyle={
-          Platform.OS === "web"
-            ? {
-                paddingTop: header.height,
-              }
-            : undefined
-        }
         scrollEventThrottle={100}
       />
     </ContentGutters>

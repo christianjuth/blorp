@@ -65,18 +65,9 @@ export function PopularCommunitiesSidebar() {
       l="$0"
       r="$0"
       t="$0"
-      py="$4"
       bg="$background"
     >
-      <ScrollView
-        bg="$color2"
-        $theme-dark={{
-          bg: "$background",
-        }}
-        br="$4"
-        zIndex="$5"
-        p="$4"
-      >
+      <ScrollView zIndex="$5" py="$4" showsVerticalScrollIndicator={false}>
         <YStack gap="$3">
           <Text color="$color10" fontSize="$3">
             POPULAR COMMUNITIES
