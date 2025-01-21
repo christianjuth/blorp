@@ -1,16 +1,8 @@
 import { Tabs } from "one";
-import {
-  Home,
-  Users,
-  Plus,
-  MessageCircleMore,
-  Settings,
-  Bell,
-} from "@tamagui/lucide-icons";
+import { Home, Users, Plus, Settings, Bell } from "@tamagui/lucide-icons";
 import { useMedia, useTheme, View } from "tamagui";
 import { BottomTabBarHeader } from "~/src/components/nav/headers";
 import { CustomBottomTabBar } from "~/src/components/nav/bottom-tab-bar";
-import { useAuth } from "~/src/stores/auth";
 import { useNotificationCount } from "~/src/lib/lemmy";
 import { Platform } from "react-native";
 
@@ -25,7 +17,6 @@ function WebMaxHeight({ children }: { children: React.ReactNode }) {
 export default function Layout() {
   const theme = useTheme();
   const media = useMedia();
-  const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   const notificationCount = useNotificationCount();
 
@@ -42,8 +33,8 @@ export default function Layout() {
           // @ts-expect-error
           header: (props) => <BottomTabBarHeader {...props} />,
           tabBarActiveTintColor: theme.accentColor?.val,
-          // popToTopOnBlur: false,
           tabBarPosition: media.gtMd ? "left" : "bottom",
+          tabBarLabelPosition: "below-icon",
         }}
       >
         <Tabs.Screen

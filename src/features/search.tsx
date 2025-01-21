@@ -8,8 +8,6 @@ import {
 import { ContentGutters } from "../components/gutters";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
-import { useCustomHeaderHeight } from "../components/nav/hooks";
-import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
 import { useFiltersStore } from "../stores/filters";
@@ -31,9 +29,6 @@ export function SearchFeed({
     community_name: communityName,
   });
 
-  const tabBar = useCustomTabBarHeight();
-  const header = useCustomHeaderHeight();
-
   const ref = useRef(null);
   useScrollToTop(ref);
 
@@ -50,7 +45,6 @@ export function SearchFeed({
 
   return (
     <FlashList
-      automaticallyAdjustsScrollIndicatorInsets={false}
       // @ts-expect-error
       ref={ref}
       data={
@@ -59,7 +53,7 @@ export function SearchFeed({
       renderItem={({ item }) => {
         if (item === "sidebar-desktop") {
           return (
-            <ContentGutters $platform-web={{ pt: header.height }}>
+            <ContentGutters>
               <View flex={1} />
               {communityName ? (
                 <Sidebar communityName={communityName} hideDescription />
@@ -104,9 +98,6 @@ export function SearchFeed({
       }}
       onEndReachedThreshold={0.5}
       keyExtractor={(item) => item}
-      contentContainerStyle={{
-        paddingBottom: isWeb ? tabBar.height : 0,
-      }}
       refreshing={isRefetching}
       onRefresh={() => {
         if (!isRefetching) {
@@ -116,14 +107,6 @@ export function SearchFeed({
       stickyHeaderIndices={[0]}
       scrollEventThrottle={16}
       estimatedItemSize={475}
-      contentInset={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
-      scrollIndicatorInsets={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
     />
   );
 }

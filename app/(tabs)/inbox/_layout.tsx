@@ -26,7 +26,6 @@ export default function Layout() {
           },
           // @ts-expect-error
           header: (props) => <StackHeader {...props} />,
-          headerTransparent: true,
           animation: media.gtMd ? "none" : "default",
         }}
       >
@@ -42,7 +41,6 @@ export default function Layout() {
           options={{
             title: "Search",
             header: (props) => <UserHeader {...props} />,
-            headerTransparent: true,
           }}
         />
 
@@ -51,7 +49,6 @@ export default function Layout() {
           options={{
             title: "loading...",
             header: (props) => <CommunityHeader {...props} />,
-            headerTransparent: true,
           }}
         />
 
@@ -60,7 +57,6 @@ export default function Layout() {
           options={{
             title: "loading...",
             header: (props) => <CommunityHeader {...props} />,
-            headerTransparent: true,
           }}
         />
 
@@ -68,7 +64,6 @@ export default function Layout() {
           name="c/[communityName]/posts/[postId]/index"
           options={{
             header: (props) => <PostHeader {...props} />,
-            headerTransparent: true,
           }}
         />
 
@@ -76,7 +71,6 @@ export default function Layout() {
           name="c/[communityName]/posts/[postId]/comments/[commentPath]"
           options={{
             header: (props) => <PostHeader {...props} />,
-            headerTransparent: true,
           }}
         />
       </Stack>

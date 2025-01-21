@@ -103,9 +103,11 @@ export function HomeFeed() {
       estimatedItemSize={475}
       contentInset={{
         top: !isWeb && media.md ? header.height : undefined,
+        bottom: !isWeb && media.md ? tabBar.height : undefined,
       }}
       scrollIndicatorInsets={{
         top: !isWeb && media.md ? header.height : undefined,
+        bottom: !isWeb && media.md ? tabBar.height : undefined,
       }}
       automaticallyAdjustsScrollIndicatorInsets={false}
       onScroll={isWeb ? undefined : scrollHandler}

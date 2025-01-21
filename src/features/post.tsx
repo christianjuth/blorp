@@ -100,7 +100,7 @@ export function PostComments({
       renderItem={({ item }) => {
         if (item === "sidebar") {
           return (
-            <ContentGutters $platform-web={{ pt: header.height }}>
+            <ContentGutters>
               <View flex={1} />
               {communityName ? (
                 <Sidebar communityName={communityName} />

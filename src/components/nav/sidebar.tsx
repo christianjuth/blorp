@@ -13,6 +13,7 @@ import { useCustomHeaderHeight } from "./hooks";
 import { useAuth } from "~/src/stores/auth";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { CommonActions } from "@react-navigation/native";
+import { getLabel, MissingIcon } from "@react-navigation/elements";
 
 function SmallComunityCard({
   community,
@@ -22,7 +23,7 @@ function SmallComunityCard({
   const slug = createCommunitySlug(community);
   return (
     <Link href={`/c/${slug}`} key={community.id} asChild replace>
-      <XStack ai="center" gap="$2.5" tag="a">
+      <XStack ai="center" gap="$2.5" tag="a" py="$1" px="$3">
         <Avatar size="$2.5" borderRadius="$12">
           <Avatar.Image src={community.icon} />
           <Avatar.Fallback
@@ -40,10 +41,12 @@ function SmallComunityCard({
   );
 }
 
+const SIDEBAR_HIDDEN_ROUTES = ["create"];
+
 // function TabItem() {
 // }
 
-export function Sidebar({ config }: { config?: BottomTabBarProps }) {
+export function Sidebar(props: BottomTabBarProps | {}) {
   const recentCommunities = useRecentCommunities((s) => s.recentlyVisited);
   const header = useCustomHeaderHeight();
   const themeName = useThemeName();
@@ -54,83 +57,97 @@ export function Sidebar({ config }: { config?: BottomTabBarProps }) {
     limit: 20,
   });
 
-  const routeByName = (name: string) => {
-    return () => {
-      if (!config) {
-        return;
-      }
-      const route = config.state.routes.find((r) => r.name === name);
-      if (!route) {
-        return;
-      }
-      const event = config.navigation.emit({
-        type: "tabPress",
-        target: route.state?.key,
-        canPreventDefault: true,
-      });
-
-      const focused = false;
-
-      if (!focused && !event.defaultPrevented) {
-        config.navigation.dispatch({
-          ...CommonActions.navigate(route),
-          target: route.state?.key,
-        });
-      }
-    };
-  };
-
   return (
     <>
-      <YStack
-        h={header.height}
-        px="$4"
-        jc="center"
-        onPress={routeByName("(home)")}
-        tag="button"
-      >
-        {themeName === "dark" && (
-          <Image
-            source={LogoDark}
-            style={{ height: 38, width: 90 }}
-            contentFit="contain"
-          />
-        )}
-        {themeName === "light" && (
-          <Image
-            source={LogoLight}
-            style={{ height: 38, width: 90 }}
-            contentFit="contain"
-          />
-        )}
-      </YStack>
+      <Link href="/" asChild>
+        <YStack h={header.height} px="$5" jc="center" tag="a">
+          {themeName === "dark" && (
+            <Image
+              source={LogoDark}
+              style={{ height: 38, width: 90 }}
+              contentFit="contain"
+            />
+          )}
+          {themeName === "light" && (
+            <Image
+              source={LogoLight}
+              style={{ height: 38, width: 90 }}
+              contentFit="contain"
+            />
+          )}
+        </YStack>
+      </Link>
 
-      <YStack gap="$3" p="$4" py="$2">
-        <XStack
-          ai="center"
-          gap="$2.5"
-          onPress={routeByName("(home)")}
-          tag="button"
-        >
-          <Home color="$color11" />
-          <Text color="$color11">Feed</Text>
-        </XStack>
+      <YStack gap="$1" py="$2" px="$3">
+        {"state" in props &&
+          props.state?.routes.map((route, index) => {
+            if (SIDEBAR_HIDDEN_ROUTES.includes(route.name)) {
+              return null;
+            }
 
-        <XStack
-          ai="center"
-          gap="$2.5"
-          onPress={routeByName("communities")}
-          tag="button"
-        >
-          <Users color="$color11" />
-          <Text color="$color11">Communities</Text>
-        </XStack>
+            const focused = index === props.state.index;
+
+            const { options } = props.descriptors[route.key];
+
+            const onPress = () => {
+              const event = props.navigation.emit({
+                type: "tabPress",
+                target: route.state?.key,
+                canPreventDefault: true,
+              });
+
+              const focused = false;
+
+              if (!focused && !event.defaultPrevented) {
+                props.navigation.dispatch({
+                  ...CommonActions.navigate(route),
+                  target: route.state?.key,
+                });
+              }
+            };
+
+            const label =
+              typeof options.tabBarLabel === "function"
+                ? options.tabBarLabel
+                : getLabel(
+                    { label: options.tabBarLabel, title: options.title },
+                    route.name,
+                  );
+
+            return (
+              <XStack
+                ai="center"
+                gap="$2.5"
+                onPress={onPress}
+                tag="button"
+                bg={focused ? "$color4" : undefined}
+                py="$2"
+                px="$3"
+                br="$5"
+                hoverStyle={
+                  !focused
+                    ? {
+                        bg: "$color2",
+                      }
+                    : undefined
+                }
+              >
+                {options.tabBarIcon?.({
+                  focused: true,
+                  size: 10,
+                  color: options.tabBarActiveTintColor ?? "red",
+                }) ?? <MissingIcon />}
+                {/* <Home color="$color11" /> */}
+                <Text color="$color11">{label}</Text>
+              </XStack>
+            );
+          })}
 
         <View h={1} flex={1} bg="$color4" my="$2" />
 
         {recentCommunities.length > 0 && (
           <>
-            <Text color="$color10" fontSize="$3">
+            <Text color="$color10" fontSize="$3" px="$3" py="$1">
               RECENT
             </Text>
             {recentCommunities.map((c) => (
@@ -143,7 +160,7 @@ export function Sidebar({ config }: { config?: BottomTabBarProps }) {
 
         {isLoggedIn && (
           <>
-            <Text color="$color10" fontSize="$3">
+            <Text color="$color10" fontSize="$3" px="$3" py="$1">
               COMMUNITIES
             </Text>
             {subscribedCommunities.data?.pages
@@ -160,7 +177,7 @@ export function Sidebar({ config }: { config?: BottomTabBarProps }) {
         )}
 
         <Link href={routes.privacy} replace asChild>
-          <Text color="$color11" tag="a">
+          <Text color="$color11" tag="a" px="$3">
             Privacy Policy
           </Text>
         </Link>

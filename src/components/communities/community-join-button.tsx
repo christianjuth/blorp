@@ -1,5 +1,6 @@
 import { Button, ButtonProps } from "tamagui";
 import { useFollowCommunity } from "~/src/lib/lemmy";
+import { useAuth } from "~/src/stores/auth";
 import { useCommunitiesStore } from "~/src/stores/communities";
 
 interface Props extends ButtonProps {
@@ -7,6 +8,7 @@ interface Props extends ButtonProps {
 }
 
 export function CommunityJoinButton({ communityName, ...props }: Props) {
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const follow = useFollowCommunity();
 
   const cache = useCommunitiesStore((s) =>
@@ -25,6 +27,10 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
   }
 
   const communityView = cache?.data.communityView;
+
+  if (!isLoggedIn) {
+    return null;
+  }
 
   return (
     <Button

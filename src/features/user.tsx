@@ -54,7 +54,6 @@ export function User({ userId }: { userId?: string }) {
 
   return (
     <FlashList
-      automaticallyAdjustsScrollIndicatorInsets={false}
       // @ts-expect-error
       ref={ref}
       data={
@@ -69,14 +68,10 @@ export function User({ userId }: { userId?: string }) {
       renderItem={({ item }) => {
         if (item === "sidebar-desktop") {
           return (
-            <ContentGutters $platform-web={{ pt: header.height }}>
+            <ContentGutters>
               <View flex={1} />
               <YStack
                 py="$4"
-                bg="$color2"
-                $theme-dark={{
-                  bg: "$background",
-                }}
                 br="$4"
                 zIndex="$5"
                 gap="$4"
@@ -187,9 +182,6 @@ export function User({ userId }: { userId?: string }) {
       }}
       onEndReachedThreshold={0.5}
       keyExtractor={(item) => item}
-      contentContainerStyle={{
-        paddingBottom: isWeb ? tabBar.height : 0,
-      }}
       refreshing={isRefetching}
       onRefresh={() => {
         if (!isRefetching) {
@@ -197,16 +189,7 @@ export function User({ userId }: { userId?: string }) {
         }
       }}
       stickyHeaderIndices={[0]}
-      scrollEventThrottle={16}
       estimatedItemSize={475}
-      contentInset={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
-      scrollIndicatorInsets={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
     />
   );
 }

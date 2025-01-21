@@ -1,13 +1,19 @@
 import { BottomTabBarProps, BottomTabBar } from "@react-navigation/bottom-tabs";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ScrollView, useMedia, useTheme } from "tamagui";
+import { isWeb, ScrollView, useMedia } from "tamagui";
 import { useScrollContext } from "./scroll-animation-context";
-import { interpolate, useAnimatedStyle } from "react-native-reanimated";
+import {
+  interpolate,
+  useAnimatedStyle,
+  useEvent,
+} from "react-native-reanimated";
 import Animated from "react-native-reanimated";
 import { BlurBackground } from "./blur-background";
 import { Sidebar } from "./sidebar";
-import { SafeAreaView } from "one";
+import { SafeAreaView, useRouter } from "one";
+import { useNavigationState, useRoute } from "@react-navigation/native";
+import { useEffect, useState } from "react";
 
 export const useCustomTabBarHeight = () => {
   const insets = useSafeAreaInsets();
@@ -30,7 +36,12 @@ export const useCustomTabBarHeight = () => {
 export function CustomBottomTabBar(props: BottomTabBarProps) {
   const { scrollY } = useScrollContext();
   const tabBar = useCustomTabBarHeight();
-  const theme = useTheme();
+
+  const tabIndex = props.state.index;
+  const route = props.state.routes[tabIndex].state;
+  const topScreenInStack = route?.routes?.at(-1);
+
+  const tabBarHideable = tabIndex === 0 && topScreenInStack?.name === "index";
 
   // Animated style for the header
   const container = useAnimatedStyle(() => {
@@ -52,19 +63,13 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
     };
   }, [scrollY]);
 
-  const isLgScreen = useMedia().gtSm;
+  const isLgScreen = useMedia().gtMd;
 
   if (isLgScreen) {
     return (
-      <ScrollView
-        style={{
-          maxWidth: 270,
-          borderRightWidth: 1,
-          borderColor: theme.color4.val,
-        }}
-      >
+      <ScrollView maxWidth={270} brw={1} bc="$color4">
         <SafeAreaView>
-          <Sidebar config={props} />
+          <Sidebar {...props} />
         </SafeAreaView>
       </ScrollView>
     );
@@ -74,13 +79,14 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
     <Animated.View
       style={[
         container,
-        {
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          // display: isLgScreen ? "none" : undefined,
-        },
+        tabBarHideable && !isWeb
+          ? {
+              position: "absolute",
+              right: 0,
+              bottom: 0,
+              left: 0,
+            }
+          : undefined,
       ]}
     >
       <BlurBackground />

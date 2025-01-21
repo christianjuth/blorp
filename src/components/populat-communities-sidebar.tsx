@@ -20,7 +20,7 @@ function SmallComunityCard({
   const { community, counts } = communityView;
   const slug = createCommunitySlug(community);
   return (
-    <Link href={`/c/${slug}`} asChild replace>
+    <Link href={`/c/${slug}`} asChild>
       <XStack ai="center" gap="$3" tag="a">
         <Avatar size="$2.5" borderRadius="$12">
           <Avatar.Image src={community.icon} />

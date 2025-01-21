@@ -2,11 +2,9 @@ import { Dot } from "@tamagui/lucide-icons";
 import { CommentReplyView } from "lemmy-js-client";
 import { Link } from "one";
 import { FlashList } from "~/src/components/flashlist";
-import { Text, View, XStack, YStack, isWeb } from "tamagui";
+import { Text, XStack, YStack } from "tamagui";
 import { ContentGutters } from "~/src/components/gutters";
 import { Markdown } from "~/src/components/markdown";
-import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
-import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { RelativeTime } from "~/src/components/relative-time";
 import { useMarkReplyRead, useReplies } from "~/src/lib/lemmy";
 import { createCommunitySlug } from "~/src/lib/community";
@@ -67,9 +65,6 @@ function Reply({
 }
 
 export default function HomePage() {
-  const header = useCustomHeaderHeight();
-  const tabBar = useCustomTabBarHeight();
-
   const replies = useReplies({});
 
   const allReplies = replies.data?.pages.flatMap((p) => p.replies);
@@ -77,23 +72,6 @@ export default function HomePage() {
   return (
     <FlashList
       data={allReplies}
-      scrollIndicatorInsets={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
-      contentInset={{
-        top: header.height,
-        bottom: tabBar.height,
-      }}
-      automaticallyAdjustContentInsets={false}
-      contentContainerStyle={
-        isWeb
-          ? {
-              paddingTop: header.height,
-              paddingBottom: tabBar.height,
-            }
-          : undefined
-      }
       renderItem={({ item, index }) => (
         <Reply
           key={item.comment_reply.id}
