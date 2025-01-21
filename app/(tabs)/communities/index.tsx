@@ -33,7 +33,7 @@ export default function Communities() {
   let numCols = 1;
   if (media.gtXl) {
     numCols = 3;
-  } else if (media.gtLg) {
+  } else if (media.gtSm) {
     numCols = 2;
   }
 

@@ -100,15 +100,6 @@ function UserAvatar() {
           </Dropdown.Close>
 
           <Dropdown.Close>
-            <Link href={routes.settings} push asChild>
-              <XStack h="$3" tag="a" ai="center" px="$2.5" gap="$2.5">
-                <Settings size="$1" col="$color10" />
-                <Text>Settings</Text>
-              </XStack>
-            </Link>
-          </Dropdown.Close>
-
-          <Dropdown.Close>
             <Button onPress={logout} asChild>
               <XStack
                 h="$3"
@@ -168,7 +159,7 @@ function NavbarRightSide({ children }: { children?: React.ReactNode }) {
   return (
     <>
       {children}
-      <NotificationsBell />
+      {/* <NotificationsBell /> */}
       <UserAvatar />
     </>
   );

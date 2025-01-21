@@ -1,6 +1,5 @@
 import { XStack, YStack, Text, View, Avatar, useThemeName } from "tamagui";
-import { Home, Users, Plus, Settings } from "@tamagui/lucide-icons";
-import { Link, useNavigation } from "one";
+import { Link } from "one";
 import * as routes from "~/src/lib/routes";
 import { useRecentCommunities } from "~/src/stores/recent-communities";
 import { Community } from "lemmy-js-client";
@@ -14,6 +13,7 @@ import { useAuth } from "~/src/stores/auth";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { CommonActions } from "@react-navigation/native";
 import { getLabel, MissingIcon } from "@react-navigation/elements";
+import _ from "lodash";
 
 function SmallComunityCard({
   community,
@@ -43,9 +43,6 @@ function SmallComunityCard({
 
 const SIDEBAR_HIDDEN_ROUTES = ["create"];
 
-// function TabItem() {
-// }
-
 export function Sidebar(props: BottomTabBarProps | {}) {
   const recentCommunities = useRecentCommunities((s) => s.recentlyVisited);
   const header = useCustomHeaderHeight();
@@ -54,8 +51,13 @@ export function Sidebar(props: BottomTabBarProps | {}) {
 
   const subscribedCommunities = useListCommunities({
     type_: "Subscribed",
-    limit: 20,
+    limit: 50,
   });
+
+  const sortedCommunities = _.sortBy(
+    subscribedCommunities.data?.pages.flatMap((p) => p.communities),
+    (c) => c.community.name,
+  );
 
   return (
     <>
@@ -131,12 +133,44 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                       }
                     : undefined
                 }
+                group
               >
-                {options.tabBarIcon?.({
-                  focused: true,
-                  size: 10,
-                  color: options.tabBarActiveTintColor ?? "red",
-                }) ?? <MissingIcon />}
+                <View>
+                  {options.tabBarIcon?.({
+                    focused: true,
+                    size: 10,
+                    color: options.tabBarActiveTintColor ?? "red",
+                  }) ?? <MissingIcon />}
+                  {options.tabBarBadge && (
+                    <YStack
+                      bg={focused ? "$color4" : "$background"}
+                      $group-hover={{
+                        bg: focused ? "$color4" : "$color2",
+                      }}
+                      pos="absolute"
+                      t={-5}
+                      r={-9}
+                      h={20}
+                      w={20}
+                      ai="center"
+                      jc="center"
+                      br={9999}
+                    >
+                      <YStack
+                        ai="center"
+                        jc="center"
+                        h={16}
+                        w={16}
+                        bg="red"
+                        br={9999}
+                      >
+                        <Text color="white" fontSize={11}>
+                          {options.tabBarBadge}
+                        </Text>
+                      </YStack>
+                    </YStack>
+                  )}
+                </View>
                 {/* <Home color="$color11" /> */}
                 <Text color="$color11">{label}</Text>
               </XStack>
@@ -163,14 +197,9 @@ export function Sidebar(props: BottomTabBarProps | {}) {
             <Text color="$color10" fontSize="$3" px="$3" py="$1">
               COMMUNITIES
             </Text>
-            {subscribedCommunities.data?.pages
-              .flatMap((p) => p.communities)
-              .map((c) => (
-                <SmallComunityCard
-                  key={c.community.id}
-                  community={c.community}
-                />
-              ))}
+            {sortedCommunities.map((c) => (
+              <SmallComunityCard key={c.community.id} community={c.community} />
+            ))}
 
             <View h={1} flex={1} bg="$color4" my="$2" />
           </>

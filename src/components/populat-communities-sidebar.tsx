@@ -9,6 +9,7 @@ import { useWindowDimensions } from "react-native";
 import { CommunityView } from "lemmy-js-client";
 import { abbriviateNumber } from "~/src/lib/format";
 import { useFiltersStore } from "../stores/filters";
+import _ from "lodash";
 
 dayjs.extend(localizedFormat);
 
@@ -52,11 +53,15 @@ export function PopularCommunitiesSidebar() {
 
   const { data } = useListCommunities({
     sort: "TopWeek",
-    limit: 20,
+    limit: listingType === "Subscribed" ? 50 : 20,
     type_: listingType,
   });
 
-  const communities = data?.pages.map((p) => p.communities).flat();
+  let communities = data?.pages.map((p) => p.communities).flat();
+
+  if (listingType === "Subscribed") {
+    communities = _.sortBy(communities, (c) => c.community.name);
+  }
 
   return (
     <View
@@ -70,7 +75,9 @@ export function PopularCommunitiesSidebar() {
       <ScrollView zIndex="$5" py="$4" showsVerticalScrollIndicator={false}>
         <YStack gap="$3">
           <Text color="$color10" fontSize="$3">
-            POPULAR COMMUNITIES
+            {listingType === "All" && "POPULAR COMMUNITIES"}
+            {listingType === "Local" && "POPULAR COMMUNITIES"}
+            {listingType === "Subscribed" && "SUBSCRIBED"}
           </Text>
 
           {communities?.map((view) => (

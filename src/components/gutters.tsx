@@ -8,14 +8,15 @@ export function ContentGutters({ children, ...props }: XStackProps) {
       maxWidth={1000}
       w="100%"
       mx="auto"
-      gap="$6"
+      gap="$4"
       $gtMd={{ px: "$4" }}
+      $gtLg={{ px: "$5", gap: "$5" }}
       {...props}
     >
       {second ? (
         <>
           {first}
-          <View w={300} $md={{ dsp: "none" }}>
+          <View w={230} $gtLg={{ w: 270 }} $md={{ dsp: "none" }}>
             {second}
           </View>
         </>

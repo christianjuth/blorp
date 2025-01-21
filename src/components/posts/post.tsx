@@ -55,7 +55,10 @@ export function PostCard({
     post.url?.endsWith(".gif")
   ) {
     embedType = "image";
-  } else if (urlContentType && urlContentType.indexOf("video/") !== -1) {
+  } else if (
+    (urlContentType && urlContentType.indexOf("video/") !== -1) ||
+    post.url?.endsWith(".mp4")
+  ) {
     embedType = "video";
   } else if (post.url && isYouTubeVideoUrl(post.url)) {
     embedType = "youtube";

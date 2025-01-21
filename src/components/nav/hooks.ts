@@ -1,12 +1,14 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform } from "react-native";
+import { useMedia } from "tamagui";
 
 export const useCustomHeaderHeight = () => {
   const insets = useSafeAreaInsets();
+  const media = useMedia();
 
   // Default header heights based on platform
   const defaultHeaderHeight = Platform.select({
-    ios: 40, // Default header height on iOS
+    ios: media.md ? 40 : 50, // Default header height on iOS
     android: 56, // Default header height on Android
     default: 65, // Default header height for web or other platforms
   });

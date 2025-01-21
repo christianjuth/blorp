@@ -67,7 +67,14 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
 
   if (isLgScreen) {
     return (
-      <ScrollView maxWidth={270} brw={1} bc="$color4">
+      <ScrollView
+        maxWidth={230}
+        $gtLg={{
+          maxWidth: 270,
+        }}
+        brw={1}
+        bc="$color4"
+      >
         <SafeAreaView>
           <Sidebar {...props} />
         </SafeAreaView>
