@@ -39,7 +39,7 @@ export default function Layout() {
         <Stack.Screen
           name="u/[userId]"
           options={{
-            title: "Search",
+            title: "User",
             header: (props) => <UserHeader {...props} />,
           }}
         />

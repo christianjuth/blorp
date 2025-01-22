@@ -1,19 +1,13 @@
 import { BottomTabBarProps, BottomTabBar } from "@react-navigation/bottom-tabs";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { isWeb, ScrollView, useMedia } from "tamagui";
+import { isWeb, ScrollView, useMedia, useTheme } from "tamagui";
 import { useScrollContext } from "./scroll-animation-context";
-import {
-  interpolate,
-  useAnimatedStyle,
-  useEvent,
-} from "react-native-reanimated";
+import { interpolate, useAnimatedStyle } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
 import { BlurBackground } from "./blur-background";
 import { Sidebar } from "./sidebar";
-import { SafeAreaView, useRouter } from "one";
-import { useNavigationState, useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { SafeAreaView, usePathname } from "one";
 
 export const useCustomTabBarHeight = () => {
   const insets = useSafeAreaInsets();
@@ -34,14 +28,12 @@ export const useCustomTabBarHeight = () => {
 };
 
 export function CustomBottomTabBar(props: BottomTabBarProps) {
+  const theme = useTheme();
   const { scrollY } = useScrollContext();
   const tabBar = useCustomTabBarHeight();
 
-  const tabIndex = props.state.index;
-  const route = props.state.routes[tabIndex].state;
-  const topScreenInStack = route?.routes?.at(-1);
-
-  const tabBarHideable = tabIndex === 0 && topScreenInStack?.name === "index";
+  const pathname = usePathname();
+  const tabBarHideable = pathname === "/";
 
   // Animated style for the header
   const container = useAnimatedStyle(() => {
@@ -73,7 +65,7 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
           maxWidth: 270,
         }}
         brw={1}
-        bc="$color4"
+        bc="$color3"
       >
         <SafeAreaView>
           <Sidebar {...props} />
@@ -86,6 +78,11 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
     <Animated.View
       style={[
         container,
+        {
+          borderTopWidth: 1,
+          borderTopColor: theme.color4.val,
+          backgroundColor: theme.background.val,
+        },
         tabBarHideable && !isWeb
           ? {
               position: "absolute",
@@ -96,7 +93,6 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
           : undefined,
       ]}
     >
-      <BlurBackground />
       <Animated.View style={content}>
         <BottomTabBar {...props} />
       </Animated.View>

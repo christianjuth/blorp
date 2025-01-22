@@ -16,7 +16,7 @@ export function Modal({
   const insets = useSafeAreaInsets();
   return (
     <Dialog modal open={open} onOpenChange={onClose}>
-      <Adapt when="sm" platform="touch">
+      <Adapt platform="touch">
         <Sheet
           animation="200ms"
           zIndex={200000}
@@ -32,6 +32,14 @@ export function Modal({
             $theme-dark={{
               bg: "$color3",
             }}
+            $gtMd={{
+              w: "50%",
+              transform: [
+                {
+                  translateX: "50%",
+                },
+              ],
+            }}
           >
             {scrollable ? (
               <Sheet.ScrollView pb={insets.bottom}>
@@ -42,11 +50,10 @@ export function Modal({
             )}
           </Sheet.Frame>
           <Sheet.Overlay
-            // animation="lazy"
+            animation="100ms"
             enterStyle={{ opacity: 0 }}
             exitStyle={{ opacity: 0 }}
-            backgroundColor="black"
-            opacity={0.4}
+            backgroundColor="rgba(0,0,0,0.4)"
           />
         </Sheet>
       </Adapt>
@@ -54,11 +61,10 @@ export function Modal({
       <Dialog.Portal>
         <Dialog.Overlay
           key="overlay"
-          animation="200ms"
+          animation="100ms"
           enterStyle={{ opacity: 0 }}
           exitStyle={{ opacity: 0 }}
-          backgroundColor="black"
-          opacity={0.4}
+          backgroundColor="rgba(0,0,0,0.4)"
         />
 
         <Dialog.Content
@@ -80,8 +86,6 @@ export function Modal({
           $theme-dark={{
             bg: "$color3",
           }}
-          // w="100%"
-          // maxWidth={400}
           p={0}
           bw={0}
         >

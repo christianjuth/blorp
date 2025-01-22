@@ -1,5 +1,5 @@
 import { XStack, YStack, Text, View, Avatar, useThemeName } from "tamagui";
-import { Link } from "one";
+import { Link, useRouter } from "one";
 import * as routes from "~/src/lib/routes";
 import { useRecentCommunities } from "~/src/stores/recent-communities";
 import { Community } from "lemmy-js-client";
@@ -11,7 +11,11 @@ import LogoLight from "~/assets/logo-light.svg";
 import { useCustomHeaderHeight } from "./hooks";
 import { useAuth } from "~/src/stores/auth";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { CommonActions } from "@react-navigation/native";
+import {
+  CommonActions,
+  NavigationContext,
+  NavigationRouteContext,
+} from "@react-navigation/native";
 import { getLabel, MissingIcon } from "@react-navigation/elements";
 import _ from "lodash";
 
@@ -23,7 +27,7 @@ function SmallComunityCard({
   const slug = createCommunitySlug(community);
   return (
     <Link href={`/c/${slug}`} key={community.id} asChild replace>
-      <XStack ai="center" gap="$2.5" tag="a" py="$1" px="$3">
+      <XStack ai="center" gap="$2.5" tag="a" py="$1.5" px="$3">
         <Avatar size="$2.5" borderRadius="$12">
           <Avatar.Image src={community.icon} />
           <Avatar.Fallback
@@ -48,6 +52,7 @@ export function Sidebar(props: BottomTabBarProps | {}) {
   const header = useCustomHeaderHeight();
   const themeName = useThemeName();
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
+  const router = useRouter();
 
   const subscribedCommunities = useListCommunities({
     type_: "Subscribed",
@@ -87,25 +92,40 @@ export function Sidebar(props: BottomTabBarProps | {}) {
               return null;
             }
 
-            const focused = index === props.state.index;
+            const resetOnPress = route.state && route.state.routes.length <= 1;
 
+            const focused = index === props.state.index;
             const { options } = props.descriptors[route.key];
 
             const onPress = () => {
+              if (resetOnPress) {
+                let name = route.name;
+                if (name === "(home)") {
+                  name = "/";
+                }
+                router.replace(name as any);
+                return;
+              }
+
               const event = props.navigation.emit({
                 type: "tabPress",
-                target: route.state?.key,
+                target: route.key,
                 canPreventDefault: true,
               });
-
-              const focused = false;
 
               if (!focused && !event.defaultPrevented) {
                 props.navigation.dispatch({
                   ...CommonActions.navigate(route),
-                  target: route.state?.key,
+                  target: props.state.key,
                 });
               }
+            };
+
+            const onLongPress = () => {
+              props.navigation.emit({
+                type: "tabLongPress",
+                target: route.key,
+              });
             };
 
             const label =
@@ -117,63 +137,70 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                   );
 
             return (
-              <XStack
-                ai="center"
-                gap="$2.5"
-                onPress={onPress}
-                tag="button"
-                bg={focused ? "$color4" : undefined}
-                py="$2"
-                px="$3"
-                br="$5"
-                hoverStyle={
-                  !focused
-                    ? {
-                        bg: "$color2",
-                      }
-                    : undefined
-                }
-                group
+              <NavigationContext.Provider
+                key={route.key}
+                value={props.descriptors[route.key].navigation}
               >
-                <View>
-                  {options.tabBarIcon?.({
-                    focused: true,
-                    size: 10,
-                    color: options.tabBarActiveTintColor ?? "red",
-                  }) ?? <MissingIcon />}
-                  {options.tabBarBadge && (
-                    <YStack
-                      bg={focused ? "$color4" : "$background"}
-                      $group-hover={{
-                        bg: focused ? "$color4" : "$color2",
-                      }}
-                      pos="absolute"
-                      t={-5}
-                      r={-9}
-                      h={20}
-                      w={20}
-                      ai="center"
-                      jc="center"
-                      br={9999}
-                    >
-                      <YStack
-                        ai="center"
-                        jc="center"
-                        h={16}
-                        w={16}
-                        bg="red"
-                        br={9999}
-                      >
-                        <Text color="white" fontSize={11}>
-                          {options.tabBarBadge}
-                        </Text>
-                      </YStack>
-                    </YStack>
-                  )}
-                </View>
-                {/* <Home color="$color11" /> */}
-                <Text color="$color11">{label}</Text>
-              </XStack>
+                <NavigationRouteContext.Provider value={route}>
+                  <XStack
+                    ai="center"
+                    gap="$2.5"
+                    onPress={onPress}
+                    onLongPress={onLongPress}
+                    tag="button"
+                    bg={focused ? "$color4" : undefined}
+                    py="$2"
+                    px="$3"
+                    br="$5"
+                    hoverStyle={
+                      !focused
+                        ? {
+                            bg: "$color2",
+                          }
+                        : undefined
+                    }
+                    group
+                  >
+                    <View>
+                      {options.tabBarIcon?.({
+                        focused: true,
+                        size: 10,
+                        color: options.tabBarActiveTintColor ?? "red",
+                      }) ?? <MissingIcon />}
+                      {options.tabBarBadge && (
+                        <YStack
+                          bg={focused ? "$color4" : "$background"}
+                          $group-hover={{
+                            bg: focused ? "$color4" : "$color2",
+                          }}
+                          pos="absolute"
+                          t={-5}
+                          r={-9}
+                          h={20}
+                          w={20}
+                          ai="center"
+                          jc="center"
+                          br={9999}
+                        >
+                          <YStack
+                            ai="center"
+                            jc="center"
+                            h={16}
+                            w={16}
+                            bg="red"
+                            br={9999}
+                          >
+                            <Text color="white" fontSize={11}>
+                              {options.tabBarBadge}
+                            </Text>
+                          </YStack>
+                        </YStack>
+                      )}
+                    </View>
+                    <Text color="$color11">{label}</Text>
+                  </XStack>
+                </NavigationRouteContext.Provider>
+              </NavigationContext.Provider>
             );
           })}
 
@@ -181,27 +208,43 @@ export function Sidebar(props: BottomTabBarProps | {}) {
 
         {recentCommunities.length > 0 && (
           <>
-            <Text color="$color10" fontSize="$3" px="$3" py="$1">
+            <Text color="$color10" fontSize="$3" px="$3" py="$2">
               RECENT
             </Text>
             {recentCommunities.map((c) => (
-              <SmallComunityCard key={c.id} community={c} />
+              <YStack
+                key={c.id}
+                br="$5"
+                hoverStyle={{
+                  bg: "$color2",
+                }}
+              >
+                <SmallComunityCard community={c} />
+              </YStack>
             ))}
 
-            <View h={1} flex={1} bg="$color4" my="$2" />
+            <View h={1} flex={1} bg="$color3" my="$2" />
           </>
         )}
 
         {isLoggedIn && (
           <>
-            <Text color="$color10" fontSize="$3" px="$3" py="$1">
+            <Text color="$color10" fontSize="$3" px="$3" py="$2">
               COMMUNITIES
             </Text>
-            {sortedCommunities.map((c) => (
-              <SmallComunityCard key={c.community.id} community={c.community} />
+            {sortedCommunities.map(({ community: c }) => (
+              <YStack
+                key={c.id}
+                br="$5"
+                hoverStyle={{
+                  bg: "$color2",
+                }}
+              >
+                <SmallComunityCard community={c} />
+              </YStack>
             ))}
 
-            <View h={1} flex={1} bg="$color4" my="$2" />
+            <View h={1} flex={1} bg="$color3" my="$2" />
           </>
         )}
 

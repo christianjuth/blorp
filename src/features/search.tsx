@@ -1,6 +1,6 @@
 import { useSearch } from "../lib/lemmy";
 import { PostCard } from "~/src/components/posts/post";
-import { isWeb, View } from "tamagui";
+import { View } from "tamagui";
 import {
   Sidebar,
   SmallScreenSidebar,
@@ -10,17 +10,18 @@ import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
-import { useFiltersStore } from "../stores/filters";
-import { usePosts } from "../lib/lemmy";
+import { Community } from "~/src/components/community";
 
 const EMPTY_ARR = [];
 
 export function SearchFeed({
   search,
   communityName,
+  defaultType = "posts",
 }: {
   search?: string;
   communityName?: string;
+  defaultType?: "posts" | "communities";
 }) {
   // const postSort = useFiltersStore((s) => s.postSort);
 
@@ -41,7 +42,9 @@ export function SearchFeed({
   } = searchResults;
 
   const data =
-    searchResults.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+    searchResults.data?.pages
+      .map((res) => (defaultType === "posts" ? res.posts : res.communities))
+      .flat() ?? EMPTY_ARR;
 
   return (
     <FlashList
@@ -84,9 +87,18 @@ export function SearchFeed({
           );
         }
 
+        if (typeof item === "string") {
+          return (
+            <ContentGutters>
+              <PostCard apId={item} />
+              <></>
+            </ContentGutters>
+          );
+        }
+
         return (
           <ContentGutters>
-            <PostCard apId={item} />
+            <Community communityView={item} />
             <></>
           </ContentGutters>
         );
@@ -97,7 +109,9 @@ export function SearchFeed({
         }
       }}
       onEndReachedThreshold={0.5}
-      keyExtractor={(item) => item}
+      keyExtractor={(item) =>
+        typeof item === "string" ? item : String(item.community.id)
+      }
       refreshing={isRefetching}
       onRefresh={() => {
         if (!isRefetching) {

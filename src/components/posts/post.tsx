@@ -86,7 +86,7 @@ export function PostCard({
       )}
 
       {post.thumbnail_url && embedType === "image" && (
-        <View br="$5" $md={{ mx: "$-2.5", br: 0 }}>
+        <View br="$5" $md={{ mx: "$-3", br: 0 }}>
           <Image
             imageUrl={post.thumbnail_url}
             aspectRatio={aspectRatio}
@@ -141,7 +141,7 @@ export function PostCard({
       mx="auto"
       flex={1}
       $md={{
-        px: "$2.5",
+        px: "$3",
         bbw: 1,
       }}
       gap="$2"

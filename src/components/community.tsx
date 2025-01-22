@@ -13,7 +13,14 @@ export function Community({ communityView }: { communityView: CommunityView }) {
 
   return (
     <Link href={`/communities/c/${slug}`} asChild push>
-      <XStack ai="center" gap="$2" tag="a" p="$2" overflow="hidden">
+      <XStack
+        ai="center"
+        gap="$2"
+        tag="a"
+        py="$2"
+        overflow="hidden"
+        $md={{ px: "$3" }}
+      >
         <Avatar size="$3" borderRadius="$12">
           {community.icon && (
             <YStack

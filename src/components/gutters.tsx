@@ -36,8 +36,9 @@ export function HeaderGutters({ children, ...props }: XStackProps) {
       w="100%"
       mx="auto"
       gap="$3"
-      px="$2"
+      px="$3"
       $gtMd={{ px: "$4" }}
+      $gtLg={{ px: "$5" }}
       ai="center"
       {...props}
     >

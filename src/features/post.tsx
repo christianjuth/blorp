@@ -10,11 +10,10 @@ import { Sidebar } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 
 import { memo, useMemo } from "react";
-import { useMedia, useTheme, View, YStack } from "tamagui";
+import { useMedia, View } from "tamagui";
 import _ from "lodash";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
-import { useCustomHeaderHeight } from "../components/nav/hooks";
 import {
   CommentReplyContext,
   InlineCommentReply,
@@ -54,7 +53,6 @@ export function PostComments({
 }) {
   const media = useMedia();
 
-  const header = useCustomHeaderHeight();
   const tabBar = useCustomTabBarHeight();
 
   const navigation = useNavigation();
@@ -65,15 +63,13 @@ export function PostComments({
     return () => {
       // Reset the tab bar visibility when leaving the screen
       parent?.setOptions({
-        tabBarStyle: { display: "flex", backgroundColor: "transparent" },
+        tabBarStyle: { backgroundColor: "transparent" },
       });
     };
   });
 
   const ref = useRef(null);
   useScrollToTop(ref);
-
-  const theme = useTheme();
 
   const structured = useMemo(() => {
     const map = buildCommentMap(commentViews, commentId);

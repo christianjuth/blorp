@@ -27,14 +27,13 @@ export default function Layout() {
         tabBar={(props) => <CustomBottomTabBar {...props} />}
         screenOptions={{
           tabBarStyle: {
-            borderTopColor: theme.color4?.val,
             backgroundColor: "transparent",
           },
           // @ts-expect-error
           header: (props) => <BottomTabBarHeader {...props} />,
           tabBarActiveTintColor: theme.accentColor?.val,
           tabBarPosition: media.gtMd ? "left" : "bottom",
-          tabBarLabelPosition: "below-icon",
+          tabBarLabelPosition: media.gtMd ? "beside-icon" : "below-icon",
         }}
       >
         <Tabs.Screen

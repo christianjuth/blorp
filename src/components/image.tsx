@@ -118,6 +118,7 @@ export function Image({
         width: maxWidth ? maxWidth : "100%",
         maxWidth: "100%",
         height: undefined,
+        borderRadius: borderRadius,
         borderTopRightRadius: borderTopRadius ?? borderRadius,
         borderTopLeftRadius: borderTopRadius ?? borderRadius,
       }}

@@ -342,7 +342,7 @@ export function CommunityFilter() {
       onValueChange={setListingType}
       trigger={
         <XStack ai="center" gap="$1">
-          <Text fontWeight="bold">
+          <Text fontWeight={900}>
             {
               LISTING_TYPE_OPTIONS.find(
                 (option) => option.value === listingType,

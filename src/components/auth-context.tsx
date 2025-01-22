@@ -20,6 +20,7 @@ import {
   Text,
   Input,
   XStack,
+  isWeb,
 } from "tamagui";
 import { useInstances, useLogin } from "../lib/lemmy";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -127,7 +128,9 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
           p="$4"
           br="$4"
           gap="$3"
-          w={400}
+          $gtMd={{
+            w: isWeb ? 400 : undefined,
+          }}
           maxWidth="100%"
           height={windowDimensions.height / 2}
         >
@@ -142,6 +145,8 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
                 flexShrink={0}
                 // value={search}
                 onChangeText={setSearch}
+                autoCorrect={false}
+                autoCapitalize="none"
               />
               <FlatList
                 data={sortedInstances ?? defaultSort}
