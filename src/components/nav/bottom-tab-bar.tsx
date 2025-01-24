@@ -5,9 +5,8 @@ import { isWeb, ScrollView, useMedia, useTheme } from "tamagui";
 import { useScrollContext } from "./scroll-animation-context";
 import { interpolate, useAnimatedStyle } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
-import { BlurBackground } from "./blur-background";
 import { Sidebar } from "./sidebar";
-import { SafeAreaView, usePathname } from "one";
+import { SafeAreaView, useFocusEffect, useNavigation, usePathname } from "one";
 
 export const useCustomTabBarHeight = () => {
   const insets = useSafeAreaInsets();
@@ -26,6 +25,31 @@ export const useCustomTabBarHeight = () => {
     insetBottom: insets.bottom,
   };
 };
+
+export function useTabBarStyle() {
+  const theme = useTheme();
+  return {
+    backgroundColor: "transparent",
+    borderTopColor: theme.color4.val,
+    borderTopWidth: 1,
+  };
+}
+
+export function useHideTabBar() {
+  const tabBarStyle = useTabBarStyle();
+  const navigation = useNavigation();
+
+  useFocusEffect(() => {
+    const parent = navigation.getParent();
+    parent?.setOptions({ tabBarStyle: { display: "none" } });
+    return () => {
+      // Reset the tab bar visibility when leaving the screen
+      parent?.setOptions({
+        tabBarStyle,
+      });
+    };
+  });
+}
 
 export function CustomBottomTabBar(props: BottomTabBarProps) {
   const theme = useTheme();
@@ -79,8 +103,6 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
       style={[
         container,
         {
-          borderTopWidth: 1,
-          borderTopColor: theme.color4.val,
           backgroundColor: theme.background.val,
         },
         tabBarHideable && !isWeb

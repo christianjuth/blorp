@@ -7,9 +7,17 @@ import {
   HomeFilter,
   PostSortSelect,
 } from "../lemmy-sort";
-import { View, Text, XStack, Input, Avatar, YStack, isWeb } from "tamagui";
+import {
+  View,
+  Text,
+  XStack,
+  Input,
+  Avatar,
+  YStack,
+  isWeb,
+  useTheme,
+} from "tamagui";
 import { ChevronLeft, X, User, LogOut } from "@tamagui/lucide-icons";
-import { BlurBackground } from "./blur-background";
 import Animated from "react-native-reanimated";
 import { useCustomHeaderHeight } from "./hooks";
 import { useScrollContext } from "./scroll-animation-context";
@@ -25,6 +33,9 @@ import { Dropdown } from "../ui/dropdown";
 import { useLogout } from "~/src/lib/lemmy";
 import { useCreatePostStore } from "~/src/stores/create-post";
 import { Button } from "../ui/button";
+
+const BBW = 1;
+const BBC = "$color4";
 
 function UserAvatar() {
   const linkCtx = useLinkContext();
@@ -184,22 +195,25 @@ export function useHeaderAnimation() {
 export function HomeHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
-  const linkCtx = useLinkContext();
-
+  const theme = useTheme();
   const styles = useHeaderAnimation();
   const { height, insetTop } = useCustomHeaderHeight();
 
   return (
-    <Animated.View style={[styles.container, { position: "relative" }]}>
-      <BlurBackground />
-
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.background.val,
+        },
+      ]}
+    >
       <Animated.View style={styles.content}>
-        <View bbc="$color3" bbw={0.5} w="100%">
+        <View bbc={BBC} bbw={BBW} w="100%">
           <HeaderGutters
             ai="center"
             pt={insetTop}
             h={height - 1}
-            pos="relative"
             px="$3"
             jc="space-between"
           >
@@ -271,9 +285,7 @@ export function CommunityHeader(
   const [search, setSearch] = useState(initSearch);
 
   return (
-    <View bbc="$color3" bbw={0.5} w="100%" pos="relative">
-      <BlurBackground />
-
+    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
       <HeaderGutters pt={insetTop} h={height - 1}>
         <BackButton
           onPress={
@@ -309,19 +321,7 @@ export function CommunityHeader(
 export function SearchHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
-  const linkCtx = useLinkContext();
-
-  const router = useRouter();
-  const styles = useHeaderAnimation();
-
   const params = props.route.params;
-  const communityName =
-    params &&
-    "communityName" in params &&
-    typeof params.communityName === "string"
-      ? params.communityName
-      : undefined;
-
   const initSearch =
     params && "search" in params && typeof params.search === "string"
       ? params.search
@@ -330,9 +330,7 @@ export function SearchHeader(
   const { height, insetTop } = useCustomHeaderHeight();
 
   return (
-    <View bbc="$color3" bbw={0.5} w="100%" pos="relative">
-      <BlurBackground />
-
+    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
       <HeaderGutters pt={insetTop} h={height - 1}>
         <>
           {"back" in props && props.back && (
@@ -366,8 +364,7 @@ export function CommunitiesHeader(
 ) {
   const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <View bbc="$color3" bbw={0.5} w="100%" pos="relative">
-      <BlurBackground />
+    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
       <HeaderGutters pt={insetTop} h={height - 1}>
         <CommunityFilter />
         <SearchBar />
@@ -384,8 +381,7 @@ export function UserHeader(
 ) {
   const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <View bbc="$color3" bbw={0.5} w="100%" pos="relative">
-      <BlurBackground />
+    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
       <HeaderGutters pt={insetTop} h={height - 1}>
         <>
           {"back" in props && props.back && (
@@ -429,8 +425,7 @@ export function PostHeader(
 
   const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <View bbc="$color3" bbw={0.5} w="100%" pos="relative">
-      <BlurBackground />
+    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
       <HeaderGutters pt={insetTop} h={height - 1}>
         <BackButton
           onPress={
@@ -461,8 +456,8 @@ export function ModalHeader(props: NativeStackHeaderProps) {
   return (
     <XStack
       bg="$background"
-      bbc="$color3"
-      bbw={1}
+      bbc={BBC}
+      bbw={BBW}
       btw={0}
       btc="transparent"
       w="unset"
@@ -498,10 +493,9 @@ export function ModalHeader(props: NativeStackHeaderProps) {
 
 export function StackHeader(props: NativeStackHeaderProps) {
   const { height, insetTop } = useCustomHeaderHeight();
+  const media = useMedia();
   return (
-    <View bbc="$color3" bbw={0.5} w="100%" pos="relative">
-      <BlurBackground />
-
+    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
       <HeaderGutters pt={insetTop} h={height - 1}>
         <>
           {"back" in props && props.back && (
@@ -520,11 +514,18 @@ export function StackHeader(props: NativeStackHeaderProps) {
               <ChevronLeft color="$accentColor" size="$2" />
             </Button>
           )}
+
+          <Text
+            fontWeight="bold"
+            fontSize="$5"
+            overflow="hidden"
+            pos="relative"
+          >
+            {props.options.title ?? props.route.name}
+          </Text>
         </>
 
-        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-          {props.options.title ?? props.route.name}
-        </Text>
+        <></>
 
         <NavbarRightSide />
       </HeaderGutters>
@@ -535,8 +536,7 @@ export function StackHeader(props: NativeStackHeaderProps) {
 export function BottomTabBarHeader(props: BottomTabHeaderProps) {
   const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <View bbc="$color3" bbw={0.5} w="100%" pos="relative">
-      <BlurBackground />
+    <View bbc={BBC} bbw={BBW} w="100%">
       <HeaderGutters pt={insetTop} h={height - 1}>
         <>
           {props.navigation.canGoBack() && (
@@ -555,11 +555,18 @@ export function BottomTabBarHeader(props: BottomTabHeaderProps) {
               <ChevronLeft color="$accentColor" size="$2" />
             </Button>
           )}
+
+          <Text
+            fontWeight="bold"
+            fontSize="$5"
+            overflow="hidden"
+            pos="relative"
+          >
+            {props.options.title ?? props.route.name}
+          </Text>
         </>
-        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-          {props.options.title ?? props.route.name}
-        </Text>
         <></>
+        <NavbarRightSide />
       </HeaderGutters>
     </View>
   );
@@ -576,8 +583,7 @@ export function CreatePostHeaderStepOne(props: BottomTabHeaderProps) {
   const reset = useCreatePostStore((s) => s.reset);
 
   return (
-    <View bbc="$color3" bbw={0.5} w="100%" pos="relative">
-      <BlurBackground />
+    <View bbc={BBC} bbw={BBW} w="100%">
       <HeaderGutters pt={insetTop} h={height - 1}>
         <>
           {props.navigation.canGoBack() && (
@@ -633,8 +639,7 @@ export function CreatePostHeaderStepTwo(props: BottomTabHeaderProps) {
   const { height, insetTop } = useCustomHeaderHeight();
   const router = useRouter();
   return (
-    <View bbc="$color3" bbw={0.5} w="100%" pos="relative">
-      <BlurBackground />
+    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
       <HeaderGutters pt={insetTop} h={height - 1}>
         <>
           {props.navigation.canGoBack() && (

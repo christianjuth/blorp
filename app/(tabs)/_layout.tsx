@@ -2,7 +2,10 @@ import { Tabs } from "one";
 import { Home, Users, Plus, Settings, Bell } from "@tamagui/lucide-icons";
 import { useMedia, useTheme, View } from "tamagui";
 import { BottomTabBarHeader } from "~/src/components/nav/headers";
-import { CustomBottomTabBar } from "~/src/components/nav/bottom-tab-bar";
+import {
+  CustomBottomTabBar,
+  useTabBarStyle,
+} from "~/src/components/nav/bottom-tab-bar";
 import { useNotificationCount } from "~/src/lib/lemmy";
 import { Platform } from "react-native";
 
@@ -17,6 +20,7 @@ function WebMaxHeight({ children }: { children: React.ReactNode }) {
 export default function Layout() {
   const theme = useTheme();
   const media = useMedia();
+  const tabBarStyle = useTabBarStyle();
 
   const notificationCount = useNotificationCount();
 
@@ -26,9 +30,7 @@ export default function Layout() {
         // @ts-expect-error
         tabBar={(props) => <CustomBottomTabBar {...props} />}
         screenOptions={{
-          tabBarStyle: {
-            backgroundColor: "transparent",
-          },
+          tabBarStyle,
           // @ts-expect-error
           header: (props) => <BottomTabBarHeader {...props} />,
           tabBarActiveTintColor: theme.accentColor?.val,

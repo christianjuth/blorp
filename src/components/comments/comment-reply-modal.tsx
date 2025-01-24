@@ -3,7 +3,6 @@ import { PostId, Comment } from "lemmy-js-client";
 import { Button, Form, View, XStack, Text, YStack, useMedia } from "tamagui";
 import { KeyboardAvoidingView, TextInput } from "react-native";
 import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
-import { BlurBackground } from "../nav/blur-background";
 import {
   FlattenedComment,
   useCreateComment,
@@ -140,11 +139,11 @@ export function CommentReplyContext({
           <ContentGutters w="100%">
             <View
               btw={0.5}
+              bg="$background"
               bc="$color4"
               minHeight={bottomTabBar.height}
               flex={1}
             >
-              <BlurBackground />
               <YStack px="$4">
                 {parentComment && (
                   <Text pt="$2">Replying to {parentComment?.creator.name}</Text>

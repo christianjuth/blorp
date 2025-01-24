@@ -136,7 +136,7 @@ export function PostCard({
   return (
     <YStack
       py="$4"
-      bbc="$color4"
+      bbc="$color3"
       bbw={detailView ? 0 : 1}
       mx="auto"
       flex={1}

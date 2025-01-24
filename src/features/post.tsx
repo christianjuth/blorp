@@ -1,4 +1,4 @@
-import { useFocusEffect, useNavigation } from "one";
+import { useNavigation } from "one";
 import {
   PostComment,
   buildCommentMap,
@@ -19,7 +19,10 @@ import {
   InlineCommentReply,
 } from "../components/comments/comment-reply-modal";
 import { useAuth } from "../stores/auth";
-import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
+import {
+  useCustomTabBarHeight,
+  useHideTabBar,
+} from "../components/nav/bottom-tab-bar";
 import { FlashList } from "../components/flashlist";
 
 const MemoedPostComment = memo(PostComment);
@@ -55,18 +58,7 @@ export function PostComments({
 
   const tabBar = useCustomTabBarHeight();
 
-  const navigation = useNavigation();
-  useFocusEffect(() => {
-    const parent = navigation.getParent();
-    parent?.setOptions({ tabBarStyle: { display: "none" } });
-
-    return () => {
-      // Reset the tab bar visibility when leaving the screen
-      parent?.setOptions({
-        tabBarStyle: { backgroundColor: "transparent" },
-      });
-    };
-  });
+  useHideTabBar();
 
   const ref = useRef(null);
   useScrollToTop(ref);

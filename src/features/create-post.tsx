@@ -1,17 +1,17 @@
 import { ContentGutters } from "../components/gutters";
-import { YStack, Input, XStack, Text, View } from "tamagui";
+import { YStack, Input, XStack, Text } from "tamagui";
 import { useRecentCommunities } from "../stores/recent-communities";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MarkdownEditor,
   MarkdownEditorState,
 } from "../components/markdown-editor";
-import { KeyboardAvoidingView, Pressable, TextInput } from "react-native";
+import { KeyboardAvoidingView, Pressable } from "react-native";
 import { useCreatePostStore } from "../stores/create-post";
 import { FlashList } from "~/src/components/flashlist";
 import { SmallCommunityCard } from "../components/communities/community-card";
 import { useListCommunities, useSearch } from "../lib/lemmy";
-import { Link, SafeAreaView, useRouter } from "one";
+import { Link, useRouter } from "one";
 import _ from "lodash";
 import { Community } from "lemmy-js-client";
 import { ChevronDown, Check } from "@tamagui/lucide-icons";
@@ -78,7 +78,7 @@ export function CreatePostStepOne() {
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <ContentGutters flex={1}>
-        <YStack flex={1} py="$3" px="$4" $gtMd={{ gap: "$5", py: "$4" }}>
+        <YStack flex={1} py="$4" px="$4" gap="$3" $gtMd={{ gap: "$5" }}>
           {community && (
             <Link href="/create/choose-community" asChild>
               <XStack ai="center" gap="$2" tag="a">

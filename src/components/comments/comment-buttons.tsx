@@ -77,7 +77,7 @@ export function CommentVoting({
             // this when you undo your vote
             key={isUpvoted ? 1 : 0}
             size="$1"
-            fill={isUpvoted ? theme.accentBackground.val : undefined}
+            fill={isUpvoted ? theme.accentBackground.val : theme.background.val}
             color={isUpvoted ? "$accentBackground" : "$color11"}
             mr={5}
           />
@@ -121,7 +121,7 @@ export function CommentVoting({
           // this when you undo your vote
           key={isDownvoted ? 1 : 0}
           size="$1"
-          fill={isDownvoted ? theme.red.val : undefined}
+          fill={isDownvoted ? theme.red.val : theme.background.val}
           color={isDownvoted ? "$red" : "$color11"}
         />
       </Button>

@@ -30,7 +30,7 @@ function Reply({
         <YStack
           bbw={noBorder ? 0 : 1}
           bbc="$color4"
-          p="$4"
+          p="$3"
           gap="$2"
           tag="a"
           flex={1}
@@ -90,6 +90,7 @@ export default function HomePage() {
           replies.fetchNextPage();
         }
       }}
+      estimatedItemSize={375}
     />
   );
 }
