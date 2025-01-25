@@ -89,7 +89,7 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
           maxWidth: 270,
         }}
         brw={1}
-        bc="$color3"
+        bc="$color4"
       >
         <SafeAreaView>
           <Sidebar {...props} />

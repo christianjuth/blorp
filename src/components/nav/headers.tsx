@@ -142,9 +142,6 @@ function SearchBar({ defaultValue }: { defaultValue?: string }) {
       $gtMd={{
         opacity: 0.7,
       }}
-      $md={{
-        dsp: "none",
-      }}
       br="$12"
       h="$3"
       bc="$color3"
@@ -493,7 +490,6 @@ export function ModalHeader(props: NativeStackHeaderProps) {
 
 export function StackHeader(props: NativeStackHeaderProps) {
   const { height, insetTop } = useCustomHeaderHeight();
-  const media = useMedia();
   return (
     <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
       <HeaderGutters pt={insetTop} h={height - 1}>

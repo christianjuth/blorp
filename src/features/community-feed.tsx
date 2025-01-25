@@ -8,13 +8,11 @@ import { CommunityBanner } from "../components/communities/community-banner";
 import { ContentGutters } from "../components/gutters";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
-import { useCustomHeaderHeight } from "../components/nav/hooks";
 import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
 import { useFiltersStore } from "../stores/filters";
 import { usePosts } from "../lib/lemmy";
-import { CellRendererProps } from "react-native";
 
 const EMPTY_ARR = [];
 
@@ -28,7 +26,6 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
   });
 
   const tabBar = useCustomTabBarHeight();
-  const header = useCustomHeaderHeight();
 
   const ref = useRef(null);
   useScrollToTop(ref);

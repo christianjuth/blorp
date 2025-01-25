@@ -37,7 +37,7 @@ import { GetComments } from "lemmy-js-client";
 import { Image as RNImage } from "react-native";
 import { useFiltersStore } from "~/src/stores/filters";
 import { useAuth } from "../stores/auth";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Image as ExpoImage } from "expo-image";
 import _ from "lodash";
 import { usePostsStore } from "../stores/posts";
@@ -397,6 +397,8 @@ export function usePostComments(form: GetComments) {
   });
 }
 
+const warmedFeeds = new Map<string, boolean>();
+
 export function usePosts(form: GetPosts) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
@@ -418,7 +420,7 @@ export function usePosts(form: GetPosts) {
 
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
-  return useThrottledInfiniteQuery({
+  const query = useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
       const res = await client.getPosts({
@@ -458,12 +460,23 @@ export function usePosts(form: GetPosts) {
     getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: "init",
     notifyOnChangeProps: "all",
-    staleTime: 0,
+    staleTime: Infinity,
     refetchOnWindowFocus: false,
     // refetchOnMount: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
   });
+
+  const queryKeyStr = queryKey.join("-");
+  useEffect(() => {
+    const isWarmed = warmedFeeds.get(queryKeyStr) ?? false;
+    if (!isWarmed) {
+      warmedFeeds.set(queryKeyStr, true);
+      query.refetch();
+    }
+  }, [queryKeyStr, query.refetch]);
+
+  return query;
 }
 
 function useThrottledInfiniteQuery<

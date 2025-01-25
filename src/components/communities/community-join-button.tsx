@@ -1,7 +1,8 @@
-import { Button, ButtonProps } from "tamagui";
+import { ButtonProps } from "tamagui";
 import { useFollowCommunity } from "~/src/lib/lemmy";
 import { useAuth } from "~/src/stores/auth";
 import { useCommunitiesStore } from "~/src/stores/communities";
+import { Button } from "~/src/components/ui/button";
 
 interface Props extends ButtonProps {
   communityName: string | undefined;

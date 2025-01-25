@@ -31,6 +31,9 @@ function Reply({
           bbw={noBorder ? 0 : 1}
           bbc="$color4"
           p="$3"
+          $gtMd={{
+            px: 0,
+          }}
           gap="$2"
           tag="a"
           flex={1}

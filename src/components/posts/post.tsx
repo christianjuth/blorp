@@ -157,21 +157,23 @@ export function PostCard({
             {post.name}
           </Text>
 
-          <Link
-            href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${encodeURIComponent(crossPost.post.ap_id)}`}
-            push
-            asChild
-          >
-            <YStack bc="$color4" bw={1} br="$4" py="$2.5" gap="$2" tag="a">
-              <Text px="$3" color="$color11" fontSize="$3">
-                c/{crossPost.community.slug}
-              </Text>
-              <Text px="$3" fontWeight={500} fontSize="$5" lineHeight="$3">
-                {crossPost.post.name}
-              </Text>
-              <View mx="$2.5">{preview}</View>
-            </YStack>
-          </Link>
+          <YStack bc="$color4" bw={1} br="$4" py="$2.5" gap="$2">
+            <Link
+              href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${encodeURIComponent(crossPost.post.ap_id)}`}
+              push
+              asChild
+            >
+              <YStack tag="a">
+                <Text px="$3" color="$color11" fontSize="$3">
+                  c/{crossPost.community.slug}
+                </Text>
+                <Text px="$3" fontWeight={500} fontSize="$5" lineHeight="$3">
+                  {crossPost.post.name}
+                </Text>
+              </YStack>
+            </Link>
+            <View mx="$2.5">{preview}</View>
+          </YStack>
         </>
       ) : (
         preview

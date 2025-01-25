@@ -19,6 +19,8 @@ import {
 import { getLabel, MissingIcon } from "@react-navigation/elements";
 import _ from "lodash";
 
+const BC = "$color4";
+
 function SmallComunityCard({
   community,
 }: {
@@ -44,8 +46,6 @@ function SmallComunityCard({
     </Link>
   );
 }
-
-const SIDEBAR_HIDDEN_ROUTES = ["create"];
 
 export function Sidebar(props: BottomTabBarProps | {}) {
   const recentCommunities = useRecentCommunities((s) => s.recentlyVisited);
@@ -88,10 +88,6 @@ export function Sidebar(props: BottomTabBarProps | {}) {
       <YStack gap="$1" py="$2" px="$3">
         {"state" in props &&
           props.state?.routes.map((route, index) => {
-            if (SIDEBAR_HIDDEN_ROUTES.includes(route.name)) {
-              return null;
-            }
-
             const resetOnPress = route.state && route.state.routes.length <= 1;
 
             const focused = index === props.state.index;
@@ -223,7 +219,7 @@ export function Sidebar(props: BottomTabBarProps | {}) {
               </YStack>
             ))}
 
-            <View h={1} flex={1} bg="$color3" my="$2" />
+            <View h={1} flex={1} bg={BC} my="$2" />
           </>
         )}
 
@@ -244,7 +240,7 @@ export function Sidebar(props: BottomTabBarProps | {}) {
               </YStack>
             ))}
 
-            <View h={1} flex={1} bg="$color3" my="$2" />
+            <View h={1} flex={1} bg={BC} my="$2" />
           </>
         )}
 

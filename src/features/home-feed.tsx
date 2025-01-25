@@ -25,10 +25,12 @@ const EMPTY_ARR = [];
 export function HomeFeed() {
   const media = useMedia();
   const postSort = useFiltersStore((s) => s.postSort);
+  const listingType = useFiltersStore((s) => s.listingType);
 
   const posts = usePosts({
     limit: 50,
     sort: postSort,
+    type_: listingType,
   });
 
   const { scrollHandler } = useScrollContext();

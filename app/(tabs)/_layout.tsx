@@ -1,5 +1,12 @@
 import { Tabs } from "one";
-import { Home, Users, Plus, Settings, Bell } from "@tamagui/lucide-icons";
+import {
+  Home,
+  Users,
+  Plus,
+  Settings,
+  Bell,
+  Pencil,
+} from "@tamagui/lucide-icons";
 import { useMedia, useTheme, View } from "tamagui";
 import { BottomTabBarHeader } from "~/src/components/nav/headers";
 import {
@@ -59,8 +66,8 @@ export default function Layout() {
         <Tabs.Screen
           name="create"
           options={{
-            title: "Create",
-            tabBarIcon: ({ color }) => <Plus color={color} />,
+            title: "Create Post",
+            tabBarIcon: ({ color }) => <Pencil color={color} />,
             headerShown: false,
           }}
         />

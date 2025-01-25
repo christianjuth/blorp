@@ -36,9 +36,9 @@ export const useFiltersStore = create<SortsStore>()(
           listingType,
         }),
       communitiesListingType: "All",
-      setCommunitiesListingType: (listingType) =>
+      setCommunitiesListingType: (communitiesListingType) =>
         set({
-          listingType,
+          communitiesListingType,
         }),
     }),
     {
