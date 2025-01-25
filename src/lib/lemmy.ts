@@ -400,6 +400,7 @@ export function usePostComments(form: GetComments) {
 const warmedFeeds = new Map<string, boolean>();
 
 export function usePosts(form: GetPosts) {
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
 
   const postSort = useFiltersStore((s) => s.postSort);
@@ -465,6 +466,7 @@ export function usePosts(form: GetPosts) {
     // refetchOnMount: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
+    enabled: form.type_ === "Subscribed" ? isLoggedIn : true,
   });
 
   const queryKeyStr = queryKey.join("-");
@@ -534,6 +536,7 @@ function useThrottledInfiniteQuery<
 }
 
 export function useListCommunities(form: ListCommunities) {
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
 
   const queryKey = [...queryKeyPrefix, "listCommunities"];
@@ -565,6 +568,7 @@ export function useListCommunities(form: ListCommunities) {
     },
     getNextPageParam: (data) => data.nextPage,
     initialPageParam: 1,
+    enabled: form.type_ === "Subscribed" ? isLoggedIn : true,
   });
 }
 export function useCommunity(form: { name?: string; instance?: string }) {
@@ -623,7 +627,24 @@ export function useLogin() {
 export function useLogout() {
   const queryClient = useQueryClient();
   const { client } = useLemmyClient();
+  const listingType = useFiltersStore((s) => s.listingType);
+  const setListingType = useFiltersStore((s) => s.setListingType);
+  const communitiesListingType = useFiltersStore(
+    (s) => s.communitiesListingType,
+  );
+  const setCommunitiesListingType = useFiltersStore(
+    (s) => s.setCommunitiesListingType,
+  );
   const updateAccount = useAuth((s) => s.updateAccount);
+
+  const resetFilters = () => {
+    if (listingType === "Subscribed") {
+      setListingType("All");
+    }
+    if (communitiesListingType === "Subscribed") {
+      setCommunitiesListingType("All");
+    }
+  };
 
   return () => {
     client.logout();
@@ -631,6 +652,7 @@ export function useLogout() {
       jwt: undefined,
       site: undefined,
     });
+    resetFilters();
     queryClient.clear();
     queryClient.invalidateQueries();
   };
@@ -849,6 +871,10 @@ export function useCreateComment() {
           comments,
         );
       }
+
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeyPrefix, "getComments", String(form.post_id)],
+      });
     },
   });
 }

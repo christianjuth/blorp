@@ -101,20 +101,19 @@ function UserAvatar() {
           </Dropdown.Close>
 
           <Dropdown.Close>
-            <Button onPress={logout} asChild>
-              <XStack
-                h="$3"
-                ai="center"
-                px="$2.5"
-                gap="$2.5"
-                bg="transparent"
-                tag="button"
-                bw={0}
-              >
-                <LogOut size="$1" col="$color10" />
-                <Text>Logout</Text>
-              </XStack>
-            </Button>
+            <XStack
+              h="$3"
+              ai="center"
+              px="$2.5"
+              gap="$2.5"
+              bg="transparent"
+              tag="button"
+              bw={0}
+              onPress={logout}
+            >
+              <LogOut size="$1" col="$color10" />
+              <Text>Logout</Text>
+            </XStack>
           </Dropdown.Close>
         </YStack>
       </YStack>

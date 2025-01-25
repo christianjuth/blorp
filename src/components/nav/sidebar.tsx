@@ -223,7 +223,7 @@ export function Sidebar(props: BottomTabBarProps | {}) {
           </>
         )}
 
-        {isLoggedIn && (
+        {isLoggedIn && sortedCommunities.length > 0 && (
           <>
             <Text color="$color10" fontSize="$3" px="$3" py="$2">
               COMMUNITIES
