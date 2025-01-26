@@ -285,7 +285,13 @@ export function usePersonPosts({ person_id }: { person_id?: string | number }) {
   });
 }
 
-export function usePost({ ap_id }: { ap_id?: string }) {
+export function usePost({
+  ap_id,
+  enabled,
+}: {
+  ap_id?: string;
+  enabled?: boolean;
+}) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
   const queryKey = [...queryKeyPrefix, "getPost", ap_id];
@@ -339,7 +345,7 @@ export function usePost({ ap_id }: { ap_id?: string }) {
       }
       return post;
     },
-    enabled: !!ap_id,
+    enabled: !!ap_id && enabled,
     initialData,
   });
 }

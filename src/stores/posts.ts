@@ -24,8 +24,8 @@ export const usePostsStore = create<SortsStore>()(
     (set, get) => ({
       posts: {},
       patchPost: (apId, patch) => {
-        const posts = get().posts;
-        const prevPost = posts[apId];
+        const prev = get().posts;
+        const prevPost = prev[apId];
         const updatedPostData = {
           ...prevPost.data,
           ...patch,
@@ -33,7 +33,7 @@ export const usePostsStore = create<SortsStore>()(
         if (prevPost) {
           set({
             posts: {
-              ...posts,
+              ...prev,
               [apId]: {
                 data: updatedPostData,
                 lastUsed: Date.now(),
@@ -44,15 +44,19 @@ export const usePostsStore = create<SortsStore>()(
         return updatedPostData;
       },
       cachePost: (view) => {
-        const posts = get().posts;
-        const prevPostData = posts[view.post.ap_id]?.data ?? {};
+        const prev = get().posts;
+        const prevPostData = prev[view.post.ap_id]?.data ?? {};
         const updatedPostData = {
-          ..._.pick(prevPostData, ["optimisticMyVote", "imageDetails"]),
+          ...prevPostData,
           ...view,
+          optimisticMyVote:
+            view.optimisticMyVote ?? prevPostData.optimisticMyVote,
+          imageDetails: view.imageDetails ?? prevPostData.imageDetails,
+          crossPosts: view.crossPosts ?? prevPostData.crossPosts,
         };
         set({
           posts: {
-            ...posts,
+            ...prev,
             [view.post.ap_id]: {
               data: updatedPostData,
               lastUsed: Date.now(),
@@ -67,11 +71,15 @@ export const usePostsStore = create<SortsStore>()(
         const newPosts: Record<string, CachedPost> = {};
 
         for (const view of views) {
-          const prevPostData = newPosts[view.post.ap_id]?.data ?? {};
+          const prevPostData = prev[view.post.ap_id]?.data ?? {};
           newPosts[view.post.ap_id] = {
             data: {
-              ..._.pick(prevPostData, ["optimisticMyVote", "imageDetails"]),
+              ...prevPostData,
               ...view,
+              optimisticMyVote:
+                view.optimisticMyVote ?? prevPostData.optimisticMyVote,
+              imageDetails: view.imageDetails ?? prevPostData.imageDetails,
+              crossPosts: view.crossPosts ?? prevPostData.crossPosts,
             },
             lastUsed: Date.now(),
           };

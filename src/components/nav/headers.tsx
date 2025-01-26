@@ -34,8 +34,21 @@ import { useLogout } from "~/src/lib/lemmy";
 import { useCreatePostStore } from "~/src/stores/create-post";
 import { Button } from "../ui/button";
 
-const BBW = 1;
-const BBC = "$color4";
+const BBW = 0.5;
+const BBC = "$color3";
+
+function BorderBottom() {
+  return (
+    <View
+      h={0.5}
+      bg="$color3"
+      $gtMd={{
+        h: 1,
+        bg: "$color4",
+      }}
+    />
+  );
+}
 
 function UserAvatar() {
   const linkCtx = useLinkContext();
@@ -205,21 +218,20 @@ export function HomeHeader(
       ]}
     >
       <Animated.View style={styles.content}>
-        <View bbc={BBC} bbw={BBW} w="100%">
-          <HeaderGutters
-            ai="center"
-            pt={insetTop}
-            h={height - 1}
-            px="$3"
-            jc="space-between"
-          >
-            <HomeFilter />
-            <SearchBar />
-            <NavbarRightSide>
-              <PostSortSelect />
-            </NavbarRightSide>
-          </HeaderGutters>
-        </View>
+        <HeaderGutters
+          ai="center"
+          pt={insetTop}
+          h={height - BBW}
+          px="$3"
+          jc="space-between"
+        >
+          <HomeFilter />
+          <SearchBar />
+          <NavbarRightSide>
+            <PostSortSelect />
+          </NavbarRightSide>
+        </HeaderGutters>
+        <BorderBottom />
       </Animated.View>
     </Animated.View>
   );
@@ -282,7 +294,7 @@ export function CommunityHeader(
 
   return (
     <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - 1}>
+      <HeaderGutters pt={insetTop} h={height - BBW}>
         <BackButton
           onPress={
             "back" in props && props.back
@@ -327,7 +339,7 @@ export function SearchHeader(
 
   return (
     <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - 1}>
+      <HeaderGutters pt={insetTop} h={height - BBW}>
         <>
           {"back" in props && props.back && (
             <Button
@@ -361,7 +373,7 @@ export function CommunitiesHeader(
   const { height, insetTop } = useCustomHeaderHeight();
   return (
     <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - 1}>
+      <HeaderGutters pt={insetTop} h={height - BBW}>
         <CommunityFilter />
         <SearchBar />
         <NavbarRightSide>
@@ -378,7 +390,7 @@ export function UserHeader(
   const { height, insetTop } = useCustomHeaderHeight();
   return (
     <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - 1}>
+      <HeaderGutters pt={insetTop} h={height - BBW}>
         <>
           {"back" in props && props.back && (
             <Button
@@ -422,7 +434,7 @@ export function PostHeader(
   const { height, insetTop } = useCustomHeaderHeight();
   return (
     <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - 1}>
+      <HeaderGutters pt={insetTop} h={height - BBW}>
         <BackButton
           onPress={
             "back" in props && props.back
@@ -460,7 +472,7 @@ export function ModalHeader(props: NativeStackHeaderProps) {
       px="$3"
       ai="center"
       pt={insetTop}
-      h={height - 1}
+      h={height - BBW}
     >
       <View flex={1} flexBasis={0} ai="flex-start">
         {props.back && (
@@ -491,7 +503,7 @@ export function StackHeader(props: NativeStackHeaderProps) {
   const { height, insetTop } = useCustomHeaderHeight();
   return (
     <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - 1}>
+      <HeaderGutters pt={insetTop} h={height - BBW}>
         <>
           {"back" in props && props.back && (
             <Button
@@ -531,8 +543,8 @@ export function StackHeader(props: NativeStackHeaderProps) {
 export function BottomTabBarHeader(props: BottomTabHeaderProps) {
   const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <View bbc={BBC} bbw={BBW} w="100%">
-      <HeaderGutters pt={insetTop} h={height - 1}>
+    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
+      <HeaderGutters pt={insetTop} h={height - BBW}>
         <>
           {props.navigation.canGoBack() && (
             <Button
@@ -579,7 +591,7 @@ export function CreatePostHeaderStepOne(props: BottomTabHeaderProps) {
 
   return (
     <View bbc={BBC} bbw={BBW} w="100%">
-      <HeaderGutters pt={insetTop} h={height - 1}>
+      <HeaderGutters pt={insetTop} h={height - BBW}>
         <>
           {props.navigation.canGoBack() && (
             <Button
@@ -635,7 +647,7 @@ export function CreatePostHeaderStepTwo(props: BottomTabHeaderProps) {
   const router = useRouter();
   return (
     <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - 1}>
+      <HeaderGutters pt={insetTop} h={height - BBW}>
         <>
           {props.navigation.canGoBack() && (
             <Button

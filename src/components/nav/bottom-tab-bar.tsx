@@ -30,8 +30,8 @@ export function useTabBarStyle() {
   const theme = useTheme();
   return {
     backgroundColor: "transparent",
-    borderTopColor: theme.color4.val,
-    borderTopWidth: 1,
+    borderTopColor: theme.color3.val,
+    borderTopWidth: 0.5,
   };
 }
 

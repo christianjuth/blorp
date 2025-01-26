@@ -13,6 +13,8 @@ import { Pressable } from "react-native";
 import { useCommentReaplyContext } from "../comments/comment-reply-modal";
 import { isYouTubeVideoUrl } from "~/src/lib/youtube";
 import { YouTubeVideoEmbed } from "../youtube";
+import { Repeat2 } from "@tamagui/lucide-icons";
+import { usePost } from "~/src/lib/lemmy";
 
 export function PostCard({
   apId,
@@ -24,6 +26,11 @@ export function PostCard({
   featuredContext?: "community";
 }) {
   const media = useMedia();
+
+  const { refetch: prefetch } = usePost({
+    ap_id: apId,
+    enabled: false,
+  });
 
   const replyCtx = useCommentReaplyContext();
   const linkCtx = useLinkContext();
@@ -64,6 +71,11 @@ export function PostCard({
     embedType = "youtube";
   }
 
+  let thumbnail = post.thumbnail_url;
+  if (!thumbnail && post.url && embedType === "image") {
+    thumbnail = post.url;
+  }
+
   const postDetailsLink =
     `${linkCtx.root}c/${community.slug}/posts/${encodeURIComponent(post.ap_id)}` as const;
 
@@ -75,20 +87,18 @@ export function PostCard({
 
   const titleWithOptionalImage = (
     <YStack gap="$2">
-      {!crossPost && (
-        <Text
-          fontWeight={500}
-          fontSize={detailView ? "$7" : "$6"}
-          lineHeight="$4"
-        >
-          {post.name}
-        </Text>
-      )}
+      <Text
+        fontWeight={500}
+        fontSize={detailView ? "$7" : "$6"}
+        lineHeight="$4"
+      >
+        {post.name}
+      </Text>
 
-      {post.thumbnail_url && embedType === "image" && (
+      {thumbnail && embedType === "image" && (
         <View br="$5" $md={{ mx: "$-3", br: 0 }}>
           <Image
-            imageUrl={post.thumbnail_url}
+            imageUrl={thumbnail}
             aspectRatio={aspectRatio}
             borderRadius={media.gtMd ? 10 : 0}
           />
@@ -102,8 +112,8 @@ export function PostCard({
       {detailView ? (
         <Pressable
           onLongPress={() => {
-            if (embedType === "image" && post.thumbnail_url) {
-              shareImage(post.thumbnail_url);
+            if (embedType === "image" && thumbnail) {
+              shareImage(thumbnail);
             }
           }}
         >
@@ -112,12 +122,13 @@ export function PostCard({
       ) : (
         <Link
           href={postDetailsLink}
+          onPress={() => prefetch()}
           onPressIn={() => setPressed(true)}
           onPressOut={() => setPressed(false)}
           asChild
           onLongPress={() => {
-            if (embedType === "image" && post.thumbnail_url) {
-              shareImage(post.thumbnail_url);
+            if (embedType === "image" && thumbnail) {
+              shareImage(thumbnail);
             }
           }}
         >
@@ -142,7 +153,7 @@ export function PostCard({
       flex={1}
       $md={{
         px: "$3",
-        bbw: 1,
+        bbw: 0.5,
       }}
       gap="$2"
       opacity={pressed ? 0.8 : 1}
@@ -151,33 +162,21 @@ export function PostCard({
     >
       <PostByline postView={postView} featuredContext={featuredContext} />
 
-      {crossPost ? (
-        <>
-          <Text fontWeight={500} fontSize="$6" lineHeight="$3">
-            {post.name}
-          </Text>
-
-          <YStack bc="$color4" bw={1} br="$4" py="$2.5" gap="$2">
-            <Link
-              href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${encodeURIComponent(crossPost.post.ap_id)}`}
-              push
-              asChild
-            >
-              <YStack tag="a">
-                <Text px="$3" color="$color11" fontSize="$3">
-                  c/{crossPost.community.slug}
-                </Text>
-                <Text px="$3" fontWeight={500} fontSize="$5" lineHeight="$3">
-                  {crossPost.post.name}
-                </Text>
-              </YStack>
-            </Link>
-            <View mx="$2.5">{preview}</View>
-          </YStack>
-        </>
-      ) : (
-        preview
+      {detailView && crossPost && (
+        <Link
+          href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${encodeURIComponent(crossPost.post.ap_id)}`}
+          asChild
+        >
+          <XStack gap="$1">
+            <Repeat2 color="$accentColor" size={16} />
+            <Text fontSize={13} color="$accentColor">
+              Cross posted from {crossPost.community.slug}
+            </Text>
+          </XStack>
+        </Link>
       )}
+
+      {preview}
 
       {detailView && body && (
         <View pt="$2">

@@ -66,7 +66,7 @@ export default function Layout() {
         <Tabs.Screen
           name="create"
           options={{
-            title: "Create Post",
+            title: "Post",
             tabBarIcon: ({ color }) => <Pencil color={color} />,
             headerShown: false,
           }}

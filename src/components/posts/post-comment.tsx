@@ -137,6 +137,7 @@ export function PostComment({
       bbw={level === 0 && !noBorder ? 1 : 0}
       $md={{
         px: level === 0 ? "$2.5" : undefined,
+        bbw: level === 0 && !noBorder ? 0.5 : 0,
       }}
       flex={1}
       w="100%"

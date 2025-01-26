@@ -57,12 +57,7 @@ function Spoiler({
           {title}
         </Text>
       </Button>
-      {isVisible &&
-        React.Children.toArray(children).map((child, index) => (
-          <Text key={index} color={color}>
-            {child}
-          </Text>
-        ))}
+      {isVisible && children}
     </YStack>
   );
 }

@@ -260,7 +260,7 @@ export function HomeFilter() {
       ...(isLoggedIn
         ? ([
             {
-              label: "Subscriptions",
+              label: "Subscribed",
               value: "Subscribed",
               // icon: ArrowUpCircle,
             },
@@ -287,7 +287,7 @@ export function HomeFilter() {
             {
               LISTING_TYPE_OPTIONS.find(
                 (option) => option.value === listingType,
-              )?.label
+              )?.value
             }
           </Text>
           <ChevronDown size="$1" />
@@ -319,7 +319,7 @@ export function CommunityFilter() {
       ...(isLoggedIn
         ? ([
             {
-              label: "Subscriptions",
+              label: "Subscribed",
               value: "Subscribed",
               // icon: ArrowUpCircle,
             },
@@ -346,7 +346,7 @@ export function CommunityFilter() {
             {
               LISTING_TYPE_OPTIONS.find(
                 (option) => option.value === listingType,
-              )?.label
+              )?.value
             }
           </Text>
           <ChevronDown size="$1" />

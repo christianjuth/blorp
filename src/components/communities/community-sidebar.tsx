@@ -45,6 +45,9 @@ export function Sidebar({
       r="$0"
       t="$0"
       bg="$background"
+      $md={{
+        p: "$4",
+      }}
     >
       <ScrollView zIndex="$5">
         <YStack py="$3" gap="$3">

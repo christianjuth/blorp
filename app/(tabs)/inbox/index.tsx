@@ -20,7 +20,9 @@ function Reply({
   const communitySlug = createCommunitySlug(replyView.community);
   const path = replyView.comment.path.split(".");
   const parent = path.at(-2);
-  const newPath = [parent, replyView.comment.id].filter(Boolean).join(".");
+  const newPath = [parent !== "0" ? parent : undefined, replyView.comment.id]
+    .filter(Boolean)
+    .join(".");
   return (
     <ContentGutters>
       <Link
