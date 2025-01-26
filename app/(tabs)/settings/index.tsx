@@ -7,9 +7,7 @@ import { useLogout } from "~/src/lib/lemmy";
 import { useAuth } from "~/src/stores/auth";
 import { useRequireAuth } from "~/src/components/auth-context";
 import { Image as ExpoImage } from "expo-image";
-import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
 import { ContentGutters } from "~/src/components/gutters";
-import { useCustomTabBarHeight } from "~/src/components/nav/bottom-tab-bar";
 
 function SettingsButton({
   onClick,
@@ -86,19 +84,8 @@ export default function SettingsPage() {
   const requireAuth = useRequireAuth();
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
-  const header = useCustomHeaderHeight();
-  const tabBar = useCustomTabBarHeight();
-
   return (
-    <ScrollView
-      contentContainerStyle={{
-        paddingTop: header.height,
-        paddingBottom: tabBar.height,
-      }}
-      height="100%"
-      bg="$background"
-      p="$4"
-    >
+    <ScrollView height="100%" bg="$background" p="$3" py="$4">
       <ContentGutters>
         <YStack flex={1} gap="$2">
           <Text p="$2">ACCOUNT</Text>

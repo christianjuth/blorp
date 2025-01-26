@@ -79,7 +79,6 @@ export default function Layout() {
             tabBarIcon: ({ color }) => <Bell color={color} />,
             headerShown: false,
             tabBarBadge: notificationCount > 0 ? notificationCount : undefined,
-            tabBarVisible: false,
           }}
         />
 
@@ -88,7 +87,7 @@ export default function Layout() {
           options={{
             title: "Settings",
             tabBarIcon: ({ color }) => <Settings color={color} />,
-            headerTransparent: true,
+            headerShown: false,
           }}
         />
       </Tabs>

@@ -26,38 +26,3 @@ export function ContentGutters({ children, ...props }: XStackProps) {
     </XStack>
   );
 }
-
-export function HeaderGutters({ children, ...props }: XStackProps) {
-  const [first, second, third] = React.Children.toArray(children);
-
-  return (
-    <XStack
-      maxWidth={1000}
-      w="100%"
-      mx="auto"
-      gap="$3"
-      px="$3"
-      $gtMd={{ px: "$4" }}
-      $gtLg={{ px: "$5" }}
-      ai="center"
-      {...props}
-    >
-      <XStack $gtMd={{ minWidth: "33%" }} ai="center">
-        {first}
-      </XStack>
-
-      <XStack flex={1} ai="center" $gtMd={{ jc: "center" }}>
-        {second}
-      </XStack>
-
-      <XStack
-        jc="flex-end"
-        ai="center"
-        gap="$3"
-        $gtMd={{ minWidth: "33%", gap: "$4" }}
-      >
-        {third}
-      </XStack>
-    </XStack>
-  );
-}

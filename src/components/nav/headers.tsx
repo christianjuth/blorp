@@ -16,6 +16,7 @@ import {
   YStack,
   isWeb,
   useTheme,
+  XStackProps,
 } from "tamagui";
 import { ChevronLeft, X, User, LogOut } from "@tamagui/lucide-icons";
 import Animated from "react-native-reanimated";
@@ -27,12 +28,60 @@ import { Link, useRouter } from "one";
 import { useState } from "react";
 import { useLinkContext } from "./link-context";
 import { useAuth } from "~/src/stores/auth";
-import { HeaderGutters } from "../gutters";
 import { useRequireAuth } from "../auth-context";
 import { Dropdown } from "../ui/dropdown";
 import { useLogout } from "~/src/lib/lemmy";
 import { useCreatePostStore } from "~/src/stores/create-post";
 import { Button } from "../ui/button";
+import * as React from "react";
+
+function HeaderGutters({ children, ...props }: XStackProps) {
+  const { height, insetTop } = useCustomHeaderHeight();
+
+  const [first, second, third] = React.Children.toArray(children);
+
+  return (
+    <YStack
+      pt={insetTop}
+      h={height - 0.5}
+      bbw={0.5}
+      $gtMd={{ h: height - 1, bbw: 1 }}
+      bbc="$color4"
+      bg="$background"
+    >
+      <XStack
+        flex={1}
+        maxWidth={1000}
+        w="100%"
+        mx="auto"
+        gap="$3"
+        px="$3"
+        ai="center"
+        bbc="$color4"
+        $gtMd={{ px: "$4" }}
+        $gtLg={{ px: "$5" }}
+        {...props}
+      >
+        <XStack $gtMd={{ minWidth: "33%" }} ai="center">
+          {first}
+        </XStack>
+
+        <XStack flex={1} ai="center" $gtMd={{ jc: "center" }}>
+          {second}
+        </XStack>
+
+        <XStack
+          jc="flex-end"
+          ai="center"
+          gap="$3"
+          $gtMd={{ minWidth: "33%", gap: "$4" }}
+        >
+          {third}
+        </XStack>
+      </XStack>
+    </YStack>
+  );
+}
 
 const BBW = 0.5;
 const BBC = "$color3";
@@ -231,7 +280,6 @@ export function HomeHeader(
             <PostSortSelect />
           </NavbarRightSide>
         </HeaderGutters>
-        <BorderBottom />
       </Animated.View>
     </Animated.View>
   );
@@ -288,41 +336,37 @@ export function CommunityHeader(
       ? params.search
       : undefined;
 
-  const { height, insetTop } = useCustomHeaderHeight();
-
   const [search, setSearch] = useState(initSearch);
 
   return (
-    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - BBW}>
-        <BackButton
-          onPress={
-            "back" in props && props.back
-              ? () => props.navigation.pop(1)
-              : undefined
-          }
-        />
+    <HeaderGutters>
+      <BackButton
+        onPress={
+          "back" in props && props.back
+            ? () => props.navigation.pop(1)
+            : undefined
+        }
+      />
 
-        <Input
-          bg="$color3"
-          br="$12"
-          h="$3"
-          bc="$color3"
-          placeholder={`Search ${communityName}`}
-          flex={1}
-          maxWidth={500}
-          value={search}
-          onChangeText={setSearch}
-          onSubmitEditing={() => {
-            router.push(`${linkCtx.root}c/${communityName}/s/${search}`);
-          }}
-        />
+      <Input
+        bg="$color3"
+        br="$12"
+        h="$3"
+        bc="$color3"
+        placeholder={`Search ${communityName}`}
+        flex={1}
+        maxWidth={500}
+        value={search}
+        onChangeText={setSearch}
+        onSubmitEditing={() => {
+          router.push(`${linkCtx.root}c/${communityName}/s/${search}`);
+        }}
+      />
 
-        <NavbarRightSide>
-          <PostSortSelect />
-        </NavbarRightSide>
-      </HeaderGutters>
-    </View>
+      <NavbarRightSide>
+        <PostSortSelect />
+      </NavbarRightSide>
+    </HeaderGutters>
   );
 }
 
@@ -335,88 +379,78 @@ export function SearchHeader(
       ? params.search
       : undefined;
 
-  const { height, insetTop } = useCustomHeaderHeight();
-
   return (
-    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - BBW}>
-        <>
-          {"back" in props && props.back && (
-            <Button
-              unstyled
-              p={0}
-              bg="transparent"
-              borderRadius="$12"
-              dsp="flex"
-              fd="row"
-              ai="center"
-              bw={0}
-              onPress={() => props.navigation.pop(1)}
-              h="auto"
-            >
-              <ChevronLeft color="$accentColor" size="$1.5" />
-            </Button>
-          )}
-        </>
-        <SearchBar defaultValue={initSearch} />
-        <NavbarRightSide>
-          <PostSortSelect />
-        </NavbarRightSide>
-      </HeaderGutters>
-    </View>
+    <HeaderGutters>
+      <>
+        {"back" in props && props.back && (
+          <Button
+            unstyled
+            p={0}
+            bg="transparent"
+            borderRadius="$12"
+            dsp="flex"
+            fd="row"
+            ai="center"
+            bw={0}
+            onPress={() => props.navigation.pop(1)}
+            h="auto"
+          >
+            <ChevronLeft color="$accentColor" size="$1.5" />
+          </Button>
+        )}
+      </>
+      <SearchBar defaultValue={initSearch} />
+      <NavbarRightSide>
+        <PostSortSelect />
+      </NavbarRightSide>
+    </HeaderGutters>
   );
 }
 
 export function CommunitiesHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
-  const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - BBW}>
-        <CommunityFilter />
-        <SearchBar />
-        <NavbarRightSide>
-          <CommunitySortSelect />
-        </NavbarRightSide>
-      </HeaderGutters>
-    </View>
+    <HeaderGutters>
+      <CommunityFilter />
+      <SearchBar />
+      <NavbarRightSide>
+        <CommunitySortSelect />
+      </NavbarRightSide>
+    </HeaderGutters>
   );
 }
 
 export function UserHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
-  const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - BBW}>
-        <>
-          {"back" in props && props.back && (
-            <Button
-              unstyled
-              p={2}
-              bg="transparent"
-              borderRadius="$12"
-              dsp="flex"
-              fd="row"
-              ai="center"
-              bw={0}
-              onPress={() => props.navigation.pop(1)}
-              h="auto"
-            >
-              <ChevronLeft color="$accentColor" size="$2" />
-            </Button>
-          )}
-        </>
-        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-          {props.options.title}
-        </Text>
-        <NavbarRightSide>
-          <PostSortSelect />
-        </NavbarRightSide>
-      </HeaderGutters>
-    </View>
+    <HeaderGutters>
+      <>
+        {"back" in props && props.back && (
+          <Button
+            unstyled
+            p={2}
+            bg="transparent"
+            borderRadius="$12"
+            dsp="flex"
+            fd="row"
+            ai="center"
+            bw={0}
+            onPress={() => props.navigation.pop(1)}
+            h="auto"
+          >
+            <ChevronLeft color="$accentColor" size="$2" />
+          </Button>
+        )}
+      </>
+      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+        {props.options.title}
+      </Text>
+      <NavbarRightSide>
+        <PostSortSelect />
+      </NavbarRightSide>
+    </HeaderGutters>
   );
 }
 
@@ -431,31 +465,28 @@ export function PostHeader(
       ? params.communityName
       : undefined;
 
-  const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - BBW}>
-        <BackButton
-          onPress={
-            "back" in props && props.back
-              ? () => props.navigation.pop(1)
-              : undefined
-          }
-        />
-        <Text
-          fontWeight="bold"
-          fontSize="$5"
-          overflow="hidden"
-          pos="relative"
-          numberOfLines={1}
-        >
-          {communityName}
-        </Text>
-        <NavbarRightSide>
-          <ComentSortSelect />
-        </NavbarRightSide>
-      </HeaderGutters>
-    </View>
+    <HeaderGutters>
+      <BackButton
+        onPress={
+          "back" in props && props.back
+            ? () => props.navigation.pop(1)
+            : undefined
+        }
+      />
+      <Text
+        fontWeight="bold"
+        fontSize="$5"
+        overflow="hidden"
+        pos="relative"
+        numberOfLines={1}
+      >
+        {communityName}
+      </Text>
+      <NavbarRightSide>
+        <ComentSortSelect />
+      </NavbarRightSide>
+    </HeaderGutters>
   );
 }
 
@@ -500,88 +531,71 @@ export function ModalHeader(props: NativeStackHeaderProps) {
 }
 
 export function StackHeader(props: NativeStackHeaderProps) {
-  const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - BBW}>
-        <>
-          {"back" in props && props.back && (
-            <Button
-              unstyled
-              p={2}
-              bg="transparent"
-              borderRadius="$12"
-              dsp="flex"
-              fd="row"
-              ai="center"
-              bw={0}
-              onPress={() => props.navigation.pop(1)}
-              h="auto"
-            >
-              <ChevronLeft color="$accentColor" size="$2" />
-            </Button>
-          )}
-
-          <Text
-            fontWeight="bold"
-            fontSize="$5"
-            overflow="hidden"
-            pos="relative"
+    <HeaderGutters>
+      <>
+        {"back" in props && props.back && (
+          <Button
+            unstyled
+            p={2}
+            bg="transparent"
+            borderRadius="$12"
+            dsp="flex"
+            fd="row"
+            ai="center"
+            bw={0}
+            onPress={() => props.navigation.pop(1)}
+            h="auto"
           >
-            {props.options.title ?? props.route.name}
-          </Text>
-        </>
+            <ChevronLeft color="$accentColor" size="$2" />
+          </Button>
+        )}
 
-        <></>
+        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+          {props.options.title ?? props.route.name}
+        </Text>
+      </>
 
-        <NavbarRightSide />
-      </HeaderGutters>
-    </View>
+      <></>
+
+      <NavbarRightSide />
+    </HeaderGutters>
   );
 }
 
 export function BottomTabBarHeader(props: BottomTabHeaderProps) {
-  const { height, insetTop } = useCustomHeaderHeight();
   return (
-    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - BBW}>
-        <>
-          {props.navigation.canGoBack() && (
-            <Button
-              unstyled
-              p={2}
-              bg="transparent"
-              borderRadius="$12"
-              dsp="flex"
-              fd="row"
-              ai="center"
-              bw={0}
-              onPress={() => props.navigation.goBack()}
-              h="auto"
-            >
-              <ChevronLeft color="$accentColor" size="$2" />
-            </Button>
-          )}
-
-          <Text
-            fontWeight="bold"
-            fontSize="$5"
-            overflow="hidden"
-            pos="relative"
+    <HeaderGutters>
+      <>
+        {props.navigation.canGoBack() && (
+          <Button
+            unstyled
+            p={2}
+            bg="transparent"
+            borderRadius="$12"
+            dsp="flex"
+            fd="row"
+            ai="center"
+            bw={0}
+            onPress={() => props.navigation.goBack()}
+            h="auto"
           >
-            {props.options.title ?? props.route.name}
-          </Text>
-        </>
-        <></>
-        <NavbarRightSide />
-      </HeaderGutters>
-    </View>
+            <ChevronLeft color="$accentColor" size="$2" />
+          </Button>
+        )}
+
+        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+          {props.options.title ?? props.route.name}
+        </Text>
+      </>
+      <></>
+      <NavbarRightSide />
+    </HeaderGutters>
   );
 }
 
 export function CreatePostHeaderStepOne(props: BottomTabHeaderProps) {
   const router = useRouter();
-  const { height, insetTop } = useCustomHeaderHeight();
 
   const selectedCommunity = useCreatePostStore((s) => s.community);
   const isPostReady = useCreatePostStore(
@@ -590,96 +604,103 @@ export function CreatePostHeaderStepOne(props: BottomTabHeaderProps) {
   const reset = useCreatePostStore((s) => s.reset);
 
   return (
-    <View bbc={BBC} bbw={BBW} w="100%">
-      <HeaderGutters pt={insetTop} h={height - BBW}>
-        <>
-          {props.navigation.canGoBack() && (
-            <Button
-              unstyled
-              p={2}
-              bg="transparent"
-              borderRadius="$12"
-              dsp="flex"
-              fd="row"
-              ai="center"
-              bw={0}
-              onPress={() => props.navigation.goBack()}
-              h="auto"
-            >
-              <X color="$accentColor" size="$2" />
-            </Button>
-          )}
-        </>
-        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-          {props.options.title ?? props.route.name}
-        </Text>
-        {selectedCommunity ? (
+    <HeaderGutters>
+      <>
+        {props.navigation.canGoBack() && (
           <Button
-            bg={isPostReady ? "$accentColor" : "$color3"}
-            br="$12"
-            size="$3"
-            onPress={() => {
-              reset();
-              router.replace("/");
-            }}
-            disabled={!isPostReady}
+            unstyled
+            p={2}
+            bg="transparent"
+            borderRadius="$12"
+            dsp="flex"
+            fd="row"
+            ai="center"
+            bw={0}
+            onPress={() => props.navigation.goBack()}
+            h="auto"
           >
-            Post
+            <X color="$accentColor" size="$2" />
           </Button>
-        ) : (
-          // Web seems to erase stack history on page reload,
-          // so replace works better on web, but on native
-          // it negativly impacts the modal animation
-          // so we replace on web and push on native
-          <Link href="/create/choose-community" asChild replace={isWeb}>
-            <Button bg="$accentColor" br="$12" size="$3">
-              Next
-            </Button>
-          </Link>
         )}
-      </HeaderGutters>
-    </View>
+      </>
+      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+        {props.options.title ?? props.route.name}
+      </Text>
+      {selectedCommunity ? (
+        <Button
+          bg={isPostReady ? "$accentColor" : "$color3"}
+          br="$12"
+          size="$3"
+          onPress={() => {
+            reset();
+            router.replace("/");
+          }}
+          disabled={!isPostReady}
+        >
+          Post
+        </Button>
+      ) : (
+        // Web seems to erase stack history on page reload,
+        // so replace works better on web, but on native
+        // it negativly impacts the modal animation
+        // so we replace on web and push on native
+        <Link href="/create/choose-community" asChild replace={isWeb}>
+          <Button bg="$accentColor" br="$12" size="$3">
+            Next
+          </Button>
+        </Link>
+      )}
+    </HeaderGutters>
   );
 }
 
 export function CreatePostHeaderStepTwo(props: BottomTabHeaderProps) {
-  const { height, insetTop } = useCustomHeaderHeight();
   const router = useRouter();
   return (
-    <View bbc={BBC} bbw={BBW} w="100%" bg="$background">
-      <HeaderGutters pt={insetTop} h={height - BBW}>
-        <>
-          {props.navigation.canGoBack() && (
-            <Button
-              unstyled
-              p={2}
-              bg="transparent"
-              borderRadius="$12"
-              dsp="flex"
-              fd="row"
-              ai="center"
-              bw={0}
-              onPress={() => {
-                // Web seems to erase stack history on page reload,
-                // so replace works better on web, but on native
-                // it negativly impacts the modal animation
-                // so we replace on web and pop on native
-                if (isWeb) {
-                  router.replace("/create");
-                } else {
-                  props.navigation.goBack();
-                }
-              }}
-              h="auto"
-            >
-              <X color="$accentColor" size="$2" />
-            </Button>
-          )}
-        </>
-        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-          {props.options.title ?? props.route.name}
-        </Text>
-      </HeaderGutters>
-    </View>
+    <HeaderGutters>
+      <>
+        {props.navigation.canGoBack() && (
+          <Button
+            unstyled
+            p={2}
+            bg="transparent"
+            borderRadius="$12"
+            dsp="flex"
+            fd="row"
+            ai="center"
+            bw={0}
+            onPress={() => {
+              // Web seems to erase stack history on page reload,
+              // so replace works better on web, but on native
+              // it negativly impacts the modal animation
+              // so we replace on web and pop on native
+              if (isWeb) {
+                router.replace("/create");
+              } else {
+                props.navigation.goBack();
+              }
+            }}
+            h="auto"
+          >
+            <X color="$accentColor" size="$2" />
+          </Button>
+        )}
+      </>
+      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+        {props.options.title ?? props.route.name}
+      </Text>
+    </HeaderGutters>
+  );
+}
+
+export function SettingsHeader(props: BottomTabHeaderProps) {
+  return (
+    <HeaderGutters>
+      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+        Settings
+      </Text>
+      <></>
+      <NavbarRightSide />
+    </HeaderGutters>
   );
 }

@@ -24,7 +24,7 @@ export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
         {url && (
           <Text p="$3" bg="$color5" color="$color11" numberOfLines={1}>
             {url.host}
-            {url.pathname}
+            {url.pathname.replace(/\/$/, "")}
           </Text>
         )}
       </View>
