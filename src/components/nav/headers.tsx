@@ -34,6 +34,8 @@ import { useLogout } from "~/src/lib/lemmy";
 import { useCreatePostStore } from "~/src/stores/create-post";
 import { Button } from "../ui/button";
 import * as React from "react";
+import { scale } from "~/config/tamagui/scale";
+import { isCatalyst } from "~/src/lib/is-catalyst";
 
 function HeaderGutters({ children, ...props }: XStackProps) {
   const { height, insetTop } = useCustomHeaderHeight();
@@ -42,7 +44,7 @@ function HeaderGutters({ children, ...props }: XStackProps) {
 
   return (
     <YStack
-      pt={insetTop}
+      pt={isCatalyst ? 0 : insetTop}
       h={height - 0.5}
       bbw={0.5}
       $gtMd={{ h: height - 1, bbw: 1 }}
@@ -51,7 +53,7 @@ function HeaderGutters({ children, ...props }: XStackProps) {
     >
       <XStack
         flex={1}
-        maxWidth={1000}
+        maxWidth={1000 * scale}
         w="100%"
         mx="auto"
         gap="$3"
@@ -86,19 +88,6 @@ function HeaderGutters({ children, ...props }: XStackProps) {
 const BBW = 0.5;
 const BBC = "$color3";
 
-function BorderBottom() {
-  return (
-    <View
-      h={0.5}
-      bg="$color3"
-      $gtMd={{
-        h: 1,
-        bg: "$color4",
-      }}
-    />
-  );
-}
-
 function UserAvatar() {
   const linkCtx = useLinkContext();
   const logout = useLogout();
@@ -119,7 +108,7 @@ function UserAvatar() {
     <Dropdown
       placement="bottom-end"
       trigger={
-        <Avatar size={30}>
+        <Avatar size="$2.5">
           <Avatar.Image src={user.avatar} borderRadius="$12" />
           <Avatar.Fallback
             backgroundColor="$color8"
@@ -127,7 +116,7 @@ function UserAvatar() {
             ai="center"
             jc="center"
           >
-            <Text fontSize="$1">
+            <Text fontSize="$3">
               {user.name?.substring(0, 1).toUpperCase()}
             </Text>
           </Avatar.Fallback>
@@ -267,13 +256,7 @@ export function HomeHeader(
       ]}
     >
       <Animated.View style={styles.content}>
-        <HeaderGutters
-          ai="center"
-          pt={insetTop}
-          h={height - BBW}
-          px="$3"
-          jc="space-between"
-        >
+        <HeaderGutters>
           <HomeFilter />
           <SearchBar />
           <NavbarRightSide>

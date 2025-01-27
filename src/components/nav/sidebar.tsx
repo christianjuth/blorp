@@ -18,6 +18,7 @@ import {
 } from "@react-navigation/native";
 import { getLabel, MissingIcon } from "@react-navigation/elements";
 import _ from "lodash";
+import { scale } from "~/config/tamagui/scale";
 
 const BC = "$color4";
 
@@ -29,7 +30,7 @@ function SmallComunityCard({
   const slug = createCommunitySlug(community);
   return (
     <Link href={`/c/${slug}`} key={community.id} asChild replace>
-      <XStack ai="center" gap="$2.5" tag="a" py="$1.5" px="$3">
+      <XStack ai="center" gap="$2.5" tag="a" py={3} px="$3">
         <Avatar size="$2.5" borderRadius="$12">
           <Avatar.Image src={community.icon} />
           <Avatar.Fallback
@@ -38,7 +39,7 @@ function SmallComunityCard({
             ai="center"
             jc="center"
           >
-            <Text fontSize="$4">{community.title.substring(0, 1)}</Text>
+            <Text fontSize="$3">{community.title.substring(0, 1)}</Text>
           </Avatar.Fallback>
         </Avatar>
         <Text fontSize="$3">c/{community.name}</Text>
@@ -71,14 +72,14 @@ export function Sidebar(props: BottomTabBarProps | {}) {
           {themeName === "dark" && (
             <Image
               source={LogoDark}
-              style={{ height: 38, width: 90 }}
+              style={{ height: 38 * scale, width: 90 * scale }}
               contentFit="contain"
             />
           )}
           {themeName === "light" && (
             <Image
               source={LogoLight}
-              style={{ height: 38, width: 90 }}
+              style={{ height: 38 * scale, width: 90 * scale }}
               contentFit="contain"
             />
           )}
@@ -193,7 +194,9 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                         </YStack>
                       )}
                     </View>
-                    <Text color="$color11">{label}</Text>
+                    <Text color="$color11" fontSize="$4">
+                      {label}
+                    </Text>
                   </XStack>
                 </NavigationRouteContext.Provider>
               </NavigationContext.Provider>

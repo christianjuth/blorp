@@ -1,24 +1,25 @@
 import type { FillInFont, GenericFont } from "@tamagui/core";
 import { createFont, isWeb } from "tamagui";
+import { scale } from "./scale";
 
 const defaultSizes = {
-  1: 11,
-  2: 12,
-  3: 13,
-  4: 14,
-  true: 14,
-  5: 16,
-  6: 18,
-  7: 20,
-  8: 23,
-  9: 30,
-  10: 46,
-  11: 55,
-  12: 62,
-  13: 72,
-  14: 92,
-  15: 114,
-  16: 134,
+  1: 11 * scale,
+  2: 12 * scale,
+  3: 13 * scale,
+  4: 14 * scale,
+  true: 14 * scale,
+  5: 16 * scale,
+  6: 18 * scale,
+  7: 20 * scale,
+  8: 23 * scale,
+  9: 30 * scale,
+  10: 46 * scale,
+  11: 55 * scale,
+  12: 62 * scale,
+  13: 72 * scale,
+  14: 92 * scale,
+  15: 114 * scale,
+  16: 134 * scale,
 } as const;
 
 const body = createMainFont(

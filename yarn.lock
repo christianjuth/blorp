@@ -4448,12 +4448,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tamagui/babel-plugin-fully-specified@npm:1.123.0":
-  version: 1.123.0
-  resolution: "@tamagui/babel-plugin-fully-specified@npm:1.123.0"
+"@tamagui/babel-plugin-fully-specified@npm:1.123.3":
+  version: 1.123.3
+  resolution: "@tamagui/babel-plugin-fully-specified@npm:1.123.3"
   dependencies:
     "@babel/core": "npm:^7.25.2"
-  checksum: 10c0/c2ec37da56c06a2abfbae8797c726913a8cd16d70569c13679bf5fc5702dac7b425524002fe7c3e866889b20bc498e16761d6f744fbe74c496f36b39b89e5714
+  checksum: 10c0/06adc67730f18b5b671977302c302ad28db617c2422d6afbe8637e6b753a8f6efd64d9ca8e1465beb36a627492877fc0fad8cc228034a612132899e01377bbc5
   languageName: node
   linkType: hard
 
@@ -4483,12 +4483,12 @@ __metadata:
   linkType: hard
 
 "@tamagui/build@npm:^1.122.7":
-  version: 1.123.0
-  resolution: "@tamagui/build@npm:1.123.0"
+  version: 1.123.3
+  resolution: "@tamagui/build@npm:1.123.3"
   dependencies:
     "@babel/core": "npm:^7.25.2"
     "@swc/core": "npm:^1.7.21"
-    "@tamagui/babel-plugin-fully-specified": "npm:1.123.0"
+    "@tamagui/babel-plugin-fully-specified": "npm:1.123.3"
     "@types/fs-extra": "npm:^9.0.13"
     chokidar: "npm:^3.5.2"
     esbuild: "npm:^0.24.2"
@@ -4503,7 +4503,7 @@ __metadata:
   bin:
     tamagui-build: tamagui-build.js
     teesx: teesx.sh
-  checksum: 10c0/f99d2f8c4cbba3f9b43b12dd4bc466ec0ea6d259e41d2b2f610d50feef05753cc97d96b2f0fc13c16307b1be66c5aa25c02ec7a8cafc581c9a6e70b47a8e1875
+  checksum: 10c0/82bd1ba0540d729290331b469ac405d5f3c2c5af37c4c8cf81a4e98b98fa7660022400114861e3886835276ea526457a622e0cdc588711df9ac8a99510cb3f28
   languageName: node
   linkType: hard
 
@@ -5164,9 +5164,9 @@ __metadata:
   linkType: hard
 
 "@tamagui/react-native-svg@npm:^1.122.7":
-  version: 1.123.0
-  resolution: "@tamagui/react-native-svg@npm:1.123.0"
-  checksum: 10c0/e03d57ed05b50d0b7c40abdd3a0c4908dc9d5023f2b45d29ba94e7576d84b84f5c275d1c11263777554f967fa44d5cd2c2d6999347a2d8931c75381f358b8e01
+  version: 1.123.3
+  resolution: "@tamagui/react-native-svg@npm:1.123.3"
+  checksum: 10c0/25b91f4e1baae89a718a26c1901646a40fd73e1609b675313ddb0dd3814c8691da32e3b6ff8d24ed4435f498ceb81a5c171cf57fdf54530d555b6cd572ad20a0
   languageName: node
   linkType: hard
 
@@ -5651,12 +5651,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tamagui/use-did-finish-ssr@npm:^1.122.7":
-  version: 1.123.0
-  resolution: "@tamagui/use-did-finish-ssr@npm:1.123.0"
+"@tamagui/use-did-finish-ssr@npm:^1.123.1":
+  version: 1.123.3
+  resolution: "@tamagui/use-did-finish-ssr@npm:1.123.3"
   peerDependencies:
     react: "*"
-  checksum: 10c0/e82832315ec12c5e947f1266b01d7265c1bbcf4af3377116d8723e099cbd11726e201f43ed57ad5eb75acee1c17e481eaa78db892e498e136f1546444f10baf2
+  checksum: 10c0/c94611e47cbe27ba2a26f2bda364a501214945442e4d24fe28b697fdc6ae2c262d3ef76ea7c38b6773539433f79c83727ec33d96e680b74c087592186c778e2e
   languageName: node
   linkType: hard
 
@@ -6248,17 +6248,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vxrn/color-scheme@npm:1.1.405":
-  version: 1.1.405
-  resolution: "@vxrn/color-scheme@npm:1.1.405"
+"@vxrn/color-scheme@npm:^1.1.405":
+  version: 1.1.412
+  resolution: "@vxrn/color-scheme@npm:1.1.412"
   dependencies:
-    "@tamagui/use-did-finish-ssr": "npm:^1.122.7"
-    "@vxrn/universal-color-scheme": "npm:1.1.405"
-    "@vxrn/use-isomorphic-layout-effect": "npm:1.1.405"
+    "@tamagui/use-did-finish-ssr": "npm:^1.123.1"
+    "@vxrn/universal-color-scheme": "npm:1.1.412"
+    "@vxrn/use-isomorphic-layout-effect": "npm:1.1.412"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/cd81cf15763590ab64a53a568fafb7da4dc558d80c5e03b729888d4f462a840e643a6666c6f923b70f8bbee03fe01bb92192a1d5a7f100077b820b4cc5e4b959
+  checksum: 10c0/1609b641b51ed0601b157d1735a77600249571a33b9a02f34c44b3aefd6e2aa318531e1384dde51404f58ace5dc3849deb3694e37ffed63755d78b13181a07a4
   languageName: node
   linkType: hard
 
@@ -6353,6 +6353,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vxrn/universal-color-scheme@npm:1.1.412":
+  version: 1.1.412
+  resolution: "@vxrn/universal-color-scheme@npm:1.1.412"
+  dependencies:
+    "@vxrn/use-isomorphic-layout-effect": "npm:1.1.412"
+    react: "npm:^18.3.1 || ^19.0.0"
+  peerDependencies:
+    react-native: "*"
+  checksum: 10c0/30efad01745edec7f3e69b9545cf3dabf7c9c4a59500b5cf8516d5907a770be4a6e18ec2266bbcd195bc0e533f3d285417888e0a0e948731da32ef30e46b470f
+  languageName: node
+  linkType: hard
+
 "@vxrn/url-parse@npm:1.1.405":
   version: 1.1.405
   resolution: "@vxrn/url-parse@npm:1.1.405"
@@ -6368,6 +6380,15 @@ __metadata:
   dependencies:
     react: "npm:^18.3.1 || ^19.0.0"
   checksum: 10c0/c34f13530d7762b42862f9caffa76d24fa16f01b8a07b8c7019a6be663ebcfa86c938a2348a46554d89a95690b7bece996e3924104359b50e480800c2e52c409
+  languageName: node
+  linkType: hard
+
+"@vxrn/use-isomorphic-layout-effect@npm:1.1.412":
+  version: 1.1.412
+  resolution: "@vxrn/use-isomorphic-layout-effect@npm:1.1.412"
+  dependencies:
+    react: "npm:^18.3.1 || ^19.0.0"
+  checksum: 10c0/06db0f0db96e924ed83a0ab7654550c582e7713a1f7ef5f18923fbb5098e5a428ac04d82c09885dee235fca688c9b2862dd54cda6b4b151024a3417fcee1ebf6
   languageName: node
   linkType: hard
 
@@ -10933,7 +10954,7 @@ __metadata:
     "@types/react-native-safari-view": "npm:^2"
     "@vitest/coverage-v8": "npm:2.1.8"
     "@vitest/ui": "npm:2.1.8"
-    "@vxrn/color-scheme": "npm:1.1.405"
+    "@vxrn/color-scheme": "npm:^1.1.405"
     autosize: "npm:^6.0.1"
     cheerio: "npm:^0.22.0"
     dayjs: "npm:^1.11.13"
@@ -10957,6 +10978,7 @@ __metadata:
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
     react-native: "npm:0.76.5"
+    react-native-device-info: "npm:^14.0.2"
     react-native-markdown-display: "npm:^7.0.2"
     react-native-reanimated: "npm:~3.16.6"
     react-native-safari-view: "npm:^2.1.0"
@@ -13603,6 +13625,15 @@ __metadata:
     react-native-svg:
       optional: true
   checksum: 10c0/d6052499b8615b58e02ee43b7d2906fd2b5ef90410c26af94dd11d6d93ed116ab0c96f7228573734030f1d41b4e8e2878a63b2223eb86c797730df207ed0c2f0
+  languageName: node
+  linkType: hard
+
+"react-native-device-info@npm:^14.0.2":
+  version: 14.0.2
+  resolution: "react-native-device-info@npm:14.0.2"
+  peerDependencies:
+    react-native: "*"
+  checksum: 10c0/ac1704cfccd563714ebe7f3abf076af2d26caca6a5bd4789edb1ea67b1d7ce2036924663a7a185d4f99b1730de96b7e69e36b363828b19159081109a8dc588c8
   languageName: node
   linkType: hard
 

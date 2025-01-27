@@ -7,6 +7,7 @@ import { interpolate, useAnimatedStyle } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
 import { Sidebar } from "./sidebar";
 import { SafeAreaView, useFocusEffect, useNavigation, usePathname } from "one";
+import { scale } from "~/config/tamagui/scale";
 
 export const useCustomTabBarHeight = () => {
   const insets = useSafeAreaInsets();
@@ -84,9 +85,9 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
   if (isLgScreen) {
     return (
       <ScrollView
-        maxWidth={230}
+        maxWidth={230 * scale}
         $gtLg={{
-          maxWidth: 270,
+          maxWidth: 270 * scale,
         }}
         brw={1}
         bc="$color4"

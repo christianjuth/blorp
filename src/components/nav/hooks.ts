@@ -1,6 +1,7 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform } from "react-native";
 import { useMedia } from "tamagui";
+import { scale } from "~/config/tamagui/scale";
 
 export const useCustomHeaderHeight = () => {
   const insets = useSafeAreaInsets();
@@ -25,7 +26,7 @@ export const useCustomHeaderHeight = () => {
   const insetTop = Math.max(insets.top - insetOffset, 0);
 
   return {
-    height,
+    height: height * scale,
     insetTop,
   };
 };

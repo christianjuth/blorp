@@ -1,11 +1,12 @@
 import * as React from "react";
 import { View, XStack, XStackProps } from "tamagui";
+import { scale } from "~/config/tamagui/scale";
 
 export function ContentGutters({ children, ...props }: XStackProps) {
   const [first, second] = React.Children.toArray(children);
   return (
     <XStack
-      maxWidth={1000}
+      maxWidth={1000 * scale}
       w="100%"
       mx="auto"
       gap="$4"
@@ -16,7 +17,11 @@ export function ContentGutters({ children, ...props }: XStackProps) {
       {second ? (
         <>
           {first}
-          <View w={230} $gtLg={{ w: 270 }} $md={{ dsp: "none" }}>
+          <View
+            w={230 * scale}
+            $gtLg={{ w: 270 * scale }}
+            $md={{ dsp: "none" }}
+          >
             {second}
           </View>
         </>
