@@ -11,17 +11,12 @@ import { useRef } from "react";
 import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
-import { useFiltersStore } from "../stores/filters";
 import { usePosts } from "../lib/lemmy";
 
 const EMPTY_ARR = [];
 
 export function CommunityFeed({ communityName }: { communityName?: string }) {
-  const postSort = useFiltersStore((s) => s.postSort);
-
   const posts = usePosts({
-    limit: 50,
-    sort: postSort,
     community_name: communityName,
   });
 
@@ -53,7 +48,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
           ...data,
         ] as const
       }
-      renderItem={({ item }) => {
+      renderItem={({ item, index }) => {
         if (item === "sidebar-desktop") {
           return (
             <ContentGutters>

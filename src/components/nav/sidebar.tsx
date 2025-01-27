@@ -141,12 +141,12 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                 <NavigationRouteContext.Provider value={route}>
                   <XStack
                     ai="center"
-                    gap="$2.5"
+                    gap="$2"
                     onPress={onPress}
                     onLongPress={onLongPress}
                     tag="button"
                     bg={focused ? "$color4" : undefined}
-                    py="$2"
+                    py={8}
                     px="$3"
                     br="$5"
                     hoverStyle={

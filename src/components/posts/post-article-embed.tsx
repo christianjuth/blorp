@@ -19,6 +19,7 @@ export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
             aspectRatio={16 / 9}
             objectFit="cover"
             disableShare
+            borderTopRadius={10}
           />
         )}
         {url && (

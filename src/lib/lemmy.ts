@@ -405,7 +405,11 @@ export function usePostComments(form: GetComments) {
 
 const warmedFeeds = new Map<string, boolean>();
 
-export function usePosts(form: GetPosts) {
+interface UsePostsConfig extends GetPosts {
+  enabled?: boolean;
+}
+
+export function usePosts({ enabled, ...form }: UsePostsConfig) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
 
@@ -413,6 +417,11 @@ export function usePosts(form: GetPosts) {
   const sort = form.sort ?? postSort;
 
   const queryKey = [...queryKeyPrefix, "getPosts", sort];
+
+  form = {
+    limit: 25,
+    ...form,
+  };
 
   if (form.community_name) {
     queryKey.push("community", form.community_name);
@@ -422,48 +431,54 @@ export function usePosts(form: GetPosts) {
     queryKey.push("type", form.type_);
   }
 
+  if (form.limit) {
+    queryKey.push("limit", String(form.limit));
+  }
+
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const patchPost = usePostsStore((s) => s.patchPost);
 
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
+  const queryFn = async ({ pageParam }: { pageParam: string }) => {
+    const res = await client.getPosts({
+      ...form,
+      show_read: true,
+      page_cursor: pageParam === "init" ? undefined : pageParam,
+    });
+
+    const posts = res.posts.map((post_view) => flattenPost({ post_view }));
+    const cachedPosts = cachePosts(posts);
+
+    let i = 0;
+    for (const { post } of res.posts) {
+      const thumbnail = post.thumbnail_url;
+      if (thumbnail) {
+        setTimeout(() => {
+          if (!cachedPosts[post.ap_id]?.data.imageDetails) {
+            measureImage(thumbnail).then((data) => {
+              patchPost(post.ap_id, {
+                imageDetails: data,
+              });
+            });
+          }
+          ExpoImage.prefetch([thumbnail], {
+            cachePolicy: cacheImages ? "disk" : "memory",
+          });
+        }, i);
+        i += 50;
+      }
+    }
+
+    return {
+      posts: posts.map((p) => p.post.ap_id),
+      next_page: res.next_page,
+    };
+  };
+
   const query = useThrottledInfiniteQuery({
     queryKey,
-    queryFn: async ({ pageParam }) => {
-      const res = await client.getPosts({
-        ...form,
-        show_read: true,
-        page_cursor: pageParam === "init" ? undefined : pageParam,
-      });
-
-      const posts = res.posts.map((post_view) => flattenPost({ post_view }));
-      const cachedPosts = cachePosts(posts);
-
-      let i = 0;
-      for (const { post } of res.posts) {
-        const thumbnail = post.thumbnail_url;
-        if (thumbnail) {
-          setTimeout(() => {
-            if (!cachedPosts[post.ap_id]?.data.imageDetails) {
-              measureImage(thumbnail).then((data) => {
-                patchPost(post.ap_id, {
-                  imageDetails: data,
-                });
-              });
-            }
-            ExpoImage.prefetch([thumbnail], {
-              cachePolicy: cacheImages ? "disk" : "memory",
-            });
-          }, i);
-          i += 50;
-        }
-      }
-
-      return {
-        posts: posts.map((p) => p.post.ap_id),
-        next_page: res.next_page,
-      };
-    },
+    queryFn,
     getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: "init",
     notifyOnChangeProps: "all",
@@ -472,19 +487,32 @@ export function usePosts(form: GetPosts) {
     // refetchOnMount: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
-    enabled: form.type_ === "Subscribed" ? isLoggedIn : true,
+    enabled: enabled && (form.type_ === "Subscribed" ? isLoggedIn : true),
   });
 
   const queryKeyStr = queryKey.join("-");
   useEffect(() => {
     const isWarmed = warmedFeeds.get(queryKeyStr) ?? false;
-    if (!isWarmed) {
+    if (!isWarmed && enabled) {
       warmedFeeds.set(queryKeyStr, true);
       query.refetch();
     }
-  }, [queryKeyStr, query.refetch]);
+  }, [queryKeyStr, query.refetch, enabled]);
 
-  return query;
+  const queryClient = useQueryClient();
+  const prefetch = () =>
+    queryClient.prefetchInfiniteQuery({
+      queryKey,
+      queryFn,
+      initialPageParam: "init",
+      getNextPageParam: (lastPage) => lastPage.next_page,
+      pages: 1,
+    });
+
+  return {
+    ...query,
+    prefetch,
+  };
 }
 
 function useThrottledInfiniteQuery<
@@ -559,6 +587,8 @@ export function useListCommunities(form: ListCommunities) {
     queryKey.push("type", form.type_);
   }
 
+  const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
+
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam }) => {
@@ -567,6 +597,11 @@ export function useListCommunities(form: ListCommunities) {
         ...form,
         page: pageParam,
       });
+      for (const communityView of communities) {
+        cacheCommunity({
+          communityView,
+        });
+      }
       return {
         communities,
         nextPage: communities.length < limit ? null : pageParam + 1,

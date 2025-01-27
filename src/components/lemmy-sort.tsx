@@ -228,7 +228,7 @@ export function PostSortBar() {
         onValueChange={setPostSort}
         trigger={
           <XStack gap="$1" ai="center" bg="$color4" py="$2" px="$3" br="$12">
-            <Text fontWeight={500} color="$color11">
+            <Text fontWeight={500} color="$color11" fontSize="$3">
               {postSort}
             </Text>
             <ChevronDown size={15} color="$color11" />

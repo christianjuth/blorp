@@ -122,7 +122,7 @@ export function Image({
         borderTopRightRadius: borderTopRadius ?? borderRadius,
         borderTopLeftRadius: borderTopRadius ?? borderRadius,
       }}
-      // contentFit={objectFit}
+      contentFit={objectFit}
       cachePolicy={cacheImages ? "disk" : "memory"}
       onLoad={({ source }) => {
         setDimensions({

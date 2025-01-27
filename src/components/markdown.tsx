@@ -1,5 +1,12 @@
-import { Button, GetThemeValueForKey, Text, View, YStack } from "tamagui";
-import React, { useState, createContext, useContext } from "react";
+import {
+  Button,
+  GetThemeValueForKey,
+  Text,
+  useTheme,
+  View,
+  YStack,
+} from "tamagui";
+import React, { useState, createContext, useContext, Fragment } from "react";
 import _ from "lodash";
 import { Image, shareImage } from "./image";
 import Md, {
@@ -10,6 +17,9 @@ import Md, {
 } from "react-native-markdown-display";
 import { Link } from "one";
 import type { RuleBlock } from "markdown-it/lib/parser_block.mjs";
+import MarkedList from "@jsamr/react-native-li";
+import decimal from "@jsamr/counter-style/presets/decimal";
+import { scale } from "~/config/tamagui/scale";
 
 const Context = createContext<{
   color: GetThemeValueForKey<"color">;
@@ -234,15 +244,41 @@ const renderRules: RenderRules = {
   },
 
   // // Lists
-  // bullet_list: (node, children, parent, styles) => (
-  //   <Ul key={node.key}>{children}</Ul>
-  // ),
-  // ordered_list: (node, children, parent, styles) => (
-  //   <Ol key={node.key}>{children}</Ol>
-  // ),
-  // list_item: (node, children, parent, styles, inheritedStyles = {}) => {
-  //   return <Li key={node.key}>{children}</Li>;
-  // },
+  bullet_list: function Ul(node, children, parent, styles) {
+    const theme = useTheme();
+    return (
+      <MarkedList
+        key={node.key}
+        counterRenderer={decimal}
+        markerTextStyle={{
+          color: theme.color11.val,
+          lineHeight: 19 * scale,
+          fontSize: 16 * scale,
+        }}
+      >
+        {children}
+      </MarkedList>
+    );
+  },
+  ordered_list: function Ol(node, children, parent, styles) {
+    const theme = useTheme();
+    return (
+      <MarkedList
+        key={node.key}
+        counterRenderer={decimal}
+        markerTextStyle={{
+          color: theme.color11.val,
+          lineHeight: 19 * scale,
+          fontSize: 16 * scale,
+        }}
+      >
+        {children}
+      </MarkedList>
+    );
+  },
+  list_item: (node, children, parent, styles, inheritedStyles = {}) => {
+    return <Fragment key={node.key}>{children}</Fragment>;
+  },
 
   // // Code
   code_inline: (node, children, parent, styles, inheritedStyles = {}) => (
@@ -375,13 +411,16 @@ const renderRules: RenderRules = {
 
   // // Text Output
   text: (node, children, parent, styles, inheritedStyles = {}) => {
-    const fontSize = inheritedStyles.fontSize;
+    const fontSize = (inheritedStyles.fontSize ?? 16) * scale;
     return (
       <Text
         key={node.key}
-        lineHeight={_.isNumber(fontSize) ? fontSize * 1.2 : 21}
+        lineHeight={fontSize * 1.3}
         // color="$color11"
-        style={inheritedStyles}
+        style={{
+          ...inheritedStyles,
+          fontSize,
+        }}
       >
         {node.content}
       </Text>

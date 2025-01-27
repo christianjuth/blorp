@@ -10,6 +10,8 @@ import { useWindowDimensions } from "react-native";
 import { CommunityJoinButton } from "./community-join-button";
 import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
+import { useCommunitiesStore } from "~/src/stores/communities";
+import { ContentGutters } from "../gutters";
 
 dayjs.extend(localizedFormat);
 
@@ -18,92 +20,107 @@ export const COMMUNITY_SIDEBAR_WIDTH = 300;
 export function Sidebar({
   communityName,
   hideDescription = false,
+  asPage,
 }: {
   communityName: string;
   hideDescription?: boolean;
+  asPage?: boolean;
 }) {
   const header = useCustomHeaderHeight();
   const dimensions = useWindowDimensions();
 
-  const { data } = useCommunity({
+  useCommunity({
     name: communityName,
   });
+  const data = useCommunitiesStore((s) => s.communities[communityName]?.data);
 
   if (!data) {
     return null;
   }
 
-  const communityView = data.community_view;
+  const communityView = data.communityView;
   const community = communityView.community;
   const counts = communityView.counts;
 
+  const content = (
+    <>
+      <YStack $gtMd={{ py: "$3" }} gap="$3">
+        <XStack ai="flex-start" jc="space-between">
+          <YStack gap="$3">
+            <Text fontSize="$5" fontWeight="bold">
+              {community.title}
+            </Text>
+
+            <XStack ai="center" gap="$1.5">
+              <CakeSlice size="$1" color="$color11" />
+              <Text fontSize="$3" color="$color11">
+                Created {dayjs(community.published).format("ll")}
+              </Text>
+            </XStack>
+          </YStack>
+
+          <CommunityJoinButton
+            communityName={communityName}
+            $gtMd={{ dsp: "none" }}
+          />
+        </XStack>
+
+        <XStack>
+          <YStack gap="$1" flex={1}>
+            <Text fontWeight="bold" fontSize="$4">
+              {abbriviateNumber(counts.subscribers)}
+            </Text>
+            <Text fontSize="$3" color="$color11">
+              Members
+            </Text>
+          </YStack>
+
+          <YStack gap="$1" flex={1}>
+            <Text fontWeight="bold" fontSize="$4">
+              {abbriviateNumber(counts.posts)}
+            </Text>
+            <Text fontSize="$3" color="$color11">
+              Posts
+            </Text>
+          </YStack>
+
+          <YStack gap="$1" flex={1}>
+            <Text fontWeight="bold" fontSize="$4">
+              {abbriviateNumber(counts.comments)}
+            </Text>
+            <Text fontSize="$3" color="$color11">
+              Comments
+            </Text>
+          </YStack>
+        </XStack>
+      </YStack>
+      {community.description && !hideDescription && (
+        <View py="$3" btc="$color0" btw={1}>
+          <Markdown markdown={community.description} color="$color11" />
+        </View>
+      )}
+    </>
+  );
+
   return (
     <View
+      position={asPage ? undefined : "absolute"}
       maxHeight={dimensions.height - header.height}
-      position="absolute"
-      l="$0"
-      r="$0"
-      t="$0"
       bg="$background"
-      $md={{
-        p: "$4",
-      }}
+      flex={1}
     >
-      <ScrollView zIndex="$5">
-        <YStack py="$3" gap="$3">
-          <XStack ai="flex-start" jc="space-between">
-            <YStack gap="$3">
-              <Text fontSize="$5" fontWeight="bold">
-                {community.title}
-              </Text>
-
-              <XStack ai="center" gap="$1.5">
-                <CakeSlice size="$1" color="$color11" />
-                <Text fontSize="$3" color="$color11">
-                  Created {dayjs(community.published).format("ll")}
-                </Text>
-              </XStack>
-            </YStack>
-
-            <CommunityJoinButton
-              communityName={communityName}
-              $gtMd={{ dsp: "none" }}
-            />
-          </XStack>
-
-          <XStack>
-            <YStack gap="$1" flex={1}>
-              <Text fontWeight="bold" fontSize="$4">
-                {abbriviateNumber(counts.subscribers)}
-              </Text>
-              <Text fontSize="$3" color="$color11">
-                Members
-              </Text>
-            </YStack>
-
-            <YStack gap="$1" flex={1}>
-              <Text fontWeight="bold" fontSize="$4">
-                {abbriviateNumber(counts.posts)}
-              </Text>
-              <Text fontSize="$3" color="$color11">
-                Posts
-              </Text>
-            </YStack>
-
-            <YStack gap="$1" flex={1}>
-              <Text fontWeight="bold" fontSize="$4">
-                {abbriviateNumber(counts.comments)}
-              </Text>
-              <Text fontSize="$3" color="$color11">
-                Comments
-              </Text>
-            </YStack>
-          </XStack>
-        </YStack>
-        {community.description && !hideDescription && (
-          <View py="$3" btc="$color0" btw={1}>
-            <Markdown markdown={community.description} color="$color11" />
-          </View>
+      <ScrollView
+        zIndex="$5"
+        $md={{
+          p: "$4",
+        }}
+      >
+        {asPage ? (
+          <ContentGutters>
+            <View flex={1}>{content}</View>
+          </ContentGutters>
+        ) : (
+          content
         )}
       </ScrollView>
     </View>
@@ -117,15 +134,16 @@ export function SmallScreenSidebar({
 }) {
   const linkCtx = useLinkContext();
 
-  const { data } = useCommunity({
+  useCommunity({
     name: communityName,
   });
+  const data = useCommunitiesStore((s) => s.communities[communityName]?.data);
 
   if (!data) {
     return null;
   }
 
-  const communityView = data.community_view;
+  const communityView = data.communityView;
   const community = communityView.community;
   const counts = communityView.counts;
 
@@ -185,10 +203,8 @@ export function SmallScreenSidebar({
         </YStack>
       </XStack>
 
-      <Link href={`${linkCtx.root}c/${communityName}/sidebar`} asChild>
-        <Button ai="flex-start" jc="flex-start" p={0} pt="$1" h="auto" tag="a">
-          <Text color="$accentColor">Show more</Text>
-        </Button>
+      <Link href={`${linkCtx.root}c/${communityName}/sidebar`}>
+        <Text color="$accentColor">Show more</Text>
       </Link>
     </YStack>
   );

@@ -26,8 +26,8 @@ export function PostByline({
   // }
 
   return (
-    <XStack dsp="flex" fd="row" ai="center" gap="$2">
-      <Avatar size={25} mr="$2">
+    <XStack dsp="flex" fd="row" ai="center" gap={9}>
+      <Avatar size="$2.5">
         <Avatar.Image src={creator.avatar} borderRadius="$12" />
         <Avatar.Fallback
           backgroundColor="$color8"
@@ -35,13 +35,13 @@ export function PostByline({
           ai="center"
           jc="center"
         >
-          <Text fontSize="$1">
+          <Text fontSize="$4">
             {creator.name?.substring(0, 1).toUpperCase()}
           </Text>
         </Avatar.Fallback>
       </Avatar>
 
-      <YStack gap="$1">
+      <YStack gap={4}>
         <Link href={`${linkCtx.root}c/${community.slug}`} push>
           <Text fontSize="$2" fontWeight={500} color="$color12">
             c/{community.slug}

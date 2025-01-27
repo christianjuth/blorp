@@ -20,6 +20,9 @@ export default {
       },
 
       deps: {
+        "@ronradtke/react-native-markdown-display": {
+          "**/*.js": ["jsx"],
+        },
         "react-native-markdown-display": {
           "**/*.js": ["jsx"],
         },

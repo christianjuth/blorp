@@ -4,20 +4,24 @@ import { useCommunity } from "~/src/lib/lemmy";
 import { View, XStack, YStack, Text } from "tamagui";
 import { CommunityJoinButton } from "./community-join-button";
 import { createCommunitySlug } from "~/src/lib/community";
+import { useCommunitiesStore } from "~/src/stores/communities";
 
 export function CommunityBanner() {
   const { communityName } = useParams<{ communityName: string }>();
 
-  const { data, isLoading } = useCommunity({
+  useCommunity({
     name: communityName,
   });
+  const data = useCommunitiesStore((s) =>
+    communityName ? s.communities[communityName]?.data : null,
+  );
 
-  const slug = data ? createCommunitySlug(data.community_view.community) : null;
+  const slug = data ? createCommunitySlug(data.communityView.community) : null;
 
-  const banner = data?.community_view.community.banner;
-  const icon = data?.community_view.community.icon;
+  const banner = data?.communityView.community.banner;
+  const icon = data?.communityView.community.icon;
 
-  const hideBanner = !isLoading && !banner;
+  const hideBanner = !banner;
 
   return (
     <YStack flex={1}>

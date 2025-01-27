@@ -49,7 +49,7 @@ export default function Layout() {
           name="(home)"
           options={{
             title: "Home",
-            tabBarIcon: ({ color }) => <Home color={color} />,
+            tabBarIcon: ({ color }) => <Home color={color} size="$1.5" />,
             headerShown: false,
           }}
         />
@@ -58,7 +58,7 @@ export default function Layout() {
           name="communities"
           options={{
             title: "Communities",
-            tabBarIcon: ({ color }) => <Users color={color} />,
+            tabBarIcon: ({ color }) => <Users color={color} size="$1.5" />,
             headerShown: false,
           }}
         />
@@ -67,7 +67,7 @@ export default function Layout() {
           name="create"
           options={{
             title: "Post",
-            tabBarIcon: ({ color }) => <Pencil color={color} />,
+            tabBarIcon: ({ color }) => <Pencil color={color} size="$1.5" />,
             headerShown: false,
           }}
         />
@@ -76,7 +76,7 @@ export default function Layout() {
           name="inbox"
           options={{
             title: "Inbox",
-            tabBarIcon: ({ color }) => <Bell color={color} />,
+            tabBarIcon: ({ color }) => <Bell color={color} size="$1.5" />,
             headerShown: false,
             tabBarBadge: notificationCount > 0 ? notificationCount : undefined,
           }}
@@ -86,7 +86,7 @@ export default function Layout() {
           name="settings"
           options={{
             title: "Settings",
-            tabBarIcon: ({ color }) => <Settings color={color} />,
+            tabBarIcon: ({ color }) => <Settings color={color} size="$1.5" />,
             headerShown: false,
           }}
         />
