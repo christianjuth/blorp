@@ -6,6 +6,7 @@ import { View, isWeb, useMedia } from "tamagui";
 import { useFiltersStore } from "~/src/stores/filters";
 import { ContentGutters } from "~/src/components/gutters";
 import { FlashList } from "~/src/components/flashlist";
+import { scale } from "~/config/tamagui/scale";
 
 export default function Communities() {
   const communitySort = useFiltersStore((s) => s.communitySort);
@@ -38,7 +39,7 @@ export default function Communities() {
   }
 
   return (
-    <ContentGutters h="100%">
+    <ContentGutters flex={1}>
       <FlashList
         key={numCols}
         numColumns={numCols}
@@ -47,7 +48,7 @@ export default function Communities() {
         data={communities}
         renderItem={(item) => (
           <View
-            h={54}
+            h={54 * scale}
             overflow="hidden"
             w={isWeb ? `${100 / numCols}%` : "100%"}
           >
@@ -61,7 +62,7 @@ export default function Communities() {
           }
         }}
         onEndReachedThreshold={0.5}
-        estimatedItemSize={54}
+        estimatedItemSize={54 * scale}
         refreshing={isRefetching}
         onRefresh={refetch}
         scrollEventThrottle={100}

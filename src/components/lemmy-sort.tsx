@@ -272,7 +272,7 @@ export function HomeFilter() {
       //   // icon: ArrowUpCircle,
       // },
     ],
-    [instance],
+    [instance, isLoggedIn],
   );
 
   return (
@@ -331,7 +331,7 @@ export function CommunityFilter() {
       //   // icon: ArrowUpCircle,
       // },
     ],
-    [instance],
+    [instance, isLoggedIn],
   );
 
   return (

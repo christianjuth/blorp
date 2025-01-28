@@ -171,10 +171,10 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                             bg: focused ? "$color4" : "$color2",
                           }}
                           pos="absolute"
-                          t={-5}
-                          r={-9}
-                          h={20}
-                          w={20}
+                          t={-5 * scale}
+                          r={-9 * scale}
+                          h={20 * scale}
+                          w={20 * scale}
                           ai="center"
                           jc="center"
                           br={9999}
@@ -182,12 +182,12 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                           <YStack
                             ai="center"
                             jc="center"
-                            h={16}
-                            w={16}
+                            h={16 * scale}
+                            w={16 * scale}
                             bg="red"
                             br={9999}
                           >
-                            <Text color="white" fontSize={11}>
+                            <Text color="white" fontSize={11 * scale}>
                               {options.tabBarBadge}
                             </Text>
                           </YStack>
