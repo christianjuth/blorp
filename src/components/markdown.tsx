@@ -415,8 +415,7 @@ const renderRules: RenderRules = {
     return (
       <Text
         key={node.key}
-        lineHeight={fontSize * 1.3}
-        // color="$color11"
+        lineHeight={fontSize * 1.4}
         style={{
           ...inheritedStyles,
           fontSize,

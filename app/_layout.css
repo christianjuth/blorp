@@ -31,6 +31,12 @@ a, button {
   font-family: "FontAwesome6_Solid";
 }
 
+
+*::selection {
+  color: white !important;
+  background-color: var(--accentColor) !important;
+}
+
 /* RESET */
 button {
   font-size: unset;
