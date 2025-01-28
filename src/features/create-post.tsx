@@ -1,5 +1,5 @@
 import { ContentGutters } from "../components/gutters";
-import { YStack, Input, XStack, Text } from "tamagui";
+import { YStack, Input, XStack, Text, View } from "tamagui";
 import { useRecentCommunities } from "../stores/recent-communities";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -14,7 +14,7 @@ import { useListCommunities, useSearch } from "../lib/lemmy";
 import { Link, useRouter } from "one";
 import _ from "lodash";
 import { Community } from "lemmy-js-client";
-import { ChevronDown, Check } from "@tamagui/lucide-icons";
+import { ChevronDown, Check, X } from "@tamagui/lucide-icons";
 import * as cheerio from "cheerio";
 import { Image } from "../components/image";
 
@@ -54,6 +54,8 @@ export function CreatePostStepOne() {
             const $ = cheerio.load(body);
             const newTitle = $("title").text();
 
+            console.log(newTitle);
+
             if (!title) {
               setTitle(newTitle);
             }
@@ -78,7 +80,7 @@ export function CreatePostStepOne() {
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <ContentGutters flex={1}>
-        <YStack flex={1} py="$4" px="$4" gap="$3" $gtMd={{ gap: "$5" }}>
+        <YStack flex={1} py="$4" px="$4" gap="$3" $gtMd={{ gap: "$5", px: 0 }}>
           {community && (
             <Link href="/create/choose-community" asChild>
               <XStack ai="center" gap="$2" tag="a">
@@ -89,7 +91,9 @@ export function CreatePostStepOne() {
           )}
 
           <YStack>
-            <Text color="$color11">Link</Text>
+            <Text color="$color11" fontSize="$3">
+              Link
+            </Text>
             <Input
               placeholder="Link"
               value={url}
@@ -108,13 +112,16 @@ export function CreatePostStepOne() {
               bw={0}
               bbw={1}
               px={0}
-              h="$2"
+              fontSize="$5"
+              h="$3"
               bc="$color4"
             />
           </YStack>
 
           <YStack>
-            <Text color="$color11">Title</Text>
+            <Text color="$color11" fontSize="$3">
+              Title
+            </Text>
             <Input
               placeholder="Title"
               value={title}
@@ -127,27 +134,45 @@ export function CreatePostStepOne() {
               bw={0}
               bbw={1}
               px={0}
-              h="$2"
+              fontSize="$5"
+              h="$3"
               bc="$color4"
             />
           </YStack>
 
           {thumbnailUrl && (
             <YStack gap="$2">
-              <Text color="$color11">Image</Text>
+              <Text color="$color11" fontSize="$3">
+                Image
+              </Text>
               <XStack bbw={1} bc="$color4" pb="$3" ai="flex-start">
-                <Image imageUrl={thumbnailUrl} maxWidth={200} />
+                <View pos="relative">
+                  <Image imageUrl={thumbnailUrl} maxWidth={200} />
+                  <View
+                    tag="button"
+                    pos="absolute"
+                    bg="$background"
+                    br={9999}
+                    right={0}
+                    p={1}
+                    transform={[{ translateX: "50%" }, { translateY: "-50%" }]}
+                    onPress={() => setThumbnailUrl(undefined)}
+                  >
+                    <X color="red" />
+                  </View>
+                </View>
               </XStack>
             </YStack>
           )}
 
           <YStack bw={0} bc="$color4" flex={1} gap="$1">
-            <Text color="$color11">Body</Text>
+            <Text color="$color11" fontSize="$3">
+              Body
+            </Text>
             <MarkdownEditor
               editor={editor}
               style={{
                 flex: 1,
-                fontSize: 16,
                 borderRadius: 0,
               }}
               placeholder="Body..."
@@ -173,11 +198,12 @@ export function CreatePostStepTwo() {
 
   const subscribedCommunitiesRes = useListCommunities({
     type_: "Subscribed",
-    limit: 20,
+    limit: 50,
   });
   const subscribedCommunities =
     subscribedCommunitiesRes.data?.pages
       .flatMap((p) => p.communities)
+      .sort((a, b) => a.community.name.localeCompare(b.community.name))
       .map(({ community }) => community) ?? EMPTY_ARR;
 
   const searchResultsRes = useSearch({

@@ -21,6 +21,7 @@ import {
   FollowCommunity,
   CommunityId,
   MarkCommentReplyAsRead,
+  CreatePost,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -48,6 +49,7 @@ import { useThrottleQueue } from "./throttle-queue";
 import { useIsFocused } from "@react-navigation/native";
 import { useCommunitiesStore } from "../stores/communities";
 import { createCommunitySlug } from "./community";
+import { useRouter } from "one";
 
 export function parseCommunitySlug(slug: string) {
   const [communityName, lemmyServer] = slug.split("@");
@@ -1186,6 +1188,19 @@ export function useMarkReplyRead() {
       queryClient.invalidateQueries({
         queryKey: [...queryKeyPrefix, "getReplies"],
       });
+    },
+  });
+}
+
+export function useCreatePost() {
+  const router = useRouter();
+  const { client } = useLemmyClient();
+  return useMutation({
+    mutationFn: (form: CreatePost) => client.createPost(form),
+    onSuccess: (res) => {
+      const apId = res.post_view.post.ap_id;
+      const slug = createCommunitySlug(res.post_view.community);
+      router.push(`/c/${slug}/posts/${encodeURIComponent(apId)}`);
     },
   });
 }

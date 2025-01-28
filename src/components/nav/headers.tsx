@@ -30,7 +30,7 @@ import { useLinkContext } from "./link-context";
 import { useAuth } from "~/src/stores/auth";
 import { useRequireAuth } from "../auth-context";
 import { Dropdown } from "../ui/dropdown";
-import { useLogout } from "~/src/lib/lemmy";
+import { useCreatePost, useLogout } from "~/src/lib/lemmy";
 import { useCreatePostStore } from "~/src/stores/create-post";
 import { Button } from "../ui/button";
 import * as React from "react";
@@ -64,7 +64,7 @@ function HeaderGutters({ children, ...props }: XStackProps) {
         $gtLg={{ px: "$5" }}
         {...props}
       >
-        <XStack $gtMd={{ minWidth: "33%" }} ai="center">
+        <XStack $gtMd={{ flex: 1 }} ai="center">
           {first}
         </XStack>
 
@@ -76,7 +76,7 @@ function HeaderGutters({ children, ...props }: XStackProps) {
           jc="flex-end"
           ai="center"
           gap="$3"
-          $gtMd={{ minWidth: "33%", gap: "$4" }}
+          $gtMd={{ flex: 1, gap: "$4" }}
         >
           {third}
         </XStack>
@@ -584,7 +584,11 @@ export function CreatePostHeaderStepOne(props: BottomTabHeaderProps) {
   const isPostReady = useCreatePostStore(
     (s) => s.community && s.title.length > 0 && s.content.length > 0,
   );
+  const createPost = useCreatePost();
   const reset = useCreatePostStore((s) => s.reset);
+  const title = useCreatePostStore((s) => s.title);
+  const content = useCreatePostStore((s) => s.content);
+  const url = useCreatePostStore((s) => s.url);
 
   return (
     <HeaderGutters>
@@ -615,10 +619,18 @@ export function CreatePostHeaderStepOne(props: BottomTabHeaderProps) {
           br="$12"
           size="$3"
           onPress={() => {
-            reset();
-            router.replace("/");
+            createPost
+              .mutateAsync({
+                community_id: selectedCommunity.id,
+                name: title,
+                body: content ? content : undefined,
+                url: url ? url : undefined,
+              })
+              .then(() => {
+                reset();
+              });
           }}
-          disabled={!isPostReady}
+          disabled={!isPostReady || createPost.isPending}
         >
           Post
         </Button>

@@ -45,6 +45,7 @@ export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
           br={post.thumbnail_url ? undefined : 10}
           bbrr={10}
           bblr={10}
+          fontSize="$4"
         >
           {url.host}
           {url.pathname}

@@ -60,7 +60,7 @@ function Spoiler({
         dsp="flex"
         fd="row"
       >
-        <Text fontSize="$5" textAlign="left" color={color} w={10}>
+        <Text fontSize="$5" textAlign="left" color={color} w={15}>
           {isVisible ? "\u25BC" : "\u25B6"}
         </Text>
         <Text fontSize="$5" textAlign="left" color={color}>
@@ -411,7 +411,7 @@ const renderRules: RenderRules = {
 
   // // Text Output
   text: (node, children, parent, styles, inheritedStyles = {}) => {
-    const fontSize = (inheritedStyles.fontSize ?? 16) * scale;
+    const fontSize = (inheritedStyles.fontSize ?? 15) * scale;
     return (
       <Text
         key={node.key}

@@ -16,7 +16,7 @@ type CreatePostStore = {
   setUrl: (url: string) => any;
   content: string;
   thumbnailUrl?: string;
-  setThumbnailUrl: (url: string) => any;
+  setThumbnailUrl: (url: string | undefined) => any;
   setContent: (content: string) => any;
   community?: CommunityPartial;
   setCommunity: (community: CommunityPartial) => any;
@@ -40,6 +40,7 @@ export const useCreatePostStore = create<CreatePostStore>()(
           content: "",
           community: undefined,
           key: get().key + 1,
+          url: undefined,
         }),
     }),
     {

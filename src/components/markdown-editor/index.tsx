@@ -183,6 +183,7 @@ export const MarkdownEditor = ({
           },
           rest.style,
         ]}
+        fontSize="$5"
       />
 
       {!isWeb && (
