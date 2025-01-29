@@ -8060,7 +8060,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^11.15.0":
+"chromatic@npm:^11.15.0, chromatic@npm:^11.25.1":
   version: 11.25.1
   resolution: "chromatic@npm:11.25.1"
   peerDependencies:
@@ -11772,6 +11772,7 @@ __metadata:
     "@vxrn/color-scheme": "npm:^1.1.414"
     autosize: "npm:^6.0.1"
     cheerio: "npm:^0.22.0"
+    chromatic: "npm:^11.25.1"
     dayjs: "npm:^1.11.13"
     expo: "npm:^52.0.24"
     expo-blur: "npm:~14.0.1"
