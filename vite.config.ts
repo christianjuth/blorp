@@ -20,18 +20,13 @@ export default {
       },
 
       deps: {
-        "@ronradtke/react-native-markdown-display": {
-          "**/*.js": ["jsx"],
-        },
         "react-native-markdown-display": {
           "**/*.js": ["jsx"],
         },
-        "expo-linear-gradient": {
-          "**/*.js": ["jsx"],
-        },
-        "react-native-pell-rich-editor": {
-          "**/*.js": ["jsx"],
-        },
+        one: "interop",
+        // "expo-linear-gradient": {
+        //   "**/*.js": ["jsx"],
+        // },
       },
     }),
 

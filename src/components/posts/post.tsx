@@ -23,6 +23,11 @@ export function PostCard({
 }: {
   apId: string;
   detailView?: boolean;
+  /**
+   * featuredContext, if set to community, instructs the post
+   * to check if post.featured_community is true, and if so,
+   * mark it as a pinned post in the context of a community feed.
+   */
   featuredContext?: "community";
 }) {
   const media = useMedia();

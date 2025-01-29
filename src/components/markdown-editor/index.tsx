@@ -1,4 +1,7 @@
-import { InputAccessoryView, type TextInput } from "react-native";
+import {
+  // InputAccessoryView,
+  type TextInput,
+} from "react-native";
 
 import { useEffect, useId, useRef, useState } from "react";
 import {
@@ -186,24 +189,24 @@ export const MarkdownEditor = ({
         fontSize="$5"
       />
 
-      {!isWeb && (
-        <InputAccessoryView nativeID={inputAccessoryViewID}>
-          <XStack
-            bbw={1}
-            bbc="$color4"
-            gap="$4"
-            p="$2"
-            px="$3"
-            ai="center"
-            $gtMd={{ dsp: "none" }}
-            bg="$background"
-            btw={1}
-            btc="$color4"
-          >
-            {toolbar}
-          </XStack>
-        </InputAccessoryView>
-      )}
+      {/* {!isWeb && ( */}
+      {/*   <InputAccessoryView nativeID={inputAccessoryViewID}> */}
+      {/*     <XStack */}
+      {/*       bbw={1} */}
+      {/*       bbc="$color4" */}
+      {/*       gap="$4" */}
+      {/*       p="$2" */}
+      {/*       px="$3" */}
+      {/*       ai="center" */}
+      {/*       $gtMd={{ dsp: "none" }} */}
+      {/*       bg="$background" */}
+      {/*       btw={1} */}
+      {/*       btc="$color4" */}
+      {/*     > */}
+      {/*       {toolbar} */}
+      {/*     </XStack> */}
+      {/*   </InputAccessoryView> */}
+      {/* )} */}
     </YStack>
   );
 };

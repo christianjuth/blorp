@@ -43,3 +43,5 @@ tsconfig.tsbuildinfo
 
 # Misc
 todo.md
+
+*storybook.log
