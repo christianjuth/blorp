@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import * as lemmy from "~/test-utils/lemmy";
 import { flattenPost } from "~/src/lib/lemmy";
 
-function LoadPost({ variant }: { variant: "image" | "youtube" }) {
+function LoadPost({ variant }: { variant: "image" | "youtube" | "article" }) {
   const cachePost = usePostsStore((s) => s.cachePost);
 
   useEffect(() => {
@@ -15,7 +15,6 @@ function LoadPost({ variant }: { variant: "image" | "youtube" }) {
       variant,
     });
 
-    console.log(postView);
     cachePost(
       flattenPost({
         post_view: postView,
@@ -50,6 +49,25 @@ export const Image: Story = {
   decorators: (Story) => (
     <>
       <LoadPost variant="image" />
+      <Story />
+    </>
+  ),
+};
+
+export const Article: Story = {
+  args: {
+    apId: AP_ID,
+    featuredContext: "community",
+  },
+  argTypes: {
+    featuredContext: {
+      control: "select",
+      options: ["community", undefined],
+    },
+  },
+  decorators: (Story) => (
+    <>
+      <LoadPost variant="article" />
       <Story />
     </>
   ),

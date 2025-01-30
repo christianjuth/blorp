@@ -1,14 +1,10 @@
 import { Image } from "react-native";
-import { useCommunity } from "~/src/lib/lemmy";
 import { View, XStack, YStack, Text } from "tamagui";
 import { CommunityJoinButton } from "./community-join-button";
 import { createCommunitySlug } from "~/src/lib/community";
 import { useCommunitiesStore } from "~/src/stores/communities";
 
 export function CommunityBanner({ communityName }: { communityName?: string }) {
-  useCommunity({
-    name: communityName,
-  });
   const data = useCommunitiesStore((s) =>
     communityName ? s.communities[communityName]?.data : null,
   );

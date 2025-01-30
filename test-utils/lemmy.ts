@@ -67,6 +67,7 @@ export function getCommunity() {
       instance_id: 1,
       visibility: "Public",
       banner: `https://picsum.photos/id/11/800/200`,
+      icon: `https://picsum.photos/id/12/200/200`,
     },
     subscribed: "NotSubscribed",
     blocked: false,
@@ -88,7 +89,7 @@ export function getCommunity() {
   return view;
 }
 
-export function getPost(config?: { variant: "youtube" | "image" }) {
+export function getPost(config?: { variant: "youtube" | "image" | "article" }) {
   const creator = getPerson();
   const community = getCommunity();
 
@@ -96,7 +97,7 @@ export function getPost(config?: { variant: "youtube" | "image" }) {
     post: {
       id: POST_ID,
       published: POST_PUBLISHED,
-      name: "Jon Doe",
+      name: "This is a test post",
       creator_id: PERSON_ID,
       community_id: community.community.id,
       removed: false,
@@ -147,6 +148,21 @@ export function getPost(config?: { variant: "youtube" | "image" }) {
       view.image_details = imageDetails;
       view.post.thumbnail_url = imgUrl;
       view.post.url_content_type = imageDetails.content_type;
+      break;
+    }
+    case "article": {
+      const imageDetails: ImageDetails = view.image_details ?? {
+        height: 200,
+        width: 300,
+        link: "",
+        content_type: "image/jpeg",
+      };
+      const imgUrl = `https://picsum.photos/id/10/${imageDetails.width}/${imageDetails.height}`;
+      imageDetails.link = imgUrl;
+      view.image_details = imageDetails;
+      view.post.thumbnail_url = imgUrl;
+      view.post.url_content_type = "text/html";
+      view.post.url = "https://react.dev/blog/2024/12/05/react-19";
       break;
     }
     case "youtube": {

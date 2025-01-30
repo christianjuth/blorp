@@ -11,13 +11,17 @@ import { useRef } from "react";
 import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
-import { usePosts } from "../lib/lemmy";
+import { useCommunity, usePosts } from "../lib/lemmy";
 
 const EMPTY_ARR = [];
 
 export function CommunityFeed({ communityName }: { communityName?: string }) {
   const posts = usePosts({
     community_name: communityName,
+  });
+
+  useCommunity({
+    name: communityName,
   });
 
   const tabBar = useCustomTabBarHeight();

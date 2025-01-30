@@ -29,9 +29,6 @@ export function CommunitySidebar({
   const header = useCustomHeaderHeight();
   const dimensions = useWindowDimensions();
 
-  useCommunity({
-    name: communityName,
-  });
   const data = useCommunitiesStore((s) => s.communities[communityName]?.data);
 
   if (!data) {
