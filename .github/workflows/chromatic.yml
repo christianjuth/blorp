@@ -28,6 +28,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      # One doesn't seem to apply patches until we build
+      - name: Build Tamagui One app
+        run: yarn build:web
+
       - name: Run Chromatic
         uses: chromaui/action@latest
         with:
