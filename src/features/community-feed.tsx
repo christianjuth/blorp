@@ -1,7 +1,7 @@
 import { PostCard } from "~/src/components/posts/post";
 import { isWeb, View } from "tamagui";
 import {
-  Sidebar,
+  CommunitySidebar,
   SmallScreenSidebar,
 } from "~/src/components/communities/community-sidebar";
 import { CommunityBanner } from "../components/communities/community-banner";
@@ -54,7 +54,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
             <ContentGutters>
               <View flex={1} />
               {communityName ? (
-                <Sidebar communityName={communityName} />
+                <CommunitySidebar communityName={communityName} />
               ) : (
                 <></>
               )}
@@ -75,8 +75,8 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
 
         if (item === "banner") {
           return (
-            <ContentGutters>
-              <CommunityBanner />
+            <ContentGutters $md={{ dsp: "none" }}>
+              <CommunityBanner communityName={communityName} />
             </ContentGutters>
           );
         }

@@ -2,7 +2,7 @@ import { useSearch } from "../lib/lemmy";
 import { PostCard } from "~/src/components/posts/post";
 import { View } from "tamagui";
 import {
-  Sidebar,
+  CommunitySidebar,
   SmallScreenSidebar,
 } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
@@ -59,7 +59,10 @@ export function SearchFeed({
             <ContentGutters>
               <View flex={1} />
               {communityName ? (
-                <Sidebar communityName={communityName} hideDescription />
+                <CommunitySidebar
+                  communityName={communityName}
+                  hideDescription
+                />
               ) : (
                 <></>
               )}

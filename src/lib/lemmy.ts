@@ -145,7 +145,7 @@ export type FlattenedGetPostResponse = {
   posts: FlattenedPost[];
 };
 
-function flattenPost({
+export function flattenPost({
   post_view: postView,
   cross_posts: crossPosts,
 }: {

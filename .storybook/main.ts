@@ -10,6 +10,7 @@ const config: StorybookConfig = {
     "@storybook/addon-essentials",
     "@chromatic-com/storybook",
     "@storybook/addon-interactions",
+    "@storybook/addon-a11y",
   ],
   framework: "@storybook/react-native-web-vite",
   async viteFinal(config) {

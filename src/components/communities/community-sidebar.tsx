@@ -1,4 +1,4 @@
-import { View, Text, XStack, YStack, ScrollView, Button } from "tamagui";
+import { View, Text, XStack, YStack, ScrollView } from "tamagui";
 import { useCommunity } from "~/src/lib/lemmy";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -17,7 +17,7 @@ dayjs.extend(localizedFormat);
 
 export const COMMUNITY_SIDEBAR_WIDTH = 300;
 
-export function Sidebar({
+export function CommunitySidebar({
   communityName,
   hideDescription = false,
   asPage,

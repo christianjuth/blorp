@@ -6,7 +6,7 @@ import {
 import { useEffect } from "react";
 import { usePost, usePostComments } from "~/src/lib/lemmy";
 import { PostCard } from "~/src/components/posts/post";
-import { Sidebar } from "~/src/components/communities/community-sidebar";
+import { CommunitySidebar } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 
 import { memo, useMemo } from "react";
@@ -91,7 +91,7 @@ export function PostComments({
             <ContentGutters>
               <View flex={1} />
               {communityName ? (
-                <Sidebar communityName={communityName} />
+                <CommunitySidebar communityName={communityName} />
               ) : (
                 <></>
               )}

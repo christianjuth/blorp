@@ -1,14 +1,11 @@
 import { Image } from "react-native";
-import { useParams } from "one";
 import { useCommunity } from "~/src/lib/lemmy";
 import { View, XStack, YStack, Text } from "tamagui";
 import { CommunityJoinButton } from "./community-join-button";
 import { createCommunitySlug } from "~/src/lib/community";
 import { useCommunitiesStore } from "~/src/stores/communities";
 
-export function CommunityBanner() {
-  const { communityName } = useParams<{ communityName: string }>();
-
+export function CommunityBanner({ communityName }: { communityName?: string }) {
   useCommunity({
     name: communityName,
   });
@@ -26,7 +23,7 @@ export function CommunityBanner() {
   return (
     <YStack flex={1}>
       {!hideBanner && (
-        <View pt="$2.5" flex={1} $md={{ dsp: "none" }} pos="relative">
+        <View pt="$2.5" flex={1} pos="relative">
           <Image
             source={{ uri: banner }}
             style={{
@@ -67,13 +64,7 @@ export function CommunityBanner() {
         </View>
       )}
 
-      <XStack
-        pl={hideBanner ? 0 : 120}
-        $md={{ dsp: "none" }}
-        ai="center"
-        jc="space-between"
-        my="$2"
-      >
+      <XStack pl={hideBanner ? 0 : 120} ai="center" jc="space-between" my="$2">
         <Text fontWeight="bold" fontSize="$7">
           c/{slug}
         </Text>

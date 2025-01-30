@@ -10,9 +10,9 @@ export function ContentGutters({ children, ...props }: XStackProps) {
       w="100%"
       mx="auto"
       gap="$4"
-      $gtMd={{ px: "$4" }}
-      $gtLg={{ px: "$5", gap: "$5" }}
       {...props}
+      $gtMd={{ px: "$4", ...props.$gtMd }}
+      $gtLg={{ px: "$5", gap: "$5", ...props.$gtLg }}
     >
       {second ? (
         <>

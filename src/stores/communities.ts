@@ -24,8 +24,8 @@ type CachedCommunity = {
 type SortsStore = {
   communities: Record<string, CachedCommunity>;
   patchCommunity: (id: string, post: Partial<Data>) => Data;
-  cacheCommunity: (post: Data) => Data;
-  cacheCommunities: (post: Data[]) => Record<string, CachedCommunity>;
+  cacheCommunity: (data: Data) => Data;
+  cacheCommunities: (data: Data[]) => Record<string, CachedCommunity>;
 };
 
 export const useCommunitiesStore = create<SortsStore>()(
