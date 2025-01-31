@@ -1,6 +1,6 @@
-export function abbriviateNumber(number: number) {
+export function abbriviateNumber(number: number): string {
   if (number < 1000) {
-    return number;
+    return String(number);
   }
 
   if (number < 1000000) {

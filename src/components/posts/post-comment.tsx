@@ -13,6 +13,7 @@ import { ActionMenu } from "~/src/components/ui/action-menu";
 import { Ellipsis } from "@tamagui/lucide-icons";
 import { useDeleteComment } from "~/src/lib/lemmy";
 import { Share } from "react-native";
+import { CommentMap } from "~/src/lib/comment-map";
 
 function Byline({
   avatar,
@@ -272,60 +273,4 @@ export function PostComment({
       </View>
     </YStack>
   );
-}
-
-interface CommentMap {
-  comment?: {
-    path: string;
-  };
-  sort: number;
-  [key: number]: CommentMap;
-}
-
-interface CommentMapTopLevel {
-  [key: number]: CommentMap;
-}
-
-export function buildCommentMap(
-  commentViews: {
-    path: string;
-  }[],
-  commentPath?: string,
-) {
-  const map: CommentMapTopLevel = {};
-
-  const firstCommentInPath = commentPath?.split(".")?.[0];
-
-  let i = 0;
-  for (const view of commentViews) {
-    let loc = map;
-    let viewPath = view.path;
-
-    if (firstCommentInPath && viewPath.indexOf(firstCommentInPath) > -1) {
-      viewPath =
-        "0." + viewPath.substring(viewPath.indexOf(firstCommentInPath));
-    }
-
-    if (commentPath && viewPath.length > commentPath.length) {
-      if (viewPath.indexOf(commentPath) === -1) {
-        continue;
-      }
-    }
-
-    const [_, ...path] = viewPath.split(".");
-
-    while (path.length > 1) {
-      const front = path.shift()!;
-      loc[front] = loc[front] ?? {};
-      loc = loc[front];
-    }
-
-    const front = path.shift()!;
-
-    loc[front] = loc[front] ?? {};
-    loc[front].comment = view;
-    loc[front].sort = i++;
-  }
-
-  return map;
 }

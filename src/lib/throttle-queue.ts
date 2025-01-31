@@ -4,13 +4,12 @@ import { useDeepCompareMemoize } from "use-deep-compare-effect";
 type Task<T> = () => Promise<T>;
 
 interface QueueItem<T> {
-  priority: number;
   task: Task<T>;
   resolve: (value: T) => void;
   reject: (reason?: any) => void;
 }
 
-class PriorityThrottledQueue {
+export class PriorityThrottledQueue {
   private queue: QueueItem<any>[] = [];
   private interval: number;
   private isProcessing: boolean = false;
@@ -20,10 +19,9 @@ class PriorityThrottledQueue {
     this.interval = interval;
   }
 
-  enqueue<T>(task: Task<T>, priority: number = 0): Promise<T> {
+  enqueue<T>(task: Task<T>): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-      this.queue.push({ priority, task, resolve, reject });
-      this.queue.sort((a, b) => b.priority - a.priority); // Higher priority first
+      this.queue.push({ task, resolve, reject });
       this.processQueue(); // Try processing immediately
     });
   }

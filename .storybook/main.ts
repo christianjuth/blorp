@@ -14,10 +14,9 @@ const config: StorybookConfig = {
   ],
   framework: "@storybook/react-native-web-vite",
   async viteFinal(config) {
-    // const { mergeConfig } = await import("vite");
     config.plugins?.unshift(tsconfigPaths());
     config.resolve!.alias = {
-      one: path.resolve(__dirname, "../mocks/one.js"),
+      one: path.resolve(__dirname, "../test-utils/mocks/one.js"),
     };
     return config;
   },

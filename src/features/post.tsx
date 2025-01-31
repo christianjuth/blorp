@@ -1,8 +1,6 @@
 import { useNavigation } from "one";
-import {
-  PostComment,
-  buildCommentMap,
-} from "~/src/components/posts/post-comment";
+import { PostComment } from "~/src/components/posts/post-comment";
+import { buildCommentMap } from "../lib/comment-map";
 import { useEffect } from "react";
 import { usePost, usePostComments } from "~/src/lib/lemmy";
 import { PostCard } from "~/src/components/posts/post";
