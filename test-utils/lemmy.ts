@@ -12,7 +12,10 @@ dayjs.extend(utcPlugin);
 
 const uuid = () => _.random(2000, 200000);
 const timestamp = () =>
-  dayjs().utc().subtract(1, "hour").format("YYYY-MM-DDTHH:mm:ss.SSS[000]Z");
+  dayjs(1738299372085)
+    .utc()
+    .subtract(1, "hour")
+    .format("YYYY-MM-DDTHH:mm:ss.SSS[000]Z");
 
 const API_ROOT = "https://lemmy.world";
 
