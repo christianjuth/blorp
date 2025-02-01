@@ -11,22 +11,26 @@ import {
 dayjs.extend(utcPlugin);
 
 const uuid = () => _.random(2000, 200000);
-const timestamp = () =>
+
+const absoluteTime = () =>
   dayjs(1738299372085)
     .utc()
     .subtract(1, "hour")
     .format("YYYY-MM-DDTHH:mm:ss.SSS[000]Z");
 
+const relativeTime = () =>
+  dayjs().utc().subtract(1, "hour").format("YYYY-MM-DDTHH:mm:ss.SSS[000]Z");
+
 const API_ROOT = "https://lemmy.world";
 
 const POST_ID = uuid();
-const POST_PUBLISHED = timestamp();
+const POST_PUBLISHED = relativeTime();
 
 const COMMUNITY_ID = uuid();
-const COMMUNITY_PUBLISHED = timestamp();
+const COMMUNITY_PUBLISHED = absoluteTime();
 
 const PERSON_ID = uuid();
-const PERSON_PUBLISHED = timestamp();
+const PERSON_PUBLISHED = relativeTime();
 
 export function getPerson() {
   const person: PersonView = {
@@ -120,7 +124,7 @@ export function getPost(config?: { variant: "youtube" | "image" | "article" }) {
       score: 8,
       published: POST_PUBLISHED,
       post_id: POST_ID,
-      newest_comment_time: timestamp(),
+      newest_comment_time: absoluteTime(),
       report_count: 0,
       unresolved_report_count: 0,
     },
