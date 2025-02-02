@@ -28,5 +28,5 @@ jobs:
       - name: Run Chromatic
         uses: chromaui/action@latest
         with:
-          # ⚠️ Make sure to configure a `CHROMATIC_PROJECT_TOKEN` repository secret
+          exitOnceUploaded: true
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
