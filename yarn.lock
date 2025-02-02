@@ -2448,7 +2448,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^9.4.0":
+"@faker-js/faker@npm:9.4.0":
   version: 9.4.0
   resolution: "@faker-js/faker@npm:9.4.0"
   checksum: 10c0/52f242a764b506f84f0f80e8122758a4b4a82873d72e67b5ddee9d8132c33d462705b43543dd0b86b743f54daec668a1938b9e5b9d643c606a775fb48959580c
@@ -11879,7 +11879,7 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:^1.8.3"
     "@chromatic-com/storybook": "npm:^3.2.4"
-    "@faker-js/faker": "npm:^9.4.0"
+    "@faker-js/faker": "npm:9.4.0"
     "@jsamr/counter-style": "npm:^2.0.2"
     "@jsamr/react-native-li": "npm:^2.3.1"
     "@react-native-async-storage/async-storage": "npm:1.23.1"
