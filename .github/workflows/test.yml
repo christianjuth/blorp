@@ -92,11 +92,24 @@ jobs:
           corepack enable
           yarn install --immutable
 
-
       - name: Build Tamagui One app
         env: 
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
         run: yarn build:web
+
+      - name: Hash the output of yarn why playwright
+        id: playwright_hash
+        run: |
+          PLAYWRIGHT_HASH=$(yarn why playwright --json | jq -S . | sha256sum | cut -d ' ' -f 1)
+          echo "PLAYWRIGHT_HASH=$PLAYWRIGHT_HASH" >> $GITHUB_ENV
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_HASH }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
 
       - name: Install Playwright Browsers
         run: yarn playwright install --with-deps
