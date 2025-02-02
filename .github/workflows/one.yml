@@ -29,7 +29,9 @@ jobs:
           cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install 
+        run: |
+          corepack enable
+          yarn install --immutable
 
       - name: Build Tamagui One app
         env: 
