@@ -1,6 +1,6 @@
 import { View, Text, Avatar, YStack, XStack } from "tamagui";
 import { RelativeTime } from "~/src/components/relative-time";
-import { FlattenedPost } from "~/src/lib/lemmy";
+import { FlattenedPost } from "~/src/lib/lemmy/index";
 import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
 import { ActionMenu } from "../ui/action-menu";

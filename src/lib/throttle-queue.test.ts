@@ -81,4 +81,36 @@ describe("PriorityThrottleQueue", () => {
     expect(fn2).toHaveBeenCalledTimes(1);
     expect(fn3).toHaveBeenCalled();
   });
+
+  test("play/pause", async () => {
+    const interval = 5000;
+    const { PriorityThrottledQueue } = await import("./throttle-queue");
+    const queue = new PriorityThrottledQueue(interval);
+
+    const fn1 = vi.fn();
+    queue.enqueue(fn1).catch(() => {});
+
+    const fn2 = vi.fn();
+    queue.enqueue(fn2).catch(() => {});
+
+    expect(queue.getQueueLength()).toBe(1);
+    queue.pause();
+
+    vi.advanceTimersByTime(interval);
+    await vi.runAllTicks();
+    expect(queue.getQueueLength()).toBe(1);
+    expect(fn2).toBeCalledTimes(0);
+
+    vi.advanceTimersByTime(interval);
+    await vi.runAllTicks();
+    expect(queue.getQueueLength()).toBe(1);
+    expect(fn2).toBeCalledTimes(0);
+
+    queue.play();
+
+    vi.advanceTimersByTime(interval);
+    await vi.runAllTicks();
+    expect(queue.getQueueLength()).toBe(0);
+    expect(fn2).toBeCalledTimes(1);
+  });
 });

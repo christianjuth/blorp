@@ -2,10 +2,10 @@ import { CommunityView } from "lemmy-js-client";
 import { Text, YStack, Avatar, XStack } from "tamagui";
 import { Link } from "one";
 import { abbriviateNumber } from "~/src/lib/format";
-import { createCommunitySlug } from "../lib/community";
 import { useState } from "react";
 import { Image } from "expo-image";
 import { usePosts } from "../lib/lemmy";
+import { createCommunitySlug } from "../lib/lemmy/utils";
 
 export function Community({ communityView }: { communityView: CommunityView }) {
   const { community, counts } = communityView;

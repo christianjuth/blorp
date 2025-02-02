@@ -1,7 +1,7 @@
 import { Community } from "lemmy-js-client";
 import { Link } from "one";
 import { Avatar, XStack, Text } from "tamagui";
-import { createCommunitySlug } from "~/src/lib/community";
+import { createCommunitySlug } from "~/src/lib/lemmy/utils";
 
 export function SmallCommunityCard({
   disableLink = false,

@@ -11,7 +11,7 @@ import { useCommentsStore } from "~/src/stores/comments";
 import { RelativeTime } from "../relative-time";
 import { ActionMenu } from "~/src/components/ui/action-menu";
 import { Ellipsis } from "@tamagui/lucide-icons";
-import { useDeleteComment } from "~/src/lib/lemmy";
+import { useDeleteComment } from "~/src/lib/lemmy/index";
 import { Share } from "react-native";
 import { CommentMap } from "~/src/lib/comment-map";
 

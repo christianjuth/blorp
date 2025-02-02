@@ -1,4 +1,4 @@
-import { useListCommunities } from "~/src/lib/lemmy";
+import { useListCommunities } from "~/src/lib/lemmy/index";
 import { Community } from "~/src/components/community";
 import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";

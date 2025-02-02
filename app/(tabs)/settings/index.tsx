@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Switch } from "tamagui";
 import { useSettingsStore } from "~/src/stores/settings";
-import { useLogout } from "~/src/lib/lemmy";
+import { useLogout } from "~/src/lib/lemmy/index";
 import { useAuth } from "~/src/stores/auth";
 import { useRequireAuth } from "~/src/components/auth-context";
 import { Image as ExpoImage } from "expo-image";

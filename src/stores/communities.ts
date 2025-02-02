@@ -8,7 +8,7 @@ import type {
   CommunityModeratorView,
   SubscribedType,
 } from "lemmy-js-client";
-import { createCommunitySlug } from "../lib/community";
+import { createCommunitySlug } from "../lib/lemmy/utils";
 
 type Data = {
   communityView: CommunityView;
@@ -34,12 +34,12 @@ export const useCommunitiesStore = create<SortsStore>()(
       communities: {},
       patchCommunity: (slug, patch) => {
         const communities = get().communities;
-        const prevPost = communities[slug];
+        const prevCommunityData = communities[slug]?.data ?? {};
         const updatedCommunityData = {
-          ...prevPost.data,
+          ...prevCommunityData,
           ...patch,
         };
-        if (prevPost) {
+        if (slug in communities) {
           set({
             communities: {
               ...communities,
@@ -53,8 +53,8 @@ export const useCommunitiesStore = create<SortsStore>()(
         return updatedCommunityData;
       },
       cacheCommunity: (view) => {
-        const communities = get().communities;
         const slug = createCommunitySlug(view.communityView.community);
+        const communities = get().communities;
         const prevCommunityData = communities[slug]?.data ?? {};
         const updatedCommunityData = {
           ...prevCommunityData,
@@ -78,7 +78,7 @@ export const useCommunitiesStore = create<SortsStore>()(
 
         for (const view of views) {
           const slug = createCommunitySlug(view.communityView.community);
-          const prevCommunityData = newCommunities[slug]?.data ?? {};
+          const prevCommunityData = prev[slug]?.data ?? {};
           newCommunities[slug] = {
             data: {
               ...prevCommunityData,

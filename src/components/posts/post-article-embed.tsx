@@ -1,6 +1,6 @@
 import { Text, View } from "tamagui";
 import { Image } from "~/src/components/image";
-import { FlattenedPost } from "~/src/lib/lemmy";
+import { FlattenedPost } from "~/src/lib/lemmy/index";
 
 export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
   const post = postView.post;

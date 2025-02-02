@@ -6,8 +6,8 @@ import { Text, XStack, YStack } from "tamagui";
 import { ContentGutters } from "~/src/components/gutters";
 import { Markdown } from "~/src/components/markdown";
 import { RelativeTime } from "~/src/components/relative-time";
-import { useMarkReplyRead, useReplies } from "~/src/lib/lemmy";
-import { createCommunitySlug } from "~/src/lib/community";
+import { useMarkReplyRead, useReplies } from "~/src/lib/lemmy/index";
+import { createCommunitySlug } from "~/src/lib/lemmy/utils";
 
 function Reply({
   replyView,

@@ -1,5 +1,5 @@
 import { View, Text, XStack, YStack, ScrollView } from "tamagui";
-import { useCommunity } from "~/src/lib/lemmy";
+import { useCommunity } from "~/src/lib/lemmy/index";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { Markdown } from "../markdown";

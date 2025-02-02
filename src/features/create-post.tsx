@@ -1,6 +1,6 @@
 import { ContentGutters } from "../components/gutters";
 import { YStack, Input, XStack, Text, View } from "tamagui";
-import { useRecentCommunities } from "../stores/recent-communities";
+import { useRecentCommunitiesStore } from "../stores/recent-communities";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MarkdownEditor,
@@ -187,7 +187,7 @@ export function CreatePostStepOne() {
 
 export function CreatePostStepTwo() {
   const router = useRouter();
-  const recentCommunities = useRecentCommunities();
+  const recentCommunities = useRecentCommunitiesStore();
 
   const [search, setSearch] = useState("");
   const debouncedSetSearch = useCallback(_.debounce(setSearch, 500), []);

@@ -38,13 +38,13 @@ export default {
     }),
   ],
   resolve: {
-    alias: {
-      punycode: "punycode/",
-      "expo-modules-core": path.resolve(
-        __dirname,
-        "node_modules/expo-modules-core/",
-      ),
-    },
+    // alias: {
+    //   punycode: "punycode/",
+    //   "expo-modules-core": path.resolve(
+    //     __dirname,
+    //     "node_modules/expo-modules-core/",
+    //   ),
+    // },
     // Idk if this actually does anything,
     // but it can't hurt right?
     dedupe: [

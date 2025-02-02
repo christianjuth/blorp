@@ -37,19 +37,19 @@ import {
 import { GetComments } from "lemmy-js-client";
 import { Image as RNImage } from "react-native";
 import { useFiltersStore } from "~/src/stores/filters";
-import { useAuth } from "../stores/auth";
+import { useAuth } from "../../stores/auth";
 import { useCallback, useEffect, useMemo } from "react";
 import { Image as ExpoImage } from "expo-image";
 import _ from "lodash";
-import { usePostsStore } from "../stores/posts";
-import { useSettingsStore } from "../stores/settings";
+import { usePostsStore } from "../../stores/posts";
+import { useSettingsStore } from "../../stores/settings";
 import { z } from "zod";
-import { useCommentsStore } from "../stores/comments";
-import { useThrottleQueue } from "./throttle-queue";
+import { useCommentsStore } from "../../stores/comments";
+import { useThrottleQueue } from "../throttle-queue";
 import { useIsFocused } from "@react-navigation/native";
-import { useCommunitiesStore } from "../stores/communities";
-import { createCommunitySlug } from "./community";
+import { useCommunitiesStore } from "../../stores/communities";
 import { useRouter } from "one";
+import { createCommunitySlug } from "./utils";
 
 export function parseCommunitySlug(slug: string) {
   const [communityName, lemmyServer] = slug.split("@");
@@ -678,7 +678,7 @@ export function useLogout() {
   const setCommunitiesListingType = useFiltersStore(
     (s) => s.setCommunitiesListingType,
   );
-  const updateAccount = useAuth((s) => s.updateAccount);
+  const logout = useAuth((s) => s.logout);
 
   const resetFilters = () => {
     if (listingType === "Subscribed") {
@@ -691,10 +691,7 @@ export function useLogout() {
 
   return () => {
     client.logout();
-    updateAccount({
-      jwt: undefined,
-      site: undefined,
-    });
+    logout();
     resetFilters();
     queryClient.clear();
     queryClient.invalidateQueries();

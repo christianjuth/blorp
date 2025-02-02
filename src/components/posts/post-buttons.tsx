@@ -1,6 +1,6 @@
 import { Button, View, Text, useTheme } from "tamagui";
 import { ArrowBigUp, ArrowBigDown, MessageCircle } from "@tamagui/lucide-icons";
-import { useLikePost, FlattenedPost } from "~/src/lib/lemmy";
+import { useLikePost, FlattenedPost } from "~/src/lib/lemmy/index";
 import { voteHaptics } from "~/src/lib/voting";
 import { usePostsStore } from "~/src/stores/posts";
 import { AnimatedRollingNumber } from "~/src/components/animated-digit";

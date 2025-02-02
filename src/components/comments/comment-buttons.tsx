@@ -1,6 +1,6 @@
 import { Button, useTheme, Text, XStack, ButtonProps } from "tamagui";
 import { ArrowBigUp, ArrowBigDown, Reply } from "@tamagui/lucide-icons";
-import { FlattenedComment, useLikeComment } from "~/src/lib/lemmy";
+import { FlattenedComment, useLikeComment } from "~/src/lib/lemmy/index";
 import { voteHaptics } from "~/src/lib/voting";
 import { useMemo, useState } from "react";
 import { AnimatedRollingNumber } from "~/src/components/animated-digit";

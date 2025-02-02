@@ -7,7 +7,7 @@ import {
   FlattenedComment,
   useCreateComment,
   useEditComment,
-} from "~/src/lib/lemmy";
+} from "~/src/lib/lemmy/index";
 import { ContentGutters } from "../gutters";
 import _ from "lodash";
 import { MarkdownEditor, MarkdownEditorState } from "../markdown-editor";

@@ -13,7 +13,7 @@ import {
   CustomBottomTabBar,
   useTabBarStyle,
 } from "~/src/components/nav/bottom-tab-bar";
-import { useNotificationCount } from "~/src/lib/lemmy";
+import { useNotificationCount } from "~/src/lib/lemmy/index";
 import { Platform } from "react-native";
 
 function WebMaxHeight({ children }: { children: React.ReactNode }) {

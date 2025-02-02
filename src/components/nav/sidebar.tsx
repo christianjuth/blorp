@@ -1,10 +1,10 @@
 import { XStack, YStack, Text, View, Avatar, useThemeName } from "tamagui";
 import { Link, useRouter } from "one";
 import * as routes from "~/src/lib/routes";
-import { useRecentCommunities } from "~/src/stores/recent-communities";
+import { useRecentCommunitiesStore } from "~/src/stores/recent-communities";
 import { Community } from "lemmy-js-client";
-import { useListCommunities } from "~/src/lib/lemmy";
-import { createCommunitySlug } from "~/src/lib/community";
+import { useListCommunities } from "~/src/lib/lemmy/index";
+import { createCommunitySlug } from "~/src/lib/lemmy/utils";
 import { Image } from "expo-image";
 import LogoDark from "~/assets/logo-dark.svg";
 import LogoLight from "~/assets/logo-light.svg";
@@ -49,7 +49,7 @@ function SmallComunityCard({
 }
 
 export function Sidebar(props: BottomTabBarProps | {}) {
-  const recentCommunities = useRecentCommunities((s) => s.recentlyVisited);
+  const recentCommunities = useRecentCommunitiesStore((s) => s.recentlyVisited);
   const header = useCustomHeaderHeight();
   const themeName = useThemeName();
   const isLoggedIn = useAuth((s) => s.isLoggedIn());

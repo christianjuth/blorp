@@ -14,9 +14,9 @@ type RecentCommunityStore = {
   update: (c: CommunityPartial) => void;
 };
 
-const MAX_VISITED = 5;
+export const MAX_VISITED = 5;
 
-export const useRecentCommunities = create<RecentCommunityStore>()(
+export const useRecentCommunitiesStore = create<RecentCommunityStore>()(
   persist(
     (set, get) => ({
       recentlyVisited: [],

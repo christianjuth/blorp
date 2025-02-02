@@ -1,7 +1,7 @@
 import { useParams, useNavigation } from "one";
 import { useEffect } from "react";
-import { useCommunity } from "~/src/lib/lemmy";
-import { useRecentCommunities } from "~/src/stores/recent-communities";
+import { useCommunity } from "~/src/lib/lemmy/index";
+import { useRecentCommunitiesStore } from "~/src/stores/recent-communities";
 import { CommunityFeed } from "~/src/features/community-feed";
 
 export default function Community() {
@@ -13,7 +13,7 @@ export default function Community() {
     name: communityName,
   });
 
-  const updateRecent = useRecentCommunities((s) => s.update);
+  const updateRecent = useRecentCommunitiesStore((s) => s.update);
 
   useEffect(() => {
     if (community.data) {

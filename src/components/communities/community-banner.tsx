@@ -1,7 +1,7 @@
 import { Image } from "react-native";
 import { View, XStack, YStack, Text } from "tamagui";
 import { CommunityJoinButton } from "./community-join-button";
-import { createCommunitySlug } from "~/src/lib/community";
+import { createCommunitySlug } from "~/src/lib/lemmy/utils";
 import { useCommunitiesStore } from "~/src/stores/communities";
 
 export function CommunityBanner({ communityName }: { communityName?: string }) {

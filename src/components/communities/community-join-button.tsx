@@ -1,5 +1,5 @@
 import { ButtonProps } from "tamagui";
-import { useFollowCommunity } from "~/src/lib/lemmy";
+import { useFollowCommunity } from "~/src/lib/lemmy/index";
 import { useAuth } from "~/src/stores/auth";
 import { useCommunitiesStore } from "~/src/stores/communities";
 import { Button } from "~/src/components/ui/button";

@@ -4,7 +4,7 @@ import { createStorage } from "./storage";
 import { GetSiteResponse } from "lemmy-js-client";
 import _ from "lodash";
 
-const DEFAULT_INSTANCES = [
+export const DEFAULT_INSTANCES = [
   "https://lemmy.world",
   "https://lemm.ee",
   "https://sh.itjust.works",
@@ -23,8 +23,11 @@ type AuthStore = {
   accounts: Account[];
   getSelectedAccount: () => Account;
   isLoggedIn: () => boolean;
-  accountIndex: 0;
+  accountIndex: number;
   updateAccount: (patch: Partial<Account>) => any;
+  addAccount: (patch?: Partial<Account>) => any;
+  setAccountIndex: (index: number) => Account | null;
+  logout: () => any;
 };
 
 export const useAuth = create<AuthStore>()(
@@ -45,6 +48,52 @@ export const useAuth = create<AuthStore>()(
         return account && !!account.jwt;
       },
       accountIndex: 0,
+      addAccount: (patch) => {
+        const accounts = [
+          ...get().accounts,
+          {
+            instance: _.sample(DEFAULT_INSTANCES),
+            ...patch,
+          },
+        ];
+        set({
+          accounts,
+          accountIndex: accounts.length - 1,
+        });
+      },
+      logout: () => {
+        const { accounts, accountIndex } = get();
+        const account = accounts[accountIndex];
+        if (account) {
+          delete accounts[accountIndex];
+          const newAccounts = accounts.filter(Boolean);
+          if (newAccounts.length === 0) {
+            set({
+              accounts: [
+                {
+                  instance: _.sample(DEFAULT_INSTANCES),
+                },
+              ],
+              accountIndex: 0,
+            });
+          } else {
+            set({
+              accounts: newAccounts,
+              accountIndex: _.clamp(accountIndex, 0, newAccounts.length - 1),
+            });
+          }
+        }
+      },
+      setAccountIndex: (index) => {
+        const account = get().accounts[index];
+        if (!account) {
+          return null;
+        }
+        set({
+          accountIndex: index,
+        });
+        return account;
+      },
       updateAccount: (patch) => {
         let { accounts, accountIndex } = get();
         accounts = accounts.map((a, i) =>

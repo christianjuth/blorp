@@ -5,7 +5,7 @@ import { usePostsStore } from "~/src/stores/posts";
 import _ from "lodash";
 import { useEffect } from "react";
 import * as lemmy from "~/test-utils/lemmy";
-import { flattenPost } from "~/src/lib/lemmy";
+import { flattenPost } from "~/src/lib/lemmy/index";
 
 function LoadPost({ variant }: { variant: "image" | "youtube" | "article" }) {
   const cachePost = usePostsStore((s) => s.cachePost);

@@ -14,7 +14,7 @@ import { useCommentReaplyContext } from "../comments/comment-reply-modal";
 import { isYouTubeVideoUrl } from "~/src/lib/youtube";
 import { YouTubeVideoEmbed } from "../youtube";
 import { Repeat2 } from "@tamagui/lucide-icons";
-import { usePost } from "~/src/lib/lemmy";
+import { usePost } from "~/src/lib/lemmy/index";
 
 export function PostCard({
   apId,

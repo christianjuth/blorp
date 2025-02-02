@@ -7,6 +7,8 @@ import {
   CommunityView,
   ImageDetails,
 } from "lemmy-js-client";
+import { PartialDeep } from "type-fest";
+import { faker } from "@faker-js/faker";
 
 dayjs.extend(utcPlugin);
 
@@ -32,10 +34,12 @@ const COMMUNITY_PUBLISHED = absoluteTime();
 const PERSON_ID = uuid();
 const PERSON_PUBLISHED = relativeTime();
 
-export function getPerson() {
+export function getPerson(config?: { personView?: PartialDeep<PersonView> }) {
+  const id = config?.personView?.person?.id ?? PERSON_ID;
   const person: PersonView = {
+    is_admin: false,
+    ...config?.personView,
     person: {
-      id: PERSON_ID,
       name: "Jon Doe",
       banned: false,
       published: PERSON_PUBLISHED,
@@ -45,22 +49,30 @@ export function getPerson() {
       deleted: false,
       bot_account: false,
       instance_id: 1,
+      ...config?.personView?.person,
+      id,
     },
     counts: {
-      person_id: PERSON_ID,
       post_count: 10,
       comment_count: 33,
+      ...config?.personView?.counts,
+      person_id: id,
     },
-    is_admin: false,
   };
 
   return person;
 }
 
-export function getCommunity() {
+export function getCommunity(config?: {
+  communityView?: PartialDeep<CommunityView>;
+}) {
+  const id = config?.communityView?.community?.id ?? COMMUNITY_ID;
   const view: CommunityView = {
+    subscribed: "NotSubscribed",
+    blocked: false,
+    banned_from_community: false,
+    ...config?.communityView,
     community: {
-      id: COMMUNITY_ID,
       published: COMMUNITY_PUBLISHED,
       name: "memes",
       title: "Memes",
@@ -75,11 +87,10 @@ export function getCommunity() {
       visibility: "Public",
       banner: `https://picsum.photos/id/11/800/200`,
       icon: `https://picsum.photos/id/12/200/200`,
+      ...config?.communityView?.community,
+      id,
     },
-    subscribed: "NotSubscribed",
-    blocked: false,
     counts: {
-      community_id: COMMUNITY_ID,
       subscribers: 562,
       subscribers_local: 432,
       posts: 753,
@@ -89,20 +100,62 @@ export function getCommunity() {
       users_active_week: 73,
       users_active_month: 235,
       users_active_half_year: 426,
+      ...config?.communityView?.counts,
+      community_id: id,
     },
-    banned_from_community: false,
   };
 
   return view;
 }
 
-export function getPost(config?: { variant: "youtube" | "image" | "article" }) {
-  const creator = getPerson();
-  const community = getCommunity();
+export function getRandomCommunity() {
+  const title = faker.lorem.words(3);
+  const name = title.replaceAll(" ", "-");
+  return getCommunity({
+    communityView: {
+      community: {
+        id: uuid(),
+        title,
+        name,
+        actor_id: `${API_ROOT}/c/${name}`,
+        published: relativeTime(),
+        updated: undefined,
+      },
+    },
+  });
+}
+
+export function getPost(config?: {
+  variant: "youtube" | "image" | "article";
+  postView?: PartialDeep<Omit<PostView, "image_details">>;
+  personView?: PartialDeep<PersonView>;
+}) {
+  const creator = getPerson({
+    personView: config?.personView,
+  });
+  const community = getCommunity({
+    communityView: {
+      community: config?.postView?.community,
+    },
+  });
+
+  const id = config?.postView?.post?.id ?? POST_ID;
 
   const view: PostView = {
+    creator_banned_from_community: false,
+    creator_is_admin: false,
+    creator_is_moderator: false,
+    creator_blocked: false,
+    banned_from_community: false,
+    saved: false,
+    read: false,
+    hidden: false,
+    subscribed: "NotSubscribed",
+    unread_comments: 0,
+    ...config?.postView,
+    community: community.community,
+    creator: creator.person,
     post: {
-      id: POST_ID,
       published: POST_PUBLISHED,
       name: "This is a test post",
       creator_id: PERSON_ID,
@@ -116,6 +169,8 @@ export function getPost(config?: { variant: "youtube" | "image" | "article" }) {
       language_id: 37,
       featured_community: false,
       featured_local: false,
+      ...config?.postView?.post,
+      id,
     },
     counts: {
       comments: 4,
@@ -123,23 +178,12 @@ export function getPost(config?: { variant: "youtube" | "image" | "article" }) {
       downvotes: 2,
       score: 8,
       published: POST_PUBLISHED,
-      post_id: POST_ID,
       newest_comment_time: absoluteTime(),
       report_count: 0,
       unresolved_report_count: 0,
+      ...config?.postView?.counts,
+      post_id: id,
     },
-    community: community.community,
-    creator: creator.person,
-    creator_banned_from_community: false,
-    creator_is_admin: false,
-    creator_is_moderator: false,
-    creator_blocked: false,
-    banned_from_community: false,
-    saved: false,
-    read: false,
-    hidden: false,
-    subscribed: "NotSubscribed",
-    unread_comments: 0,
   };
 
   switch (config?.variant) {
@@ -180,4 +224,17 @@ export function getPost(config?: { variant: "youtube" | "image" | "article" }) {
 
   view.counts.score = view.counts.upvotes - view.counts.downvotes;
   return view;
+}
+
+export function getRandomPost() {
+  return getPost({
+    variant: _.sample(["youtube", "image", "article"]),
+    postView: {
+      post: {
+        id: uuid(),
+        name: faker.lorem.words(8),
+        ap_id: `${API_ROOT}/post/${uuid()}`,
+      },
+    },
+  });
 }

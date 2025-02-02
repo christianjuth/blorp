@@ -30,7 +30,7 @@ import { useLinkContext } from "./link-context";
 import { useAuth } from "~/src/stores/auth";
 import { useRequireAuth } from "../auth-context";
 import { Dropdown } from "../ui/dropdown";
-import { useCreatePost, useLogout } from "~/src/lib/lemmy";
+import { useCreatePost, useLogout } from "~/src/lib/lemmy/index";
 import { useCreatePostStore } from "~/src/stores/create-post";
 import { Button } from "../ui/button";
 import * as React from "react";
