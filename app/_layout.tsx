@@ -1,8 +1,10 @@
 import "./_layout.css";
 import "./tamagui.css";
-
 import { LoadProgressBar, Slot } from "one";
 import { Providers } from "~/src/components/providers";
+import { initSentry, SentryAddCtx } from "~/src/components/sentry";
+
+initSentry();
 
 export default function Layout() {
   return (
@@ -93,6 +95,7 @@ export default function Layout() {
       </head>
 
       <body>
+        <SentryAddCtx />
         <LoadProgressBar />
 
         <Providers>

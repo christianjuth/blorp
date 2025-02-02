@@ -3,7 +3,6 @@ import { one } from "one/vite";
 import { tamaguiPlugin } from "@tamagui/vite-plugin";
 import circleDependency from "vite-plugin-circular-dependency";
 import vitePluginChecker from "vite-plugin-checker";
-import path from "path";
 
 export default {
   plugins: [
@@ -38,13 +37,6 @@ export default {
     }),
   ],
   resolve: {
-    // alias: {
-    //   punycode: "punycode/",
-    //   "expo-modules-core": path.resolve(
-    //     __dirname,
-    //     "node_modules/expo-modules-core/",
-    //   ),
-    // },
     // Idk if this actually does anything,
     // but it can't hurt right?
     dedupe: [
