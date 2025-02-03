@@ -12,6 +12,7 @@ import Animated from "react-native-reanimated";
 import { useScrollContext } from "../components/nav/scroll-animation-context";
 import { useFiltersStore } from "../stores/filters";
 import { usePosts } from "../lib/lemmy";
+import { PostReportProvider } from "../components/posts/post-report";
 
 const ReanimatedFlashList =
   Animated.createAnimatedComponent<
@@ -54,65 +55,67 @@ export function HomeFeed() {
   const List = isWeb ? FlashList : ReanimatedFlashList;
 
   return (
-    <List
-      // @ts-expect-error
-      ref={ref}
-      data={["sidebar-desktop", "post-sort-bar", ...data] as const}
-      renderItem={({ item }) => {
-        if (item === "sidebar-desktop") {
-          return (
-            <ContentGutters>
-              <View flex={1} />
-              <PopularCommunitiesSidebar />
-            </ContentGutters>
-          );
-        }
+    <PostReportProvider>
+      <List
+        // @ts-expect-error
+        ref={ref}
+        data={["sidebar-desktop", "post-sort-bar", ...data] as const}
+        renderItem={({ item }) => {
+          if (item === "sidebar-desktop") {
+            return (
+              <ContentGutters>
+                <View flex={1} />
+                <PopularCommunitiesSidebar />
+              </ContentGutters>
+            );
+          }
 
-        if (item === "post-sort-bar") {
+          if (item === "post-sort-bar") {
+            return (
+              <ContentGutters>
+                <PostSortBar />
+                <></>
+              </ContentGutters>
+            );
+          }
+
           return (
             <ContentGutters>
-              <PostSortBar />
+              <PostCard apId={item} />
               <></>
             </ContentGutters>
           );
-        }
-
-        return (
-          <ContentGutters>
-            <PostCard apId={item} />
-            <></>
-          </ContentGutters>
-        );
-      }}
-      onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      }}
-      onEndReachedThreshold={0.5}
-      keyExtractor={(item) => item}
-      contentContainerStyle={{
-        paddingBottom: isWeb ? tabBar.height : 0,
-      }}
-      refreshing={isRefetching}
-      onRefresh={() => {
-        if (!isRefetching) {
-          refetch();
-        }
-      }}
-      stickyHeaderIndices={[0]}
-      scrollEventThrottle={16}
-      estimatedItemSize={475}
-      contentInset={{
-        top: !isWeb && media.md ? header.height : undefined,
-        bottom: !isWeb && media.md ? tabBar.height : undefined,
-      }}
-      scrollIndicatorInsets={{
-        top: !isWeb && media.md ? header.height : undefined,
-        bottom: !isWeb && media.md ? tabBar.height : undefined,
-      }}
-      automaticallyAdjustsScrollIndicatorInsets={false}
-      onScroll={isWeb ? undefined : scrollHandler}
-    />
+        }}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        keyExtractor={(item) => item}
+        contentContainerStyle={{
+          paddingBottom: isWeb ? tabBar.height : 0,
+        }}
+        refreshing={isRefetching}
+        onRefresh={() => {
+          if (!isRefetching) {
+            refetch();
+          }
+        }}
+        stickyHeaderIndices={[0]}
+        scrollEventThrottle={16}
+        estimatedItemSize={475}
+        contentInset={{
+          top: !isWeb && media.md ? header.height : undefined,
+          bottom: !isWeb && media.md ? tabBar.height : undefined,
+        }}
+        scrollIndicatorInsets={{
+          top: !isWeb && media.md ? header.height : undefined,
+          bottom: !isWeb && media.md ? tabBar.height : undefined,
+        }}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        onScroll={isWeb ? undefined : scrollHandler}
+      />
+    </PostReportProvider>
   );
 }

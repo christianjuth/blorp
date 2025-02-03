@@ -13,6 +13,7 @@ export type Action<L = string> = {
   label: L;
   icon?: React.ComponentType<{ size?: number; color?: string }>;
   onClick: () => void;
+  danger?: boolean;
 };
 
 export function ActionMenu<L extends string>({
@@ -37,7 +38,9 @@ export function ActionMenu<L extends string>({
             onPress={a.onClick}
             bg="transparent"
           >
-            <Text mr="auto">{a.label}</Text>
+            <Text mr="auto" color={a.danger ? "$red" : "$color"}>
+              {a.label}
+            </Text>
           </Button>
         </Popover.Close>
       ))}

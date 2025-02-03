@@ -218,6 +218,9 @@ export default function SettingsPage() {
             >
               Report issue
             </SettignsLink>
+
+            <Divider />
+            <SettignsLink href="/privacy">Privacy Policy</SettignsLink>
           </YStack>
         </YStack>
       </ContentGutters>

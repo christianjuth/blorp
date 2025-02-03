@@ -12,6 +12,7 @@ import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
 import { useCommunity, usePosts } from "../lib/lemmy";
+import { PostReportProvider } from "../components/posts/post-report";
 
 const EMPTY_ARR = [];
 
@@ -40,85 +41,87 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
   return (
-    <FlashList
-      // @ts-expect-error
-      ref={ref}
-      data={
-        [
-          "banner",
-          "sidebar-desktop",
-          "sidebar-mobile",
-          "post-sort-bar",
-          ...data,
-        ] as const
-      }
-      renderItem={({ item, index }) => {
-        if (item === "sidebar-desktop") {
-          return (
-            <ContentGutters>
-              <View flex={1} />
-              {communityName ? (
-                <CommunitySidebar communityName={communityName} />
-              ) : (
+    <PostReportProvider>
+      <FlashList
+        // @ts-expect-error
+        ref={ref}
+        data={
+          [
+            "banner",
+            "sidebar-desktop",
+            "sidebar-mobile",
+            "post-sort-bar",
+            ...data,
+          ] as const
+        }
+        renderItem={({ item, index }) => {
+          if (item === "sidebar-desktop") {
+            return (
+              <ContentGutters>
+                <View flex={1} />
+                {communityName ? (
+                  <CommunitySidebar communityName={communityName} />
+                ) : (
+                  <></>
+                )}
+              </ContentGutters>
+            );
+          }
+
+          if (item === "sidebar-mobile") {
+            return communityName ? (
+              <ContentGutters>
+                <SmallScreenSidebar communityName={communityName} />
                 <></>
-              )}
-            </ContentGutters>
-          );
-        }
-
-        if (item === "sidebar-mobile") {
-          return communityName ? (
-            <ContentGutters>
-              <SmallScreenSidebar communityName={communityName} />
+              </ContentGutters>
+            ) : (
               <></>
-            </ContentGutters>
-          ) : (
-            <></>
-          );
-        }
+            );
+          }
 
-        if (item === "banner") {
-          return (
-            <ContentGutters $md={{ dsp: "none" }}>
-              <CommunityBanner communityName={communityName} />
-            </ContentGutters>
-          );
-        }
+          if (item === "banner") {
+            return (
+              <ContentGutters $md={{ dsp: "none" }}>
+                <CommunityBanner communityName={communityName} />
+              </ContentGutters>
+            );
+          }
 
-        if (item === "post-sort-bar") {
+          if (item === "post-sort-bar") {
+            return (
+              <ContentGutters>
+                <PostSortBar />
+                <></>
+              </ContentGutters>
+            );
+          }
+
           return (
             <ContentGutters>
-              <PostSortBar />
+              <PostCard apId={item} featuredContext="community" />
               <></>
             </ContentGutters>
           );
-        }
-
-        return (
-          <ContentGutters>
-            <PostCard apId={item} featuredContext="community" />
-            <></>
-          </ContentGutters>
-        );
-      }}
-      onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      }}
-      onEndReachedThreshold={0.5}
-      keyExtractor={(item) => item}
-      contentContainerStyle={{
-        paddingBottom: isWeb ? tabBar.height : 0,
-      }}
-      refreshing={isRefetching}
-      onRefresh={() => {
-        if (!isRefetching) {
-          refetch();
-        }
-      }}
-      stickyHeaderIndices={[1]}
-      estimatedItemSize={475}
-    />
+        }}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        keyExtractor={(item) => item}
+        contentContainerStyle={{
+          paddingBottom: isWeb ? tabBar.height : 0,
+        }}
+        refreshing={isRefetching}
+        onRefresh={() => {
+          if (!isRefetching) {
+            refetch();
+          }
+        }}
+        stickyHeaderIndices={[1]}
+        estimatedItemSize={475}
+      />
+    </PostReportProvider>
   );
 }

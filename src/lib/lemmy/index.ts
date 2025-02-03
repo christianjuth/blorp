@@ -22,6 +22,9 @@ import {
   CommunityId,
   MarkCommentReplyAsRead,
   CreatePost,
+  CreatePostReport,
+  CreateCommentReport,
+  BlockPerson,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -1213,5 +1216,26 @@ export function useCreatePost() {
       const slug = createCommunitySlug(res.post_view.community);
       router.push(`/c/${slug}/posts/${encodeURIComponent(apId)}`);
     },
+  });
+}
+
+export function useCreatePostReport() {
+  const { client } = useLemmyClient();
+  return useMutation({
+    mutationFn: (form: CreatePostReport) => client.createPostReport(form),
+  });
+}
+
+export function useCreateCommentReport() {
+  const { client } = useLemmyClient();
+  return useMutation({
+    mutationFn: (form: CreateCommentReport) => client.createCommentReport(form),
+  });
+}
+
+export function useBlockPerson() {
+  const { client } = useLemmyClient();
+  return useMutation({
+    mutationFn: (form: BlockPerson) => client.blockPerson(form),
   });
 }

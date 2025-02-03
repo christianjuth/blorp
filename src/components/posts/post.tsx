@@ -17,6 +17,14 @@ import { Repeat2 } from "@tamagui/lucide-icons";
 import { usePost } from "~/src/lib/lemmy/index";
 import { useSettingsStore } from "~/src/stores/settings";
 
+function Notice({ children }: { children: React.ReactNode }) {
+  return (
+    <Text color="$color11" fontStyle="italic" py="$4">
+      {children}
+    </Text>
+  );
+}
+
 export function PostCard({
   apId,
   detailView = false,
@@ -55,12 +63,14 @@ export function PostCard({
 
   for (const keyword of filterKeywords) {
     if (post.name.toLowerCase().includes(keyword.toLowerCase())) {
-      return null;
+      return detailView ? (
+        <Notice>Hidden by "{keyword}" keyword filter</Notice>
+      ) : null;
     }
   }
 
   if (postView.post.nsfw && !showNsfw) {
-    return null;
+    return detailView ? <Notice>NSFW content hidden</Notice> : null;
   }
 
   const imageDetails = postView.imageDetails;

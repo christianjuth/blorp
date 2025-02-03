@@ -22,6 +22,7 @@ import {
   useHideTabBar,
 } from "../components/nav/bottom-tab-bar";
 import { FlashList } from "../components/flashlist";
+import { PostReportProvider } from "../components/posts/post-report";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -210,23 +211,25 @@ export function Post({
   }
 
   return (
-    <CommentReplyContext postId={post.data.post.id}>
-      <PostComments
-        commentViews={allComments}
-        apId={decodedApId}
-        loadMore={() => {
-          if (comments.hasNextPage && !comments.isFetchingNextPage) {
-            comments.fetchNextPage();
-          }
-        }}
-        opId={post.data?.creator?.id}
-        myUserId={myUserId}
-        communityName={communityName}
-        onRefresh={refresh}
-        refreshing={refreshing}
-        commentId={commentId}
-        postId={post.data.post.id}
-      />
-    </CommentReplyContext>
+    <PostReportProvider>
+      <CommentReplyContext postId={post.data.post.id}>
+        <PostComments
+          commentViews={allComments}
+          apId={decodedApId}
+          loadMore={() => {
+            if (comments.hasNextPage && !comments.isFetchingNextPage) {
+              comments.fetchNextPage();
+            }
+          }}
+          opId={post.data?.creator?.id}
+          myUserId={myUserId}
+          communityName={communityName}
+          onRefresh={refresh}
+          refreshing={refreshing}
+          commentId={commentId}
+          postId={post.data.post.id}
+        />
+      </CommentReplyContext>
+    </PostReportProvider>
   );
 }

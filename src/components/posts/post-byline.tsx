@@ -1,11 +1,14 @@
 import { View, Text, Avatar, YStack, XStack } from "tamagui";
 import { RelativeTime } from "~/src/components/relative-time";
-import { FlattenedPost } from "~/src/lib/lemmy/index";
+import { FlattenedPost, useBlockPerson } from "~/src/lib/lemmy/index";
 import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
 import { ActionMenu } from "../ui/action-menu";
 import { Share, Linking } from "react-native";
 import { Ellipsis, Pin } from "@tamagui/lucide-icons";
+import { useRequireAuth } from "../auth-context";
+import { useShowPostReportModal } from "./post-report";
+import { useAlert } from "../ui/alert";
 
 export function PostByline({
   postView,
@@ -14,6 +17,12 @@ export function PostByline({
   postView: FlattenedPost;
   featuredContext?: "community";
 }) {
+  const alrt = useAlert();
+
+  const showReportModal = useShowPostReportModal();
+  const requireAuth = useRequireAuth();
+  const blockPerson = useBlockPerson();
+
   const { creator, community, post } = postView;
   const linkCtx = useLinkContext();
 
@@ -73,10 +82,6 @@ export function PostByline({
         placement="bottom-end"
         actions={[
           {
-            label: "Report",
-            onClick: () => {},
-          },
-          {
             label: "Share",
             onClick: () =>
               Share.share({
@@ -93,8 +98,34 @@ export function PostByline({
               }
             },
           },
+          {
+            label: "Report",
+            onClick: () =>
+              requireAuth().then(() => {
+                showReportModal(postView.post.ap_id);
+              }),
+            danger: true,
+          },
+          {
+            label: "Block person",
+            onClick: async () => {
+              try {
+                await requireAuth();
+                await alrt(`Block ${postView.creator.name}`);
+                blockPerson.mutate({
+                  person_id: postView.creator.id,
+                  block: true,
+                });
+              } catch (err) {}
+            },
+            danger: true,
+          },
         ]}
-        trigger={<Ellipsis size={16} />}
+        trigger={
+          <View p="$2.5" pr={0}>
+            <Ellipsis size={16} />
+          </View>
+        }
       />
     </XStack>
   );
