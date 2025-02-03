@@ -19,6 +19,7 @@ import { Link } from "one";
 import type { RuleBlock } from "markdown-it/lib/parser_block.mjs";
 import MarkedList from "@jsamr/react-native-li";
 import decimal from "@jsamr/counter-style/presets/decimal";
+import disc from "@jsamr/counter-style/presets/disc";
 import { scale } from "~/config/tamagui/scale";
 
 const Context = createContext<{
@@ -246,10 +247,11 @@ const renderRules: RenderRules = {
   // // Lists
   bullet_list: function Ul(node, children, parent, styles) {
     const theme = useTheme();
+    console.log(children);
     return (
       <MarkedList
         key={node.key}
-        counterRenderer={decimal}
+        counterRenderer={disc}
         markerTextStyle={{
           color: theme.color11.val,
           lineHeight: 19 * scale,
@@ -277,7 +279,11 @@ const renderRules: RenderRules = {
     );
   },
   list_item: (node, children, parent, styles, inheritedStyles = {}) => {
-    return <Fragment key={node.key}>{children}</Fragment>;
+    return (
+      <YStack key={node.key} flex={1}>
+        {children}
+      </YStack>
+    );
   },
 
   // // Code
