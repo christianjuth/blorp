@@ -9,6 +9,3 @@ export default function Page() {
 
   return <Post apId={postId} communityName={communityName} />;
 }
-export async function generateStaticParams() {
-  return [];
-}

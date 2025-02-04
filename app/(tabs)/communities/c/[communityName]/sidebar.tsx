@@ -11,7 +11,3 @@ export default function Page() {
     communityName && <CommunitySidebar communityName={communityName} asPage />
   );
 }
-
-export async function generateStaticParams() {
-  return [];
-}
