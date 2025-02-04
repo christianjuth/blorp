@@ -23,6 +23,7 @@ import {
 } from "../components/nav/bottom-tab-bar";
 import { FlashList } from "../components/flashlist";
 import { PostReportProvider } from "../components/posts/post-report";
+import { usePostsStore } from "../stores/posts";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -39,6 +40,7 @@ export function PostComments({
   communityName,
   commentId,
   postId,
+  isReady,
 }: {
   apId: string;
   commentViews: {
@@ -52,6 +54,7 @@ export function PostComments({
   communityName?: string;
   commentId?: string;
   postId: number;
+  isReady?: boolean;
 }) {
   const media = useMedia();
 
@@ -63,6 +66,9 @@ export function PostComments({
   useScrollToTop(ref);
 
   const structured = useMemo(() => {
+    if (!isReady) {
+      return null;
+    }
     const map = buildCommentMap(commentViews, commentId);
     const topLevelItems = _.entries(map).sort(
       ([id1, a], [id2, b]) => a.sort - b.sort,
@@ -70,9 +76,10 @@ export function PostComments({
     return { map, topLevelItems };
   }, [commentViews]);
 
-  const lastComment = structured.topLevelItems.at(-1);
+  const lastComment = structured?.topLevelItems.at(-1);
 
-  let paddingBottom = structured.topLevelItems.length > 0 ? 10 : 20;
+  let paddingBottom =
+    structured && structured.topLevelItems.length > 0 ? 10 : 20;
   if (media.md) {
     paddingBottom += tabBar.height;
   }
@@ -82,7 +89,12 @@ export function PostComments({
       // @ts-expect-error
       ref={ref}
       data={
-        ["sidebar", "post", "comment", ...structured.topLevelItems] as const
+        [
+          "sidebar",
+          "post",
+          "comment",
+          ...(structured ? structured.topLevelItems : EMPTY_ARR),
+        ] as const
       }
       renderItem={({ item }) => {
         if (item === "sidebar") {
@@ -151,10 +163,12 @@ export function Post({
   apId,
   communityName,
   commentPath,
+  isReady,
 }: {
   apId?: string;
   communityName?: string;
   commentPath?: string;
+  isReady?: boolean;
 }) {
   const decodedApId = apId ? decodeURIComponent(apId) : undefined;
 
@@ -165,12 +179,15 @@ export function Post({
   );
   const nav = useNavigation();
 
-  const post = usePost({
+  const postQuery = usePost({
     ap_id: decodedApId,
   });
+  const post = usePostsStore((s) =>
+    decodedApId ? s.posts[decodedApId]?.data : null,
+  );
 
   const comments = usePostComments({
-    post_id: post.data?.post.id,
+    post_id: post?.post.id,
     parent_id: commentId ? +commentId : undefined,
     limit: 50,
     type_: "All",
@@ -178,7 +195,7 @@ export function Post({
     saved_only: false,
   });
 
-  const communityTitle = post.data?.community?.title;
+  const communityTitle = post?.community?.title;
 
   useEffect(() => {
     nav.setOptions({ title: communityTitle ?? "" });
@@ -198,21 +215,21 @@ export function Post({
 
   const [refreshing, setRefreshing] = useState(false);
   const refresh = async () => {
-    if (refreshing) {
+    if (refreshing || !isReady) {
       return;
     }
     setRefreshing(true);
-    await Promise.all([post.refetch(), comments.refetch()]);
+    await Promise.all([postQuery.refetch(), comments.refetch()]);
     setRefreshing(false);
   };
 
-  if (!post.data || !decodedApId) {
+  if (!post || !decodedApId) {
     return null;
   }
 
   return (
     <PostReportProvider>
-      <CommentReplyContext postId={post.data.post.id}>
+      <CommentReplyContext postId={post.post.id}>
         <PostComments
           commentViews={allComments}
           apId={decodedApId}
@@ -221,13 +238,14 @@ export function Post({
               comments.fetchNextPage();
             }
           }}
-          opId={post.data?.creator?.id}
+          opId={post.creator?.id}
           myUserId={myUserId}
           communityName={communityName}
           onRefresh={refresh}
           refreshing={refreshing}
           commentId={commentId}
-          postId={post.data.post.id}
+          postId={post.post.id}
+          isReady={isReady}
         />
       </CommentReplyContext>
     </PostReportProvider>

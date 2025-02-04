@@ -1,5 +1,6 @@
 import { useParams } from "one";
 import { Post } from "~/src/features/post";
+import { useIsScreenReady } from "~/src/lib/navigation";
 
 export default function Page() {
   const { postId, communityName } = useParams<{
@@ -7,5 +8,7 @@ export default function Page() {
     communityName: string;
   }>();
 
-  return <Post apId={postId} communityName={communityName} />;
+  const isReady = useIsScreenReady();
+
+  return <Post apId={postId} communityName={communityName} isReady={isReady} />;
 }

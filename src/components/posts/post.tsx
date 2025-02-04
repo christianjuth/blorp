@@ -191,12 +191,14 @@ export function PostCard({
     >
       <PostByline postView={postView} featuredContext={featuredContext} />
 
+      {preview}
+
       {detailView && crossPost && (
         <Link
           href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${encodeURIComponent(crossPost.post.ap_id)}`}
           asChild
         >
-          <XStack gap="$1">
+          <XStack gap="$1" mt="$1">
             <Repeat2 color="$accentColor" size={16} />
             <Text fontSize={13} color="$accentColor">
               Cross posted from {crossPost.community.slug}
@@ -204,8 +206,6 @@ export function PostCard({
           </XStack>
         </Link>
       )}
-
-      {preview}
 
       {detailView && body && (
         <View pt="$2">
