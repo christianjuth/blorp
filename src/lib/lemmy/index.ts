@@ -22,6 +22,9 @@ import {
   CommunityId,
   MarkCommentReplyAsRead,
   CreatePost,
+  CreatePostReport,
+  CreateCommentReport,
+  BlockPerson,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -415,6 +418,8 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
 
+  const showNsfw = useSettingsStore((s) => s.showNsfw);
+
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
 
@@ -437,6 +442,10 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
     queryKey.push("limit", String(form.limit));
   }
 
+  if (showNsfw) {
+    queryKey.push(`nsfw-${showNsfw ? "t" : "f"}`);
+  }
+
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const patchPost = usePostsStore((s) => s.patchPost);
 
@@ -444,8 +453,9 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
 
   const queryFn = async ({ pageParam }: { pageParam: string }) => {
     const res = await client.getPosts({
-      ...form,
       show_read: true,
+      ...form,
+      show_nsfw: showNsfw,
       page_cursor: pageParam === "init" ? undefined : pageParam,
     });
 
@@ -575,6 +585,8 @@ export function useListCommunities(form: ListCommunities) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
 
+  const showNsfw = useSettingsStore((s) => s.showNsfw);
+
   const queryKey = [...queryKeyPrefix, "listCommunities"];
 
   if (form.sort) {
@@ -589,6 +601,10 @@ export function useListCommunities(form: ListCommunities) {
     queryKey.push("type", form.type_);
   }
 
+  if (showNsfw) {
+    queryKey.push(`nsfw-${showNsfw ? "t" : "f"}`);
+  }
+
   const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
 
   return useThrottledInfiniteQuery({
@@ -597,6 +613,7 @@ export function useListCommunities(form: ListCommunities) {
       const limit = form.limit ?? 50;
       const { communities } = await client.listCommunities({
         ...form,
+        show_nsfw: showNsfw,
         page: pageParam,
       });
       for (const communityView of communities) {
@@ -1199,5 +1216,26 @@ export function useCreatePost() {
       const slug = createCommunitySlug(res.post_view.community);
       router.push(`/c/${slug}/posts/${encodeURIComponent(apId)}`);
     },
+  });
+}
+
+export function useCreatePostReport() {
+  const { client } = useLemmyClient();
+  return useMutation({
+    mutationFn: (form: CreatePostReport) => client.createPostReport(form),
+  });
+}
+
+export function useCreateCommentReport() {
+  const { client } = useLemmyClient();
+  return useMutation({
+    mutationFn: (form: CreateCommentReport) => client.createCommentReport(form),
+  });
+}
+
+export function useBlockPerson() {
+  const { client } = useLemmyClient();
+  return useMutation({
+    mutationFn: (form: BlockPerson) => client.blockPerson(form),
   });
 }

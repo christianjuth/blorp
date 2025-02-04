@@ -11,9 +11,12 @@ import { useCommentsStore } from "~/src/stores/comments";
 import { RelativeTime } from "../relative-time";
 import { ActionMenu } from "~/src/components/ui/action-menu";
 import { Ellipsis } from "@tamagui/lucide-icons";
-import { useDeleteComment } from "~/src/lib/lemmy/index";
+import { useBlockPerson, useDeleteComment } from "~/src/lib/lemmy/index";
 import { Share } from "react-native";
 import { CommentMap } from "~/src/lib/comment-map";
+import { useShowCommentReportModal } from "./post-report";
+import { useRequireAuth } from "../auth-context";
+import { useAlert } from "../ui/alert";
 
 function Byline({
   avatar,
@@ -74,6 +77,12 @@ export function PostComment({
   noBorder?: boolean;
   communityName?: string;
 }) {
+  const alrt = useAlert();
+  const showReportModal = useShowCommentReportModal();
+  const requireAuth = useRequireAuth();
+
+  const blockPerson = useBlockPerson();
+
   const replyCtx = useCommentReaplyContext();
   const [editing, setEditing] = useState(false);
   const [replying, setReplying] = useState(false);
@@ -201,10 +210,6 @@ export function PostComment({
             placement="top"
             actions={[
               {
-                label: "Report",
-                onClick: () => {},
-              },
-              {
                 label: "Share",
                 onClick: () =>
                   Share.share({
@@ -235,7 +240,28 @@ export function PostComment({
                       },
                     },
                   ]
-                : []),
+                : [
+                    {
+                      label: "Report",
+                      onClick: () =>
+                        requireAuth().then(() => showReportModal(comment.path)),
+                      danger: true,
+                    },
+                    {
+                      label: "Block person",
+                      onClick: async () => {
+                        try {
+                          await requireAuth();
+                          await alrt(`Block ${commentView.creator.name}`);
+                          blockPerson.mutate({
+                            person_id: commentView.creator.id,
+                            block: true,
+                          });
+                        } catch (err) {}
+                      },
+                      danger: true,
+                    },
+                  ]),
             ]}
             trigger={<Ellipsis size={16} />}
           />

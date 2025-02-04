@@ -15,6 +15,15 @@ import { isYouTubeVideoUrl } from "~/src/lib/youtube";
 import { YouTubeVideoEmbed } from "../youtube";
 import { Repeat2 } from "@tamagui/lucide-icons";
 import { usePost } from "~/src/lib/lemmy/index";
+import { useSettingsStore } from "~/src/stores/settings";
+
+function Notice({ children }: { children: React.ReactNode }) {
+  return (
+    <Text color="$color11" fontStyle="italic" py="$4">
+      {children}
+    </Text>
+  );
+}
 
 export function PostCard({
   apId,
@@ -37,6 +46,9 @@ export function PostCard({
     enabled: false,
   });
 
+  const showNsfw = useSettingsStore((s) => s.setShowNsfw);
+  const filterKeywords = useSettingsStore((s) => s.filterKeywords);
+
   const replyCtx = useCommentReaplyContext();
   const linkCtx = useLinkContext();
   const [pressed, setPressed] = useState(false);
@@ -46,13 +58,25 @@ export function PostCard({
     return null;
   }
 
+  const { community, post } = postView;
+  const body = post?.body;
+
+  for (const keyword of filterKeywords) {
+    if (post.name.toLowerCase().includes(keyword.toLowerCase())) {
+      return detailView ? (
+        <Notice>Hidden by "{keyword}" keyword filter</Notice>
+      ) : null;
+    }
+  }
+
+  if (postView.post.nsfw && !showNsfw) {
+    return detailView ? <Notice>NSFW content hidden</Notice> : null;
+  }
+
   const imageDetails = postView.imageDetails;
   const aspectRatio = imageDetails
     ? imageDetails.width / imageDetails.height
     : undefined;
-
-  const { community, post } = postView;
-  const body = post?.body;
 
   const urlContentType = post.url_content_type;
 

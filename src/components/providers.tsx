@@ -6,6 +6,7 @@ import { persist } from "./query-storage";
 import { ScrollProvider } from "./nav/scroll-animation-context";
 import { AuthProvider } from "./auth-context";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AlertProvider } from "./ui/alert";
 import _ from "lodash";
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
@@ -42,7 +43,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <TamaguiRootProvider>
         <ScrollProvider>
           <QueryClientProvider client={queryClient}>
-            <AuthProvider>{children}</AuthProvider>
+            <AlertProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </AlertProvider>
           </QueryClientProvider>
         </ScrollProvider>
       </TamaguiRootProvider>

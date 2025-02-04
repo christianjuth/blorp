@@ -24,7 +24,7 @@ Blorp is a work in progress, and the goal is to check off everything below for v
 - [ ] Settings
   - [X] Offline image caching for native
   - [X] Clear cache
-  - [ ] Post filtering
+  - [X] Post filtering
   - [ ] Link to GitHub for issue reporting
 - [ ] Internal
   - [X] Anonymously catch runtime errors using Sentry

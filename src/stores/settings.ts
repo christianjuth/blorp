@@ -5,13 +5,32 @@ import { createStorage } from "./storage";
 type SettingsStore = {
   cacheImages: boolean;
   setCacheImages: (newVal: boolean) => any;
+  showNsfw: boolean;
+  setShowNsfw: (newVal: boolean) => any;
+  filterKeywords: string[];
+  setFilterKeywords: (update: { index: number; keyword: string }) => any;
+  pruneFiltersKeywords: () => any;
 };
 
 export const useSettingsStore = create<SettingsStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       cacheImages: false,
       setCacheImages: (cacheImages) => set({ cacheImages }),
+      showNsfw: false,
+      setShowNsfw: (showNsfw) => set({ showNsfw }),
+      filterKeywords: [],
+      setFilterKeywords: (update) => {
+        const filterKeywords = [...get().filterKeywords];
+        filterKeywords[update.index] = update.keyword;
+        set({
+          filterKeywords,
+        });
+      },
+      pruneFiltersKeywords: () => {
+        const filterKeywords = [...get().filterKeywords].filter(Boolean);
+        set({ filterKeywords });
+      },
     }),
     {
       name: "settings",
