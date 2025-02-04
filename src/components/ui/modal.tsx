@@ -50,7 +50,7 @@ export function Modal({
             )}
           </Sheet.Frame>
           <Sheet.Overlay
-            animation="100ms"
+            animation="quick"
             enterStyle={{ opacity: 0 }}
             exitStyle={{ opacity: 0 }}
             backgroundColor="rgba(0,0,0,0.4)"

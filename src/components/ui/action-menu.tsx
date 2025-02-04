@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Adapt,
@@ -26,30 +27,40 @@ export function ActionMenu<L extends string>({
   placement: PopoverProps["placement"];
 }) {
   const insets = useSafeAreaInsets();
+  const [open, setOpen] = useState(false);
 
   const contents = (
     <YStack>
       {actions.map((a) => (
-        <Popover.Close asChild key={a.label} bg="transparent">
-          <Button
-            $gtMd={{
-              size: "$3",
-            }}
-            onPress={a.onClick}
-            bg="transparent"
-          >
-            <Text mr="auto" color={a.danger ? "$red" : "$color"}>
-              {a.label}
-            </Text>
-          </Button>
-        </Popover.Close>
+        <Button
+          key={a.label}
+          $gtMd={{
+            size: "$3",
+          }}
+          onPress={() => {
+            a.onClick();
+            setOpen(false);
+          }}
+          bg="transparent"
+        >
+          <Text mr="auto" color={a.danger ? "$red" : "$color"}>
+            {a.label}
+          </Text>
+        </Button>
       ))}
     </YStack>
   );
 
   return (
-    <Popover size="$5" allowFlip offset={0} placement={placement}>
-      <Popover.Trigger>{trigger}</Popover.Trigger>
+    <Popover
+      size="$5"
+      allowFlip
+      offset={0}
+      placement={placement}
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <Popover.Trigger onPress={() => setOpen(true)}>{trigger}</Popover.Trigger>
 
       <Popover.Content
         borderWidth={1}
@@ -66,7 +77,7 @@ export function ActionMenu<L extends string>({
 
       <Adapt when="sm" platform="touch">
         <Popover.Sheet
-          // native
+          native
           // native={!!props.native}
           modal
           dismissOnSnapToBottom
@@ -79,7 +90,7 @@ export function ActionMenu<L extends string>({
           snapPointsMode="fit"
         >
           <Popover.Sheet.Overlay
-            animation="100ms"
+            animation="quick"
             enterStyle={{ opacity: 0 }}
             exitStyle={{ opacity: 0 }}
             backgroundColor="rgba(0,0,0,0.4)"

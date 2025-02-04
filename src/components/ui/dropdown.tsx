@@ -1,22 +1,35 @@
+import { useState, createContext, useContext } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Adapt, Popover, Sheet, PopoverProps } from "tamagui";
+import { Adapt, Popover, Sheet, PopoverProps, View } from "tamagui";
 
 export function Dropdown({
   children,
   trigger,
   placement,
 }: {
-  children: React.ReactNode;
+  children: (config: { close: () => any }) => React.ReactNode;
   trigger: React.ReactNode;
   placement: PopoverProps["placement"];
 }) {
   const insets = useSafeAreaInsets();
+  const [open, setOpen] = useState(false);
+
+  const close = () => setOpen(false);
+
   return (
-    <Popover size="$5" allowFlip offset={0} placement={placement}>
+    <Popover
+      size="$5"
+      allowFlip
+      offset={0}
+      placement={placement}
+      open={open}
+      onOpenChange={setOpen}
+    >
       <Popover.Trigger>{trigger}</Popover.Trigger>
 
       <Adapt when="sm" platform="touch">
         <Sheet
+          native
           modal
           dismissOnSnapToBottom
           animationConfig={{
@@ -35,7 +48,7 @@ export function Dropdown({
           >
             <Sheet.ScrollView pb={insets.bottom}>
               {/* <Adapt.Contents /> */}
-              {children}
+              {children({ close })}
             </Sheet.ScrollView>
           </Sheet.Frame>
           <Sheet.Overlay
@@ -57,10 +70,8 @@ export function Dropdown({
           bg: "$color3",
         }}
       >
-        {children}
+        {children({ close })}
       </Popover.Content>
     </Popover>
   );
 }
-
-Dropdown.Close = Popover.Close;

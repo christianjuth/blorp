@@ -123,35 +123,40 @@ function UserAvatar() {
         </Avatar>
       }
     >
-      <YStack minWidth={200}>
-        <YStack ai="center" bbw={1} bbc="$color6" py="$2.5" gap="$2">
-          <Avatar size="$5">
-            <Avatar.Image src={user.avatar} borderRadius="$12" />
-            <Avatar.Fallback
-              backgroundColor="$color8"
-              borderRadius={99999}
-              ai="center"
-              jc="center"
-            >
-              <Text fontSize="$5">
-                {user.name?.substring(0, 1).toUpperCase()}
-              </Text>
-            </Avatar.Fallback>
-          </Avatar>
-          <Text fontSize="$4">u/{user.name}</Text>
-        </YStack>
+      {({ close }) => (
+        <YStack minWidth={200}>
+          <YStack ai="center" bbw={1} bbc="$color6" py="$2.5" gap="$2">
+            <Avatar size="$5">
+              <Avatar.Image src={user.avatar} borderRadius="$12" />
+              <Avatar.Fallback
+                backgroundColor="$color8"
+                borderRadius={99999}
+                ai="center"
+                jc="center"
+              >
+                <Text fontSize="$5">
+                  {user.name?.substring(0, 1).toUpperCase()}
+                </Text>
+              </Avatar.Fallback>
+            </Avatar>
+            <Text fontSize="$4">u/{user.name}</Text>
+          </YStack>
 
-        <YStack py="$1.5">
-          <Dropdown.Close>
+          <YStack py="$1.5">
             <Link href={`${linkCtx.root}u/${user.id}`} push asChild>
-              <XStack h="$3" tag="a" ai="center" px="$2.5" gap="$2.5">
+              <XStack
+                h="$3"
+                tag="a"
+                ai="center"
+                px="$2.5"
+                gap="$2.5"
+                onPress={close}
+              >
                 <User size="$1" col="$color10" />
                 <Text>Profile</Text>
               </XStack>
             </Link>
-          </Dropdown.Close>
 
-          <Dropdown.Close>
             <XStack
               h="$3"
               ai="center"
@@ -160,14 +165,17 @@ function UserAvatar() {
               bg="transparent"
               tag="button"
               bw={0}
-              onPress={logout}
+              onPress={() => {
+                logout();
+                close();
+              }}
             >
               <LogOut size="$1" col="$color10" />
               <Text>Logout</Text>
             </XStack>
-          </Dropdown.Close>
+          </YStack>
         </YStack>
-      </YStack>
+      )}
     </Dropdown>
   );
 }
