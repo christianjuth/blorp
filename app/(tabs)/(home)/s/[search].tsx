@@ -5,7 +5,3 @@ export default function Page() {
   const { search } = useParams<{ search: string }>();
   return <SearchFeed search={search} />;
 }
-
-export async function generateStaticParams() {
-  return [];
-}

@@ -6,7 +6,3 @@ export default function Page() {
 
   return <User userId={userId} />;
 }
-
-export async function generateStaticParams() {
-  return [];
-}

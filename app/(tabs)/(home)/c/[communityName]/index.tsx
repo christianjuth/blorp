@@ -29,6 +29,3 @@ export default function Community() {
 
   return <CommunityFeed communityName={communityName} />;
 }
-export async function generateStaticParams() {
-  return [];
-}

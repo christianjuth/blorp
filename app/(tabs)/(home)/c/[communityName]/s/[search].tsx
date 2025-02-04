@@ -8,7 +8,3 @@ export function Feed() {
   }>();
   return <SearchFeed search={search} communityName={communityName} />;
 }
-
-export async function generateStaticParams() {
-  return [];
-}
