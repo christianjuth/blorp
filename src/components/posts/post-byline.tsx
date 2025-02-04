@@ -122,7 +122,7 @@ export function PostByline({
           },
         ]}
         trigger={
-          <View p="$2.5" pr={0}>
+          <View p="$2" pr={0}>
             <Ellipsis size={16} />
           </View>
         }
