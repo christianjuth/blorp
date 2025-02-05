@@ -113,4 +113,24 @@ describe("PriorityThrottleQueue", () => {
     expect(queue.getQueueLength()).toBe(0);
     expect(fn2).toBeCalledTimes(1);
   });
+
+  test("clear", async () => {
+    const interval = 5000;
+    const { PriorityThrottledQueue } = await import("./throttle-queue");
+    const queue = new PriorityThrottledQueue(interval);
+
+    const fn1 = vi.fn();
+    queue.enqueue(fn1).catch(() => {});
+
+    const fn2 = vi.fn();
+    queue.enqueue(fn2).catch(() => {});
+
+    expect(queue.getQueueLength()).toBe(1);
+
+    queue.clear();
+
+    const fn3 = vi.fn();
+    queue.enqueue(fn3).catch(() => {});
+    expect(queue.getQueueLength()).toBe(0);
+  });
 });

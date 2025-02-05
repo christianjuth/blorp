@@ -166,14 +166,19 @@ export function usePersonDetails({
 
   return useQuery({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (!person_id) {
         throw new Error("person_id undefined");
       }
-      const { posts, comments, ...rest } = await client.getPersonDetails({
-        person_id: +person_id,
-        limit: 1,
-      });
+      const { posts, comments, ...rest } = await client.getPersonDetails(
+        {
+          person_id: +person_id,
+          limit: 1,
+        },
+        {
+          signal,
+        },
+      );
       return rest;
     },
     enabled: !!person_id,
@@ -192,17 +197,22 @@ export function usePersonPosts({ person_id }: { person_id?: string | number }) {
 
   return useThrottledInfiniteQuery({
     queryKey,
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       const limit = 50;
 
       if (!person_id) {
         throw new Error("person_id undefined");
       }
-      const res = await client.getPersonDetails({
-        person_id: +person_id,
-        limit,
-        page: pageParam,
-      });
+      const res = await client.getPersonDetails(
+        {
+          person_id: +person_id,
+          limit,
+          page: pageParam,
+        },
+        {
+          signal,
+        },
+      );
 
       const posts = res.posts.map((post_view) => flattenPost({ post_view }));
       const cachedPosts = cachePosts(posts);
@@ -261,20 +271,30 @@ export function usePost({
 
   return useQuery<FlattenedPost>({
     queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (!ap_id) {
         throw new Error("ap_id undefined");
       }
-      const { post: resPost } = await client.resolveObject({
-        q: ap_id,
-      });
+      const { post: resPost } = await client.resolveObject(
+        {
+          q: ap_id,
+        },
+        {
+          signal,
+        },
+      );
       if (!resPost) {
         throw new Error("fetchd object is not type post");
       }
 
-      const res2 = await client.getPost({
-        id: resPost.post.id,
-      });
+      const res2 = await client.getPost(
+        {
+          id: resPost.post.id,
+        },
+        {
+          signal,
+        },
+      );
 
       const post = flattenPost({
         post_view: resPost,
@@ -324,14 +344,19 @@ export function usePostComments(form: GetComments) {
 
   return useThrottledInfiniteQuery({
     queryKey,
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       const limit = form.limit ?? 50;
-      const { comments } = await client.getComments({
-        ...form,
-        limit,
-        page: pageParam,
-        sort,
-      });
+      const { comments } = await client.getComments(
+        {
+          ...form,
+          limit,
+          page: pageParam,
+          sort,
+        },
+        {
+          signal,
+        },
+      );
 
       cacheComments(comments.map(flattenComment));
 
@@ -400,13 +425,24 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
 
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
-  const queryFn = async ({ pageParam }: { pageParam: string }) => {
-    const res = await client.getPosts({
-      show_read: true,
-      ...form,
-      show_nsfw: showNsfw,
-      page_cursor: pageParam === "init" ? undefined : pageParam,
-    });
+  const queryFn = async ({
+    pageParam,
+    signal,
+  }: {
+    pageParam: string;
+    signal: AbortSignal;
+  }) => {
+    const res = await client.getPosts(
+      {
+        show_read: true,
+        ...form,
+        show_nsfw: showNsfw,
+        page_cursor: pageParam === "init" ? undefined : pageParam,
+      },
+      {
+        signal,
+      },
+    );
 
     const posts = res.posts.map((post_view) => flattenPost({ post_view }));
     const cachedPosts = cachePosts(posts);
@@ -454,7 +490,7 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
   const queryKeyStr = queryKey.join("-");
   useEffect(() => {
     const isWarmed = warmedFeeds.get(queryKeyStr) ?? false;
-    if (!isWarmed && enabled) {
+    if (!isWarmed && enabled !== false) {
       warmedFeeds.set(queryKeyStr, true);
       query.refetch();
     }
@@ -476,6 +512,15 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
   };
 }
 
+function isInfiniteQueryData(data: any): data is InfiniteData<any> {
+  return (
+    data &&
+    typeof data === "object" &&
+    Array.isArray(data.pages) &&
+    Array.isArray(data.pageParams)
+  );
+}
+
 function useThrottledInfiniteQuery<
   TQueryFnData,
   TError = DefaultError,
@@ -492,6 +537,7 @@ function useThrottledInfiniteQuery<
     TPageParam
   >,
 ): UseInfiniteQueryResult<TData, TError> {
+  const queryClient = useQueryClient();
   const throttleQueue = useThrottleQueue(options.queryKey);
   const queryFn = options.queryFn;
 
@@ -527,6 +573,19 @@ function useThrottledInfiniteQuery<
       }
       return undefined as any;
     },
+    refetch: (refetchOptions) => {
+      throttleQueue.clear();
+      queryClient.setQueryData<InfiniteData<any>>(options.queryKey, (data) => {
+        if (isInfiniteQueryData(data)) {
+          return {
+            pages: data.pages.slice(0, 1),
+            pageParams: data.pageParams.slice(0, 1),
+          };
+        }
+        return data;
+      });
+      return query.refetch(refetchOptions);
+    },
   };
 }
 
@@ -558,13 +617,18 @@ export function useListCommunities(form: ListCommunities) {
 
   return useThrottledInfiniteQuery({
     queryKey,
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       const limit = form.limit ?? 50;
-      const { communities } = await client.listCommunities({
-        ...form,
-        show_nsfw: showNsfw,
-        page: pageParam,
-      });
+      const { communities } = await client.listCommunities(
+        {
+          ...form,
+          show_nsfw: showNsfw,
+          page: pageParam,
+        },
+        {
+          signal,
+        },
+      );
       for (const communityView of communities) {
         cacheCommunity({
           communityView,
@@ -593,10 +657,15 @@ export function useCommunity(form: { name?: string; instance?: string }) {
 
   return useQuery({
     queryKey,
-    queryFn: async () => {
-      const res = await client.getCommunity({
-        name: form.name,
-      });
+    queryFn: async ({ signal }) => {
+      const res = await client.getCommunity(
+        {
+          name: form.name,
+        },
+        {
+          signal,
+        },
+      );
       cacheCommunity({
         communityView: res.community_view,
       });

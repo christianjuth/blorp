@@ -34,7 +34,8 @@ declare module "one" {
         | `/inbox/`
         | `/privacy`
         | `/settings`
-        | `/settings/`;
+        | `/settings/`
+        | `/support`;
       DynamicRoutes:
         | `/(home)/c/${OneRouter.SingleRoutePart<T>}`
         | `/(home)/c/${OneRouter.SingleRoutePart<T>}/posts/${OneRouter.SingleRoutePart<T>}`
