@@ -54,7 +54,7 @@ export function Image({
   style,
   onLoad,
 }: {
-  imageUrl: string;
+  imageUrl: string | number;
   priority?: boolean;
   borderTopRadius?: number;
   borderRadius?: number;
@@ -71,16 +71,17 @@ export function Image({
   const cacheImages = useSettingsStore((s) => s.cacheImages);
   const theme = useTheme();
 
+  const [loadded, setLoadded] = useState(false);
   const [dimensions, setDimensions] = useState<
     | {
         width: number;
         height: number;
       }
     | undefined
-  >(imageSizeCache.get(imageUrl));
+  >(_.isString(imageUrl) ? imageSizeCache.get(imageUrl) : undefined);
 
   useEffect(() => {
-    if (_.isNumber(aspectRatio)) {
+    if (_.isNumber(aspectRatio) || _.isNumber(imageUrl)) {
       return;
     }
 
@@ -105,13 +106,13 @@ export function Image({
 
   return (
     <ExpoImage
-      recyclingKey={imageUrl}
-      source={{ uri: imageUrl }}
+      recyclingKey={_.isString(imageUrl) ? imageUrl : undefined}
+      source={_.isString(imageUrl) ? { uri: imageUrl } : imageUrl}
       style={{
         // Don't use flex 1
         // it causes issues on native
         aspectRatio: calculatedAspectRatio,
-        backgroundColor: theme.gray3.val,
+        backgroundColor: !loadded ? theme.gray3.val : undefined,
         width: maxWidth ? maxWidth : "100%",
         maxWidth: "100%",
         height: undefined,
@@ -127,6 +128,7 @@ export function Image({
           height: source.height,
           width: source.width,
         });
+        setLoadded(true);
         onLoad?.();
       }}
       priority={priority ? "high" : undefined}

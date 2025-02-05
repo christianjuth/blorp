@@ -18,6 +18,7 @@
     "test": "vitest --coverage",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --watch --coverage --ui",
+    "test:e2e": "playwright test",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "chromatic": "npx chromatic --project-token=chpt_7dfc24d29ee0670"

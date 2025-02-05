@@ -20,7 +20,7 @@ export function Image({
   style,
   onLoad,
 }: {
-  imageUrl: string;
+  imageUrl: string | number;
   priority?: boolean;
   borderTopRadius?: number;
   borderRadius?: number;
@@ -40,10 +40,10 @@ export function Image({
         height: number;
       }
     | undefined
-  >(imageSizeCache.get(imageUrl));
+  >(_.isString(imageUrl) ? imageSizeCache.get(imageUrl) : undefined);
 
   useEffect(() => {
-    if (_.isNumber(aspectRatio)) {
+    if (_.isNumber(aspectRatio) || _.isNumber(imageUrl)) {
       return;
     }
 
@@ -65,6 +65,10 @@ export function Image({
   calculatedAspectRatio = _.isNaN(calculatedAspectRatio)
     ? 1
     : (calculatedAspectRatio ?? 1);
+
+  if (_.isNumber(imageUrl)) {
+    return null;
+  }
 
   return (
     <img
