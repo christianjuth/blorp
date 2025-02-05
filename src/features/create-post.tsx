@@ -54,8 +54,6 @@ export function CreatePostStepOne() {
             const $ = cheerio.load(body);
             const newTitle = $("title").text();
 
-            console.log(newTitle);
-
             if (!title) {
               setTitle(newTitle);
             }
