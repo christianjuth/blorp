@@ -23,7 +23,7 @@ declare module "one" {
         | `/(tabs)/inbox`
         | `/(tabs)/inbox/`
         | `/(tabs)/settings`
-        | `/(tabs)/settings/idex`
+        | `/(tabs)/settings/`
         | `/_sitemap`
         | `/communities`
         | `/communities/`
@@ -34,7 +34,7 @@ declare module "one" {
         | `/inbox/`
         | `/privacy`
         | `/settings`
-        | `/settings/idex`;
+        | `/settings/`;
       DynamicRoutes:
         | `/(home)/c/${OneRouter.SingleRoutePart<T>}`
         | `/(home)/c/${OneRouter.SingleRoutePart<T>}/posts/${OneRouter.SingleRoutePart<T>}`
