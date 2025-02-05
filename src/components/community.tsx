@@ -2,15 +2,13 @@ import { CommunityView } from "lemmy-js-client";
 import { Text, YStack, Avatar, XStack } from "tamagui";
 import { Link } from "one";
 import { abbriviateNumber } from "~/src/lib/format";
-import { useState } from "react";
-import { Image } from "expo-image";
+import { Image } from "./image";
 import { usePosts } from "../lib/lemmy";
 import { createCommunitySlug } from "../lib/lemmy/utils";
 
 export function Community({ communityView }: { communityView: CommunityView }) {
   const { community, counts } = communityView;
   const slug = createCommunitySlug(community);
-  const [iconReady, setIconReady] = useState(false);
 
   const posts = usePosts({
     community_name: slug,
@@ -34,23 +32,17 @@ export function Community({ communityView }: { communityView: CommunityView }) {
             <YStack
               fullscreen
               zIndex={1}
-              bg={iconReady ? "$background" : undefined}
+              bg="$background"
               borderRadius="$12"
               overflow="hidden"
             >
               <Image
                 key={community.icon}
-                source={{
-                  uri: community.icon,
-                }}
+                imageUrl={community.icon}
                 style={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  bottom: 0,
-                  left: 0,
+                  height: "100%",
+                  width: "100%",
                 }}
-                onLoad={() => setIconReady(true)}
               />
             </YStack>
           )}

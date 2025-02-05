@@ -5,7 +5,7 @@ import { useRecentCommunitiesStore } from "~/src/stores/recent-communities";
 import { Community } from "lemmy-js-client";
 import { useListCommunities } from "~/src/lib/lemmy/index";
 import { createCommunitySlug } from "~/src/lib/lemmy/utils";
-import { Image } from "expo-image";
+import { Image } from "../image";
 import LogoDark from "~/assets/logo-dark.svg";
 import LogoLight from "~/assets/logo-light.svg";
 import { useCustomHeaderHeight } from "./hooks";
@@ -71,16 +71,14 @@ export function Sidebar(props: BottomTabBarProps | {}) {
         <YStack h={header.height} px="$5" jc="center" tag="a">
           {themeName === "dark" && (
             <Image
-              source={LogoDark}
+              imageUrl={LogoDark}
               style={{ height: 38 * scale, width: 90 * scale }}
-              contentFit="contain"
             />
           )}
           {themeName === "light" && (
             <Image
-              source={LogoLight}
+              imageUrl={LogoLight}
               style={{ height: 38 * scale, width: 90 * scale }}
-              contentFit="contain"
             />
           )}
         </YStack>
