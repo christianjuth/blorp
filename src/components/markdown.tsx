@@ -6,7 +6,13 @@ import {
   View,
   YStack,
 } from "tamagui";
-import React, { useState, createContext, useContext, Fragment } from "react";
+import React, {
+  useState,
+  createContext,
+  useContext,
+  Fragment,
+  useMemo,
+} from "react";
 import _ from "lodash";
 import { Image, shareImage } from "./image";
 import Md, {
@@ -161,319 +167,318 @@ linkify.add("!", {
 
 markdownItInstance.use(markdownItLemmySpoiler);
 
-const renderRules: RenderRules = {
-  // // when unknown elements are introduced, so it wont break
-  // unknown: (node, children, parent, styles) => null,
+function getRenderRules(config: { color: string }): RenderRules {
+  return {
+    // // when unknown elements are introduced, so it wont break
+    // unknown: (node, children, parent, styles) => null,
 
-  // // The main container
-  body: (node, children, parent, styles) => (
-    <YStack key={node.key} style={styles._VIEW_SAFE_body} gap="$2.5">
-      {children}
-    </YStack>
-  ),
-
-  // // Headings
-  // heading1: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_heading1}>
-  //     {children}
-  //   </View>
-  // ),
-  // heading2: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_heading2}>
-  //     {children}
-  //   </View>
-  // ),
-  // heading3: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_heading3}>
-  //     {children}
-  //   </View>
-  // ),
-  // heading4: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_heading4}>
-  //     {children}
-  //   </View>
-  // ),
-  // heading5: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_heading5}>
-  //     {children}
-  //   </View>
-  // ),
-  // heading6: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_heading6}>
-  //     {children}
-  //   </View>
-  // ),
-
-  // // Horizontal Rule
-  hr: (node, children, parent, styles) => <Hr key={node.key} />,
-
-  // // Emphasis
-  // strong: (node, children, parent, styles) => (
-  //   <Text key={node.key} style={styles.strong}>
-  //     {children}
-  //   </Text>
-  // ),
-  // em: (node, children, parent, styles) => (
-  //   <Text key={node.key} style={styles.em}>
-  //     {children}
-  //   </Text>
-  // ),
-  // s: (node, children, parent, styles) => (
-  //   <Text key={node.key} style={styles.s}>
-  //     {children}
-  //   </Text>
-  // ),
-
-  // Blockquotes
-  blockquote: function Blockquote(node, children, parent, styles) {
-    return (
-      <View
-        key={node.key}
-        style={_.omit(styles._VIEW_SAFE_blockquote, [
-          "backgroundColor",
-          "borderColor",
-          "marginLeft",
-        ])}
-        borderLeftColor="$gray9"
-        bg="$gray3"
-        paddingLeft="$2.5"
-        py="$1.5"
-      >
-        {children}
-      </View>
-    );
-  },
-
-  // // Lists
-  bullet_list: function Ul(node, children, parent, styles) {
-    const theme = useTheme();
-    console.log(children);
-    return (
-      <MarkedList
-        key={node.key}
-        counterRenderer={disc}
-        markerTextStyle={{
-          color: theme.color11.val,
-          lineHeight: 19 * scale,
-          fontSize: 16 * scale,
-        }}
-      >
-        {children}
-      </MarkedList>
-    );
-  },
-  ordered_list: function Ol(node, children, parent, styles) {
-    const theme = useTheme();
-    return (
-      <MarkedList
-        key={node.key}
-        counterRenderer={decimal}
-        markerTextStyle={{
-          color: theme.color11.val,
-          lineHeight: 19 * scale,
-          fontSize: 16 * scale,
-        }}
-      >
-        {children}
-      </MarkedList>
-    );
-  },
-  list_item: (node, children, parent, styles, inheritedStyles = {}) => {
-    return (
-      <YStack key={node.key} flex={1}>
+    // // The main container
+    body: (node, children, parent, styles) => (
+      <YStack key={node.key} style={styles._VIEW_SAFE_body} gap="$2.5">
         {children}
       </YStack>
-    );
-  },
+    ),
 
-  // // Code
-  code_inline: (node, children, parent, styles, inheritedStyles = {}) => (
-    <Text
-      key={node.key}
-      style={inheritedStyles}
-      p="$1"
-      px="$1.5"
-      bg="$color6"
-      fontSize="$3"
-      br="$1"
-    >
-      {node.content}
-    </Text>
-  ),
-  // code_block: (node, children, parent, styles, inheritedStyles = {}) => {
-  //   // we trim new lines off the end of code blocks because the parser sends an extra one.
-  //   let { content } = node;
+    // // Headings
+    // heading1: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_heading1}>
+    //     {children}
+    //   </View>
+    // ),
+    // heading2: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_heading2}>
+    //     {children}
+    //   </View>
+    // ),
+    // heading3: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_heading3}>
+    //     {children}
+    //   </View>
+    // ),
+    // heading4: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_heading4}>
+    //     {children}
+    //   </View>
+    // ),
+    // heading5: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_heading5}>
+    //     {children}
+    //   </View>
+    // ),
+    // heading6: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_heading6}>
+    //     {children}
+    //   </View>
+    // ),
 
-  //   if (
-  //     typeof node.content === "string" &&
-  //     node.content.charAt(node.content.length - 1) === "\n"
-  //   ) {
-  //     content = node.content.substring(0, node.content.length - 1);
-  //   }
+    // // Horizontal Rule
+    hr: (node, children, parent, styles) => <Hr key={node.key} />,
 
-  //   return (
-  //     <Text key={node.key} style={[inheritedStyles, styles.code_block]}>
-  //       {content}
-  //     </Text>
-  //   );
-  // },
-  // fence: (node, children, parent, styles, inheritedStyles = {}) => {
-  //   // we trim new lines off the end of code blocks because the parser sends an extra one.
-  //   let { content } = node;
+    // // Emphasis
+    // strong: (node, children, parent, styles) => (
+    //   <Text key={node.key} style={styles.strong}>
+    //     {children}
+    //   </Text>
+    // ),
+    // em: (node, children, parent, styles) => (
+    //   <Text key={node.key} style={styles.em}>
+    //     {children}
+    //   </Text>
+    // ),
+    // s: (node, children, parent, styles) => (
+    //   <Text key={node.key} style={styles.s}>
+    //     {children}
+    //   </Text>
+    // ),
 
-  //   if (
-  //     typeof node.content === "string" &&
-  //     node.content.charAt(node.content.length - 1) === "\n"
-  //   ) {
-  //     content = node.content.substring(0, node.content.length - 1);
-  //   }
+    // Blockquotes
+    blockquote: function Blockquote(node, children, parent, styles) {
+      return (
+        <View
+          key={node.key}
+          style={_.omit(styles._VIEW_SAFE_blockquote, [
+            "backgroundColor",
+            "borderColor",
+            "marginLeft",
+          ])}
+          borderLeftColor="$gray9"
+          bg="$gray3"
+          paddingLeft="$2.5"
+          py="$1.5"
+        >
+          {children}
+        </View>
+      );
+    },
 
-  //   return (
-  //     <Text key={node.key} style={[inheritedStyles, styles.fence]}>
-  //       {content}
-  //     </Text>
-  //   );
-  // },
+    // // Lists
+    bullet_list: function Ul(node, children, parent, styles) {
+      return (
+        <MarkedList
+          key={node.key}
+          counterRenderer={disc}
+          markerTextStyle={{
+            color: config.color,
+            lineHeight: 19 * scale,
+            fontSize: 16 * scale,
+          }}
+        >
+          {children}
+        </MarkedList>
+      );
+    },
+    ordered_list: function Ol(node, children, parent, styles) {
+      const theme = useTheme();
+      return (
+        <MarkedList
+          key={node.key}
+          counterRenderer={decimal}
+          markerTextStyle={{
+            color: config.color,
+            lineHeight: 19 * scale,
+            fontSize: 16 * scale,
+          }}
+        >
+          {children}
+        </MarkedList>
+      );
+    },
+    list_item: (node, children, parent, styles, inheritedStyles = {}) => {
+      return (
+        <YStack key={node.key} flex={1}>
+          {children}
+        </YStack>
+      );
+    },
 
-  // // Tables
-  // table: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_table}>
-  //     {children}
-  //   </View>
-  // ),
-  // thead: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_thead}>
-  //     {children}
-  //   </View>
-  // ),
-  // tbody: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_tbody}>
-  //     {children}
-  //   </View>
-  // ),
-  // th: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_th}>
-  //     {children}
-  //   </View>
-  // ),
-  // tr: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_tr}>
-  //     {children}
-  //   </View>
-  // ),
-  // td: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_td}>
-  //     {children}
-  //   </View>
-  // ),
-
-  // // Links
-  // link: (node, children, parent, styles, onLinkPress) => (
-  //   <Text
-  //     key={node.key}
-  //     style={styles.link}
-  //     // onPress={() => openUrl(node.attributes.href, onLinkPress)}
-  //   >
-  //     {children}
-  //   </Text>
-  // ),
-  link: (node, children, parent, styles, onLinkPress) => (
-    <Link key={node.key} style={styles.link} href={node.attributes.href}>
-      {children}
-    </Link>
-  ),
-
-  // // blocklink: (node, children, parent, styles, onLinkPress) => (
-  // //   <TouchableWithoutFeedback
-  // //     key={node.key}
-  // //     onPress={() => openUrl(node.attributes.href, onLinkPress)}
-  // //     style={styles.blocklink}
-  // //   >
-  // //     <View style={styles.image}>{children}</View>
-  // //   </TouchableWithoutFeedback>
-  // // ),
-
-  // // Images
-  image: (node) => {
-    const { src, alt } = node.attributes;
-    return (
-      <View
-        key={node.key}
-        w="100%"
-        dsp="flex"
-        fd="row"
-        jc="flex-start"
-        onLongPress={() => {
-          console.log(src);
-          if (typeof src === "string") {
-            shareImage(src);
-          }
-        }}
-      >
-        <Image maxWidth={250} imageUrl={src} />
-      </View>
-    );
-  },
-
-  // // Text Output
-  text: (node, children, parent, styles, inheritedStyles = {}) => {
-    const fontSize = (inheritedStyles.fontSize ?? 15) * scale;
-    return (
+    // // Code
+    code_inline: (node, children, parent, styles, inheritedStyles = {}) => (
       <Text
         key={node.key}
-        lineHeight={fontSize * 1.4}
-        style={{
-          ...inheritedStyles,
-          fontSize,
-        }}
+        style={inheritedStyles}
+        p="$1"
+        px="$1.5"
+        bg="$color6"
+        fontSize="$3"
+        br="$1"
       >
         {node.content}
       </Text>
-    );
-  },
-  // textgroup: (node, children, parent, styles) => (
-  //   <Text key={node.key} style={styles.textgroup}>
-  //     {children}
-  //   </Text>
-  // ),
-  paragraph: (node, children, parent, styles) => (
-    <View key={node.key} my="$0">
-      {children}
-    </View>
-  ),
-  // hardbreak: (node, children, parent, styles) => (
-  //   <Text key={node.key} style={styles.hardbreak}>
-  //     {"\n"}
-  //   </Text>
-  // ),
-  // softbreak: (node, children, parent, styles) => (
-  //   <Text key={node.key} style={styles.softbreak}>
-  //     {"\n"}
-  //   </Text>
-  // ),
+    ),
+    // code_block: (node, children, parent, styles, inheritedStyles = {}) => {
+    //   // we trim new lines off the end of code blocks because the parser sends an extra one.
+    //   let { content } = node;
 
-  // // Believe these are never used but retained for completeness
-  // pre: (node, children, parent, styles) => (
-  //   <View key={node.key} style={styles._VIEW_SAFE_pre}>
-  //     {children}
-  //   </View>
-  // ),
-  inline: (node, children, parent, styles) => (
-    <Text key={node.key} style={styles.inline}>
-      {children}
-    </Text>
-  ),
-  span: (node, children, parent, styles) => (
-    <Text key={node.key} style={styles.span}>
-      {children}
-    </Text>
-  ),
-  lemmy_spoiler: (node: any) => (
-    <Spoiler title={node.sourceMeta?.title} key={node.key}>
-      <Markdown markdown={node.content} />
-    </Spoiler>
-  ),
-};
+    //   if (
+    //     typeof node.content === "string" &&
+    //     node.content.charAt(node.content.length - 1) === "\n"
+    //   ) {
+    //     content = node.content.substring(0, node.content.length - 1);
+    //   }
+
+    //   return (
+    //     <Text key={node.key} style={[inheritedStyles, styles.code_block]}>
+    //       {content}
+    //     </Text>
+    //   );
+    // },
+    // fence: (node, children, parent, styles, inheritedStyles = {}) => {
+    //   // we trim new lines off the end of code blocks because the parser sends an extra one.
+    //   let { content } = node;
+
+    //   if (
+    //     typeof node.content === "string" &&
+    //     node.content.charAt(node.content.length - 1) === "\n"
+    //   ) {
+    //     content = node.content.substring(0, node.content.length - 1);
+    //   }
+
+    //   return (
+    //     <Text key={node.key} style={[inheritedStyles, styles.fence]}>
+    //       {content}
+    //     </Text>
+    //   );
+    // },
+
+    // // Tables
+    // table: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_table}>
+    //     {children}
+    //   </View>
+    // ),
+    // thead: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_thead}>
+    //     {children}
+    //   </View>
+    // ),
+    // tbody: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_tbody}>
+    //     {children}
+    //   </View>
+    // ),
+    // th: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_th}>
+    //     {children}
+    //   </View>
+    // ),
+    // tr: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_tr}>
+    //     {children}
+    //   </View>
+    // ),
+    // td: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_td}>
+    //     {children}
+    //   </View>
+    // ),
+
+    // // Links
+    // link: (node, children, parent, styles, onLinkPress) => (
+    //   <Text
+    //     key={node.key}
+    //     style={styles.link}
+    //     // onPress={() => openUrl(node.attributes.href, onLinkPress)}
+    //   >
+    //     {children}
+    //   </Text>
+    // ),
+    link: (node, children, parent, styles, onLinkPress) => (
+      <Link key={node.key} style={styles.link} href={node.attributes.href}>
+        {children}
+      </Link>
+    ),
+
+    // // blocklink: (node, children, parent, styles, onLinkPress) => (
+    // //   <TouchableWithoutFeedback
+    // //     key={node.key}
+    // //     onPress={() => openUrl(node.attributes.href, onLinkPress)}
+    // //     style={styles.blocklink}
+    // //   >
+    // //     <View style={styles.image}>{children}</View>
+    // //   </TouchableWithoutFeedback>
+    // // ),
+
+    // // Images
+    image: (node) => {
+      const { src, alt } = node.attributes;
+      return (
+        <View
+          key={node.key}
+          w="100%"
+          dsp="flex"
+          fd="row"
+          jc="flex-start"
+          onLongPress={() => {
+            if (typeof src === "string") {
+              shareImage(src);
+            }
+          }}
+        >
+          <Image maxWidth={250} imageUrl={src} />
+        </View>
+      );
+    },
+
+    // // Text Output
+    text: (node, children, parent, styles, inheritedStyles = {}) => {
+      const fontSize = (inheritedStyles.fontSize ?? 15) * scale;
+      return (
+        <Text
+          key={node.key}
+          lineHeight={fontSize * 1.4}
+          style={{
+            ...inheritedStyles,
+            fontSize,
+          }}
+        >
+          {node.content}
+        </Text>
+      );
+    },
+    // textgroup: (node, children, parent, styles) => (
+    //   <Text key={node.key} style={styles.textgroup}>
+    //     {children}
+    //   </Text>
+    // ),
+    paragraph: (node, children, parent, styles) => (
+      <View key={node.key} my="$0">
+        {children}
+      </View>
+    ),
+    // hardbreak: (node, children, parent, styles) => (
+    //   <Text key={node.key} style={styles.hardbreak}>
+    //     {"\n"}
+    //   </Text>
+    // ),
+    // softbreak: (node, children, parent, styles) => (
+    //   <Text key={node.key} style={styles.softbreak}>
+    //     {"\n"}
+    //   </Text>
+    // ),
+
+    // // Believe these are never used but retained for completeness
+    // pre: (node, children, parent, styles) => (
+    //   <View key={node.key} style={styles._VIEW_SAFE_pre}>
+    //     {children}
+    //   </View>
+    // ),
+    inline: (node, children, parent, styles) => (
+      <Text key={node.key} style={styles.inline}>
+        {children}
+      </Text>
+    ),
+    span: (node, children, parent, styles) => (
+      <Text key={node.key} style={styles.span}>
+        {children}
+      </Text>
+    ),
+    lemmy_spoiler: (node: any) => (
+      <Spoiler title={node.sourceMeta?.title} key={node.key}>
+        <Markdown markdown={node.content} />
+      </Spoiler>
+    ),
+  };
+}
 
 export function Markdown({
   markdown,
@@ -482,7 +487,20 @@ export function Markdown({
   markdown: string;
   color?: GetThemeValueForKey<"color">;
 }) {
-  const ast = tokensToAST(stringToTokens(markdown, markdownItInstance));
+  const theme = useTheme();
+
+  const rules = useMemo(
+    () =>
+      getRenderRules({
+        color: theme.color.val,
+      }),
+    [theme.color.val],
+  );
+
+  const ast = useMemo(
+    () => tokensToAST(stringToTokens(markdown, markdownItInstance)),
+    [markdown],
+  );
 
   return (
     <Context.Provider
@@ -490,7 +508,7 @@ export function Markdown({
         color: color ?? "$color",
       }}
     >
-      <Md rules={renderRules}>{ast as any}</Md>
+      <Md rules={rules}>{ast as any}</Md>
     </Context.Provider>
   );
 }
