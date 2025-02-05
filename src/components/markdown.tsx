@@ -268,7 +268,6 @@ function getRenderRules(config: { color: string }): RenderRules {
       );
     },
     ordered_list: function Ol(node, children, parent, styles) {
-      const theme = useTheme();
       return (
         <MarkedList
           key={node.key}
@@ -285,9 +284,12 @@ function getRenderRules(config: { color: string }): RenderRules {
     },
     list_item: (node, children, parent, styles, inheritedStyles = {}) => {
       return (
-        <YStack key={node.key} flex={1}>
+        <View
+          key={node.key}
+          style={{ flexDirection: "column", alignItems: "flex-start" }}
+        >
           {children}
-        </YStack>
+        </View>
       );
     },
 
