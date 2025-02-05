@@ -15,7 +15,7 @@ import { useSettingsStore } from "~/src/stores/settings";
 import { useLogout } from "~/src/lib/lemmy/index";
 import { useAuth } from "~/src/stores/auth";
 import { useRequireAuth } from "~/src/components/auth-context";
-import { Image as ExpoImage } from "expo-image";
+import { clearCache as clearImageCache } from "~/src/components/image";
 import { ContentGutters } from "~/src/components/gutters";
 import { Link, LinkProps } from "one";
 import _ from "lodash";
@@ -175,7 +175,7 @@ export default function SettingsPage() {
                 }
                 settings.setCacheImages(newVal);
                 if (!newVal) {
-                  ExpoImage.clearDiskCache();
+                  clearImageCache();
                 }
               }}
             >
@@ -192,8 +192,7 @@ export default function SettingsPage() {
                 try {
                   await Promise.all([
                     queryClient.invalidateQueries(),
-                    ExpoImage.clearDiskCache(),
-                    ExpoImage.clearMemoryCache(),
+                    clearImageCache(),
                   ]);
                 } catch (err) {}
               }}

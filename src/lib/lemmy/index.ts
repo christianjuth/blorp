@@ -38,11 +38,10 @@ import {
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
-import { Image as RNImage } from "react-native";
 import { useFiltersStore } from "~/src/stores/filters";
 import { useAuth } from "../../stores/auth";
-import { useCallback, useEffect, useMemo } from "react";
-import { Image as ExpoImage } from "expo-image";
+import { useEffect, useMemo } from "react";
+import { prefetch as prefetchImage } from "~/src/components/image";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
 import { useSettingsStore } from "../../stores/settings";
@@ -53,57 +52,7 @@ import { useIsFocused } from "@react-navigation/native";
 import { useCommunitiesStore } from "../../stores/communities";
 import { useRouter } from "one";
 import { createCommunitySlug } from "./utils";
-
-export function parseCommunitySlug(slug: string) {
-  const [communityName, lemmyServer] = slug.split("@");
-  return {
-    communityName,
-    lemmyServer,
-  };
-}
-
-const imageAspectRatioCache = new Map<
-  string,
-  Promise<{ width: number; height: number }>
->();
-
-export const imageSizeCache = new Map<
-  string,
-  { width: number; height: number }
->();
-
-export async function measureImage(src: string) {
-  if (imageAspectRatioCache.has(src)) {
-    return await imageAspectRatioCache.get(src);
-  }
-
-  const p = new Promise<{
-    width: number;
-    height: number;
-  }>((resolve, reject) => {
-    if (src.endsWith(".gif")) {
-      reject();
-      return;
-    }
-
-    RNImage.getSize(
-      src,
-      (width, height) => {
-        imageSizeCache.set(src, { width, height });
-        resolve({ width, height });
-      },
-      reject,
-    );
-  });
-
-  imageAspectRatioCache.set(src, p);
-
-  p.catch(() => {
-    imageAspectRatioCache.delete(src);
-  });
-
-  return await p;
-}
+import { measureImage } from "../image";
 
 function useLemmyClient() {
   const jwt = useAuth((s) => s.getSelectedAccount().jwt);
@@ -270,7 +219,7 @@ export function usePersonPosts({ person_id }: { person_id?: string | number }) {
                 });
               });
             }
-            ExpoImage.prefetch([thumbnail], {
+            prefetchImage([thumbnail], {
               cachePolicy: cacheImages ? "disk" : "memory",
             });
           }, i);
@@ -344,7 +293,7 @@ export function usePost({
             }
           });
         }
-        ExpoImage.prefetch([thumbnail], {
+        prefetchImage([thumbnail], {
           cachePolicy: cacheImages ? "disk" : "memory",
         });
       }
@@ -474,7 +423,7 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
               });
             });
           }
-          ExpoImage.prefetch([thumbnail], {
+          prefetchImage([thumbnail], {
             cachePolicy: cacheImages ? "disk" : "memory",
           });
         }, i);
@@ -1089,9 +1038,9 @@ export function useSearch(form: Search) {
                 });
               });
             }
-            ExpoImage.prefetch([thumbnail], {
-              cachePolicy: cacheImages ? "disk" : "memory",
-            });
+            // ExpoImage.prefetch([thumbnail], {
+            //   cachePolicy: cacheImages ? "disk" : "memory",
+            // });
           }, i);
           i += 50;
         }
