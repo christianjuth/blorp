@@ -29,10 +29,10 @@ Blorp is a work in progress, and the goal is to check off everything below for v
 - [ ] Internal
   - [X] Anonymously catch runtime errors using Sentry
   - [ ] End-to-end tests
-    - [ ] Initial setup
+    - [X] Initial setup
     - [ ] Test critical user flows
   - [ ] Unit tests
-    - [ ] Tests Zustand stores
+    - [ ] Tests Zustand stores - _mostly done_
     - [X] Tests lib folder
   - [X] Storybook
     - [X] Visial testing via Cromatic
