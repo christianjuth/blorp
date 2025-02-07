@@ -2,7 +2,7 @@ import { useNavigation } from "one";
 import { PostComment } from "~/src/components/posts/post-comment";
 import { buildCommentMap } from "../lib/comment-map";
 import { useEffect } from "react";
-import { usePost, usePostComments } from "~/src/lib/lemmy/index";
+import { useCommunity, usePost, usePostComments } from "~/src/lib/lemmy/index";
 import { PostCard } from "~/src/components/posts/post";
 import { CommunitySidebar } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
@@ -185,6 +185,10 @@ export function Post({
   const post = usePostsStore((s) =>
     decodedApId ? s.posts[decodedApId]?.data : null,
   );
+
+  useCommunity({
+    name: communityName,
+  });
 
   const comments = usePostComments({
     post_id: post?.post.id,

@@ -51,7 +51,7 @@ import { useThrottleQueue } from "../throttle-queue";
 import { useIsFocused } from "@react-navigation/native";
 import { useCommunitiesStore } from "../../stores/communities";
 import { useRouter } from "one";
-import { createCommunitySlug } from "./utils";
+import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
 import { measureImage } from "../image";
 
 function useLemmyClient() {
@@ -78,66 +78,11 @@ function useLemmyClient() {
   }, [jwt, instance, myUserId]);
 }
 
-export type FlattenedPost = {
-  optimisticMyVote?: number;
-  myVote?: number;
-  post: Post;
-  community: {
-    name: string;
-    title: string;
-    icon?: string;
-    slug: string;
-  };
-  creator: Pick<Person, "id" | "name" | "avatar">;
-  counts: Pick<PostAggregates, "score" | "comments">;
-  imageDetails?: Pick<ImageDetails, "height" | "width">;
-  crossPosts?: Array<Omit<FlattenedPost, "crossPosts">>;
-};
-export type FlattenedGetPostResponse = {
-  posts: FlattenedPost[];
-};
-
-export function flattenPost({
-  post_view: postView,
-  cross_posts: crossPosts,
-}: {
-  post_view: PostView;
-  cross_posts?: Array<PostView>;
-}): FlattenedPost {
-  const community = postView.community;
-  const creator = postView.creator;
-  const post = postView.post;
-  return {
-    myVote: postView.my_vote,
-    post,
-    crossPosts: crossPosts?.map((post_view) =>
-      flattenPost({
-        post_view,
-      }),
-    ),
-    community: {
-      name: community.name,
-      title: community.title,
-      icon: community.icon,
-      slug: createCommunitySlug(postView.community),
-    },
-    creator: {
-      id: creator.id,
-      name: creator.name,
-      avatar: creator.avatar,
-    },
-    counts: _.pick(postView.counts, ["score", "comments"]),
-    imageDetails: postView.image_details
-      ? _.pick(postView.image_details, ["width", "height"])
-      : undefined,
-  };
-}
-
 export type FlattenedComment = {
   optimisticMyVote?: number;
   myVote?: number;
   comment: Comment;
-  creator: Pick<Person, "id" | "name" | "avatar">;
+  creator: Pick<Person, "id" | "name" | "avatar" | "actor_id">;
   counts: Pick<CommentAggregates, "score">;
 };
 
@@ -150,29 +95,34 @@ function flattenComment(commentView: CommentView): FlattenedComment {
   return {
     myVote: commentView.my_vote,
     comment,
-    creator: _.pick(commentView.creator, ["id", "name", "avatar"]),
+    creator: _.pick(commentView.creator, ["id", "name", "avatar", "actor_id"]),
     counts: _.pick(commentView.counts, ["score"]),
   };
 }
 
-export function usePersonDetails({
-  person_id,
-}: {
-  person_id?: string | number;
-}) {
+export function usePersonDetails({ actorId }: { actorId?: string }) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
-  const queryKey = [...queryKeyPrefix, "getPersonDetails", person_id];
+  const queryKey = [...queryKeyPrefix, "getPersonDetails", actorId];
 
   return useQuery({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!person_id) {
+      if (!actorId) {
         throw new Error("person_id undefined");
       }
+
+      const { person } = await client.resolveObject({
+        q: actorId,
+      });
+
+      if (!person) {
+        throw new Error("person not found");
+      }
+
       const { posts, comments, ...rest } = await client.getPersonDetails(
         {
-          person_id: +person_id,
+          person_id: person?.person.id,
           limit: 1,
         },
         {
@@ -181,14 +131,14 @@ export function usePersonDetails({
       );
       return rest;
     },
-    enabled: !!person_id,
+    enabled: !!actorId,
   });
 }
 
-export function usePersonPosts({ person_id }: { person_id?: string | number }) {
+export function usePersonPosts({ actorId }: { actorId?: string }) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
-  const queryKey = [...queryKeyPrefix, "getPersonPosts", person_id];
+  const queryKey = [...queryKeyPrefix, "getPersonPosts", actorId];
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const patchPost = usePostsStore((s) => s.patchPost);
@@ -200,12 +150,21 @@ export function usePersonPosts({ person_id }: { person_id?: string | number }) {
     queryFn: async ({ pageParam, signal }) => {
       const limit = 50;
 
-      if (!person_id) {
+      if (!actorId) {
         throw new Error("person_id undefined");
       }
+
+      const { person } = await client.resolveObject({
+        q: actorId,
+      });
+
+      if (!person) {
+        throw new Error("person not found");
+      }
+
       const res = await client.getPersonDetails(
         {
-          person_id: +person_id,
+          person_id: person.person.id,
           limit,
           page: pageParam,
         },
@@ -243,9 +202,9 @@ export function usePersonPosts({ person_id }: { person_id?: string | number }) {
         next_page: res.posts.length < limit ? null : pageParam + 1,
       };
     },
-    enabled: !!person_id,
+    enabled: !!actorId,
     initialPageParam: 1,
-    getNextPageParam: (d) => 1,
+    getNextPageParam: (data) => data.next_page,
   });
 }
 
@@ -423,6 +382,8 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const patchPost = usePostsStore((s) => s.patchPost);
 
+  const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
+
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
   const queryFn = async ({
@@ -446,6 +407,10 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
 
     const posts = res.posts.map((post_view) => flattenPost({ post_view }));
     const cachedPosts = cachePosts(posts);
+
+    cacheCommunities(
+      res.posts.map((p) => ({ communityView: { community: p.community } })),
+    );
 
     let i = 0;
     for (const { post } of res.posts) {
@@ -843,6 +808,7 @@ export function useCreateComment() {
           id: myProfile?.id ?? -1,
           name: myProfile?.name ?? "",
           avatar: myProfile?.avatar,
+          actor_id: myProfile?.actor_id ?? "",
         },
         counts: {
           score: 1,
@@ -1015,6 +981,7 @@ export function useDeleteComment() {
 }
 
 export function useReplies(form: GetReplies) {
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
   const queryKey = [...queryKeyPrefix, "getReplies"];
 
@@ -1041,6 +1008,7 @@ export function useReplies(form: GetReplies) {
     },
     initialPageParam: 1,
     getNextPageParam: (prev) => prev.nextPage,
+    enabled: isLoggedIn,
   });
 }
 

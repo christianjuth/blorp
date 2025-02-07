@@ -65,7 +65,7 @@ export function CommunitySidebar({
         <XStack>
           <YStack gap="$1" flex={1}>
             <Text fontWeight="bold" fontSize="$4">
-              {abbriviateNumber(counts.subscribers)}
+              {counts && abbriviateNumber(counts.subscribers)}
             </Text>
             <Text fontSize="$3" color="$color11">
               Members
@@ -74,7 +74,7 @@ export function CommunitySidebar({
 
           <YStack gap="$1" flex={1}>
             <Text fontWeight="bold" fontSize="$4">
-              {abbriviateNumber(counts.posts)}
+              {counts && abbriviateNumber(counts.posts)}
             </Text>
             <Text fontSize="$3" color="$color11">
               Posts
@@ -83,7 +83,7 @@ export function CommunitySidebar({
 
           <YStack gap="$1" flex={1}>
             <Text fontWeight="bold" fontSize="$4">
-              {abbriviateNumber(counts.comments)}
+              {counts && abbriviateNumber(counts.comments)}
             </Text>
             <Text fontSize="$3" color="$color11">
               Comments
@@ -174,7 +174,7 @@ export function SmallScreenSidebar({
       <XStack>
         <YStack gap="$1" flex={1}>
           <Text fontWeight="bold" fontSize="$4">
-            {abbriviateNumber(counts.subscribers)}
+            {counts && abbriviateNumber(counts.subscribers)}
           </Text>
           <Text fontSize="$3" color="$color11">
             Members
@@ -183,7 +183,7 @@ export function SmallScreenSidebar({
 
         <YStack gap="$1" flex={1}>
           <Text fontWeight="bold" fontSize="$4">
-            {abbriviateNumber(counts.posts)}
+            {counts && abbriviateNumber(counts.posts)}
           </Text>
           <Text fontSize="$3" color="$color11">
             Posts
@@ -192,7 +192,7 @@ export function SmallScreenSidebar({
 
         <YStack gap="$1" flex={1}>
           <Text fontWeight="bold" fontSize="$4">
-            {abbriviateNumber(counts.comments)}
+            {counts && abbriviateNumber(counts.comments)}
           </Text>
           <Text fontSize="$3" color="$color11">
             Comments

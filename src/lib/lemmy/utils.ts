@@ -1,3 +1,4 @@
+import { Regex } from "@tamagui/lucide-icons";
 import {
   Community,
   ImageDetails,
@@ -36,7 +37,7 @@ export type FlattenedPost = {
     icon?: string;
     slug: string;
   };
-  creator: Pick<Person, "id" | "name" | "avatar">;
+  creator: Pick<Person, "id" | "name" | "avatar" | "actor_id">;
   counts: Pick<PostAggregates, "score" | "comments">;
   imageDetails?: Pick<ImageDetails, "height" | "width">;
   crossPosts?: Array<Omit<FlattenedPost, "crossPosts">>;
@@ -53,7 +54,6 @@ export function flattenPost({
   cross_posts?: Array<PostView>;
 }): FlattenedPost {
   const community = postView.community;
-  const creator = postView.creator;
   const post = postView.post;
   return {
     myVote: postView.my_vote,
@@ -69,14 +69,18 @@ export function flattenPost({
       icon: community.icon,
       slug: createCommunitySlug(postView.community),
     },
-    creator: {
-      id: creator.id,
-      name: creator.name,
-      avatar: creator.avatar,
-    },
+    creator: _.pick(postView.creator, ["id", "name", "avatar", "actor_id"]),
     counts: _.pick(postView.counts, ["score", "comments"]),
     imageDetails: postView.image_details
       ? _.pick(postView.image_details, ["width", "height"])
       : undefined,
   };
+}
+
+export function encodeApId(id: string) {
+  return encodeURIComponent(id);
+}
+
+export function decodeApId(encodedUrl: string) {
+  return decodeURIComponent(encodedUrl);
 }

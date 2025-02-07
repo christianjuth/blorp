@@ -17,37 +17,44 @@ import { CommentMap } from "~/src/lib/comment-map";
 import { useShowCommentReportModal } from "./post-report";
 import { useRequireAuth } from "../auth-context";
 import { useAlert } from "../ui/alert";
+import { useLinkContext } from "../nav/link-context";
+import { Link } from "one";
+import { Person } from "lemmy-js-client";
+import { encodeApId } from "~/src/lib/lemmy/utils";
 
 function Byline({
-  avatar,
-  author,
+  creator,
   publishedDate,
   authorType,
   onPress,
 }: {
-  avatar?: string;
-  author: string;
+  creator: Pick<Person, "actor_id" | "avatar" | "name">;
   publishedDate: string;
   authorType?: "OP" | "Me";
   onPress?: () => void;
 }) {
+  const linkCtx = useLinkContext();
   return (
     <XStack ai="center">
       <Avatar size={21} mr="$2">
-        <Avatar.Image src={avatar} borderRadius="$12" />
+        <Avatar.Image src={creator.avatar} borderRadius="$12" />
         <Avatar.Fallback
           backgroundColor="$color8"
           borderRadius="$12"
           ai="center"
           jc="center"
         >
-          <Text fontSize="$1">{author?.substring(0, 1).toUpperCase()}</Text>
+          <Text fontSize="$1">
+            {creator.name?.substring(0, 1).toUpperCase()}
+          </Text>
         </Avatar.Fallback>
       </Avatar>
-      <Text fontSize="$3" fontWeight={500}>
-        {author}
-        {authorType && <Text color={"$accentColor"}> ({authorType})</Text>}
-      </Text>
+      <Link href={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}>
+        <Text fontSize="$3" fontWeight={500}>
+          {creator.name}
+          {authorType && <Text color={"$accentColor"}> ({authorType})</Text>}
+        </Text>
+      </Link>
       <RelativeTime
         prefix=" • "
         time={publishedDate}
@@ -154,8 +161,7 @@ export function PostComment({
       opacity={comment.id < 0 ? 0.5 : undefined}
     >
       <Byline
-        avatar={avatar}
-        author={creator.name}
+        creator={creator}
         publishedDate={comment.published}
         authorType={
           creator.id === opId

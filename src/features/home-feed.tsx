@@ -81,7 +81,7 @@ export function HomeFeed() {
 
           return (
             <ContentGutters>
-              <PostCard apId={item} />
+              <PostCard apId={item} featuredContext="home" />
               <></>
             </ContentGutters>
           );

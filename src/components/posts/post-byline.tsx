@@ -1,6 +1,7 @@
 import { View, Text, Avatar, YStack, XStack } from "tamagui";
 import { RelativeTime } from "~/src/components/relative-time";
-import { FlattenedPost, useBlockPerson } from "~/src/lib/lemmy/index";
+import { useBlockPerson } from "~/src/lib/lemmy/index";
+import { FlattenedPost } from "~/src/lib/lemmy/utils";
 import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
 import { ActionMenu } from "../ui/action-menu";
@@ -9,13 +10,14 @@ import { Ellipsis, Pin } from "@tamagui/lucide-icons";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
 import { useAlert } from "../ui/alert";
+import { encodeApId } from "~/src/lib/lemmy/utils";
 
 export function PostByline({
   postView,
   featuredContext,
 }: {
   postView: FlattenedPost;
-  featuredContext?: "community";
+  featuredContext?: "community" | "home";
 }) {
   const alrt = useAlert();
 
@@ -30,9 +32,9 @@ export function PostByline({
   if (featuredContext === "community") {
     pinned = postView.post.featured_community;
   }
-  // else if (featuredContext === "site") {
-  //   pinned = post.featured_local;
-  // }
+  if (featuredContext === "home") {
+    pinned = postView.post.featured_local;
+  }
 
   return (
     <XStack dsp="flex" fd="row" ai="center" gap={9}>
@@ -57,7 +59,10 @@ export function PostByline({
           </Text>
         </Link>
         <XStack>
-          <Link href={`${linkCtx.root}u/${postView.creator.id}`} push>
+          <Link
+            href={`${linkCtx.root}u/${encodeApId(postView.creator.actor_id)}`}
+            push
+          >
             <Text fontSize="$2" fontWeight={500} color="$color11">
               u/{creator.name}
             </Text>
