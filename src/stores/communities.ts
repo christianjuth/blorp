@@ -11,7 +11,9 @@ import type {
 import { createCommunitySlug } from "../lib/lemmy/utils";
 
 type Data = {
-  communityView: CommunityView;
+  communityView:
+    | CommunityView
+    | ({ community: Community } & Partial<CommunityView>);
   optimisticSubscribed?: SubscribedType;
   mods?: CommunityModeratorView;
 };
@@ -35,9 +37,13 @@ export const useCommunitiesStore = create<SortsStore>()(
       patchCommunity: (slug, patch) => {
         const communities = get().communities;
         const prevCommunityData = communities[slug]?.data ?? {};
-        const updatedCommunityData = {
+        const updatedCommunityData: Data = {
           ...prevCommunityData,
           ...patch,
+          communityView: {
+            ...prevCommunityData.communityView,
+            ...patch.communityView,
+          },
         };
         if (slug in communities) {
           set({
@@ -53,16 +59,20 @@ export const useCommunitiesStore = create<SortsStore>()(
         return updatedCommunityData;
       },
       cacheCommunity: (view) => {
+        const prev = get();
         const slug = createCommunitySlug(view.communityView.community);
-        const communities = get().communities;
-        const prevCommunityData = communities[slug]?.data ?? {};
-        const updatedCommunityData = {
+        const prevCommunityData = prev.communities[slug]?.data ?? {};
+        const updatedCommunityData: Data = {
           ...prevCommunityData,
           ...view,
+          communityView: {
+            ...prevCommunityData.communityView,
+            ...view.communityView,
+          },
         };
         set({
           communities: {
-            ...communities,
+            ...prev.communities,
             [slug]: {
               data: updatedCommunityData,
               lastUsed: Date.now(),
@@ -83,6 +93,10 @@ export const useCommunitiesStore = create<SortsStore>()(
             data: {
               ...prevCommunityData,
               ...view,
+              communityView: {
+                ...prevCommunityData.communityView,
+                ...view.communityView,
+              },
             },
             lastUsed: Date.now(),
           };

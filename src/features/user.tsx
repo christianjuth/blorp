@@ -1,26 +1,27 @@
 import { ContentGutters } from "../components/gutters";
 import { abbriviateNumber } from "../lib/format";
 import { usePersonDetails, usePersonPosts } from "../lib/lemmy";
-import { Avatar, isWeb, Text, View, XStack, YStack } from "tamagui";
+import { Avatar, Text, View, XStack, YStack } from "tamagui";
 import { PostCard } from "../components/posts/post";
 import { Markdown } from "../components/markdown";
 import { FlashList } from "../components/flashlist";
 import { PostSortBar } from "../components/lemmy-sort";
-import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
-import { useCustomHeaderHeight } from "../components/nav/hooks";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useScrollToTop } from "@react-navigation/native";
 import { useNavigation } from "one";
 import { CakeSlice } from "@tamagui/lucide-icons";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
+import { decodeApId } from "../lib/lemmy/utils";
 
 dayjs.extend(localizedFormat);
 
 const EMPTY_ARR = [];
 
 export function User({ userId }: { userId?: string }) {
-  const personQuery = usePersonDetails({ person_id: userId });
+  const actorId = userId ? decodeApId(userId) : undefined;
+
+  const personQuery = usePersonDetails({ actorId });
   const {
     hasNextPage,
     fetchNextPage,
@@ -28,15 +29,12 @@ export function User({ userId }: { userId?: string }) {
     isRefetching,
     refetch,
     data,
-  } = usePersonPosts({ person_id: userId });
+  } = usePersonPosts({ actorId });
 
   const ref = useRef(null);
   useScrollToTop(ref);
 
   const navigation = useNavigation();
-
-  const tabBar = useCustomTabBarHeight();
-  const header = useCustomHeaderHeight();
 
   if (!personQuery.data) {
     return null;
@@ -48,9 +46,11 @@ export function User({ userId }: { userId?: string }) {
 
   const posts = data?.pages.flatMap((p) => p.posts) ?? EMPTY_ARR;
 
-  if (personView.person.name) {
-    navigation.setOptions({ title: person.display_name ?? person.name });
-  }
+  useEffect(() => {
+    if (person) {
+      navigation.setOptions({ title: person.display_name ?? person.name });
+    }
+  }, [person]);
 
   return (
     <FlashList

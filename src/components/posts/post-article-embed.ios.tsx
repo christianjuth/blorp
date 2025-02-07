@@ -1,6 +1,6 @@
 import { Text, View } from "tamagui";
 import { Image } from "~/src/components/image";
-import { FlattenedPost } from "~/src/lib/lemmy/index";
+import { FlattenedPost } from "~/src/lib/lemmy/utils";
 import SafariView from "react-native-safari-view";
 
 export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {

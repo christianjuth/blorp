@@ -37,7 +37,7 @@ export function PostCard({
    * to check if post.featured_community is true, and if so,
    * mark it as a pinned post in the context of a community feed.
    */
-  featuredContext?: "community";
+  featuredContext?: "community" | "home";
 }) {
   const media = useMedia();
 
@@ -116,11 +116,7 @@ export function PostCard({
 
   const titleWithOptionalImage = (
     <YStack gap="$2">
-      <Text
-        fontWeight={500}
-        fontSize={detailView ? "$7" : "$6"}
-        lineHeight="$4"
-      >
+      <Text fontWeight={500} fontSize="$6" lineHeight="$4">
         {post.name}
       </Text>
 
