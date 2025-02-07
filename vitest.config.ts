@@ -4,7 +4,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import path from "path";
 
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  plugins: [tsconfigPaths() as any],
   resolve: {
     alias: {
       idb: path.resolve(__dirname, "./test-utils/mocks/idb.js"),
