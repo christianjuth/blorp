@@ -30,6 +30,10 @@ jobs:
       - name: Build Tamagui One app (without Sentry)
         run: yarn build:web
 
+      - name: Remove Invalid Files (Preloads)
+        run: |
+          find dist/client -depth -name "*:*" -exec rm -f {} \;
+
       - name: Upload artifact for PR preview
         uses: actions/upload-artifact@v4
         with:
