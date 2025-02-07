@@ -286,7 +286,7 @@ function getRenderRules(config: { color: string }): RenderRules {
       return (
         <View
           key={node.key}
-          style={{ flexDirection: "column", alignItems: "flex-start" }}
+          style={{ flexDirection: "column", alignItems: "flex-start", flex: 1 }}
         >
           {children}
         </View>
