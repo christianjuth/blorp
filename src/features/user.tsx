@@ -36,6 +36,13 @@ export function User({ userId }: { userId?: string }) {
 
   const navigation = useNavigation();
 
+  useEffect(() => {
+    const person = personQuery.data?.person_view.person;
+    if (person) {
+      navigation.setOptions({ title: person.display_name ?? person.name });
+    }
+  }, [personQuery.data?.person_view]);
+
   if (!personQuery.data) {
     return null;
   }
@@ -45,12 +52,6 @@ export function User({ userId }: { userId?: string }) {
   const counts = personView.counts;
 
   const posts = data?.pages.flatMap((p) => p.posts) ?? EMPTY_ARR;
-
-  useEffect(() => {
-    if (person) {
-      navigation.setOptions({ title: person.display_name ?? person.name });
-    }
-  }, [person]);
 
   return (
     <FlashList
