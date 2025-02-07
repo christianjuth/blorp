@@ -9,6 +9,7 @@
     "dev:clean": "one dev --clean",
     "clean": "one clean",
     "prebuild:native": "one prebuild",
+    "build": "one build",
     "build:web": "one build",
     "serve": "yarn node ./test-utils/express.js",
     "ios": "one run:ios",
