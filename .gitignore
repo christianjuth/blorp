@@ -52,3 +52,6 @@ storybook-static/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Local Netlify folder
+.netlify

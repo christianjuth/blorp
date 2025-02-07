@@ -1,17 +1,16 @@
-
-name: PR Preview Build
+name: Deploy One Brach Build
 
 on:
   pull_request:
-    branches: ["main"]
+    types: [opened, synchronize, reopened]
 
 permissions:
-  contents: read
-  pull-requests: write  # Needed to comment on the PR
+  pull-requests: write
 
 jobs:
   preview:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,26 +19,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: 'yarn'
 
-      - name: Install dependencies
-        run: |
-          corepack enable
-          yarn install --immutable
+      - name: Install netlify
+        run: npm i -g netlify-cli
 
-      - name: Build Tamagui One app (without Sentry)
-        run: yarn build:web
-
-      - name: Deploy to Netlify
-        run: |
-          npm install -g netlify-cli
-          PREVIEW_URL=$(netlify deploy --dir=dist/client --json | jq -r .deploy_url)
-          echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_ENV
-
-      - name: Comment PR with Preview Link
-        uses: thollander/actions-comment-pull-request@v2
+      - name: 'Deploy to Netlify'
+        id: netlify
+        uses: jsmrcaga/action-netlify-deploy@v2.0.0
         with:
-          message: |
-            🚀 **PR Preview Available!**
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_DEPLOY_MESSAGE: "Prod deploy v${{ github.ref }}"
+          NETLIFY_DEPLOY_TO_PROD: false
+          deploy_alias: "pr-${{ github.event.pull_request.number }}"
+          build_command: "yarn build:web"
+          build_directory: "dist/client"
+          install_command: "yarn install --immutable"
+
+      - name: Create or Update PR Comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            🚀 **PR Preview Updated!**
             
-            🔗 [View Live Preview](${{ env.PREVIEW_URL }})
+            🔗 [View Live Preview](${{ env.NETLIFY_PREVIEW_URL }})
+          edit-mode: replace
