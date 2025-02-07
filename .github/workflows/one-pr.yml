@@ -1,0 +1,48 @@
+
+name: PR Preview Build
+
+on:
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pull-requests: write  # Needed to comment on the PR
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          yarn install --immutable
+
+      - name: Build Tamagui One app (without Sentry)
+        run: yarn build:web
+
+      - name: Upload artifact for PR preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-preview-${{ github.event.pull_request.number }}
+          path: dist/client
+          retention-days: 5
+
+      - name: Comment on PR with preview link
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COMMENT="🚀 Preview available for PR #${{ github.event.pull_request.number }}\n\n\
+          🔗 **[Download the artifact](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})**\n\
+          📂 Open `index.html` in your browser to preview the build."
+          
+          gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT"
