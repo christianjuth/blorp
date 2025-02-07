@@ -7,7 +7,14 @@ export function createDb(rowName: string) {
   const storeName = "lemmy-store";
 
   function getDb() {
-    return openDB(dbName, DB_VERSION);
+    return openDB(dbName, DB_VERSION, {
+      upgrade(db) {
+        // Check if the store exists, and create it if not
+        if (!db.objectStoreNames.contains(storeName)) {
+          db.createObjectStore(storeName);
+        }
+      },
+    });
   }
 
   return {
