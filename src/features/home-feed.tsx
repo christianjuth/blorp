@@ -56,20 +56,18 @@ export function HomeFeed() {
 
   return (
     <PostReportProvider>
+      <ContentGutters>
+        <View flex={1} />
+        <View>
+          <PopularCommunitiesSidebar />
+        </View>
+      </ContentGutters>
+
       <List
         // @ts-expect-error
         ref={ref}
-        data={["sidebar-desktop", "post-sort-bar", ...data] as const}
+        data={["post-sort-bar", ...data] as const}
         renderItem={({ item }) => {
-          if (item === "sidebar-desktop") {
-            return (
-              <ContentGutters>
-                <View flex={1} />
-                <PopularCommunitiesSidebar />
-              </ContentGutters>
-            );
-          }
-
           if (item === "post-sort-bar") {
             return (
               <ContentGutters>
@@ -102,7 +100,6 @@ export function HomeFeed() {
             refetch();
           }
         }}
-        stickyHeaderIndices={[0]}
         scrollEventThrottle={16}
         estimatedItemSize={475}
         contentInset={{
