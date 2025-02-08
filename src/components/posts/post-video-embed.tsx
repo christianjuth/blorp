@@ -17,7 +17,7 @@ export function PostVideoEmbed({
         br: 0,
       }}
       br="$3"
-      bg="$color5"
+      bg="$color3"
       overflow="hidden"
     >
       <Video

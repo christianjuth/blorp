@@ -16,6 +16,7 @@ import { Repeat2 } from "@tamagui/lucide-icons";
 import { usePost } from "~/src/lib/lemmy/index";
 import { useSettingsStore } from "~/src/stores/settings";
 import { getPostEmbed } from "~/src/lib/post";
+import { PostLoopsEmbed } from "./post-loops-embed";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -139,6 +140,13 @@ export function PostCard({
       {embedType === "article" && <PostArticleEmbed postView={postView} />}
       {embedType === "video" && post.url && (
         <PostVideoEmbed url={post.url} autoPlay={detailView} />
+      )}
+      {embedType === "loops" && post.url && (
+        <PostLoopsEmbed
+          url={post.url}
+          thumbnail={thumbnail}
+          autoPlay={detailView}
+        />
       )}
       {embedType === "youtube" && <YouTubeVideoEmbed url={post.url} />}
     </>

@@ -4,9 +4,12 @@ import { isYouTubeVideoUrl } from "./youtube";
 export function getPostEmbed(post: Post) {
   const urlContentType = post.url_content_type;
 
-  let embedType: "image" | "video" | "article" | "youtube" = "article";
+  let embedType: "image" | "video" | "article" | "youtube" | "loops" =
+    "article";
 
-  if (
+  if (post.url?.startsWith("https://loops.video")) {
+    embedType = "loops";
+  } else if (
     (urlContentType && urlContentType.indexOf("image/") !== -1) ||
     post.url?.endsWith(".jpeg") ||
     post.url?.endsWith(".jpg") ||

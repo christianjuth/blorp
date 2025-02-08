@@ -15,8 +15,8 @@ import { Link, useRouter } from "one";
 import _ from "lodash";
 import { Community } from "lemmy-js-client";
 import { ChevronDown, Check, X } from "@tamagui/lucide-icons";
-import * as cheerio from "cheerio";
 import { Image } from "../components/image";
+import { parseOgData } from "../lib/html-parsing";
 
 const EMPTY_ARR = [];
 
@@ -51,24 +51,14 @@ export function CreatePostStepOne() {
         fetch(url)
           .then((res) => res.text())
           .then((body) => {
-            const $ = cheerio.load(body);
-            const newTitle = $("title").text();
+            const ogData = parseOgData(body);
 
-            if (!title) {
-              setTitle(newTitle);
+            if (!title && ogData.title) {
+              setTitle(ogData.title);
             }
 
-            // Try to find the og:image meta tag
-            const ogImage = $('meta[property="og:image"]').attr("content");
-
-            // Fallback to twitter:image if og:image is not found
-            const twitterImage = $('meta[name="twitter:image"]').attr(
-              "content",
-            );
-
-            const imageUrl = ogImage ?? twitterImage;
-            if (imageUrl) {
-              setThumbnailUrl(imageUrl);
+            if (ogData.image) {
+              setThumbnailUrl(ogData.image);
             }
           });
       } catch (err) {}
