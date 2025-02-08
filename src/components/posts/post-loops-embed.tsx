@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Video } from "react-native-video";
-import { isWeb, XStack, YStack } from "tamagui";
+import { isWeb, View, XStack, YStack } from "tamagui";
 import { scale } from "~/config/tamagui/scale";
 import { Image } from "../image";
 import { extractLoopsVideoSrc } from "~/src/lib/html-parsing";
+import { Link } from "one";
+import { Play, PlayCircle } from "@tamagui/lucide-icons";
 
 const AR = 9 / 16;
 const MAX_WIDTH_GT_MD = 500 * scale;
@@ -33,10 +35,9 @@ export function PostLoopsEmbed({
     getVideo(url).then(setSrc);
   }, [url]);
 
-  return (
-    <XStack jc="center">
+  const content = (
+    <XStack jc="center" bg="$gray3" pos="relative">
       <YStack
-        bg="$gray3"
         flex={1}
         aspectRatio={AR}
         $md={{
@@ -72,6 +73,31 @@ export function PostLoopsEmbed({
           />
         )}
       </YStack>
+
+      {isWeb && (
+        <View
+          br={99999}
+          p="$4"
+          bg="$color05"
+          pos="absolute"
+          t="50%"
+          l="50%"
+          transform={[{ translateX: "-50%" }, { translateY: "-50%" }]}
+          hoverStyle={{
+            opacity: 0.8,
+          }}
+        >
+          <Play color="white" size="$3" />
+        </View>
+      )}
     </XStack>
+  );
+
+  return isWeb ? (
+    <Link href={url as any} target="_blank">
+      {content}
+    </Link>
+  ) : (
+    content
   );
 }
