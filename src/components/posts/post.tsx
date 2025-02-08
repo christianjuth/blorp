@@ -11,11 +11,11 @@ import { Markdown } from "~/src/components/markdown";
 import { PostVideoEmbed } from "./post-video-embed";
 import { Pressable } from "react-native";
 import { useCommentReaplyContext } from "../comments/comment-reply-modal";
-import { isYouTubeVideoUrl } from "~/src/lib/youtube";
 import { YouTubeVideoEmbed } from "../youtube";
 import { Repeat2 } from "@tamagui/lucide-icons";
 import { usePost } from "~/src/lib/lemmy/index";
 import { useSettingsStore } from "~/src/stores/settings";
+import { getPostEmbed } from "~/src/lib/post";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -78,32 +78,7 @@ export function PostCard({
     ? imageDetails.width / imageDetails.height
     : undefined;
 
-  const urlContentType = post.url_content_type;
-
-  let embedType: "image" | "video" | "article" | "youtube" = "article";
-
-  if (
-    (urlContentType && urlContentType.indexOf("image/") !== -1) ||
-    post.url?.endsWith(".jpeg") ||
-    post.url?.endsWith(".jpg") ||
-    post.url?.endsWith(".png") ||
-    post.url?.endsWith(".webp") ||
-    post.url?.endsWith(".gif")
-  ) {
-    embedType = "image";
-  } else if (
-    (urlContentType && urlContentType.indexOf("video/") !== -1) ||
-    post.url?.endsWith(".mp4")
-  ) {
-    embedType = "video";
-  } else if (post.url && isYouTubeVideoUrl(post.url)) {
-    embedType = "youtube";
-  }
-
-  let thumbnail = post.thumbnail_url;
-  if (!thumbnail && post.url && embedType === "image") {
-    thumbnail = post.url;
-  }
+  const { thumbnail, type: embedType } = getPostEmbed(post);
 
   const postDetailsLink =
     `${linkCtx.root}c/${community.slug}/posts/${encodeURIComponent(post.ap_id)}` as const;

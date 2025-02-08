@@ -24,14 +24,18 @@ export async function measureImage(src: string) {
       return;
     }
 
-    Image.getSize(
-      src,
-      (width, height) => {
-        imageSizeCache.set(src, { width, height });
-        resolve({ width, height });
-      },
-      reject,
-    );
+    try {
+      Image.getSize(
+        src,
+        (width, height) => {
+          imageSizeCache.set(src, { width, height });
+          resolve({ width, height });
+        },
+        reject,
+      );
+    } catch (err) {
+      reject();
+    }
   });
 
   imageAspectRatioCache.set(src, p);

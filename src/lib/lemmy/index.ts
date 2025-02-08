@@ -53,6 +53,7 @@ import { useCommunitiesStore } from "../../stores/communities";
 import { useRouter } from "one";
 import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
 import { measureImage } from "../image";
+import { getPostEmbed } from "../post";
 
 function useLemmyClient() {
   const jwt = useAuth((s) => s.getSelectedAccount().jwt);
@@ -260,10 +261,10 @@ export function usePost({
         cross_posts: res2.cross_posts,
       });
       const cachedPost = cachePost(post);
-      const thumbnail = post.post.thumbnail_url;
+      const { thumbnail, type: embedType } = getPostEmbed(post.post);
 
       if (thumbnail) {
-        if (!cachedPost.imageDetails) {
+        if (!cachedPost.imageDetails && embedType === "image") {
           measureImage(thumbnail).then((data) => {
             if (data) {
               patchPost(ap_id, {
@@ -414,10 +415,14 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
 
     let i = 0;
     for (const { post } of res.posts) {
-      const thumbnail = post.thumbnail_url;
+      const { thumbnail, type: embedType } = getPostEmbed(post);
+
       if (thumbnail) {
         setTimeout(() => {
-          if (!cachedPosts[post.ap_id]?.data.imageDetails) {
+          if (
+            !cachedPosts[post.ap_id]?.data.imageDetails &&
+            embedType === "image"
+          ) {
             measureImage(thumbnail).then((data) => {
               patchPost(post.ap_id, {
                 imageDetails: data,
