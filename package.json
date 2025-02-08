@@ -92,6 +92,8 @@
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
     "@chromatic-com/storybook": "^3.2.4",
+    "@commitlint/cli": "^19.7.1",
+    "@commitlint/config-conventional": "^19.7.1",
     "@faker-js/faker": "9.4.0",
     "@playwright/test": "^1.50.1",
     "@react-native-community/cli": "^15.1.3",
