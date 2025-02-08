@@ -64,16 +64,9 @@ export function PopularCommunitiesSidebar() {
   }
 
   return (
-    <View
-      maxHeight={dimensions.height - header.height}
-      position="absolute"
-      l="$0"
-      r="$0"
-      t="$0"
-      bg="$background"
-    >
-      <ScrollView zIndex="$5" py="$4" showsVerticalScrollIndicator={false}>
-        <YStack gap="$3">
+    <View height={dimensions.height - header.height} position="absolute">
+      <ScrollView zIndex="$5" showsVerticalScrollIndicator={false}>
+        <YStack gap="$3" py="$4">
           <Text color="$color10" fontSize="$3">
             {listingType === "All" && "POPULAR COMMUNITIES"}
             {listingType === "Local" && "POPULAR COMMUNITIES"}

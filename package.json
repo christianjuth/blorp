@@ -54,7 +54,7 @@
     "@vxrn/color-scheme": "^1.1.437",
     "autosize": "^6.0.1",
     "dayjs": "^1.11.13",
-    "expo": "^52.0.24",
+    "expo": "^52.0.31",
     "expo-blur": "~14.0.1",
     "expo-file-system": "~18.0.6",
     "expo-haptics": "~14.0.0",

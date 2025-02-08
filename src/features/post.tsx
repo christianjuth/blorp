@@ -90,26 +90,12 @@ export function PostComments({
       ref={ref}
       data={
         [
-          "sidebar",
           "post",
           "comment",
           ...(structured ? structured.topLevelItems : EMPTY_ARR),
         ] as const
       }
       renderItem={({ item }) => {
-        if (item === "sidebar") {
-          return (
-            <ContentGutters>
-              <View flex={1} />
-              {communityName ? (
-                <CommunitySidebar communityName={communityName} />
-              ) : (
-                <></>
-              )}
-            </ContentGutters>
-          );
-        }
-
         if (item === "post") {
           return (
             <ContentGutters>
@@ -151,7 +137,6 @@ export function PostComments({
       contentContainerStyle={{
         paddingBottom,
       }}
-      stickyHeaderIndices={[0]}
       onRefresh={onRefresh}
       refreshing={refreshing}
       estimatedItemSize={450}
@@ -234,6 +219,15 @@ export function Post({
   return (
     <PostReportProvider>
       <CommentReplyContext postId={post.post.id}>
+        <ContentGutters>
+          <View flex={1} />
+          <View>
+            {communityName && (
+              <CommunitySidebar communityName={communityName} />
+            )}
+          </View>
+        </ContentGutters>
+
         <PostComments
           commentViews={allComments}
           apId={decodedApId}
