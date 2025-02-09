@@ -1045,6 +1045,10 @@ export function useSearch(form: Search) {
     queryKey.push("type", form.type_);
   }
 
+  if (form.sort) {
+    queryKey.push("sort", form.sort);
+  }
+
   if (form.limit) {
     queryKey.push("limit", String(form.limit));
   }

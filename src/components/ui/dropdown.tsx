@@ -6,10 +6,12 @@ export function Dropdown({
   children,
   trigger,
   placement,
+  onOpenChange,
 }: {
   children: (config: { close: () => any }) => React.ReactNode;
   trigger: React.ReactNode;
   placement: PopoverProps["placement"];
+  onOpenChange?: (open: boolean) => any;
 }) {
   const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
@@ -23,7 +25,10 @@ export function Dropdown({
       offset={0}
       placement={placement}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(open) => {
+        setOpen(open);
+        onOpenChange?.(open);
+      }}
     >
       <Popover.Trigger>{trigger}</Popover.Trigger>
 

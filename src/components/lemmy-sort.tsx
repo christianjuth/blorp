@@ -214,10 +214,9 @@ export function PostSortBar() {
   return (
     <XStack
       $md={{ dsp: "none" }}
-      pt="$4"
       bbw={1}
       flex={1}
-      pb="$2"
+      py="$2"
       bbc="$color4"
       jc="flex-start"
     >
@@ -227,7 +226,7 @@ export function PostSortBar() {
         value={postSort}
         onValueChange={setPostSort}
         trigger={
-          <XStack gap="$1" ai="center" bg="$color4" py="$2" px="$3" br="$12">
+          <XStack gap="$1" ai="center" py="$2" px="$3" br="$12">
             <Text fontWeight={500} color="$color11" fontSize="$3">
               {postSort}
             </Text>

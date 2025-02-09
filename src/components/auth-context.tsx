@@ -8,10 +8,6 @@ import {
 } from "react";
 import { useAuth } from "~/src/stores/auth";
 import {
-  Dialog,
-  Adapt,
-  Sheet,
-  View,
   Form,
   AnimatePresence,
   Spinner,
@@ -19,11 +15,9 @@ import {
   YStack,
   Text,
   Input,
-  XStack,
   isWeb,
 } from "tamagui";
 import { useInstances, useLogin } from "../lib/lemmy";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Modal } from "./ui/modal";
 import {
   FlatList,
