@@ -109,7 +109,17 @@ export function SearchFeed({
           if (item === "filter-sort-bar") {
             return (
               <ContentGutters>
-                <YStack flex={1} py="$3.5" gap="$3.5" bbc="$color4" bbw={1}>
+                <YStack
+                  flex={1}
+                  py="$3"
+                  gap="$3.5"
+                  mb="$2"
+                  bbc="$color3"
+                  bbw={1}
+                  $md={{
+                    bbw: 0.5,
+                  }}
+                >
                   <ToggleGroup
                     defaultValue={type}
                     options={[
@@ -160,9 +170,9 @@ export function SearchFeed({
             refetch();
           }
         }}
-        stickyHeaderIndices={[0]}
         scrollEventThrottle={16}
         estimatedItemSize={475}
+        extraData={type}
       />
     </>
   );

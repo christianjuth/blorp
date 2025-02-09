@@ -5,10 +5,13 @@ import { abbriviateNumber } from "~/src/lib/format";
 import { Image } from "./image";
 import { usePosts } from "../lib/lemmy";
 import { createCommunitySlug } from "../lib/lemmy/utils";
+import { useLinkContext } from "./nav/link-context";
 
 export function Community({ communityView }: { communityView: CommunityView }) {
   const { community, counts } = communityView;
   const slug = createCommunitySlug(community);
+
+  const linkCtx = useLinkContext();
 
   const posts = usePosts({
     community_name: slug,
@@ -16,7 +19,7 @@ export function Community({ communityView }: { communityView: CommunityView }) {
   });
 
   return (
-    <Link href={`/communities/c/${slug}`} asChild push>
+    <Link href={`${linkCtx.root}c/${slug}`} asChild push>
       <XStack
         flex={1}
         ai="center"

@@ -5,7 +5,6 @@ import {
   CommunityFilter,
   CommunitySortSelect,
   HomeFilter,
-  PostSortSelect,
 } from "../lemmy-sort";
 import {
   View,
@@ -111,7 +110,7 @@ function UserAvatar() {
 
   const [accountSwitcher, setAccountSwitcher] = useState(false);
 
-  if (!person) {
+  if (!person && accounts.length === 1) {
     return (
       <Button bg="$accentColor" br="$12" size="$3" onPress={requireAuth}>
         Login
@@ -124,16 +123,20 @@ function UserAvatar() {
       placement="bottom-end"
       trigger={
         <Avatar size="$2.5">
-          <Avatar.Image src={person.avatar} borderRadius="$12" />
+          <Avatar.Image src={person?.avatar} borderRadius="$12" />
           <Avatar.Fallback
             backgroundColor="$color8"
             borderRadius="$12"
             ai="center"
             jc="center"
           >
-            <Text fontSize="$3">
-              {person.name?.substring(0, 1).toUpperCase()}
-            </Text>
+            {person ? (
+              <Text fontSize="$3">
+                {person.name?.substring(0, 1).toUpperCase()}
+              </Text>
+            ) : (
+              <User size="$1" />
+            )}
           </Avatar.Fallback>
         </Avatar>
       }
@@ -143,16 +146,20 @@ function UserAvatar() {
         <YStack minWidth={250}>
           <YStack ai="center" bbw={1} bbc="$color6" py="$2.5" gap="$2">
             <Avatar size="$5">
-              <Avatar.Image src={person.avatar} borderRadius="$12" />
+              <Avatar.Image src={person?.avatar} borderRadius="$12" />
               <Avatar.Fallback
                 backgroundColor="$color8"
                 borderRadius={99999}
                 ai="center"
                 jc="center"
               >
-                <Text fontSize="$5">
-                  {person.name?.substring(0, 1).toUpperCase()}
-                </Text>
+                {person ? (
+                  <Text fontSize="$5">
+                    {person.name?.substring(0, 1).toUpperCase()}
+                  </Text>
+                ) : (
+                  <User size="$2" />
+                )}
               </Avatar.Fallback>
             </Avatar>
             <XStack
@@ -160,12 +167,15 @@ function UserAvatar() {
               tag="button"
               ai="center"
               gap="$1"
+              pl="$4.5"
             >
               <YStack ai="center">
                 <Text fontSize="$4">
                   {person?.display_name ?? person?.name}
                 </Text>
-                <Text fontSize="$4">{instance}</Text>
+                <Text fontSize="$3" col="$color10">
+                  {instance}
+                </Text>
               </YStack>
               {accountSwitcher ? (
                 <ChevronUp size="$1" col="$accentColor" />
@@ -192,29 +202,30 @@ function UserAvatar() {
                       }}
                       key={instance + index}
                     >
-                      {person && (
-                        <Avatar size="$2.5">
-                          <Avatar.Image
-                            src={person.avatar}
-                            borderRadius="$12"
-                          />
-                          <Avatar.Fallback
-                            backgroundColor="$color8"
-                            borderRadius="$12"
-                            ai="center"
-                            jc="center"
-                          >
+                      <Avatar size="$2.5">
+                        <Avatar.Image src={person?.avatar} borderRadius="$12" />
+                        <Avatar.Fallback
+                          backgroundColor="$color8"
+                          borderRadius="$12"
+                          ai="center"
+                          jc="center"
+                        >
+                          {person ? (
                             <Text fontSize="$4">
                               {person.name?.substring(0, 1).toUpperCase()}
                             </Text>
-                          </Avatar.Fallback>
-                        </Avatar>
-                      )}
+                          ) : (
+                            <User size="$1" />
+                          )}
+                        </Avatar.Fallback>
+                      </Avatar>
                       <YStack ai="flex-start">
                         <Text fontSize="$4">
                           {person?.display_name ?? person?.name}
                         </Text>
-                        <Text fontSize="$4">{instance}</Text>
+                        <Text fontSize="$3" col="$color11">
+                          {instance}
+                        </Text>
                       </YStack>
                     </XStack>
                   );
@@ -240,23 +251,25 @@ function UserAvatar() {
               </>
             ) : (
               <>
-                <Link
-                  href={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}
-                  push
-                  asChild
-                >
-                  <XStack
-                    py="$2"
-                    tag="a"
-                    ai="center"
-                    px="$2.5"
-                    gap="$2.5"
-                    onPress={close}
+                {person && (
+                  <Link
+                    href={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}
+                    push
+                    asChild
                   >
-                    <User size="$1.5" col="$color10" />
-                    <Text>Profile</Text>
-                  </XStack>
-                </Link>
+                    <XStack
+                      py="$2"
+                      tag="a"
+                      ai="center"
+                      px="$2.5"
+                      gap="$2.5"
+                      onPress={close}
+                    >
+                      <User size="$1.5" col="$color10" />
+                      <Text>Profile</Text>
+                    </XStack>
+                  </Link>
+                )}
 
                 <XStack
                   py="$2"
@@ -370,9 +383,7 @@ export function HomeHeader(
         <HeaderGutters>
           <HomeFilter />
           <SearchBar />
-          <NavbarRightSide>
-            <PostSortSelect />
-          </NavbarRightSide>
+          <NavbarRightSide />
         </HeaderGutters>
       </Animated.View>
     </Animated.View>
@@ -457,9 +468,7 @@ export function CommunityHeader(
         }}
       />
 
-      <NavbarRightSide>
-        <PostSortSelect />
-      </NavbarRightSide>
+      <NavbarRightSide />
     </HeaderGutters>
   );
 }
@@ -494,9 +503,7 @@ export function SearchHeader(
         )}
       </>
       <SearchBar defaultValue={initSearch} />
-      <NavbarRightSide>
-        <PostSortSelect />
-      </NavbarRightSide>
+      <NavbarRightSide />
     </HeaderGutters>
   );
 }
@@ -541,9 +548,7 @@ export function UserHeader(
       <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
         {props.options.title}
       </Text>
-      <NavbarRightSide>
-        <PostSortSelect />
-      </NavbarRightSide>
+      <NavbarRightSide />
     </HeaderGutters>
   );
 }
