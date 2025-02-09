@@ -17,7 +17,8 @@ import {
   Input,
   isWeb,
 } from "tamagui";
-import { useInstances, useLogin } from "../lib/lemmy";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useInstances, useLogin, useRefreshAuth } from "../lib/lemmy";
 import { Modal } from "./ui/modal";
 import {
   FlatList,
@@ -35,7 +36,16 @@ const Context = createContext<{
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const refreshAuth = useRefreshAuth();
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
+  const jwt = useAuth((s) => s.getSelectedAccount().jwt);
+
+  useEffect(() => {
+    if (jwt) {
+      refreshAuth.mutate();
+    }
+  }, [jwt]);
+
   const [promise, setPromise] = useState<{
     resolve: (value: void) => any;
     reject: () => any;

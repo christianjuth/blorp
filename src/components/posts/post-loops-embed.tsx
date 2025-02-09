@@ -41,7 +41,7 @@ export function PostLoopsEmbed({
         flex={1}
         aspectRatio={AR}
         $md={{
-          mx: "$-2.5",
+          mx: "$-3",
           br: 0,
         }}
         $gtMd={{
