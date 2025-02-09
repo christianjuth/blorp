@@ -18,6 +18,7 @@ import { useFiltersStore } from "~/src/stores/filters";
 import { Text, useTheme, View, XStack } from "tamagui";
 import { ComponentProps, useMemo } from "react";
 import { useAuth } from "../stores/auth";
+import { scale } from "~/config/tamagui/scale";
 
 function createIcon(defaultProps: ComponentProps<typeof FontAwesome6>) {
   return (
@@ -184,54 +185,23 @@ const POST_SORT_OPTIONS: Option<PostSortType, PostSortType>[] = [
   },
 ];
 
-export function PostSortSelect() {
-  const postSort = useFiltersStore((s) => s.postSort);
-  const setPostSort = useFiltersStore((s) => s.setPostSort);
-  const theme = useTheme();
-
-  function getIconForPostSort(sort: PostSortType) {
-    const Icon = POST_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
-    return Icon ? <Icon color={theme.accentColor.val} /> : undefined;
-  }
-
-  return (
-    <View $gtMd={{ dsp: "none" }}>
-      <Select
-        options={POST_SORT_OPTIONS}
-        title="Sort Posts By"
-        value={postSort}
-        onValueChange={setPostSort}
-        trigger={getIconForPostSort(postSort)}
-      />
-    </View>
-  );
-}
-
 export function PostSortBar() {
   const postSort = useFiltersStore((s) => s.postSort);
   const setPostSort = useFiltersStore((s) => s.setPostSort);
 
   return (
-    <XStack
-      $md={{ dsp: "none" }}
-      pt="$4"
-      bbw={1}
-      flex={1}
-      pb="$2"
-      bbc="$color4"
-      jc="flex-start"
-    >
+    <XStack flex={1} jc="flex-start">
       <Select
         options={POST_SORT_OPTIONS}
         title="Sort Posts By"
         value={postSort}
         onValueChange={setPostSort}
         trigger={
-          <XStack gap="$1" ai="center" bg="$color4" py="$2" px="$3" br="$12">
+          <XStack gap="$1" ai="center" $md={{ px: "$3" }} br="$12">
             <Text fontWeight={500} color="$color11" fontSize="$3">
               {postSort}
             </Text>
-            <ChevronDown size={15} color="$color11" />
+            <ChevronDown size={15 * scale} col="$color10" />
           </XStack>
         }
       />
@@ -290,7 +260,7 @@ export function HomeFilter() {
               )?.value
             }
           </Text>
-          <ChevronDown size="$1" />
+          <ChevronDown size="$1" col="$color10" />
         </XStack>
       }
     />
@@ -349,7 +319,7 @@ export function CommunityFilter() {
               )?.value
             }
           </Text>
-          <ChevronDown size="$1" />
+          <ChevronDown size="$1" col="$color10" />
         </XStack>
       }
     />

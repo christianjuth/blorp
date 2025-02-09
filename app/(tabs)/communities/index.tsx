@@ -66,6 +66,10 @@ export default function Communities() {
         refreshing={isRefetching}
         onRefresh={refetch}
         scrollEventThrottle={100}
+        contentContainerStyle={{
+          paddingTop: 6 * scale,
+          paddingBottom: 6 * scale,
+        }}
       />
     </ContentGutters>
   );

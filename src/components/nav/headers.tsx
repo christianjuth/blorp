@@ -5,7 +5,6 @@ import {
   CommunityFilter,
   CommunitySortSelect,
   HomeFilter,
-  PostSortSelect,
 } from "../lemmy-sort";
 import {
   View,
@@ -18,7 +17,15 @@ import {
   useTheme,
   XStackProps,
 } from "tamagui";
-import { ChevronLeft, X, User, LogOut } from "@tamagui/lucide-icons";
+import {
+  ChevronLeft,
+  X,
+  User,
+  LogOut,
+  ChevronDown,
+  ChevronUp,
+  PlusCircle,
+} from "@tamagui/lucide-icons";
 import Animated from "react-native-reanimated";
 import { useCustomHeaderHeight } from "./hooks";
 import { useScrollContext } from "./scroll-animation-context";
@@ -27,7 +34,7 @@ import { useAnimatedStyle, interpolate } from "react-native-reanimated";
 import { Link, useRouter } from "one";
 import { useState } from "react";
 import { useLinkContext } from "./link-context";
-import { useAuth } from "~/src/stores/auth";
+import { parseAccountInfo, useAuth } from "~/src/stores/auth";
 import { useRequireAuth } from "../auth-context";
 import { Dropdown } from "../ui/dropdown";
 import { useCreatePost, useLogout } from "~/src/lib/lemmy/index";
@@ -36,6 +43,7 @@ import { Button } from "../ui/button";
 import * as React from "react";
 import { scale } from "~/config/tamagui/scale";
 import { isCatalyst } from "~/src/lib/is-catalyst";
+import { encodeApId } from "~/src/lib/lemmy/utils";
 
 function HeaderGutters({ children, ...props }: XStackProps) {
   const { height, insetTop } = useCustomHeaderHeight();
@@ -53,7 +61,7 @@ function HeaderGutters({ children, ...props }: XStackProps) {
     >
       <XStack
         flex={1}
-        maxWidth={1000 * scale}
+        maxWidth={1050 * scale}
         w="100%"
         mx="auto"
         gap="$3"
@@ -91,12 +99,18 @@ const BBC = "$color3";
 function UserAvatar() {
   const linkCtx = useLinkContext();
   const logout = useLogout();
-  const user = useAuth(
-    (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person,
-  );
   const requireAuth = useRequireAuth();
 
-  if (!user) {
+  const selectedAccount = useAuth((s) => s.getSelectedAccount());
+  const accounts = useAuth((s) => s.accounts);
+  const addAccount = useAuth((s) => s.addAccount);
+  const setAccountIndex = useAuth((s) => s.setAccountIndex);
+
+  const { person, instance } = parseAccountInfo(selectedAccount);
+
+  const [accountSwitcher, setAccountSwitcher] = useState(false);
+
+  if (!person && accounts.length === 1) {
     return (
       <Button bg="$accentColor" br="$12" size="$3" onPress={requireAuth}>
         Login
@@ -109,70 +123,172 @@ function UserAvatar() {
       placement="bottom-end"
       trigger={
         <Avatar size="$2.5">
-          <Avatar.Image src={user.avatar} borderRadius="$12" />
+          <Avatar.Image src={person?.avatar} borderRadius="$12" />
           <Avatar.Fallback
             backgroundColor="$color8"
             borderRadius="$12"
             ai="center"
             jc="center"
           >
-            <Text fontSize="$3">
-              {user.name?.substring(0, 1).toUpperCase()}
-            </Text>
+            {person ? (
+              <Text fontSize="$3">
+                {person.name?.substring(0, 1).toUpperCase()}
+              </Text>
+            ) : (
+              <User size="$1" />
+            )}
           </Avatar.Fallback>
         </Avatar>
       }
+      onOpenChange={() => setAccountSwitcher(false)}
     >
       {({ close }) => (
-        <YStack minWidth={200}>
+        <YStack minWidth={250}>
           <YStack ai="center" bbw={1} bbc="$color6" py="$2.5" gap="$2">
             <Avatar size="$5">
-              <Avatar.Image src={user.avatar} borderRadius="$12" />
+              <Avatar.Image src={person?.avatar} borderRadius="$12" />
               <Avatar.Fallback
                 backgroundColor="$color8"
                 borderRadius={99999}
                 ai="center"
                 jc="center"
               >
-                <Text fontSize="$5">
-                  {user.name?.substring(0, 1).toUpperCase()}
-                </Text>
+                {person ? (
+                  <Text fontSize="$5">
+                    {person.name?.substring(0, 1).toUpperCase()}
+                  </Text>
+                ) : (
+                  <User size="$2" />
+                )}
               </Avatar.Fallback>
             </Avatar>
-            <Text fontSize="$4">u/{user.name}</Text>
-          </YStack>
-
-          <YStack py="$1.5">
-            <Link href={`${linkCtx.root}u/${user.id}`} push asChild>
-              <XStack
-                h="$3"
-                tag="a"
-                ai="center"
-                px="$2.5"
-                gap="$2.5"
-                onPress={close}
-              >
-                <User size="$1" col="$color10" />
-                <Text>Profile</Text>
-              </XStack>
-            </Link>
-
             <XStack
-              h="$3"
-              ai="center"
-              px="$2.5"
-              gap="$2.5"
-              bg="transparent"
+              onPress={() => setAccountSwitcher((b) => !b)}
               tag="button"
-              bw={0}
-              onPress={() => {
-                logout();
-                close();
-              }}
+              ai="center"
+              gap="$1"
+              pl="$4.5"
             >
-              <LogOut size="$1" col="$color10" />
-              <Text>Logout</Text>
+              <YStack ai="center">
+                <Text fontSize="$4">
+                  {person?.display_name ?? person?.name}
+                </Text>
+                <Text fontSize="$3" col="$color10">
+                  {instance}
+                </Text>
+              </YStack>
+              {accountSwitcher ? (
+                <ChevronUp size="$1" col="$accentColor" />
+              ) : (
+                <ChevronDown size="$1" col="$accentColor" />
+              )}
             </XStack>
+          </YStack>
+          <YStack py="$1.5">
+            {accountSwitcher ? (
+              <>
+                {accounts.map((a, index) => {
+                  const { person, instance } = parseAccountInfo(a);
+                  return (
+                    <XStack
+                      py="$1.5"
+                      tag="button"
+                      ai="center"
+                      px="$2.5"
+                      gap="$2.5"
+                      onPress={() => {
+                        close();
+                        setAccountIndex(index);
+                      }}
+                      key={instance + index}
+                    >
+                      <Avatar size="$2.5">
+                        <Avatar.Image src={person?.avatar} borderRadius="$12" />
+                        <Avatar.Fallback
+                          backgroundColor="$color8"
+                          borderRadius="$12"
+                          ai="center"
+                          jc="center"
+                        >
+                          {person ? (
+                            <Text fontSize="$4">
+                              {person.name?.substring(0, 1).toUpperCase()}
+                            </Text>
+                          ) : (
+                            <User size="$1" />
+                          )}
+                        </Avatar.Fallback>
+                      </Avatar>
+                      <YStack ai="flex-start">
+                        <Text fontSize="$4">
+                          {person?.display_name ?? person?.name}
+                        </Text>
+                        <Text fontSize="$3" col="$color11">
+                          {instance}
+                        </Text>
+                      </YStack>
+                    </XStack>
+                  );
+                })}
+
+                <XStack
+                  py="$2"
+                  tag="button"
+                  ai="center"
+                  px="$2.5"
+                  gap="$2.5"
+                  onPress={() => {
+                    close();
+                    addAccount();
+                    requireAuth();
+                  }}
+                >
+                  <PlusCircle size="$2" px="$1" col="$color9" />
+                  <Text fontSize="$4" col="$color10">
+                    Add account
+                  </Text>
+                </XStack>
+              </>
+            ) : (
+              <>
+                {person && (
+                  <Link
+                    href={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}
+                    push
+                    asChild
+                  >
+                    <XStack
+                      py="$2"
+                      tag="a"
+                      ai="center"
+                      px="$2.5"
+                      gap="$2.5"
+                      onPress={close}
+                    >
+                      <User size="$1.5" col="$color10" />
+                      <Text>Profile</Text>
+                    </XStack>
+                  </Link>
+                )}
+
+                <XStack
+                  py="$2"
+                  ai="center"
+                  px="$2.5"
+                  gap="$2.5"
+                  bg="transparent"
+                  tag="button"
+                  bw={0}
+                  onPress={() => {
+                    logout();
+                    close();
+                  }}
+                >
+                  <LogOut size="$1.5" col="$color10" />
+                  <Text>Logout</Text>
+                </XStack>
+              </>
+            )}
           </YStack>
         </YStack>
       )}
@@ -267,9 +383,7 @@ export function HomeHeader(
         <HeaderGutters>
           <HomeFilter />
           <SearchBar />
-          <NavbarRightSide>
-            <PostSortSelect />
-          </NavbarRightSide>
+          <NavbarRightSide />
         </HeaderGutters>
       </Animated.View>
     </Animated.View>
@@ -354,9 +468,7 @@ export function CommunityHeader(
         }}
       />
 
-      <NavbarRightSide>
-        <PostSortSelect />
-      </NavbarRightSide>
+      <NavbarRightSide />
     </HeaderGutters>
   );
 }
@@ -391,9 +503,7 @@ export function SearchHeader(
         )}
       </>
       <SearchBar defaultValue={initSearch} />
-      <NavbarRightSide>
-        <PostSortSelect />
-      </NavbarRightSide>
+      <NavbarRightSide />
     </HeaderGutters>
   );
 }
@@ -438,9 +548,7 @@ export function UserHeader(
       <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
         {props.options.title}
       </Text>
-      <NavbarRightSide>
-        <PostSortSelect />
-      </NavbarRightSide>
+      <NavbarRightSide />
     </HeaderGutters>
   );
 }

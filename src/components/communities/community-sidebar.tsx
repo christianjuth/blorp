@@ -148,7 +148,7 @@ export function SmallScreenSidebar({
     <YStack
       bg="$background"
       bbc="$color3"
-      bbw={1}
+      bbw={0.5}
       flex={1}
       p="$3"
       gap="$3"

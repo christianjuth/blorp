@@ -177,7 +177,7 @@ export function PostCard({
           href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${encodeURIComponent(crossPost.post.ap_id)}`}
           asChild
         >
-          <XStack gap="$1" mt="$1">
+          <XStack gap="$1" mt="$2">
             <Repeat2 color="$accentColor" size={16} />
             <Text fontSize={13} color="$accentColor">
               Cross posted from {crossPost.community.slug}
@@ -192,7 +192,7 @@ export function PostCard({
         </View>
       )}
 
-      <XStack jc="flex-end" ai="center" gap="$2">
+      <XStack jc="flex-end" ai="center" gap="$2" pt="$1.5">
         {detailView ? (
           <PostCommentsButton postView={postView} onPress={replyCtx.focus} />
         ) : (
