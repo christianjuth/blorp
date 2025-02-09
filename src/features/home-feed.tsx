@@ -71,7 +71,9 @@ export function HomeFeed() {
           if (item === "post-sort-bar") {
             return (
               <ContentGutters>
-                <PostSortBar />
+                <View flex={1} py="$3.5" bbc="$color4" bbw={1}>
+                  <PostSortBar />
+                </View>
                 <></>
               </ContentGutters>
             );

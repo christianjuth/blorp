@@ -212,21 +212,14 @@ export function PostSortBar() {
   const setPostSort = useFiltersStore((s) => s.setPostSort);
 
   return (
-    <XStack
-      $md={{ dsp: "none" }}
-      bbw={1}
-      flex={1}
-      py="$2"
-      bbc="$color4"
-      jc="flex-start"
-    >
+    <XStack $md={{ dsp: "none" }} flex={1} jc="flex-start">
       <Select
         options={POST_SORT_OPTIONS}
         title="Sort Posts By"
         value={postSort}
         onValueChange={setPostSort}
         trigger={
-          <XStack gap="$1" ai="center" py="$2" px="$3" br="$12">
+          <XStack gap="$1" ai="center" px="$3" br="$12">
             <Text fontWeight={500} color="$color11" fontSize="$3">
               {postSort}
             </Text>

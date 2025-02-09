@@ -109,7 +109,7 @@ export function SearchFeed({
           if (item === "filter-sort-bar") {
             return (
               <ContentGutters>
-                <YStack flex={1} py="$3">
+                <YStack flex={1} py="$3.5" gap="$3.5" bbc="$color4" bbw={1}>
                   <ToggleGroup
                     defaultValue={type}
                     options={[

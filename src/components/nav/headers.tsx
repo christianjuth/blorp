@@ -62,7 +62,7 @@ function HeaderGutters({ children, ...props }: XStackProps) {
     >
       <XStack
         flex={1}
-        maxWidth={1000 * scale}
+        maxWidth={1050 * scale}
         w="100%"
         mx="auto"
         gap="$3"
