@@ -672,6 +672,23 @@ export function useLogin() {
   });
 }
 
+export function useRefreshAuth() {
+  const { client } = useLemmyClient();
+  const updateAccount = useAuth((s) => s.updateAccount);
+
+  return useMutation({
+    mutationFn: async () => {
+      const site = await client.getSite();
+      updateAccount({
+        site,
+      });
+    },
+    onError: (err) => {
+      console.log("Err", err);
+    },
+  });
+}
+
 export function useLogout() {
   const queryClient = useQueryClient();
   const { client } = useLemmyClient();
