@@ -13,6 +13,8 @@ import { useScrollContext } from "../components/nav/scroll-animation-context";
 import { useFiltersStore } from "../stores/filters";
 import { usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
+import { HomeHeader } from "../components/nav/headers";
+import type { FlashList as DefaultFlashList } from "@shopify/flash-list";
 
 const ReanimatedFlashList =
   Animated.createAnimatedComponent<
@@ -39,8 +41,15 @@ export function HomeFeed() {
   const tabBar = useCustomTabBarHeight();
   const header = useCustomHeaderHeight();
 
-  const ref = useRef(null);
-  useScrollToTop(ref);
+  const ref = useRef<DefaultFlashList<any>>(null);
+  const scrollToTop = useRef({
+    scrollToOffset: () =>
+      ref.current?.scrollToOffset({
+        offset: -header.height,
+        animated: true,
+      }),
+  });
+  useScrollToTop(scrollToTop);
 
   const {
     hasNextPage,
@@ -66,20 +75,12 @@ export function HomeFeed() {
       <List
         // @ts-expect-error
         ref={ref}
-        data={["post-sort-bar", ...data] as const}
+        data={["header", ...data]}
         renderItem={({ item }) => {
-          if (item === "post-sort-bar") {
+          if (item === "header") {
             return (
               <ContentGutters>
-                <View
-                  flex={1}
-                  py="$3.5"
-                  bbc="$color3"
-                  bbw={1}
-                  $md={{
-                    bbw: 0.5,
-                  }}
-                >
+                <View flex={1} py="$3" bg="$background" $md={{ dsp: "none" }}>
                   <PostSortBar />
                 </View>
                 <></>
@@ -121,6 +122,7 @@ export function HomeFeed() {
           bottom: !isWeb && media.md ? tabBar.height : undefined,
         }}
         automaticallyAdjustsScrollIndicatorInsets={false}
+        automaticallyAdjustContentInsets={false}
         onScroll={isWeb ? undefined : scrollHandler}
       />
     </PostReportProvider>

@@ -5,6 +5,7 @@ import {
   CommunityFilter,
   CommunitySortSelect,
   HomeFilter,
+  PostSortBar,
 } from "../lemmy-sort";
 import {
   View,
@@ -25,6 +26,7 @@ import {
   ChevronDown,
   ChevronUp,
   PlusCircle,
+  Search,
 } from "@tamagui/lucide-icons";
 import Animated from "react-native-reanimated";
 import { useCustomHeaderHeight } from "./hooks";
@@ -45,7 +47,15 @@ import { scale } from "~/config/tamagui/scale";
 import { isCatalyst } from "~/src/lib/is-catalyst";
 import { encodeApId } from "~/src/lib/lemmy/utils";
 
-function HeaderGutters({ children, ...props }: XStackProps) {
+interface HeaderGuttersProps extends XStackProps {
+  darkBackground?: boolean;
+}
+
+function HeaderGutters({
+  darkBackground,
+  children,
+  ...props
+}: HeaderGuttersProps) {
   const { height, insetTop } = useCustomHeaderHeight();
 
   const [first, second, third] = React.Children.toArray(children);
@@ -55,9 +65,21 @@ function HeaderGutters({ children, ...props }: XStackProps) {
       pt={isCatalyst ? 0 : insetTop}
       h={height - 0.5}
       bbw={0.5}
-      $gtMd={{ h: height - 1, bbw: 1 }}
-      bbc="$color4"
-      bg="$background"
+      bbc={darkBackground ? "#02024E" : "$color3"}
+      bg={darkBackground ? "#02024E" : "$background"}
+      {...props}
+      $theme-dark={{
+        bg: "$background",
+        bbc: "$color3",
+        ...props["$theme-dark"],
+      }}
+      $gtMd={{
+        h: height - 1,
+        bbw: 1,
+        bg: "$background",
+        bbc: "$color3",
+        ...props.$gtMd,
+      }}
     >
       <XStack
         flex={1}
@@ -67,12 +89,10 @@ function HeaderGutters({ children, ...props }: XStackProps) {
         gap="$3"
         px="$3"
         ai="center"
-        bbc="$color4"
         $gtMd={{ px: "$4" }}
         $gtLg={{ px: "$5" }}
-        {...props}
       >
-        <XStack $gtMd={{ flex: 1 }} ai="center">
+        <XStack ai="center" gap="$3" $gtMd={{ flex: 1, gap: "$4" }}>
           {first}
         </XStack>
 
@@ -305,10 +325,17 @@ function NavbarRightSide({ children }: { children?: React.ReactNode }) {
   );
 }
 
-function SearchBar({ defaultValue }: { defaultValue?: string }) {
+function SearchBar({
+  defaultValue,
+  hideOnMd,
+}: {
+  defaultValue?: string;
+  hideOnMd?: boolean;
+}) {
   const linkCtx = useLinkContext();
   const router = useRouter();
   const [search, setSearch] = useState(defaultValue ?? "");
+
   return (
     <Input
       bg="$color3"
@@ -327,6 +354,9 @@ function SearchBar({ defaultValue }: { defaultValue?: string }) {
         if (linkCtx.root !== "/inbox/") {
           router.push(`${linkCtx.root}s/${search}`);
         }
+      }}
+      $md={{
+        display: hideOnMd ? "none" : "flex",
       }}
     />
   );
@@ -363,9 +393,7 @@ export function useHeaderAnimation() {
   };
 }
 
-export function HomeHeader(
-  props: NativeStackHeaderProps | BottomTabHeaderProps,
-) {
+export function HomeHeader() {
   const theme = useTheme();
   const styles = useHeaderAnimation();
   const { height, insetTop } = useCustomHeaderHeight();
@@ -382,8 +410,11 @@ export function HomeHeader(
       <Animated.View style={styles.content}>
         <HeaderGutters>
           <HomeFilter />
-          <SearchBar />
-          <NavbarRightSide />
+          <SearchBar hideOnMd />
+          <>
+            <PostSortBar hideOnGtMd />
+            <NavbarRightSide />
+          </>
         </HeaderGutters>
       </Animated.View>
     </Animated.View>
@@ -424,6 +455,7 @@ function BackButton({ onPress }: { onPress?: () => any }) {
 export function CommunityHeader(
   props: NativeStackHeaderProps | BottomTabHeaderProps,
 ) {
+  const media = useMedia();
   const linkCtx = useLinkContext();
 
   const router = useRouter();
@@ -444,7 +476,7 @@ export function CommunityHeader(
   const [search, setSearch] = useState(initSearch);
 
   return (
-    <HeaderGutters>
+    <HeaderGutters darkBackground>
       <BackButton
         onPress={
           "back" in props && props.back
@@ -453,20 +485,29 @@ export function CommunityHeader(
         }
       />
 
-      <Input
-        bg="$color3"
-        br="$12"
-        h="$3"
-        bc="$color3"
-        placeholder={`Search ${communityName}`}
-        flex={1}
-        maxWidth={500}
-        value={search}
-        onChangeText={setSearch}
-        onSubmitEditing={() => {
-          router.push(`${linkCtx.root}c/${communityName}/s/${search}`);
-        }}
-      />
+      <>
+        {media.gtMd && (
+          <Input
+            bg="$color3"
+            br="$12"
+            h="$3"
+            bc="$color3"
+            placeholder={`Search ${communityName}`}
+            flex={1}
+            maxWidth={500}
+            value={search}
+            onChangeText={setSearch}
+            onSubmitEditing={() => {
+              router.push(`${linkCtx.root}c/${communityName}/s/${search}`);
+            }}
+          />
+        )}
+        {media.md && (
+          <Text col="white" fontSize="$5" fontWeight="bold">
+            {communityName}
+          </Text>
+        )}
+      </>
 
       <NavbarRightSide />
     </HeaderGutters>
@@ -483,7 +524,7 @@ export function SearchHeader(
       : undefined;
 
   return (
-    <HeaderGutters>
+    <HeaderGutters $md={{ bbc: "transparent", bbw: 0 }}>
       <>
         {"back" in props && props.back && (
           <Button
@@ -565,7 +606,7 @@ export function PostHeader(
       : undefined;
 
   return (
-    <HeaderGutters>
+    <HeaderGutters darkBackground>
       <BackButton
         onPress={
           "back" in props && props.back
@@ -579,6 +620,7 @@ export function PostHeader(
         overflow="hidden"
         pos="relative"
         numberOfLines={1}
+        col="white"
       >
         {communityName}
       </Text>

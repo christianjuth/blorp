@@ -1,6 +1,6 @@
 import { useSearch } from "../lib/lemmy";
 import { PostCard } from "~/src/components/posts/post";
-import { View, YStack } from "tamagui";
+import { View, XStack, YStack } from "tamagui";
 import {
   CommunitySidebar,
   SmallScreenSidebar,
@@ -108,17 +108,19 @@ export function SearchFeed({
 
           if (item === "filter-sort-bar") {
             return (
-              <ContentGutters>
-                <YStack
+              <ContentGutters bg="$background">
+                <XStack
                   flex={1}
                   py="$3"
-                  gap="$3.5"
-                  mb="$2"
+                  gap="$3"
                   bbc="$color3"
                   bbw={1}
                   $md={{
                     bbw: 0.5,
+                    pt: "$2",
+                    px: "$3",
                   }}
+                  ai="center"
                 >
                   <ToggleGroup
                     defaultValue={type}
@@ -132,8 +134,14 @@ export function SearchFeed({
                       }, 0);
                     }}
                   />
-                  {type === "posts" && <PostSortBar />}
-                </YStack>
+
+                  {type === "posts" && (
+                    <>
+                      <View h="$1" w={1} bg="$color6" />
+                      <PostSortBar />
+                    </>
+                  )}
+                </XStack>
                 <></>
               </ContentGutters>
             );
@@ -173,6 +181,7 @@ export function SearchFeed({
         scrollEventThrottle={16}
         estimatedItemSize={475}
         extraData={type}
+        stickyHeaderIndices={[1]}
       />
     </>
   );

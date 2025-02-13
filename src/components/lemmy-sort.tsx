@@ -12,10 +12,11 @@ import {
   Sword,
   Hourglass,
   ChevronDown,
+  ArrowUpDown,
 } from "@tamagui/lucide-icons";
 import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 import { useFiltersStore } from "~/src/stores/filters";
-import { Text, useTheme, View, XStack } from "tamagui";
+import { Text, useMedia, useTheme, View, XStack } from "tamagui";
 import { ComponentProps, useMemo } from "react";
 import { useAuth } from "../stores/auth";
 import { scale } from "~/config/tamagui/scale";
@@ -185,27 +186,39 @@ const POST_SORT_OPTIONS: Option<PostSortType, PostSortType>[] = [
   },
 ];
 
-export function PostSortBar() {
+export function PostSortBar({ hideOnGtMd }: { hideOnGtMd?: boolean }) {
   const postSort = useFiltersStore((s) => s.postSort);
   const setPostSort = useFiltersStore((s) => s.setPostSort);
 
+  const media = useMedia();
+
+  if (hideOnGtMd && media.gtMd) {
+    return null;
+  }
+
   return (
-    <XStack flex={1} jc="flex-start">
-      <Select
-        options={POST_SORT_OPTIONS}
-        title="Sort Posts By"
-        value={postSort}
-        onValueChange={setPostSort}
-        trigger={
-          <XStack gap="$1" ai="center" $md={{ px: "$3" }} br="$12">
-            <Text fontWeight={500} color="$color11" fontSize="$3">
-              {postSort}
-            </Text>
-            <ChevronDown size={15 * scale} col="$color10" />
-          </XStack>
-        }
-      />
-    </XStack>
+    <Select
+      options={POST_SORT_OPTIONS}
+      title="Sort Posts By"
+      value={postSort}
+      onValueChange={setPostSort}
+      trigger={
+        <XStack
+          gap="$1.5"
+          ai="center"
+          bw={1}
+          bc="$color5"
+          br={99999}
+          py="$2"
+          px="$3"
+        >
+          <Text fontWeight={500} color="$color11" fontSize="$3">
+            {postSort}
+          </Text>
+          <ArrowUpDown size={15 * scale} col="$color10" />
+        </XStack>
+      }
+    />
   );
 }
 

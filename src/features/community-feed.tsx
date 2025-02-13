@@ -42,32 +42,18 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
 
   return (
     <PostReportProvider>
+      <ContentGutters>
+        <View flex={1} />
+        <View>
+          {communityName && <CommunitySidebar communityName={communityName} />}
+        </View>
+      </ContentGutters>
+
       <FlashList
         // @ts-expect-error
         ref={ref}
-        data={
-          [
-            "banner",
-            "sidebar-desktop",
-            "sidebar-mobile",
-            "post-sort-bar",
-            ...data,
-          ] as const
-        }
+        data={["banner", "sidebar-mobile", "post-sort-bar", ...data] as const}
         renderItem={({ item }) => {
-          if (item === "sidebar-desktop") {
-            return (
-              <ContentGutters>
-                <View flex={1} />
-                {communityName ? (
-                  <CommunitySidebar communityName={communityName} />
-                ) : (
-                  <></>
-                )}
-              </ContentGutters>
-            );
-          }
-
           if (item === "sidebar-mobile") {
             return communityName ? (
               <ContentGutters>
@@ -81,22 +67,25 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
 
           if (item === "banner") {
             return (
-              <ContentGutters $md={{ dsp: "none" }}>
+              <ContentGutters $md={{ dsp: "none" }} pt="$3">
                 <CommunityBanner communityName={communityName} />
+                <></>
               </ContentGutters>
             );
           }
 
           if (item === "post-sort-bar") {
             return (
-              <ContentGutters>
+              <ContentGutters bg="$background">
                 <View
                   flex={1}
-                  py="$3.5"
+                  py="$2"
                   bbc="$color3"
                   bbw={1}
                   $md={{
                     bbw: 0.5,
+                    px: "$3",
+                    py: "$1.5",
                   }}
                 >
                   <PostSortBar />
@@ -129,7 +118,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
             refetch();
           }
         }}
-        stickyHeaderIndices={[1]}
+        stickyHeaderIndices={[2]}
         estimatedItemSize={475}
       />
     </PostReportProvider>

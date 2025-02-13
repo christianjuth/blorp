@@ -19,7 +19,7 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
   return (
     <YStack flex={1}>
       {!hideBanner && (
-        <View pt="$2.5" flex={1} pos="relative">
+        <View flex={1} pos="relative">
           <Image
             source={{ uri: banner }}
             style={{
