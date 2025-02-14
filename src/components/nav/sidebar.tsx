@@ -201,7 +201,7 @@ export function Sidebar(props: BottomTabBarProps | {}) {
             );
           })}
 
-        <View h={1} flex={1} bg={BC} my="$2" />
+        <View h={1} flex={1} bg={BC} my={8} />
 
         {recentCommunities.length > 0 && (
           <>
@@ -220,7 +220,7 @@ export function Sidebar(props: BottomTabBarProps | {}) {
               </YStack>
             ))}
 
-            <View h={1} flex={1} bg={BC} my="$2" />
+            <View h={1} flex={1} bg={BC} my={8} />
           </>
         )}
 
@@ -241,7 +241,7 @@ export function Sidebar(props: BottomTabBarProps | {}) {
               </YStack>
             ))}
 
-            <View h={1} flex={1} bg={BC} my="$2" />
+            <View h={1} flex={1} bg={BC} my={8} />
           </>
         )}
 

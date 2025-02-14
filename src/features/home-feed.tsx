@@ -80,7 +80,7 @@ export function HomeFeed() {
           if (item === "header") {
             return (
               <ContentGutters>
-                <View flex={1} py="$3" bg="$background" $md={{ dsp: "none" }}>
+                <View flex={1} py="$2" bg="$background" $md={{ dsp: "none" }}>
                   <PostSortBar />
                 </View>
                 <></>
@@ -124,6 +124,7 @@ export function HomeFeed() {
         automaticallyAdjustsScrollIndicatorInsets={false}
         automaticallyAdjustContentInsets={false}
         onScroll={isWeb ? undefined : scrollHandler}
+        stickyHeaderIndices={[0]}
       />
     </PostReportProvider>
   );

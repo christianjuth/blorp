@@ -209,8 +209,8 @@ export function PostSortBar({ hideOnGtMd }: { hideOnGtMd?: boolean }) {
           bw={1}
           bc="$color5"
           br={99999}
-          py="$2"
-          px="$3"
+          py={7}
+          px={13}
         >
           <Text fontWeight={500} color="$color11" fontSize="$3">
             {postSort}
