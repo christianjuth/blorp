@@ -4,6 +4,7 @@ import { useMedia, useTheme } from "tamagui";
 import {
   CommunityHeader,
   PostHeader,
+  SavedPostsHeader,
   StackHeader,
   UserHeader,
 } from "~/src/components/nav/headers";
@@ -33,6 +34,14 @@ export default function Layout() {
           name="index"
           options={{
             title: "Inbox",
+          }}
+        />
+
+        <Stack.Screen
+          name="saved"
+          options={{
+            title: "Saved",
+            header: (props) => <SavedPostsHeader {...props} />,
           }}
         />
 

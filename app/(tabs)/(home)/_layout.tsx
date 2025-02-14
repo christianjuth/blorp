@@ -5,6 +5,7 @@ import {
   CommunityHeader,
   HomeHeader,
   PostHeader,
+  SavedPostsHeader,
   SearchHeader,
   UserHeader,
 } from "~/src/components/nav/headers";
@@ -34,6 +35,14 @@ export default function Layout() {
             title: "Home",
             header: (props) => <HomeHeader {...props} />,
             headerTransparent: !isWeb && media.md,
+          }}
+        />
+
+        <Stack.Screen
+          name="saved"
+          options={{
+            title: "Saved",
+            header: (props) => <SavedPostsHeader {...props} />,
           }}
         />
 

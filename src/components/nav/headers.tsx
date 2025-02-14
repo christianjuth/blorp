@@ -27,6 +27,7 @@ import {
   ChevronUp,
   PlusCircle,
   Search,
+  Bookmark,
 } from "@tamagui/lucide-icons";
 import Animated from "react-native-reanimated";
 import { useCustomHeaderHeight } from "./hooks";
@@ -121,6 +122,7 @@ function UserAvatar() {
   const logout = useLogout();
   const requireAuth = useRequireAuth();
 
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const selectedAccount = useAuth((s) => s.getSelectedAccount());
   const accounts = useAuth((s) => s.accounts);
   const addAccount = useAuth((s) => s.addAccount);
@@ -271,6 +273,22 @@ function UserAvatar() {
               </>
             ) : (
               <>
+                {isLoggedIn && (
+                  <Link href={`${linkCtx.root}saved`} push asChild>
+                    <XStack
+                      py="$2"
+                      tag="a"
+                      ai="center"
+                      px="$2.5"
+                      gap="$2.5"
+                      onPress={close}
+                    >
+                      <Bookmark size="$1.5" col="$color10" />
+                      <Text>Saved</Text>
+                    </XStack>
+                  </Link>
+                )}
+
                 {person && (
                   <Link
                     href={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}
@@ -449,6 +467,26 @@ function BackButton({ onPress }: { onPress?: () => any }) {
     >
       <ChevronLeft color="$accentColor" size="$2" />
     </Button>
+  );
+}
+
+export function SavedPostsHeader(props: NativeStackHeaderProps) {
+  return (
+    <HeaderGutters darkBackground>
+      <BackButton
+        onPress={
+          "back" in props && props.back
+            ? () => props.navigation.pop(1)
+            : undefined
+        }
+      />
+
+      <Text col="white" fontSize="$5" fontWeight="bold">
+        Saved
+      </Text>
+
+      <NavbarRightSide />
+    </HeaderGutters>
   );
 }
 

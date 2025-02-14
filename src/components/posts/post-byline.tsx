@@ -1,6 +1,6 @@
 import { View, Text, Avatar, YStack, XStack } from "tamagui";
 import { RelativeTime } from "~/src/components/relative-time";
-import { useBlockPerson } from "~/src/lib/lemmy/index";
+import { useBlockPerson, useSavePost } from "~/src/lib/lemmy/index";
 import { FlattenedPost } from "~/src/lib/lemmy/utils";
 import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
@@ -24,6 +24,7 @@ export function PostByline({
   const showReportModal = useShowPostReportModal();
   const requireAuth = useRequireAuth();
   const blockPerson = useBlockPerson();
+  const savePost = useSavePost(postView.post.ap_id);
 
   const { creator, community, post } = postView;
   const linkCtx = useLinkContext();
@@ -35,6 +36,8 @@ export function PostByline({
   if (featuredContext === "home") {
     pinned = postView.post.featured_local;
   }
+
+  const saved = postView.optimisticSaved ?? postView.saved;
 
   return (
     <XStack dsp="flex" fd="row" ai="center" gap={9}>
@@ -91,6 +94,16 @@ export function PostByline({
             onClick: () =>
               Share.share({
                 url: `https://blorpblorp.xyz/c/${postView.community.slug}/posts/${encodeURIComponent(postView.post.ap_id)}`,
+              }),
+          },
+          {
+            label: saved ? "Unsave" : "Save",
+            onClick: () =>
+              requireAuth().then(() => {
+                savePost.mutate({
+                  post_id: post.id,
+                  save: !saved,
+                });
               }),
           },
           {

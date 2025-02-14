@@ -25,6 +25,7 @@ import {
   CreatePostReport,
   CreateCommentReport,
   BlockPerson,
+  SavePost,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -379,6 +380,10 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
 
   if (showNsfw) {
     queryKey.push(`nsfw-${showNsfw ? "t" : "f"}`);
+  }
+
+  if (form.saved_only) {
+    queryKey.push(`saved-${form.saved_only ? "t" : "f"}`);
   }
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
@@ -1250,5 +1255,24 @@ export function useBlockPerson() {
   const { client } = useLemmyClient();
   return useMutation({
     mutationFn: (form: BlockPerson) => client.blockPerson(form),
+  });
+}
+
+export function useSavePost(apId: string) {
+  const { client } = useLemmyClient();
+  const patchPost = usePostsStore((s) => s.patchPost);
+  return useMutation({
+    mutationFn: (form: SavePost) => client.savePost(form),
+    onMutate: ({ save }) => {
+      patchPost(apId, {
+        optimisticSaved: save,
+      });
+    },
+    onSuccess: ({ post_view }) => {
+      patchPost(apId, {
+        ...flattenPost({ post_view }),
+        optimisticSaved: undefined,
+      });
+    },
   });
 }
