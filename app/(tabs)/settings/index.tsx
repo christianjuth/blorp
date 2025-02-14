@@ -19,6 +19,11 @@ import { clearCache as clearImageCache } from "~/src/components/image";
 import { ContentGutters } from "~/src/components/gutters";
 import { Link, LinkProps } from "one";
 import _ from "lodash";
+import { Logo } from "~/src/components/logo";
+import pkgJson from "~/package.json";
+
+const version =
+  _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
 
 function SettignsLink({ children, ...rest }: LinkProps) {
   return (
@@ -220,6 +225,13 @@ export default function SettingsPage() {
 
             <Divider />
             <SettignsLink href="/privacy">Privacy Policy</SettignsLink>
+          </YStack>
+
+          <YStack ai="center" my="$5" gap="$2">
+            <Logo />
+            <Text col="$color10" fontSize="$4">
+              v{version}
+            </Text>
           </YStack>
         </YStack>
       </ContentGutters>

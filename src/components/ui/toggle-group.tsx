@@ -26,7 +26,7 @@ export function ToggleGroup<V extends string>({
   value = value ?? localValue;
 
   return (
-    <XStack gap="$2" $md={{ px: "$3" }}>
+    <XStack>
       {options.map((opt) => (
         <Text
           key={opt.value}

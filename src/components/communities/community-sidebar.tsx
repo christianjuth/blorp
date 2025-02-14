@@ -145,15 +145,7 @@ export function SmallScreenSidebar({
   const counts = communityView.counts;
 
   return (
-    <YStack
-      bg="$background"
-      bbc="$color3"
-      bbw={0.5}
-      flex={1}
-      p="$3"
-      gap="$3"
-      $gtMd={{ dsp: "none" }}
-    >
+    <YStack bg="$background" flex={1} p="$3" gap="$3" $gtMd={{ dsp: "none" }}>
       <XStack ai="flex-start" jc="space-between">
         <YStack gap="$3">
           <Text fontSize="$5" fontWeight="bold">

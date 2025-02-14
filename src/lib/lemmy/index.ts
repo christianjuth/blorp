@@ -352,7 +352,7 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
 
-  const showNsfw = useSettingsStore((s) => s.showNsfw);
+  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
@@ -361,6 +361,7 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
 
   form = {
     limit: 25,
+    sort,
     ...form,
   };
 
