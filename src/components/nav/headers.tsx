@@ -472,7 +472,7 @@ function BackButton({ onPress }: { onPress?: () => any }) {
 
 export function SavedPostsHeader(props: NativeStackHeaderProps) {
   return (
-    <HeaderGutters darkBackground>
+    <HeaderGutters>
       <BackButton
         onPress={
           "back" in props && props.back
@@ -481,7 +481,7 @@ export function SavedPostsHeader(props: NativeStackHeaderProps) {
         }
       />
 
-      <Text col="white" fontSize="$5" fontWeight="bold">
+      <Text fontSize="$5" fontWeight="bold">
         Saved
       </Text>
 

@@ -71,9 +71,9 @@ function useLemmyClient() {
       client.setHeaders({ Authorization: `Bearer ${jwt}` });
     }
 
-    const queryKeyPrefix = ["instance", instance];
+    const queryKeyPrefix = [`instance-${instance}`];
     if (myUserId) {
-      queryKeyPrefix.push("user", String(myUserId));
+      queryKeyPrefix.push(`user-${myUserId}`);
     }
 
     return { client, queryKeyPrefix };
@@ -86,6 +86,15 @@ export type FlattenedComment = {
   comment: Comment;
   creator: Pick<Person, "id" | "name" | "avatar" | "actor_id">;
   counts: Pick<CommentAggregates, "score">;
+  community: {
+    name: string;
+    title: string;
+    icon?: string;
+    slug: string;
+  };
+  post: {
+    ap_id: string;
+  };
 };
 
 export type FlattenedGetCommentsResponse = {
@@ -94,11 +103,21 @@ export type FlattenedGetCommentsResponse = {
 
 function flattenComment(commentView: CommentView): FlattenedComment {
   const comment = commentView.comment;
+  const community = commentView.community;
   return {
     myVote: commentView.my_vote,
     comment,
     creator: _.pick(commentView.creator, ["id", "name", "avatar", "actor_id"]),
     counts: _.pick(commentView.counts, ["score"]),
+    community: {
+      name: community.name,
+      title: community.title,
+      icon: community.icon,
+      slug: createCommunitySlug(community),
+    },
+    post: {
+      ap_id: commentView.post.ap_id,
+    },
   };
 }
 
@@ -285,23 +304,48 @@ export function usePost({
   });
 }
 
-export function usePostComments(form: GetComments) {
+function useCommentsKey() {
+  const { queryKeyPrefix } = useLemmyClient();
+
+  const commentSort = useFiltersStore((s) => s.commentSort);
+
+  return (form: GetComments) => {
+    const queryKey = [...queryKeyPrefix, "getComments"];
+
+    if (form.saved_only) {
+      queryKey.push("savedOnly");
+    }
+
+    if (form.post_id) {
+      queryKey.push(`postId-${form.post_id}`);
+    }
+
+    if (form.parent_id) {
+      queryKey.push(`parent-${form.post_id}`);
+    }
+
+    const sort = form.sort ?? commentSort;
+    if (sort) {
+      queryKey.push(`sort-${form.sort}`);
+    }
+
+    return queryKey;
+  };
+}
+
+export function useComments(form: GetComments) {
   const commentSort = useFiltersStore((s) => s.commentSort);
   const sort = form.sort ?? commentSort;
-  const { client, queryKeyPrefix } = useLemmyClient();
+  const { client } = useLemmyClient();
+
+  form = {
+    ...form,
+    sort,
+  };
+
+  const queryKey = useCommentsKey()(form);
 
   const cacheComments = useCommentsStore((s) => s.cacheComments);
-
-  const queryKey = [
-    ...queryKeyPrefix,
-    "getComments",
-    String(form.post_id),
-    sort,
-  ];
-
-  if (form.parent_id) {
-    queryKey.push("parent", String(form.parent_id));
-  }
 
   return useThrottledInfiniteQuery({
     queryKey,
@@ -330,7 +374,7 @@ export function usePostComments(form: GetComments) {
         nextPage: comments.length < limit ? null : pageParam + 1,
       };
     },
-    enabled: !!form.post_id,
+    enabled: _.isNumber(form.post_id) || form.saved_only,
     getNextPageParam: (data) => data.nextPage,
     initialPageParam: 1,
     placeholderData: (prev) => {
@@ -349,22 +393,18 @@ interface UsePostsConfig extends GetPosts {
   enabled?: boolean;
 }
 
-export function usePosts({ enabled, ...form }: UsePostsConfig) {
-  const isLoggedIn = useAuth((s) => s.isLoggedIn());
-  const { client, queryKeyPrefix } = useLemmyClient();
-
-  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
+function usePostsKey(form: GetPosts) {
+  const { queryKeyPrefix } = useLemmyClient();
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
+  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
 
-  const queryKey = [...queryKeyPrefix, "getPosts", sort];
+  const queryKey = [...queryKeyPrefix, "getPosts"];
 
-  form = {
-    limit: 25,
-    sort,
-    ...form,
-  };
+  if (form.saved_only) {
+    queryKey.push("savedOnly");
+  }
 
   if (form.community_name) {
     queryKey.push("community", form.community_name);
@@ -372,6 +412,10 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
 
   if (form.type_) {
     queryKey.push("type", form.type_);
+  }
+
+  if (sort) {
+    queryKey.push(`sort-${sort}`);
   }
 
   if (form.limit) {
@@ -382,9 +426,25 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
     queryKey.push(`nsfw-${showNsfw ? "t" : "f"}`);
   }
 
-  if (form.saved_only) {
-    queryKey.push(`saved-${form.saved_only ? "t" : "f"}`);
-  }
+  return queryKey;
+}
+
+export function usePosts({ enabled, ...form }: UsePostsConfig) {
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+  const { client } = useLemmyClient();
+
+  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
+
+  const postSort = useFiltersStore((s) => s.postSort);
+  const sort = form.sort ?? postSort;
+
+  form = {
+    limit: 25,
+    sort,
+    ...form,
+  };
+
+  const queryKey = usePostsKey(form);
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const patchPost = usePostsStore((s) => s.patchPost);
@@ -455,7 +515,7 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
     getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: "init",
     notifyOnChangeProps: "all",
-    staleTime: Infinity,
+    staleTime: form.saved_only ? 0 : Infinity,
     refetchOnWindowFocus: false,
     // refetchOnMount: false,
     refetchInterval: false,
@@ -809,6 +869,8 @@ export function useCreateComment() {
   const cacheComment = useCommentsStore((s) => s.cacheComment);
   const removeComment = useCommentsStore((s) => s.removeComment);
 
+  const getCommentsKey = useCommentsKey();
+
   return useMutation({
     mutationFn: async ({ parentPath, ...form }: CreateCommentWithPath) => {
       return await client.createComment(form);
@@ -842,6 +904,14 @@ export function useCreateComment() {
           score: 1,
         },
         myVote: 1,
+        community: {
+          name: "",
+          title: "",
+          slug: "",
+        },
+        post: {
+          ap_id: "",
+        },
       };
 
       cacheComment(newComment);
@@ -868,7 +938,12 @@ export function useCreateComment() {
             },
             unknown
           >
-        >([...queryKeyPrefix, "getComments", String(post_id), sort]);
+        >(
+          getCommentsKey({
+            post_id,
+            sort,
+          }),
+        );
 
         if (!comments) {
           continue;
@@ -886,7 +961,10 @@ export function useCreateComment() {
         }
 
         queryClient.setQueryData(
-          [...queryKeyPrefix, "getComments", String(post_id), sort],
+          getCommentsKey({
+            post_id,
+            sort,
+          }),
           comments,
         );
       }
@@ -904,7 +982,7 @@ export function useCreateComment() {
         "Controversial",
       ];
 
-      cacheComment(res.comment_view);
+      cacheComment(flattenComment(res.comment_view));
       removeComment(ctx.comment.path);
 
       for (const sort of SORTS) {
@@ -920,7 +998,12 @@ export function useCreateComment() {
             },
             unknown
           >
-        >([...queryKeyPrefix, "getComments", String(form.post_id), sort]);
+        >(
+          getCommentsKey({
+            post_id: res.comment_view.post.id,
+            sort,
+          }),
+        );
 
         if (!comments) {
           continue;
@@ -936,13 +1019,18 @@ export function useCreateComment() {
         }
 
         queryClient.setQueryData(
-          [...queryKeyPrefix, "getComments", String(form.post_id), sort],
+          getCommentsKey({
+            post_id: res.comment_view.post.id,
+            sort,
+          }),
           comments,
         );
       }
 
       queryClient.invalidateQueries({
-        queryKey: [...queryKeyPrefix, "getComments", String(form.post_id)],
+        queryKey: getCommentsKey({
+          post_id: res.comment_view.post.id,
+        }),
       });
     },
   });
@@ -973,7 +1061,7 @@ export function useEditComment() {
       }));
     },
     onSuccess: ({ comment_view }) => {
-      cacheComment(comment_view);
+      cacheComment(flattenComment(comment_view));
     },
   });
 }
@@ -1003,7 +1091,7 @@ export function useDeleteComment() {
       }));
     },
     onSuccess: ({ comment_view }) => {
-      cacheComment(comment_view);
+      cacheComment(flattenComment(comment_view));
     },
   });
 }
@@ -1259,8 +1347,14 @@ export function useBlockPerson() {
 }
 
 export function useSavePost(apId: string) {
+  const queryClient = useQueryClient();
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
+
+  const postsQueryKey = usePostsKey({
+    saved_only: true,
+  });
+
   return useMutation({
     mutationFn: (form: SavePost) => client.savePost(form),
     onMutate: ({ save }) => {
@@ -1272,6 +1366,9 @@ export function useSavePost(apId: string) {
       patchPost(apId, {
         ...flattenPost({ post_view }),
         optimisticSaved: undefined,
+      });
+      queryClient.invalidateQueries({
+        queryKey: postsQueryKey,
       });
     },
   });

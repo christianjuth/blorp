@@ -28,6 +28,7 @@ export const useCommentsStore = create<SortsStore>()(
   persist(
     (set, get) => ({
       comments: {},
+      optimisticComments: {},
       patchComment: (path, patchFn) => {
         const prev = get().comments;
         const prevComment = prev[path];
@@ -105,7 +106,7 @@ export const useCommentsStore = create<SortsStore>()(
     {
       name: "comments",
       storage: createStorage<SortsStore>(),
-      version: 0,
+      version: 1,
     },
   ),
 );
