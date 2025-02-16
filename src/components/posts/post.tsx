@@ -30,6 +30,7 @@ export function PostCard({
   apId,
   detailView = false,
   featuredContext,
+  savedOnly,
 }: {
   apId: string;
   detailView?: boolean;
@@ -39,6 +40,7 @@ export function PostCard({
    * mark it as a pinned post in the context of a community feed.
    */
   featuredContext?: "community" | "home";
+  savedOnly?: boolean;
 }) {
   const media = useMedia();
 
@@ -56,6 +58,11 @@ export function PostCard({
   let postView = usePostsStore((s) => s.posts[apId]?.data);
 
   if (!postView) {
+    return null;
+  }
+
+  const saved = postView.optimisticSaved ?? postView.saved;
+  if (savedOnly && !saved) {
     return null;
   }
 

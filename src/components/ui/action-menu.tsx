@@ -38,8 +38,10 @@ export function ActionMenu<L extends string>({
             size: "$3",
           }}
           onPress={() => {
-            a.onClick();
             setOpen(false);
+            requestAnimationFrame(() => {
+              a.onClick();
+            });
           }}
           bg="transparent"
         >

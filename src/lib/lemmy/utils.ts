@@ -30,6 +30,8 @@ export function parseCommunitySlug(slug: string) {
 export type FlattenedPost = {
   optimisticMyVote?: number;
   myVote?: number;
+  optimisticSaved?: boolean;
+  saved: boolean;
   post: Post;
   community: {
     name: string;
@@ -74,6 +76,7 @@ export function flattenPost({
     imageDetails: postView.image_details
       ? _.pick(postView.image_details, ["width", "height"])
       : undefined,
+    saved: postView.saved,
   };
 }
 

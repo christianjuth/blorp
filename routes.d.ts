@@ -11,28 +11,36 @@ declare module "one" {
         | `/`
         | `/(home)`
         | `/(home)/`
+        | `/(home)/saved`
         | `/(tabs)`
         | `/(tabs)/`
         | `/(tabs)/(home)`
         | `/(tabs)/(home)/`
+        | `/(tabs)/(home)/saved`
         | `/(tabs)/communities`
         | `/(tabs)/communities/`
+        | `/(tabs)/communities/saved`
         | `/(tabs)/create`
         | `/(tabs)/create/`
         | `/(tabs)/create/choose-community`
         | `/(tabs)/inbox`
         | `/(tabs)/inbox/`
+        | `/(tabs)/inbox/saved`
+        | `/(tabs)/saved`
         | `/(tabs)/settings`
         | `/(tabs)/settings/`
         | `/_sitemap`
         | `/communities`
         | `/communities/`
+        | `/communities/saved`
         | `/create`
         | `/create/`
         | `/create/choose-community`
         | `/inbox`
         | `/inbox/`
+        | `/inbox/saved`
         | `/privacy`
+        | `/saved`
         | `/settings`
         | `/settings/`
         | `/support`;

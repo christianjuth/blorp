@@ -7,6 +7,7 @@ import {
   PostHeader,
   UserHeader,
   SearchHeader,
+  SavedPostsHeader,
 } from "~/src/components/nav/headers";
 import { LinkContext } from "~/src/components/nav/link-context";
 
@@ -33,6 +34,14 @@ export default function Layout() {
           options={{
             title: "Communities",
             header: (props) => <CommunitiesHeader {...props} />,
+          }}
+        />
+
+        <Stack.Screen
+          name="saved"
+          options={{
+            title: "Saved",
+            header: (props) => <SavedPostsHeader {...props} />,
           }}
         />
 
