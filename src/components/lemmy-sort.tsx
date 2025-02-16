@@ -129,11 +129,6 @@ const COMMENT_SORT_OPTIONS: Option<CommentSortType, CommentSortType>[] = [
   },
 ];
 
-function getIconForSort(sort: CommentSortType) {
-  const Icon = COMMENT_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
-  return Icon ? <Icon color="$accentColor" /> : undefined;
-}
-
 export function ComentSortSelect() {
   const commentSort = useFiltersStore((s) => s.commentSort);
   const setCommentSort = useFiltersStore((s) => s.setCommentSort);
@@ -143,7 +138,22 @@ export function ComentSortSelect() {
       title="Sort Comments By"
       value={commentSort}
       onValueChange={setCommentSort}
-      trigger={getIconForSort(commentSort)}
+      trigger={
+        <XStack
+          gap="$1.5"
+          ai="center"
+          bw={1}
+          bc="$color5"
+          br={99999}
+          py={7}
+          px={13}
+        >
+          <Text fontWeight={500} fontSize="$3">
+            {commentSort}
+          </Text>
+          <ArrowUpDown size={15 * scale} />
+        </XStack>
+      }
     />
   );
 }

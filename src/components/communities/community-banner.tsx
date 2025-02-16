@@ -61,7 +61,7 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
       )}
 
       <XStack pl={hideBanner ? 0 : 120} ai="center" jc="space-between" my="$2">
-        <Text fontWeight="bold" fontSize="$7">
+        <Text fontWeight="bold" fontSize="$7" h="$3">
           c/{slug}
         </Text>
         <CommunityJoinButton communityName={communityName} />

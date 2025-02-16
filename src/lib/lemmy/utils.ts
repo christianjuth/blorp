@@ -32,6 +32,7 @@ export type FlattenedPost = {
   myVote?: number;
   optimisticSaved?: boolean;
   saved: boolean;
+  optimisticDeleted?: boolean;
   post: Post;
   community: {
     name: string;

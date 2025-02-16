@@ -13,7 +13,7 @@ export function PostVideoEmbed({
       aspectRatio={16 / 9}
       pos="relative"
       $md={{
-        mx: "$-2.5",
+        mx: "$3",
         br: 0,
       }}
       br="$3"

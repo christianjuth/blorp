@@ -26,6 +26,7 @@ import {
   CreateCommentReport,
   BlockPerson,
   SavePost,
+  DeletePost,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -1369,6 +1370,26 @@ export function useSavePost(apId: string) {
       });
       queryClient.invalidateQueries({
         queryKey: postsQueryKey,
+      });
+    },
+  });
+}
+
+export function useDeletePost(apId: string) {
+  const { client } = useLemmyClient();
+  const patchPost = usePostsStore((s) => s.patchPost);
+
+  return useMutation({
+    mutationFn: (form: DeletePost) => client.deletePost(form),
+    onMutate: ({ deleted }) => {
+      patchPost(apId, {
+        optimisticDeleted: deleted,
+      });
+    },
+    onSuccess: ({ post_view }) => {
+      patchPost(apId, {
+        ...flattenPost({ post_view }),
+        optimisticDeleted: undefined,
       });
     },
   });

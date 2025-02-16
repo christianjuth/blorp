@@ -3,7 +3,7 @@ import { PostComment } from "~/src/components/posts/post-comment";
 import { buildCommentMap } from "../lib/comment-map";
 import { useEffect } from "react";
 import { useCommunity, usePost, useComments } from "~/src/lib/lemmy/index";
-import { PostCard } from "~/src/components/posts/post";
+import { PostBottomBar, PostCard } from "~/src/components/posts/post";
 import { CommunitySidebar } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 
@@ -91,6 +91,7 @@ export function PostComments({
       data={
         [
           "post",
+          "post-bottom-bar",
           "comment",
           ...(structured ? structured.topLevelItems : EMPTY_ARR),
         ] as const
@@ -105,10 +106,19 @@ export function PostComments({
           );
         }
 
+        if (item === "post-bottom-bar") {
+          return (
+            <ContentGutters>
+              <PostBottomBar apId={apId} />
+              <></>
+            </ContentGutters>
+          );
+        }
+
         if (item === "comment") {
           return (
             <ContentGutters>
-              <View flex={1}>
+              <View flex={1} pt="$3">
                 <InlineCommentReply postId={postId} />
               </View>
               <></>
@@ -140,6 +150,7 @@ export function PostComments({
       onRefresh={onRefresh}
       refreshing={refreshing}
       estimatedItemSize={450}
+      stickyHeaderIndices={[1]}
     />
   );
 }

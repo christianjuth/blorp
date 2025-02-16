@@ -662,9 +662,7 @@ export function PostHeader(
       >
         {communityName}
       </Text>
-      <NavbarRightSide>
-        <ComentSortSelect />
-      </NavbarRightSide>
+      <NavbarRightSide />
     </HeaderGutters>
   );
 }

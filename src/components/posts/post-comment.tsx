@@ -236,7 +236,7 @@ export function PostComment({
               ...(isMyComment
                 ? [
                     {
-                      label: comment.deleted ? "Undelete" : "Delete",
+                      label: comment.deleted ? "Restore" : "Delete",
                       onClick: () => {
                         deleteComment.mutate({
                           comment_id: comment.id,
@@ -244,6 +244,7 @@ export function PostComment({
                           deleted: !comment.deleted,
                         });
                       },
+                      danger: true,
                     },
                   ]
                 : [

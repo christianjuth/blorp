@@ -1,6 +1,10 @@
 import { View, Text, Avatar, YStack, XStack } from "tamagui";
 import { RelativeTime } from "~/src/components/relative-time";
-import { useBlockPerson, useSavePost } from "~/src/lib/lemmy/index";
+import {
+  useBlockPerson,
+  useDeletePost,
+  useSavePost,
+} from "~/src/lib/lemmy/index";
 import { FlattenedPost } from "~/src/lib/lemmy/utils";
 import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
@@ -11,6 +15,7 @@ import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
 import { useAlert } from "../ui/alert";
 import { encodeApId } from "~/src/lib/lemmy/utils";
+import { useAuth } from "~/src/stores/auth";
 
 export function PostByline({
   postView,
@@ -24,6 +29,7 @@ export function PostByline({
   const showReportModal = useShowPostReportModal();
   const requireAuth = useRequireAuth();
   const blockPerson = useBlockPerson();
+  const deletePost = useDeletePost(postView.post.ap_id);
   const savePost = useSavePost(postView.post.ap_id);
 
   const { creator, community, post } = postView;
@@ -38,6 +44,13 @@ export function PostByline({
   }
 
   const saved = postView.optimisticSaved ?? postView.saved;
+
+  const user = useAuth(
+    (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person,
+  );
+  const isMyPost = creator.actor_id === user?.actor_id;
+
+  const deleted = postView.optimisticDeleted ?? postView.post.deleted;
 
   return (
     <XStack dsp="flex" fd="row" ai="center" gap={9}>
@@ -116,28 +129,42 @@ export function PostByline({
               }
             },
           },
-          {
-            label: "Report",
-            onClick: () =>
-              requireAuth().then(() => {
-                showReportModal(postView.post.ap_id);
-              }),
-            danger: true,
-          },
-          {
-            label: "Block person",
-            onClick: async () => {
-              try {
-                await requireAuth();
-                await alrt(`Block ${postView.creator.name}`);
-                blockPerson.mutate({
-                  person_id: postView.creator.id,
-                  block: true,
-                });
-              } catch (err) {}
-            },
-            danger: true,
-          },
+          ...(isMyPost
+            ? [
+                {
+                  label: deleted ? "Restore" : "Delete",
+                  onClick: () =>
+                    deletePost.mutate({
+                      post_id: postView.post.id,
+                      deleted: !deleted,
+                    }),
+                  danger: true,
+                },
+              ]
+            : [
+                {
+                  label: "Report",
+                  onClick: () =>
+                    requireAuth().then(() => {
+                      showReportModal(postView.post.ap_id);
+                    }),
+                  danger: true,
+                },
+                {
+                  label: "Block person",
+                  onClick: async () => {
+                    try {
+                      await requireAuth();
+                      await alrt(`Block ${postView.creator.name}`);
+                      blockPerson.mutate({
+                        person_id: postView.creator.id,
+                        block: true,
+                      });
+                    } catch (err) {}
+                  },
+                  danger: true,
+                },
+              ]),
         ]}
         trigger={
           <View p="$2" pr={0}>

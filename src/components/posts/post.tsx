@@ -17,6 +17,7 @@ import { usePost } from "~/src/lib/lemmy/index";
 import { useSettingsStore } from "~/src/stores/settings";
 import { getPostEmbed } from "~/src/lib/post";
 import { PostLoopsEmbed } from "./post-loops-embed";
+import { ComentSortSelect } from "../lemmy-sort";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -55,7 +56,9 @@ export function PostCard({
   const replyCtx = useCommentReaplyContext();
   const linkCtx = useLinkContext();
   const [pressed, setPressed] = useState(false);
-  let postView = usePostsStore((s) => s.posts[apId]?.data);
+  const postView = usePostsStore((s) => s.posts[apId]?.data);
+
+  const deleted = postView.optimisticDeleted ?? postView.post.deleted;
 
   if (!postView) {
     return null;
@@ -99,11 +102,16 @@ export function PostCard({
 
   const titleWithOptionalImage = (
     <YStack gap="$2">
-      <Text fontWeight={500} fontSize="$6" lineHeight="$4">
-        {post.name}
+      <Text
+        fontWeight={500}
+        fontSize="$6"
+        lineHeight="$4"
+        fontStyle={deleted ? "italic" : undefined}
+      >
+        {deleted ? "deleted" : post.name}
       </Text>
 
-      {thumbnail && embedType === "image" && (
+      {thumbnail && embedType === "image" && !deleted && (
         <View br="$5" $md={{ mx: "$-3", br: 0 }}>
           <Image
             imageUrl={thumbnail}
@@ -144,31 +152,36 @@ export function PostCard({
         </Link>
       )}
 
-      {embedType === "article" && <PostArticleEmbed postView={postView} />}
-      {embedType === "video" && post.url && (
+      {embedType === "article" && !deleted && (
+        <PostArticleEmbed postView={postView} />
+      )}
+      {embedType === "video" && !deleted && post.url && (
         <PostVideoEmbed url={post.url} autoPlay={detailView} />
       )}
-      {embedType === "loops" && post.url && (
+      {embedType === "loops" && !deleted && post.url && (
         <PostLoopsEmbed
           url={post.url}
           thumbnail={thumbnail}
           autoPlay={detailView}
         />
       )}
-      {embedType === "youtube" && <YouTubeVideoEmbed url={post.url} />}
+      {embedType === "youtube" && !deleted && (
+        <YouTubeVideoEmbed url={post.url} />
+      )}
     </>
   );
 
   return (
     <YStack
-      py="$4"
+      pt="$4"
+      pb={detailView ? "$1.5" : "$4"}
       bbc="$color3"
       bbw={detailView ? 0 : 1}
       mx="auto"
       flex={1}
       $md={{
         px: "$3",
-        bbw: 0.5,
+        bbw: detailView ? 0 : 0.5,
       }}
       gap="$2"
       opacity={pressed ? 0.8 : 1}
@@ -193,22 +206,52 @@ export function PostCard({
         </Link>
       )}
 
-      {detailView && body && (
+      {detailView && body && !deleted && (
         <View pt="$2">
           <Markdown markdown={body} />
         </View>
       )}
 
-      <XStack jc="flex-end" ai="center" gap="$2" pt="$1.5">
-        {detailView ? (
-          <PostCommentsButton postView={postView} onPress={replyCtx.focus} />
-        ) : (
+      {!detailView && (
+        <XStack jc="flex-end" ai="center" gap="$2" pt="$1.5">
           <Link href={postDetailsLink} asChild>
             <PostCommentsButton postView={postView} />
           </Link>
-        )}
-        {postView && <Voting apId={apId} />}
-      </XStack>
+          {postView && <Voting apId={apId} />}
+        </XStack>
+      )}
     </YStack>
+  );
+}
+
+export function PostBottomBar({ apId }: { apId: string }) {
+  const postView = usePostsStore((s) => s.posts[apId]?.data);
+  const replyCtx = useCommentReaplyContext();
+
+  if (!postView) {
+    return null;
+  }
+
+  return (
+    <XStack
+      ai="center"
+      gap="$2"
+      py="$2"
+      bbc="$color3"
+      mx="auto"
+      flex={1}
+      $md={{
+        px: "$3",
+        bbw: 0.5,
+      }}
+      bg="$background"
+    >
+      <ComentSortSelect />
+
+      <View flex={1} />
+
+      <PostCommentsButton postView={postView} onPress={replyCtx.focus} />
+      {postView && <Voting apId={apId} />}
+    </XStack>
   );
 }
