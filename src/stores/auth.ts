@@ -4,14 +4,7 @@ import { createStorage } from "./storage";
 import { GetSiteResponse } from "lemmy-js-client";
 import _ from "lodash";
 
-export const DEFAULT_INSTANCES = [
-  "https://lemmy.world",
-  "https://lemm.ee",
-  "https://sh.itjust.works",
-  "https://lemmy.ml",
-  "https://lemmy.zip",
-  "https://lemmy.ca",
-] as const;
+export const DEFAULT_INSTANCES = ["https://lemm.ee"] as const;
 
 type Account = {
   instance: string;
