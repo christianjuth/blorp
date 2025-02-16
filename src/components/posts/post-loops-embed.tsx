@@ -36,10 +36,14 @@ export function PostLoopsEmbed({
   }, [url]);
 
   const content = (
-    <XStack jc="center" bg="$gray3" pos="relative">
+    <XStack jc="center" pos="relative" bg="$gray3">
       <YStack
         flex={1}
         aspectRatio={AR}
+        bg="black"
+        $theme-dark={{
+          bg: "$gray3",
+        }}
         $md={{
           mx: "$-3",
           br: 0,
