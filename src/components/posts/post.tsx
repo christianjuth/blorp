@@ -53,16 +53,15 @@ export function PostCard({
   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
 
-  const replyCtx = useCommentReaplyContext();
   const linkCtx = useLinkContext();
   const [pressed, setPressed] = useState(false);
   const postView = usePostsStore((s) => s.posts[apId]?.data);
 
-  const deleted = postView.optimisticDeleted ?? postView.post.deleted;
-
   if (!postView) {
     return null;
   }
+
+  const deleted = postView.optimisticDeleted ?? postView.post.deleted;
 
   const saved = postView.optimisticSaved ?? postView.saved;
   if (savedOnly && !saved) {
