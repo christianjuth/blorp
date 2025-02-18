@@ -7046,6 +7046,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tauri-apps/api@npm:^2.0.0":
+  version: 2.2.0
+  resolution: "@tauri-apps/api@npm:2.2.0"
+  checksum: 10c0/0ff0d9735c33d71c934e34045ef3077831fa98de25a42dc4c343120b482c8c114b87ef83dc02195923c23226fe6b8cb3e6bbaa099ab64d741346ba80c164435a
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/plugin-deep-link@npm:~2":
+  version: 2.2.0
+  resolution: "@tauri-apps/plugin-deep-link@npm:2.2.0"
+  dependencies:
+    "@tauri-apps/api": "npm:^2.0.0"
+  checksum: 10c0/f5db0506f03ab1afdd9fb2889131cc3d3abf32cbaec7159de4a2ad9881166c244de97e9d5cb2dc8afe6471fe52971713259a64b120a139fa2972757f252aff47
+  languageName: node
+  linkType: hard
+
 "@testing-library/dom@npm:10.4.0":
   version: 10.4.0
   resolution: "@testing-library/dom@npm:10.4.0"
@@ -13023,6 +13039,7 @@ __metadata:
     "@tanstack/query-broadcast-client-experimental": "npm:5.62.7"
     "@tanstack/react-query": "npm:5.62.7"
     "@tanstack/react-query-persist-client": "npm:5.62.7"
+    "@tauri-apps/plugin-deep-link": "npm:~2"
     "@testing-library/react-hooks": "npm:^8.0.1"
     "@types/autosize": "npm:^4.0.3"
     "@types/express": "npm:^4"

@@ -1,13 +1,14 @@
 import { BottomTabBarProps, BottomTabBar } from "@react-navigation/bottom-tabs";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { isWeb, ScrollView, useMedia, useTheme } from "tamagui";
+import { isWeb, ScrollView, useMedia, useTheme, View } from "tamagui";
 import { useScrollContext } from "./scroll-animation-context";
 import { interpolate, useAnimatedStyle } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
 import { Sidebar } from "./sidebar";
 import { SafeAreaView, useFocusEffect, useNavigation, usePathname } from "one";
 import { scale } from "~/config/tamagui/scale";
+import { isTauri } from "~/src/lib/tauri";
 
 export const useCustomTabBarHeight = () => {
   const insets = useSafeAreaInsets();
@@ -55,6 +56,7 @@ export function useHideTabBar() {
 export function CustomBottomTabBar(props: BottomTabBarProps) {
   const theme = useTheme();
   const { scrollY } = useScrollContext();
+  const header = useCustomTabBarHeight();
   const tabBar = useCustomTabBarHeight();
 
   const pathname = usePathname();
@@ -84,7 +86,8 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
 
   if (isLgScreen) {
     return (
-      <ScrollView
+      <View
+        flex={1}
         maxWidth={230 * scale}
         $gtLg={{
           maxWidth: 270 * scale,
@@ -92,11 +95,16 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
         brw={1}
         bc="$color3"
         bg="$background"
+        tag="aside"
+        pt={isTauri() ? "$5" : undefined}
+        data-tauri-drag-region
       >
-        <SafeAreaView>
-          <Sidebar {...props} />
-        </SafeAreaView>
-      </ScrollView>
+        <ScrollView>
+          <SafeAreaView>
+            <Sidebar {...props} />
+          </SafeAreaView>
+        </ScrollView>
+      </View>
     );
   }
 

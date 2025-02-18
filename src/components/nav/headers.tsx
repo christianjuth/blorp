@@ -63,6 +63,7 @@ function HeaderGutters({
 
   return (
     <YStack
+      tag="nav"
       pt={isCatalyst ? 0 : insetTop}
       h={height - 0.5}
       bbw={0.5}
@@ -81,6 +82,7 @@ function HeaderGutters({
         bbc: "$color3",
         ...props.$gtMd,
       }}
+      data-tauri-drag-region
     >
       <XStack
         flex={1}
@@ -92,12 +94,23 @@ function HeaderGutters({
         ai="center"
         $gtMd={{ px: "$4" }}
         $gtLg={{ px: "$5" }}
+        data-tauri-drag-region
       >
-        <XStack ai="center" gap="$3" $gtMd={{ flex: 1, gap: "$4" }}>
+        <XStack
+          ai="center"
+          gap="$3"
+          $gtMd={{ flex: 1, gap: "$4" }}
+          data-tauri-drag-region
+        >
           {first}
         </XStack>
 
-        <XStack flex={1} ai="center" $gtMd={{ jc: "center" }}>
+        <XStack
+          flex={1}
+          ai="center"
+          $gtMd={{ jc: "center" }}
+          data-tauri-drag-region
+        >
           {second}
         </XStack>
 
@@ -106,6 +119,7 @@ function HeaderGutters({
           ai="center"
           gap="$3"
           $gtMd={{ flex: 1, gap: "$4" }}
+          data-tauri-drag-region
         >
           {third}
         </XStack>

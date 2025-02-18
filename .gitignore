@@ -55,3 +55,8 @@ storybook-static/
 
 # Local Netlify folder
 .netlify
+
+# Tauri
+*.provisionprofile
+Entitlements.plist
+Blorp.pkg
