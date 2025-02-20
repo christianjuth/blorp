@@ -13,15 +13,18 @@ import { useScrollContext } from "../components/nav/scroll-animation-context";
 import { useFiltersStore } from "../stores/filters";
 import { usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
-import { HomeHeader } from "../components/nav/headers";
-import type { FlashList as DefaultFlashList } from "@shopify/flash-list";
 
-const ReanimatedFlashList =
-  Animated.createAnimatedComponent<
-    FlashListProps<
-      "banner" | "post-sort-bar" | "sidebar-desktop" | "sidebar-mobile" | string
-    >
-  >(FlashList);
+const List = isWeb
+  ? FlashList
+  : Animated.createAnimatedComponent<
+      FlashListProps<
+        | "banner"
+        | "post-sort-bar"
+        | "sidebar-desktop"
+        | "sidebar-mobile"
+        | string
+      >
+    >(FlashList);
 
 const EMPTY_ARR = [];
 
@@ -41,7 +44,7 @@ export function HomeFeed() {
   const tabBar = useCustomTabBarHeight();
   const header = useCustomHeaderHeight();
 
-  const ref = useRef<DefaultFlashList<any>>(null);
+  const ref = useRef<FlashList<any>>(null);
   const scrollToTop = useRef({
     scrollToOffset: () =>
       ref.current?.scrollToOffset({
@@ -61,8 +64,6 @@ export function HomeFeed() {
 
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
-  const List = isWeb ? FlashList : ReanimatedFlashList;
-
   return (
     <PostReportProvider>
       <ContentGutters>
@@ -73,7 +74,6 @@ export function HomeFeed() {
       </ContentGutters>
 
       <List
-        // @ts-expect-error
         ref={ref}
         data={["header", ...data]}
         renderItem={({ item }) => {

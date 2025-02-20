@@ -75,7 +75,6 @@ export function SearchFeed({
       </ContentGutters>
 
       <FlashList
-        // @ts-expect-error
         ref={ref}
         data={listItems}
         renderItem={({ item }) => {

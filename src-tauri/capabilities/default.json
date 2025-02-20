@@ -8,6 +8,13 @@
   "permissions": [
     "core:default",
     "core:window:allow-start-dragging",
-    "deep-link:default"
+    "deep-link:default",
+    "store:default",
+    "http:allow-fetch",
+    "http:default",
+    {
+      "identifier": "http:default",
+      "allow": [{ "url": "https://**" }]
+    }
   ]
 }

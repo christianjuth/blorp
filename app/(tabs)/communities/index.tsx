@@ -5,8 +5,8 @@ import { useRef } from "react";
 import { View, isWeb, useMedia } from "tamagui";
 import { useFiltersStore } from "~/src/stores/filters";
 import { ContentGutters } from "~/src/components/gutters";
-import { FlashList } from "~/src/components/flashlist";
 import { scale } from "~/config/tamagui/scale";
+import { FlashList } from "@shopify/flash-list";
 
 export default function Communities() {
   const communitySort = useFiltersStore((s) => s.communitySort);
@@ -43,14 +43,16 @@ export default function Communities() {
       <FlashList
         key={numCols}
         numColumns={numCols}
-        // @ts-expect-error
         ref={ref}
         data={communities}
         renderItem={(item) => (
           <View
             h={54 * scale}
             overflow="hidden"
-            w={isWeb ? `${100 / numCols}%` : "100%"}
+            w="100%"
+            $gtMd={{
+              pr: "$4",
+            }}
           >
             <Community communityView={item.item} />
           </View>

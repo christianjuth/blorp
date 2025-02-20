@@ -50,7 +50,6 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
       </ContentGutters>
 
       <FlashList
-        // @ts-expect-error
         ref={ref}
         data={["banner", "sidebar-mobile", "post-sort-bar", ...data] as const}
         renderItem={({ item }) => {
