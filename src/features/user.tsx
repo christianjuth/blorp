@@ -55,7 +55,6 @@ export function User({ userId }: { userId?: string }) {
 
   return (
     <FlashList
-      // @ts-expect-error
       ref={ref}
       data={
         [

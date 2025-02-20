@@ -1,0 +1,210 @@
+import { PostCard } from "~/src/components/posts/post";
+import { View } from "tamagui";
+import { ContentGutters } from "../components/gutters";
+import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
+import { useScrollToTop } from "@react-navigation/native";
+import { useCallback, useEffect, useRef } from "react";
+import { PostSortBar } from "../components/lemmy-sort";
+import { useFiltersStore } from "../stores/filters";
+import { usePosts } from "../lib/lemmy";
+import {
+  useVirtualizer,
+  VirtualItem,
+  defaultRangeExtractor,
+  Range,
+} from "@tanstack/react-virtual";
+import { useIsFocused } from "one";
+import { FlashListProps } from "@shopify/flash-list";
+
+function FlashList<T>({
+  data,
+  estimatedItemSize,
+  onEndReached,
+  renderItem,
+  stickyHeaderIndices,
+}: FlashListProps<T>) {
+  const focused = useIsFocused();
+
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const initialItem = cache?.[index];
+
+  const dataLen = data?.length ?? 0;
+
+  const rowVirtualizer = useVirtualizer({
+    count: dataLen,
+    getScrollElement: () => parentRef.current,
+    estimateSize: (index) => cache?.[index]?.size ?? estimatedItemSize,
+    onChange: (instance) => {
+      if (
+        parentRef.current &&
+        parentRef.current?.getBoundingClientRect().height > 0
+      ) {
+        cache = instance.measurementsCache;
+        const scrollOffset = instance?.scrollOffset ?? 0;
+        const firstItem = instance
+          .getVirtualItems()
+          .find((item) => item.start >= scrollOffset);
+        if (scrollOffset > 0) {
+          index = firstItem?.index ?? 0;
+          offset = firstItem ? scrollOffset - firstItem.start : 0;
+        }
+      }
+    },
+    initialMeasurementsCache: cache,
+    initialOffset: initialItem ? initialItem.start + offset : 0,
+    enabled: focused,
+    rangeExtractor: useCallback((range: Range) => {
+      if (!stickyHeaderIndices) {
+        return defaultRangeExtractor(range);
+      }
+
+      const next = new Set([
+        ...stickyHeaderIndices,
+        ...defaultRangeExtractor(range),
+      ]);
+      return Array.from(next).sort((a, b) => a - b);
+    }, []),
+  });
+
+  // useScrollToTop({
+  //   current: {
+  //     scrollToTop: () => {
+  //       index = 0;
+  //       offset = 0;
+  //       rowVirtualizer.scrollToIndex(0);
+  //     },
+  //   },
+  // });
+
+  useEffect(() => {
+    const [lastItem] = [...rowVirtualizer.getVirtualItems()].reverse();
+    if (!lastItem) {
+      return;
+    }
+    if (lastItem.index >= dataLen - 1) {
+      onEndReached?.();
+    }
+  }, [dataLen, rowVirtualizer.getVirtualItems(), onEndReached]);
+
+  return (
+    <div
+      ref={parentRef}
+      style={{
+        overflow: "auto", // Make it scroll!
+      }}
+    >
+      {/* The large inner element to hold all of the items */}
+      <div
+        style={{
+          height: `${rowVirtualizer.getTotalSize()}px`,
+          width: "100%",
+          position: "relative",
+        }}
+      >
+        {/* Only the visible items in the virtualizer, manually positioned to be in view */}
+        {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+          const item = data?.[virtualItem.index];
+
+          if (!item) {
+            return null;
+          }
+
+          return (
+            <div
+              key={virtualItem.key}
+              data-index={virtualItem.index}
+              ref={rowVirtualizer.measureElement}
+              style={
+                stickyHeaderIndices?.includes(virtualItem.index)
+                  ? {
+                      position: "sticky",
+                      top: 0,
+                      zIndex: 1,
+                    }
+                  : {
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      transform: `translateY(${virtualItem.start}px)`,
+                    }
+              }
+            >
+              {renderItem?.({
+                item,
+                index: virtualItem.index,
+                target: {} as any,
+              })}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const EMPTY_ARR = [];
+
+let index = 0;
+let offset = 0;
+
+let cache: VirtualItem[] = [];
+
+export function HomeFeed() {
+  const postSort = useFiltersStore((s) => s.postSort);
+  const listingType = useFiltersStore((s) => s.listingType);
+
+  const posts = usePosts({
+    limit: 50,
+    sort: postSort,
+    type_: listingType,
+  });
+
+  const {
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    refetch,
+    isRefetching,
+  } = posts;
+
+  const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+
+  return (
+    <>
+      <ContentGutters>
+        <View flex={1} />
+        <View>
+          <PopularCommunitiesSidebar />
+        </View>
+      </ContentGutters>
+
+      <FlashList
+        data={["header", ...data]}
+        renderItem={({ item }) =>
+          item === "header" ? (
+            <ContentGutters bg="$background">
+              <View flex={1} py="$2" bg="$background" $md={{ dsp: "none" }}>
+                <PostSortBar />
+              </View>
+              <></>
+            </ContentGutters>
+          ) : (
+            <ContentGutters>
+              <PostCard apId={item} featuredContext="home" />
+              <></>
+            </ContentGutters>
+          )
+        }
+        estimatedItemSize={450}
+        stickyHeaderIndices={[0]}
+        onEndReached={() => {
+          if (!isRefetching) {
+            refetch();
+          }
+        }}
+      />
+    </>
+  );
+}

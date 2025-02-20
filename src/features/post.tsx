@@ -86,7 +86,6 @@ export function PostComments({
 
   return (
     <FlashList
-      // @ts-expect-error
       ref={ref}
       data={
         [

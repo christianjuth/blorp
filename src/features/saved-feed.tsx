@@ -77,7 +77,6 @@ export function SavedFeed() {
   return (
     <PostReportProvider>
       <FlashList
-        // @ts-expect-error
         ref={ref}
         data={["header", ...data]}
         renderItem={({ item }) => {

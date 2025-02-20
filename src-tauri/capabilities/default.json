@@ -9,6 +9,12 @@
     "core:default",
     "core:window:allow-start-dragging",
     "deep-link:default",
-    "store:default"
+    "store:default",
+    "http:allow-fetch",
+    "http:default",
+    {
+      "identifier": "http:default",
+      "allow": [{ "url": "https://**" }]
+    }
   ]
 }
