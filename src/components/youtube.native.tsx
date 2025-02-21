@@ -1,8 +1,8 @@
 import { View } from "tamagui";
 import { parseYouTubeVideoId } from "../lib/youtube";
-import { Linking } from "react-native";
 import { WebView } from "react-native-webview/src";
 import { OnShouldStartLoadWithRequest } from "react-native-webview/src/WebViewTypes";
+import { openUrl } from "~/src/lib/linking";
 
 export function YouTubeVideoEmbed({ url }: { url?: string }) {
   const videoId = url ? parseYouTubeVideoId(url) : undefined;
@@ -21,13 +21,7 @@ export function YouTubeVideoEmbed({ url }: { url?: string }) {
     }
 
     try {
-      Linking.canOpenURL(newUrl)
-        .then(() => {
-          Linking.openURL(newUrl);
-        })
-        .catch((err) => {
-          console.error("failed to open url", err);
-        });
+      openUrl(newUrl);
       return false;
     } catch (err) {}
 

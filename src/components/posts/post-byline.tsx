@@ -9,13 +9,14 @@ import { FlattenedPost } from "~/src/lib/lemmy/utils";
 import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
 import { ActionMenu } from "../ui/action-menu";
-import { Share, Linking } from "react-native";
+import { Share } from "react-native";
 import { Ellipsis, Pin } from "@tamagui/lucide-icons";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
 import { useAlert } from "../ui/alert";
 import { encodeApId } from "~/src/lib/lemmy/utils";
 import { useAuth } from "~/src/stores/auth";
+import { openUrl } from "~/src/lib/linking";
 
 export function PostByline({
   postView,
@@ -123,9 +124,10 @@ export function PostByline({
             label: "View source",
             onClick: async () => {
               const url = postView.post.ap_id;
-              const supported = await Linking.canOpenURL(url);
-              if (supported) {
-                Linking.openURL(url);
+              try {
+                openUrl(url);
+              } catch {
+                // TODO: handle error
               }
             },
           },

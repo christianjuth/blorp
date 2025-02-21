@@ -21,12 +21,38 @@ import Md, {
   stringToTokens,
   RenderRules,
 } from "react-native-markdown-display";
-import { Link } from "one";
+import { Link as OneLink, LinkProps } from "one";
 import type { RuleBlock } from "markdown-it/lib/parser_block.mjs";
 import MarkedList from "@jsamr/react-native-li";
 import decimal from "@jsamr/counter-style/presets/decimal";
 import disc from "@jsamr/counter-style/presets/disc";
 import { scale } from "~/config/tamagui/scale";
+import { shouldOpenInNewTab } from "../lib/linking";
+import { openUrl } from "~/src/lib/linking";
+
+function Link(props: LinkProps) {
+  const href = props.href;
+
+  if (_.isString(href) && shouldOpenInNewTab(href)) {
+    return (
+      <Text
+        cur="pointer"
+        {..._.pick(props, ["style", "className"])}
+        onPress={() => {
+          try {
+            openUrl(href);
+          } catch {
+            // TODO: handle error
+          }
+        }}
+      >
+        {props.children}
+      </Text>
+    );
+  }
+
+  return <OneLink {...props} />;
+}
 
 const Context = createContext<{
   color: GetThemeValueForKey<"color">;

@@ -7090,6 +7090,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tauri-apps/plugin-opener@npm:^2.2.5":
+  version: 2.2.5
+  resolution: "@tauri-apps/plugin-opener@npm:2.2.5"
+  dependencies:
+    "@tauri-apps/api": "npm:^2.0.0"
+  checksum: 10c0/643574a4fd8cf9940c60c668f871e61130831a0d193e4425b0daa980441ab8455e64b9ef6764f3c425a52cab4aa14a5f3f3d602b5a24da4be5bcad3987b4242d
+  languageName: node
+  linkType: hard
+
 "@tauri-apps/plugin-store@npm:~2":
   version: 2.2.0
   resolution: "@tauri-apps/plugin-store@npm:2.2.0"
@@ -13079,6 +13088,7 @@ __metadata:
     "@tanstack/react-virtual": "npm:^3.13.0"
     "@tauri-apps/plugin-deep-link": "npm:~2"
     "@tauri-apps/plugin-http": "npm:^2.3.0"
+    "@tauri-apps/plugin-opener": "npm:^2.2.5"
     "@tauri-apps/plugin-store": "npm:~2"
     "@testing-library/react-hooks": "npm:^8.0.1"
     "@types/autosize": "npm:^4.0.3"

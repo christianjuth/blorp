@@ -103,14 +103,14 @@ export function CommunitySidebar({
     <View
       position={asPage ? undefined : "absolute"}
       maxHeight={dimensions.height - header.height}
-      bg="$background"
-      flex={1}
+      w="100%"
     >
       <ScrollView
         zIndex="$5"
         $md={{
           p: "$4",
         }}
+        flex={1}
       >
         {asPage ? (
           <ContentGutters>

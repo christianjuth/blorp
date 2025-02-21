@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "postinstall": "husky",
-    "dev": "./scripts/dev.sh",
+    "dev": "one dev",
     "dev:clean": "one dev --clean",
     "dev:tauri": "tauri dev",
     "clean": "one clean",
@@ -54,6 +54,7 @@
     "@tanstack/react-virtual": "^3.13.0",
     "@tauri-apps/plugin-deep-link": "~2",
     "@tauri-apps/plugin-http": "^2.3.0",
+    "@tauri-apps/plugin-opener": "^2.2.5",
     "@tauri-apps/plugin-store": "~2",
     "@types/autosize": "^4.0.3",
     "@types/lodash": "^4.17.13",

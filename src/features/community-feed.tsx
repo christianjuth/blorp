@@ -44,9 +44,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
     <PostReportProvider>
       <ContentGutters>
         <View flex={1} />
-        <View>
-          {communityName && <CommunitySidebar communityName={communityName} />}
-        </View>
+        {communityName && <CommunitySidebar communityName={communityName} />}
       </ContentGutters>
 
       <FlashList

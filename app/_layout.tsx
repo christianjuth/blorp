@@ -96,7 +96,7 @@ export default function Layout() {
 
       <body>
         <SentryAddCtx />
-        <LoadProgressBar />
+        {/* <LoadProgressBar /> */}
 
         <Providers>
           <Slot />
