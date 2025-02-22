@@ -1,5 +1,5 @@
 import { Link } from "one";
-import { isWeb, ScrollView, Text, View, YStack } from "tamagui";
+import { ScrollView, Text, YStack } from "tamagui";
 import { ContentGutters } from "~/src/components/gutters";
 import { Markdown } from "~/src/components/markdown";
 
@@ -75,6 +75,12 @@ export default function Page() {
   const content = (
     <ContentGutters>
       <YStack flex={1} py="$10" gap="$8">
+        <Link href="/" asChild>
+          <Text tag="a" color="$accentColor">
+            Return home
+          </Text>
+        </Link>
+
         <Markdown markdown={POLICY} />
 
         <Link href="/" asChild>
@@ -86,9 +92,5 @@ export default function Page() {
     </ContentGutters>
   );
 
-  return isWeb ? (
-    <View bg="$background">{content}</View>
-  ) : (
-    <ScrollView bg="$background">{content}</ScrollView>
-  );
+  return <ScrollView bg="$background">{content}</ScrollView>;
 }

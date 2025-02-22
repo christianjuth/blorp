@@ -742,7 +742,7 @@ export function StackHeader(props: NativeStackHeaderProps) {
           </Button>
         )}
 
-        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+        <Text fontWeight={900} fontSize="$5" overflow="hidden" pos="relative">
           {props.options.title ?? props.route.name}
         </Text>
       </>
@@ -899,7 +899,7 @@ export function CreatePostHeaderStepTwo(props: BottomTabHeaderProps) {
 export function SettingsHeader(props: BottomTabHeaderProps) {
   return (
     <HeaderGutters>
-      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
+      <Text fontWeight={900} fontSize="$5" overflow="hidden" pos="relative">
         Settings
       </Text>
       <></>
