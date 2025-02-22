@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { createStorage } from "./storage";
 import { FlattenedComment } from "../lib/lemmy";
 import _ from "lodash";
+import { MAX_CACHE_MS } from "./config";
 
 type CachedComment = {
   data: FlattenedComment;
@@ -22,8 +23,8 @@ type SortsStore = {
     comments: FlattenedComment[],
   ) => Record<CommentPath, CachedComment>;
   removeComment: (path: string) => void;
+  cleanup: () => any;
 };
-
 export const useCommentsStore = create<SortsStore>()(
   persist(
     (set, get) => ({
@@ -101,6 +102,22 @@ export const useCommentsStore = create<SortsStore>()(
         });
 
         return updatedPosts;
+      },
+      cleanup: () => {
+        const now = Date.now();
+
+        const comments = _.clone(get().comments);
+
+        for (const key in comments) {
+          const comment = comments[key];
+          const shouldEvict = now - comment.lastUsed > MAX_CACHE_MS;
+
+          if (shouldEvict) {
+            delete comments[key];
+          }
+        }
+
+        return comments;
       },
     }),
     {

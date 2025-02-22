@@ -1,7 +1,7 @@
 html,
 body {
   max-width: 100vw;
-  background: var(--background);
+  background-color: var(--background), black;
 }
 
 body {
@@ -13,7 +13,6 @@ body {
   position: relative;
   max-width: 100vw;
   height: 100vh;
-  background-color: var(--color4), black;
 }
 
 a {
