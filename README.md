@@ -20,12 +20,12 @@ Blorp is a work in progress, and the goal is to check off everything below for v
   - [ ] User page
     - [X] Feed of user's posts
     - [ ] Feed of users comments
-  - [ ] Multi acount login - _partially completed_
+  - [X] Multi acount login
 - [ ] Settings
   - [X] Offline image caching for native
   - [X] Clear cache
   - [X] Post filtering
-  - [ ] Link to GitHub for issue reporting
+  - [X] Link to GitHub for issue reporting
 - [ ] Internal
   - [X] Anonymously catch runtime errors using Sentry
   - [ ] End-to-end tests
