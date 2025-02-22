@@ -778,9 +778,9 @@ export function useLogout() {
     }
   };
 
-  return () => {
+  return (index?: number) => {
     client.logout();
-    logout();
+    logout(index);
     resetFilters();
     queryClient.clear();
     queryClient.invalidateQueries();

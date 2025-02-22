@@ -14,3 +14,25 @@ export function createDb(rowName: string) {
     },
   };
 }
+
+export async function getDbSizes() {
+  const sizes: [string, number][] = [];
+  let totalSize = 0;
+
+  const keys = await AsyncStorage.getAllKeys();
+
+  for (const key of keys) {
+    const value = await AsyncStorage.getItem(key);
+    const size = new Blob([JSON.stringify(value)]).size; // Estimate size in bytes
+    totalSize += size;
+    sizes.push([key.toString(), size]);
+  }
+
+  return sizes
+    .filter(([_, size]) => {
+      return size / totalSize > 0.01;
+    })
+    .sort(([aKey, aSize], [bKey, bSize]) => {
+      return bSize - aSize;
+    });
+}
