@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { createStorage } from "./storage";
 import { FlattenedPost } from "../lib/lemmy/utils";
 import _ from "lodash";
+import { MAX_CACHE_MS } from "./config";
 
 type CachedPost = {
   data: FlattenedPost;
@@ -17,6 +18,7 @@ type SortsStore = {
   ) => FlattenedPost;
   cachePost: (post: FlattenedPost) => FlattenedPost;
   cachePosts: (post: FlattenedPost[]) => Record<string, CachedPost>;
+  cleanup: () => any;
 };
 
 export const usePostsStore = create<SortsStore>()(
@@ -95,6 +97,22 @@ export const usePostsStore = create<SortsStore>()(
         });
 
         return updatedPosts;
+      },
+      cleanup: () => {
+        const now = Date.now();
+
+        const posts = _.clone(get().posts);
+
+        for (const key in posts) {
+          const post = posts[key];
+          const shouldEvict = now - post.lastUsed > MAX_CACHE_MS;
+
+          if (shouldEvict) {
+            delete posts[key];
+          }
+        }
+
+        return posts;
       },
     }),
     {

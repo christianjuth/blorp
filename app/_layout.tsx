@@ -3,6 +3,7 @@ import "./tamagui.css";
 import { LoadProgressBar, Slot } from "one";
 import { Providers } from "~/src/components/providers";
 import { initSentry, SentryAddCtx } from "~/src/components/sentry";
+import { GarbageCollector } from "~/src/stores/GarbageCollector";
 
 initSentry();
 
@@ -100,6 +101,7 @@ export default function Layout() {
 
         <Providers>
           <Slot />
+          <GarbageCollector />
         </Providers>
       </body>
     </html>

@@ -9,6 +9,7 @@ import type {
   SubscribedType,
 } from "lemmy-js-client";
 import { createCommunitySlug } from "../lib/lemmy/utils";
+import { MAX_CACHE_MS } from "./config";
 
 type Data = {
   communityView:
@@ -28,6 +29,7 @@ type SortsStore = {
   patchCommunity: (id: string, post: Partial<Data>) => Data;
   cacheCommunity: (data: Data) => Data;
   cacheCommunities: (data: Data[]) => Record<string, CachedCommunity>;
+  cleanup: () => any;
 };
 
 export const useCommunitiesStore = create<SortsStore>()(
@@ -112,6 +114,22 @@ export const useCommunitiesStore = create<SortsStore>()(
         });
 
         return updatedCommunities;
+      },
+      cleanup: () => {
+        const now = Date.now();
+
+        const communities = _.clone(get().communities);
+
+        for (const key in communities) {
+          const community = communities[key];
+          const shouldEvict = now - community.lastUsed > MAX_CACHE_MS;
+
+          if (shouldEvict) {
+            delete communities[key];
+          }
+        }
+
+        return communities;
       },
     }),
     {
