@@ -20,7 +20,7 @@ type AuthStore = {
   updateAccount: (patch: Partial<Account>) => any;
   addAccount: (patch?: Partial<Account>) => any;
   setAccountIndex: (index: number) => Account | null;
-  logout: () => any;
+  logout: (index?: number) => any;
 };
 
 export function parseAccountInfo(account: Account) {
@@ -62,9 +62,9 @@ export const useAuth = create<AuthStore>()(
           accountIndex: accounts.length - 1,
         });
       },
-      logout: () => {
+      logout: (index) => {
         const { accounts, accountIndex } = get();
-        const account = accounts[accountIndex];
+        const account = accounts[index ?? accountIndex];
         if (account) {
           delete accounts[accountIndex];
           const newAccounts = accounts.filter(Boolean);

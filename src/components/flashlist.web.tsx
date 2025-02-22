@@ -97,7 +97,8 @@ export function FlashList<T>({
     <div
       ref={parentRef}
       style={{
-        overflow: "auto", // Make it scroll!
+        overflow: "auto",
+        overscrollBehavior: "auto",
       }}
     >
       {/* The large inner element to hold all of the items */}
