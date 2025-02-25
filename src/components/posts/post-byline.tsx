@@ -17,6 +17,8 @@ import { useAlert } from "../ui/alert";
 import { encodeApId } from "~/src/lib/lemmy/utils";
 import { useAuth } from "~/src/stores/auth";
 import { openUrl } from "~/src/lib/linking";
+import { useToastController } from "@tamagui/toast";
+import { useEffect } from "react";
 
 export function PostByline({
   postView,

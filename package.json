@@ -48,6 +48,7 @@
     "@tamagui/react-native-media-driver": "^1.125.14",
     "@tamagui/shorthands": "^1.125.14",
     "@tamagui/themes": "^1.125.14",
+    "@tamagui/toast": "^1.125.16",
     "@tanstack/query-broadcast-client-experimental": "5.62.7",
     "@tanstack/react-query": "5.62.7",
     "@tanstack/react-query-persist-client": "5.62.7",

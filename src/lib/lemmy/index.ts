@@ -56,6 +56,7 @@ import { useRouter } from "one";
 import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
 import { measureImage } from "../image";
 import { getPostEmbed } from "../post";
+import { useToastController } from "@tamagui/toast";
 
 function useLemmyClient() {
   const jwt = useAuth((s) => s.getSelectedAccount().jwt);
@@ -1263,6 +1264,7 @@ export function useFollowCommunity() {
   const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
 
   const queryClient = useQueryClient();
+  const toast = useToastController();
 
   return useMutation({
     mutationFn: (form: { community: Community; follow: boolean }) => {
@@ -1288,6 +1290,7 @@ export function useFollowCommunity() {
       patchCommunity(slug, {
         optimisticSubscribed: undefined,
       });
+      toast.show("Couldn't follow community");
     },
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -1300,6 +1303,7 @@ export function useFollowCommunity() {
 export function useMarkReplyRead() {
   const { client, queryKeyPrefix } = useLemmyClient();
   const queryClient = useQueryClient();
+  const toast = useToastController();
 
   return useMutation({
     mutationFn: (form: MarkCommentReplyAsRead) => {
@@ -1310,12 +1314,16 @@ export function useMarkReplyRead() {
         queryKey: [...queryKeyPrefix, "getReplies"],
       });
     },
+    onError: (_, { read }) => {
+      toast.show(`Couldn't mark post ${read ? "read" : "unread"}`);
+    },
   });
 }
 
 export function useCreatePost() {
   const router = useRouter();
   const { client } = useLemmyClient();
+  const toast = useToastController();
   return useMutation({
     mutationFn: (form: CreatePost) => client.createPost(form),
     onSuccess: (res) => {
@@ -1323,27 +1331,43 @@ export function useCreatePost() {
       const slug = createCommunitySlug(res.post_view.community);
       router.push(`/c/${slug}/posts/${encodeURIComponent(apId)}`);
     },
+    onError: () => {
+      toast.show("Couldn't create post");
+    },
   });
 }
 
 export function useCreatePostReport() {
   const { client } = useLemmyClient();
+  const toast = useToastController();
   return useMutation({
     mutationFn: (form: CreatePostReport) => client.createPostReport(form),
+    onError: () => {
+      toast.show("Couldn't create post report");
+    },
   });
 }
 
 export function useCreateCommentReport() {
   const { client } = useLemmyClient();
+  const toast = useToastController();
   return useMutation({
     mutationFn: (form: CreateCommentReport) => client.createCommentReport(form),
+    onError: () => {
+      toast.show("Couldn't block person");
+    },
   });
 }
 
 export function useBlockPerson() {
   const { client } = useLemmyClient();
+
+  const toast = useToastController();
   return useMutation({
     mutationFn: (form: BlockPerson) => client.blockPerson(form),
+    onError: () => {
+      toast.show("Couldn't block person");
+    },
   });
 }
 
@@ -1355,6 +1379,8 @@ export function useSavePost(apId: string) {
   const postsQueryKey = usePostsKey({
     saved_only: true,
   });
+
+  const toast = useToastController();
 
   return useMutation({
     mutationFn: (form: SavePost) => client.savePost(form),
@@ -1372,12 +1398,17 @@ export function useSavePost(apId: string) {
         queryKey: postsQueryKey,
       });
     },
+    onError: (_, { save }) => {
+      toast.show(`Couldn't ${save ? "save" : "unsave"} post`);
+    },
   });
 }
 
 export function useDeletePost(apId: string) {
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
+
+  const toast = useToastController();
 
   return useMutation({
     mutationFn: (form: DeletePost) => client.deletePost(form),
@@ -1391,6 +1422,9 @@ export function useDeletePost(apId: string) {
         ...flattenPost({ post_view }),
         optimisticDeleted: undefined,
       });
+    },
+    onError: (_, { deleted }) => {
+      toast.show(`Couldn't ${deleted ? "delete" : "restore"} post`);
     },
   });
 }
