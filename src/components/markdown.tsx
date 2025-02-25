@@ -26,7 +26,6 @@ import type { RuleBlock } from "markdown-it/lib/parser_block.mjs";
 import MarkedList from "@jsamr/react-native-li";
 import decimal from "@jsamr/counter-style/presets/decimal";
 import disc from "@jsamr/counter-style/presets/disc";
-import { scale } from "~/config/tamagui/scale";
 import { shouldOpenInNewTab } from "../lib/linking";
 import { openUrl } from "~/src/lib/linking";
 
@@ -285,8 +284,8 @@ function getRenderRules(config: { color: string }): RenderRules {
           counterRenderer={disc}
           markerTextStyle={{
             color: config.color,
-            lineHeight: 19 * scale,
-            fontSize: 16 * scale,
+            lineHeight: 19,
+            fontSize: 16,
           }}
         >
           {children}
@@ -300,8 +299,8 @@ function getRenderRules(config: { color: string }): RenderRules {
           counterRenderer={decimal}
           markerTextStyle={{
             color: config.color,
-            lineHeight: 19 * scale,
-            fontSize: 16 * scale,
+            lineHeight: 19,
+            fontSize: 16,
           }}
         >
           {children}
@@ -449,7 +448,7 @@ function getRenderRules(config: { color: string }): RenderRules {
 
     // // Text Output
     text: (node, children, parent, styles, inheritedStyles = {}) => {
-      const fontSize = (inheritedStyles.fontSize ?? 15) * scale;
+      const fontSize = inheritedStyles.fontSize ?? 15;
       return (
         <Text
           key={node.key}

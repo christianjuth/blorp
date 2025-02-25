@@ -17,7 +17,8 @@
         "height": 900,
         "resizable": true,
         "fullscreen": false,
-        "titleBarStyle": "Overlay"
+        "titleBarStyle": "Overlay",
+        "transparent": false
       }
     ],
     "security": {
@@ -26,6 +27,7 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": "all",
     "icon": [
       "icons/32x32.png",
@@ -39,7 +41,16 @@
       "files": {
         "embedded.provisionprofile": "./profile-name.provisionprofile"
       },
-      "entitlements": "./Entitlements.plist"
+      "entitlements": "./Entitlements.plist",
+      "minimumSystemVersion": "12.0"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU4QkYxMTAxM0QwMjU5OUYKUldTZldRSTlBUkcvNkk0M1ZIVXRTenQ4QUlUWTNBTHVwemkzdTJSUTB6RHhrcFZEUzFwejg0d1cK",
+      "endpoints": [
+        "https://github.com/christianjuth/blorp/releases/latest/download/latest.json"
+      ]
     }
   }
 }

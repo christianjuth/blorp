@@ -44,8 +44,6 @@ import { useCreatePost, useLogout } from "~/src/lib/lemmy/index";
 import { useCreatePostStore } from "~/src/stores/create-post";
 import { Button } from "../ui/button";
 import * as React from "react";
-import { scale } from "~/config/tamagui/scale";
-import { isCatalyst } from "~/src/lib/is-catalyst";
 import { encodeApId } from "~/src/lib/lemmy/utils";
 
 interface HeaderGuttersProps extends XStackProps {
@@ -64,7 +62,7 @@ function HeaderGutters({
   return (
     <YStack
       tag="nav"
-      pt={isCatalyst ? 0 : insetTop}
+      pt={insetTop}
       h={height - 0.5}
       bbw={0.5}
       bbc={darkBackground ? "#02024E" : "$color3"}
@@ -86,7 +84,7 @@ function HeaderGutters({
     >
       <XStack
         flex={1}
-        maxWidth={1050 * scale}
+        maxWidth={1050}
         w="100%"
         mx="auto"
         gap="$3"

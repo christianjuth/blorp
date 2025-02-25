@@ -19,7 +19,6 @@ import { useFiltersStore } from "~/src/stores/filters";
 import { Text, useMedia, useTheme, View, XStack } from "tamagui";
 import { ComponentProps, useMemo } from "react";
 import { useAuth } from "../stores/auth";
-import { scale } from "~/config/tamagui/scale";
 
 function createIcon(defaultProps: ComponentProps<typeof FontAwesome6>) {
   return (
@@ -151,7 +150,7 @@ export function ComentSortSelect() {
           <Text fontWeight={500} fontSize="$3">
             {commentSort}
           </Text>
-          <ArrowUpDown size={15 * scale} />
+          <ArrowUpDown size={15} />
         </XStack>
       }
     />
@@ -225,7 +224,7 @@ export function PostSortBar({ hideOnGtMd }: { hideOnGtMd?: boolean }) {
           <Text fontWeight={500} color="$color11" fontSize="$3">
             {postSort}
           </Text>
-          <ArrowUpDown size={15 * scale} col="$color10" />
+          <ArrowUpDown size={15} col="$color10" />
         </XStack>
       }
     />

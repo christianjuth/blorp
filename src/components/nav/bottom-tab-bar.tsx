@@ -7,7 +7,6 @@ import { interpolate, useAnimatedStyle } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
 import { Sidebar } from "./sidebar";
 import { SafeAreaView, useFocusEffect, useNavigation, usePathname } from "one";
-import { scale } from "~/config/tamagui/scale";
 import { isTauri } from "~/src/lib/tauri";
 
 export const useCustomTabBarHeight = () => {
@@ -88,9 +87,9 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
     return (
       <View
         flex={1}
-        maxWidth={230 * scale}
+        maxWidth={230}
         $gtLg={{
-          maxWidth: 270 * scale,
+          maxWidth: 270,
         }}
         brw={1}
         bc="$color3"

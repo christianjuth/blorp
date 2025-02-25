@@ -1,8 +1,6 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform } from "react-native";
 import { useMedia } from "tamagui";
-import { scale } from "~/config/tamagui/scale";
-import { isCatalyst } from "~/src/lib/is-catalyst";
 
 export const useCustomHeaderHeight = () => {
   const insets = useSafeAreaInsets();
@@ -10,7 +8,7 @@ export const useCustomHeaderHeight = () => {
 
   // Default header heights based on platform
   const defaultHeaderHeight = Platform.select({
-    ios: media.md ? 35 : isCatalyst ? 42 : 48, // Default header height on iOS
+    ios: media.md ? 35 : 48, // Default header height on iOS
     android: 56, // Default header height on Android
     default: 60, // Default header height for web or other platforms
   });
@@ -27,7 +25,7 @@ export const useCustomHeaderHeight = () => {
   const insetTop = Math.max(insets.top - insetOffset, 0);
 
   return {
-    height: height * scale,
+    height: height,
     insetTop,
   };
 };

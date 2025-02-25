@@ -18,7 +18,6 @@ import {
 } from "@react-navigation/native";
 import { getLabel, MissingIcon } from "@react-navigation/elements";
 import _ from "lodash";
-import { scale } from "~/config/tamagui/scale";
 
 const BC = "$color3";
 
@@ -70,16 +69,10 @@ export function Sidebar(props: BottomTabBarProps | {}) {
       <Link href="/" asChild>
         <YStack h={header.height} px="$5" jc="center" tag="a">
           {themeName === "dark" && (
-            <Image
-              imageUrl={LogoDark}
-              style={{ height: 38 * scale, width: 90 * scale }}
-            />
+            <Image imageUrl={LogoDark} style={{ height: 38, width: 90 }} />
           )}
           {themeName === "light" && (
-            <Image
-              imageUrl={LogoLight}
-              style={{ height: 38 * scale, width: 90 * scale }}
-            />
+            <Image imageUrl={LogoLight} style={{ height: 38, width: 90 }} />
           )}
         </YStack>
       </Link>
@@ -169,10 +162,10 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                             bg: focused ? "$color4" : "$color2",
                           }}
                           pos="absolute"
-                          t={-5 * scale}
-                          r={-9 * scale}
-                          h={20 * scale}
-                          w={20 * scale}
+                          t={-5}
+                          r={-9}
+                          h={20}
+                          w={20}
                           ai="center"
                           jc="center"
                           br={9999}
@@ -180,12 +173,12 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                           <YStack
                             ai="center"
                             jc="center"
-                            h={16 * scale}
-                            w={16 * scale}
+                            h={16}
+                            w={16}
                             bg="red"
                             br={9999}
                           >
-                            <Text color="white" fontSize={11 * scale}>
+                            <Text color="white" fontSize={11}>
                               {options.tabBarBadge}
                             </Text>
                           </YStack>

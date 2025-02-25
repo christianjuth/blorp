@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Video } from "react-native-video";
 import { isWeb, View, XStack, YStack } from "tamagui";
-import { scale } from "~/config/tamagui/scale";
 import { Image } from "../image";
 import { extractLoopsVideoSrc } from "~/src/lib/html-parsing";
 import { Link } from "one";
@@ -10,7 +9,7 @@ import { isTauri } from "~/src/lib/tauri";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 
 const AR = 9 / 16;
-const MAX_WIDTH_GT_MD = 700 * scale;
+const MAX_WIDTH_GT_MD = 700;
 
 const getVideo = async (url: string) => {
   try {

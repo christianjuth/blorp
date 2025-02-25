@@ -8,7 +8,7 @@ const DB_NAME = "lemmy-db";
 const TABLE_NAME = "lemmy-store";
 
 export function createTauriStore(rowName: string) {
-  const store = load(DB_NAME, { autoSave: true });
+  const store = load(DB_NAME, { autoSave: 5 * 1000 });
 
   return {
     async getItem(key: string): Promise<string | null> {

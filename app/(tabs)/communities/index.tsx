@@ -5,7 +5,6 @@ import { useRef } from "react";
 import { View, isWeb, useMedia } from "tamagui";
 import { useFiltersStore } from "~/src/stores/filters";
 import { ContentGutters } from "~/src/components/gutters";
-import { scale } from "~/config/tamagui/scale";
 import { FlashList } from "@shopify/flash-list";
 
 export default function Communities() {
@@ -47,7 +46,7 @@ export default function Communities() {
         data={communities}
         renderItem={(item) => (
           <View
-            h={54 * scale}
+            h={54}
             overflow="hidden"
             w="100%"
             $gtMd={{
@@ -64,13 +63,13 @@ export default function Communities() {
           }
         }}
         onEndReachedThreshold={0.5}
-        estimatedItemSize={54 * scale}
+        estimatedItemSize={54}
         refreshing={isRefetching}
         onRefresh={refetch}
         scrollEventThrottle={100}
         contentContainerStyle={{
-          paddingTop: 6 * scale,
-          paddingBottom: 6 * scale,
+          paddingTop: 6,
+          paddingBottom: 6,
         }}
       />
     </ContentGutters>
