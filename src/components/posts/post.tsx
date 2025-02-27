@@ -1,4 +1,4 @@
-import { Text, useMedia, View, XStack, YStack } from "tamagui";
+import { isWeb, Text, useMedia, View, XStack, YStack } from "tamagui";
 import { Image, shareImage } from "~/src/components/image";
 import { PostCommentsButton, Voting } from "./post-buttons";
 import { Link } from "one";
@@ -125,15 +125,19 @@ export function PostCard({
   const preview = (
     <>
       {detailView ? (
-        <Pressable
-          onLongPress={() => {
-            if (embedType === "image" && thumbnail) {
-              shareImage(thumbnail);
-            }
-          }}
-        >
-          {titleWithOptionalImage}
-        </Pressable>
+        isWeb ? (
+          titleWithOptionalImage
+        ) : (
+          <Pressable
+            onLongPress={() => {
+              if (embedType === "image" && thumbnail) {
+                shareImage(thumbnail);
+              }
+            }}
+          >
+            {titleWithOptionalImage}
+          </Pressable>
+        )
       ) : (
         <Link
           href={postDetailsLink}

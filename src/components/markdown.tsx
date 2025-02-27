@@ -28,6 +28,9 @@ import decimal from "@jsamr/counter-style/presets/decimal";
 import disc from "@jsamr/counter-style/presets/disc";
 import { shouldOpenInNewTab } from "../lib/linking";
 import { openUrl } from "~/src/lib/linking";
+import CounterStyle from "@jsamr/counter-style";
+
+const customDisc = CounterStyle.cyclic("\u2022").withSuffix("\u2009");
 
 function Link(props: LinkProps) {
   const href = props.href;
@@ -92,7 +95,13 @@ function Spoiler({
         dsp="flex"
         fd="row"
       >
-        <Text fontSize="$5" textAlign="left" color={color} w={15}>
+        <Text
+          fontSize="$5"
+          textAlign="left"
+          color={color}
+          minWidth={12}
+          maxWidth={12}
+        >
           {isVisible ? "\u25BC" : "\u25B6"}
         </Text>
         <Text fontSize="$5" textAlign="left" color={color}>
@@ -281,12 +290,16 @@ function getRenderRules(config: { color: string }): RenderRules {
       return (
         <MarkedList
           key={node.key}
-          counterRenderer={disc}
+          counterRenderer={customDisc}
           markerTextStyle={{
             color: config.color,
-            lineHeight: 19,
-            fontSize: 16,
+            maxHeight: 19,
+            lineHeight: 18,
+            fontSize: 28,
           }}
+          computeMarkerBoxWidth={(chars, fontSize) =>
+            chars * fontSize * 0.475 - 5
+          }
         >
           {children}
         </MarkedList>
@@ -299,9 +312,11 @@ function getRenderRules(config: { color: string }): RenderRules {
           counterRenderer={decimal}
           markerTextStyle={{
             color: config.color,
-            lineHeight: 19,
-            fontSize: 16,
+            maxHeight: 19,
+            lineHeight: 21,
+            fontSize: 15,
           }}
+          computeMarkerBoxWidth={(chars, fontSize) => chars * fontSize * 0.475}
         >
           {children}
         </MarkedList>
