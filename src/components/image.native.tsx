@@ -71,7 +71,7 @@ export function Image({
   const cacheImages = useSettingsStore((s) => s.cacheImages);
   const theme = useTheme();
 
-  const [loadded, setLoadded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [dimensions, setDimensions] = useState<
     | {
         width: number;
@@ -112,7 +112,7 @@ export function Image({
         // Don't use flex 1
         // it causes issues on native
         aspectRatio: calculatedAspectRatio,
-        backgroundColor: !loadded ? theme.gray3.val : undefined,
+        backgroundColor: !loaded ? theme.gray3.val : undefined,
         width: maxWidth ? maxWidth : "100%",
         maxWidth: "100%",
         height: undefined,
@@ -128,7 +128,7 @@ export function Image({
           height: source.height,
           width: source.width,
         });
-        setLoadded(true);
+        setLoaded(true);
         onLoad?.();
       }}
       priority={priority ? "high" : undefined}

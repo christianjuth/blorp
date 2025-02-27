@@ -1,18 +1,49 @@
 import { ContentGutters } from "../components/gutters";
 import { abbriviateNumber } from "../lib/format";
-import { usePersonDetails, usePersonPosts } from "../lib/lemmy";
+import { usePersonDetails, usePersonFeed } from "../lib/lemmy";
 import { Avatar, Text, View, XStack, YStack } from "tamagui";
 import { PostCard } from "../components/posts/post";
 import { Markdown } from "../components/markdown";
 import { FlashList } from "../components/flashlist";
 import { PostSortBar } from "../components/lemmy-sort";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useScrollToTop } from "@react-navigation/native";
-import { useNavigation } from "one";
+import { useNavigation, Link } from "one";
 import { CakeSlice } from "@tamagui/lucide-icons";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { decodeApId } from "../lib/lemmy/utils";
+import { decodeApId, encodeApId } from "../lib/lemmy/utils";
+import { ToggleGroup } from "../components/ui/toggle-group";
+import _ from "lodash";
+import { useCommentsStore } from "../stores/comments";
+import { useLinkContext } from "../components/nav/link-context";
+
+function Comment({ path }: { path: string }) {
+  const commentView = useCommentsStore((s) => s.comments[path]?.data);
+  const linkCtx = useLinkContext();
+
+  if (!commentView) {
+    return null;
+  }
+
+  const { comment, community, post } = commentView;
+
+  const parent = path.split(".").at(-2);
+  const newPath = [parent !== "0" ? parent : undefined, comment.id]
+    .filter(Boolean)
+    .join(".");
+
+  return (
+    <Link
+      href={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
+      asChild
+    >
+      <YStack py="$3" bbw={1} bbc="$color4" flex={1} tag="a">
+        <Markdown markdown={comment.content} />
+      </YStack>
+    </Link>
+  );
+}
 
 dayjs.extend(localizedFormat);
 
@@ -20,6 +51,8 @@ const EMPTY_ARR = [];
 
 export function User({ userId }: { userId?: string }) {
   const actorId = userId ? decodeApId(userId) : undefined;
+
+  const [type, setType] = useState<"posts" | "comments">("posts");
 
   const personQuery = usePersonDetails({ actorId });
   const {
@@ -29,7 +62,7 @@ export function User({ userId }: { userId?: string }) {
     isRefetching,
     refetch,
     data,
-  } = usePersonPosts({ actorId });
+  } = usePersonFeed({ actorId });
 
   const ref = useRef(null);
   useScrollToTop(ref);
@@ -51,7 +84,10 @@ export function User({ userId }: { userId?: string }) {
   const person = personView.person;
   const counts = personView.counts;
 
-  const posts = data?.pages.flatMap((p) => p.posts) ?? EMPTY_ARR;
+  const posts =
+    data?.pages
+      .map((res) => (type === "posts" ? res.posts : res.comments))
+      .flat() ?? EMPTY_ARR;
 
   return (
     <FlashList
@@ -162,7 +198,48 @@ export function User({ userId }: { userId?: string }) {
         if (item === "post-sort-bar") {
           return (
             <ContentGutters>
-              <PostSortBar />
+              <XStack
+                flex={1}
+                py="$3"
+                gap="$3"
+                bbc="$color3"
+                bbw={1}
+                $md={{
+                  bbw: 0.5,
+                  pt: "$2",
+                  px: "$3",
+                }}
+                ai="center"
+              >
+                <ToggleGroup
+                  defaultValue={type}
+                  options={[
+                    { value: "posts", label: "Posts" },
+                    { value: "comments", label: "Comments" },
+                  ]}
+                  onValueChange={(newType) => {
+                    setTimeout(() => {
+                      setType(newType);
+                    }, 0);
+                  }}
+                />
+
+                {type === "posts" && (
+                  <>
+                    <View h="$1" w={1} bg="$color6" />
+                    <PostSortBar />
+                  </>
+                )}
+              </XStack>
+              <></>
+            </ContentGutters>
+          );
+        }
+
+        if (_.isString(item)) {
+          return (
+            <ContentGutters>
+              <PostCard apId={item} />
               <></>
             </ContentGutters>
           );
@@ -170,7 +247,7 @@ export function User({ userId }: { userId?: string }) {
 
         return (
           <ContentGutters>
-            <PostCard apId={item} />
+            <Comment path={item.comment.path} />
             <></>
           </ContentGutters>
         );
@@ -181,7 +258,7 @@ export function User({ userId }: { userId?: string }) {
         }
       }}
       onEndReachedThreshold={0.5}
-      keyExtractor={(item) => item}
+      keyExtractor={(item) => (_.isString(item) ? item : String(item.post.id))}
       refreshing={isRefetching}
       onRefresh={() => {
         if (!isRefetching) {

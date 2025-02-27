@@ -158,10 +158,12 @@ export function usePersonDetails({ actorId }: { actorId?: string }) {
   });
 }
 
-export function usePersonPosts({ actorId }: { actorId?: string }) {
+export function usePersonFeed({ actorId }: { actorId?: string }) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
-  const queryKey = [...queryKeyPrefix, "getPersonPosts", actorId];
+  const queryKey = [...queryKeyPrefix, "getPersonFeed", actorId];
+
+  const cacheComments = useCommentsStore((s) => s.cacheComments);
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const patchPost = usePostsStore((s) => s.patchPost);
@@ -218,6 +220,9 @@ export function usePersonPosts({ actorId }: { actorId?: string }) {
           i += 50;
         }
       }
+
+      const comments = res.comments.map(flattenComment);
+      cacheComments(comments);
 
       return {
         ...res,

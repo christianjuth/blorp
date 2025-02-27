@@ -1,6 +1,6 @@
 import { useSearch } from "../lib/lemmy";
 import { PostCard } from "~/src/components/posts/post";
-import { View, XStack, YStack } from "tamagui";
+import { View, XStack } from "tamagui";
 import {
   CommunitySidebar,
   SmallScreenSidebar,

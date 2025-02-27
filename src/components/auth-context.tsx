@@ -32,7 +32,7 @@ import _ from "lodash";
 const Context = createContext<{
   authenticate: () => Promise<void>;
 }>({
-  authenticate: () => new Promise((_, reject) => reject()),
+  authenticate: () => Promise.reject(),
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -58,10 +58,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [isLoggedIn, promise]);
 
   const authenticate = useCallback(() => {
+    if (isLoggedIn) {
+      return Promise.resolve();
+    }
+
     const p = new Promise<void>((resolve, reject) => {
-      if (isLoggedIn) {
-        resolve();
-      }
       setPromise({ resolve, reject });
     });
 
@@ -98,7 +99,7 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
 
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { mutate, status } = useLogin();
+  const login = useLogin();
 
   const instances = useInstances();
 
@@ -182,10 +183,15 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
               width="100%"
               gap="$4"
               onSubmit={() => {
-                mutate({
-                  username_or_email: userName,
-                  password: password,
-                });
+                login
+                  .mutateAsync({
+                    username_or_email: userName,
+                    password: password,
+                  })
+                  .then(() => {
+                    setUsername("");
+                    setPassword("");
+                  });
               }}
             >
               <Button
@@ -222,12 +228,12 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
               <Form.Trigger asChild>
                 <Button
                   bg="$accentColor"
-                  disabled={status === "pending"}
+                  disabled={login.status === "pending"}
                   // onPress={signIn}
                   width="100%"
                   iconAfter={
                     <AnimatePresence>
-                      {status === "pending" && (
+                      {login.status === "pending" && (
                         <Spinner
                           color="$color"
                           key="loading-spinner"

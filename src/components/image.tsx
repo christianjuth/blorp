@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import _ from "lodash";
 import type { ImagePrefetchOptions } from "expo-image";
 import { imageSizeCache, measureImage } from "../lib/image";
+import { useTheme } from "tamagui";
 
 export const shareImage = async (imageUrl: string) => {};
 
@@ -34,6 +35,9 @@ export function Image({
   };
   onLoad?: () => any;
 }) {
+  const [loaded, setLoaded] = useState(false);
+  const theme = useTheme();
+
   const [dimensions, setDimensions] = useState<
     | {
         width: number;
@@ -78,14 +82,18 @@ export function Image({
         borderRadius,
         borderTopRightRadius: borderTopRadius ?? borderRadius,
         borderTopLeftRadius: borderTopRadius ?? borderRadius,
+        backgroundColor: !loaded ? theme.gray3.val : undefined,
         width: maxWidth ? "100%" : undefined,
         maxWidth: maxWidth,
         objectFit,
         aspectRatio,
         ...style,
       }}
+      onLoad={(e) => {
+        setLoaded(true);
+        onLoad?.();
+      }}
       fetchPriority={priority ? "high" : undefined}
-      onLoad={onLoad}
     />
   );
 }
