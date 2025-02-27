@@ -33,29 +33,37 @@ const queryClient = new QueryClient({
 persist(queryClient);
 
 function CurrentToast() {
+  const header = useCustomHeaderHeight();
   const currentToast = useToastState();
-
-  if (!currentToast || currentToast.isHandledNatively) return null;
-
   return (
-    <Toast
-      key={currentToast.id}
-      duration={currentToast.duration}
-      enterStyle={{ opacity: 0, scale: 0.5, y: -25 }}
-      exitStyle={{ opacity: 0, scale: 1, y: -20 }}
-      y={0}
-      opacity={1}
-      scale={1}
-      animation="100ms"
-      viewportName={currentToast.viewportName}
-    >
-      <YStack>
-        <Toast.Title>{currentToast.title}</Toast.Title>
-        {!!currentToast.message && (
-          <Toast.Description>{currentToast.message}</Toast.Description>
-        )}
-      </YStack>
-    </Toast>
+    <>
+      {currentToast && !currentToast.isHandledNatively && (
+        <Toast
+          key={currentToast.id}
+          duration={currentToast.duration}
+          enterStyle={{ opacity: 0, scale: 0.5, y: -25 }}
+          exitStyle={{ opacity: 0, scale: 1, y: -20 }}
+          y={0}
+          opacity={1}
+          scale={1}
+          animation="100ms"
+          viewportName={currentToast.viewportName}
+        >
+          <YStack>
+            <Toast.Title>{currentToast.title}</Toast.Title>
+            {!!currentToast.message && (
+              <Toast.Description>{currentToast.message}</Toast.Description>
+            )}
+          </YStack>
+        </Toast>
+      )}
+      <ToastViewport
+        flexDirection="column"
+        top={header.height + 5}
+        left={0}
+        right={0}
+      />
+    </>
   );
 }
 
@@ -78,14 +86,12 @@ const TamaguiRootProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <TamaguiProvider disableInjectCSS config={config} defaultTheme={scheme}>
-      <Theme name={scheme}>{children}</Theme>
+      {children}
     </TamaguiProvider>
   );
 };
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const header = useCustomHeaderHeight();
-
   return (
     <SafeAreaProvider>
       <TamaguiRootProvider>
@@ -99,12 +105,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
           </ScrollProvider>
 
           <CurrentToast />
-          <ToastViewport
-            flexDirection="column"
-            top={header.height + 5}
-            left={0}
-            right={0}
-          />
         </ToastProvider>
       </TamaguiRootProvider>
     </SafeAreaProvider>

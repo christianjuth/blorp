@@ -48,6 +48,7 @@ export const config = createTamagui({
       xxs: false,
     },
     defaultFont: "body",
+    // Fast schema changes crash in dev mode
     fastSchemeChange: true,
     shouldAddPrefersColorThemes: false,
     themeClassNameOnRoot: true,
