@@ -1,7 +1,7 @@
 import type { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import type { BottomTabHeaderProps } from "@react-navigation/bottom-tabs";
 import {
-  ComentSortSelect,
+  CommentSortSelect,
   CommunityFilter,
   CommunitySortSelect,
   HomeFilter,

@@ -868,7 +868,7 @@ interface CreateCommentWithPath extends CreateComment {
 
 export function useCreateComment() {
   const queryClient = useQueryClient();
-  const { client, queryKeyPrefix } = useLemmyClient();
+  const { client } = useLemmyClient();
   const myProfile = useAuth(
     (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person,
   );
@@ -1033,12 +1033,6 @@ export function useCreateComment() {
           comments,
         );
       }
-
-      queryClient.invalidateQueries({
-        queryKey: getCommentsKey({
-          post_id: res.comment_view.post.id,
-        }),
-      });
     },
   });
 }
@@ -1132,19 +1126,38 @@ export function useReplies(form: GetReplies) {
     initialPageParam: 1,
     getNextPageParam: (prev) => prev.nextPage,
     enabled: isLoggedIn,
+    refetchOnWindowFocus: true,
   });
 }
 
+function useNotificationCountQueryKey() {
+  const { queryKeyPrefix } = useLemmyClient();
+
+  const queryKey = [...queryKeyPrefix, "notificationCount"];
+
+  return queryKey;
+}
+
 export function useNotificationCount() {
-  const replies = useReplies({});
-  const data = replies.data?.pages.flatMap((p) => p.replies) ?? [];
-  const count = data.reduce((acc, r) => {
-    if (!r.comment_reply.read) {
-      return acc + 1;
-    }
-    return acc;
-  }, 0);
-  return count;
+  const { client } = useLemmyClient();
+  const isLoggedIn = useAuth((a) => a.isLoggedIn());
+
+  const queryKey = useNotificationCountQueryKey();
+
+  return useQuery({
+    queryKey,
+    queryFn: async () => {
+      const { replies } = await client.getReplies({
+        unread_only: true,
+        limit: 50,
+      });
+      return replies.length;
+    },
+    enabled: isLoggedIn,
+    refetchInterval: 1000 * 60,
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
+  });
 }
 
 export function useSearch(form: Search) {
@@ -1310,11 +1323,16 @@ export function useMarkReplyRead() {
   const queryClient = useQueryClient();
   const toast = useToastController();
 
+  const notificationCountQueryKey = useNotificationCountQueryKey();
+
   return useMutation({
     mutationFn: (form: MarkCommentReplyAsRead) => {
       return client.markCommentReplyAsRead(form);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: notificationCountQueryKey,
+      });
       queryClient.invalidateQueries({
         queryKey: [...queryKeyPrefix, "getReplies"],
       });

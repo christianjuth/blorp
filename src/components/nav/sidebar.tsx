@@ -124,6 +124,9 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                     route.name,
                   );
 
+            const badgeLength = options.tabBarBadge?.toString().length ?? 0;
+            const badgeOffset = Math.max((badgeLength - 1) * 0.3, 0);
+
             return (
               <NavigationContext.Provider
                 key={route.key}
@@ -162,10 +165,10 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                             bg: focused ? "$color4" : "$color2",
                           }}
                           pos="absolute"
-                          t={-5}
-                          r={-9}
+                          t={-8}
+                          l={11 - badgeOffset * 8}
                           h={20}
-                          w={20}
+                          w={20 * (1 + badgeOffset)}
                           ai="center"
                           jc="center"
                           br={9999}
@@ -174,7 +177,8 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                             ai="center"
                             jc="center"
                             h={16}
-                            w={16}
+                            w={16 * (1 + badgeOffset)}
+                            minWidth={16}
                             bg="red"
                             br={9999}
                           >
@@ -185,7 +189,7 @@ export function Sidebar(props: BottomTabBarProps | {}) {
                         </YStack>
                       )}
                     </View>
-                    <Text color="$color11" fontSize="$4">
+                    <Text color="$color11" fontSize="$4" zIndex={1}>
                       {label}
                     </Text>
                   </XStack>

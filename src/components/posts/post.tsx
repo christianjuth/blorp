@@ -17,7 +17,7 @@ import { usePost } from "~/src/lib/lemmy/index";
 import { useSettingsStore } from "~/src/stores/settings";
 import { getPostEmbed } from "~/src/lib/post";
 import { PostLoopsEmbed } from "./post-loops-embed";
-import { ComentSortSelect } from "../lemmy-sort";
+import { CommentSortSelect } from "../lemmy-sort";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -249,7 +249,7 @@ export function PostBottomBar({ apId }: { apId: string }) {
       }}
       bg="$background"
     >
-      <ComentSortSelect />
+      <CommentSortSelect />
 
       <View flex={1} />
 

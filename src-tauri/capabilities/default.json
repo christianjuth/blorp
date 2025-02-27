@@ -18,6 +18,7 @@
     },
     "opener:allow-open-url",
     "opener:allow-default-urls",
-    "updater:default"
+    "updater:default",
+    "core:window:allow-set-badge-count"
   ]
 }

@@ -15,6 +15,7 @@ import {
 } from "~/src/components/nav/bottom-tab-bar";
 import { useNotificationCount } from "~/src/lib/lemmy/index";
 import { Platform } from "react-native";
+import _ from "lodash";
 
 function WebMaxHeight({ children }: { children: React.ReactNode }) {
   if (Platform.OS !== "web") {
@@ -29,7 +30,17 @@ export default function Layout() {
   const media = useMedia();
   const tabBarStyle = useTabBarStyle();
 
-  const notificationCount = useNotificationCount();
+  const { data: notificationCount } = useNotificationCount();
+  let notificationCountLabel: string | undefined = _.isNumber(notificationCount)
+    ? String(notificationCount)
+    : undefined;
+  if (_.isNumber(notificationCount)) {
+    if (notificationCount === 0) {
+      notificationCountLabel = undefined;
+    } else if (notificationCount > 9) {
+      notificationCountLabel = "9+";
+    }
+  }
 
   return (
     <WebMaxHeight>
@@ -78,7 +89,7 @@ export default function Layout() {
             title: "Inbox",
             tabBarIcon: ({ color }) => <Bell color={color} size="$1.5" />,
             headerShown: false,
-            tabBarBadge: notificationCount > 0 ? notificationCount : undefined,
+            tabBarBadge: notificationCountLabel,
           }}
         />
 

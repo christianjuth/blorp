@@ -128,7 +128,7 @@ const COMMENT_SORT_OPTIONS: Option<CommentSortType, CommentSortType>[] = [
   },
 ];
 
-export function ComentSortSelect() {
+export function CommentSortSelect() {
   const commentSort = useFiltersStore((s) => s.commentSort);
   const setCommentSort = useFiltersStore((s) => s.setCommentSort);
   return (

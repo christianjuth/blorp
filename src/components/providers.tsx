@@ -16,6 +16,9 @@ import {
   ToastViewport,
 } from "@tamagui/toast";
 import { useCustomHeaderHeight } from "./nav/hooks";
+import { useNotificationCount } from "../lib/lemmy";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { isTauri } from "../lib/tauri";
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
 
@@ -31,6 +34,14 @@ const queryClient = new QueryClient({
 });
 
 persist(queryClient);
+
+function RefreshNotificationCount() {
+  const { data: count } = useNotificationCount();
+  if (isTauri()) {
+    getCurrentWindow().setBadgeCount(count === 0 ? undefined : count);
+  }
+  return null;
+}
 
 function CurrentToast() {
   const header = useCustomHeaderHeight();
@@ -98,6 +109,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <ToastProvider>
           <ScrollProvider>
             <QueryClientProvider client={queryClient}>
+              <RefreshNotificationCount />
               <AlertProvider>
                 <AuthProvider>{children}</AuthProvider>
               </AlertProvider>
