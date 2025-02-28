@@ -725,7 +725,7 @@ export function useLogin() {
 
   const updateAccount = useAuth((s) => s.updateAccount);
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: async (form: Login) => {
       const res = await client.login(form);
       if (res.jwt) {
@@ -743,6 +743,14 @@ export function useLogin() {
       console.log("Err", err);
     },
   });
+
+  const needs2FA =
+    mutation.error && mutation.error.message.includes("missing_totp_token");
+
+  return {
+    ...mutation,
+    needs2FA,
+  };
 }
 
 export function useRefreshAuth() {

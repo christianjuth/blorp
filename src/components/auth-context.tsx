@@ -99,6 +99,7 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
 
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [mfaToken, setMfaToken] = useState("");
   const login = useLogin();
 
   const instances = useInstances();
@@ -187,10 +188,12 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
                   .mutateAsync({
                     username_or_email: userName,
                     password: password,
+                    totp_2fa_token: mfaToken.length > 0 ? mfaToken : undefined,
                   })
                   .then(() => {
                     setUsername("");
                     setPassword("");
+                    setMfaToken("");
                   });
               }}
             >
@@ -224,6 +227,14 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
                 defaultValue={password}
                 onChangeText={setPassword}
               />
+
+              {login.needs2FA && (
+                <Input
+                  placeholder="2FA"
+                  defaultValue={mfaToken}
+                  onChangeText={setMfaToken}
+                />
+              )}
 
               <Form.Trigger asChild>
                 <Button
