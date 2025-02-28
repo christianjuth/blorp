@@ -1,6 +1,15 @@
 import { createContext, useContext, useMemo, useRef, useState } from "react";
 import { PostId, Comment } from "lemmy-js-client";
-import { Button, Form, View, XStack, Text, YStack, useMedia } from "tamagui";
+import {
+  Button,
+  Form,
+  View,
+  XStack,
+  Text,
+  YStack,
+  useMedia,
+  ScrollView,
+} from "tamagui";
 import { KeyboardAvoidingView, TextInput } from "react-native";
 import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
 import {
@@ -82,32 +91,27 @@ export function CommentReplyContext({
         focus: () => inputRef.current?.focus(),
       }}
     >
-      {children}
-
-      {focused && (
-        <View
-          pos="absolute"
-          t={0}
-          r={0}
-          b={0}
-          l={0}
-          onPress={() => {
-            setFocused(false);
-            inputRef.current?.blur();
-            setParentComment(undefined);
-          }}
-        />
-      )}
-
       <KeyboardAvoidingView
         behavior="padding"
-        style={{
-          position: "absolute",
-          right: 0,
-          bottom: 0,
-          left: 0,
-        }}
+        style={{ flex: 1, marginBottom: bottomTabBar.insetBottom }}
       >
+        {children}
+
+        {focused && (
+          <View
+            pos="absolute"
+            t={0}
+            r={0}
+            b={0}
+            l={0}
+            onPress={() => {
+              setFocused(false);
+              inputRef.current?.blur();
+              setParentComment(undefined);
+            }}
+          />
+        )}
+
         <Form
           onSubmit={() => {
             if (comment) {
@@ -137,43 +141,42 @@ export function CommentReplyContext({
           }}
         >
           <ContentGutters w="100%">
-            <View
-              btw={0.5}
-              bg="$background"
-              bc="$color4"
-              minHeight={bottomTabBar.height}
-              flex={1}
-            >
+            <View btw={0.5} bg="$background" bc="$color4" flex={1}>
               <YStack px="$4">
                 {parentComment && (
                   <Text pt="$2">Replying to {parentComment?.creator.name}</Text>
                 )}
                 {comment && <Text pt="$2">Editing</Text>}
 
-                <MarkdownEditor
-                  inputRef={inputRef}
-                  placeholder="Add a comment..."
-                  onFocus={() => setFocused(true)}
-                  onBlur={() => {
-                    setTimeout(() => {
-                      setFocused(false);
-                    }, 0);
-                  }}
-                  editor={
-                    content[comment?.id ?? parentComment?.comment.id ?? 0]
+                <ScrollView
+                  height={
+                    focused
+                      ? 175
+                      : bottomTabBar.height - bottomTabBar.insetBottom
                   }
-                  style={{
-                    borderWidth: 0,
-                    paddingVertical: 10,
-                    backgroundColor: "transparent",
-                  }}
-                />
-                {focused ? (
-                  <XStack
-                    pb="$2"
-                    minHeight={bottomTabBar.insetBottom}
-                    jc="flex-end"
-                  >
+                >
+                  <MarkdownEditor
+                    inputRef={inputRef}
+                    placeholder="Add a comment..."
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => {
+                      setTimeout(() => {
+                        setFocused(false);
+                      }, 0);
+                    }}
+                    editor={
+                      content[comment?.id ?? parentComment?.comment.id ?? 0]
+                    }
+                    style={{
+                      borderWidth: 0,
+                      paddingVertical: 10,
+                      backgroundColor: "transparent",
+                    }}
+                  />
+                </ScrollView>
+
+                {focused && (
+                  <XStack pt="$1" pb="$2" jc="flex-end">
                     <Button
                       size="$2.5"
                       br="$12"
@@ -195,8 +198,6 @@ export function CommentReplyContext({
                       </Button>
                     </Form.Trigger>
                   </XStack>
-                ) : (
-                  <View h={bottomTabBar.insetBottom} />
                 )}
               </YStack>
             </View>

@@ -143,9 +143,6 @@ export function PostComments({
       keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
       onEndReached={loadMore}
       onEndReachedThreshold={0.5}
-      contentContainerStyle={{
-        paddingBottom,
-      }}
       onRefresh={onRefresh}
       refreshing={refreshing}
       estimatedItemSize={450}
