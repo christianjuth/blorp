@@ -331,6 +331,7 @@ function getRenderRules(config: { color: string }): RenderRules {
               color: config.color,
               maxHeight: 19,
               lineHeight: 21,
+              userSelect: "none",
             }}
             computeMarkerBoxWidth={(chars, fontSize) => chars * fontSize * 0.5}
           >
