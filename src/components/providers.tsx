@@ -59,9 +59,14 @@ function CurrentToast() {
           scale={1}
           animation="100ms"
           viewportName={currentToast.viewportName}
+          bg={currentToast.preset === "error" ? "$redDark" : undefined}
         >
           <YStack>
-            <Toast.Title>{currentToast.title}</Toast.Title>
+            <Toast.Title
+              col={currentToast.preset === "error" ? "white" : undefined}
+            >
+              {currentToast.title}
+            </Toast.Title>
             {!!currentToast.message && (
               <Toast.Description>{currentToast.message}</Toast.Description>
             )}
@@ -70,9 +75,11 @@ function CurrentToast() {
       )}
       <ToastViewport
         flexDirection="column"
-        top={header.height + 5}
+        // top={header.height + 5}
+        top={7}
         left={0}
         right={0}
+        portalToRoot
       />
     </>
   );

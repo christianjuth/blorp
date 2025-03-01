@@ -144,9 +144,14 @@ function UserAvatar() {
 
   const [accountSwitcher, setAccountSwitcher] = useState(false);
 
-  if (!person && accounts.length === 1) {
+  if (!isLoggedIn && accounts.length === 1) {
     return (
-      <Button bg="$accentColor" br="$12" size="$3" onPress={requireAuth}>
+      <Button
+        bg="$accentColor"
+        br="$12"
+        size="$3"
+        onPress={() => requireAuth()}
+      >
         Login
       </Button>
     );
@@ -273,8 +278,7 @@ function UserAvatar() {
                   gap="$2.5"
                   onPress={() => {
                     close();
-                    addAccount();
-                    requireAuth();
+                    requireAuth({ addAccount: true });
                   }}
                 >
                   <PlusCircle size="$2" px="$1" col="$color9" />

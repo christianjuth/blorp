@@ -13,7 +13,7 @@
     "skipLibCheck": true,
     "jsx": "react-jsx",
     "noImplicitAny": false,
-    "types": ["node", "react", "vite/client"],
+    "types": ["node", "react", "vite/client", "tamagui-toast.d.ts"],
     "lib": ["dom", "esnext"]
   },
   "exclude": [

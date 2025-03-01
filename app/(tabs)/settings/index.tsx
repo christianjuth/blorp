@@ -62,7 +62,7 @@ function AccountSection() {
               {index > 0 && <Divider />}
               <SettingsButton
                 onClick={() => {
-                  if (isLoggedIn) {
+                  if (isLoggedIn || index > 0) {
                     logout(index);
                   } else {
                     requireAuth();
@@ -70,8 +70,12 @@ function AccountSection() {
                 }}
               >
                 {[
-                  isLoggedIn ? "Logout" : "Login",
-                  person && `${person.display_name ?? person.name}@${instance}`,
+                  isLoggedIn ? "Logout" : index === 0 ? "Login" : "Remove",
+                  person
+                    ? `${person.display_name ?? person.name}@${instance}`
+                    : index > 0
+                      ? instance
+                      : null,
                 ]
                   .filter(Boolean)
                   .join(" ")}

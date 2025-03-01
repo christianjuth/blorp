@@ -58,13 +58,16 @@ import { measureImage } from "../image";
 import { getPostEmbed } from "../post";
 import { useToastController } from "@tamagui/toast";
 
-function useLemmyClient() {
+function useLemmyClient(config?: { instance?: string }) {
   const jwt = useAuth((s) => s.getSelectedAccount().jwt);
   const myUserId = useAuth(
     (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
   );
-  const instance =
+  let instance =
     useAuth((s) => s.getSelectedAccount().instance) ?? "https://lemmy.ml";
+  if (config?.instance) {
+    instance = config.instance;
+  }
 
   return useMemo(() => {
     const client = new LemmyHttp(instance);
@@ -719,11 +722,17 @@ export function useCommunity(form: { name?: string; instance?: string }) {
   });
 }
 
-export function useLogin() {
-  const queryClient = useQueryClient();
-  const { client } = useLemmyClient();
+function is2faError(err?: Error | null) {
+  return err && err.message.includes("missing_totp_token");
+}
+
+export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
+  const { client } = useLemmyClient(config);
 
   const updateAccount = useAuth((s) => s.updateAccount);
+  const addAccount = useAuth((s) => s.addAccount);
+
+  const toast = useToastController();
 
   const mutation = useMutation({
     mutationFn: async (form: Login) => {
@@ -731,25 +740,37 @@ export function useLogin() {
       if (res.jwt) {
         client.setHeaders({ Authorization: `Bearer ${res.jwt}` });
         const site = await client.getSite();
-        updateAccount({
+        const payload = {
           site,
           jwt: res.jwt,
-        });
-        queryClient.invalidateQueries();
+        };
+        if (config?.addAccount && config.instance) {
+          addAccount({
+            ...payload,
+            instance: config.instance,
+          });
+        } else {
+          updateAccount(payload);
+        }
       }
       return res;
     },
+    onMutate: () => {
+      toast.hide();
+    },
     onError: (err) => {
-      console.log("Err", err);
+      if (!is2faError(err)) {
+        toast.show(_.capitalize(err.message.replaceAll("_", " ")), {
+          preset: "error",
+        });
+        console.log("Err", err);
+      }
     },
   });
 
-  const needs2FA =
-    mutation.error && mutation.error.message.includes("missing_totp_token");
-
   return {
     ...mutation,
-    needs2FA,
+    needs2FA: is2faError(mutation.error),
   };
 }
 
@@ -771,8 +792,6 @@ export function useRefreshAuth() {
 }
 
 export function useLogout() {
-  const queryClient = useQueryClient();
-  const { client } = useLemmyClient();
   const listingType = useFiltersStore((s) => s.listingType);
   const setListingType = useFiltersStore((s) => s.setListingType);
   const communitiesListingType = useFiltersStore(
@@ -793,11 +812,8 @@ export function useLogout() {
   };
 
   return (index?: number) => {
-    client.logout();
     logout(index);
     resetFilters();
-    queryClient.clear();
-    queryClient.invalidateQueries();
   };
 }
 
@@ -1316,7 +1332,9 @@ export function useFollowCommunity() {
       patchCommunity(slug, {
         optimisticSubscribed: undefined,
       });
-      toast.show("Couldn't follow community");
+      toast.show("Couldn't follow community", {
+        preset: "error",
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -1346,7 +1364,9 @@ export function useMarkReplyRead() {
       });
     },
     onError: (_, { read }) => {
-      toast.show(`Couldn't mark post ${read ? "read" : "unread"}`);
+      toast.show(`Couldn't mark post ${read ? "read" : "unread"}`, {
+        preset: "error",
+      });
     },
   });
 }
@@ -1363,7 +1383,9 @@ export function useCreatePost() {
       router.push(`/c/${slug}/posts/${encodeURIComponent(apId)}`);
     },
     onError: () => {
-      toast.show("Couldn't create post");
+      toast.show("Couldn't create post", {
+        preset: "error",
+      });
     },
   });
 }
@@ -1374,7 +1396,9 @@ export function useCreatePostReport() {
   return useMutation({
     mutationFn: (form: CreatePostReport) => client.createPostReport(form),
     onError: () => {
-      toast.show("Couldn't create post report");
+      toast.show("Couldn't create post report", {
+        preset: "error",
+      });
     },
   });
 }
@@ -1385,7 +1409,9 @@ export function useCreateCommentReport() {
   return useMutation({
     mutationFn: (form: CreateCommentReport) => client.createCommentReport(form),
     onError: () => {
-      toast.show("Couldn't block person");
+      toast.show("Couldn't block person", {
+        preset: "error",
+      });
     },
   });
 }
@@ -1397,7 +1423,9 @@ export function useBlockPerson() {
   return useMutation({
     mutationFn: (form: BlockPerson) => client.blockPerson(form),
     onError: () => {
-      toast.show("Couldn't block person");
+      toast.show("Couldn't block person", {
+        preset: "error",
+      });
     },
   });
 }
@@ -1430,7 +1458,9 @@ export function useSavePost(apId: string) {
       });
     },
     onError: (_, { save }) => {
-      toast.show(`Couldn't ${save ? "save" : "unsave"} post`);
+      toast.show(`Couldn't ${save ? "save" : "unsave"} post`, {
+        preset: "error",
+      });
     },
   });
 }
@@ -1455,7 +1485,9 @@ export function useDeletePost(apId: string) {
       });
     },
     onError: (_, { deleted }) => {
-      toast.show(`Couldn't ${deleted ? "delete" : "restore"} post`);
+      toast.show(`Couldn't ${deleted ? "delete" : "restore"} post`, {
+        preset: "error",
+      });
     },
   });
 }

@@ -30,7 +30,7 @@ import fuzzysort from "fuzzysort";
 import _ from "lodash";
 
 const Context = createContext<{
-  authenticate: () => Promise<void>;
+  authenticate: (config?: { addAccount?: boolean }) => Promise<void>;
 }>({
   authenticate: () => Promise.reject(),
 });
@@ -49,27 +49,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [promise, setPromise] = useState<{
     resolve: (value: void) => any;
     reject: () => any;
+    addAccount?: boolean;
   }>();
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn && !promise?.addAccount) {
       promise?.resolve();
     }
   }, [isLoggedIn, promise]);
 
-  const authenticate = useCallback(() => {
-    if (isLoggedIn) {
-      return Promise.resolve();
-    }
+  const authenticate = useCallback(
+    (config?: { addAccount?: boolean }) => {
+      const addAccount = config?.addAccount === true;
 
-    const p = new Promise<void>((resolve, reject) => {
-      setPromise({ resolve, reject });
-    });
+      if (isLoggedIn && !addAccount) {
+        return Promise.resolve();
+      }
 
-    p.then(() => setPromise(undefined)).catch(() => setPromise(undefined));
+      const p = new Promise<void>((resolve, reject) => {
+        setPromise({ resolve, reject, addAccount });
+      });
 
-    return p;
-  }, [isLoggedIn]);
+      p.then(() => setPromise(undefined)).catch(() => setPromise(undefined));
+
+      return p;
+    },
+    [isLoggedIn],
+  );
 
   return (
     <Context.Provider
@@ -81,6 +87,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       <AuthModal
         open={promise !== undefined}
         onClose={() => promise?.reject()}
+        onSuccess={() => promise?.resolve()}
+        addAccount={promise?.addAccount === true}
       />
     </Context.Provider>
   );
@@ -90,7 +98,17 @@ export function useRequireAuth() {
   return useContext(Context).authenticate;
 }
 
-function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
+function AuthModal({
+  open,
+  onClose,
+  onSuccess,
+  addAccount,
+}: {
+  open: boolean;
+  onClose: () => any;
+  onSuccess: () => any;
+  addAccount: boolean;
+}) {
   const [search, setSearch] = useState("");
   const [instance, setInstanceLocal] = useState<{
     url?: string;
@@ -99,8 +117,11 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
 
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [mfaToken, setMfaToken] = useState("");
-  const login = useLogin();
+  const [mfaToken, setMfaToken] = useState<string>();
+  const login = useLogin({
+    addAccount,
+    instance: instance.url,
+  });
 
   const instances = useInstances();
 
@@ -121,10 +142,33 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
       : undefined;
 
   const updateAccount = useAuth((a) => a.updateAccount);
+  const addAccountFn = useAuth((a) => a.addAccount);
 
   // const insets = useSafeAreaInsets();
 
   const windowDimensions = useWindowDimensions();
+
+  const submitLogin = () => {
+    login
+      .mutateAsync({
+        username_or_email: userName,
+        password: password,
+        totp_2fa_token: mfaToken,
+      })
+      .then(() => {
+        onSuccess();
+        setUsername("");
+        setPassword("");
+        setMfaToken(undefined);
+        setInstanceLocal({});
+      });
+  };
+
+  useEffect(() => {
+    if (mfaToken && mfaToken.length === 6) {
+      submitLogin();
+    }
+  }, [mfaToken]);
 
   return (
     <Modal open={open} onClose={onClose} scrollable={false}>
@@ -163,9 +207,11 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
                       py="$2"
                       onPress={() => {
                         setInstanceLocal(i.item);
-                        updateAccount({
-                          instance: i.item.url,
-                        });
+                        if (!addAccount) {
+                          updateAccount({
+                            instance: i.item.url,
+                          });
+                        }
                       }}
                       textAlign="left"
                       mr="auto"
@@ -178,98 +224,101 @@ function AuthModal({ open, onClose }: { open: boolean; onClose: () => any }) {
               />
             </>
           ) : (
-            <Form
-              flexDirection="column"
-              alignItems="stretch"
-              width="100%"
-              gap="$4"
-              onSubmit={() => {
-                login
-                  .mutateAsync({
-                    username_or_email: userName,
-                    password: password,
-                    totp_2fa_token: mfaToken.length > 0 ? mfaToken : undefined,
-                  })
-                  .then(() => {
-                    setUsername("");
-                    setPassword("");
-                    setMfaToken("");
-                  });
-              }}
-            >
-              <Button
-                onPress={() => setInstanceLocal({})}
-                p={0}
-                bg="transparent"
-                h="auto"
-                jc="flex-start"
+            <>
+              <Form
+                flexDirection="column"
+                alignItems="stretch"
+                width="100%"
+                gap="$4"
+                onSubmit={submitLogin}
               >
-                <ChevronLeft color="$accentColor" />
-                <Text color="$accentColor">Back</Text>
-              </Button>
-
-              <Text fontWeight="bold">
-                You are logging in to {instance.baseurl}
-              </Text>
-
-              <Input
-                id="email"
-                placeholder="email@example.com"
-                defaultValue={userName}
-                onChangeText={setUsername}
-              />
-
-              <Input
-                textContentType="password"
-                secureTextEntry
-                id="password"
-                placeholder="Enter password"
-                defaultValue={password}
-                onChangeText={setPassword}
-              />
-
-              {login.needs2FA && (
-                <Input
-                  placeholder="2FA"
-                  defaultValue={mfaToken}
-                  onChangeText={setMfaToken}
-                />
-              )}
-
-              <Form.Trigger asChild>
                 <Button
-                  bg="$accentColor"
-                  disabled={login.status === "pending"}
-                  // onPress={signIn}
-                  width="100%"
-                  iconAfter={
-                    <AnimatePresence>
-                      {login.status === "pending" && (
-                        <Spinner
-                          color="$color"
-                          key="loading-spinner"
-                          opacity={1}
-                          scale={1}
-                          animation="quick"
-                          position="absolute"
-                          left="60%"
-                          enterStyle={{
-                            opacity: 0,
-                            scale: 0.5,
-                          }}
-                          exitStyle={{
-                            opacity: 0,
-                            scale: 0.5,
-                          }}
-                        />
-                      )}
-                    </AnimatePresence>
-                  }
+                  onPress={() => setInstanceLocal({})}
+                  p={0}
+                  bg="transparent"
+                  h="auto"
+                  jc="flex-start"
                 >
-                  <Button.Text>Sign In</Button.Text>
+                  <ChevronLeft color="$accentColor" />
+                  <Text color="$accentColor">Back</Text>
                 </Button>
-              </Form.Trigger>
-            </Form>
+
+                <Text fontWeight="bold">
+                  You are logging in to {instance.baseurl}
+                </Text>
+
+                <Input
+                  id="email"
+                  placeholder="email@example.com"
+                  defaultValue={userName}
+                  onChangeText={setUsername}
+                />
+
+                <Input
+                  textContentType="password"
+                  secureTextEntry
+                  id="password"
+                  placeholder="Enter password"
+                  defaultValue={password}
+                  onChangeText={setPassword}
+                />
+
+                {(login.needs2FA || _.isString(mfaToken)) && (
+                  <Input
+                    placeholder="2FA"
+                    defaultValue={mfaToken}
+                    onChangeText={setMfaToken}
+                  />
+                )}
+
+                <Form.Trigger asChild>
+                  <Button
+                    bg="$accentColor"
+                    disabled={login.status === "pending"}
+                    // onPress={signIn}
+                    width="100%"
+                    iconAfter={
+                      <AnimatePresence>
+                        {login.status === "pending" && (
+                          <Spinner
+                            color="$color"
+                            key="loading-spinner"
+                            opacity={1}
+                            scale={1}
+                            animation="quick"
+                            position="absolute"
+                            left="60%"
+                            enterStyle={{
+                              opacity: 0,
+                              scale: 0.5,
+                            }}
+                            exitStyle={{
+                              opacity: 0,
+                              scale: 0.5,
+                            }}
+                          />
+                        )}
+                      </AnimatePresence>
+                    }
+                  >
+                    <Button.Text>Sign In</Button.Text>
+                  </Button>
+                </Form.Trigger>
+              </Form>
+
+              <Button.Text
+                textAlign="center"
+                onPress={() => {
+                  addAccountFn({
+                    instance: instance.url,
+                  });
+                  setInstanceLocal({});
+                  onClose();
+                }}
+              >
+                Continue as Guest
+              </Button.Text>
+            </>
           )}
         </YStack>
       </KeyboardAvoidingView>

@@ -66,7 +66,7 @@ export const useAuth = create<AuthStore>()(
         const { accounts, accountIndex } = get();
         const account = accounts[index ?? accountIndex];
         if (account) {
-          delete accounts[accountIndex];
+          delete accounts[index ?? accountIndex];
           const newAccounts = accounts.filter(Boolean);
           if (newAccounts.length === 0) {
             set({
