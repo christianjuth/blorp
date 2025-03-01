@@ -37,6 +37,21 @@ a, button {
   user-select: none;
 }
 
+* {
+  scrollbar-color: var(--color7) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  border-left: 1px solid transparent; /* Creates an inset illusion */
+  border-right: 1px solid transparent;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--color7);
+  border-radius: 12px;
+}
+
 /* RESET */
 button {
   font-size: unset;

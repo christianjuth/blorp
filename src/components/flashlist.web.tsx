@@ -99,6 +99,7 @@ export function FlashList<T>({
       style={{
         overflow: "auto",
         overscrollBehavior: "auto",
+        scrollbarGutter: "stable both-edges",
       }}
     >
       {/* The large inner element to hold all of the items */}
