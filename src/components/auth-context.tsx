@@ -248,13 +248,17 @@ function AuthModal({
                 </Text>
 
                 <Input
-                  id="email"
-                  placeholder="email@example.com"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="username"
+                  id="username"
+                  placeholder="username"
                   defaultValue={userName}
                   onChangeText={setUsername}
                 />
 
                 <Input
+                  autoComplete="password"
                   textContentType="password"
                   secureTextEntry
                   id="password"
@@ -265,6 +269,7 @@ function AuthModal({
 
                 {(login.needs2FA || _.isString(mfaToken)) && (
                   <Input
+                    autoComplete="one-time-code"
                     placeholder="2FA"
                     defaultValue={mfaToken}
                     onChangeText={setMfaToken}

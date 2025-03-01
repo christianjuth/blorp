@@ -25,7 +25,6 @@ import { Link as OneLink, LinkProps } from "one";
 import type { RuleBlock } from "markdown-it/lib/parser_block.mjs";
 import MarkedList from "@jsamr/react-native-li";
 import decimal from "@jsamr/counter-style/presets/decimal";
-import disc from "@jsamr/counter-style/presets/disc";
 import { shouldOpenInNewTab } from "../lib/linking";
 import { openUrl } from "~/src/lib/linking";
 import CounterStyle from "@jsamr/counter-style";
@@ -208,7 +207,12 @@ function getRenderRules(config: { color: string }): RenderRules {
 
     // // The main container
     body: (node, children, parent, styles) => (
-      <YStack key={node.key} style={styles._VIEW_SAFE_body} gap="$2.5">
+      <YStack
+        key={node.key}
+        style={styles._VIEW_SAFE_body}
+        gap="$2.5"
+        data-body
+      >
         {children}
       </YStack>
     ),
@@ -279,6 +283,7 @@ function getRenderRules(config: { color: string }): RenderRules {
           bg="$gray3"
           paddingLeft="$2.5"
           py="$1.5"
+          data-blockquote
         >
           {children}
         </View>
@@ -293,13 +298,24 @@ function getRenderRules(config: { color: string }): RenderRules {
           counterRenderer={customDisc}
           markerTextStyle={{
             color: config.color,
-            maxHeight: 19,
-            lineHeight: 18,
-            fontSize: 28,
+            maxHeight: 21,
           }}
-          computeMarkerBoxWidth={(chars, fontSize) =>
-            chars * fontSize * 0.475 - 5
-          }
+          computeMarkerBoxWidth={(chars, fontSize) => chars * fontSize * 0.75}
+          renderMarker={(props) => {
+            const fontSize = (props.markerTextStyle.fontSize ?? 14) / 2.25;
+
+            return (
+              <YStack
+                w={props.markerTextWidth || undefined}
+                jc="center"
+                ai="flex-end"
+                pr={6}
+                maxHeight={21}
+              >
+                <View h={fontSize} w={fontSize} bg="$color" br="$12" />
+              </YStack>
+            );
+          }}
         >
           {children}
         </MarkedList>
@@ -307,26 +323,32 @@ function getRenderRules(config: { color: string }): RenderRules {
     },
     ordered_list: function Ol(node, children, parent, styles) {
       return (
-        <MarkedList
-          key={node.key}
-          counterRenderer={decimal}
-          markerTextStyle={{
-            color: config.color,
-            maxHeight: 19,
-            lineHeight: 21,
-            fontSize: 15,
-          }}
-          computeMarkerBoxWidth={(chars, fontSize) => chars * fontSize * 0.475}
-        >
-          {children}
-        </MarkedList>
+        <View style={styles._VIEW_SAFE_ordered_list} data-ol>
+          <MarkedList
+            key={node.key}
+            counterRenderer={decimal}
+            markerTextStyle={{
+              color: config.color,
+              maxHeight: 19,
+              lineHeight: 21,
+            }}
+            computeMarkerBoxWidth={(chars, fontSize) => chars * fontSize * 0.5}
+          >
+            {children}
+          </MarkedList>
+        </View>
       );
     },
     list_item: (node, children, parent, styles, inheritedStyles = {}) => {
       return (
         <View
           key={node.key}
-          style={{ flexDirection: "column", alignItems: "flex-start", flex: 1 }}
+          style={{
+            flexDirection: "column",
+            alignItems: "flex-start",
+            flex: 1,
+          }}
+          data-list-item
         >
           {children}
         </View>
@@ -343,6 +365,7 @@ function getRenderRules(config: { color: string }): RenderRules {
         bg="$color6"
         fontSize="$3"
         br="$1"
+        data-code-inline
       >
         {node.content}
       </Text>
@@ -425,7 +448,12 @@ function getRenderRules(config: { color: string }): RenderRules {
     //   </Text>
     // ),
     link: (node, children, parent, styles, onLinkPress) => (
-      <Link key={node.key} style={styles.link} href={node.attributes.href}>
+      <Link
+        key={node.key}
+        style={styles.link}
+        href={node.attributes.href}
+        data-link
+      >
         {children}
       </Link>
     ),
@@ -455,6 +483,7 @@ function getRenderRules(config: { color: string }): RenderRules {
               shareImage(src);
             }
           }}
+          data-image
         >
           <Image maxWidth={250} imageUrl={src} />
         </View>
@@ -472,6 +501,7 @@ function getRenderRules(config: { color: string }): RenderRules {
             ...inheritedStyles,
             fontSize,
           }}
+          data-text
         >
           {node.content}
         </Text>
@@ -483,7 +513,7 @@ function getRenderRules(config: { color: string }): RenderRules {
     //   </Text>
     // ),
     paragraph: (node, children, parent, styles) => (
-      <View key={node.key} my="$0">
+      <View key={node.key} my="$0" data-paragraph>
         {children}
       </View>
     ),
@@ -505,12 +535,12 @@ function getRenderRules(config: { color: string }): RenderRules {
     //   </View>
     // ),
     inline: (node, children, parent, styles) => (
-      <Text key={node.key} style={styles.inline}>
+      <Text key={node.key} style={styles.inline} data-inline>
         {children}
       </Text>
     ),
     span: (node, children, parent, styles) => (
-      <Text key={node.key} style={styles.span}>
+      <Text key={node.key} style={styles.span} data-span>
         {children}
       </Text>
     ),

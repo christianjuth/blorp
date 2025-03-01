@@ -188,7 +188,7 @@ export function PostComment({
         {comment.removed && <Text fontStyle="italic">removed</Text>}
 
         {!hideContent && (
-          <View $gtMd={{ dsp: editing ? "none" : undefined }}>
+          <View $gtMd={{ dsp: editing ? "none" : undefined }} w="100%">
             <Markdown markdown={comment.content} />
           </View>
         )}
