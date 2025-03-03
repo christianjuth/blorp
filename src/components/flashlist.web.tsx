@@ -14,6 +14,8 @@ export function FlashList<T>({
   onEndReached,
   renderItem,
   stickyHeaderIndices,
+  // @ts-expect-error
+  ref,
 }: FlashListProps<T>) {
   const index = useRef(0);
   const offset = useRef(0);
@@ -22,6 +24,14 @@ export function FlashList<T>({
   const focused = useIsFocused();
 
   const parentRef = useRef<HTMLDivElement>(null);
+
+  ref.current = {
+    scrollToOffset: (offset: number) => {
+      parentRef.current?.scrollTo({
+        top: offset,
+      });
+    },
+  };
 
   const initialItem = cache.current?.[index.current];
 

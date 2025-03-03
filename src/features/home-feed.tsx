@@ -1,5 +1,5 @@
 import { PostCard } from "~/src/components/posts/post";
-import { isWeb, useMedia, View } from "tamagui";
+import { isWeb, useMedia, View, XStack } from "tamagui";
 import { ContentGutters } from "../components/gutters";
 import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
@@ -11,8 +11,13 @@ import { PostSortBar } from "../components/lemmy-sort";
 import Animated from "react-native-reanimated";
 import { useScrollContext } from "../components/nav/scroll-animation-context";
 import { useFiltersStore } from "../stores/filters";
-import { usePosts } from "../lib/lemmy";
+import { useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
+import { RefreshButton } from "../components/ui/button";
+
+export const scrollToTop = {
+  current: { scrollToOffset: () => {} },
+};
 
 const List = isWeb
   ? FlashList
@@ -39,19 +44,25 @@ export function HomeFeed() {
     type_: listingType,
   });
 
+  const mostRecentPost = useMostRecentPost({
+    limit: 50,
+    sort: postSort,
+    type_: listingType,
+  });
+
   const { scrollHandler } = useScrollContext();
 
   const tabBar = useCustomTabBarHeight();
   const header = useCustomHeaderHeight();
 
   const ref = useRef<FlashList<any>>(null);
-  const scrollToTop = useRef({
+  scrollToTop.current = {
     scrollToOffset: () =>
       ref.current?.scrollToOffset({
         offset: -header.height,
         animated: true,
       }),
-  });
+  };
   useScrollToTop(scrollToTop);
 
   const {
@@ -62,7 +73,15 @@ export function HomeFeed() {
     isRefetching,
   } = posts;
 
+  const refresh = () => {
+    if (!isRefetching) {
+      refetch();
+    }
+  };
+
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+
+  const hasNewPost = data[0] && mostRecentPost?.post.ap_id !== data[0];
 
   return (
     <PostReportProvider>
@@ -80,9 +99,24 @@ export function HomeFeed() {
           if (item === "header") {
             return (
               <ContentGutters>
-                <View flex={1} py="$2" bg="$background" $md={{ dsp: "none" }}>
+                <XStack
+                  flex={1}
+                  py="$2"
+                  ai="center"
+                  gap="$3"
+                  bg="$background"
+                  $md={{ dsp: "none" }}
+                >
                   <PostSortBar />
-                </View>
+                  {hasNewPost && (
+                    <RefreshButton
+                      onPress={() => {
+                        scrollToTop.current.scrollToOffset();
+                        refetch();
+                      }}
+                    />
+                  )}
+                </XStack>
                 <></>
               </ContentGutters>
             );
@@ -106,11 +140,7 @@ export function HomeFeed() {
           paddingBottom: isWeb ? tabBar.height : 0,
         }}
         refreshing={isRefetching}
-        onRefresh={() => {
-          if (!isRefetching) {
-            refetch();
-          }
-        }}
+        onRefresh={refresh}
         scrollEventThrottle={16}
         estimatedItemSize={475}
         contentInset={{

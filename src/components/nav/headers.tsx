@@ -40,11 +40,21 @@ import { useLinkContext } from "./link-context";
 import { parseAccountInfo, useAuth } from "~/src/stores/auth";
 import { useRequireAuth } from "../auth-context";
 import { Dropdown } from "../ui/dropdown";
-import { useCreatePost, useLogout } from "~/src/lib/lemmy/index";
+import {
+  useCreatePost,
+  useLogout,
+  useMostRecentPost,
+  usePost,
+  usePosts,
+} from "~/src/lib/lemmy/index";
 import { useCreatePostStore } from "~/src/stores/create-post";
-import { Button } from "../ui/button";
+import { Button, RefreshButton } from "../ui/button";
 import * as React from "react";
 import { encodeApId } from "~/src/lib/lemmy/utils";
+import { useFiltersStore } from "~/src/stores/filters";
+import { scrollToTop } from "~/src/features/home-feed";
+
+const EMPTY_ARR = [];
 
 interface HeaderGuttersProps extends XStackProps {
   darkBackground?: boolean;
@@ -427,10 +437,27 @@ export function useHeaderAnimation() {
   };
 }
 
-export function HomeHeader() {
+export function HomeHeader({ navigation, route }: NativeStackHeaderProps) {
   const theme = useTheme();
   const styles = useHeaderAnimation();
-  const { height, insetTop } = useCustomHeaderHeight();
+
+  const postSort = useFiltersStore((s) => s.postSort);
+  const listingType = useFiltersStore((s) => s.listingType);
+
+  const posts = usePosts({
+    limit: 50,
+    sort: postSort,
+    type_: listingType,
+  });
+
+  const mostRecentPost = useMostRecentPost({
+    limit: 50,
+    sort: postSort,
+    type_: listingType,
+  });
+
+  const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+  const hasNewPost = data[0] && mostRecentPost?.post.ap_id !== data[0];
 
   return (
     <Animated.View
@@ -446,6 +473,15 @@ export function HomeHeader() {
           <HomeFilter />
           <SearchBar hideOnMd />
           <>
+            {hasNewPost && (
+              <RefreshButton
+                hideOnGtMd
+                onPress={() => {
+                  scrollToTop.current.scrollToOffset();
+                  posts.refetch();
+                }}
+              />
+            )}
             <PostSortBar hideOnGtMd />
             <NavbarRightSide />
           </>

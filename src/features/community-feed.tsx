@@ -1,5 +1,5 @@
 import { PostCard } from "~/src/components/posts/post";
-import { isWeb, View } from "tamagui";
+import { isWeb, View, XStack } from "tamagui";
 import {
   CommunitySidebar,
   SmallScreenSidebar,
@@ -11,13 +11,18 @@ import { useRef } from "react";
 import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
-import { useCommunity, usePosts } from "../lib/lemmy";
+import { useCommunity, useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
+import { RefreshButton } from "../components/ui/button";
 
 const EMPTY_ARR = [];
 
 export function CommunityFeed({ communityName }: { communityName?: string }) {
   const posts = usePosts({
+    community_name: communityName,
+  });
+
+  const mostRecentPost = useMostRecentPost({
     community_name: communityName,
   });
 
@@ -27,7 +32,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
 
   const tabBar = useCustomTabBarHeight();
 
-  const ref = useRef(null);
+  const ref = useRef<FlashList<any>>(null);
   useScrollToTop(ref);
 
   const {
@@ -39,6 +44,8 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
   } = posts;
 
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+
+  const hasNewPost = data[0] && mostRecentPost?.post.ap_id !== data[0];
 
   return (
     <PostReportProvider>
@@ -74,7 +81,9 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
           if (item === "post-sort-bar") {
             return (
               <ContentGutters bg="$background">
-                <View
+                <XStack
+                  ai="center"
+                  gap="$3"
                   flex={1}
                   py="$2"
                   bbc="$color3"
@@ -86,7 +95,17 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
                   }}
                 >
                   <PostSortBar />
-                </View>
+                  {hasNewPost && (
+                    <RefreshButton
+                      onPress={() => {
+                        ref.current?.scrollToOffset({
+                          offset: 0,
+                        });
+                        refetch();
+                      }}
+                    />
+                  )}
+                </XStack>
                 <></>
               </ContentGutters>
             );

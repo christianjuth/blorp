@@ -439,7 +439,36 @@ function usePostsKey(form: GetPosts) {
   return queryKey;
 }
 
-export function usePosts({ enabled, ...form }: UsePostsConfig) {
+export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
+  const { client } = useLemmyClient();
+
+  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
+
+  const postSort = useFiltersStore((s) => s.postSort);
+  const sort = form.sort ?? postSort;
+
+  form = {
+    show_read: true,
+    limit: 1,
+    sort,
+    show_nsfw: showNsfw,
+    ...form,
+  };
+
+  const queryKey = usePostsKey(form);
+
+  const query = useQuery({
+    queryKey: ["mostRecentPost", ...queryKey],
+    queryFn: () => client.getPosts(form),
+    refetchInterval: 1000 * 60,
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
+  });
+
+  return query.data?.posts?.[0];
+}
+
+export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client } = useLemmyClient();
 
@@ -449,12 +478,15 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
   const sort = form.sort ?? postSort;
 
   form = {
+    show_read: true,
     limit: 25,
     sort,
+    show_nsfw: showNsfw,
     ...form,
   };
 
   const queryKey = usePostsKey(form);
+  const queryKeyStr = queryKey.join("-");
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const patchPost = usePostsStore((s) => s.patchPost);
@@ -470,11 +502,11 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
     pageParam: string;
     signal: AbortSignal;
   }) => {
+    warmedFeeds.set(queryKeyStr, true);
+
     const res = await client.getPosts(
       {
-        show_read: true,
         ...form,
-        show_nsfw: showNsfw,
         page_cursor: pageParam === "init" ? undefined : pageParam,
       },
       {
@@ -519,6 +551,8 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
     };
   };
 
+  const isWarmed = warmedFeeds.get(queryKeyStr) ?? false;
+
   const query = useThrottledInfiniteQuery({
     queryKey,
     queryFn,
@@ -527,20 +561,10 @@ export function usePosts({ enabled, ...form }: UsePostsConfig) {
     notifyOnChangeProps: "all",
     staleTime: form.saved_only ? 0 : Infinity,
     refetchOnWindowFocus: false,
-    // refetchOnMount: false,
     refetchInterval: false,
-    refetchIntervalInBackground: false,
+    refetchOnMount: isWarmed ? false : "always",
     enabled: enabled && (form.type_ === "Subscribed" ? isLoggedIn : true),
   });
-
-  const queryKeyStr = queryKey.join("-");
-  useEffect(() => {
-    const isWarmed = warmedFeeds.get(queryKeyStr) ?? false;
-    if (!isWarmed && enabled !== false) {
-      warmedFeeds.set(queryKeyStr, true);
-      query.refetch();
-    }
-  }, [queryKeyStr, query.refetch, enabled]);
 
   const queryClient = useQueryClient();
   const prefetch = () =>
