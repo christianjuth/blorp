@@ -25,13 +25,15 @@ export function FlashList<T>({
 
   const parentRef = useRef<HTMLDivElement>(null);
 
-  ref.current = {
-    scrollToOffset: (offset: number) => {
-      parentRef.current?.scrollTo({
-        top: offset,
-      });
-    },
-  };
+  if (ref) {
+    ref.current = {
+      scrollToOffset: (offset: number) => {
+        parentRef.current?.scrollTo({
+          top: offset,
+        });
+      },
+    };
+  }
 
   const initialItem = cache.current?.[index.current];
 
