@@ -18,7 +18,8 @@
         "resizable": true,
         "fullscreen": false,
         "titleBarStyle": "Overlay",
-        "transparent": false
+        "transparent": false,
+        "devtools": true
       }
     ],
     "security": {

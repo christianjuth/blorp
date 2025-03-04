@@ -7107,6 +7107,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tauri-apps/plugin-dialog@npm:~2":
+  version: 2.2.0
+  resolution: "@tauri-apps/plugin-dialog@npm:2.2.0"
+  dependencies:
+    "@tauri-apps/api": "npm:^2.0.0"
+  checksum: 10c0/18d10013cc207dc5cf1b0513b7585fd6aa1a1a133dbb8e048e1d27ef7251ac770dfa2c9d5c400e4b87b9823c3c7155bc6a279a577e494504361a30383c4e1f17
+  languageName: node
+  linkType: hard
+
 "@tauri-apps/plugin-http@npm:^2.3.0":
   version: 2.3.0
   resolution: "@tauri-apps/plugin-http@npm:2.3.0"
@@ -7122,6 +7131,15 @@ __metadata:
   dependencies:
     "@tauri-apps/api": "npm:^2.0.0"
   checksum: 10c0/643574a4fd8cf9940c60c668f871e61130831a0d193e4425b0daa980441ab8455e64b9ef6764f3c425a52cab4aa14a5f3f3d602b5a24da4be5bcad3987b4242d
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/plugin-process@npm:~2":
+  version: 2.2.0
+  resolution: "@tauri-apps/plugin-process@npm:2.2.0"
+  dependencies:
+    "@tauri-apps/api": "npm:^2.0.0"
+  checksum: 10c0/146b8db6d47a4d8720468691afeaa19c078816ac1f1c1a3130bf208993f0aa0c3a08a7d04313453f70a6cde8f05990432764e0c04cb969533f0c39a352463809
   languageName: node
   linkType: hard
 
@@ -13136,8 +13154,10 @@ __metadata:
     "@tanstack/react-query-persist-client": "npm:5.62.7"
     "@tanstack/react-virtual": "npm:^3.13.0"
     "@tauri-apps/plugin-deep-link": "npm:~2"
+    "@tauri-apps/plugin-dialog": "npm:~2"
     "@tauri-apps/plugin-http": "npm:^2.3.0"
     "@tauri-apps/plugin-opener": "npm:^2.2.5"
+    "@tauri-apps/plugin-process": "npm:~2"
     "@tauri-apps/plugin-store": "npm:~2"
     "@tauri-apps/plugin-updater": "npm:~2"
     "@testing-library/react-hooks": "npm:^8.0.1"

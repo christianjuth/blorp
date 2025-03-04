@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { isWeb, TamaguiProvider, Theme, XStack, YStack } from "tamagui";
-import { useColorScheme, Appearance } from "react-native";
+import { isWeb, TamaguiProvider, YStack } from "tamagui";
+import { Appearance } from "react-native";
 import config from "~/config/tamagui/tamagui.config";
 import { persist } from "./query-storage";
 import { ScrollProvider } from "./nav/scroll-animation-context";
@@ -18,7 +18,7 @@ import {
 import { useCustomHeaderHeight } from "./nav/hooks";
 import { useNotificationCount } from "../lib/lemmy";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { isTauri } from "../lib/tauri";
+import { isTauri, updateTauri } from "../lib/tauri";
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
 
@@ -34,6 +34,8 @@ const queryClient = new QueryClient({
 });
 
 persist(queryClient);
+
+updateTauri();
 
 function RefreshNotificationCount() {
   const { data: count } = useNotificationCount();

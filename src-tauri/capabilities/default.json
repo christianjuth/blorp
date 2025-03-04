@@ -14,11 +14,17 @@
     "http:default",
     {
       "identifier": "http:default",
-      "allow": [{ "url": "https://**" }]
+      "allow": [
+        {
+          "url": "https://**"
+        }
+      ]
     },
     "opener:allow-open-url",
     "opener:allow-default-urls",
     "updater:default",
-    "core:window:allow-set-badge-count"
+    "core:window:allow-set-badge-count",
+    "dialog:default",
+    "process:default"
   ]
 }
