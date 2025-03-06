@@ -58,6 +58,7 @@ import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
 import { measureImage } from "../image";
 import { getPostEmbed } from "../post";
 import { useToastController } from "@tamagui/toast";
+import { useProfilesStore } from "~/src/stores/profiles";
 
 function useLemmyClient(config?: { instance?: string }) {
   const jwt = useAuth((s) => s.getSelectedAccount().jwt);
@@ -132,6 +133,8 @@ export function usePersonDetails({ actorId }: { actorId?: string }) {
 
   const queryKey = [...queryKeyPrefix, "getPersonDetails", actorId];
 
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
+
   return useQuery({
     queryKey,
     queryFn: async ({ signal }) => {
@@ -146,6 +149,8 @@ export function usePersonDetails({ actorId }: { actorId?: string }) {
       if (!person) {
         throw new Error("person not found");
       }
+
+      cacheProfiles([_.omit(person, "is_admin")]);
 
       const { posts, comments, ...rest } = await client.getPersonDetails(
         {
@@ -171,6 +176,7 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const patchPost = usePostsStore((s) => s.patchPost);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
@@ -190,6 +196,8 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
       if (!person) {
         throw new Error("person not found");
       }
+
+      cacheProfiles([person]);
 
       const res = await client.getPersonDetails(
         {
@@ -261,6 +269,8 @@ export function usePost({
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
   const markRead = useMarkPostRead();
+  const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
   return useQuery<FlattenedPost>({
     queryKey,
@@ -295,8 +305,16 @@ export function usePost({
       });
 
       const cachedPost = cachePost(post);
-      const { thumbnail, type: embedType } = getPostEmbed(post.post);
 
+      cacheCommunities([
+        {
+          communityView: { community: resPost.community },
+        },
+      ]);
+
+      cacheProfiles([{ person: resPost.creator }]);
+
+      const { thumbnail, type: embedType } = getPostEmbed(post.post);
       if (thumbnail) {
         if (!cachedPost.imageDetails && embedType === "image") {
           measureImage(thumbnail).then((data) => {
@@ -507,6 +525,7 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   const patchPost = usePostsStore((s) => s.patchPost);
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
@@ -535,6 +554,8 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
     cacheCommunities(
       res.posts.map((p) => ({ communityView: { community: p.community } })),
     );
+
+    cacheProfiles(res.posts.map((p) => ({ person: p.creator })));
 
     let i = 0;
     for (const { post } of res.posts) {
@@ -698,7 +719,7 @@ export function useListCommunities(form: ListCommunities) {
     queryKey.push(`nsfw-${showNsfw ? "t" : "f"}`);
   }
 
-  const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
+  const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
 
   return useThrottledInfiniteQuery({
     queryKey,
@@ -714,11 +735,7 @@ export function useListCommunities(form: ListCommunities) {
           signal,
         },
       );
-      for (const communityView of communities) {
-        cacheCommunity({
-          communityView,
-        });
-      }
+      cacheCommunities(communities.map((c) => ({ communityView: c })));
       return {
         communities,
         nextPage: communities.length < limit ? null : pageParam + 1,
@@ -732,7 +749,7 @@ export function useListCommunities(form: ListCommunities) {
 export function useCommunity(form: { name?: string; instance?: string }) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
-  const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
+  const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
 
   const queryKey = [
     ...queryKeyPrefix,
@@ -751,9 +768,11 @@ export function useCommunity(form: { name?: string; instance?: string }) {
           signal,
         },
       );
-      cacheCommunity({
-        communityView: res.community_view,
-      });
+      cacheCommunities([
+        {
+          communityView: res.community_view,
+        },
+      ]);
       return res;
     },
     enabled: !!form.name,
