@@ -48,11 +48,13 @@ export function SavedFeed() {
 
   const comments = useComments({
     saved_only: true,
+    type_: "All",
   });
 
   const posts = usePosts({
     limit: 50,
     saved_only: true,
+    type_: "All",
   });
 
   const tabBar = useCustomTabBarHeight();
