@@ -260,6 +260,8 @@ export function usePost({
 
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
+  const markRead = useMarkPostRead();
+
   return useQuery<FlattenedPost>({
     queryKey,
     queryFn: async ({ signal }) => {
@@ -291,6 +293,7 @@ export function usePost({
         post_view: resPost,
         cross_posts: res2.cross_posts,
       });
+
       const cachedPost = cachePost(post);
       const { thumbnail, type: embedType } = getPostEmbed(post.post);
 
@@ -308,6 +311,13 @@ export function usePost({
           cachePolicy: cacheImages ? "disk" : "memory",
         });
       }
+
+      markRead.mutate({
+        apId: ap_id,
+        read: true,
+        post_id: post.post.id,
+      });
+
       return post;
     },
     enabled: !!ap_id && enabled,
@@ -1527,7 +1537,7 @@ export function useDeletePost(apId: string) {
   });
 }
 
-export function useMarkPostRead() {
+function useMarkPostRead() {
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
 
@@ -1541,7 +1551,7 @@ export function useMarkPostRead() {
       });
     },
     onSuccess: (_, { read, apId }) => {
-      patchPost(apId, {
+      const newPost = patchPost(apId, {
         optimisticRead: undefined,
         read,
       });
