@@ -334,6 +334,10 @@ function useCommentsKey() {
       queryKey.push(`parent-${form.post_id}`);
     }
 
+    if (form.type_) {
+      queryKey.push(`type-${form.type_}`);
+    }
+
     const sort = form.sort ?? commentSort;
     if (sort) {
       queryKey.push(`sort-${form.sort}`);
