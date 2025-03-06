@@ -51,8 +51,6 @@ export const usePostsStore = create<SortsStore>()(
         const updatedPostData = {
           ...prevPostData,
           ...view,
-          optimisticMyVote:
-            view.optimisticMyVote ?? prevPostData.optimisticMyVote,
           imageDetails: view.imageDetails ?? prevPostData.imageDetails,
           crossPosts: view.crossPosts ?? prevPostData.crossPosts,
         };
@@ -78,8 +76,6 @@ export const usePostsStore = create<SortsStore>()(
             data: {
               ...prevPostData,
               ...view,
-              optimisticMyVote:
-                view.optimisticMyVote ?? prevPostData.optimisticMyVote,
               imageDetails: view.imageDetails ?? prevPostData.imageDetails,
               crossPosts: view.crossPosts ?? prevPostData.crossPosts,
             },
@@ -118,7 +114,7 @@ export const usePostsStore = create<SortsStore>()(
     {
       name: "posts",
       storage: createStorage<SortsStore>(),
-      version: 1,
+      version: 2,
     },
   ),
 );

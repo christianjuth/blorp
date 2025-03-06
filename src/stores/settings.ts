@@ -7,6 +7,8 @@ type SettingsStore = {
   setCacheImages: (newVal: boolean) => any;
   showNsfw: boolean;
   setShowNsfw: (newVal: boolean) => any;
+  hideRead: boolean;
+  setHideRead: (newVal: boolean) => any;
   filterKeywords: string[];
   setFilterKeywords: (update: { index: number; keyword: string }) => any;
   pruneFiltersKeywords: () => any;
@@ -19,6 +21,8 @@ export const useSettingsStore = create<SettingsStore>()(
       setCacheImages: (cacheImages) => set({ cacheImages }),
       showNsfw: false,
       setShowNsfw: (showNsfw) => set({ showNsfw }),
+      hideRead: false,
+      setHideRead: (hideRead) => set({ hideRead }),
       filterKeywords: [],
       setFilterKeywords: (update) => {
         const filterKeywords = [...get().filterKeywords];

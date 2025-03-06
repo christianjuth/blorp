@@ -303,6 +303,9 @@ export default function SettingsPage() {
   const showNsfw = useSettingsStore((s) => s.showNsfw);
   const setShowNsfw = useSettingsStore((s) => s.setShowNsfw);
 
+  const hideRead = useSettingsStore((s) => s.hideRead);
+  const setHideRead = useSettingsStore((s) => s.setHideRead);
+
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
   const setFilterKeywords = useSettingsStore((s) => s.setFilterKeywords);
   const pruneFiltersKeywords = useSettingsStore((s) => s.pruneFiltersKeywords);
@@ -323,6 +326,9 @@ export default function SettingsPage() {
           <SectionLabel>FILTERS</SectionLabel>
 
           <YStack bg="$color2" br="$4" bw={1} bc="$color3">
+            <SettingsToggle value={hideRead} onToggle={setHideRead}>
+              Hide read posts from feeds
+            </SettingsToggle>
             <SettingsToggle value={showNsfw} onToggle={setShowNsfw}>
               Show NSFW
             </SettingsToggle>

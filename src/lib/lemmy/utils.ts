@@ -33,6 +33,8 @@ export type FlattenedPost = {
   optimisticSaved?: boolean;
   saved: boolean;
   optimisticDeleted?: boolean;
+  read: boolean;
+  optimisticRead?: boolean;
   post: Post;
   community: {
     name: string;
@@ -78,6 +80,7 @@ export function flattenPost({
       ? _.pick(postView.image_details, ["width", "height"])
       : undefined,
     saved: postView.saved,
+    read: postView.read,
   };
 }
 

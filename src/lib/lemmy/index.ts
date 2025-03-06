@@ -27,6 +27,7 @@ import {
   BlockPerson,
   SavePost,
   DeletePost,
+  MarkPostAsRead,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -42,7 +43,7 @@ import {
 import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "~/src/stores/filters";
 import { useAuth } from "../../stores/auth";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { prefetch as prefetchImage } from "~/src/components/image";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
@@ -1486,6 +1487,9 @@ export function useSavePost(apId: string) {
       });
     },
     onError: (_, { save }) => {
+      patchPost(apId, {
+        optimisticSaved: undefined,
+      });
       toast.show(`Couldn't ${save ? "save" : "unsave"} post`, {
         preset: "error",
       });
@@ -1513,8 +1517,38 @@ export function useDeletePost(apId: string) {
       });
     },
     onError: (_, { deleted }) => {
+      patchPost(apId, {
+        optimisticDeleted: undefined,
+      });
       toast.show(`Couldn't ${deleted ? "delete" : "restore"} post`, {
         preset: "error",
+      });
+    },
+  });
+}
+
+export function useMarkPostRead() {
+  const { client } = useLemmyClient();
+  const patchPost = usePostsStore((s) => s.patchPost);
+
+  return useMutation({
+    mutationFn: (form: { post_id: number; read: boolean; apId: string }) => {
+      return client.markPostAsRead(form);
+    },
+    onMutate: ({ read, apId }) => {
+      patchPost(apId, {
+        optimisticRead: read,
+      });
+    },
+    onSuccess: (_, { read, apId }) => {
+      patchPost(apId, {
+        optimisticRead: undefined,
+        read,
+      });
+    },
+    onError: (_, { apId }) => {
+      patchPost(apId, {
+        optimisticRead: undefined,
       });
     },
   });

@@ -2,7 +2,12 @@ import { useNavigation } from "one";
 import { PostComment } from "~/src/components/posts/post-comment";
 import { buildCommentMap } from "../lib/comment-map";
 import { useEffect } from "react";
-import { useCommunity, usePost, useComments } from "~/src/lib/lemmy/index";
+import {
+  useCommunity,
+  usePost,
+  useComments,
+  useMarkPostRead,
+} from "~/src/lib/lemmy/index";
 import { PostBottomBar, PostCard } from "~/src/components/posts/post";
 import { CommunitySidebar } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
@@ -177,6 +182,17 @@ export function Post({
   const post = usePostsStore((s) =>
     decodedApId ? s.posts[decodedApId]?.data : null,
   );
+
+  const markRead = useMarkPostRead();
+  useEffect(() => {
+    if (decodedApId && post?.post.id) {
+      markRead.mutate({
+        apId: decodedApId,
+        post_id: post.post.id,
+        read: true,
+      });
+    }
+  }, [decodedApId, post?.post.id]);
 
   useCommunity({
     name: communityName,

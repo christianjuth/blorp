@@ -50,6 +50,7 @@ export function PostCard({
     enabled: false,
   });
 
+  const hideRead = useSettingsStore((s) => s.hideRead);
   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
 
@@ -81,6 +82,11 @@ export function PostCard({
 
   if (postView.post.nsfw && !showNsfw) {
     return detailView ? <Notice>NSFW content hidden</Notice> : null;
+  }
+
+  const read = postView.optimisticRead ?? postView.read;
+  if (hideRead && !detailView && read) {
+    return null;
   }
 
   const imageDetails = postView.imageDetails;
