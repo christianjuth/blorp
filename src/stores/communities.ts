@@ -47,17 +47,15 @@ export const useCommunitiesStore = create<SortsStore>()(
             ...patch.communityView,
           },
         };
-        if (slug in communities) {
-          set({
-            communities: {
-              ...communities,
-              [slug]: {
-                data: updatedCommunityData,
-                lastUsed: Date.now(),
-              },
+        set({
+          communities: {
+            ...communities,
+            [slug]: {
+              data: updatedCommunityData,
+              lastUsed: Date.now(),
             },
-          });
-        }
+          },
+        });
         return updatedCommunityData;
       },
       cacheCommunity: (view) => {

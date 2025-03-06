@@ -17,6 +17,7 @@ import { ToggleGroup } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
 import { useLinkContext } from "../components/nav/link-context";
+import { useProfilesStore } from "../stores/profiles";
 
 function Comment({ path }: { path: string }) {
   const commentView = useCommentsStore((s) => s.comments[path]?.data);
@@ -76,11 +77,14 @@ export function User({ userId }: { userId?: string }) {
     }
   }, [personQuery.data?.person_view]);
 
-  if (!personQuery.data) {
+  const personView = useProfilesStore((s) =>
+    actorId ? s.profiles[actorId].data : undefined,
+  );
+
+  if (!personView) {
     return null;
   }
 
-  const personView = personQuery.data.person_view;
   const person = personView.person;
   const counts = personView.counts;
 
@@ -127,25 +131,27 @@ export function User({ userId }: { userId?: string }) {
 
                 {person.bio && <Markdown markdown={person.bio} />}
 
-                <XStack>
-                  <YStack gap="$1" flex={1}>
-                    <Text fontWeight="bold" fontSize="$4">
-                      {abbriviateNumber(counts.post_count)}
-                    </Text>
-                    <Text fontSize="$3" color="$color11">
-                      Posts
-                    </Text>
-                  </YStack>
+                {counts && (
+                  <XStack>
+                    <YStack gap="$1" flex={1}>
+                      <Text fontWeight="bold" fontSize="$4">
+                        {abbriviateNumber(counts.post_count)}
+                      </Text>
+                      <Text fontSize="$3" color="$color11">
+                        Posts
+                      </Text>
+                    </YStack>
 
-                  <YStack gap="$1" flex={1}>
-                    <Text fontWeight="bold" fontSize="$4">
-                      {abbriviateNumber(counts.comment_count)}
-                    </Text>
-                    <Text fontSize="$3" color="$color11">
-                      Comments
-                    </Text>
-                  </YStack>
-                </XStack>
+                    <YStack gap="$1" flex={1}>
+                      <Text fontWeight="bold" fontSize="$4">
+                        {abbriviateNumber(counts.comment_count)}
+                      </Text>
+                      <Text fontSize="$3" color="$color11">
+                        Comments
+                      </Text>
+                    </YStack>
+                  </XStack>
+                )}
               </YStack>
             </ContentGutters>
           );
