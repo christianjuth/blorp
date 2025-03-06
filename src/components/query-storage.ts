@@ -1,5 +1,7 @@
 import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
 
+const CACHE_VERSON = 2;
+
 import { QueryClient } from "@tanstack/react-query";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createDb } from "../lib/create-storage";
@@ -23,6 +25,7 @@ export const persist = async (queryClient: QueryClient) => {
   persistQueryClient({
     queryClient,
     persister,
+    buster: String(CACHE_VERSON),
   });
 
   // Enable multi-tab synchronization

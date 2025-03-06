@@ -44,7 +44,6 @@ import {
   useCreatePost,
   useLogout,
   useMostRecentPost,
-  usePost,
   usePosts,
 } from "~/src/lib/lemmy/index";
 import { useCreatePostStore } from "~/src/stores/create-post";
