@@ -1174,7 +1174,7 @@ export function useReplies(form: GetReplies) {
     initialPageParam: 1,
     getNextPageParam: (prev) => prev.nextPage,
     enabled: isLoggedIn,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: "always",
   });
 }
 
@@ -1204,7 +1204,7 @@ export function useNotificationCount() {
     enabled: isLoggedIn,
     refetchInterval: 1000 * 60,
     refetchIntervalInBackground: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: "always",
   });
 }
 

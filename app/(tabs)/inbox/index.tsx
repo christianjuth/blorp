@@ -2,11 +2,15 @@ import { Dot } from "@tamagui/lucide-icons";
 import { CommentReplyView } from "lemmy-js-client";
 import { Link } from "one";
 import { FlashList } from "~/src/components/flashlist";
-import { Text, XStack, YStack } from "tamagui";
+import { Text, View, XStack, YStack } from "tamagui";
 import { ContentGutters } from "~/src/components/gutters";
 import { Markdown } from "~/src/components/markdown";
 import { RelativeTime } from "~/src/components/relative-time";
-import { useMarkReplyRead, useReplies } from "~/src/lib/lemmy/index";
+import {
+  useMarkReplyRead,
+  useNotificationCount,
+  useReplies,
+} from "~/src/lib/lemmy/index";
 import { createCommunitySlug } from "~/src/lib/lemmy/utils";
 
 function Reply({
@@ -48,7 +52,7 @@ function Reply({
         >
           <XStack>
             {replyView.comment_reply.read ? null : (
-              <Dot m={-7.5} ml={-13} size="$3" color="$accentColor" />
+              <View h={8} w={8} bg="$accentColor" my={6} mr={5} br={9999} />
             )}
             <Text lineHeight="$1.5">
               <Text fontSize="$4" fontWeight="bold">
@@ -69,8 +73,14 @@ function Reply({
   );
 }
 
-export default function HomePage() {
+export default function InboxPage() {
   const replies = useReplies({});
+
+  // This updates in the backgroudn,
+  // but calling it here ensures the
+  // count is updated when the user visits
+  // the inbox page.
+  useNotificationCount();
 
   const allReplies = replies.data?.pages.flatMap((p) => p.replies);
 
