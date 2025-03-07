@@ -268,7 +268,6 @@ export function usePost({
 
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
-  const markRead = useMarkPostRead();
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
@@ -304,7 +303,14 @@ export function usePost({
         cross_posts: res2.cross_posts,
       });
 
-      const cachedPost = cachePost(post);
+      const cachedPost = cachePost({
+        ...post,
+        // Fetching an individual post marks it
+        // as read, but not until the next request
+        // is made. We mark it as read here knowing
+        // that on Lemmy's end it is now read.
+        read: true,
+      });
 
       cacheCommunities([
         {
@@ -329,12 +335,6 @@ export function usePost({
           cachePolicy: cacheImages ? "disk" : "memory",
         });
       }
-
-      markRead.mutate({
-        apId: ap_id,
-        read: true,
-        post_id: post.post.id,
-      });
 
       return post;
     },
@@ -1570,7 +1570,7 @@ function useMarkPostRead() {
       });
     },
     onSuccess: (_, { read, apId }) => {
-      const newPost = patchPost(apId, {
+      patchPost(apId, {
         optimisticRead: undefined,
         read,
       });
