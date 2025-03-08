@@ -104,6 +104,7 @@ export function CommunitySidebar({
       position={asPage ? undefined : "absolute"}
       maxHeight={dimensions.height - header.height}
       w="100%"
+      h={asPage ? "100%" : undefined}
     >
       <ScrollView
         zIndex="$5"

@@ -2,13 +2,7 @@ import { Button, useTheme, Text, XStack, ButtonProps } from "tamagui";
 import { ArrowBigUp, ArrowBigDown, Reply } from "@tamagui/lucide-icons";
 import { FlattenedComment, useLikeComment } from "~/src/lib/lemmy/index";
 import { voteHaptics } from "~/src/lib/voting";
-import { useMemo, useState } from "react";
-import { AnimatedRollingNumber } from "~/src/components/animated-digit";
 import { useRequireAuth } from "../auth-context";
-
-const DISABLE_ANIMATION = {
-  duration: 0,
-};
 
 export function CommentVoting({
   commentView,
@@ -32,18 +26,6 @@ export function CommentVoting({
   const theme = useTheme();
 
   const score = commentView?.counts.score + diff;
-  const [animate, setAnimate] = useState(false);
-
-  const textColor = isUpvoted
-    ? theme.accentBackground.val
-    : isDownvoted
-      ? theme.red.val
-      : theme.color11.val;
-  const textStyle = useMemo(() => {
-    return {
-      color: textColor,
-    };
-  }, [textColor]);
 
   return (
     <XStack dsp="flex" fd="row" ai="center" borderRadius="$12">
@@ -52,7 +34,6 @@ export function CommentVoting({
           const newVote = isUpvoted ? 0 : 1;
           voteHaptics(newVote);
           requireAuth().then(() => {
-            setAnimate(true);
             vote.mutate({
               post_id: commentView.comment.post_id,
               comment_id: commentView.comment.id,
@@ -81,16 +62,9 @@ export function CommentVoting({
             color={isUpvoted ? "$accentBackground" : "$color11"}
             mr={5}
           />
-          <AnimatedRollingNumber
-            enableCompactNotation
-            value={score}
-            textStyle={textStyle}
-            spinningAnimationConfig={
-              // THIS IS A HACK
-              // Find a better way to disable animation for init value
-              !animate ? DISABLE_ANIMATION : undefined
-            }
-          />
+          <Text color={isUpvoted ? "$accentBackground" : "$color11"}>
+            {score}
+          </Text>
         </>
       </Button>
       <Button
@@ -98,7 +72,6 @@ export function CommentVoting({
           const newVote = isDownvoted ? 0 : -1;
           voteHaptics(newVote);
           requireAuth().then(() => {
-            setAnimate(true);
             vote.mutate({
               post_id: commentView.comment.post_id,
               comment_id: commentView.comment.id,

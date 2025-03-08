@@ -3,7 +3,7 @@ import { isWeb, useMedia, View, XStack } from "tamagui";
 import { ContentGutters } from "../components/gutters";
 import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
-import { useRef } from "react";
+import { memo, useMemo, useRef } from "react";
 import { useCustomHeaderHeight } from "../components/nav/hooks";
 import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 import { FlashList, FlashListProps } from "../components/flashlist";
@@ -15,23 +15,25 @@ import { useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
 import { RefreshButton } from "../components/ui/button";
 
+const HEADER = "header";
+const POST = "post";
+
 export const scrollToTop = {
   current: { scrollToOffset: () => {} },
 };
 
 const List = isWeb
-  ? FlashList
-  : Animated.createAnimatedComponent<
-      FlashListProps<
-        | "banner"
-        | "post-sort-bar"
-        | "sidebar-desktop"
-        | "sidebar-mobile"
-        | string
-      >
-    >(FlashList);
+  ? FlashList<string>
+  : Animated.createAnimatedComponent<FlashListProps<string>>(FlashList);
 
 const EMPTY_ARR = [];
+
+const Post = memo(({ item }: { item: string }) => (
+  <ContentGutters>
+    <PostCard apId={item} featuredContext="home" />
+    <></>
+  </ContentGutters>
+));
 
 export function HomeFeed() {
   const media = useMedia();
@@ -80,9 +82,16 @@ export function HomeFeed() {
     }
   };
 
-  const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+  const data = useMemo(
+    () => [
+      HEADER,
+      ...(posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR),
+    ],
+    [posts.data?.pages],
+  );
 
-  const hasNewPost = data[0] && mostRecentPost?.data?.post.ap_id !== data[0];
+  const firstPost = posts.data?.pages[0]?.posts[0];
+  const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
 
   return (
     <PostReportProvider>
@@ -95,9 +104,9 @@ export function HomeFeed() {
 
       <List
         ref={ref}
-        data={["header", ...data]}
+        data={data}
         renderItem={({ item }) => {
-          if (item === "header") {
+          if (item === HEADER) {
             return (
               <ContentGutters>
                 <XStack
@@ -122,13 +131,7 @@ export function HomeFeed() {
               </ContentGutters>
             );
           }
-
-          return (
-            <ContentGutters>
-              <PostCard apId={item} featuredContext="home" />
-              <></>
-            </ContentGutters>
-          );
+          return <Post item={item} />;
         }}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
@@ -137,6 +140,7 @@ export function HomeFeed() {
         }}
         onEndReachedThreshold={0.5}
         keyExtractor={(item) => item}
+        getItemType={(item) => (item === HEADER ? HEADER : POST)}
         contentContainerStyle={{
           paddingBottom: isWeb ? tabBar.height : 0,
         }}

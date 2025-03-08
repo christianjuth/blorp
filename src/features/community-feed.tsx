@@ -7,7 +7,7 @@ import {
 import { CommunityBanner } from "../components/communities/community-banner";
 import { ContentGutters } from "../components/gutters";
 import { useScrollToTop } from "@react-navigation/native";
-import { useRef } from "react";
+import { memo, useMemo, useRef } from "react";
 import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
@@ -16,6 +16,18 @@ import { PostReportProvider } from "../components/posts/post-report";
 import { RefreshButton } from "../components/ui/button";
 
 const EMPTY_ARR = [];
+
+const SIDEBAR_MOBILE = "sidebar-mobile";
+const BANNER = "banner";
+const POST_SORT_BAR = "post-sort-bar";
+const POST = "post";
+
+const Post = memo(({ item }: { item: string }) => (
+  <ContentGutters>
+    <PostCard apId={item} featuredContext="community" />
+    <></>
+  </ContentGutters>
+));
 
 export function CommunityFeed({ communityName }: { communityName?: string }) {
   const posts = usePosts({
@@ -43,9 +55,18 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
     isRefetching,
   } = posts;
 
-  const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+  const data = useMemo(
+    () => [
+      BANNER,
+      SIDEBAR_MOBILE,
+      POST_SORT_BAR,
+      ...(posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR),
+    ],
+    [posts.data?.pages],
+  );
 
-  const hasNewPost = data[0] && mostRecentPost?.data?.post.ap_id !== data[0];
+  const firstPost = posts.data?.pages[0]?.posts[0];
+  const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
 
   return (
     <PostReportProvider>
@@ -54,11 +75,11 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
         {communityName && <CommunitySidebar communityName={communityName} />}
       </ContentGutters>
 
-      <FlashList
+      <FlashList<string>
         ref={ref}
-        data={["banner", "sidebar-mobile", "post-sort-bar", ...data] as const}
+        data={data}
         renderItem={({ item }) => {
-          if (item === "sidebar-mobile") {
+          if (item === SIDEBAR_MOBILE) {
             return communityName ? (
               <ContentGutters>
                 <SmallScreenSidebar communityName={communityName} />
@@ -69,7 +90,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
             );
           }
 
-          if (item === "banner") {
+          if (item === BANNER) {
             return (
               <ContentGutters $md={{ dsp: "none" }} pt="$3">
                 <CommunityBanner communityName={communityName} />
@@ -78,7 +99,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
             );
           }
 
-          if (item === "post-sort-bar") {
+          if (item === POST_SORT_BAR) {
             return (
               <ContentGutters bg="$background">
                 <XStack
@@ -111,12 +132,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
             );
           }
 
-          return (
-            <ContentGutters>
-              <PostCard apId={item} featuredContext="community" />
-              <></>
-            </ContentGutters>
-          );
+          return <Post item={item} />;
         }}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
@@ -125,6 +141,18 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
         }}
         onEndReachedThreshold={0.5}
         keyExtractor={(item) => item}
+        getItemType={(item) => {
+          switch (item) {
+            case SIDEBAR_MOBILE:
+              return SIDEBAR_MOBILE;
+            case BANNER:
+              return BANNER;
+            case POST_SORT_BAR:
+              return POST_SORT_BAR;
+            default:
+              return POST;
+          }
+        }}
         contentContainerStyle={{
           paddingBottom: isWeb ? tabBar.height : 0,
         }}

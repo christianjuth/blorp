@@ -119,6 +119,7 @@ export function PostCard({
             imageUrl={thumbnail}
             aspectRatio={aspectRatio}
             borderRadius={media.gtMd ? 10 : 0}
+            priority
           />
         </View>
       )}

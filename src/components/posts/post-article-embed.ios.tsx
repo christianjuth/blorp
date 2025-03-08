@@ -34,6 +34,7 @@ export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
           objectFit="cover"
           disableShare
           borderTopRadius={10}
+          priority
         />
       )}
       {url && (

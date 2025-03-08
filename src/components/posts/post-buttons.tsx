@@ -4,13 +4,7 @@ import { useLikePost } from "~/src/lib/lemmy/index";
 import { FlattenedPost } from "~/src/lib/lemmy/utils";
 import { voteHaptics } from "~/src/lib/voting";
 import { usePostsStore } from "~/src/stores/posts";
-import { AnimatedRollingNumber } from "~/src/components/animated-digit";
-import { useMemo, useState } from "react";
 import { useRequireAuth } from "../auth-context";
-
-const DISABLE_ANIMATION = {
-  duration: 0,
-};
 
 export function Voting({ apId }: { apId: string }) {
   const requireAuth = useRequireAuth();
@@ -32,18 +26,6 @@ export function Voting({ apId }: { apId: string }) {
       : 0;
 
   const score = postView?.counts.score + diff;
-  const [animate, setAnimate] = useState(false);
-
-  const textColor = isUpvoted
-    ? theme.accentBackground.val
-    : isDownvoted
-      ? theme.red.val
-      : theme.color.val;
-  const textStyle = useMemo(() => {
-    return {
-      color: textColor,
-    };
-  }, [textColor]);
 
   if (!postView) {
     return null;
@@ -68,7 +50,6 @@ export function Voting({ apId }: { apId: string }) {
           const newVote = isUpvoted ? 0 : 1;
           voteHaptics(newVote);
           requireAuth().then(() => {
-            setAnimate(true);
             vote.mutate(newVote);
           });
         }}
@@ -85,16 +66,9 @@ export function Voting({ apId }: { apId: string }) {
             size="$1"
             mr="$1"
           />
-          <AnimatedRollingNumber
-            enableCompactNotation
-            value={score}
-            textStyle={textStyle}
-            spinningAnimationConfig={
-              // THIS IS A HACK
-              // Find a better way to disable animation for init value
-              !animate ? DISABLE_ANIMATION : undefined
-            }
-          />
+          <Text color={isUpvoted ? "$accentBackground" : undefined}>
+            {score}
+          </Text>
         </>
       </Button>
       <View h={16} w={1} bg="$color6" mx={4} />
@@ -108,7 +82,6 @@ export function Voting({ apId }: { apId: string }) {
           const newVote = isDownvoted ? 0 : -1;
           voteHaptics(newVote);
           requireAuth().then(() => {
-            setAnimate(true);
             vote.mutate(newVote);
           });
         }}
