@@ -50,7 +50,6 @@ export function PostCard({
     enabled: false,
   });
 
-  const hideRead = useSettingsStore((s) => s.hideRead);
   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
 
@@ -85,9 +84,6 @@ export function PostCard({
   }
 
   const read = postView.optimisticRead ?? postView.read;
-  if (hideRead && !detailView && read) {
-    return null;
-  }
 
   const imageDetails = postView.imageDetails;
   const aspectRatio = imageDetails
@@ -111,6 +107,7 @@ export function PostCard({
         fontWeight={500}
         fontSize="$6"
         lineHeight="$4"
+        col={read && !detailView ? "$color10" : "$color"}
         fontStyle={deleted ? "italic" : undefined}
       >
         {deleted ? "deleted" : post.name}

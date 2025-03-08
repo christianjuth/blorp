@@ -268,7 +268,6 @@ export function usePost({
 
   const cacheImages = useSettingsStore((s) => s.cacheImages);
 
-  const markRead = useMarkPostRead();
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
@@ -304,7 +303,14 @@ export function usePost({
         cross_posts: res2.cross_posts,
       });
 
-      const cachedPost = cachePost(post);
+      const cachedPost = cachePost({
+        ...post,
+        // Fetching an individual post marks it
+        // as read, but not until the next request
+        // is made. We mark it as read here knowing
+        // that on Lemmy's end it is now read.
+        read: true,
+      });
 
       cacheCommunities([
         {
@@ -329,12 +335,6 @@ export function usePost({
           cachePolicy: cacheImages ? "disk" : "memory",
         });
       }
-
-      markRead.mutate({
-        apId: ap_id,
-        read: true,
-        post_id: post.post.id,
-      });
 
       return post;
     },
@@ -449,6 +449,10 @@ function usePostsKey(form: GetPosts) {
     queryKey.push("savedOnly");
   }
 
+  if (form.show_read) {
+    queryKey.push("showRead");
+  }
+
   if (form.community_name) {
     queryKey.push("community", form.community_name);
   }
@@ -480,8 +484,10 @@ export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
 
+  const hideRead = useSettingsStore((s) => s.hideRead);
+
   form = {
-    show_read: true,
+    show_read: !hideRead,
     limit: 1,
     sort,
     show_nsfw: showNsfw,
@@ -498,7 +504,10 @@ export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
     refetchOnWindowFocus: true,
   });
 
-  return query.data?.posts?.[0];
+  return {
+    ...query,
+    data: query.data?.posts?.[0],
+  };
 }
 
 export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
@@ -510,8 +519,10 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
 
+  const hideRead = useSettingsStore((s) => s.hideRead);
+
   form = {
-    show_read: true,
+    show_read: !hideRead,
     limit: 25,
     sort,
     show_nsfw: showNsfw,
@@ -1570,7 +1581,7 @@ function useMarkPostRead() {
       });
     },
     onSuccess: (_, { read, apId }) => {
-      const newPost = patchPost(apId, {
+      patchPost(apId, {
         optimisticRead: undefined,
         read,
       });
