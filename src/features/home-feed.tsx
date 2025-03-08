@@ -76,12 +76,13 @@ export function HomeFeed() {
   const refresh = () => {
     if (!isRefetching) {
       refetch();
+      mostRecentPost.refetch();
     }
   };
 
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
-  const hasNewPost = data[0] && mostRecentPost?.post.ap_id !== data[0];
+  const hasNewPost = data[0] && mostRecentPost?.data?.post.ap_id !== data[0];
 
   return (
     <PostReportProvider>
@@ -112,7 +113,7 @@ export function HomeFeed() {
                     <RefreshButton
                       onPress={() => {
                         scrollToTop.current.scrollToOffset();
-                        refetch();
+                        refresh();
                       }}
                     />
                   )}

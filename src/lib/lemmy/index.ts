@@ -449,6 +449,10 @@ function usePostsKey(form: GetPosts) {
     queryKey.push("savedOnly");
   }
 
+  if (form.show_read) {
+    queryKey.push("showRead");
+  }
+
   if (form.community_name) {
     queryKey.push("community", form.community_name);
   }
@@ -480,8 +484,10 @@ export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
 
+  const hideRead = useSettingsStore((s) => s.hideRead);
+
   form = {
-    show_read: true,
+    show_read: !hideRead,
     limit: 1,
     sort,
     show_nsfw: showNsfw,
@@ -498,7 +504,10 @@ export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
     refetchOnWindowFocus: true,
   });
 
-  return query.data?.posts?.[0];
+  return {
+    ...query,
+    data: query.data?.posts?.[0],
+  };
 }
 
 export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
@@ -510,8 +519,10 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
 
+  const hideRead = useSettingsStore((s) => s.hideRead);
+
   form = {
-    show_read: true,
+    show_read: !hideRead,
     limit: 25,
     sort,
     show_nsfw: showNsfw,

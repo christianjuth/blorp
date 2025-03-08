@@ -45,7 +45,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
 
   const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
-  const hasNewPost = data[0] && mostRecentPost?.post.ap_id !== data[0];
+  const hasNewPost = data[0] && mostRecentPost?.data?.post.ap_id !== data[0];
 
   return (
     <PostReportProvider>
@@ -132,6 +132,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
         onRefresh={() => {
           if (!isRefetching) {
             refetch();
+            mostRecentPost.refetch();
           }
         }}
         stickyHeaderIndices={[2]}
