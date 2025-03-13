@@ -97,7 +97,7 @@ const TamaguiRootProvider = ({ children }: { children: React.ReactNode }) => {
 
     const listener: Appearance.AppearanceListener = _.debounce((theme) => {
       setScheme(theme.colorScheme ?? "light");
-    }, 50);
+    }, 500);
 
     const { remove } = Appearance.addChangeListener(listener);
 
