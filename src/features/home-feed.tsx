@@ -178,7 +178,7 @@ export function HomeFeed() {
         automaticallyAdjustContentInsets={false}
         onScroll={isWeb ? undefined : scrollHandler}
         stickyHeaderIndices={[0]}
-        drawDistance={windowHeight * 3}
+        drawDistance={windowHeight * 2}
       />
     </PostReportProvider>
   );

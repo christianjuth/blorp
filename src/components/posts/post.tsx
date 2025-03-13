@@ -140,7 +140,11 @@ export function DetailPostCard(props: PostProps) {
       </Link>
 
       {thumbnail && type === "image" && !deleted && (
-        <View br="$5" $md={{ mx: "$-3", br: 0 }}>
+        <View
+          br="$5"
+          $md={{ mx: "$-3", br: 0 }}
+          onLongPress={() => shareImage(thumbnail)}
+        >
           <Image
             imageUrl={thumbnail}
             aspectRatio={aspectRatio}
@@ -258,7 +262,11 @@ export function FeedPostCard(props: PostProps) {
       </Link>
 
       {thumbnail && type === "image" && !deleted && (
-        <View br="$5" $md={{ mx: "$-3", br: 0 }}>
+        <View
+          br="$5"
+          $md={{ mx: "$-3", br: 0 }}
+          onLongPress={() => shareImage(thumbnail)}
+        >
           <Image
             imageUrl={thumbnail}
             aspectRatio={aspectRatio}

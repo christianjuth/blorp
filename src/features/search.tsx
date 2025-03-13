@@ -82,12 +82,14 @@ export function SearchFeed({
         searchResults.data?.pages.map((res) => res.communities).flat() ??
         EMPTY_ARR;
 
-      return communities.toSorted((a, b) => {
+      communities.sort((a, b) => {
         if (_.isString(a) || _.isString(b)) {
           return 0;
         }
         return b.counts.subscribers - a.counts.subscribers;
       });
+
+      return communities;
     }
 
     const postIds =
@@ -101,7 +103,7 @@ export function SearchFeed({
       .filter(isNotNull);
 
     return postViews;
-  }, [searchResults.data?.pages, postCache]);
+  }, [searchResults.data?.pages, postCache, type]);
 
   return (
     <>

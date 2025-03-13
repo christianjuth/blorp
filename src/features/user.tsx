@@ -104,15 +104,11 @@ export function User({ userId }: { userId?: string }) {
   }, [personQuery.data?.person_view]);
 
   const personView = useProfilesStore((s) =>
-    actorId ? s.profiles[actorId].data : undefined,
+    actorId ? s.profiles[actorId]?.data : undefined,
   );
 
-  if (!personView) {
-    return null;
-  }
-
-  const person = personView.person;
-  const counts = personView.counts;
+  const person = personView?.person;
+  const counts = personView?.counts;
 
   const postCache = usePostsStore((s) => s.posts);
 
@@ -133,6 +129,10 @@ export function User({ userId }: { userId?: string }) {
     return postViews;
   }, [data?.pages, postCache]);
 
+  if (!personView) {
+    return null;
+  }
+
   return (
     <>
       <ContentGutters>
@@ -149,7 +149,7 @@ export function User({ userId }: { userId?: string }) {
             </Text>
           </XStack>
 
-          {person.bio && <Markdown markdown={person.bio} />}
+          {person?.bio && <Markdown markdown={person.bio} />}
 
           {counts && (
             <XStack>
@@ -200,13 +200,9 @@ export function User({ userId }: { userId?: string }) {
           if (item === "banner") {
             return (
               <ContentGutters>
-                <XStack
-                  ai="center"
-                  flex={1}
-                  $md={{ px: "$2", bbw: 1, bbc: "$color4" }}
-                >
+                <XStack ai="center" flex={1} $md={{ px: "$2" }}>
                   <Avatar size="$5" mr="$2">
-                    <Avatar.Image src={person.avatar} borderRadius="$12" />
+                    <Avatar.Image src={person?.avatar} borderRadius="$12" />
                     <Avatar.Fallback
                       backgroundColor="$color8"
                       borderRadius="$12"
@@ -214,7 +210,7 @@ export function User({ userId }: { userId?: string }) {
                       jc="center"
                     >
                       <Text fontSize="$7">
-                        {person.name?.substring(0, 1).toUpperCase()}
+                        {person?.name?.substring(0, 1).toUpperCase()}
                       </Text>
                     </Avatar.Fallback>
                   </Avatar>
@@ -307,6 +303,7 @@ export function User({ userId }: { userId?: string }) {
         }}
         stickyHeaderIndices={[1]}
         estimatedItemSize={475}
+        automaticallyAdjustContentInsets={false}
       />
     </>
   );

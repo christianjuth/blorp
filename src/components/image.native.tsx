@@ -1,20 +1,23 @@
 import { useState, useEffect } from "react";
-import { Share, Image as RNImage } from "react-native";
+import { Share } from "react-native";
 import { useTheme } from "tamagui";
 import _ from "lodash";
-import { useSettingsStore } from "../stores/settings";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { impactAsync, ImpactFeedbackStyle } from "~/src/lib/haptics";
 import { imageSizeCache, measureImage } from "../lib/image";
+import { Image as ExpoImage } from "expo-image";
 
 export const prefetch = (src: string[]) => {
-  for (const url of src) {
-    RNImage.prefetch(url);
-  }
+  ExpoImage.prefetch(src);
 };
 
-export function clearCache() {}
+export function clearCache() {
+  return Promise.all([
+    ExpoImage.clearDiskCache(),
+    ExpoImage.clearMemoryCache(),
+  ]);
+}
 
 export const shareImage = async (imageUrl: string) => {
   try {
@@ -97,10 +100,12 @@ export function Image({
     ? 1
     : (calculatedAspectRatio ?? 1);
   return (
-    <RNImage
-      key={_.isString(imageUrl) ? imageUrl : undefined}
+    <ExpoImage
+      recyclingKey={_.isString(imageUrl) ? imageUrl : undefined}
+      transition={0}
       source={_.isString(imageUrl) ? { uri: imageUrl } : imageUrl}
-      progressiveRenderingEnabled
+      cachePolicy="memory"
+      priority={priority ? "high" : undefined}
       style={{
         // Don't use flex 1
         // it causes issues on native
@@ -114,11 +119,11 @@ export function Image({
         borderTopLeftRadius: borderTopRadius ?? borderRadius,
         ...style,
       }}
-      resizeMode={objectFit}
-      onLoad={({ nativeEvent }) => {
+      contentFit={objectFit}
+      onLoad={({ source }) => {
         setDimensions({
-          height: nativeEvent.source.height,
-          width: nativeEvent.source.width,
+          height: source.height,
+          width: source.width,
         });
         setLoaded(imageUrl);
         onLoad?.();

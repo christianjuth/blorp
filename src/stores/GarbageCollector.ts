@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { usePostsStore } from "./posts";
 import { useCommunitiesStore } from "./communities";
 import { useCommentsStore } from "./comments";
+import { clearCache } from "../components/image";
 
 export function GarbageCollector() {
   const cleanupPosts = usePostsStore((s) => s.cleanup);
@@ -12,6 +13,7 @@ export function GarbageCollector() {
     cleanupPosts();
     cleanupCommunities();
     cleanupComments();
+    clearCache();
   }, []);
 
   return null;

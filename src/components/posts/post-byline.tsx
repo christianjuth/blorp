@@ -77,7 +77,7 @@ export function PostByline({
             c/{communitySlug}
           </Text>
         </Link>
-        <XStack>
+        <XStack ai="center">
           <Link href={`${linkCtx.root}u/${encodedCreatorApId}`} push>
             <Text fontSize="$2" fontWeight={500} color="$color11">
               u/{creatorName}
