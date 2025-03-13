@@ -213,6 +213,12 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
       const posts = res.posts.map((post_view) => flattenPost({ post_view }));
       const cachedPosts = cachePosts(posts);
 
+      prefetchImage(
+        res.posts
+          .map(({ post }) => getPostEmbed(post).thumbnail)
+          .filter(Boolean) as string[],
+      );
+
       let i = 0;
       for (const { post } of res.posts) {
         const thumbnail = post.thumbnail_url;
@@ -225,9 +231,6 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
                 });
               });
             }
-            prefetchImage([thumbnail], {
-              cachePolicy: cacheImages ? "disk" : "memory",
-            });
           }, i);
           i += 50;
         }
@@ -331,9 +334,7 @@ export function usePost({
             }
           });
         }
-        prefetchImage([thumbnail], {
-          cachePolicy: cacheImages ? "disk" : "memory",
-        });
+        prefetchImage([thumbnail]);
       }
 
       return post;
@@ -523,7 +524,7 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
 
   form = {
     show_read: !hideRead,
-    limit: 25,
+    limit: 50,
     sort,
     show_nsfw: showNsfw,
     ...form,
@@ -568,6 +569,12 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
 
     cacheProfiles(res.posts.map((p) => ({ person: p.creator })));
 
+    prefetchImage(
+      res.posts
+        .map(({ post }) => getPostEmbed(post).thumbnail)
+        .filter(Boolean) as string[],
+    );
+
     let i = 0;
     for (const { post } of res.posts) {
       const { thumbnail, type: embedType } = getPostEmbed(post);
@@ -584,9 +591,6 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
               });
             });
           }
-          prefetchImage([thumbnail], {
-            cachePolicy: cacheImages ? "disk" : "memory",
-          });
         }, i);
         i += 50;
       }

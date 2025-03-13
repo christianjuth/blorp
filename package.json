@@ -70,7 +70,6 @@
     "expo-constants": "~17.0.5",
     "expo-file-system": "~18.0.6",
     "expo-haptics": "~14.0.0",
-    "expo-image": "2.0.4",
     "expo-modules-core": "~2.1.2",
     "expo-sharing": "~13.0.0",
     "expo-system-ui": "^4.0.8",

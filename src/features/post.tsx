@@ -3,7 +3,12 @@ import { PostComment } from "~/src/components/posts/post-comment";
 import { buildCommentMap } from "../lib/comment-map";
 import { useEffect } from "react";
 import { useCommunity, usePost, useComments } from "~/src/lib/lemmy/index";
-import { PostBottomBar, PostCard } from "~/src/components/posts/post";
+import {
+  PostBottomBar,
+  DetailPostCard,
+  PostProps,
+  getPostProps,
+} from "~/src/components/posts/post";
 import { CommunitySidebar } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 
@@ -29,127 +34,12 @@ const MemoedPostComment = memo(PostComment);
 
 const EMPTY_ARR = [];
 
-export function PostComments({
-  apId,
-  commentViews,
-  loadMore,
-  onRefresh,
-  refreshing,
-  opId,
-  myUserId,
-  communityName,
-  commentId,
-  postId,
-  isReady,
-}: {
-  apId: string;
-  commentViews: {
-    path: string;
-  }[];
-  loadMore: () => void;
-  onRefresh: () => void;
-  refreshing: boolean;
-  opId: number | undefined;
-  myUserId: number | undefined;
-  communityName?: string;
-  commentId?: string;
-  postId: number;
-  isReady?: boolean;
-}) {
-  const media = useMedia();
-
-  const tabBar = useCustomTabBarHeight();
-
-  useHideTabBar();
-
-  const ref = useRef(null);
-  useScrollToTop(ref);
-
-  const structured = useMemo(() => {
-    if (!isReady) {
-      return null;
-    }
-    const map = buildCommentMap(commentViews, commentId);
-    const topLevelItems = _.entries(map).sort(
-      ([id1, a], [id2, b]) => a.sort - b.sort,
-    );
-    return { map, topLevelItems };
-  }, [commentViews]);
-
-  const lastComment = structured?.topLevelItems.at(-1);
-
-  let paddingBottom =
-    structured && structured.topLevelItems.length > 0 ? 10 : 20;
-  if (media.md) {
-    paddingBottom += tabBar.height;
-  }
-
-  return (
-    <FlashList
-      ref={ref}
-      data={
-        [
-          "post",
-          "post-bottom-bar",
-          "comment",
-          ...(structured ? structured.topLevelItems : EMPTY_ARR),
-        ] as const
-      }
-      renderItem={({ item }) => {
-        if (item === "post") {
-          return (
-            <ContentGutters>
-              <PostCard apId={apId} featuredContext="community" detailView />
-              <></>
-            </ContentGutters>
-          );
-        }
-
-        if (item === "post-bottom-bar") {
-          return (
-            <ContentGutters>
-              <PostBottomBar apId={apId} />
-              <></>
-            </ContentGutters>
-          );
-        }
-
-        if (item === "comment") {
-          return (
-            <ContentGutters>
-              <View flex={1} pt="$3">
-                <InlineCommentReply postId={postId} />
-              </View>
-              <></>
-            </ContentGutters>
-          );
-        }
-
-        return (
-          <ContentGutters>
-            <MemoedPostComment
-              postApId={apId}
-              commentMap={item[1]}
-              level={0}
-              opId={opId}
-              myUserId={myUserId}
-              noBorder={item[0] === lastComment?.[0]}
-              communityName={communityName}
-            />
-            <></>
-          </ContentGutters>
-        );
-      }}
-      keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
-      onEndReached={loadMore}
-      onEndReachedThreshold={0.5}
-      onRefresh={onRefresh}
-      refreshing={refreshing}
-      estimatedItemSize={450}
-      stickyHeaderIndices={[1]}
-    />
-  );
-}
+const MemoedPostCard = memo((props: PostProps) => (
+  <ContentGutters>
+    <DetailPostCard {...props} />
+    <></>
+  </ContentGutters>
+));
 
 export function Post({
   apId,
@@ -162,6 +52,14 @@ export function Post({
   commentPath?: string;
   isReady?: boolean;
 }) {
+  const media = useMedia();
+  const tabBar = useCustomTabBarHeight();
+
+  useHideTabBar();
+
+  const ref = useRef(null);
+  useScrollToTop(ref);
+
   const decodedApId = apId ? decodeURIComponent(apId) : undefined;
 
   const [commentId] = commentPath?.split(".") ?? [];
@@ -197,17 +95,32 @@ export function Post({
     nav.setOptions({ title: communityTitle ?? "" });
   }, [communityTitle]);
 
-  const allComments = comments.data
-    ? comments.data.pages
-        .map((p) => p.comments)
-        .flat()
-        .sort((a, b) => {
-          if (b.creatorId === myUserId) {
-            return -1;
-          }
-          return 0;
-        })
-    : EMPTY_ARR;
+  const allComments = useMemo(
+    () =>
+      comments.data && isReady
+        ? comments.data.pages
+            .map((p) => p.comments)
+            .flat()
+            .sort((a, b) => {
+              if (b.creatorId === myUserId) {
+                return -1;
+              }
+              return 0;
+            })
+        : EMPTY_ARR,
+    [comments.data?.pages, isReady],
+  );
+
+  const structured = useMemo(() => {
+    if (!isReady) {
+      return null;
+    }
+    const map = buildCommentMap(allComments, commentId);
+    const topLevelItems = _.entries(map).sort(
+      ([id1, a], [id2, b]) => a.sort - b.sort,
+    );
+    return { map, topLevelItems };
+  }, [allComments, isReady]);
 
   const [refreshing, setRefreshing] = useState(false);
   const refresh = async () => {
@@ -219,8 +132,23 @@ export function Post({
     setRefreshing(false);
   };
 
+  const loadMore = () => {
+    if (comments.hasNextPage && !comments.isFetchingNextPage) {
+      comments.fetchNextPage();
+    }
+  };
+
   if (!post || !decodedApId) {
     return null;
+  }
+
+  const opId = post.creator.id;
+
+  const lastComment = structured?.topLevelItems.at(-1);
+  let paddingBottom =
+    structured && structured.topLevelItems.length > 0 ? 10 : 20;
+  if (media.md) {
+    paddingBottom += tabBar.height;
   }
 
   return (
@@ -235,23 +163,71 @@ export function Post({
           </View>
         </ContentGutters>
 
-        <PostComments
-          commentViews={allComments}
-          apId={decodedApId}
-          loadMore={() => {
-            if (comments.hasNextPage && !comments.isFetchingNextPage) {
-              comments.fetchNextPage();
+        {!isReady ? (
+          <MemoedPostCard {...getPostProps(post)} />
+        ) : (
+          <FlashList
+            ref={ref}
+            data={
+              [
+                "post",
+                "post-bottom-bar",
+                "comment",
+                ...(structured ? structured.topLevelItems : EMPTY_ARR),
+              ] as const
             }
-          }}
-          opId={post.creator?.id}
-          myUserId={myUserId}
-          communityName={communityName}
-          onRefresh={refresh}
-          refreshing={refreshing}
-          commentId={commentId}
-          postId={post.post.id}
-          isReady={isReady}
-        />
+            renderItem={({ item }) => {
+              if (item === "post") {
+                return <MemoedPostCard {...getPostProps(post)} />;
+              }
+
+              if (item === "post-bottom-bar") {
+                return (
+                  <ContentGutters>
+                    <PostBottomBar
+                      apId={decodedApId}
+                      commentsCount={post.counts.comments}
+                    />
+                    <></>
+                  </ContentGutters>
+                );
+              }
+
+              if (item === "comment") {
+                return (
+                  <ContentGutters>
+                    <View flex={1} pt="$3">
+                      <InlineCommentReply postId={post.post.id} />
+                    </View>
+                    <></>
+                  </ContentGutters>
+                );
+              }
+
+              return (
+                <ContentGutters>
+                  <MemoedPostComment
+                    postApId={decodedApId}
+                    commentMap={item[1]}
+                    level={0}
+                    opId={opId}
+                    myUserId={myUserId}
+                    noBorder={item[0] === lastComment?.[0]}
+                    communityName={communityName}
+                  />
+                  <></>
+                </ContentGutters>
+              );
+            }}
+            keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
+            onEndReached={loadMore}
+            onEndReachedThreshold={0.5}
+            onRefresh={refresh}
+            refreshing={refreshing}
+            estimatedItemSize={450}
+            stickyHeaderIndices={[1]}
+          />
+        )}
       </CommentReplyContext>
     </PostReportProvider>
   );

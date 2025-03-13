@@ -2,11 +2,15 @@ import { ContentGutters } from "../components/gutters";
 import { abbriviateNumber } from "../lib/format";
 import { usePersonDetails, usePersonFeed } from "../lib/lemmy";
 import { Avatar, Text, View, XStack, YStack } from "tamagui";
-import { PostCard } from "../components/posts/post";
+import {
+  FeedPostCard,
+  getPostProps,
+  PostProps,
+} from "../components/posts/post";
 import { Markdown } from "../components/markdown";
 import { FlashList } from "../components/flashlist";
 import { PostSortBar } from "../components/lemmy-sort";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useScrollToTop } from "@react-navigation/native";
 import { useNavigation, Link } from "one";
 import { CakeSlice } from "@tamagui/lucide-icons";
@@ -18,10 +22,22 @@ import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
 import { useLinkContext } from "../components/nav/link-context";
 import { useProfilesStore } from "../stores/profiles";
+import { usePostsStore } from "../stores/posts";
+import { isNotNull } from "../lib/utils";
+import { CommentView } from "lemmy-js-client";
 
-const Post = memo(({ item }: { item: string }) => (
+const BANNER = "banner";
+const POST_SORT_BAR = "post-sort-bar";
+
+type Item = typeof BANNER | typeof POST_SORT_BAR | PostProps | CommentView;
+
+function isPost(item: Item): item is PostProps {
+  return _.isObject(item) && "apId" in item;
+}
+
+const Post = memo((props: PostProps) => (
   <ContentGutters>
-    <PostCard apId={item} featuredContext="community" />
+    <FeedPostCard {...props} />
     <></>
   </ContentGutters>
 ));
@@ -98,10 +114,24 @@ export function User({ userId }: { userId?: string }) {
   const person = personView.person;
   const counts = personView.counts;
 
-  const posts =
-    data?.pages
-      .map((res) => (type === "posts" ? res.posts : res.comments))
-      .flat() ?? EMPTY_ARR;
+  const postCache = usePostsStore((s) => s.posts);
+
+  const listData = useMemo(() => {
+    if (type === "comments") {
+      return data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR;
+    }
+
+    const postIds = data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+
+    const postViews = postIds
+      .map((apId) => {
+        const postView = postCache[apId]?.data;
+        return postView ? getPostProps(postView) : null;
+      })
+      .filter(isNotNull);
+
+    return postViews;
+  }, [data?.pages, postCache]);
 
   return (
     <>
@@ -145,14 +175,14 @@ export function User({ userId }: { userId?: string }) {
         </YStack>
       </ContentGutters>
 
-      <FlashList
+      <FlashList<Item>
         ref={ref}
         data={
           [
-            "banner",
+            BANNER,
             // "sidebar-mobile",
-            "post-sort-bar",
-            ...posts,
+            POST_SORT_BAR,
+            ...listData,
           ] as const
         }
         renderItem={({ item }) => {
@@ -241,8 +271,8 @@ export function User({ userId }: { userId?: string }) {
             );
           }
 
-          if (_.isString(item)) {
-            return <Post item={item} />;
+          if (isPost(item)) {
+            return <Post {...item} />;
           }
 
           return <Comment path={item.comment.path} />;
@@ -254,8 +284,21 @@ export function User({ userId }: { userId?: string }) {
         }}
         onEndReachedThreshold={0.5}
         keyExtractor={(item) =>
-          _.isString(item) ? item : String(item.post.id)
+          _.isString(item)
+            ? item
+            : isPost(item)
+              ? item.apId
+              : item.comment.ap_id
         }
+        getItemType={(item) => {
+          if (_.isString(item)) {
+            return item;
+          } else if (isPost(item)) {
+            return item.type;
+          } else {
+            return "comment";
+          }
+        }}
         refreshing={isRefetching}
         onRefresh={() => {
           if (!isRefetching) {

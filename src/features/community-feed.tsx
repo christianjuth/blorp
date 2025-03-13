@@ -1,4 +1,8 @@
-import { PostCard } from "~/src/components/posts/post";
+import {
+  FeedPostCard,
+  getPostProps,
+  PostProps,
+} from "~/src/components/posts/post";
 import { isWeb, View, XStack } from "tamagui";
 import {
   CommunitySidebar,
@@ -14,17 +18,25 @@ import { FlashList } from "../components/flashlist";
 import { useCommunity, useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
 import { RefreshButton } from "../components/ui/button";
+import { isNotNull } from "../lib/utils";
+import { usePostsStore } from "../stores/posts";
+import _ from "lodash";
 
 const EMPTY_ARR = [];
 
 const SIDEBAR_MOBILE = "sidebar-mobile";
 const BANNER = "banner";
 const POST_SORT_BAR = "post-sort-bar";
-const POST = "post";
 
-const Post = memo(({ item }: { item: string }) => (
+type Item =
+  | typeof SIDEBAR_MOBILE
+  | typeof BANNER
+  | typeof POST_SORT_BAR
+  | PostProps;
+
+const Post = memo((props: PostProps) => (
   <ContentGutters>
-    <PostCard apId={item} featuredContext="community" />
+    <FeedPostCard {...props} />
     <></>
   </ContentGutters>
 ));
@@ -55,15 +67,20 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
     isRefetching,
   } = posts;
 
-  const data = useMemo(
-    () => [
-      BANNER,
-      SIDEBAR_MOBILE,
-      POST_SORT_BAR,
-      ...(posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR),
-    ],
-    [posts.data?.pages],
-  );
+  const postCache = usePostsStore((s) => s.posts);
+
+  const data = useMemo(() => {
+    const postIds = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+
+    const postViews = postIds
+      .map((apId) => {
+        const postView = postCache[apId]?.data;
+        return postView ? getPostProps(postView, "community") : null;
+      })
+      .filter(isNotNull);
+
+    return [BANNER, SIDEBAR_MOBILE, POST_SORT_BAR, ...postViews] as const;
+  }, [posts.data?.pages, postCache]);
 
   const firstPost = posts.data?.pages[0]?.posts[0];
   const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
@@ -75,7 +92,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
         {communityName && <CommunitySidebar communityName={communityName} />}
       </ContentGutters>
 
-      <FlashList<string>
+      <FlashList<Item>
         ref={ref}
         data={data}
         renderItem={({ item }) => {
@@ -132,7 +149,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
             );
           }
 
-          return <Post item={item} />;
+          return <Post {...item} />;
         }}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
@@ -140,7 +157,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
           }
         }}
         onEndReachedThreshold={0.5}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => (_.isString(item) ? item : item.apId)}
         getItemType={(item) => {
           switch (item) {
             case SIDEBAR_MOBILE:
@@ -150,7 +167,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
             case POST_SORT_BAR:
               return POST_SORT_BAR;
             default:
-              return POST;
+              return item.type;
           }
         }}
         contentContainerStyle={{

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { PostCard } from "./post";
+import { DetailPostCard, FeedPostCard, getPostProps } from "./post";
 import { usePostsStore } from "~/src/stores/posts";
 import _ from "lodash";
 import { useEffect } from "react";
@@ -26,32 +26,27 @@ function LoadPost({ variant }: { variant: "image" | "youtube" | "article" }) {
 }
 
 //👇 This default export determines where your story goes in the story list
-const meta: Meta<typeof PostCard> = {
-  component: PostCard,
+const meta: Meta<typeof FeedPostCard> = {
+  component: FeedPostCard,
 };
 
 export default meta;
-type Story = StoryObj<typeof PostCard>;
+type Story = StoryObj<typeof FeedPostCard>;
 
-const AP_ID = lemmy.getPost().post.ap_id;
+const POST = flattenPost({ post_view: lemmy.getPost() });
 
 export const Image: Story = {
   args: {
-    apId: AP_ID,
-    featuredContext: "community",
+    ...getPostProps(POST),
+    // apId: AP_ID,
+    // featuredContext: "community",
   },
-  argTypes: {
-    featuredContext: {
-      control: "select",
-      options: ["community", undefined],
-    },
-  },
-  decorators: (Story) => (
-    <>
-      <LoadPost variant="image" />
-      <Story />
-    </>
-  ),
+  // argTypes: {
+  //   featuredContext: {
+  //     control: "select",
+  //     options: ["community", undefined],
+  //   },
+  // },
 };
 
 export const Article: Story = {

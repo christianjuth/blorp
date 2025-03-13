@@ -1,4 +1,8 @@
-import { PostCard } from "~/src/components/posts/post";
+import {
+  FeedPostCard,
+  getPostProps,
+  PostProps,
+} from "~/src/components/posts/post";
 import { isWeb, useMedia, View, XStack } from "tamagui";
 import { ContentGutters } from "../components/gutters";
 import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
@@ -14,28 +18,35 @@ import { useFiltersStore } from "../stores/filters";
 import { useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
 import { RefreshButton } from "../components/ui/button";
+import { usePostsStore } from "../stores/posts";
+import { useWindowDimensions } from "react-native";
+import _ from "lodash";
+import { isNotNull } from "../lib/utils";
 
 const HEADER = "header";
-const POST = "post";
 
 export const scrollToTop = {
   current: { scrollToOffset: () => {} },
 };
 
+type Item = typeof HEADER | PostProps;
+
 const List = isWeb
-  ? FlashList<string>
-  : Animated.createAnimatedComponent<FlashListProps<string>>(FlashList);
+  ? FlashList<Item>
+  : Animated.createAnimatedComponent<FlashListProps<Item>>(FlashList);
 
 const EMPTY_ARR = [];
 
-const Post = memo(({ item }: { item: string }) => (
+const Post = memo((props: PostProps) => (
   <ContentGutters>
-    <PostCard apId={item} featuredContext="home" />
+    <FeedPostCard {...props} />
     <></>
   </ContentGutters>
 ));
 
 export function HomeFeed() {
+  const windowHeight = useWindowDimensions().height;
+
   const media = useMedia();
   const postSort = useFiltersStore((s) => s.postSort);
   const listingType = useFiltersStore((s) => s.listingType);
@@ -82,13 +93,20 @@ export function HomeFeed() {
     }
   };
 
-  const data = useMemo(
-    () => [
-      HEADER,
-      ...(posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR),
-    ],
-    [posts.data?.pages],
-  );
+  const postCache = usePostsStore((s) => s.posts);
+
+  const data = useMemo(() => {
+    const postIds = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+
+    const postViews = postIds
+      .map((apId) => {
+        const postView = postCache[apId]?.data;
+        return postView ? getPostProps(postView, "home") : null;
+      })
+      .filter(isNotNull);
+
+    return [HEADER, ...postViews] as const;
+  }, [posts.data?.pages, postCache]);
 
   const firstPost = posts.data?.pages[0]?.posts[0];
   const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
@@ -131,7 +149,7 @@ export function HomeFeed() {
               </ContentGutters>
             );
           }
-          return <Post item={item} />;
+          return <Post {...item} />;
         }}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
@@ -139,8 +157,8 @@ export function HomeFeed() {
           }
         }}
         onEndReachedThreshold={0.5}
-        keyExtractor={(item) => item}
-        getItemType={(item) => (item === HEADER ? HEADER : POST)}
+        keyExtractor={(item) => (_.isString(item) ? item : item.apId)}
+        getItemType={(item) => (_.isString(item) ? item : item.type)}
         contentContainerStyle={{
           paddingBottom: isWeb ? tabBar.height : 0,
         }}
@@ -160,6 +178,7 @@ export function HomeFeed() {
         automaticallyAdjustContentInsets={false}
         onScroll={isWeb ? undefined : scrollHandler}
         stickyHeaderIndices={[0]}
+        drawDistance={windowHeight * 3}
       />
     </PostReportProvider>
   );

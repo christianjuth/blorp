@@ -3,33 +3,25 @@ import { ArrowBigUp, ArrowBigDown, MessageCircle } from "@tamagui/lucide-icons";
 import { useLikePost } from "~/src/lib/lemmy/index";
 import { FlattenedPost } from "~/src/lib/lemmy/utils";
 import { voteHaptics } from "~/src/lib/voting";
-import { usePostsStore } from "~/src/stores/posts";
 import { useRequireAuth } from "../auth-context";
 
-export function Voting({ apId }: { apId: string }) {
+export function Voting({
+  apId,
+  myVote,
+  score,
+}: {
+  apId: string;
+  myVote: number;
+  score: number;
+}) {
   const requireAuth = useRequireAuth();
-
-  const postView = usePostsStore((s) => s.posts[apId]?.data);
 
   const vote = useLikePost(apId);
 
   const theme = useTheme();
 
-  const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
-
   const isUpvoted = myVote > 0;
   const isDownvoted = myVote < 0;
-
-  const diff =
-    typeof postView?.optimisticMyVote === "number"
-      ? postView?.optimisticMyVote - (postView?.myVote ?? 0)
-      : 0;
-
-  const score = postView?.counts.score + diff;
-
-  if (!postView) {
-    return null;
-  }
 
   return (
     <View
@@ -100,10 +92,10 @@ export function Voting({ apId }: { apId: string }) {
 }
 
 export function PostCommentsButton({
-  postView,
+  commentsCount,
   ...rest
 }: {
-  postView: FlattenedPost;
+  commentsCount: number;
   onPress?: () => void;
   href?: string;
 }) {
@@ -120,7 +112,7 @@ export function PostCommentsButton({
       {...rest}
     >
       <MessageCircle size={17} />
-      <Text fontSize="$5">{postView.counts.comments}</Text>
+      <Text fontSize="$5">{commentsCount}</Text>
     </Button>
   );
 }

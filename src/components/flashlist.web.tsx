@@ -16,6 +16,7 @@ export function FlashList<T>({
   stickyHeaderIndices,
   // @ts-expect-error
   ref,
+  drawDistance,
 }: FlashListProps<T>) {
   const index = useRef(0);
   const offset = useRef(0);
@@ -44,8 +45,14 @@ export function FlashList<T>({
   const isActiveSticky = (index: number) =>
     activeStickyIndexRef.current === index;
 
+  const overscan =
+    drawDistance && estimatedItemSize
+      ? Math.round(drawDistance / estimatedItemSize)
+      : undefined;
+
   const rowVirtualizer = useVirtualizer({
     count: dataLen,
+    overscan,
     getScrollElement: () => parentRef.current,
     estimateSize: (index) => cache.current?.[index]?.size ?? estimatedItemSize,
     onChange: (instance) => {

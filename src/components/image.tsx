@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import _ from "lodash";
-import type { ImagePrefetchOptions } from "expo-image";
 import { imageSizeCache, measureImage } from "../lib/image";
 import { useTheme } from "tamagui";
 
 export const shareImage = async (imageUrl: string) => {};
 
-export function prefetch(urls: string[], options?: ImagePrefetchOptions) {}
+export function prefetch(urls: string[]) {}
 
 export function clearCache() {}
 
