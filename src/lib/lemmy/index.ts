@@ -7,19 +7,12 @@ import {
   CreateComment,
   CreateCommentLike,
   GetPosts,
-  ImageDetails,
   LemmyHttp,
   ListCommunities,
   Login,
   Person,
-  Post,
-  PostAggregates,
-  PostView,
   GetReplies,
-  DeleteComment,
   Search,
-  FollowCommunity,
-  CommunityId,
   MarkCommentReplyAsRead,
   CreatePost,
   CreatePostReport,
@@ -27,7 +20,6 @@ import {
   BlockPerson,
   SavePost,
   DeletePost,
-  MarkPostAsRead,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -43,7 +35,7 @@ import {
 import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "~/src/stores/filters";
 import { useAuth } from "../../stores/auth";
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { prefetch as prefetchImage } from "~/src/components/image";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
@@ -75,6 +67,8 @@ function useLemmyClient(config?: { instance?: string }) {
   return useMemo(() => {
     const client = new LemmyHttp(instance, {
       headers: {
+        // lemmy.ml will reject requests if
+        // User-Agent header is not present
         "User-Agent": "blorp",
       },
     });
@@ -389,12 +383,20 @@ function useCommentsKey() {
   };
 }
 
+const DEFAULT_COMMENT_FORM: GetComments = {
+  type_: "All",
+  limit: 50,
+  max_depth: 6,
+  saved_only: false,
+};
+
 export function useComments(form: GetComments) {
   const commentSort = useFiltersStore((s) => s.commentSort);
   const sort = form.sort ?? commentSort;
   const { client } = useLemmyClient();
 
   form = {
+    ...DEFAULT_COMMENT_FORM,
     ...form,
     sort,
   };
@@ -979,7 +981,11 @@ interface CreateCommentWithPath extends CreateComment {
   parentPath: string;
 }
 
-export function useCreateComment() {
+export function useCreateComment({
+  queryKeyParentId,
+}: {
+  queryKeyParentId?: number;
+}) {
   const queryClient = useQueryClient();
   const { client } = useLemmyClient();
   const myProfile = useAuth(
@@ -995,7 +1001,7 @@ export function useCreateComment() {
     mutationFn: async ({ parentPath, ...form }: CreateCommentWithPath) => {
       return await client.createComment(form);
     },
-    onMutate: ({ post_id, parentPath, parent_id, content }) => {
+    onMutate: ({ post_id, parentPath, content }) => {
       const date = new Date();
       const isoDate = date.toISOString();
       const commentId = _.random(1, 1000000) * -1;
@@ -1046,6 +1052,13 @@ export function useCreateComment() {
       ]);
 
       for (const sort of Array.from(SORTS)) {
+        const form: GetComments = {
+          ...DEFAULT_COMMENT_FORM,
+          post_id,
+          parent_id: queryKeyParentId,
+          sort,
+        };
+
         let comments = queryClient.getQueryData<
           InfiniteData<
             {
@@ -1058,12 +1071,7 @@ export function useCreateComment() {
             },
             unknown
           >
-        >(
-          getCommentsKey({
-            post_id,
-            sort,
-          }),
-        );
+        >(getCommentsKey(form));
 
         if (!comments) {
           continue;
@@ -1080,18 +1088,12 @@ export function useCreateComment() {
           });
         }
 
-        queryClient.setQueryData(
-          getCommentsKey({
-            post_id,
-            sort,
-          }),
-          comments,
-        );
+        queryClient.setQueryData(getCommentsKey(form), comments);
       }
 
       return newComment;
     },
-    onSuccess: (res, form, ctx) => {
+    onSuccess: (res, { post_id }, ctx) => {
       const settledCommentPath = res.comment_view.comment.path;
 
       const SORTS: CommentSortType[] = [
@@ -1106,6 +1108,13 @@ export function useCreateComment() {
       removeComment(ctx.comment.path);
 
       for (const sort of SORTS) {
+        const form: GetComments = {
+          ...DEFAULT_COMMENT_FORM,
+          post_id: post_id,
+          parent_id: queryKeyParentId,
+          sort,
+        };
+
         let comments = queryClient.getQueryData<
           InfiniteData<
             {
@@ -1118,12 +1127,7 @@ export function useCreateComment() {
             },
             unknown
           >
-        >(
-          getCommentsKey({
-            post_id: res.comment_view.post.id,
-            sort,
-          }),
-        );
+        >(getCommentsKey(form));
 
         if (!comments) {
           continue;
@@ -1138,13 +1142,7 @@ export function useCreateComment() {
           }
         }
 
-        queryClient.setQueryData(
-          getCommentsKey({
-            post_id: res.comment_view.post.id,
-            sort,
-          }),
-          comments,
-        );
+        queryClient.setQueryData(getCommentsKey(form), comments);
       }
     },
   });

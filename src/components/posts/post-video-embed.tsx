@@ -13,11 +13,11 @@ export function PostVideoEmbed({
       aspectRatio={16 / 9}
       pos="relative"
       $md={{
-        mx: "$3",
+        mx: "$-3",
         br: 0,
       }}
       br="$3"
-      bg="$color3"
+      bg="black"
       overflow="hidden"
     >
       <Video

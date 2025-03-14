@@ -4,28 +4,27 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import { isTauri } from "~/src/lib/tauri";
 
 export function PostArticleEmbed({
-  url: postUrl,
+  url,
+  displayUrl,
   thumbnail,
 }: {
-  url: string;
+  url?: string;
+  displayUrl?: string;
   thumbnail?: string;
 }) {
-  if (!postUrl) {
-    return null;
-  }
-
-  const url = postUrl ? new URL(postUrl) : undefined;
-
   return (
     <a
-      href={postUrl}
+      href={url}
       target="_blank"
       rel="noopener noreferrer"
       onClick={(e) => {
-        if (isTauri() && postUrl) {
+        if (isTauri() && url) {
           e.preventDefault();
-          openUrl(postUrl);
+          openUrl(url);
         }
+      }}
+      style={{
+        display: !url ? "none" : undefined,
       }}
     >
       <View br={10} overflow="hidden">
@@ -47,8 +46,7 @@ export function PostArticleEmbed({
             numberOfLines={1}
             fontSize="$4"
           >
-            {url.host}
-            {url.pathname.replace(/\/$/, "")}
+            {displayUrl ?? url}
           </Text>
         )}
       </View>

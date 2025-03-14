@@ -69,6 +69,7 @@ function Byline({
 
 export function PostComment({
   postApId,
+  queryKeyParentId,
   commentMap,
   level,
   opId,
@@ -77,6 +78,7 @@ export function PostComment({
   communityName,
 }: {
   postApId: string;
+  queryKeyParentId?: number;
   commentMap: CommentMap;
   level: number;
   opId: number | undefined;
@@ -100,6 +102,8 @@ export function PostComment({
   const commentView = useCommentsStore((s) =>
     commentPath ? s.comments[commentPath.path]?.data : undefined,
   );
+
+  // console.log(commentPath, commentView?.comment.content);
 
   useEffect(() => {
     setEditing(false);
@@ -285,6 +289,7 @@ export function PostComment({
         {replying && (
           <InlineCommentReply
             postId={comment.post_id}
+            queryKeyParentId={queryKeyParentId}
             onCancel={() => setReplying(false)}
             onSubmit={() => setReplying(false)}
             parent={commentView}
@@ -295,6 +300,7 @@ export function PostComment({
         {sorted.map(([id, map], i) => (
           <PostComment
             postApId={postApId}
+            queryKeyParentId={queryKeyParentId}
             key={id}
             commentMap={map}
             level={level + 1}

@@ -20,7 +20,8 @@ export function getPostEmbed(post: Post) {
     embedType = "image";
   } else if (
     (urlContentType && urlContentType.indexOf("video/") !== -1) ||
-    post.url?.endsWith(".mp4")
+    post.url?.endsWith(".mp4") ||
+    post.url?.endsWith(".gifv")
   ) {
     embedType = "video";
   } else if (post.url && isYouTubeVideoUrl(post.url)) {

@@ -155,12 +155,7 @@ function UserAvatar() {
 
   if (!isLoggedIn && accounts.length === 1) {
     return (
-      <Button
-        bg="$accentColor"
-        br="$12"
-        size="$3"
-        onPress={() => requireAuth()}
-      >
+      <Button br="$12" size="$3" onPress={() => requireAuth()}>
         Login
       </Button>
     );

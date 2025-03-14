@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Tooltip, Text, TextProps } from "tamagui";
 
 dayjs.extend(relativeTime);
@@ -36,29 +36,20 @@ interface Props extends TextProps {
  * Shows the full date/time time on hover.
  */
 export function RelativeTime({ time, prefix, ...rest }: Props) {
-  const [relativeTime, setRelativeTime] = useState<string>();
+  const dateObj = useMemo(() => dayjs(time), [time]);
+
+  const [, setSignal] = useState(0);
 
   useEffect(() => {
-    const updateTime = () => setRelativeTime(dayjs(time).fromNow());
-
-    const interval = setInterval(updateTime, 1000);
-
-    requestAnimationFrame(updateTime);
-
+    const updateTime = () => setSignal((s) => s + 1);
+    const interval = setInterval(updateTime, 500);
     return () => clearInterval(interval);
-  }, [time]);
+  }, [dateObj]);
 
-  return relativeTime ? (
-    <Tooltip>
-      <Tooltip.Trigger asChild>
-        <Text {...rest}>
-          {prefix}
-          {relativeTime}
-        </Text>
-      </Tooltip.Trigger>
-      <Tooltip.Content>
-        <Text>{dayjs(time).format("MMM D, YYYY h:mma")}</Text>
-      </Tooltip.Content>
-    </Tooltip>
-  ) : null;
+  return (
+    <Text {...rest}>
+      {prefix}
+      {dateObj.fromNow()}
+    </Text>
+  );
 }

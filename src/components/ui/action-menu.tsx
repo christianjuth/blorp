@@ -21,10 +21,12 @@ export function ActionMenu<L extends string>({
   actions,
   trigger,
   placement,
+  onOpenChange,
 }: {
   actions: Action<L>[];
   trigger: React.ReactNode;
   placement: PopoverProps["placement"];
+  onOpenChange?: (open: boolean) => any;
 }) {
   const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
@@ -60,7 +62,10 @@ export function ActionMenu<L extends string>({
       offset={0}
       placement={placement}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(open) => {
+        onOpenChange?.(open);
+        setOpen(open);
+      }}
     >
       <Popover.Trigger onPress={() => setOpen(true)}>{trigger}</Popover.Trigger>
 

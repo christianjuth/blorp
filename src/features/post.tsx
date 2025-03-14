@@ -80,13 +80,11 @@ export function Post({
     name: communityName,
   });
 
+  const parentId = commentId ? +commentId : undefined;
+
   const comments = useComments({
     post_id: post?.post.id,
-    parent_id: commentId ? +commentId : undefined,
-    limit: 50,
-    type_: "All",
-    max_depth: 6,
-    saved_only: false,
+    parent_id: parentId,
   });
 
   const communityTitle = post?.community?.title;
@@ -97,7 +95,7 @@ export function Post({
 
   const allComments = useMemo(
     () =>
-      comments.data && isReady
+      comments.data?.pages && isReady
         ? comments.data.pages
             .map((p) => p.comments)
             .flat()
@@ -153,7 +151,7 @@ export function Post({
 
   return (
     <PostReportProvider>
-      <CommentReplyContext postId={post.post.id}>
+      <CommentReplyContext postId={post.post.id} queryKeyParentId={parentId}>
         <ContentGutters>
           <View flex={1} />
           <View>
@@ -197,7 +195,10 @@ export function Post({
                 return (
                   <ContentGutters>
                     <View flex={1} pt="$3">
-                      <InlineCommentReply postId={post.post.id} />
+                      <InlineCommentReply
+                        postId={post.post.id}
+                        queryKeyParentId={parentId}
+                      />
                     </View>
                     <></>
                   </ContentGutters>
@@ -208,6 +209,7 @@ export function Post({
                 <ContentGutters>
                   <MemoedPostComment
                     postApId={decodedApId}
+                    queryKeyParentId={parentId}
                     commentMap={item[1]}
                     level={0}
                     opId={opId}

@@ -167,7 +167,7 @@ export function CommunityFeed({ communityName }: { communityName?: string }) {
             case POST_SORT_BAR:
               return POST_SORT_BAR;
             default:
-              return item.type;
+              return item.recyclingType;
           }
         }}
         contentContainerStyle={{

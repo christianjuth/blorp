@@ -158,7 +158,7 @@ export function HomeFeed() {
         }}
         onEndReachedThreshold={0.5}
         keyExtractor={(item) => (_.isString(item) ? item : item.apId)}
-        getItemType={(item) => (_.isString(item) ? item : item.type)}
+        getItemType={(item) => (_.isString(item) ? item : item.recyclingType)}
         contentContainerStyle={{
           paddingBottom: isWeb ? tabBar.height : 0,
         }}

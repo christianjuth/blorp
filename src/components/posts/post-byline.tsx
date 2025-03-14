@@ -15,6 +15,7 @@ import { useShowPostReportModal } from "./post-report";
 import { useAlert } from "../ui/alert";
 import { useAuth } from "~/src/stores/auth";
 import { openUrl } from "~/src/lib/linking";
+import { useMemo, useState } from "react";
 
 export function PostByline({
   id,
@@ -59,6 +60,76 @@ export function PostByline({
   );
   const isMyPost = creatorApId === myUserId;
 
+  const [openSignal, setOpenSignal] = useState(0);
+  const actions = useMemo(
+    () => [
+      {
+        label: "Share",
+        onClick: () =>
+          Share.share({
+            url: `https://blorpblorp.xyz/c/${communitySlug}/posts/${encodedApId}`,
+          }),
+      },
+      {
+        label: saved ? "Unsave" : "Save",
+        onClick: () =>
+          requireAuth().then(() => {
+            savePost.mutate({
+              post_id: id,
+              save: !saved,
+            });
+          }),
+      },
+      {
+        label: "View source",
+        onClick: async () => {
+          try {
+            openUrl(apId);
+          } catch {
+            // TODO: handle error
+          }
+        },
+      },
+      ...(isMyPost
+        ? [
+            {
+              label: deleted ? "Restore" : "Delete",
+              onClick: () =>
+                deletePost.mutate({
+                  post_id: id,
+                  deleted: !deleted,
+                }),
+              danger: true,
+            },
+          ]
+        : [
+            {
+              label: "Report",
+              onClick: () =>
+                requireAuth().then(() => {
+                  showReportModal(apId);
+                }),
+              danger: true,
+            },
+            {
+              label: "Block person",
+              onClick: async () => {
+                try {
+                  await requireAuth();
+                  await alrt(`Block ${creatorName}`);
+                  blockPerson.mutate({
+                    person_id: creatorId,
+                    block: true,
+                  });
+                } catch (err) {}
+              },
+              danger: true,
+            },
+          ]),
+    ],
+    [openSignal],
+  );
+
   return (
     <XStack dsp="flex" fd="row" ai="center" gap={9}>
       <Square
@@ -101,71 +172,8 @@ export function PostByline({
 
       <ActionMenu
         placement="bottom-end"
-        actions={[
-          {
-            label: "Share",
-            onClick: () =>
-              Share.share({
-                url: `https://blorpblorp.xyz/c/${communitySlug}/posts/${encodedApId}`,
-              }),
-          },
-          {
-            label: saved ? "Unsave" : "Save",
-            onClick: () =>
-              requireAuth().then(() => {
-                savePost.mutate({
-                  post_id: id,
-                  save: !saved,
-                });
-              }),
-          },
-          {
-            label: "View source",
-            onClick: async () => {
-              try {
-                openUrl(apId);
-              } catch {
-                // TODO: handle error
-              }
-            },
-          },
-          ...(isMyPost
-            ? [
-                {
-                  label: deleted ? "Restore" : "Delete",
-                  onClick: () =>
-                    deletePost.mutate({
-                      post_id: id,
-                      deleted: !deleted,
-                    }),
-                  danger: true,
-                },
-              ]
-            : [
-                {
-                  label: "Report",
-                  onClick: () =>
-                    requireAuth().then(() => {
-                      showReportModal(apId);
-                    }),
-                  danger: true,
-                },
-                {
-                  label: "Block person",
-                  onClick: async () => {
-                    try {
-                      await requireAuth();
-                      await alrt(`Block ${creatorName}`);
-                      blockPerson.mutate({
-                        person_id: creatorId,
-                        block: true,
-                      });
-                    } catch (err) {}
-                  },
-                  danger: true,
-                },
-              ]),
-        ]}
+        actions={actions}
+        onOpenChange={() => setOpenSignal((s) => s + 1)}
         trigger={
           <View p="$2" pr={0}>
             <Ellipsis size={16} />

@@ -38,9 +38,11 @@ export function useCommentReaplyContext() {
 
 export function CommentReplyContext({
   postId,
+  queryKeyParentId,
   children,
 }: {
   postId: PostId;
+  queryKeyParentId?: number;
   children: React.ReactNode;
 }) {
   const inputRef = useRef<TextInput>(null);
@@ -54,7 +56,9 @@ export function CommentReplyContext({
   );
   const media = useMedia();
 
-  const createComment = useCreateComment();
+  const createComment = useCreateComment({
+    queryKeyParentId: queryKeyParentId,
+  });
   const editComment = useEditComment();
 
   if (!content[comment?.id ?? parentComment?.comment.id ?? 0]) {
@@ -212,6 +216,7 @@ export function CommentReplyContext({
 export function InlineCommentReply({
   comment,
   postId,
+  queryKeyParentId,
   parent,
   onCancel,
   onSubmit,
@@ -219,6 +224,7 @@ export function InlineCommentReply({
 }: {
   comment?: Comment;
   postId: number | string;
+  queryKeyParentId?: number;
   parent?: FlattenedComment;
   onCancel?: () => void;
   onSubmit?: () => void;
@@ -232,7 +238,9 @@ export function InlineCommentReply({
   );
 
   const media = useMedia();
-  const createComment = useCreateComment();
+  const createComment = useCreateComment({
+    queryKeyParentId: queryKeyParentId,
+  });
   const editComment = useEditComment();
 
   if (autoFocus && !media.gtMd) {

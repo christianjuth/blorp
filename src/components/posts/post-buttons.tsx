@@ -1,7 +1,6 @@
 import { Button, View, Text, useTheme } from "tamagui";
 import { ArrowBigUp, ArrowBigDown, MessageCircle } from "@tamagui/lucide-icons";
 import { useLikePost } from "~/src/lib/lemmy/index";
-import { FlattenedPost } from "~/src/lib/lemmy/utils";
 import { voteHaptics } from "~/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 

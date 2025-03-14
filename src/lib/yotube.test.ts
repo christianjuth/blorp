@@ -2,7 +2,7 @@ import { describe, test, expect } from "vitest";
 import { parseYouTubeVideoId, isYouTubeVideoUrl } from "./youtube";
 import _ from "lodash";
 
-const VIDEO_ID_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const VIDEO_ID_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-";
 const VIDEO_ID = _.sampleSize(VIDEO_ID_CHARS, 11).join("");
 
 describe("parseYouTubeVideoId", () => {

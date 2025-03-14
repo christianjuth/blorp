@@ -119,6 +119,7 @@ export function FlashList<T>({
         overflow: "auto",
         overscrollBehavior: "auto",
         scrollbarGutter: "stable both-edges",
+        flex: 1,
       }}
     >
       {/* The large inner element to hold all of the items */}

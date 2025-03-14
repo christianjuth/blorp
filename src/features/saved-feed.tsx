@@ -188,7 +188,7 @@ export function SavedFeed() {
           if (_.isString(item)) {
             return item;
           } else if (isPost(item)) {
-            return item.type;
+            return item.recyclingType;
           } else {
             return "comment";
           }

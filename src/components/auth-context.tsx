@@ -17,17 +17,13 @@ import {
   Input,
   isWeb,
 } from "tamagui";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useInstances, useLogin, useRefreshAuth } from "../lib/lemmy";
 import { Modal } from "./ui/modal";
-import {
-  FlatList,
-  KeyboardAvoidingView,
-  useWindowDimensions,
-} from "react-native";
+import { KeyboardAvoidingView, useWindowDimensions } from "react-native";
 import { ChevronLeft } from "@tamagui/lucide-icons";
 import fuzzysort from "fuzzysort";
 import _ from "lodash";
+import { FlashList } from "./flashlist";
 
 const Context = createContext<{
   authenticate: (config?: { addAccount?: boolean }) => Promise<void>;
@@ -161,6 +157,7 @@ function AuthModal({
         setPassword("");
         setMfaToken(undefined);
         setInstanceLocal({});
+        setSearch("");
       });
   };
 
@@ -169,6 +166,10 @@ function AuthModal({
       submitLogin();
     }
   }, [mfaToken]);
+
+  const numItems = sortedInstances
+    ? sortedInstances.length
+    : defaultSort.length;
 
   return (
     <Modal open={open} onClose={onClose} scrollable={false}>
@@ -191,20 +192,30 @@ function AuthModal({
               </Text>
               <Input
                 placeholder="Enter URL or search for your server"
-                size="$3"
+                size="$4"
+                fontSize="$5"
                 flexShrink={0}
-                // value={search}
+                defaultValue={search}
                 onChangeText={setSearch}
                 autoCorrect={false}
                 autoCapitalize="none"
+                bc="$color3"
               />
-              <FlatList
+              <FlashList
                 data={sortedInstances ?? defaultSort}
                 keyExtractor={(i) => i.url}
                 renderItem={(i) => (
-                  <Button p={0} bg="transparent" h="auto">
+                  <Button
+                    p={0}
+                    bg="transparent"
+                    h="auto"
+                    bbw={i.index < numItems - 1 ? 1 : 0}
+                    bbc="$color5"
+                    w="100%"
+                    br={0}
+                  >
                     <Text
-                      py="$2"
+                      py="$2.5"
                       onPress={() => {
                         setInstanceLocal(i.item);
                         if (!addAccount) {
@@ -215,12 +226,14 @@ function AuthModal({
                       }}
                       textAlign="left"
                       mr="auto"
+                      fontSize="$5"
                     >
                       {i.item.baseurl}
                     </Text>
                   </Button>
                 )}
                 style={{ maxHeight: 500 }}
+                estimatedItemSize={35}
               />
             </>
           ) : (
@@ -255,6 +268,9 @@ function AuthModal({
                   placeholder="username"
                   defaultValue={userName}
                   onChangeText={setUsername}
+                  size="$4"
+                  fontSize="$5"
+                  bc="$color3"
                 />
 
                 <Input
@@ -265,6 +281,9 @@ function AuthModal({
                   placeholder="Enter password"
                   defaultValue={password}
                   onChangeText={setPassword}
+                  size="$4"
+                  fontSize="$5"
+                  bc="$color3"
                 />
 
                 {(login.needs2FA || _.isString(mfaToken)) && (
@@ -273,12 +292,18 @@ function AuthModal({
                     placeholder="2FA"
                     defaultValue={mfaToken}
                     onChangeText={setMfaToken}
+                    size="$4"
+                    fontSize="$5"
+                    bc="$color3"
                   />
                 )}
 
                 <Form.Trigger asChild>
                   <Button
+                    size="$4"
+                    fontSize="$5"
                     bg="$accentColor"
+                    color="white"
                     disabled={login.status === "pending"}
                     // onPress={signIn}
                     width="100%"
@@ -312,6 +337,7 @@ function AuthModal({
               </Form>
 
               <Button.Text
+                fontSize="$5"
                 textAlign="center"
                 onPress={() => {
                   addAccountFn({

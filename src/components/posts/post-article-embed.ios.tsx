@@ -3,22 +3,21 @@ import { Image } from "~/src/components/image";
 import SafariView from "react-native-safari-view";
 
 export function PostArticleEmbed({
-  url: postUrl,
+  url,
+  displayUrl,
   thumbnail,
 }: {
-  url: string;
+  url?: string;
+  displayUrl: string;
   thumbnail?: string;
 }) {
-  if (!postUrl) {
+  if (!url) {
     return null;
   }
-
-  const url = postUrl ? new URL(postUrl) : undefined;
 
   return (
     <View
       onPress={() => {
-        const url = postUrl;
         if (url) {
           SafariView.isAvailable()
             .then(() =>
@@ -30,6 +29,7 @@ export function PostArticleEmbed({
             .catch((error) => {});
         }
       }}
+      dsp={!url ? "none" : undefined}
     >
       {thumbnail && (
         <Image
@@ -52,8 +52,7 @@ export function PostArticleEmbed({
           bblr={10}
           fontSize="$4"
         >
-          {url.host}
-          {url.pathname}
+          {displayUrl}
         </Text>
       )}
     </View>

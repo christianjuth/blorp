@@ -290,7 +290,7 @@ export function User({ userId }: { userId?: string }) {
           if (_.isString(item)) {
             return item;
           } else if (isPost(item)) {
-            return item.type;
+            return item.recyclingType;
           } else {
             return "comment";
           }

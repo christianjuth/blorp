@@ -20,7 +20,7 @@ export function Image({
   style,
   onLoad,
 }: {
-  imageUrl: string | number;
+  imageUrl?: string | number;
   priority?: boolean;
   borderTopRadius?: number;
   borderRadius?: number;
@@ -46,7 +46,7 @@ export function Image({
   >(_.isString(imageUrl) ? imageSizeCache.get(imageUrl) : undefined);
 
   useEffect(() => {
-    if (_.isNumber(aspectRatio) || _.isNumber(imageUrl)) {
+    if (!imageUrl || _.isNumber(aspectRatio) || _.isNumber(imageUrl)) {
       return;
     }
 

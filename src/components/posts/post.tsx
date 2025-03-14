@@ -1,4 +1,4 @@
-import { isWeb, Text, useMedia, View, XStack, YStack } from "tamagui";
+import { useMedia, View, XStack, YStack, Text } from "tamagui";
 import { Image, shareImage } from "~/src/components/image";
 import { PostCommentsButton, Voting } from "./post-buttons";
 import { Link } from "one";
@@ -56,15 +56,45 @@ export function getPostProps(
     ({ post }) => post.published.localeCompare(postView.post.published) < 0,
   );
 
+  let url = postView.post.url;
+  if (url && url.startsWith("https://i.imgur.com/") && url.endsWith(".gifv")) {
+    url = url.replace(/gifv$/, "mp4");
+  }
+
+  let displayUrl = url;
+  if (displayUrl) {
+    const parsedUrl = new URL(displayUrl);
+    displayUrl = `${parsedUrl.host.replace(/^www\./, "")}${parsedUrl.pathname.replace(/\/$/, "")}`;
+  }
+
+  let recyclingType = 0;
+  switch (embed.type) {
+    case "article":
+    case "image":
+      recyclingType = 1;
+      break;
+    case "video":
+      recyclingType = 2;
+      break;
+    case "youtube":
+      recyclingType = 3;
+      break;
+    case "loops":
+      recyclingType = 4;
+      break;
+  }
+
   return {
     ...embed,
+    recyclingType,
     id: postView.post.id,
     apId: postView.post.ap_id,
     encodedApId: encodeApId(postView.post.ap_id),
     read: postView.optimisticRead ?? postView.read,
     deleted: postView.optimisticDeleted ?? postView.post.deleted,
     name: postView.post.name,
-    url: postView.post.url,
+    url,
+    displayUrl,
     aspectRatio,
     myVote,
     score,
@@ -92,17 +122,15 @@ export function DetailPostCard(props: PostProps) {
   const media = useMedia();
 
   const {
-    apId,
     deleted,
     name,
     type,
     url,
+    displayUrl,
     thumbnail,
     aspectRatio,
-    communitySlug,
     body,
     nsfw,
-    encodedApId,
     crossPostEncodedApId,
     crossPostCommunitySlug,
   } = props;
@@ -122,13 +150,13 @@ export function DetailPostCard(props: PostProps) {
     }
   }
 
-  const postDetailsLink =
-    `${linkCtx.root}c/${communitySlug}/posts/${encodedApId}` as const;
+  const showImage = type === "image" && thumbnail && !deleted;
+  const showArticle = type === "article" && thumbnail && !deleted;
 
   return (
     <YStack
       pt="$4"
-      pb="$4"
+      pb="$2"
       bbc="$color3"
       mx="auto"
       flex={1}
@@ -140,22 +168,20 @@ export function DetailPostCard(props: PostProps) {
     >
       <PostByline {...props} />
 
-      <Link href={postDetailsLink}>
-        <Text
-          fontWeight={500}
-          fontSize="$6"
-          lineHeight="$4"
-          fontStyle={deleted ? "italic" : undefined}
-        >
-          {deleted ? "deleted" : name}
-        </Text>
-      </Link>
+      <Text
+        fontWeight={500}
+        fontSize="$6"
+        lineHeight="$4"
+        fontStyle={deleted ? "italic" : undefined}
+      >
+        {deleted ? "deleted" : name}
+      </Text>
 
-      {thumbnail && type === "image" && !deleted && (
+      {showImage && (
         <View
           br="$5"
           $md={{ mx: "$-3", br: 0 }}
-          onLongPress={() => shareImage(thumbnail)}
+          onLongPress={() => thumbnail && shareImage(thumbnail)}
         >
           <Image
             imageUrl={thumbnail}
@@ -166,8 +192,12 @@ export function DetailPostCard(props: PostProps) {
         </View>
       )}
 
-      {type === "article" && !deleted && url && (
-        <PostArticleEmbed url={url} thumbnail={thumbnail} />
+      {showArticle && (
+        <PostArticleEmbed
+          url={url}
+          displayUrl={displayUrl}
+          thumbnail={thumbnail}
+        />
       )}
       {type === "video" && !deleted && url && (
         <PostVideoEmbed url={url} autoPlay={false} />
@@ -218,6 +248,7 @@ export function FeedPostCard(props: PostProps) {
     nsfw,
     encodedApId,
     commentsCount,
+    displayUrl,
   } = props;
 
   const [pressed, setPressed] = useState(false);
@@ -239,6 +270,9 @@ export function FeedPostCard(props: PostProps) {
 
   const postDetailsLink =
     `${linkCtx.root}c/${communitySlug}/posts/${encodedApId}` as const;
+
+  const showImage = type === "image" && thumbnail && !deleted;
+  const showArticle = type === "article" && thumbnail && !deleted;
 
   return (
     <YStack
@@ -277,22 +311,27 @@ export function FeedPostCard(props: PostProps) {
             {deleted ? "deleted" : name}
           </Text>
 
-          {thumbnail && type === "image" && !deleted && (
-            <View br="$5" $md={{ mx: "$-3", br: 0 }}>
-              <Image
-                imageUrl={thumbnail}
-                aspectRatio={aspectRatio}
-                borderRadius={media.gtMd ? 10 : 0}
-                priority
-              />
-            </View>
-          )}
+          <View
+            br="$5"
+            $md={{ mx: "$-3", br: 0 }}
+            dsp={showImage ? "flex" : "none"}
+          >
+            <Image
+              imageUrl={showImage ? thumbnail : undefined}
+              aspectRatio={aspectRatio}
+              borderRadius={media.gtMd ? 10 : 0}
+              priority
+            />
+          </View>
         </YStack>
       </Link>
 
-      {type === "article" && !deleted && url && (
-        <PostArticleEmbed url={url} thumbnail={thumbnail} />
-      )}
+      <PostArticleEmbed
+        url={showArticle ? url : undefined}
+        displayUrl={showArticle ? displayUrl : undefined}
+        thumbnail={showArticle ? thumbnail : undefined}
+      />
+
       {type === "video" && !deleted && url && (
         <PostVideoEmbed url={url} autoPlay={false} />
       )}
@@ -334,8 +373,9 @@ export function PostBottomBar({
       mx="auto"
       flex={1}
       $md={{
-        px: "$3",
         bbw: 0.5,
+        px: "$3",
+        py: "$1.5",
       }}
       bg="$background"
     >

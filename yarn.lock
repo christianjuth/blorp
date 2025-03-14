@@ -4740,17 +4740,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shopify/flash-list@npm:1.7.1":
-  version: 1.7.1
-  resolution: "@shopify/flash-list@npm:1.7.1"
+"@shopify/flash-list@npm:1.7.5":
+  version: 1.7.5
+  resolution: "@shopify/flash-list@npm:1.7.5"
   dependencies:
-    recyclerlistview: "npm:4.2.1"
-    tslib: "npm:2.6.3"
+    recyclerlistview: "npm:4.2.2"
+    tslib: "npm:2.8.1"
   peerDependencies:
     "@babel/runtime": "*"
     react: "*"
     react-native: "*"
-  checksum: 10c0/18b518fa91a1c55adf369fc754188b0ca4b8f083550ed7d231fd8eb93b6bb92212ae1665e4cfd51de1e94959af386b8e5f0843e8382640ae950f016d271eb6c6
+  checksum: 10c0/10ea5405be4beb7985d141770eda485c5693cbae28537f47c81480e2c30a31cf82e34208365a16e1849b88a3ec0e80fd05239573dd5adf07203929214efeeeb4
   languageName: node
   linkType: hard
 
@@ -13130,7 +13130,7 @@ __metadata:
     "@react-navigation/native": "npm:~7"
     "@react-navigation/native-stack": "npm:~7"
     "@sentry/react-native": "npm:^6.5.0"
-    "@shopify/flash-list": "npm:1.7.1"
+    "@shopify/flash-list": "npm:1.7.5"
     "@storybook/addon-a11y": "npm:^8.5.3"
     "@storybook/addon-essentials": "npm:^8.5.3"
     "@storybook/addon-interactions": "npm:^8.5.3"
@@ -16623,9 +16623,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recyclerlistview@npm:4.2.1":
-  version: 4.2.1
-  resolution: "recyclerlistview@npm:4.2.1"
+"recyclerlistview@npm:4.2.2":
+  version: 4.2.2
+  resolution: "recyclerlistview@npm:4.2.2"
   dependencies:
     lodash.debounce: "npm:4.0.8"
     prop-types: "npm:15.8.1"
@@ -16633,7 +16633,7 @@ __metadata:
   peerDependencies:
     react: ">= 15.2.1"
     react-native: ">= 0.30.0"
-  checksum: 10c0/58c2f5fa6372b31f82a1fc976ddbf9c45fa2c1a2fcaab417e39096152c4815463357ff410603db1df7dabab3a383bdef80db04c54a667bc40c5a0ce130e68961
+  checksum: 10c0/fa55eb987f86a66990af364873c9da5302bb3688f3e9c784a986845b81a220af92d99c30038d681d9ccc63152427d6a70b0d7b9fad2b9adc3656797dadaf561d
   languageName: node
   linkType: hard
 
@@ -18480,14 +18480,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.6.3":
-  version: 2.6.3
-  resolution: "tslib@npm:2.6.3"
-  checksum: 10c0/2598aef53d9dbe711af75522464b2104724d6467b26a60f2bdac8297d2b5f1f6b86a71f61717384aa8fd897240467aaa7bcc36a0700a0faf751293d1331db39a
-  languageName: node
-  linkType: hard
-
-"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:^2.8.0":
+"tslib@npm:2.8.1, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:^2.8.0":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62

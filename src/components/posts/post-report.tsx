@@ -6,7 +6,6 @@ import { usePostsStore } from "~/src/stores/posts";
 import { Button } from "../ui/button";
 import { useCreatePostReport, useCreateCommentReport } from "~/src/lib/lemmy";
 import { useCommentsStore } from "~/src/stores/comments";
-import { useShallow } from "zustand/react/shallow";
 
 const Context = createContext<{
   apId?: string;
