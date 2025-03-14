@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import _ from "lodash";
 import { Modal } from "../ui/modal";
 import { TextArea, Text, YStack, Form, XStack } from "tamagui";
@@ -6,6 +6,7 @@ import { usePostsStore } from "~/src/stores/posts";
 import { Button } from "../ui/button";
 import { useCreatePostReport, useCreateCommentReport } from "~/src/lib/lemmy";
 import { useCommentsStore } from "~/src/stores/comments";
+import { useShallow } from "zustand/react/shallow";
 
 const Context = createContext<{
   apId?: string;
@@ -29,20 +30,23 @@ export function PostReportProvider({
   const createPostReport = useCreatePostReport();
   const createCommentReport = useCreateCommentReport();
 
-  const post = usePostsStore((s) => (apId ? s.posts[apId] : null));
+  const post = usePostsStore((s) => (apId ? s.posts[apId]?.data.post : null));
   const comment = useCommentsStore((s) =>
     commentPath ? s.comments[commentPath] : null,
   );
 
+  const value = useMemo(
+    () => ({
+      apId,
+      setApId,
+      commentPath,
+      setCommentPath,
+    }),
+    [],
+  );
+
   return (
-    <Context.Provider
-      value={{
-        apId,
-        setApId,
-        commentPath,
-        setCommentPath,
-      }}
-    >
+    <Context.Provider value={value}>
       <Modal
         open={!!post || !!commentPath}
         onClose={() => {
@@ -55,7 +59,7 @@ export function PostReportProvider({
             if (post) {
               createPostReport
                 .mutateAsync({
-                  post_id: post.data.post.id,
+                  post_id: post.id,
                   reason,
                 })
                 .then(() => {
@@ -79,7 +83,7 @@ export function PostReportProvider({
             {post && (
               <>
                 <Text fontWeight="bold">Report post</Text>
-                <Text>{post?.data.post.name}</Text>
+                <Text>{post?.name}</Text>
               </>
             )}
 

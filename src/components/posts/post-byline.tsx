@@ -1,11 +1,10 @@
-import { View, Text, Avatar, YStack, XStack } from "tamagui";
+import { View, Text, Avatar, YStack, XStack, Square } from "tamagui";
 import { RelativeTime } from "~/src/components/relative-time";
 import {
   useBlockPerson,
   useDeletePost,
   useSavePost,
 } from "~/src/lib/lemmy/index";
-import { FlattenedPost } from "~/src/lib/lemmy/utils";
 import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
 import { ActionMenu } from "../ui/action-menu";
@@ -14,82 +13,80 @@ import { Ellipsis, Pin } from "@tamagui/lucide-icons";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
 import { useAlert } from "../ui/alert";
-import { encodeApId } from "~/src/lib/lemmy/utils";
 import { useAuth } from "~/src/stores/auth";
 import { openUrl } from "~/src/lib/linking";
-import { useToastController } from "@tamagui/toast";
-import { useEffect } from "react";
 
 export function PostByline({
-  postView,
-  featuredContext,
+  id,
+  encodedApId,
+  apId,
+  pinned,
+  saved,
+  deleted,
+  creatorId,
+  creatorApId,
+  encodedCreatorApId,
+  creatorName,
+  communitySlug,
+  published,
 }: {
-  postView: FlattenedPost;
-  featuredContext?: "community" | "home";
+  id: number;
+  apId: string;
+  encodedApId: string;
+  pinned: boolean;
+  saved: boolean;
+  deleted: boolean;
+  creatorId: number;
+  creatorApId: string;
+  encodedCreatorApId: string;
+  creatorName: string;
+  communitySlug: string;
+  published: string;
 }) {
   const alrt = useAlert();
 
   const showReportModal = useShowPostReportModal();
   const requireAuth = useRequireAuth();
   const blockPerson = useBlockPerson();
-  const deletePost = useDeletePost(postView.post.ap_id);
-  const savePost = useSavePost(postView.post.ap_id);
+  const deletePost = useDeletePost(apId);
+  const savePost = useSavePost(apId);
 
-  const { creator, community, post } = postView;
   const linkCtx = useLinkContext();
 
-  let pinned = false;
-  if (featuredContext === "community") {
-    pinned = postView.post.featured_community;
-  }
-  if (featuredContext === "home") {
-    pinned = postView.post.featured_local;
-  }
-
-  const saved = postView.optimisticSaved ?? postView.saved;
-
-  const user = useAuth(
-    (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person,
+  const myUserId = useAuth(
+    (s) =>
+      s.getSelectedAccount().site?.my_user?.local_user_view.person.actor_id,
   );
-  const isMyPost = creator.actor_id === user?.actor_id;
-
-  const deleted = postView.optimisticDeleted ?? postView.post.deleted;
+  const isMyPost = creatorApId === myUserId;
 
   return (
     <XStack dsp="flex" fd="row" ai="center" gap={9}>
-      <Avatar size="$2.5">
-        <Avatar.Image src={creator.avatar} borderRadius="$12" />
-        <Avatar.Fallback
-          backgroundColor="$color8"
-          borderRadius="$12"
-          ai="center"
-          jc="center"
-        >
-          <Text fontSize="$4">
-            {creator.name?.substring(0, 1).toUpperCase()}
-          </Text>
-        </Avatar.Fallback>
-      </Avatar>
+      <Square
+        size="$2.5"
+        backgroundColor="$color8"
+        borderRadius="$12"
+        ai="center"
+        jc="center"
+      >
+        <Text fontSize="$4">{creatorName?.substring(0, 1).toUpperCase()}</Text>
+      </Square>
 
       <YStack gap={4}>
-        <Link href={`${linkCtx.root}c/${community.slug}`} push>
-          <Text fontSize="$2" fontWeight={500} color="$color12">
-            c/{community.slug}
+        <Link href={`${linkCtx.root}c/${communitySlug}`} push asChild>
+          <Text fontSize="$2" fontWeight={500} color="$color12" tag="a">
+            c/{communitySlug}
           </Text>
         </Link>
-        <XStack>
-          <Link
-            href={`${linkCtx.root}u/${encodeApId(postView.creator.actor_id)}`}
-            push
-          >
+        <XStack ai="center">
+          <Link href={`${linkCtx.root}u/${encodedCreatorApId}`} push>
             <Text fontSize="$2" fontWeight={500} color="$color11">
-              u/{creator.name}
+              u/{creatorName}
             </Text>
           </Link>
 
           <RelativeTime
             prefix=" • "
-            time={post.published}
+            time={published}
             color="$color11"
             fontSize="$3"
           />
@@ -109,7 +106,7 @@ export function PostByline({
             label: "Share",
             onClick: () =>
               Share.share({
-                url: `https://blorpblorp.xyz/c/${postView.community.slug}/posts/${encodeURIComponent(postView.post.ap_id)}`,
+                url: `https://blorpblorp.xyz/c/${communitySlug}/posts/${encodedApId}`,
               }),
           },
           {
@@ -117,7 +114,7 @@ export function PostByline({
             onClick: () =>
               requireAuth().then(() => {
                 savePost.mutate({
-                  post_id: post.id,
+                  post_id: id,
                   save: !saved,
                 });
               }),
@@ -125,9 +122,8 @@ export function PostByline({
           {
             label: "View source",
             onClick: async () => {
-              const url = postView.post.ap_id;
               try {
-                openUrl(url);
+                openUrl(apId);
               } catch {
                 // TODO: handle error
               }
@@ -139,7 +135,7 @@ export function PostByline({
                   label: deleted ? "Restore" : "Delete",
                   onClick: () =>
                     deletePost.mutate({
-                      post_id: postView.post.id,
+                      post_id: id,
                       deleted: !deleted,
                     }),
                   danger: true,
@@ -150,7 +146,7 @@ export function PostByline({
                   label: "Report",
                   onClick: () =>
                     requireAuth().then(() => {
-                      showReportModal(postView.post.ap_id);
+                      showReportModal(apId);
                     }),
                   danger: true,
                 },
@@ -159,9 +155,9 @@ export function PostByline({
                   onClick: async () => {
                     try {
                       await requireAuth();
-                      await alrt(`Block ${postView.creator.name}`);
+                      await alrt(`Block ${creatorName}`);
                       blockPerson.mutate({
-                        person_id: postView.creator.id,
+                        person_id: creatorId,
                         block: true,
                       });
                     } catch (err) {}

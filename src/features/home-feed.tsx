@@ -1,9 +1,13 @@
-import { PostCard } from "~/src/components/posts/post";
+import {
+  FeedPostCard,
+  getPostProps,
+  PostProps,
+} from "~/src/components/posts/post";
 import { isWeb, useMedia, View, XStack } from "tamagui";
 import { ContentGutters } from "../components/gutters";
 import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
 import { useScrollToTop } from "@react-navigation/native";
-import { useRef } from "react";
+import { memo, useMemo, useRef } from "react";
 import { useCustomHeaderHeight } from "../components/nav/hooks";
 import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
 import { FlashList, FlashListProps } from "../components/flashlist";
@@ -14,26 +18,35 @@ import { useFiltersStore } from "../stores/filters";
 import { useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
 import { RefreshButton } from "../components/ui/button";
+import { usePostsStore } from "../stores/posts";
+import { useWindowDimensions } from "react-native";
+import _ from "lodash";
+import { isNotNull } from "../lib/utils";
+
+const HEADER = "header";
 
 export const scrollToTop = {
   current: { scrollToOffset: () => {} },
 };
 
+type Item = typeof HEADER | PostProps;
+
 const List = isWeb
-  ? FlashList
-  : Animated.createAnimatedComponent<
-      FlashListProps<
-        | "banner"
-        | "post-sort-bar"
-        | "sidebar-desktop"
-        | "sidebar-mobile"
-        | string
-      >
-    >(FlashList);
+  ? FlashList<Item>
+  : Animated.createAnimatedComponent<FlashListProps<Item>>(FlashList);
 
 const EMPTY_ARR = [];
 
+const Post = memo((props: PostProps) => (
+  <ContentGutters>
+    <FeedPostCard {...props} />
+    <></>
+  </ContentGutters>
+));
+
 export function HomeFeed() {
+  const windowHeight = useWindowDimensions().height;
+
   const media = useMedia();
   const postSort = useFiltersStore((s) => s.postSort);
   const listingType = useFiltersStore((s) => s.listingType);
@@ -80,9 +93,23 @@ export function HomeFeed() {
     }
   };
 
-  const data = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+  const postCache = usePostsStore((s) => s.posts);
 
-  const hasNewPost = data[0] && mostRecentPost?.data?.post.ap_id !== data[0];
+  const data = useMemo(() => {
+    const postIds = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+
+    const postViews = postIds
+      .map((apId) => {
+        const postView = postCache[apId]?.data;
+        return postView ? getPostProps(postView, "home") : null;
+      })
+      .filter(isNotNull);
+
+    return [HEADER, ...postViews] as const;
+  }, [posts.data?.pages, postCache]);
+
+  const firstPost = posts.data?.pages[0]?.posts[0];
+  const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
 
   return (
     <PostReportProvider>
@@ -95,9 +122,9 @@ export function HomeFeed() {
 
       <List
         ref={ref}
-        data={["header", ...data]}
+        data={data}
         renderItem={({ item }) => {
-          if (item === "header") {
+          if (item === HEADER) {
             return (
               <ContentGutters>
                 <XStack
@@ -122,13 +149,7 @@ export function HomeFeed() {
               </ContentGutters>
             );
           }
-
-          return (
-            <ContentGutters>
-              <PostCard apId={item} featuredContext="home" />
-              <></>
-            </ContentGutters>
-          );
+          return <Post {...item} />;
         }}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
@@ -136,7 +157,8 @@ export function HomeFeed() {
           }
         }}
         onEndReachedThreshold={0.5}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => (_.isString(item) ? item : item.apId)}
+        getItemType={(item) => (_.isString(item) ? item : item.type)}
         contentContainerStyle={{
           paddingBottom: isWeb ? tabBar.height : 0,
         }}
@@ -156,6 +178,7 @@ export function HomeFeed() {
         automaticallyAdjustContentInsets={false}
         onScroll={isWeb ? undefined : scrollHandler}
         stickyHeaderIndices={[0]}
+        drawDistance={windowHeight * 2}
       />
     </PostReportProvider>
   );

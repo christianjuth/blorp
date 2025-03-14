@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { isWeb, TamaguiProvider, YStack } from "tamagui";
-import { Appearance } from "react-native";
+import { Appearance, Platform } from "react-native";
 import config from "~/config/tamagui/tamagui.config";
 import { persist } from "./query-storage";
 import { ScrollProvider } from "./nav/scroll-animation-context";
@@ -78,10 +78,10 @@ function CurrentToast() {
       <ToastViewport
         flexDirection="column"
         // top={header.height + 5}
-        top={7}
+        top={header.insetTop + 7}
         left={0}
         right={0}
-        portalToRoot
+        portalToRoot={isWeb}
       />
     </>
   );

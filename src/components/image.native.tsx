@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import { Share } from "react-native";
 import { useTheme } from "tamagui";
 import _ from "lodash";
-import { Image as ExpoImage } from "expo-image";
-import { useSettingsStore } from "../stores/settings";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { impactAsync, ImpactFeedbackStyle } from "~/src/lib/haptics";
 import { imageSizeCache, measureImage } from "../lib/image";
+import { Image as ExpoImage } from "expo-image";
 
-export const prefetch = ExpoImage.prefetch;
+export const prefetch = (src: string[]) => {
+  ExpoImage.prefetch(src);
+};
 
 export function clearCache() {
   return Promise.all([
@@ -68,10 +69,8 @@ export function Image({
   };
   onLoad?: () => any;
 }) {
-  const cacheImages = useSettingsStore((s) => s.cacheImages);
   const theme = useTheme();
-
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState<string | number>();
   const [dimensions, setDimensions] = useState<
     | {
         width: number;
@@ -79,12 +78,10 @@ export function Image({
       }
     | undefined
   >(_.isString(imageUrl) ? imageSizeCache.get(imageUrl) : undefined);
-
   useEffect(() => {
     if (_.isNumber(aspectRatio) || _.isNumber(imageUrl)) {
       return;
     }
-
     measureImage(imageUrl)
       .then((data) => {
         if (data) {
@@ -95,7 +92,6 @@ export function Image({
         console.log(e);
       });
   }, [imageUrl, aspectRatio]);
-
   // Calculate aspect ratio
   let calculatedAspectRatio =
     aspectRatio ??
@@ -103,16 +99,18 @@ export function Image({
   calculatedAspectRatio = _.isNaN(calculatedAspectRatio)
     ? 1
     : (calculatedAspectRatio ?? 1);
-
   return (
     <ExpoImage
       recyclingKey={_.isString(imageUrl) ? imageUrl : undefined}
+      transition={0}
       source={_.isString(imageUrl) ? { uri: imageUrl } : imageUrl}
+      cachePolicy="memory"
+      priority={priority ? "high" : undefined}
       style={{
         // Don't use flex 1
         // it causes issues on native
         aspectRatio: calculatedAspectRatio,
-        backgroundColor: !loaded ? theme.gray3.val : undefined,
+        backgroundColor: loaded !== imageUrl ? theme.gray3.val : undefined,
         width: maxWidth ? maxWidth : "100%",
         maxWidth: "100%",
         height: undefined,
@@ -122,16 +120,14 @@ export function Image({
         ...style,
       }}
       contentFit={objectFit}
-      cachePolicy={cacheImages ? "disk" : "memory"}
       onLoad={({ source }) => {
         setDimensions({
           height: source.height,
           width: source.width,
         });
-        setLoaded(true);
+        setLoaded(imageUrl);
         onLoad?.();
       }}
-      priority={priority ? "high" : undefined}
     />
   );
 }

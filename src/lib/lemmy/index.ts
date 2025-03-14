@@ -61,7 +61,7 @@ import { useToastController } from "@tamagui/toast";
 import { useProfilesStore } from "~/src/stores/profiles";
 
 function useLemmyClient(config?: { instance?: string }) {
-  const jwt = useAuth((s) => s.getSelectedAccount().jwt);
+  let jwt = useAuth((s) => s.getSelectedAccount().jwt);
   const myUserId = useAuth(
     (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
   );
@@ -69,13 +69,25 @@ function useLemmyClient(config?: { instance?: string }) {
     useAuth((s) => s.getSelectedAccount().instance) ?? "https://lemmy.ml";
   if (config?.instance) {
     instance = config.instance;
+    jwt = undefined;
   }
 
   return useMemo(() => {
-    const client = new LemmyHttp(instance);
+    const client = new LemmyHttp(instance, {
+      headers: {
+        "User-Agent": "blorp",
+      },
+    });
+
+    const setJwt = (jwt: string) => {
+      client.setHeaders({
+        "User-Agent": "blorp",
+        Authorization: `Bearer ${jwt}`,
+      });
+    };
 
     if (jwt) {
-      client.setHeaders({ Authorization: `Bearer ${jwt}` });
+      setJwt(jwt);
     }
 
     const queryKeyPrefix = [`instance-${instance}`];
@@ -83,7 +95,7 @@ function useLemmyClient(config?: { instance?: string }) {
       queryKeyPrefix.push(`user-${myUserId}`);
     }
 
-    return { client, queryKeyPrefix };
+    return { client, queryKeyPrefix, setJwt };
   }, [jwt, instance, myUserId]);
 }
 
@@ -213,6 +225,12 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
       const posts = res.posts.map((post_view) => flattenPost({ post_view }));
       const cachedPosts = cachePosts(posts);
 
+      prefetchImage(
+        res.posts
+          .map(({ post }) => getPostEmbed(post).thumbnail)
+          .filter(Boolean) as string[],
+      );
+
       let i = 0;
       for (const { post } of res.posts) {
         const thumbnail = post.thumbnail_url;
@@ -225,9 +243,6 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
                 });
               });
             }
-            prefetchImage([thumbnail], {
-              cachePolicy: cacheImages ? "disk" : "memory",
-            });
           }, i);
           i += 50;
         }
@@ -331,9 +346,7 @@ export function usePost({
             }
           });
         }
-        prefetchImage([thumbnail], {
-          cachePolicy: cacheImages ? "disk" : "memory",
-        });
+        prefetchImage([thumbnail]);
       }
 
       return post;
@@ -523,7 +536,7 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
 
   form = {
     show_read: !hideRead,
-    limit: 25,
+    limit: 50,
     sort,
     show_nsfw: showNsfw,
     ...form,
@@ -568,6 +581,12 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
 
     cacheProfiles(res.posts.map((p) => ({ person: p.creator })));
 
+    prefetchImage(
+      res.posts
+        .map(({ post }) => getPostEmbed(post).thumbnail)
+        .filter(Boolean) as string[],
+    );
+
     let i = 0;
     for (const { post } of res.posts) {
       const { thumbnail, type: embedType } = getPostEmbed(post);
@@ -584,9 +603,6 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
               });
             });
           }
-          prefetchImage([thumbnail], {
-            cachePolicy: cacheImages ? "disk" : "memory",
-          });
         }, i);
         i += 50;
       }
@@ -796,7 +812,7 @@ function is2faError(err?: Error | null) {
 }
 
 export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
-  const { client } = useLemmyClient(config);
+  const { client, setJwt } = useLemmyClient(config);
 
   const updateAccount = useAuth((s) => s.updateAccount);
   const addAccount = useAuth((s) => s.addAccount);
@@ -807,7 +823,7 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
     mutationFn: async (form: Login) => {
       const res = await client.login(form);
       if (res.jwt) {
-        client.setHeaders({ Authorization: `Bearer ${res.jwt}` });
+        setJwt(res.jwt);
         const site = await client.getSite();
         const payload = {
           site,
@@ -829,10 +845,14 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
     },
     onError: (err) => {
       if (!is2faError(err)) {
-        toast.show(_.capitalize(err.message.replaceAll("_", " ")), {
+        let errorMsg = "Unkown error";
+        if (err.message) {
+          errorMsg = _.capitalize(err?.message?.replaceAll("_", " "));
+        }
+        toast.show(errorMsg, {
           preset: "error",
         });
-        console.log("Err", err);
+        console.error(errorMsg);
       }
     },
   });

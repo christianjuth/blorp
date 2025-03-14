@@ -36,16 +36,14 @@ interface Props extends TextProps {
  * Shows the full date/time time on hover.
  */
 export function RelativeTime({ time, prefix, ...rest }: Props) {
-  const [relativeTime, setRelativeTime] = useState<string>(
-    dayjs(time).format("MMM D, YYYY h:mma"),
-  );
+  const [relativeTime, setRelativeTime] = useState<string>();
 
   useEffect(() => {
     const updateTime = () => setRelativeTime(dayjs(time).fromNow());
 
     const interval = setInterval(updateTime, 1000);
 
-    updateTime();
+    requestAnimationFrame(updateTime);
 
     return () => clearInterval(interval);
   }, [time]);

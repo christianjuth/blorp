@@ -1,20 +1,24 @@
 import { Text, View } from "tamagui";
 import { Image } from "~/src/components/image";
-import { FlattenedPost } from "~/src/lib/lemmy/utils";
 import SafariView from "react-native-safari-view";
 
-export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
-  const post = postView.post;
-  const url = post.url ? new URL(post.url) : undefined;
-
-  if (!post.url) {
+export function PostArticleEmbed({
+  url: postUrl,
+  thumbnail,
+}: {
+  url: string;
+  thumbnail?: string;
+}) {
+  if (!postUrl) {
     return null;
   }
+
+  const url = postUrl ? new URL(postUrl) : undefined;
 
   return (
     <View
       onPress={() => {
-        const url = post.url;
+        const url = postUrl;
         if (url) {
           SafariView.isAvailable()
             .then(() =>
@@ -27,13 +31,14 @@ export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
         }
       }}
     >
-      {post.thumbnail_url && (
+      {thumbnail && (
         <Image
-          imageUrl={post.thumbnail_url}
+          imageUrl={thumbnail}
           aspectRatio={16 / 9}
           objectFit="cover"
           disableShare
           borderTopRadius={10}
+          priority
         />
       )}
       {url && (
@@ -42,7 +47,7 @@ export function PostArticleEmbed({ postView }: { postView: FlattenedPost }) {
           bg="$color5"
           color="$color11"
           numberOfLines={1}
-          br={post.thumbnail_url ? undefined : 10}
+          br={thumbnail ? undefined : 10}
           bbrr={10}
           bblr={10}
           fontSize="$4"

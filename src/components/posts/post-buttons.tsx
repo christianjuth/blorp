@@ -3,51 +3,25 @@ import { ArrowBigUp, ArrowBigDown, MessageCircle } from "@tamagui/lucide-icons";
 import { useLikePost } from "~/src/lib/lemmy/index";
 import { FlattenedPost } from "~/src/lib/lemmy/utils";
 import { voteHaptics } from "~/src/lib/voting";
-import { usePostsStore } from "~/src/stores/posts";
-import { AnimatedRollingNumber } from "~/src/components/animated-digit";
-import { useMemo, useState } from "react";
 import { useRequireAuth } from "../auth-context";
 
-const DISABLE_ANIMATION = {
-  duration: 0,
-};
-
-export function Voting({ apId }: { apId: string }) {
+export function Voting({
+  apId,
+  myVote,
+  score,
+}: {
+  apId: string;
+  myVote: number;
+  score: number;
+}) {
   const requireAuth = useRequireAuth();
-
-  const postView = usePostsStore((s) => s.posts[apId]?.data);
 
   const vote = useLikePost(apId);
 
   const theme = useTheme();
 
-  const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
-
   const isUpvoted = myVote > 0;
   const isDownvoted = myVote < 0;
-
-  const diff =
-    typeof postView?.optimisticMyVote === "number"
-      ? postView?.optimisticMyVote - (postView?.myVote ?? 0)
-      : 0;
-
-  const score = postView?.counts.score + diff;
-  const [animate, setAnimate] = useState(false);
-
-  const textColor = isUpvoted
-    ? theme.accentBackground.val
-    : isDownvoted
-      ? theme.red.val
-      : theme.color.val;
-  const textStyle = useMemo(() => {
-    return {
-      color: textColor,
-    };
-  }, [textColor]);
-
-  if (!postView) {
-    return null;
-  }
 
   return (
     <View
@@ -68,7 +42,6 @@ export function Voting({ apId }: { apId: string }) {
           const newVote = isUpvoted ? 0 : 1;
           voteHaptics(newVote);
           requireAuth().then(() => {
-            setAnimate(true);
             vote.mutate(newVote);
           });
         }}
@@ -85,16 +58,9 @@ export function Voting({ apId }: { apId: string }) {
             size="$1"
             mr="$1"
           />
-          <AnimatedRollingNumber
-            enableCompactNotation
-            value={score}
-            textStyle={textStyle}
-            spinningAnimationConfig={
-              // THIS IS A HACK
-              // Find a better way to disable animation for init value
-              !animate ? DISABLE_ANIMATION : undefined
-            }
-          />
+          <Text color={isUpvoted ? "$accentBackground" : undefined}>
+            {score}
+          </Text>
         </>
       </Button>
       <View h={16} w={1} bg="$color6" mx={4} />
@@ -108,7 +74,6 @@ export function Voting({ apId }: { apId: string }) {
           const newVote = isDownvoted ? 0 : -1;
           voteHaptics(newVote);
           requireAuth().then(() => {
-            setAnimate(true);
             vote.mutate(newVote);
           });
         }}
@@ -127,10 +92,10 @@ export function Voting({ apId }: { apId: string }) {
 }
 
 export function PostCommentsButton({
-  postView,
+  commentsCount,
   ...rest
 }: {
-  postView: FlattenedPost;
+  commentsCount: number;
   onPress?: () => void;
   href?: string;
 }) {
@@ -147,7 +112,7 @@ export function PostCommentsButton({
       {...rest}
     >
       <MessageCircle size={17} />
-      <Text fontSize="$5">{postView.counts.comments}</Text>
+      <Text fontSize="$5">{commentsCount}</Text>
     </Button>
   );
 }
