@@ -52,6 +52,10 @@ export function getPostProps(
     pinned = postView.post.featured_local;
   }
 
+  const crossPost = postView.crossPosts?.find(
+    ({ post }) => post.published.localeCompare(postView.post.published) < 0,
+  );
+
   return {
     ...embed,
     id: postView.post.id,
@@ -68,19 +72,25 @@ export function getPostProps(
     saved: postView.optimisticSaved ?? postView.saved,
     creatorId: postView.creator.id,
     creatorApId: postView.creator.actor_id,
-    encodedCreatorApId: encodeURIComponent(postView.creator.actor_id),
+    encodedCreatorApId: encodeApId(postView.creator.actor_id),
     creatorName: postView.creator.name,
     communitySlug: postView.community.slug,
     published: postView.post.published,
     body: postView.post.body,
     nsfw: postView.post.nsfw,
     commentsCount: postView.counts.comments,
+    crossPostCommunitySlug: crossPost?.community.slug,
+    crossPostEncodedApId: crossPost
+      ? encodeApId(crossPost?.post.ap_id)
+      : undefined,
   };
 }
 
 export type PostProps = ReturnType<typeof getPostProps>;
 
 export function DetailPostCard(props: PostProps) {
+  const media = useMedia();
+
   const {
     apId,
     deleted,
@@ -93,6 +103,8 @@ export function DetailPostCard(props: PostProps) {
     body,
     nsfw,
     encodedApId,
+    crossPostEncodedApId,
+    crossPostCommunitySlug,
   } = props;
 
   const linkCtx = useLinkContext();
@@ -148,7 +160,7 @@ export function DetailPostCard(props: PostProps) {
           <Image
             imageUrl={thumbnail}
             aspectRatio={aspectRatio}
-            // borderRadius={media.gtMd ? 10 : 0}
+            borderRadius={media.gtMd ? 10 : 0}
             priority
           />
         </View>
@@ -165,19 +177,19 @@ export function DetailPostCard(props: PostProps) {
       )}
       {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
 
-      {/* {crossPost && ( */}
-      {/*   <Link */}
-      {/*     href={`${linkCtx.root}c/${crossPost.community.slug}/posts/${encodeURIComponent(crossPost.post.ap_id)}`} */}
-      {/*     asChild */}
-      {/*   > */}
-      {/*     <XStack gap="$1" mt="$2"> */}
-      {/*       <Repeat2 color="$accentColor" size={16} /> */}
-      {/*       <Text fontSize={13} color="$accentColor"> */}
-      {/*         Cross posted from {crossPost.community.slug} */}
-      {/*       </Text> */}
-      {/*     </XStack> */}
-      {/*   </Link> */}
-      {/* )} */}
+      {crossPostEncodedApId && crossPostCommunitySlug && (
+        <Link
+          href={`${linkCtx.root}c/${crossPostCommunitySlug}/posts/${crossPostEncodedApId}`}
+          asChild
+        >
+          <XStack gap="$1" mt="$2">
+            <Repeat2 color="$accentColor" size={16} />
+            <Text fontSize={13} color="$accentColor">
+              Cross posted from {crossPostCommunitySlug}
+            </Text>
+          </XStack>
+        </Link>
+      )}
 
       {body && !deleted && (
         <View pt="$2">
@@ -189,6 +201,8 @@ export function DetailPostCard(props: PostProps) {
 }
 
 export function FeedPostCard(props: PostProps) {
+  const media = useMedia();
+
   const {
     apId,
     read,
@@ -249,32 +263,32 @@ export function FeedPostCard(props: PostProps) {
         href={postDetailsLink}
         onPressIn={() => setPressed(true)}
         onPressOut={() => setPressed(false)}
+        onLongPress={thumbnail ? () => shareImage(thumbnail) : undefined}
+        asChild
       >
-        <Text
-          fontWeight={500}
-          fontSize="$6"
-          lineHeight="$4"
-          col={read ? "$color10" : "$color"}
-          fontStyle={deleted ? "italic" : undefined}
-        >
-          {deleted ? "deleted" : name}
-        </Text>
-      </Link>
+        <YStack tag="a" gap="$2">
+          <Text
+            fontWeight={500}
+            fontSize="$6"
+            lineHeight="$4"
+            col={read ? "$color10" : "$color"}
+            fontStyle={deleted ? "italic" : undefined}
+          >
+            {deleted ? "deleted" : name}
+          </Text>
 
-      {thumbnail && type === "image" && !deleted && (
-        <View
-          br="$5"
-          $md={{ mx: "$-3", br: 0 }}
-          onLongPress={() => shareImage(thumbnail)}
-        >
-          <Image
-            imageUrl={thumbnail}
-            aspectRatio={aspectRatio}
-            // borderRadius={media.gtMd ? 10 : 0}
-            priority
-          />
-        </View>
-      )}
+          {thumbnail && type === "image" && !deleted && (
+            <View br="$5" $md={{ mx: "$-3", br: 0 }}>
+              <Image
+                imageUrl={thumbnail}
+                aspectRatio={aspectRatio}
+                borderRadius={media.gtMd ? 10 : 0}
+                priority
+              />
+            </View>
+          )}
+        </YStack>
+      </Link>
 
       {type === "article" && !deleted && url && (
         <PostArticleEmbed url={url} thumbnail={thumbnail} />
