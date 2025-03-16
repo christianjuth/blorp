@@ -60,3 +60,4 @@ storybook-static/
 *.provisionprofile
 Entitlements.plist
 Blorp.pkg
+latest.json
