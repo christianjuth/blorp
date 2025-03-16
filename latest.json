@@ -1,0 +1,13 @@
+{
+  "version": "1.0.3",
+  "platforms": {
+    "darwin-aarch64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTZldRSTlBUkcvNkJhNHk0NTVkaE9KY1orWVl6VzZTZUhSVkVuV3VrZEFna2ZkOG1vamtMUXFwcnowckZQVjhMWmYxSVNpY2hKa0VjbTNTODd0cW8wL0I0MjhGM0EwOXc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQyMDgzMjg5CWZpbGU6QmxvcnAuYXBwLnRhci5negpYWFlYOHFtaGw2WFZJeFdGemZnbVZiZGVwQUc5MzVST3AxMXNYZEl3cVNxbEs4S0YzMWhhdHNrS1laV1dTZXZibFI4aEk3V0VyM1JWMW9nWjhCU3FEdz09Cg==",
+      "url": "https://github.com/christianjuth/blorp/releases/download/v1.0.3/Mac-Blorp.app.tar.gz"
+    },
+    "darwin-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTZldRSTlBUkcvNkJhNHk0NTVkaE9KY1orWVl6VzZTZUhSVkVuV3VrZEFna2ZkOG1vamtMUXFwcnowckZQVjhMWmYxSVNpY2hKa0VjbTNTODd0cW8wL0I0MjhGM0EwOXc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQyMDgzMjg5CWZpbGU6QmxvcnAuYXBwLnRhci5negpYWFlYOHFtaGw2WFZJeFdGemZnbVZiZGVwQUc5MzVST3AxMXNYZEl3cVNxbEs4S0YzMWhhdHNrS1laV1dTZXZibFI4aEk3V0VyM1JWMW9nWjhCU3FEdz09Cg==",
+      "url": "https://github.com/christianjuth/blorp/releases/download/v1.0.3/Mac-Blorp.app.tar.gz"
+    }
+  }
+}

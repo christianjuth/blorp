@@ -2,7 +2,7 @@ import { describe, test, expect } from "vitest";
 import * as lemmy from "~/test-utils/lemmy";
 import { useCommunitiesStore } from "./communities";
 import _ from "lodash";
-import { renderHook, act } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react";
 import { createCommunitySlug } from "../lib/lemmy/utils";
 import { SubscribedType } from "lemmy-js-client";
 

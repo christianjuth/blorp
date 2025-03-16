@@ -72,13 +72,10 @@ export function Post({
   const postQuery = usePost({
     ap_id: decodedApId,
   });
+
   const post = usePostsStore((s) =>
     decodedApId ? s.posts[decodedApId]?.data : null,
   );
-
-  useCommunity({
-    name: communityName,
-  });
 
   const parentId = commentId ? +commentId : undefined;
 
@@ -115,7 +112,7 @@ export function Post({
     }
     const map = buildCommentMap(allComments, commentId);
     const topLevelItems = _.entries(map).sort(
-      ([id1, a], [id2, b]) => a.sort - b.sort,
+      ([_id1, a], [_id2, b]) => a.sort - b.sort,
     );
     return { map, topLevelItems };
   }, [allComments, isReady]);
@@ -136,7 +133,7 @@ export function Post({
     }
   };
 
-  if (!post || !decodedApId) {
+  if (!post || !decodedApId || !isReady) {
     return null;
   }
 

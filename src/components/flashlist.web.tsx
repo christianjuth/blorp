@@ -17,6 +17,7 @@ export function FlashList<T>({
   // @ts-expect-error
   ref,
   drawDistance,
+  numColumns,
 }: FlashListProps<T>) {
   const index = useRef(0);
   const offset = useRef(0);
@@ -53,6 +54,7 @@ export function FlashList<T>({
   const rowVirtualizer = useVirtualizer({
     count: dataLen,
     overscan,
+    lanes: numColumns,
     getScrollElement: () => parentRef.current,
     estimateSize: (index) => cache.current?.[index]?.size ?? estimatedItemSize,
     onChange: (instance) => {
@@ -112,6 +114,8 @@ export function FlashList<T>({
     }
   }, [dataLen, rowVirtualizer.getVirtualItems(), onEndReached]);
 
+  const colWidth = 100 / (numColumns ?? 1);
+
   return (
     <div
       ref={parentRef}
@@ -153,8 +157,8 @@ export function FlashList<T>({
                   : {
                       position: "absolute",
                       top: 0,
-                      left: 0,
-                      width: "100%",
+                      left: `${colWidth * virtualItem.lane}%`,
+                      width: `${colWidth}%`,
                       transform: `translateY(${virtualItem.start}px)`,
                     }
               }

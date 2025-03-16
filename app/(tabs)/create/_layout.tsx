@@ -1,4 +1,5 @@
 import { Stack, useFocusEffect, useNavigation } from "one";
+import { useCallback } from "react";
 import { useTheme } from "tamagui";
 import {
   CreatePostHeaderStepOne,
@@ -6,18 +7,20 @@ import {
 } from "~/src/components/nav/headers";
 
 export default function Layout() {
-  const navigation = useNavigation();
-  useFocusEffect(() => {
-    const parent = navigation;
-    parent?.setOptions({ tabBarStyle: { display: "none" } });
+  const setNavOptions = useNavigation().getParent()?.setOptions;
 
-    return () => {
-      // Reset the tab bar visibility when leaving the screen
-      parent?.setOptions({
-        tabBarStyle: { display: "flex", backgroundColor: "transparent" },
-      });
-    };
-  });
+  useFocusEffect(
+    useCallback(() => {
+      setNavOptions?.({ tabBarStyle: { display: "none" } });
+      return () => {
+        // Reset the tab bar visibility when leaving the screen
+        setNavOptions?.({
+          tabBarStyle: { display: "flex", backgroundColor: "transparent" },
+        });
+      };
+    }, [setNavOptions]),
+    [setNavOptions],
+  );
 
   const theme = useTheme();
   return (
@@ -29,6 +32,7 @@ export default function Layout() {
         },
         headerTransparent: true,
         presentation: "containedModal",
+        freezeOnBlur: true,
       }}
     >
       <Stack.Screen

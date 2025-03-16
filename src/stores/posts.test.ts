@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react";
 import { describe, test, expect } from "vitest";
 import * as lemmy from "~/test-utils/lemmy";
 import { usePostsStore } from "./posts";

@@ -8,6 +8,7 @@ import Animated from "react-native-reanimated";
 import { Sidebar } from "./sidebar";
 import { SafeAreaView, useFocusEffect, useNavigation, usePathname } from "one";
 import { isTauri } from "~/src/lib/tauri";
+import { useCallback } from "react";
 
 export const useCustomTabBarHeight = () => {
   const insets = useSafeAreaInsets();
@@ -28,28 +29,28 @@ export const useCustomTabBarHeight = () => {
 };
 
 export function useTabBarStyle() {
-  const theme = useTheme();
   return {
     backgroundColor: "transparent",
-    borderTopColor: theme.color3.val,
-    borderTopWidth: 0.5,
+    borderTopWidth: 0,
   };
 }
 
 export function useHideTabBar() {
   const tabBarStyle = useTabBarStyle();
-  const navigation = useNavigation();
+  const setNavOptions = useNavigation().getParent()?.setOptions;
 
-  useFocusEffect(() => {
-    const parent = navigation.getParent();
-    parent?.setOptions({ tabBarStyle: { display: "none" } });
-    return () => {
-      // Reset the tab bar visibility when leaving the screen
-      parent?.setOptions({
-        tabBarStyle,
-      });
-    };
-  });
+  useFocusEffect(
+    useCallback(() => {
+      setNavOptions?.({ tabBarStyle: { display: "none" } });
+      return () => {
+        // Reset the tab bar visibility when leaving the screen
+        setNavOptions?.({
+          tabBarStyle,
+        });
+      };
+    }, [setNavOptions]),
+    [setNavOptions],
+  );
 }
 
 export function CustomBottomTabBar(props: BottomTabBarProps) {
@@ -113,6 +114,8 @@ export function CustomBottomTabBar(props: BottomTabBarProps) {
         container,
         {
           backgroundColor: theme.background.val,
+          borderTopWidth: 0.5,
+          borderTopColor: theme.color3.val,
         },
         tabBarHideable && !isWeb
           ? {

@@ -553,8 +553,6 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
-  const cacheImages = useSettingsStore((s) => s.cacheImages);
-
   const queryFn = async ({
     pageParam,
     signal,
@@ -631,6 +629,12 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
     enabled: enabled && (form.type_ === "Subscribed" ? isLoggedIn : true),
   });
 
+  useEffect(() => {
+    if (!isWarmed) {
+      query.truncatePages();
+    }
+  }, []);
+
   const queryClient = useQueryClient();
   const prefetch = () =>
     queryClient.prefetchInfiniteQuery({
@@ -671,7 +675,7 @@ function useThrottledInfiniteQuery<
     TQueryKey,
     TPageParam
   >,
-): UseInfiniteQueryResult<TData, TError> {
+) {
   const queryClient = useQueryClient();
   const throttleQueue = useThrottleQueue(options.queryKey);
   const queryFn = options.queryFn;
@@ -698,7 +702,7 @@ function useThrottledInfiniteQuery<
         }
       : {}),
   });
-  return {
+  const extendedQuery: UseInfiniteQueryResult<TData, TError> = {
     ...query,
     fetchNextPage: () => {
       if (focused) {
@@ -720,6 +724,21 @@ function useThrottledInfiniteQuery<
         return data;
       });
       return query.refetch(refetchOptions);
+    },
+  };
+
+  return {
+    ...extendedQuery,
+    truncatePages: () => {
+      queryClient.setQueryData<InfiniteData<any>>(options.queryKey, (data) => {
+        if (isInfiniteQueryData(data)) {
+          return {
+            pages: data.pages.slice(0, 1),
+            pageParams: data.pageParams.slice(0, 1),
+          };
+        }
+        return data;
+      });
     },
   };
 }

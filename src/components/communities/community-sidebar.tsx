@@ -12,6 +12,7 @@ import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
 import { useCommunitiesStore } from "~/src/stores/communities";
 import { ContentGutters } from "../gutters";
+import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
 
 dayjs.extend(localizedFormat);
 
@@ -27,6 +28,7 @@ export function CommunitySidebar({
   asPage?: boolean;
 }) {
   const header = useCustomHeaderHeight();
+  const tabBar = useCustomTabBarHeight();
   const dimensions = useWindowDimensions();
 
   const data = useCommunitiesStore((s) => s.communities[communityName]?.data);
@@ -103,6 +105,9 @@ export function CommunitySidebar({
     <View
       position={asPage ? undefined : "absolute"}
       maxHeight={dimensions.height - header.height}
+      $md={{
+        maxHeight: dimensions.height - header.height - tabBar.height,
+      }}
       w="100%"
       h={asPage ? "100%" : undefined}
     >

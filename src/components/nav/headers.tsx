@@ -138,6 +138,8 @@ function HeaderGutters({
 const BBW = 0.5;
 const BBC = "$color3";
 
+const MemoedUserAvatar = React.memo(UserAvatar);
+
 function UserAvatar() {
   const linkCtx = useLinkContext();
   const logout = useLogout();
@@ -146,7 +148,6 @@ function UserAvatar() {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const selectedAccount = useAuth((s) => s.getSelectedAccount());
   const accounts = useAuth((s) => s.accounts);
-  const addAccount = useAuth((s) => s.addAccount);
   const setAccountIndex = useAuth((s) => s.setAccountIndex);
 
   const { person, instance } = parseAccountInfo(selectedAccount);
@@ -358,7 +359,7 @@ function NavbarRightSide({ children }: { children?: React.ReactNode }) {
   return (
     <>
       {children}
-      <UserAvatar />
+      <MemoedUserAvatar />
     </>
   );
 }

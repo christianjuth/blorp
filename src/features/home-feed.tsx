@@ -19,7 +19,6 @@ import { useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
 import { RefreshButton } from "../components/ui/button";
 import { usePostsStore } from "../stores/posts";
-import { useWindowDimensions } from "react-native";
 import _ from "lodash";
 import { isNotNull } from "../lib/utils";
 
@@ -45,8 +44,6 @@ const Post = memo((props: PostProps) => (
 ));
 
 export function HomeFeed() {
-  const windowHeight = useWindowDimensions().height;
-
   const media = useMedia();
   const postSort = useFiltersStore((s) => s.postSort);
   const listingType = useFiltersStore((s) => s.listingType);
@@ -178,7 +175,6 @@ export function HomeFeed() {
         automaticallyAdjustContentInsets={false}
         onScroll={isWeb ? undefined : scrollHandler}
         stickyHeaderIndices={[0]}
-        drawDistance={windowHeight * 2}
       />
     </PostReportProvider>
   );

@@ -1,11 +1,12 @@
-import { useIsFocused } from "one";
-import { useRef } from "react";
+import { useEffect, useState } from "react";
+import { isWeb } from "tamagui";
 
 export function useIsScreenReady() {
-  const focused = useIsFocused();
-  const wasFocused = useRef(focused);
-  if (focused) {
-    wasFocused.current = true;
-  }
-  return wasFocused.current || focused;
+  const [wasFocused, setWasFocused] = useState(isWeb ? true : false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setWasFocused(true));
+  }, []);
+
+  return wasFocused;
 }

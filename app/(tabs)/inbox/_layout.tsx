@@ -25,9 +25,9 @@ export default function Layout() {
           contentStyle: {
             backgroundColor: theme.background.val,
           },
-          // @ts-expect-error
           header: (props) => <StackHeader {...props} />,
           animation: media.gtMd ? "none" : "default",
+          freezeOnBlur: true,
         }}
       >
         <Stack.Screen

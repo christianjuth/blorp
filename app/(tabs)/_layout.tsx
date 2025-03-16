@@ -45,15 +45,14 @@ export default function Layout() {
   return (
     <WebMaxHeight>
       <Tabs
-        // @ts-expect-error
         tabBar={(props) => <CustomBottomTabBar {...props} />}
         screenOptions={{
           tabBarStyle,
-          // @ts-expect-error
           header: (props) => <BottomTabBarHeader {...props} />,
           tabBarActiveTintColor: theme.accentColor?.val,
           tabBarPosition: media.gtMd ? "left" : "bottom",
           tabBarLabelPosition: media.gtMd ? "beside-icon" : "below-icon",
+          freezeOnBlur: true,
         }}
       >
         <Tabs.Screen

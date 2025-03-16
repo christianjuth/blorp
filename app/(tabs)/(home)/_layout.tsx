@@ -27,6 +27,7 @@ export default function Layout() {
             backgroundColor: theme.background.val,
           },
           animation: media.gtMd ? "none" : "default",
+          freezeOnBlur: true,
         }}
       >
         <Stack.Screen

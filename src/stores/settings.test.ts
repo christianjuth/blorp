@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { useSettingsStore } from "./settings";
-import { renderHook, act } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react";
 import _ from "lodash";
 
 describe("useSettingsStore", () => {
