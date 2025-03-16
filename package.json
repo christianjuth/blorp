@@ -135,6 +135,7 @@
     "storybook": "^8.5.3",
     "vite": "^6.1.0",
     "vite-plugin-checker": "^0.8.0",
+    "vite-plugin-remove-console": "^2.2.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.5"
   },

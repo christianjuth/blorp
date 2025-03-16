@@ -3,9 +3,12 @@ import { one } from "one/vite";
 import { tamaguiPlugin } from "@tamagui/vite-plugin";
 import circleDependency from "vite-plugin-circular-dependency";
 import vitePluginChecker from "vite-plugin-checker";
+import removeConsole from "vite-plugin-remove-console";
 
 export default {
   plugins: [
+    removeConsole(),
+
     circleDependency(),
     one({
       web: {
