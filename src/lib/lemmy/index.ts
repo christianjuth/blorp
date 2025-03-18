@@ -43,13 +43,11 @@ import { useSettingsStore } from "../../stores/settings";
 import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
 import { useThrottleQueue } from "../throttle-queue";
-import { useIsFocused } from "@react-navigation/native";
 import { useCommunitiesStore } from "../../stores/communities";
-import { useRouter } from "one";
+// import { useRouter } from "one";
 import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
-import { measureImage } from "../image";
+// import { measureImage } from "../image";
 import { getPostEmbed } from "../post";
-import { useToastController } from "@tamagui/toast";
 import { useProfilesStore } from "~/src/stores/profiles";
 
 function useLemmyClient(config?: { instance?: string }) {
@@ -231,11 +229,11 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
         if (thumbnail) {
           setTimeout(() => {
             if (!cachedPosts[post.ap_id]?.data.imageDetails) {
-              measureImage(thumbnail).then((data) => {
-                patchPost(post.ap_id, {
-                  imageDetails: data,
-                });
-              });
+              // measureImage(thumbnail).then((data) => {
+              //   patchPost(post.ap_id, {
+              //     imageDetails: data,
+              //   });
+              // });
             }
           }, i);
           i += 50;
@@ -332,13 +330,13 @@ export function usePost({
       const { thumbnail, type: embedType } = getPostEmbed(post.post);
       if (thumbnail) {
         if (!cachedPost.imageDetails && embedType === "image") {
-          measureImage(thumbnail).then((data) => {
-            if (data) {
-              patchPost(ap_id, {
-                imageDetails: data,
-              });
-            }
-          });
+          // measureImage(thumbnail).then((data) => {
+          //   if (data) {
+          //     patchPost(ap_id, {
+          //       imageDetails: data,
+          //     });
+          //   }
+          // });
         }
         prefetchImage([thumbnail]);
       }
@@ -597,11 +595,11 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
             !cachedPosts[post.ap_id]?.data.imageDetails &&
             embedType === "image"
           ) {
-            measureImage(thumbnail).then((data) => {
-              patchPost(post.ap_id, {
-                imageDetails: data,
-              });
-            });
+            // measureImage(thumbnail).then((data) => {
+            //   patchPost(post.ap_id, {
+            //     imageDetails: data,
+            //   });
+            // });
           }
         }, i);
         i += 50;
@@ -680,7 +678,8 @@ function useThrottledInfiniteQuery<
   const throttleQueue = useThrottleQueue(options.queryKey);
   const queryFn = options.queryFn;
 
-  const focused = useIsFocused();
+  // const focused = useIsFocused();
+  const focused = true;
 
   useEffect(() => {
     if (focused) {
@@ -838,8 +837,6 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
   const updateAccount = useAuth((s) => s.updateAccount);
   const addAccount = useAuth((s) => s.addAccount);
 
-  const toast = useToastController();
-
   const mutation = useMutation({
     mutationFn: async (form: Login) => {
       const res = await client.login(form);
@@ -861,18 +858,16 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
       }
       return res;
     },
-    onMutate: () => {
-      toast.hide();
-    },
+    onMutate: () => {},
     onError: (err) => {
       if (!is2faError(err)) {
         let errorMsg = "Unkown error";
         if (err.message) {
           errorMsg = _.capitalize(err?.message?.replaceAll("_", " "));
         }
-        toast.show(errorMsg, {
-          preset: "error",
-        });
+        // toast.show(errorMsg, {
+        //   preset: "error",
+        // });
         console.error(errorMsg);
       }
     },
@@ -1339,11 +1334,11 @@ export function useSearch(form: Search) {
         if (thumbnail) {
           setTimeout(() => {
             if (!cachedPosts[post.ap_id]?.data.imageDetails) {
-              measureImage(thumbnail).then((data) => {
-                patchPost(post.ap_id, {
-                  imageDetails: data,
-                });
-              });
+              // measureImage(thumbnail).then((data) => {
+              //   patchPost(post.ap_id, {
+              //     imageDetails: data,
+              //   });
+              // });
             }
             // ExpoImage.prefetch([thumbnail], {
             //   cachePolicy: cacheImages ? "disk" : "memory",
@@ -1412,7 +1407,6 @@ export function useFollowCommunity() {
   const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
 
   const queryClient = useQueryClient();
-  const toast = useToastController();
 
   return useMutation({
     mutationFn: (form: { community: Community; follow: boolean }) => {
@@ -1438,9 +1432,9 @@ export function useFollowCommunity() {
       patchCommunity(slug, {
         optimisticSubscribed: undefined,
       });
-      toast.show("Couldn't follow community", {
-        preset: "error",
-      });
+      // toast.show("Couldn't follow community", {
+      //   preset: "error",
+      // });
     },
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -1453,7 +1447,6 @@ export function useFollowCommunity() {
 export function useMarkReplyRead() {
   const { client, queryKeyPrefix } = useLemmyClient();
   const queryClient = useQueryClient();
-  const toast = useToastController();
 
   const notificationCountQueryKey = useNotificationCountQueryKey();
 
@@ -1470,54 +1463,51 @@ export function useMarkReplyRead() {
       });
     },
     onError: (_, { read }) => {
-      toast.show(`Couldn't mark post ${read ? "read" : "unread"}`, {
-        preset: "error",
-      });
+      // toast.show(`Couldn't mark post ${read ? "read" : "unread"}`, {
+      //   preset: "error",
+      // });
     },
   });
 }
 
 export function useCreatePost() {
-  const router = useRouter();
+  // const router = useRouter();
   const { client } = useLemmyClient();
-  const toast = useToastController();
   return useMutation({
     mutationFn: (form: CreatePost) => client.createPost(form),
     onSuccess: (res) => {
       const apId = res.post_view.post.ap_id;
       const slug = createCommunitySlug(res.post_view.community);
-      router.push(`/c/${slug}/posts/${encodeURIComponent(apId)}`);
+      // router.push(`/c/${slug}/posts/${encodeURIComponent(apId)}`);
     },
     onError: () => {
-      toast.show("Couldn't create post", {
-        preset: "error",
-      });
+      // toast.show("Couldn't create post", {
+      //   preset: "error",
+      // });
     },
   });
 }
 
 export function useCreatePostReport() {
   const { client } = useLemmyClient();
-  const toast = useToastController();
   return useMutation({
     mutationFn: (form: CreatePostReport) => client.createPostReport(form),
     onError: () => {
-      toast.show("Couldn't create post report", {
-        preset: "error",
-      });
+      // toast.show("Couldn't create post report", {
+      //   preset: "error",
+      // });
     },
   });
 }
 
 export function useCreateCommentReport() {
   const { client } = useLemmyClient();
-  const toast = useToastController();
   return useMutation({
     mutationFn: (form: CreateCommentReport) => client.createCommentReport(form),
     onError: () => {
-      toast.show("Couldn't block person", {
-        preset: "error",
-      });
+      // toast.show("Couldn't block person", {
+      //   preset: "error",
+      // });
     },
   });
 }
@@ -1525,13 +1515,12 @@ export function useCreateCommentReport() {
 export function useBlockPerson() {
   const { client } = useLemmyClient();
 
-  const toast = useToastController();
   return useMutation({
     mutationFn: (form: BlockPerson) => client.blockPerson(form),
     onError: () => {
-      toast.show("Couldn't block person", {
-        preset: "error",
-      });
+      // toast.show("Couldn't block person", {
+      //   preset: "error",
+      // });
     },
   });
 }
@@ -1544,8 +1533,6 @@ export function useSavePost(apId: string) {
   const postsQueryKey = usePostsKey({
     saved_only: true,
   });
-
-  const toast = useToastController();
 
   return useMutation({
     mutationFn: (form: SavePost) => client.savePost(form),
@@ -1567,9 +1554,9 @@ export function useSavePost(apId: string) {
       patchPost(apId, {
         optimisticSaved: undefined,
       });
-      toast.show(`Couldn't ${save ? "save" : "unsave"} post`, {
-        preset: "error",
-      });
+      // toast.show(`Couldn't ${save ? "save" : "unsave"} post`, {
+      //   preset: "error",
+      // });
     },
   });
 }
@@ -1577,8 +1564,6 @@ export function useSavePost(apId: string) {
 export function useDeletePost(apId: string) {
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
-
-  const toast = useToastController();
 
   return useMutation({
     mutationFn: (form: DeletePost) => client.deletePost(form),
@@ -1597,9 +1582,9 @@ export function useDeletePost(apId: string) {
       patchPost(apId, {
         optimisticDeleted: undefined,
       });
-      toast.show(`Couldn't ${deleted ? "delete" : "restore"} post`, {
-        preset: "error",
-      });
+      // toast.show(`Couldn't ${deleted ? "delete" : "restore"} post`, {
+      //   preset: "error",
+      // });
     },
   });
 }

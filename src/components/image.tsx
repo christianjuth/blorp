@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import _ from "lodash";
-import { imageSizeCache, measureImage } from "../lib/image";
-import { useTheme } from "tamagui";
+// import { imageSizeCache, measureImage } from "../lib/image";
 
 export const shareImage = async (imageUrl: string) => {};
 
@@ -35,7 +34,6 @@ export function Image({
   onLoad?: () => any;
 }) {
   const [loaded, setLoaded] = useState(false);
-  const theme = useTheme();
 
   const [dimensions, setDimensions] = useState<
     | {
@@ -43,22 +41,25 @@ export function Image({
         height: number;
       }
     | undefined
-  >(_.isString(imageUrl) ? imageSizeCache.get(imageUrl) : undefined);
+  >(
+    undefined,
+    // _.isString(imageUrl) ? imageSizeCache.get(imageUrl) : undefined
+  );
 
   useEffect(() => {
     if (!imageUrl || _.isNumber(aspectRatio) || _.isNumber(imageUrl)) {
       return;
     }
 
-    measureImage(imageUrl)
-      .then((data) => {
-        if (data) {
-          setDimensions(data);
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    // measureImage(imageUrl)
+    //   .then((data) => {
+    //     if (data) {
+    //       setDimensions(data);
+    //     }
+    //   })
+    //   .catch((e) => {
+    //     console.log(e);
+    //   });
   }, [imageUrl, aspectRatio]);
 
   // Calculate aspect ratio
@@ -81,7 +82,7 @@ export function Image({
         borderRadius,
         borderTopRightRadius: borderTopRadius ?? borderRadius,
         borderTopLeftRadius: borderTopRadius ?? borderRadius,
-        backgroundColor: !loaded ? theme.gray3.val : undefined,
+        // backgroundColor: !loaded ? theme.gray3.val : undefined,
         width: maxWidth ? "100%" : undefined,
         maxWidth: maxWidth,
         objectFit,

@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "@ionic/react/css/core.css";
+@import '@ionic/react/css/palettes/dark.system.css';
+
+:root {
+  --ion-tab-bar-color-selected: #ce46e6;
+  --ion-item-border-color: gray;
+  --ion-background-color: red;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root.md {
+    --ion-background-color: black;
+  }
+}
