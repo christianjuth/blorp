@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import { twMerge } from "tailwind-merge";
+
 export function ContentGutters({
   children,
   ...props
@@ -10,11 +12,11 @@ export function ContentGutters({
   const [first, second] = React.Children.toArray(children);
   return (
     <div
-      className="max-w-[900px] w-full flex flex-row mx-auto gap-4"
-      // maxWidth={1050}
-      // w="100%"
-      // mx="auto"
-      // gap="$4"
+      {...props}
+      className={twMerge(
+        "max-w-[1050px] w-full flex flex-row mx-auto gap-5 md:px-6",
+        props.className,
+      )}
       // {...props}
       // $gtMd={{ px: "$4", ...props.$gtMd }}
       // $gtLg={{ px: "$5", gap: "$5", ...props.$gtLg }}
@@ -23,7 +25,7 @@ export function ContentGutters({
         <>
           {first}
           <div
-            className="w-[230px]"
+            className="w-[230px] lg:w-[270px] max-md:hidden flex-shrink-0 relative"
             // w={230} $gtLg={{ w: 270 }} $md={{ dsp: "none" }}
           >
             {second}

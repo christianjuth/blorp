@@ -1,21 +1,19 @@
-import { View, Text, Avatar, YStack, XStack, Square } from "tamagui";
-import { RelativeTime } from "~/src/components/relative-time";
 import {
   useBlockPerson,
   useDeletePost,
   useSavePost,
 } from "~/src/lib/lemmy/index";
-import { Link } from "one";
+// import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
 import { ActionMenu } from "../ui/action-menu";
-import { Share } from "react-native";
-import { Ellipsis, Pin } from "@tamagui/lucide-icons";
+// import { Ellipsis, Pin } from "@tamagui/lucide-icons";
 import { useRequireAuth } from "../auth-context";
-import { useShowPostReportModal } from "./post-report";
-import { useAlert } from "../ui/alert";
+// import { useShowPostReportModal } from "./post-report";
 import { useAuth } from "~/src/stores/auth";
 import { openUrl } from "~/src/lib/linking";
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { RelativeTime } from "../relative-time";
 
 export function PostByline({
   id,
@@ -44,9 +42,7 @@ export function PostByline({
   communitySlug: string;
   published: string;
 }) {
-  const alrt = useAlert();
-
-  const showReportModal = useShowPostReportModal();
+  // const showReportModal = useShowPostReportModal();
   const requireAuth = useRequireAuth();
   const blockPerson = useBlockPerson();
   const deletePost = useDeletePost(apId);
@@ -63,13 +59,13 @@ export function PostByline({
   const [openSignal, setOpenSignal] = useState(0);
   const actions = useMemo(
     () => [
-      {
-        label: "Share",
-        onClick: () =>
-          Share.share({
-            url: `https://blorpblorp.xyz/c/${communitySlug}/posts/${encodedApId}`,
-          }),
-      },
+      // {
+      //   label: "Share",
+      //   onClick: () =>
+      //     Share.share({
+      //       url: `https://blorpblorp.xyz/c/${communitySlug}/posts/${encodedApId}`,
+      //     }),
+      // },
       {
         label: saved ? "Unsave" : "Save",
         onClick: () =>
@@ -103,20 +99,20 @@ export function PostByline({
             },
           ]
         : [
-            {
-              label: "Report",
-              onClick: () =>
-                requireAuth().then(() => {
-                  showReportModal(apId);
-                }),
-              danger: true,
-            },
+            // {
+            //   label: "Report",
+            //   onClick: () =>
+            //     requireAuth().then(() => {
+            //       showReportModal(apId);
+            //     }),
+            //   danger: true,
+            // },
             {
               label: "Block person",
               onClick: async () => {
                 try {
                   await requireAuth();
-                  await alrt(`Block ${creatorName}`);
+                  // await alrt(`Block ${creatorName}`);
                   blockPerson.mutate({
                     person_id: creatorId,
                     block: true,
@@ -131,55 +127,47 @@ export function PostByline({
   );
 
   return (
-    <XStack dsp="flex" fd="row" ai="center" gap={9}>
-      <Square
-        size="$2.5"
-        backgroundColor="$color8"
-        borderRadius="$12"
-        ai="center"
-        jc="center"
-      >
-        <Text fontSize="$4">{creatorName?.substring(0, 1).toUpperCase()}</Text>
-      </Square>
+    <div className="flex flex-row items-center gap-2">
+      <div className="h-8 w-8 bg-zinc-300 dark:bg-zinc-700 flex items-center rounded-full">
+        <span className="text-center mx-auto">
+          {creatorName?.substring(0, 1).toUpperCase()}
+        </span>
+      </div>
 
-      <YStack gap={4}>
-        <Link href={`${linkCtx.root}c/${communitySlug}`} push asChild>
-          <Text fontSize="$2" fontWeight={500} color="$color12" tag="a">
-            c/{communitySlug}
-          </Text>
+      <div className="flex flex-col">
+        <Link to={`${linkCtx.root}c/${communitySlug}`} className="text-xs">
+          c/{communitySlug}
         </Link>
-        <XStack ai="center">
-          <Link href={`${linkCtx.root}u/${encodedCreatorApId}`} push>
-            <Text fontSize="$2" fontWeight={500} color="$color11">
-              u/{creatorName}
-            </Text>
+        <div className="flex flex-row text-xs text-zinc-500">
+          <Link to={`${linkCtx.root}u/${encodedCreatorApId}`}>
+            u/{creatorName}
           </Link>
 
           <RelativeTime
             prefix=" • "
             time={published}
-            color="$color11"
-            fontSize="$3"
+            // color="$color11"
+            // fontSize="$3"
           />
-        </XStack>
-      </YStack>
+        </div>
+      </div>
 
-      <View flex={1} />
+      {/* <View flex={1} /> */}
 
-      {pinned && (
-        <Pin fill="#17B169" color="#17B169" size="$1" rotate="45deg" />
-      )}
+      {/* {pinned && ( */}
+      {/*   <Pin fill="#17B169" color="#17B169" size="$1" rotate="45deg" /> */}
+      {/* )} */}
 
-      <ActionMenu
-        placement="bottom-end"
-        actions={actions}
-        onOpenChange={() => setOpenSignal((s) => s + 1)}
-        trigger={
-          <View p="$2" pr={0}>
-            <Ellipsis size={16} />
-          </View>
-        }
-      />
-    </XStack>
+      {/* <ActionMenu */}
+      {/*   placement="bottom-end" */}
+      {/*   actions={actions} */}
+      {/*   onOpenChange={() => setOpenSignal((s) => s + 1)} */}
+      {/*   trigger={ */}
+      {/*     <View p="$2" pr={0}> */}
+      {/*       <Ellipsis size={16} /> */}
+      {/*     </View> */}
+      {/*   } */}
+      {/* /> */}
+    </div>
   );
 }

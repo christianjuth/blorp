@@ -6,6 +6,7 @@ import _ from "lodash";
 import { useNotificationCount } from "../lib/lemmy";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { isTauri, updateTauri } from "../lib/tauri";
+import { AuthProvider } from "./auth-context";
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
 
@@ -36,8 +37,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <RefreshNotificationCount />
-      {children}
-      {/*   </AuthProvider> */}
+      <AuthProvider>{children}</AuthProvider>
       {/* </AlertProvider> */}
     </QueryClientProvider>
   );

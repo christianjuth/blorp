@@ -1,7 +1,7 @@
-import { Link } from "one";
-import { ScrollView, Text, YStack } from "tamagui";
 import { ContentGutters } from "~/src/components/gutters";
-import { Markdown } from "~/src/components/markdown";
+import Markdown from "react-markdown";
+import { Link } from "react-router-dom";
+import { IonContent, IonPage } from "@ionic/react";
 
 const POLICY = `
 ### **Privacy Policy for Blorp**
@@ -71,26 +71,20 @@ If you have any questions about this Privacy Policy or your data, please contact
 We may update this Privacy Policy occasionally. Updates will be posted in the app or on our website.
 `;
 
-export default function Page() {
-  const content = (
-    <ContentGutters>
-      <YStack flex={1} py="$10" gap="$8">
-        <Link href="/" asChild>
-          <Text tag="a" color="$accentColor">
-            Return home
-          </Text>
-        </Link>
+export function Privacy() {
+  return (
+    <IonPage>
+      <IonContent>
+        <ContentGutters>
+          <div>
+            <Link to="/">Return home</Link>
 
-        <Markdown markdown={POLICY} />
+            <Markdown>{POLICY}</Markdown>
 
-        <Link href="/" asChild>
-          <Text tag="a" color="$accentColor">
-            Return home
-          </Text>
-        </Link>
-      </YStack>
-    </ContentGutters>
+            <Link to="/">Return home</Link>
+          </div>
+        </ContentGutters>
+      </IonContent>
+    </IonPage>
   );
-
-  return <ScrollView bg="$background">{content}</ScrollView>;
 }

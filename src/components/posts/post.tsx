@@ -9,6 +9,8 @@ import { encodeApId, FlattenedPost } from "~/src/lib/lemmy/utils";
 
 import { Link } from "react-router-dom";
 import { PostArticleEmbed } from "./post-article-embed";
+import { PostByline } from "./post-byline";
+import { Voting } from "./post-buttons";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return null;
@@ -253,9 +255,11 @@ export function FeedPostCard(props: PostProps) {
   const showImage = type === "image" && thumbnail && !deleted;
   const showArticle = type === "article" && thumbnail && !deleted;
 
+  const patchPost = usePostsStore((s) => s.patchPost);
+
   return (
     <div
-      className="flex-1 py-4 border-b border-zinc-200 gap-2 flex flex-col dark:border-zinc-800 overflow-hidden"
+      className="flex-1 py-4 border-b border-zinc-100 gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-3"
       // pt="$4"
       // pb="$4"
       // bbc="$color3"
@@ -271,7 +275,7 @@ export function FeedPostCard(props: PostProps) {
       // animation="100ms"
       // w="100%"
     >
-      {/* <PostByline {...props} /> */}
+      <PostByline {...props} />
 
       <Link
         to={postDetailsLink}
@@ -292,20 +296,38 @@ export function FeedPostCard(props: PostProps) {
           {deleted ? "deleted" : name}
         </span>
 
-        <img
-          src={showImage ? thumbnail : undefined}
-          className="md:rounded-lg"
-          // aspectRatio={aspectRatio}
-          // borderRadius={media.gtMd ? 10 : 0}
-          // priority
-        />
+        {showImage && (
+          <div className="max-md:-mx-3 flex flex-col">
+            <img
+              src={thumbnail}
+              className="md:rounded-lg object-cover"
+              onLoad={(e) => {
+                if (!aspectRatio) {
+                  patchPost(apId, {
+                    imageDetails: {
+                      height: e.currentTarget.naturalHeight,
+                      width: e.currentTarget.naturalWidth,
+                    },
+                  });
+                }
+              }}
+              style={{
+                aspectRatio,
+              }}
+              // borderRadius={media.gtMd ? 10 : 0}
+              // priority
+            />
+          </div>
+        )}
       </Link>
 
-      <PostArticleEmbed
-        url={showArticle ? url : undefined}
-        displayUrl={showArticle ? displayUrl : undefined}
-        thumbnail={showArticle ? thumbnail : undefined}
-      />
+      {showArticle && (
+        <PostArticleEmbed
+          url={showArticle ? url : undefined}
+          displayUrl={showArticle ? displayUrl : undefined}
+          thumbnail={showArticle ? thumbnail : undefined}
+        />
+      )}
 
       {/* {type === "video" && !deleted && url && ( */}
       {/*   <PostVideoEmbed url={url} autoPlay={false} /> */}
@@ -315,12 +337,12 @@ export function FeedPostCard(props: PostProps) {
       {/* )} */}
       {/* {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />} */}
 
-      {/* <XStack jc="flex-end" gap="$2"> */}
-      {/*   <Link href={postDetailsLink} asChild> */}
-      {/*     <PostCommentsButton commentsCount={commentsCount} /> */}
-      {/*   </Link> */}
-      {/*   <Voting apId={apId} score={score} myVote={myVote} /> */}
-      {/* </XStack> */}
+      <div className="flex flex-row justify-end gap-2">
+        <Link to={postDetailsLink}>
+          {/* <PostCommentsButton commentsCount={commentsCount} /> */}
+        </Link>
+        <Voting apId={apId} score={score} myVote={myVote} />
+      </div>
     </div>
   );
 }

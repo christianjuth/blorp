@@ -1,40 +1,21 @@
-import type { NativeStackHeaderProps } from "@react-navigation/native-stack";
-import type { BottomTabHeaderProps } from "@react-navigation/bottom-tabs";
 import {
   CommentSortSelect,
-  CommunityFilter,
-  CommunitySortSelect,
-  HomeFilter,
-  PostSortBar,
+  // CommunityFilter,
+  // CommunitySortSelect,
+  // HomeFilter,
+  // PostSortBar,
 } from "../lemmy-sort";
-import {
-  View,
-  Text,
-  XStack,
-  Input,
-  Avatar,
-  YStack,
-  isWeb,
-  useTheme,
-  XStackProps,
-} from "tamagui";
-import {
-  ChevronLeft,
-  X,
-  User,
-  LogOut,
-  ChevronDown,
-  ChevronUp,
-  PlusCircle,
-  Search,
-  Bookmark,
-} from "@tamagui/lucide-icons";
-import Animated from "react-native-reanimated";
-import { useCustomHeaderHeight } from "./hooks";
-import { useScrollContext } from "./scroll-animation-context";
-import { useMedia } from "tamagui";
-import { useAnimatedStyle, interpolate } from "react-native-reanimated";
-import { Link, useRouter } from "one";
+// import {
+//   ChevronLeft,
+//   X,
+//   User,
+//   LogOut,
+//   ChevronDown,
+//   ChevronUp,
+//   PlusCircle,
+//   Search,
+//   Bookmark,
+// } from "@tamagui/lucide-icons";
 import { useState } from "react";
 import { useLinkContext } from "./link-context";
 import { parseAccountInfo, useAuth } from "~/src/stores/auth";
@@ -47,96 +28,101 @@ import {
   usePosts,
 } from "~/src/lib/lemmy/index";
 import { useCreatePostStore } from "~/src/stores/create-post";
-import { Button, RefreshButton } from "../ui/button";
 import * as React from "react";
 import { encodeApId } from "~/src/lib/lemmy/utils";
 import { useFiltersStore } from "~/src/stores/filters";
 import { scrollToTop } from "~/src/features/home-feed";
 
+import { IonButton, IonHeader, IonToolbar, useIonRouter } from "@ionic/react";
+
 const EMPTY_ARR = [];
 
-interface HeaderGuttersProps extends XStackProps {
+interface HeaderGuttersProps {
   darkBackground?: boolean;
 }
 
 function HeaderGutters({
-  darkBackground,
+  // darkBackground,
   children,
   ...props
-}: HeaderGuttersProps) {
-  const { height, insetTop } = useCustomHeaderHeight();
+}: React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
+>) {
+  // const { height, insetTop } = useCustomHeaderHeight();
 
   const [first, second, third] = React.Children.toArray(children);
 
   return (
-    <YStack
-      tag="nav"
-      pt={insetTop}
-      h={height - 0.5}
-      bbw={0.5}
-      bbc={darkBackground ? "#02024E" : "$color3"}
-      bg={darkBackground ? "#02024E" : "$background"}
-      {...props}
-      $theme-dark={{
-        bg: "$background",
-        bbc: "$color3",
-        ...props["$theme-dark"],
-      }}
-      $gtMd={{
-        h: height - 1,
-        bbw: 1,
-        bg: "$background",
-        bbc: "$color3",
-        ...props.$gtMd,
-      }}
-      data-tauri-drag-region
-    >
-      <XStack
-        flex={1}
-        maxWidth={1050}
-        w="100%"
-        mx="auto"
-        gap="$3"
-        px="$3"
-        ai="center"
-        $gtMd={{ px: "$4" }}
-        $gtLg={{ px: "$5" }}
-        data-tauri-drag-region
-      >
-        <XStack
-          ai="center"
-          gap="$3"
-          $gtMd={{ flex: 1, gap: "$4" }}
+    <IonHeader>
+      <IonToolbar>
+        <div
+          className="max-w-[1050px] w-full flex flex-row mx-auto gap-5 md:px-4"
+          // pt={insetTop}
+          // h={height - 0.5}
+          // bbw={0.5}
+          // bbc={darkBackground ? "#02024E" : "$color3"}
+          // bg={darkBackground ? "#02024E" : "$background"}
+          // {...props}
+          // $theme-dark={{
+          //   bg: "$background",
+          //   bbc: "$color3",
+          //   ...props["$theme-dark"],
+          // }}
+          // $gtMd={{
+          //   h: height - 1,
+          //   bbw: 1,
+          //   bg: "$background",
+          //   bbc: "$color3",
+          //   ...props.$gtMd,
+          // }}
           data-tauri-drag-region
         >
-          {first}
-        </XStack>
+          <div
+            // flex={1}
+            // maxWidth={1050}
+            // w="100%"
+            // mx="auto"
+            // gap="$3"
+            // px="$3"
+            // ai="center"
+            // $gtMd={{ px: "$4" }}
+            // $gtLg={{ px: "$5" }}
+            data-tauri-drag-region
+          >
+            <div
+              // ai="center"
+              // gap="$3"
+              // $gtMd={{ flex: 1, gap: "$4" }}
+              data-tauri-drag-region
+            >
+              {first}
+            </div>
 
-        <XStack
-          flex={1}
-          ai="center"
-          $gtMd={{ jc: "center" }}
-          data-tauri-drag-region
-        >
-          {second}
-        </XStack>
+            <div
+              // flex={1}
+              // ai="center"
+              // $gtMd={{ jc: "center" }}
+              data-tauri-drag-region
+            >
+              {second}
+            </div>
 
-        <XStack
-          jc="flex-end"
-          ai="center"
-          gap="$3"
-          $gtMd={{ flex: 1, gap: "$4" }}
-          data-tauri-drag-region
-        >
-          {third}
-        </XStack>
-      </XStack>
-    </YStack>
+            <div
+              // jc="flex-end"
+              // ai="center"
+              // gap="$3"
+              // $gtMd={{ flex: 1, gap: "$4" }}
+              data-tauri-drag-region
+            >
+              {third}
+            </div>
+          </div>
+        </div>
+      </IonToolbar>
+    </IonHeader>
   );
 }
-
-const BBW = 0.5;
-const BBC = "$color3";
 
 const MemoedUserAvatar = React.memo(UserAvatar);
 
@@ -156,203 +142,209 @@ function UserAvatar() {
 
   if (!isLoggedIn && accounts.length === 1) {
     return (
-      <Button br="$12" size="$3" onPress={() => requireAuth()}>
+      <IonButton
+        // br="$12" size="$3"
+        onClick={() => requireAuth()}
+        size="small"
+      >
         Login
-      </Button>
+      </IonButton>
     );
   }
 
-  return (
-    <Dropdown
-      placement="bottom-end"
-      trigger={
-        <Avatar size="$2.5">
-          <Avatar.Image src={person?.avatar} borderRadius="$12" />
-          <Avatar.Fallback
-            backgroundColor="$color8"
-            borderRadius="$12"
-            ai="center"
-            jc="center"
-          >
-            {person ? (
-              <Text fontSize="$3">
-                {person.name?.substring(0, 1).toUpperCase()}
-              </Text>
-            ) : (
-              <User size="$1" />
-            )}
-          </Avatar.Fallback>
-        </Avatar>
-      }
-      onOpenChange={() => setAccountSwitcher(false)}
-    >
-      {({ close }) => (
-        <YStack minWidth={250}>
-          <YStack ai="center" bbw={1} bbc="$color6" py="$2.5" gap="$2">
-            <Avatar size="$5">
-              <Avatar.Image src={person?.avatar} borderRadius="$12" />
-              <Avatar.Fallback
-                backgroundColor="$color8"
-                borderRadius={99999}
-                ai="center"
-                jc="center"
-              >
-                {person ? (
-                  <Text fontSize="$5">
-                    {person.name?.substring(0, 1).toUpperCase()}
-                  </Text>
-                ) : (
-                  <User size="$2" />
-                )}
-              </Avatar.Fallback>
-            </Avatar>
-            <XStack
-              onPress={() => setAccountSwitcher((b) => !b)}
-              tag="button"
-              ai="center"
-              gap="$1"
-              pl="$4.5"
-            >
-              <YStack ai="center">
-                <Text fontSize="$4">
-                  {person?.display_name ?? person?.name}
-                </Text>
-                <Text fontSize="$3" col="$color10">
-                  {instance}
-                </Text>
-              </YStack>
-              {accountSwitcher ? (
-                <ChevronUp size="$1" col="$accentColor" />
-              ) : (
-                <ChevronDown size="$1" col="$accentColor" />
-              )}
-            </XStack>
-          </YStack>
-          <YStack py="$1.5">
-            {accountSwitcher ? (
-              <>
-                {accounts.map((a, index) => {
-                  const { person, instance } = parseAccountInfo(a);
-                  return (
-                    <XStack
-                      py="$1.5"
-                      tag="button"
-                      ai="center"
-                      px="$2.5"
-                      gap="$2.5"
-                      onPress={() => {
-                        close();
-                        setAccountIndex(index);
-                      }}
-                      key={instance + index}
-                    >
-                      <Avatar size="$2.5">
-                        <Avatar.Image src={person?.avatar} borderRadius="$12" />
-                        <Avatar.Fallback
-                          backgroundColor="$color8"
-                          borderRadius="$12"
-                          ai="center"
-                          jc="center"
-                        >
-                          {person ? (
-                            <Text fontSize="$4">
-                              {person.name?.substring(0, 1).toUpperCase()}
-                            </Text>
-                          ) : (
-                            <User size="$1" />
-                          )}
-                        </Avatar.Fallback>
-                      </Avatar>
-                      <YStack ai="flex-start">
-                        <Text fontSize="$4">
-                          {person?.display_name ?? person?.name}
-                        </Text>
-                        <Text fontSize="$3" col="$color11">
-                          {instance}
-                        </Text>
-                      </YStack>
-                    </XStack>
-                  );
-                })}
+  return null;
 
-                <XStack
-                  py="$2"
-                  tag="button"
-                  ai="center"
-                  px="$2.5"
-                  gap="$2.5"
-                  onPress={() => {
-                    close();
-                    requireAuth({ addAccount: true });
-                  }}
-                >
-                  <PlusCircle size="$2" px="$1" col="$color9" />
-                  <Text fontSize="$4" col="$color10">
-                    Add account
-                  </Text>
-                </XStack>
-              </>
-            ) : (
-              <>
-                {isLoggedIn && (
-                  <Link href={`${linkCtx.root}saved`} push asChild>
-                    <XStack
-                      py="$2"
-                      tag="a"
-                      ai="center"
-                      px="$2.5"
-                      gap="$2.5"
-                      onPress={close}
-                    >
-                      <Bookmark size="$1.5" col="$color10" />
-                      <Text>Saved</Text>
-                    </XStack>
-                  </Link>
-                )}
+  // return (
+  //   <Dropdown
+  //     placement="bottom-end"
+  //     trigger={
+  //       <Avatar size="$2.5">
+  //         <Avatar.Image src={person?.avatar} borderRadius="$12" />
+  //         <Avatar.Fallback
+  //           backgroundColor="$color8"
+  //           borderRadius="$12"
+  //           ai="center"
+  //           jc="center"
+  //         >
+  //           {person ? (
+  //             <Text fontSize="$3">
+  //               {person.name?.substring(0, 1).toUpperCase()}
+  //             </Text>
+  //           ) : (
+  //             <User size="$1" />
+  //           )}
+  //         </Avatar.Fallback>
+  //       </Avatar>
+  //     }
+  //     onOpenChange={() => setAccountSwitcher(false)}
+  //   >
+  //     {({ close }) => (
+  //       <YStack minWidth={250}>
+  //         <YStack ai="center" bbw={1} bbc="$color6" py="$2.5" gap="$2">
+  //           <Avatar size="$5">
+  //             <Avatar.Image src={person?.avatar} borderRadius="$12" />
+  //             <Avatar.Fallback
+  //               backgroundColor="$color8"
+  //               borderRadius={99999}
+  //               ai="center"
+  //               jc="center"
+  //             >
+  //               {person ? (
+  //                 <Text fontSize="$5">
+  //                   {person.name?.substring(0, 1).toUpperCase()}
+  //                 </Text>
+  //               ) : (
+  //                 <User size="$2" />
+  //               )}
+  //             </Avatar.Fallback>
+  //           </Avatar>
+  //           <XStack
+  //             onPress={() => setAccountSwitcher((b) => !b)}
+  //             tag="button"
+  //             ai="center"
+  //             gap="$1"
+  //             pl="$4.5"
+  //           >
+  //             <YStack ai="center">
+  //               <Text fontSize="$4">
+  //                 {person?.display_name ?? person?.name}
+  //               </Text>
+  //               <Text fontSize="$3" col="$color10">
+  //                 {instance}
+  //               </Text>
+  //             </YStack>
+  //             {accountSwitcher ? (
+  //               <ChevronUp size="$1" col="$accentColor" />
+  //             ) : (
+  //               <ChevronDown size="$1" col="$accentColor" />
+  //             )}
+  //           </XStack>
+  //         </YStack>
+  //         <YStack py="$1.5">
+  //           {accountSwitcher ? (
+  //             <>
+  //               {accounts.map((a, index) => {
+  //                 const { person, instance } = parseAccountInfo(a);
+  //                 return (
+  //                   <XStack
+  //                     py="$1.5"
+  //                     tag="button"
+  //                     ai="center"
+  //                     px="$2.5"
+  //                     gap="$2.5"
+  //                     onPress={() => {
+  //                       close();
+  //                       setAccountIndex(index);
+  //                     }}
+  //                     key={instance + index}
+  //                   >
+  //                     <Avatar size="$2.5">
+  //                       <Avatar.Image src={person?.avatar} borderRadius="$12" />
+  //                       <Avatar.Fallback
+  //                         backgroundColor="$color8"
+  //                         borderRadius="$12"
+  //                         ai="center"
+  //                         jc="center"
+  //                       >
+  //                         {person ? (
+  //                           <Text fontSize="$4">
+  //                             {person.name?.substring(0, 1).toUpperCase()}
+  //                           </Text>
+  //                         ) : (
+  //                           <User size="$1" />
+  //                         )}
+  //                       </Avatar.Fallback>
+  //                     </Avatar>
+  //                     <YStack ai="flex-start">
+  //                       <Text fontSize="$4">
+  //                         {person?.display_name ?? person?.name}
+  //                       </Text>
+  //                       <Text fontSize="$3" col="$color11">
+  //                         {instance}
+  //                       </Text>
+  //                     </YStack>
+  //                   </XStack>
+  //                 );
+  //               })}
 
-                {person && (
-                  <Link
-                    href={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}
-                    push
-                    asChild
-                  >
-                    <XStack
-                      py="$2"
-                      tag="a"
-                      ai="center"
-                      px="$2.5"
-                      gap="$2.5"
-                      onPress={close}
-                    >
-                      <User size="$1.5" col="$color10" />
-                      <Text>Profile</Text>
-                    </XStack>
-                  </Link>
-                )}
+  //               <XStack
+  //                 py="$2"
+  //                 tag="button"
+  //                 ai="center"
+  //                 px="$2.5"
+  //                 gap="$2.5"
+  //                 onPress={() => {
+  //                   close();
+  //                   requireAuth({ addAccount: true });
+  //                 }}
+  //               >
+  //                 <PlusCircle size="$2" px="$1" col="$color9" />
+  //                 <Text fontSize="$4" col="$color10">
+  //                   Add account
+  //                 </Text>
+  //               </XStack>
+  //             </>
+  //           ) : (
+  //             <>
+  //               {isLoggedIn && (
+  //                 <Link href={`${linkCtx.root}saved`} push asChild>
+  //                   <XStack
+  //                     py="$2"
+  //                     tag="a"
+  //                     ai="center"
+  //                     px="$2.5"
+  //                     gap="$2.5"
+  //                     onPress={close}
+  //                   >
+  //                     <Bookmark size="$1.5" col="$color10" />
+  //                     <Text>Saved</Text>
+  //                   </XStack>
+  //                 </Link>
+  //               )}
 
-                <XStack
-                  py="$2"
-                  ai="center"
-                  px="$2.5"
-                  gap="$2.5"
-                  bg="transparent"
-                  tag="button"
-                  bw={0}
-                  onPress={() => {
-                    logout();
-                    close();
-                  }}
-                >
-                  <LogOut size="$1.5" col="$color10" />
-                  <Text>Logout</Text>
-                </XStack>
-              </>
-            )}
-          </YStack>
-        </YStack>
-      )}
-    </Dropdown>
-  );
+  //               {person && (
+  //                 <Link
+  //                   href={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}
+  //                   push
+  //                   asChild
+  //                 >
+  //                   <XStack
+  //                     py="$2"
+  //                     tag="a"
+  //                     ai="center"
+  //                     px="$2.5"
+  //                     gap="$2.5"
+  //                     onPress={close}
+  //                   >
+  //                     <User size="$1.5" col="$color10" />
+  //                     <Text>Profile</Text>
+  //                   </XStack>
+  //                 </Link>
+  //               )}
+
+  //               <XStack
+  //                 py="$2"
+  //                 ai="center"
+  //                 px="$2.5"
+  //                 gap="$2.5"
+  //                 bg="transparent"
+  //                 tag="button"
+  //                 bw={0}
+  //                 onPress={() => {
+  //                   logout();
+  //                   close();
+  //                 }}
+  //               >
+  //                 <LogOut size="$1.5" col="$color10" />
+  //                 <Text>Logout</Text>
+  //               </XStack>
+  //             </>
+  //           )}
+  //         </YStack>
+  //       </YStack>
+  //     )}
+  //   </Dropdown>
+  // );
 }
 
 function NavbarRightSide({ children }: { children?: React.ReactNode }) {
@@ -372,70 +364,38 @@ function SearchBar({
   hideOnMd?: boolean;
 }) {
   const linkCtx = useLinkContext();
-  const router = useRouter();
+  // const router = useRouter();
   const [search, setSearch] = useState(defaultValue ?? "");
 
-  return (
-    <Input
-      bg="$color3"
-      bw={0}
-      $gtMd={{
-        opacity: 0.7,
-      }}
-      br="$12"
-      h="$3"
-      bc="$color3"
-      placeholder={`Search`}
-      flex={1}
-      value={search}
-      onChangeText={setSearch}
-      onSubmitEditing={() => {
-        if (linkCtx.root !== "/inbox/") {
-          router.push(`${linkCtx.root}s/${search}`);
-        }
-      }}
-      $md={{
-        display: hideOnMd ? "none" : "flex",
-      }}
-    />
-  );
+  return null;
+
+  // return (
+  //   <Input
+  //     bg="$color3"
+  //     bw={0}
+  //     $gtMd={{
+  //       opacity: 0.7,
+  //     }}
+  //     br="$12"
+  //     h="$3"
+  //     bc="$color3"
+  //     placeholder={`Search`}
+  //     flex={1}
+  //     value={search}
+  //     onChangeText={setSearch}
+  //     onSubmitEditing={() => {
+  //       if (linkCtx.root !== "/inbox/") {
+  //         router.push(`${linkCtx.root}s/${search}`);
+  //       }
+  //     }}
+  //     $md={{
+  //       display: hideOnMd ? "none" : "flex",
+  //     }}
+  //   />
+  // );
 }
 
-export function useHeaderAnimation() {
-  const { scrollY } = useScrollContext();
-  const header = useCustomHeaderHeight();
-  const media = useMedia();
-
-  // Animated style for the header
-  const container = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      scrollY.value,
-      [0, 1],
-      [0, -1 * (header.height - header.insetTop)],
-      "clamp",
-    );
-    return {
-      transform: [{ translateY: media.gtMd ? 0 : translateY }],
-    };
-  }, [scrollY, header.height, header.insetTop, media.gtMd]);
-
-  const content = useAnimatedStyle(() => {
-    const opacity = interpolate(scrollY.value, [0, 1], [1, 0], "clamp");
-    return {
-      opacity: media.gtMd ? 1 : opacity,
-    };
-  }, [scrollY, media.gtMd]);
-
-  return {
-    container,
-    content,
-  };
-}
-
-export function HomeHeader({ navigation, route }: NativeStackHeaderProps) {
-  const theme = useTheme();
-  const styles = useHeaderAnimation();
-
+export function HomeHeader() {
   const postSort = useFiltersStore((s) => s.postSort);
   const listingType = useFiltersStore((s) => s.listingType);
 
@@ -455,143 +415,129 @@ export function HomeHeader({ navigation, route }: NativeStackHeaderProps) {
   const hasNewPost = data[0] && mostRecentPost?.data?.post.ap_id !== data[0];
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.background.val,
-        },
-      ]}
-    >
-      <Animated.View style={styles.content}>
-        <HeaderGutters>
-          <HomeFilter />
-          <SearchBar hideOnMd />
-          <>
-            {hasNewPost && (
-              <RefreshButton
-                hideOnGtMd
-                onPress={() => {
-                  scrollToTop.current.scrollToOffset();
-                  posts.refetch();
-                }}
-              />
-            )}
-            <PostSortBar hideOnGtMd />
-            <NavbarRightSide />
-          </>
-        </HeaderGutters>
-      </Animated.View>
-    </Animated.View>
+    <HeaderGutters>
+      {/* <HomeFilter /> */}
+      <SearchBar hideOnMd />
+      <>
+        {/* {hasNewPost && ( */}
+        {/*   <RefreshButton */}
+        {/*     hideOnGtMd */}
+        {/*     onPress={() => { */}
+        {/*       scrollToTop.current.scrollToOffset(); */}
+        {/*       posts.refetch(); */}
+        {/*     }} */}
+        {/*   /> */}
+        {/* )} */}
+        {/* <PostSortBar hideOnGtMd /> */}
+        <NavbarRightSide />
+      </>
+    </HeaderGutters>
   );
 }
 
 function BackButton({ onPress }: { onPress?: () => any }) {
-  const router = useRouter();
+  const router = useIonRouter();
   const linkCtx = useLinkContext();
 
   if (!onPress) {
     onPress = () => {
-      router.replace(linkCtx.root);
+      router.goBack();
+      // router.replace(linkCtx.root);
     };
   }
 
   return (
-    <Button
-      unstyled
-      p={2}
-      px={0}
-      bg="transparent"
-      borderRadius="$12"
-      dsp="flex"
-      fd="row"
-      ai="center"
-      bw={0}
-      onPress={onPress}
-      h="auto"
-      w="auto"
-      mx={-7}
+    <button
+    // unstyled
+    // p={2}
+    // px={0}
+    // bg="transparent"
+    // borderRadius="$12"
+    // dsp="flex"
+    // fd="row"
+    // ai="center"
+    // bw={0}
+    // onPress={onPress}
+    // h="auto"
+    // w="auto"
+    // mx={-7}
     >
-      <ChevronLeft color="$accentColor" size="$2" />
-    </Button>
+      Back
+      {/* <ChevronLeft color="$accentColor" size="$2" /> */}
+    </button>
   );
 }
 
-export function SavedPostsHeader(props: NativeStackHeaderProps) {
+export function SavedPostsHeader() {
   return (
     <HeaderGutters>
-      <BackButton
-        onPress={
-          "back" in props && props.back
-            ? () => props.navigation.pop(1)
-            : undefined
-        }
-      />
+      {/* <BackButton */}
+      {/*   onPress={ */}
+      {/*     "back" in props && props.back */}
+      {/*       ? () => props.navigation.pop(1) */}
+      {/*       : undefined */}
+      {/*   } */}
+      {/* /> */}
 
-      <Text fontSize="$5" fontWeight="bold">
-        Saved
-      </Text>
+      <span>Saved</span>
 
       <NavbarRightSide />
     </HeaderGutters>
   );
 }
 
-export function CommunityHeader(
-  props: NativeStackHeaderProps | BottomTabHeaderProps,
-) {
-  const media = useMedia();
+export function CommunityHeader() {
   const linkCtx = useLinkContext();
 
-  const router = useRouter();
+  // const params = props.route.params;
+  // const communityName =
+  //   params &&
+  //   "communityName" in params &&
+  //   typeof params.communityName === "string"
+  //     ? params.communityName
+  //     : undefined;
 
-  const params = props.route.params;
-  const communityName =
-    params &&
-    "communityName" in params &&
-    typeof params.communityName === "string"
-      ? params.communityName
-      : undefined;
+  // const initSearch =
+  //   params && "search" in params && typeof params.search === "string"
+  //     ? params.search
+  //     : undefined;
+  //
 
-  const initSearch =
-    params && "search" in params && typeof params.search === "string"
-      ? params.search
-      : undefined;
+  const initSearch = "";
 
   const [search, setSearch] = useState(initSearch);
 
   return (
-    <HeaderGutters darkBackground>
-      <BackButton
-        onPress={
-          "back" in props && props.back
-            ? () => props.navigation.pop(1)
-            : undefined
-        }
-      />
+    <HeaderGutters>
+      {/* <BackButton */}
+      {/*   onPress={ */}
+      {/*     "back" in props && props.back */}
+      {/*       ? () => props.navigation.pop(1) */}
+      {/*       : undefined */}
+      {/*   } */}
+      {/* /> */}
 
       <>
-        {media.gtMd && (
-          <Input
-            bg="$color3"
-            br="$12"
-            h="$3"
-            bc="$color3"
-            placeholder={`Search ${communityName}`}
-            flex={1}
-            maxWidth={500}
-            value={search}
-            onChangeText={setSearch}
-            onSubmitEditing={() => {
-              router.push(`${linkCtx.root}c/${communityName}/s/${search}`);
-            }}
-          />
-        )}
-        {media.md && (
-          <Text col="white" fontSize="$5" fontWeight="bold">
-            {communityName}
-          </Text>
-        )}
+        <input
+        // bg="$color3"
+        // br="$12"
+        // h="$3"
+        // bc="$color3"
+        // placeholder={`Search ${communityName}`}
+        // flex={1}
+        // maxWidth={500}
+        // value={search}
+        // onChangeText={setSearch}
+        // onSubmitEditing={() => {
+        //   router.push(`${linkCtx.root}c/${communityName}/s/${search}`);
+        // }}
+        />
+        <span
+        // col="white" fontSize="$5" fontWeight="bold"
+        >
+          Community
+          {/* {communityName} */}
+        </span>
       </>
 
       <NavbarRightSide />
@@ -599,34 +545,35 @@ export function CommunityHeader(
   );
 }
 
-export function SearchHeader(
-  props: NativeStackHeaderProps | BottomTabHeaderProps,
-) {
-  const params = props.route.params;
-  const initSearch =
-    params && "search" in params && typeof params.search === "string"
-      ? params.search
-      : undefined;
+export function SearchHeader() {
+  // const params = props.route.params;
+  // const initSearch =
+  //   params && "search" in params && typeof params.search === "string"
+  //     ? params.search
+  //     : undefined;
+
+  const initSearch = "";
 
   return (
-    <HeaderGutters $md={{ bbc: "transparent", bbw: 0 }}>
+    <HeaderGutters
+    // $md={{ bbc: "transparent", bbw: 0 }}
+    >
       <>
-        {"back" in props && props.back && (
-          <Button
-            unstyled
-            p={0}
-            bg="transparent"
-            borderRadius="$12"
-            dsp="flex"
-            fd="row"
-            ai="center"
-            bw={0}
-            onPress={() => props.navigation.pop(1)}
-            h="auto"
-          >
-            <ChevronLeft color="$accentColor" size="$1.5" />
-          </Button>
-        )}
+        <button
+        // unstyled
+        // p={0}
+        // bg="transparent"
+        // borderRadius="$12"
+        // dsp="flex"
+        // fd="row"
+        // ai="center"
+        // bw={0}
+        // onPress={() => props.navigation.pop(1)}
+        // h="auto"
+        >
+          back
+          {/* <ChevronLeft color="$accentColor" size="$1.5" /> */}
+        </button>
       </>
       <SearchBar defaultValue={initSearch} />
       <NavbarRightSide />
@@ -634,150 +581,150 @@ export function SearchHeader(
   );
 }
 
-export function CommunitiesHeader(
-  props: NativeStackHeaderProps | BottomTabHeaderProps,
-) {
+export function CommunitiesHeader() {
   return (
     <HeaderGutters>
-      <CommunityFilter />
+      {/* <CommunityFilter /> */}
       <SearchBar />
-      <NavbarRightSide>
-        <CommunitySortSelect />
-      </NavbarRightSide>
+      <NavbarRightSide>{/* <CommunitySortSelect /> */}</NavbarRightSide>
     </HeaderGutters>
   );
 }
 
-export function UserHeader(
-  props: NativeStackHeaderProps | BottomTabHeaderProps,
-) {
+export function UserHeader() {
   return (
     <HeaderGutters>
       <>
-        {"back" in props && props.back && (
-          <Button
-            unstyled
-            p={2}
-            bg="transparent"
-            borderRadius="$12"
-            dsp="flex"
-            fd="row"
-            ai="center"
-            bw={0}
-            onPress={() => props.navigation.pop(1)}
-            h="auto"
-          >
-            <ChevronLeft color="$accentColor" size="$2" />
-          </Button>
-        )}
+        <button
+        // unstyled
+        // p={2}
+        // bg="transparent"
+        // borderRadius="$12"
+        // dsp="flex"
+        // fd="row"
+        // ai="center"
+        // bw={0}
+        // onPress={() => props.navigation.pop(1)}
+        // h="auto"
+        >
+          back
+          {/* <ChevronLeft color="$accentColor" size="$2" /> */}
+        </button>
       </>
-      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-        {props.options.title}
-      </Text>
-      <NavbarRightSide />
-    </HeaderGutters>
-  );
-}
-
-export function PostHeader(
-  props: NativeStackHeaderProps | BottomTabHeaderProps,
-) {
-  const params = props.route.params;
-  const communityName =
-    params &&
-    "communityName" in params &&
-    typeof params.communityName === "string"
-      ? params.communityName
-      : undefined;
-
-  return (
-    <HeaderGutters darkBackground>
-      <BackButton
-        onPress={
-          "back" in props && props.back
-            ? () => props.navigation.pop(1)
-            : undefined
-        }
-      />
-      <Text
-        fontWeight="bold"
-        fontSize="$5"
-        overflow="hidden"
-        pos="relative"
-        numberOfLines={1}
-        col="white"
+      <span
+      // fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative"
       >
-        {communityName}
-      </Text>
+        User
+        {/* {props.options.title} */}
+      </span>
       <NavbarRightSide />
     </HeaderGutters>
   );
 }
 
-export function ModalHeader(props: NativeStackHeaderProps) {
-  const { height, insetTop } = useCustomHeaderHeight();
+export function PostHeader() {
+  // const params = props.route.params;
+  // const communityName =
+  //   params &&
+  //   "communityName" in params &&
+  //   typeof params.communityName === "string"
+  //     ? params.communityName
+  //     : undefined;
+
   return (
-    <XStack
-      bg="$background"
-      bbc={BBC}
-      bbw={BBW}
-      btw={0}
-      btc="transparent"
-      w="unset"
-      px="$3"
-      ai="center"
-      pt={insetTop}
-      h={height - BBW}
+    <HeaderGutters>
+      {/* <BackButton */}
+      {/*   onPress={ */}
+      {/*     "back" in props && props.back */}
+      {/*       ? () => props.navigation.pop(1) */}
+      {/*       : undefined */}
+      {/*   } */}
+      {/* /> */}
+      <span
+      // fontWeight="bold"
+      // fontSize="$5"
+      // overflow="hidden"
+      // pos="relative"
+      // numberOfLines={1}
+      // col="white"
+      >
+        Community
+        {/* {communityName} */}
+      </span>
+      <NavbarRightSide />
+    </HeaderGutters>
+  );
+}
+
+export function ModalHeader() {
+  return (
+    <div
+    // bg="$background"
+    // bbc={BBC}
+    // bbw={BBW}
+    // btw={0}
+    // btc="transparent"
+    // w="unset"
+    // px="$3"
+    // ai="center"
+    // pt={insetTop}
+    // h={height - BBW}
     >
-      <View flex={1} flexBasis={0} ai="flex-start">
-        {props.back && (
-          <Button
-            unstyled
-            p={0}
-            bg="transparent"
-            dsp="flex"
-            fd="row"
-            ai="center"
-            bw={0}
-            onPress={props.navigation.goBack}
-            h="auto"
-          >
-            <X color="$accentColor" />
-          </Button>
-        )}
-      </View>
-      <Text fontWeight="bold" fontSize="$5" overflow="hidden">
-        {props.options.title}
-      </Text>
-      <View flex={1} flexBasis={0} ai="flex-end"></View>
-    </XStack>
+      <div
+      // flex={1} flexBasis={0} ai="flex-start"
+      >
+        <button
+        // unstyled
+        // p={0}
+        // bg="transparent"
+        // dsp="flex"
+        // fd="row"
+        // ai="center"
+        // bw={0}
+        // onPress={props.navigation.goBack}
+        // h="auto"
+        >
+          close
+          {/* <X color="$accentColor" /> */}
+        </button>
+      </div>
+      <span
+      // fontWeight="bold" fontSize="$5" overflow="hidden"
+      >
+        Modal
+        {/* {props.options.title} */}
+      </span>
+      {/* <View flex={1} flexBasis={0} ai="flex-end"></View> */}
+    </div>
   );
 }
 
-export function StackHeader(props: NativeStackHeaderProps) {
+export function StackHeader() {
   return (
     <HeaderGutters>
       <>
-        {"back" in props && props.back && (
-          <Button
-            unstyled
-            p={2}
-            bg="transparent"
-            borderRadius="$12"
-            dsp="flex"
-            fd="row"
-            ai="center"
-            bw={0}
-            onPress={() => props.navigation.pop(1)}
-            h="auto"
-          >
-            <ChevronLeft color="$accentColor" size="$2" />
-          </Button>
-        )}
+        <button
+        // unstyled
+        // p={2}
+        // bg="transparent"
+        // borderRadius="$12"
+        // dsp="flex"
+        // fd="row"
+        // ai="center"
+        // bw={0}
+        // onPress={() => props.navigation.pop(1)}
+        // h="auto"
+        >
+          back
+          {/* <ChevronLeft color="$accentColor" size="$2" /> */}
+        </button>
 
-        <Text fontWeight={900} fontSize="$5" overflow="hidden" pos="relative">
-          {props.options.title ?? props.route.name}
-        </Text>
+        <span
+        // fontWeight={900} fontSize="$5" overflow="hidden" pos="relative"
+        >
+          Stack
+          {/* {props.options.title ?? props.route.name} */}
+        </span>
       </>
 
       <></>
@@ -787,30 +734,32 @@ export function StackHeader(props: NativeStackHeaderProps) {
   );
 }
 
-export function BottomTabBarHeader(props: BottomTabHeaderProps) {
+export function BottomTabBarHeader() {
   return (
     <HeaderGutters>
       <>
-        {props.navigation.canGoBack() && (
-          <Button
-            unstyled
-            p={2}
-            bg="transparent"
-            borderRadius="$12"
-            dsp="flex"
-            fd="row"
-            ai="center"
-            bw={0}
-            onPress={() => props.navigation.goBack()}
-            h="auto"
-          >
-            <ChevronLeft color="$accentColor" size="$2" />
-          </Button>
-        )}
+        <button
+        // unstyled
+        // p={2}
+        // bg="transparent"
+        // borderRadius="$12"
+        // dsp="flex"
+        // fd="row"
+        // ai="center"
+        // bw={0}
+        // onPress={() => props.navigation.goBack()}
+        // h="auto"
+        >
+          back
+          {/* <ChevronLeft color="$accentColor" size="$2" /> */}
+        </button>
 
-        <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-          {props.options.title ?? props.route.name}
-        </Text>
+        <span
+        // fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative"
+        >
+          Bottom tab bar
+          {/* {props.options.title ?? props.route.name} */}
+        </span>
       </>
       <></>
       <NavbarRightSide />
@@ -818,9 +767,7 @@ export function BottomTabBarHeader(props: BottomTabHeaderProps) {
   );
 }
 
-export function CreatePostHeaderStepOne(props: BottomTabHeaderProps) {
-  const router = useRouter();
-
+export function CreatePostHeaderStepOne() {
   const selectedCommunity = useCreatePostStore((s) => s.community);
   const isPostReady = useCreatePostStore(
     (s) => s.community && s.title.length > 0 && s.content.length > 0,
@@ -834,107 +781,113 @@ export function CreatePostHeaderStepOne(props: BottomTabHeaderProps) {
   return (
     <HeaderGutters>
       <>
-        {props.navigation.canGoBack() && (
-          <Button
-            unstyled
-            p={2}
-            bg="transparent"
-            borderRadius="$12"
-            dsp="flex"
-            fd="row"
-            ai="center"
-            bw={0}
-            onPress={() => props.navigation.goBack()}
-            h="auto"
-          >
-            <X color="$accentColor" size="$2" />
-          </Button>
-        )}
+        <button
+        // unstyled
+        // p={2}
+        // bg="transparent"
+        // borderRadius="$12"
+        // dsp="flex"
+        // fd="row"
+        // ai="center"
+        // bw={0}
+        // onPress={() => props.navigation.goBack()}
+        // h="auto"
+        >
+          close
+          {/* <X color="$accentColor" size="$2" /> */}
+        </button>
       </>
-      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-        {props.options.title ?? props.route.name}
-      </Text>
+      <span
+      // fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative"
+      >
+        Title
+        {/* {props.options.title ?? props.route.name} */}
+      </span>
       {selectedCommunity ? (
-        <Button
-          bg={isPostReady ? "$accentColor" : "$color3"}
-          br="$12"
-          size="$3"
-          onPress={() => {
-            createPost
-              .mutateAsync({
-                community_id: selectedCommunity.id,
-                name: title,
-                body: content ? content : undefined,
-                url: url ? url : undefined,
-              })
-              .then(() => {
-                reset();
-              });
-          }}
-          disabled={!isPostReady || createPost.isPending}
+        <button
+        // bg={isPostReady ? "$accentColor" : "$color3"}
+        // br="$12"
+        // size="$3"
+        // onPress={() => {
+        //   createPost
+        //     .mutateAsync({
+        //       community_id: selectedCommunity.id,
+        //       name: title,
+        //       body: content ? content : undefined,
+        //       url: url ? url : undefined,
+        //     })
+        //     .then(() => {
+        //       reset();
+        //     });
+        // }}
+        // disabled={!isPostReady || createPost.isPending}
         >
           Post
-        </Button>
+        </button>
       ) : (
         // Web seems to erase stack history on page reload,
         // so replace works better on web, but on native
         // it negativly impacts the modal animation
         // so we replace on web and push on native
-        <Link href="/create/choose-community" asChild replace={isWeb}>
-          <Button bg="$accentColor" br="$12" size="$3">
-            Next
-          </Button>
-        </Link>
+        // <Link href="/create/choose-community" asChild replace={isWeb}>
+        <button
+        // bg="$accentColor" br="$12" size="$3"
+        >
+          Next
+        </button>
+        // </Link>
       )}
     </HeaderGutters>
   );
 }
 
-export function CreatePostHeaderStepTwo(props: BottomTabHeaderProps) {
-  const router = useRouter();
+export function CreatePostHeaderStepTwo() {
   return (
     <HeaderGutters>
       <>
-        {props.navigation.canGoBack() && (
-          <Button
-            unstyled
-            p={2}
-            bg="transparent"
-            borderRadius="$12"
-            dsp="flex"
-            fd="row"
-            ai="center"
-            bw={0}
-            onPress={() => {
-              // Web seems to erase stack history on page reload,
-              // so replace works better on web, but on native
-              // it negativly impacts the modal animation
-              // so we replace on web and pop on native
-              if (isWeb) {
-                router.replace("/create");
-              } else {
-                props.navigation.goBack();
-              }
-            }}
-            h="auto"
-          >
-            <X color="$accentColor" size="$2" />
-          </Button>
-        )}
+        <button
+        // unstyled
+        // p={2}
+        // bg="transparent"
+        // borderRadius="$12"
+        // dsp="flex"
+        // fd="row"
+        // ai="center"
+        // bw={0}
+        // onPress={() => {
+        //   // Web seems to erase stack history on page reload,
+        //   // so replace works better on web, but on native
+        //   // it negativly impacts the modal animation
+        //   // so we replace on web and pop on native
+        //   // if (isWeb) {
+        //   //   router.replace("/create");
+        //   // } else {
+        //   //   props.navigation.goBack();
+        //   // }
+        // }}
+        // h="auto"
+        >
+          close
+          {/* <X color="$accentColor" size="$2" /> */}
+        </button>
       </>
-      <Text fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative">
-        {props.options.title ?? props.route.name}
-      </Text>
+      <span
+      // fontWeight="bold" fontSize="$5" overflow="hidden" pos="relative"
+      >
+        Create post step 2{/* {props.options.title ?? props.route.name} */}
+      </span>
     </HeaderGutters>
   );
 }
 
-export function SettingsHeader(props: BottomTabHeaderProps) {
+export function SettingsHeader() {
   return (
     <HeaderGutters>
-      <Text fontWeight={900} fontSize="$5" overflow="hidden" pos="relative">
+      <span
+      // fontWeight={900} fontSize="$5" overflow="hidden" pos="relative"
+      >
         Settings
-      </Text>
+      </span>
       <></>
       <NavbarRightSide />
     </HeaderGutters>

@@ -7,7 +7,11 @@ import Router from "./Router";
 
 import { Providers } from "~/src/components/providers";
 
-setupIonicReact();
+setupIonicReact({
+  mode: "ios",
+  statusTap: true,
+  swipeBackEnabled: true,
+});
 
 export default function App() {
   return (

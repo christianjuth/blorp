@@ -1,15 +1,92 @@
 @import "tailwindcss";
-@import "@ionic/react/css/core.css";
+
+/* Core CSS required for Ionic components to work properly */
+@import '@ionic/react/css/core.css';
+
+/* Basic CSS for apps built with Ionic */
+/* @import '@ionic/react/css/normalize.css'; */
+/* @import '@ionic/react/css/structure.css'; */
+/* @import '@ionic/react/css/typography.css'; */
+
+/* Optional CSS utils that can be commented out */
+@import '@ionic/react/css/padding.css';
+/* @import '@ionic/react/css/float-elements.css'; */
+/* @import '@ionic/react/css/text-alignment.css'; */
+/* @import '@ionic/react/css/text-transformation.css'; */
+/* @import '@ionic/react/css/flex-utils.css'; */
+/* @import '@ionic/react/css/display.css'; */
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
 @import '@ionic/react/css/palettes/dark.system.css';
 
 :root {
-  --ion-tab-bar-color-selected: #ce46e6;
+  --accent-color: #ce46e6;
+
+  --ion-color-primary: var(--accent-color);
+  --ion-tab-bar-color-selected: var(--accent-color);
+  /* --ion-toolbar-color: #ce46e6; */
+
   --ion-item-border-color: gray;
-  --ion-background-color: red;
+  --ion-toolbar-background: white;
+  --ion-tab-bar-background: white;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root.md {
+  :root {
     --ion-background-color: black;
+    --ion-toolbar-background: black;
+    --ion-tab-bar-background: black;
   }
 }
+
+button {
+  cursor: pointer;
+}
+
+ion-button {
+  --border-radius: 9999px;
+}
+
+ion-toolbar {
+  --min-height: 60px;
+}
+
+ion-tab-bar {
+  padding-right: var(--ion-safe-area-right);
+  padding-bottom: var(--ion-safe-area-bottom, 0);
+  padding-left: var(--ion-safe-area-left);
+}
+
+ion-title {
+  font-weight: 900;
+}
+
+*::selection {
+  color: white !important;
+  background-color: var(--accent-color) !important;
+}
+
+[data-tauri-drag-region] {
+  user-select: none;
+}
+
+* {
+  scrollbar-color: var(--color7) transparent;
+}
+
+/* ::-webkit-scrollbar { */
+/*   width: 8px; */
+/*   border-left: 1px solid transparent; */
+/*   border-right: 1px solid transparent; */
+/*   background: transparent; */
+/* } */
+/* ::-webkit-scrollbar-thumb { */
+/*   background-color: var(--color7); */
+/*   border-radius: 12px; */
+/* } */

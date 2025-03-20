@@ -12,8 +12,18 @@ import { useMostRecentPost, usePosts } from "../lib/lemmy";
 import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
 import { isNotNull } from "../lib/utils";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
-import { VList } from "virtua";
+import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
+import {
+  IonContent,
+  IonPage,
+  IonRefresher,
+  IonRefresherContent,
+  RefresherEventDetail,
+} from "@ionic/react";
+import { HomeHeader } from "../components/nav/headers";
+import { FlashList } from "../components/flashlist";
 
 const HEADER = "header";
 
@@ -87,12 +97,38 @@ export function HomeFeed() {
   const firstPost = posts.data?.pages[0]?.posts[0];
   const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
 
+  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
+    Haptics.impact({ style: ImpactStyle.Medium });
+    Promise.all([refetch(), mostRecentPost.refetch()]).finally(() => {
+      event.detail.complete();
+    });
+  }
+
   return (
-    <VList>
-      {data.map((post) => (
-        <Post key={post.apId} {...post} />
-      ))}
-    </VList>
+    <IonPage>
+      <HomeHeader />
+      <IonContent scrollY={false}>
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
+
+        <FlashList
+          estimatedItemSize={450}
+          data={data}
+          renderItem={({ item: post }) => <Post key={post.apId} {...post} />}
+          className="h-full ion-content-scroll-host"
+          onEndReached={() => {
+            if (hasNextPage && !isFetchingNextPage) {
+              fetchNextPage();
+            }
+          }}
+        />
+        <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
+          <div className="flex-1" />
+          <PopularCommunitiesSidebar />
+        </ContentGutters>
+      </IonContent>
+    </IonPage>
   );
 
   // return (

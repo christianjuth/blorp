@@ -21,32 +21,26 @@ import { Route, Redirect, Link, Switch } from "react-router-dom";
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 
+import { Inbox } from "../src/features/inbox";
+import { Privacy } from "../src/features/privacy";
 import { HomeFeed } from "../src/features/home-feed";
-
-function Feed() {
-  return (
-    <IonPage>
-      <Link to={"/communities/post"}>Open Post</Link>
-    </IonPage>
-  );
-}
-function Post() {
-  return (
-    <IonPage>
-      <span>Post</span>
-    </IonPage>
-  );
-}
+import { Post } from "../src/features/post";
+import { SettingsPage } from "~/src/features/settings";
+import { Logo } from "~/src/components/logo";
 
 const HOME_STACK = [
   <Route exact path="/home" component={HomeFeed} />,
-  <Route exact path="/home/post" component={Post} />,
+  <Route exact path="/home/c/:community/posts/:post" component={Post} />,
 ];
 
 const COMMUNITIES_STACK = [
-  <Route exact path="/communities/" component={Feed} />,
-  <Route exact path="/communities/post" component={Post} />,
+  // <Route exact path="/communities/" component={Feed} />,
+  // <Route exact path="/communities/post" component={Post} />,
 ];
+
+const INBOX_STACK = [<Route exact path="/inbox" component={Inbox} />];
+
+const SETTINGS = [<Route exact path="/settings" component={SettingsPage} />];
 
 function Tabs() {
   const router = useIonRouter();
@@ -63,7 +57,18 @@ function Tabs() {
         className="border-r-1 border-zinc-200 dark:border-zinc-800"
       >
         <IonContent>
-          <div className="p-4 gap-1 flex flex-col">
+          <button
+            className="h-[60px] px-6 flex items-center"
+            onClick={() => {
+              const tab = document.querySelector(`ion-tab-button[tab="home"]`);
+              if (tab && "click" in tab && _.isFunction(tab.click)) {
+                tab.click();
+              }
+            }}
+          >
+            <Logo />
+          </button>
+          <div className="px-3 py-2 gap-0.5 flex flex-col">
             {TABS.map((t) => (
               <button
                 key={t.id}
@@ -76,40 +81,43 @@ function Tabs() {
                   }
                 }}
                 className={twMerge(
-                  "text-lg flex flex-row items-center gap-2 p-2",
-                  pathname.startsWith(t.to) && "",
+                  "text-md flex flex-row items-center gap-2 py-2 px-3 rounded-xl",
+                  pathname.startsWith(t.to)
+                    ? "bg-zinc-200 dark:bg-zinc-800"
+                    : "text-zinc-500",
                 )}
               >
                 <IonIcon icon={t.icon} className="text-2xl" />
-                <span className="text-zinc-600 text-md">{t.label}</span>
+                <span className="text-sm">{t.label}</span>
               </button>
             ))}
           </div>
         </IonContent>
       </IonMenu>
 
-      <div className="ion-page" id="main">
+      <IonContent id="main" scrollY={false}>
         <IonTabs>
-          <IonRouterOutlet animated={false}>
-            <Switch>
-              {...HOME_STACK}
-              {...COMMUNITIES_STACK}
-              <Redirect exact from="/" to="/home" />
-            </Switch>
+          <IonRouterOutlet
+          // animated={false}
+          >
+            {...HOME_STACK}
+            {...COMMUNITIES_STACK}
+            {...INBOX_STACK}
+            {...SETTINGS}
+            <Route exact path="/privacy" component={Privacy} />
+            <Redirect exact from="/" to="/home" />
           </IonRouterOutlet>
 
-          <IonTabBar
-            slot="bottom"
-            className="border-t-1 border-zinc-200 md:hidden"
-          >
+          <IonTabBar slot="bottom" className="md:hidden">
             {TABS.map((t) => (
               <IonTabButton key={t.id} tab={t.id} href={t.to}>
                 <IonIcon icon={t.icon} />
+                {t.label}
               </IonTabButton>
             ))}
           </IonTabBar>
         </IonTabs>
-      </div>
+      </IonContent>
     </IonSplitPane>
   );
 }

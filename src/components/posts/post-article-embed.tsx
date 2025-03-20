@@ -28,12 +28,9 @@ export function PostArticleEmbed({
       className="flex flex-col"
     >
       {thumbnail && (
-        <Image
-          imageUrl={thumbnail}
-          objectFit="cover"
-          disableShare
-          borderTopRadius={10}
-          priority
+        <img
+          src={thumbnail}
+          className="object-cover aspect-video rounded-t-xl"
         />
       )}
       {url && (
@@ -43,7 +40,7 @@ export function PostArticleEmbed({
           // color="$color11"
           // numberOfLines={1}
           // fontSize="$4"
-          className="p-3 bg-zinc-200 dark:bg-zinc-800 truncate text-ellipsis rounded-b-lg"
+          className="p-3 bg-zinc-200 dark:bg-zinc-800 truncate text-ellipsis rounded-b-xl"
         >
           {displayUrl ?? url}
         </span>

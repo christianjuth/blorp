@@ -1,34 +1,38 @@
-import { useNavigation } from "one";
 import { PostComment } from "~/src/components/posts/post-comment";
 import { buildCommentMap } from "../lib/comment-map";
 import { useEffect } from "react";
 import { useCommunity, usePost, useComments } from "~/src/lib/lemmy/index";
 import {
   PostBottomBar,
-  DetailPostCard,
+  FeedPostCard,
   PostProps,
   getPostProps,
 } from "~/src/components/posts/post";
-import { CommunitySidebar } from "~/src/components/communities/community-sidebar";
+// import { CommunitySidebar } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 
 import { memo, useMemo } from "react";
-import { useMedia, View } from "tamagui";
 import _ from "lodash";
-import { useScrollToTop } from "@react-navigation/native";
 import { useRef, useState } from "react";
 import {
   CommentReplyContext,
   InlineCommentReply,
 } from "../components/comments/comment-reply-modal";
 import { useAuth } from "../stores/auth";
-import {
-  useCustomTabBarHeight,
-  useHideTabBar,
-} from "../components/nav/bottom-tab-bar";
 import { FlashList } from "../components/flashlist";
 import { PostReportProvider } from "../components/posts/post-report";
 import { usePostsStore } from "../stores/posts";
+import {
+  IonBackButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
+import { useParams } from "react-router";
+import { caretBack } from "ionicons/icons";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -36,29 +40,24 @@ const EMPTY_ARR = [];
 
 const MemoedPostCard = memo((props: PostProps) => (
   <ContentGutters>
-    <DetailPostCard {...props} />
+    <FeedPostCard {...props} />
     <></>
   </ContentGutters>
 ));
 
 export function Post({
-  apId,
   communityName,
   commentPath,
   isReady,
 }: {
-  apId?: string;
   communityName?: string;
   commentPath?: string;
   isReady?: boolean;
 }) {
-  const media = useMedia();
-  const tabBar = useCustomTabBarHeight();
+  // const ref = useRef(null);
+  // useScrollToTop(ref);
 
-  useHideTabBar();
-
-  const ref = useRef(null);
-  useScrollToTop(ref);
+  const { post: apId } = useParams<{ post: string }>();
 
   const decodedApId = apId ? decodeURIComponent(apId) : undefined;
 
@@ -67,7 +66,6 @@ export function Post({
   const myUserId = useAuth(
     (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
   );
-  const nav = useNavigation();
 
   const postQuery = usePost({
     ap_id: decodedApId,
@@ -84,11 +82,7 @@ export function Post({
     parent_id: parentId,
   });
 
-  const communityTitle = post?.community?.title;
-
-  useEffect(() => {
-    nav.setOptions({ title: communityTitle ?? "" });
-  }, [communityTitle]);
+  const communityTitle = post?.community?.slug;
 
   const allComments = useMemo(
     () =>
@@ -133,101 +127,122 @@ export function Post({
     }
   };
 
-  if (!post || !decodedApId || !isReady) {
+  if (!post || !decodedApId) {
     return null;
   }
 
   const opId = post.creator.id;
 
   const lastComment = structured?.topLevelItems.at(-1);
-  let paddingBottom =
-    structured && structured.topLevelItems.length > 0 ? 10 : 20;
-  if (media.md) {
-    paddingBottom += tabBar.height;
-  }
+  // let paddingBottom =
+  //   structured && structured.topLevelItems.length > 0 ? 10 : 20;
+  // if (media.md) {
+  //   paddingBottom += tabBar.height;
+  // }
 
   return (
-    <PostReportProvider>
-      <CommentReplyContext postId={post.post.id} queryKeyParentId={parentId}>
-        <ContentGutters>
-          <View flex={1} />
-          <View>
-            {communityName && (
-              <CommunitySidebar communityName={communityName} />
-            )}
-          </View>
-        </ContentGutters>
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <ContentGutters>
+            <>
+              <IonButtons slot="start">
+                <IonBackButton icon={caretBack}></IonBackButton>
+              </IonButtons>
+              <IonTitle>{communityTitle}</IonTitle>
+            </>
+          </ContentGutters>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        <PostReportProvider>
+          <CommentReplyContext
+            postId={post.post.id}
+            queryKeyParentId={parentId}
+          >
+            <ContentGutters>
+              <div className="flex-1" />
+              <div>
+                {/* {communityName && ( */}
+                {/*   <CommunitySidebar communityName={communityName} /> */}
+                {/* )} */}
+              </div>
+            </ContentGutters>
 
-        {!isReady ? (
-          <MemoedPostCard {...getPostProps(post)} />
-        ) : (
-          <FlashList
-            ref={ref}
-            data={
-              [
-                "post",
-                "post-bottom-bar",
-                "comment",
-                ...(structured ? structured.topLevelItems : EMPTY_ARR),
-              ] as const
-            }
-            renderItem={({ item }) => {
-              if (item === "post") {
-                return <MemoedPostCard {...getPostProps(post)} />;
-              }
+            {!isReady ? (
+              <MemoedPostCard {...getPostProps(post)} />
+            ) : (
+              <FlashList
+                // ref={ref}
+                data={
+                  [
+                    "post",
+                    "post-bottom-bar",
+                    "comment",
+                    ...(structured ? structured.topLevelItems : EMPTY_ARR),
+                  ] as const
+                }
+                renderItem={({ item }) => {
+                  if (item === "post") {
+                    return <MemoedPostCard {...getPostProps(post)} />;
+                  }
 
-              if (item === "post-bottom-bar") {
-                return (
-                  <ContentGutters>
-                    <PostBottomBar
-                      apId={decodedApId}
-                      commentsCount={post.counts.comments}
-                    />
-                    <></>
-                  </ContentGutters>
-                );
-              }
+                  if (item === "post-bottom-bar") {
+                    return (
+                      <ContentGutters>
+                        <PostBottomBar
+                          apId={decodedApId}
+                          commentsCount={post.counts.comments}
+                        />
+                        <></>
+                      </ContentGutters>
+                    );
+                  }
 
-              if (item === "comment") {
-                return (
-                  <ContentGutters>
-                    <View flex={1} pt="$3">
-                      <InlineCommentReply
-                        postId={post.post.id}
+                  if (item === "comment") {
+                    return (
+                      <ContentGutters>
+                        <div
+                        // flex={1} pt="$3"
+                        >
+                          <InlineCommentReply
+                            postId={post.post.id}
+                            queryKeyParentId={parentId}
+                          />
+                        </div>
+                        <></>
+                      </ContentGutters>
+                    );
+                  }
+
+                  return (
+                    <ContentGutters>
+                      <MemoedPostComment
+                        postApId={decodedApId}
                         queryKeyParentId={parentId}
+                        commentMap={item[1]}
+                        level={0}
+                        opId={opId}
+                        myUserId={myUserId}
+                        noBorder={item[0] === lastComment?.[0]}
+                        communityName={communityName}
                       />
-                    </View>
-                    <></>
-                  </ContentGutters>
-                );
-              }
-
-              return (
-                <ContentGutters>
-                  <MemoedPostComment
-                    postApId={decodedApId}
-                    queryKeyParentId={parentId}
-                    commentMap={item[1]}
-                    level={0}
-                    opId={opId}
-                    myUserId={myUserId}
-                    noBorder={item[0] === lastComment?.[0]}
-                    communityName={communityName}
-                  />
-                  <></>
-                </ContentGutters>
-              );
-            }}
-            keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
-            onEndReached={loadMore}
-            onEndReachedThreshold={0.5}
-            onRefresh={refresh}
-            refreshing={refreshing}
-            estimatedItemSize={450}
-            stickyHeaderIndices={[1]}
-          />
-        )}
-      </CommentReplyContext>
-    </PostReportProvider>
+                      <></>
+                    </ContentGutters>
+                  );
+                }}
+                // keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
+                onEndReached={loadMore}
+                // onEndReachedThreshold={0.5}
+                // onRefresh={refresh}
+                // refreshing={refreshing}
+                estimatedItemSize={450}
+                stickyHeaderIndices={[1]}
+              />
+            )}
+          </CommentReplyContext>
+        </PostReportProvider>
+      </IonContent>
+    </IonPage>
   );
 }
