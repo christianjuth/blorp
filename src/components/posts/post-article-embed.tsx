@@ -40,7 +40,7 @@ export function PostArticleEmbed({
           // color="$color11"
           // numberOfLines={1}
           // fontSize="$4"
-          className="p-3 bg-zinc-200 dark:bg-zinc-800 truncate text-ellipsis rounded-b-xl"
+          className="p-3 bg-zinc-200 dark:bg-zinc-800 truncate text-ellipsis rounded-b-xl text-sm text-zinc-500"
         >
           {displayUrl ?? url}
         </span>

@@ -10,7 +10,8 @@ import { encodeApId, FlattenedPost } from "~/src/lib/lemmy/utils";
 import { Link } from "react-router-dom";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
-import { Voting } from "./post-buttons";
+import { PostCommentsButton, Voting } from "./post-buttons";
+import Markdown from "react-markdown";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return null;
@@ -111,107 +112,109 @@ export function getPostProps(
   };
 }
 
-export type PostProps = ReturnType<typeof getPostProps>;
-
-export function DetailPostCard(props: PostProps) {
-  const {
-    deleted,
-    name,
-    type,
-    url,
-    displayUrl,
-    thumbnail,
-    aspectRatio,
-    body,
-    nsfw,
-    crossPostEncodedApId,
-    crossPostCommunitySlug,
-  } = props;
-
-  const linkCtx = useLinkContext();
-
-  const showNsfw = useSettingsStore((s) => s.setShowNsfw);
-  const filterKeywords = useSettingsStore((s) => s.filterKeywords);
-
-  if (nsfw && !showNsfw) {
-    return <Notice>NSFW content hidden</Notice>;
-  }
-
-  for (const keyword of filterKeywords) {
-    if (name.toLowerCase().includes(keyword.toLowerCase())) {
-      return <Notice>Hidden by "{keyword}" keyword filter</Notice>;
-    }
-  }
-
-  const showImage = type === "image" && thumbnail && !deleted;
-  const showArticle = type === "article" && thumbnail && !deleted;
-
-  return (
-    <div>
-      {/* <PostByline {...props} /> */}
-
-      <span
-      // fontWeight={500}
-      // fontSize="$6"
-      // lineHeight="$4"
-      // fontStyle={deleted ? "italic" : undefined}
-      >
-        {deleted ? "deleted" : name}
-      </span>
-
-      {showImage && (
-        <div
-        // br="$5"
-        // $md={{ mx: "$-3", br: 0 }}
-        // onLongPress={() => thumbnail && shareImage(thumbnail)}
-        >
-          <img
-            src={thumbnail}
-            // imageUrl={thumbnail}
-            // aspectRatio={aspectRatio}
-            // borderRadius={media.gtMd ? 10 : 0}
-            // priority
-          />
-        </div>
-      )}
-
-      {/* {showArticle && ( */}
-      {/*   <PostArticleEmbed */}
-      {/*     url={url} */}
-      {/*     displayUrl={displayUrl} */}
-      {/*     thumbnail={thumbnail} */}
-      {/*   /> */}
-      {/* )} */}
-      {/* {type === "video" && !deleted && url && ( */}
-      {/*   <PostVideoEmbed url={url} autoPlay={false} /> */}
-      {/* )} */}
-      {/* {type === "loops" && !deleted && url && ( */}
-      {/*   <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} /> */}
-      {/* )} */}
-      {/* {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />} */}
-
-      {/* {crossPostEncodedApId && crossPostCommunitySlug && ( */}
-      {/*   <Link */}
-      {/*     href={`${linkCtx.root}c/${crossPostCommunitySlug}/posts/${crossPostEncodedApId}`} */}
-      {/*     asChild */}
-      {/*   > */}
-      {/*     <XStack gap="$1" mt="$2"> */}
-      {/*       <Repeat2 color="$accentColor" size={16} /> */}
-      {/*       <Text fontSize={13} color="$accentColor"> */}
-      {/*         Cross posted from {crossPostCommunitySlug} */}
-      {/*       </Text> */}
-      {/*     </XStack> */}
-      {/*   </Link> */}
-      {/* )} */}
-
-      {/* {body && !deleted && ( */}
-      {/*   <View pt="$2"> */}
-      {/*     <Markdown markdown={body} /> */}
-      {/*   </View> */}
-      {/* )} */}
-    </div>
-  );
+export interface PostProps extends ReturnType<typeof getPostProps> {
+  detailView?: boolean;
 }
+
+// export function DetailPostCard(props: PostProps) {
+//   const {
+//     deleted,
+//     name,
+//     type,
+//     url,
+//     displayUrl,
+//     thumbnail,
+//     aspectRatio,
+//     body,
+//     nsfw,
+//     crossPostEncodedApId,
+//     crossPostCommunitySlug,
+//   } = props;
+
+//   const linkCtx = useLinkContext();
+
+//   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
+//   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
+
+//   if (nsfw && !showNsfw) {
+//     return <Notice>NSFW content hidden</Notice>;
+//   }
+
+//   for (const keyword of filterKeywords) {
+//     if (name.toLowerCase().includes(keyword.toLowerCase())) {
+//       return <Notice>Hidden by "{keyword}" keyword filter</Notice>;
+//     }
+//   }
+
+//   const showImage = type === "image" && thumbnail && !deleted;
+//   const showArticle = type === "article" && thumbnail && !deleted;
+
+//   return (
+//     <div>
+//       {/* <PostByline {...props} /> */}
+
+//       <span
+//       // fontWeight={500}
+//       // fontSize="$6"
+//       // lineHeight="$4"
+//       // fontStyle={deleted ? "italic" : undefined}
+//       >
+//         {deleted ? "deleted" : name}
+//       </span>
+
+//       {showImage && (
+//         <div
+//         // br="$5"
+//         // $md={{ mx: "$-3", br: 0 }}
+//         // onLongPress={() => thumbnail && shareImage(thumbnail)}
+//         >
+//           <img
+//             src={thumbnail}
+//             // imageUrl={thumbnail}
+//             // aspectRatio={aspectRatio}
+//             // borderRadius={media.gtMd ? 10 : 0}
+//             // priority
+//           />
+//         </div>
+//       )}
+
+//       {/* {showArticle && ( */}
+//       {/*   <PostArticleEmbed */}
+//       {/*     url={url} */}
+//       {/*     displayUrl={displayUrl} */}
+//       {/*     thumbnail={thumbnail} */}
+//       {/*   /> */}
+//       {/* )} */}
+//       {/* {type === "video" && !deleted && url && ( */}
+//       {/*   <PostVideoEmbed url={url} autoPlay={false} /> */}
+//       {/* )} */}
+//       {/* {type === "loops" && !deleted && url && ( */}
+//       {/*   <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} /> */}
+//       {/* )} */}
+//       {/* {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />} */}
+
+//       {/* {crossPostEncodedApId && crossPostCommunitySlug && ( */}
+//       {/*   <Link */}
+//       {/*     href={`${linkCtx.root}c/${crossPostCommunitySlug}/posts/${crossPostEncodedApId}`} */}
+//       {/*     asChild */}
+//       {/*   > */}
+//       {/*     <XStack gap="$1" mt="$2"> */}
+//       {/*       <Repeat2 color="$accentColor" size={16} /> */}
+//       {/*       <Text fontSize={13} color="$accentColor"> */}
+//       {/*         Cross posted from {crossPostCommunitySlug} */}
+//       {/*       </Text> */}
+//       {/*     </XStack> */}
+//       {/*   </Link> */}
+//       {/* )} */}
+
+//       {/* {body && !deleted && ( */}
+//       {/*   <View pt="$2"> */}
+//       {/*     <Markdown markdown={body} /> */}
+//       {/*   </View> */}
+//       {/* )} */}
+//     </div>
+//   );
+// }
 
 export function FeedPostCard(props: PostProps) {
   const {
@@ -230,6 +233,8 @@ export function FeedPostCard(props: PostProps) {
     encodedApId,
     commentsCount,
     displayUrl,
+    body,
+    detailView,
   } = props;
 
   const [pressed, setPressed] = useState(false);
@@ -337,10 +342,17 @@ export function FeedPostCard(props: PostProps) {
       {/* )} */}
       {/* {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />} */}
 
+      {detailView && (
+        <div className="prose dark:prose-invert leading-normal">
+          <Markdown>{body}</Markdown>
+        </div>
+      )}
+
       <div className="flex flex-row justify-end gap-2">
-        <Link to={postDetailsLink}>
-          {/* <PostCommentsButton commentsCount={commentsCount} /> */}
-        </Link>
+        <PostCommentsButton
+          commentsCount={commentsCount}
+          href={postDetailsLink}
+        />
         <Voting apId={apId} score={score} myVote={myVote} />
       </div>
     </div>

@@ -40,7 +40,7 @@ const EMPTY_ARR = [];
 
 const MemoedPostCard = memo((props: PostProps) => (
   <ContentGutters>
-    <FeedPostCard {...props} />
+    <FeedPostCard {...props} detailView />
     <></>
   </ContentGutters>
 ));

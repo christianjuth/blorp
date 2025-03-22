@@ -6,6 +6,8 @@ import _ from "lodash";
 import Router from "./Router";
 
 import { Providers } from "~/src/components/providers";
+import { SplashScreen } from "@capacitor/splash-screen";
+import { useEffect } from "react";
 
 setupIonicReact({
   mode: "ios",
@@ -14,6 +16,9 @@ setupIonicReact({
 });
 
 export default function App() {
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
   return (
     <IonApp>
       <Providers>

@@ -9,6 +9,40 @@ import { useIonRouter } from "@ionic/react";
 import { useRouteMatch } from "react-router";
 import { twMerge } from "tailwind-merge";
 
+import { RefObject } from "react";
+
+interface ObserverOptions {
+  root?: Element | null;
+  rootMargin?: string;
+  threshold?: number | number[];
+}
+
+export function useIntersectionObserver<T extends HTMLElement | null>(
+  ref: RefObject<T>,
+  options: ObserverOptions = { root: null, rootMargin: "0px", threshold: 0.1 },
+): boolean {
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        setIsVisible(entry.isIntersecting);
+      });
+    }, options);
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [ref, options.root, options.rootMargin, options.threshold]);
+
+  return isVisible;
+}
+
 function useIsFocused() {
   let currentPath: string | null = null;
   let routePath: string | null = null;
@@ -94,7 +128,10 @@ export function FlashList<T>({
       ? Math.round(drawDistance / estimatedItemSize)
       : undefined;
 
-  const focused = useIsFocused();
+  // const focused = useIsFocused();
+  const focused = useIntersectionObserver(parentRef);
+
+  console.log(focused);
 
   const rowVirtualizer = useVirtualizer({
     count: dataLen,
@@ -160,13 +197,6 @@ export function FlashList<T>({
   }, [dataLen, rowVirtualizer.getVirtualItems(), onEndReached]);
 
   const colWidth = 100 / (numColumns ?? 1);
-
-  console.log(
-    dataLen,
-    estimatedItemSize,
-    rowVirtualizer.getVirtualItems(),
-    focused,
-  );
 
   return (
     <>

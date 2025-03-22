@@ -3,9 +3,10 @@ import { useLikePost } from "~/src/lib/lemmy/index";
 // import { voteHaptics } from "~/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 
-import { arrowUp, arrowDown } from "ionicons/icons";
+import { arrowUp, arrowDown, chatbubbleOutline } from "ionicons/icons";
 import { IonIcon } from "@ionic/react";
 import { twMerge } from "tailwind-merge";
+import { Link } from "react-router-dom";
 
 export function Voting({
   apId,
@@ -25,7 +26,7 @@ export function Voting({
 
   return (
     <div
-      className="flex flex-row border-zinc-700 dark:border-zinc-800 border rounded-full items-center"
+      className="flex flex-row border-zinc-200 dark:border-zinc-700 border rounded-full items-center h-7"
       // dsp="flex"
       // fd="row"
       // ai="center"
@@ -68,7 +69,7 @@ export function Voting({
           </span>
         </>
       </button>
-      <div className="h-4 w-px bg-zinc-700 ml-2.5 mr-1" />
+      <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-700 ml-2.5 mr-1" />
       <button
         // h="$2"
         // borderRadius="$12"
@@ -96,27 +97,21 @@ export function Voting({
 
 export function PostCommentsButton({
   commentsCount,
-  ...rest
+  href,
 }: {
   commentsCount: number;
-  onPress?: () => void;
   href?: string;
 }) {
-  return null;
-  // return (
-  //   <Button
-  //     h="$2"
-  //     bg="transparent"
-  //     borderRadius="$12"
-  //     px="$2.5"
-  //     py={0}
-  //     bw={1}
-  //     bc="$color5"
-  //     tag="a"
-  //     {...rest}
-  //   >
-  //     <MessageCircle size={17} />
-  //     <Text fontSize="$5">{commentsCount}</Text>
-  //   </Button>
-  // );
+  if (!href) {
+    return null;
+  }
+  return (
+    <Link
+      to={href}
+      className="h-7 flex items-center gap-1 border px-2.5 rounded-full border-zinc-200 dark:border-zinc-700"
+    >
+      <IonIcon icon={chatbubbleOutline} />
+      <span>{commentsCount}</span>
+    </Link>
+  );
 }
