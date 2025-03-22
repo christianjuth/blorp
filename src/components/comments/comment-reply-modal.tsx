@@ -1,17 +1,15 @@
 import { createContext, useContext, useMemo, useRef, useState } from "react";
 import { PostId, Comment } from "lemmy-js-client";
-import {
-  Button,
-  Form,
-  View,
-  XStack,
-  Text,
-  YStack,
-  useMedia,
-  ScrollView,
-} from "tamagui";
-import { KeyboardAvoidingView, TextInput } from "react-native";
-import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
+// import {
+//   Button,
+//   Form,
+//   View,
+//   XStack,
+//   Text,
+//   YStack,
+//   useMedia,
+//   ScrollView,
+// } from "tamagui";
 import {
   FlattenedComment,
   useCreateComment,
@@ -19,7 +17,7 @@ import {
 } from "~/src/lib/lemmy/index";
 import { ContentGutters } from "../gutters";
 import _ from "lodash";
-import { MarkdownEditor, MarkdownEditorState } from "../markdown-editor";
+import { MarkdownEditorState } from "../markdown-editor/editor-state";
 
 const Context = createContext<{
   setComment: (comment: Comment | undefined) => void;
@@ -45,16 +43,14 @@ export function CommentReplyContext({
   queryKeyParentId?: number;
   children: React.ReactNode;
 }) {
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<any>(null);
 
-  const bottomTabBar = useCustomTabBarHeight();
   const [parentComment, setParentComment] = useState<FlattenedComment>();
   const [comment, setComment] = useState<Comment>();
   const [focused, setFocused] = useState(false);
   const [content, setContent] = useState<Record<number, MarkdownEditorState>>(
     {},
   );
-  const media = useMedia();
 
   const createComment = useCreateComment({
     queryKeyParentId: queryKeyParentId,
@@ -82,133 +78,137 @@ export function CommentReplyContext({
             }));
           }
           setComment(comment);
-          if (media.md) {
-            inputRef.current?.focus();
-          }
+          // if (media.md) {
+          //   inputRef.current?.focus();
+          // }
         },
         setParentComment: (val) => {
           setParentComment(val);
-          if (media.md) {
-            inputRef.current?.focus();
-          }
+          // if (media.md) {
+          //   inputRef.current?.focus();
+          // }
         },
         focus: () => inputRef.current?.focus(),
       }}
     >
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={{ flex: 1, marginBottom: bottomTabBar.insetBottom }}
-      >
-        {children}
+      {children}
 
-        {focused && (
-          <View
-            pos="absolute"
-            t={0}
-            r={0}
-            b={0}
-            l={0}
-            onPress={() => {
-              setFocused(false);
-              inputRef.current?.blur();
-              setParentComment(undefined);
-            }}
-          />
-        )}
-
-        <Form
-          onSubmit={() => {
-            if (comment) {
-              const editor = content[comment.id];
-              editComment.mutate({
-                path: comment.path,
-                comment_id: comment.id,
-                content: editor.getState().content,
-              });
-              editor.reset();
-            } else {
-              const editor = content[parentComment?.comment.id ?? 0];
-              createComment.mutate({
-                post_id: postId,
-                content: editor.getState().content,
-                parent_id: parentComment?.comment.id,
-                parentPath: parentComment?.comment.path ?? "0",
-              });
-              editor.reset();
-            }
+      {focused && (
+        <div
+          // pos="absolute"
+          // t={0}
+          // r={0}
+          // b={0}
+          // l={0}
+          onClick={() => {
+            setFocused(false);
             inputRef.current?.blur();
             setParentComment(undefined);
-            setComment(undefined);
           }}
-          $gtMd={{
-            dsp: "none",
-          }}
-        >
-          <ContentGutters w="100%">
-            <View btw={0.5} bg="$background" bc="$color4" flex={1}>
-              <YStack px="$4">
-                {parentComment && (
-                  <Text pt="$2">Replying to {parentComment?.creator.name}</Text>
-                )}
-                {comment && <Text pt="$2">Editing</Text>}
+        />
+      )}
 
-                <ScrollView
-                  height={
-                    focused
-                      ? 175
-                      : bottomTabBar.height - bottomTabBar.insetBottom
-                  }
+      <form
+        onSubmit={() => {
+          if (comment) {
+            const editor = content[comment.id];
+            editComment.mutate({
+              path: comment.path,
+              comment_id: comment.id,
+              content: editor.getState().content,
+            });
+            editor.reset();
+          } else {
+            const editor = content[parentComment?.comment.id ?? 0];
+            createComment.mutate({
+              post_id: postId,
+              content: editor.getState().content,
+              parent_id: parentComment?.comment.id,
+              parentPath: parentComment?.comment.path ?? "0",
+            });
+            editor.reset();
+          }
+          inputRef.current?.blur();
+          setParentComment(undefined);
+          setComment(undefined);
+        }}
+        className="md:hidden"
+      >
+        <ContentGutters className="w-full">
+          <div
+          // btw={0.5} bg="$background" bc="$color4" flex={1}
+          >
+            <div
+            // px="$4"
+            >
+              {parentComment && (
+                <span
+                // pt="$2"
                 >
-                  <MarkdownEditor
-                    inputRef={inputRef}
-                    placeholder="Add a comment..."
-                    onFocus={() => setFocused(true)}
-                    onBlur={() => {
-                      setTimeout(() => {
-                        setFocused(false);
-                      }, 0);
-                    }}
-                    editor={
-                      content[comment?.id ?? parentComment?.comment.id ?? 0]
-                    }
-                    style={{
-                      borderWidth: 0,
-                      paddingVertical: 10,
-                      backgroundColor: "transparent",
-                    }}
-                  />
-                </ScrollView>
+                  Replying to {parentComment?.creator.name}
+                </span>
+              )}
+              {comment && (
+                <span
+                // pt="$2"
+                >
+                  Editing
+                </span>
+              )}
 
-                {focused && (
-                  <XStack pt="$1" pb="$2" jc="flex-end">
-                    <Button
-                      size="$2.5"
-                      br="$12"
-                      onPress={() => {
-                        setParentComment(undefined);
-                        setComment(undefined);
-                        inputRef.current?.blur();
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Form.Trigger asChild>
-                      <Button bg="$accentBackground" size="$2.5" br="$12">
-                        {comment
-                          ? "Update"
-                          : parentComment
-                            ? "Reply"
-                            : "Comment"}
-                      </Button>
-                    </Form.Trigger>
-                  </XStack>
-                )}
-              </YStack>
-            </View>
-            <></>
-          </ContentGutters>
-        </Form>
-      </KeyboardAvoidingView>
+              {/* <ScrollView */}
+              {/*   height={ */}
+              {/*     focused ? 175 : bottomTabBar.height - bottomTabBar.insetBottom */}
+              {/*   } */}
+              {/* > */}
+              {/*   <MarkdownEditor */}
+              {/*     inputRef={inputRef} */}
+              {/*     placeholder="Add a comment..." */}
+              {/*     onFocus={() => setFocused(true)} */}
+              {/*     onBlur={() => { */}
+              {/*       setTimeout(() => { */}
+              {/*         setFocused(false); */}
+              {/*       }, 0); */}
+              {/*     }} */}
+              {/*     editor={ */}
+              {/*       content[comment?.id ?? parentComment?.comment.id ?? 0] */}
+              {/*     } */}
+              {/*     style={{ */}
+              {/*       borderWidth: 0, */}
+              {/*       paddingVertical: 10, */}
+              {/*       backgroundColor: "transparent", */}
+              {/*     }} */}
+              {/*   /> */}
+              {/* </ScrollView> */}
+
+              {focused && (
+                <div
+                // pt="$1" pb="$2" jc="flex-end"
+                >
+                  <button
+                    type="button"
+                    // size="$2.5"
+                    // br="$12"
+                    onClick={() => {
+                      setParentComment(undefined);
+                      setComment(undefined);
+                      inputRef.current?.blur();
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                  // bg="$accentBackground" size="$2.5" br="$12"
+                  >
+                    {comment ? "Update" : parentComment ? "Reply" : "Comment"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          <></>
+        </ContentGutters>
+      </form>
     </Context.Provider>
   );
 }
@@ -237,18 +237,17 @@ export function InlineCommentReply({
     [comment?.updated],
   );
 
-  const media = useMedia();
   const createComment = useCreateComment({
     queryKeyParentId: queryKeyParentId,
   });
   const editComment = useEditComment();
 
-  if (autoFocus && !media.gtMd) {
+  if (autoFocus /* && !media.gtMd */) {
     return null;
   }
 
   return (
-    <Form
+    <form
       onSubmit={() => {
         if (comment) {
           editComment.mutate({
@@ -267,45 +266,47 @@ export function InlineCommentReply({
         onSubmit?.();
         editor.reset();
       }}
-      $md={{
-        dsp: "none",
-      }}
-      w="100%"
+      className="max-md:hidden w-full"
     >
-      <View px="$3" bw={1} bc="$color5" br="$5">
-        <MarkdownEditor
-          placeholder="Add a comment..."
-          onFocus={() => setFocused(true)}
-          editor={editor}
-          onBlur={() => {
-            if (editor.getState().content.trim() === "") {
-              setFocused(false);
-              onCancel?.();
-            }
-          }}
-          autoFocus={autoFocus}
-        />
+      <div
+      // px="$3" bw={1} bc="$color5" br="$5"
+      >
+        {/* <MarkdownEditor */}
+        {/*   placeholder="Add a comment..." */}
+        {/*   onFocus={() => setFocused(true)} */}
+        {/*   editor={editor} */}
+        {/*   onBlur={() => { */}
+        {/*     if (editor.getState().content.trim() === "") { */}
+        {/*       setFocused(false); */}
+        {/*       onCancel?.(); */}
+        {/*     } */}
+        {/*   }} */}
+        {/*   autoFocus={autoFocus} */}
+        {/* /> */}
         {focused && (
-          <XStack jc="flex-end" py="$2">
-            <Button
-              size="$2.5"
-              br="$12"
-              onPress={() => {
+          <div
+          // jc="flex-end" py="$2"
+          >
+            <button
+              type="button"
+              // size="$2.5"
+              // br="$12"
+              onClick={() => {
                 setFocused(false);
                 onCancel?.();
               }}
             >
               Cancel
-            </Button>
+            </button>
 
-            <Form.Trigger asChild>
-              <Button bg="$accentBackground" size="$2.5" br="$12">
-                {comment ? "Update" : parent ? "Reply" : "Comment"}
-              </Button>
-            </Form.Trigger>
-          </XStack>
+            <button
+            // bg="$accentBackground" size="$2.5" br="$12"
+            >
+              {comment ? "Update" : parent ? "Reply" : "Comment"}
+            </button>
+          </div>
         )}
-      </View>
-    </Form>
+      </div>
+    </form>
   );
 }

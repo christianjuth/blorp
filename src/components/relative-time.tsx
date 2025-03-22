@@ -1,8 +1,13 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
-import { useEffect, useMemo, useState } from "react";
-import { Tooltip, Text, TextProps } from "tamagui";
+import {
+  DetailedHTMLProps,
+  HTMLAttributes,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -25,7 +30,8 @@ dayjs.updateLocale("en", {
   },
 });
 
-interface Props extends TextProps {
+interface Props
+  extends DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement> {
   time: string;
   prefix?: string;
 }
@@ -47,9 +53,9 @@ export function RelativeTime({ time, prefix, ...rest }: Props) {
   }, [dateObj]);
 
   return (
-    <Text {...rest}>
+    <span {...rest}>
       {prefix}
       {dateObj.fromNow()}
-    </Text>
+    </span>
   );
 }
