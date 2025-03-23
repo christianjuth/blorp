@@ -1,4 +1,4 @@
-name: Deploy One Brach Build
+name: Deploy Blorp Brach Build
 
 on:
   pull_request:
@@ -32,8 +32,8 @@ jobs:
           NETLIFY_DEPLOY_MESSAGE: "Prod deploy v${{ github.ref }}"
           NETLIFY_DEPLOY_TO_PROD: false
           deploy_alias: "pr-${{ github.event.pull_request.number }}"
-          build_command: "yarn build:web"
-          build_directory: "dist/client"
+          build_command: "yarn build"
+          build_directory: "dist"
           install_command: "yarn install --immutable"
 
       - name: Create or Update PR Comment
