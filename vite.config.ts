@@ -2,11 +2,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import removeConsole from "vite-plugin-remove-console";
 import vitePluginChecker from "vite-plugin-checker";
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     tsconfigPaths(),
     // vitePluginChecker({
@@ -14,7 +13,9 @@ export default defineConfig({
     // }),
     tailwindcss(),
     react(),
-    removeConsole(),
   ],
+  esbuild: {
+    drop: mode === "production" ? ["console"] : [],
+  },
   publicDir: "public",
-});
+}));

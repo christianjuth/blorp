@@ -13590,7 +13590,6 @@ __metadata:
     vite: "npm:6.2.2"
     vite-plugin-checker: "npm:^0.8.0"
     vite-plugin-circular-dependency: "npm:^0.5.0"
-    vite-plugin-remove-console: "npm:^2.2.0"
     vite-tsconfig-paths: "npm:^5.1.4"
     vitest: "npm:^3.0.5"
     zod: "npm:^3.24.1"
@@ -20714,13 +20713,6 @@ __metadata:
     fast-glob: "npm:^3.3.2"
     magic-string: "npm:^0.30.11"
   checksum: 10c0/049f953b404157346e06a729eb055bc5b3630ac990bf36d52e6c44b1b223ac8e1f22fa1c44cadea55e7621366a0666439860fd4572f09c87daa45affd5dd15b6
-  languageName: node
-  linkType: hard
-
-"vite-plugin-remove-console@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "vite-plugin-remove-console@npm:2.2.0"
-  checksum: 10c0/b97e77f68e52196bdae468161103217aaa6325bdb88e59dfd18fbe6ed0e4f8e4487708fb091f8780174b104c03c47cf94e7408fbe1d9360256f45bc35ccde0f7
   languageName: node
   linkType: hard
 
