@@ -27,11 +27,10 @@ export function useIntersectionObserver<T extends HTMLElement | null>(
     const element = ref.current;
     if (!element) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        setIsVisible(entry.isIntersecting);
-      });
-    }, options);
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      options,
+    );
 
     observer.observe(element);
 
@@ -41,36 +40,6 @@ export function useIntersectionObserver<T extends HTMLElement | null>(
   }, [ref, options.root, options.rootMargin, options.threshold]);
 
   return isVisible;
-}
-
-function useIsFocused() {
-  let currentPath: string | null = null;
-  let routePath: string | null = null;
-
-  try {
-    currentPath = useIonRouter()?.routeInfo?.pathname;
-  } catch {}
-  try {
-    routePath = useRouteMatch().path;
-  } catch {}
-
-  const nextIsFocused = routePath === currentPath;
-
-  const [focused, setFocused] = useState(false);
-
-  useEffect(() => {
-    if (nextIsFocused !== focused) {
-      requestAnimationFrame(() => {
-        setFocused(nextIsFocused);
-      });
-    }
-  }, [nextIsFocused, focused]);
-
-  if (currentPath === null || routePath === null) {
-    return true;
-  }
-
-  return focused;
 }
 
 export function FlashList<T>({
@@ -100,8 +69,6 @@ export function FlashList<T>({
   const offset = useRef(0);
   const cache = useRef<VirtualItem[]>([]);
 
-  // const focused = useIsFocused();
-
   const parentRef = useRef<HTMLDivElement>(null);
 
   if (ref) {
@@ -128,10 +95,7 @@ export function FlashList<T>({
       ? Math.round(drawDistance / estimatedItemSize)
       : undefined;
 
-  // const focused = useIsFocused();
   const focused = useIntersectionObserver(parentRef);
-
-  console.log(focused);
 
   const rowVirtualizer = useVirtualizer({
     count: dataLen,
@@ -149,10 +113,9 @@ export function FlashList<T>({
         const firstItem = instance
           .getVirtualItems()
           .find((item) => item.start >= scrollOffset);
-        if (scrollOffset > 0) {
-          index.current = firstItem?.index ?? 0;
-          offset.current = firstItem ? scrollOffset - firstItem.start : 0;
-        }
+
+        index.current = firstItem?.index ?? 0;
+        offset.current = firstItem ? scrollOffset - firstItem.start : 0;
       }
     },
     initialMeasurementsCache: cache.current,

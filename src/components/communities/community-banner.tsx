@@ -1,5 +1,4 @@
-import { Image } from "react-native";
-import { View, XStack, YStack, Text } from "tamagui";
+import { twMerge } from "tailwind-merge";
 import { CommunityJoinButton } from "./community-join-button";
 import { createCommunitySlug } from "~/src/lib/lemmy/utils";
 import { useCommunitiesStore } from "~/src/stores/communities";
@@ -17,55 +16,34 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
   const hideBanner = !banner;
 
   return (
-    <YStack flex={1}>
+    <div className="flex-1">
       {!hideBanner && (
-        <View flex={1} pos="relative">
-          <Image
-            source={{ uri: banner }}
-            style={{
-              aspectRatio: 5,
-              objectFit: "cover",
-              borderRadius: 12,
-              backgroundColor: "#eee",
-              width: "100%",
-            }}
-          />
-
-          <View
-            h={90}
-            w={90}
-            bg="$color1"
-            pos="absolute"
-            top="100%"
-            l="$4"
-            transform={[
-              {
-                translateY: -45,
-              },
-            ]}
-            borderRadius="$12"
-            bc="$background"
-            bw={2}
-          >
-            <Image
-              source={{ uri: icon }}
-              style={{
-                height: "100%",
-                width: "100%",
-                borderRadius: 9999999,
-                position: "absolute",
-              }}
+        <div className="relative flex-1">
+          <div className="aspect-[5]">
+            <img
+              src={banner}
+              className="h-full w-full object-cover rounded-xl"
             />
-          </View>
-        </View>
+          </div>
+
+          <div className="absolute left-5 h-20 w-20 outline-white outline-2 -translate-y-1/2 bg-white rounded-full flex items-center justify-center">
+            <img src={icon} className="h-20 w-20 object-cover rounded-full" />
+          </div>
+        </div>
       )}
 
-      <XStack pl={hideBanner ? 0 : 120} ai="center" jc="space-between" my="$2">
-        <Text fontWeight="bold" fontSize="$7" h="$3">
+      <div
+        className={twMerge("my-1", !hideBanner && "pl-28")}
+        // pl={hideBanner ? 0 : 120} ai="center" jc="space-between" my="$2"
+      >
+        <span
+          className="font-bold text-lg"
+          // fontWeight="bold" fontSize="$7" h="$3"
+        >
           c/{slug}
-        </Text>
-        <CommunityJoinButton communityName={communityName} />
-      </XStack>
-    </YStack>
+        </span>
+        {/* <CommunityJoinButton communityName={communityName} /> */}
+      </div>
+    </div>
   );
 }

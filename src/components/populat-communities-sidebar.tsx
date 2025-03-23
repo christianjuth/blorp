@@ -6,6 +6,7 @@ import { CommunityView } from "lemmy-js-client";
 import { abbriviateNumber } from "~/src/lib/format";
 import { useFiltersStore } from "../stores/filters";
 import _ from "lodash";
+import { Link } from "react-router-dom";
 
 dayjs.extend(localizedFormat);
 
@@ -17,8 +18,7 @@ function SmallComunityCard({
   const { community, counts } = communityView;
   const slug = createCommunitySlug(community);
   return (
-    //<Link href={`/c/${slug}`} asChild>
-    <div className="flex items-center gap-3">
+    <Link to={`/home/c/${slug}`} className="flex items-center gap-3">
       <img src={community.icon} className="h-8 w-8 rounded-full object-cover" />
       {/*     <Text fontSize="$4">{community.title.substring(0, 1)}</Text> */}
       <div
@@ -35,8 +35,7 @@ function SmallComunityCard({
           {abbriviateNumber(counts.subscribers)} members
         </span>
       </div>
-    </div>
-    //</Link>
+    </Link>
   );
 }
 

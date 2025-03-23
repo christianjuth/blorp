@@ -17,16 +17,11 @@ import {
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import { pencil, cog, notifications, people, home } from "ionicons/icons";
-import { Route, Redirect, Link, Switch } from "react-router-dom";
+import { Route, Redirect, Link } from "react-router-dom";
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 import { useMedia } from "~/src/lib/hooks";
 
-import { Inbox } from "../src/features/inbox";
-import { Privacy } from "../src/features/privacy";
-import { HomeFeed } from "../src/features/home-feed";
-import { Post } from "../src/features/post";
-import { SettingsPage } from "~/src/features/settings";
 import { Logo } from "~/src/components/logo";
 import { useRecentCommunitiesStore } from "~/src/stores/recent-communities";
 import { useAuth } from "~/src/stores/auth";
@@ -35,9 +30,17 @@ import { SmallCommunityCard } from "~/src/components/communities/community-card"
 
 import * as routes from "~/src/lib/routes";
 
+import { Inbox } from "../src/features/inbox";
+import { Privacy } from "../src/features/privacy";
+import { HomeFeed } from "../src/features/home-feed";
+import { Post } from "../src/features/post";
+import { SettingsPage } from "~/src/features/settings";
+import { CommunityFeed } from "~/src/features/community-feed";
+
 const HOME_STACK = [
   <Route exact path="/home" component={HomeFeed} />,
-  <Route exact path="/home/c/:community/posts/:post" component={Post} />,
+  <Route exact path="/home/c/:communityName" component={CommunityFeed} />,
+  <Route exact path="/home/c/:communityName/posts/:post" component={Post} />,
 ];
 
 const COMMUNITIES_STACK = [
@@ -90,18 +93,18 @@ function Sidebar() {
         </button>
       ))}
 
-      <div className="h-px w-full dark:bg-zinc-800 my-2" />
+      <div className="h-px w-full bg-zinc-200 dark:bg-zinc-800 my-2" />
 
       {recentCommunities.length > 0 && (
         <>
-          <span className="py-2 block">RECENT</span>
+          <span className="px-4 py-1 text-sm dark:text-zinc-500">RECENT</span>
           {recentCommunities.map((c) => (
-            <div key={c.id}>
+            <div key={c.id} className="px-4 py-0.75 flex flex-row">
               <SmallCommunityCard community={c} />
             </div>
           ))}
 
-          <div className="h-px w-full dark:bg-zinc-800 my-2" />
+          <div className="h-px w-full bg-zinc-200 dark:bg-zinc-800 my-2" />
         </>
       )}
 
@@ -116,7 +119,7 @@ function Sidebar() {
             </div>
           ))}
 
-          <div className="h-px w-full dark:bg-zinc-800 my-2" />
+          <div className="h-px w-full bg-zinc-200 dark:bg-zinc-800 my-2" />
         </>
       )}
 
