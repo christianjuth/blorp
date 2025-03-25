@@ -4,9 +4,7 @@ import {
   PostProps,
 } from "~/src/components/posts/post";
 import { ContentGutters } from "../components/gutters";
-import { memo, useMemo, useRef } from "react";
-// import { useCustomHeaderHeight } from "../components/nav/hooks";
-// import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
+import { memo, useMemo } from "react";
 import { useFiltersStore } from "../stores/filters";
 import { useMostRecentPost, usePosts } from "../lib/lemmy";
 import { usePostsStore } from "../stores/posts";
@@ -17,9 +15,12 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
 import {
   IonContent,
+  IonHeader,
   IonPage,
   IonRefresher,
   IonRefresherContent,
+  IonTitle,
+  IonToolbar,
   RefresherEventDetail,
 } from "@ionic/react";
 import { HomeHeader } from "../components/nav/headers";
@@ -58,9 +59,6 @@ export function HomeFeed() {
     type_: listingType,
   });
 
-  // const tabBar = useCustomTabBarHeight();
-  // const header = useCustomHeaderHeight();
-
   const {
     hasNextPage,
     fetchNextPage,
@@ -68,13 +66,6 @@ export function HomeFeed() {
     refetch,
     isRefetching,
   } = posts;
-
-  const refresh = () => {
-    if (!isRefetching) {
-      refetch();
-      mostRecentPost.refetch();
-    }
-  };
 
   const postCache = usePostsStore((s) => s.posts);
 
@@ -99,17 +90,24 @@ export function HomeFeed() {
 
   function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
     Haptics.impact({ style: ImpactStyle.Medium });
-    Promise.all([refetch(), mostRecentPost.refetch()]).finally(() => {
-      event.detail.complete();
-    });
+
+    if (!isRefetching) {
+      Promise.all([refetch(), mostRecentPost.refetch()]).finally(() => {
+        event.detail.complete();
+      });
+    }
   }
 
   return (
     <IonPage>
-      <HomeHeader />
+      <IonHeader>
+        <IonToolbar data-tauri-drag-region>
+          <IonTitle data-tauri-drag-region>Home</IonTitle>
+        </IonToolbar>
+      </IonHeader>
       <IonContent scrollY={false}>
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent></IonRefresherContent>
+          <IonRefresherContent />
         </IonRefresher>
 
         <FlashList

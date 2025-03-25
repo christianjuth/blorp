@@ -260,8 +260,8 @@ export function SettingsPage() {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>Header</IonTitle>
+        <IonToolbar data-tauri-drag-region>
+          <IonTitle data-tauri-drag-region>Settings</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>

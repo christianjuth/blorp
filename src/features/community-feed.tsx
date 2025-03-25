@@ -3,10 +3,10 @@ import {
   getPostProps,
   PostProps,
 } from "~/src/components/posts/post";
-// import {
-//   CommunitySidebar,
-//   SmallScreenSidebar,
-// } from "~/src/components/communities/community-sidebar";
+import {
+  CommunitySidebar,
+  SmallScreenSidebar,
+} from "~/src/components/communities/community-sidebar";
 // import { CommunityBanner } from "../components/communities/community-banner";
 import { ContentGutters } from "../components/gutters";
 import { useScrollToTop } from "@react-navigation/native";
@@ -19,10 +19,23 @@ import { RefreshButton } from "../components/ui/button";
 import { isNotNull } from "../lib/utils";
 import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
-import { IonContent, IonPage } from "@ionic/react";
+import {
+  IonBackButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonRefresher,
+  IonRefresherContent,
+  IonTitle,
+  IonToolbar,
+  RefresherEventDetail,
+} from "@ionic/react";
 import { useParams } from "react-router";
 import { CommunityBanner } from "../components/communities/community-banner";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
+
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 const EMPTY_ARR = [];
 
@@ -97,85 +110,111 @@ export function CommunityFeed() {
   const firstPost = posts.data?.pages[0]?.posts[0];
   const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
 
+  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
+    Haptics.impact({ style: ImpactStyle.Medium });
+
+    if (!isRefetching) {
+      Promise.all([refetch(), mostRecentPost.refetch()]).finally(() => {
+        event.detail.complete();
+      });
+    }
+  }
+
   return (
     <IonPage>
+      <IonHeader>
+        <IonToolbar data-tauri-drag-region>
+          <ContentGutters data-tauri-drag-region>
+            <>
+              <IonButtons slot="start">
+                <IonBackButton text="" />
+              </IonButtons>
+              <IonTitle data-tauri-drag-region>{communityName}</IonTitle>
+            </>
+          </ContentGutters>
+        </IonToolbar>
+      </IonHeader>
       <IonContent scrollY={false}>
-        {/* <PostReportProvider> */}
-        {/* <ContentGutters> */}
-        {/*   <div className="flex-1" /> */}
-        {/*   {communityName && <CommunitySidebar communityName={communityName} />} */}
-        {/* </ContentGutters> */}
+        <PostReportProvider>
+          <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+            <IonRefresherContent />
+          </IonRefresher>
 
-        <FlashList<Item>
-          className="h-full ion-content-scroll-host"
-          // ref={ref}
-          data={data}
-          renderItem={({ item }) => {
-            if (item === SIDEBAR_MOBILE) {
-              return communityName ? (
-                <ContentGutters>
-                  {/* <SmallScreenSidebar communityName={communityName} /> */}
+          <FlashList<Item>
+            className="h-full ion-content-scroll-host"
+            // ref={ref}
+            data={data}
+            renderItem={({ item }) => {
+              if (item === SIDEBAR_MOBILE) {
+                return communityName ? (
+                  <ContentGutters>
+                    {/* <SmallScreenSidebar communityName={communityName} /> */}
+                    <></>
+                  </ContentGutters>
+                ) : (
                   <></>
-                </ContentGutters>
-              ) : (
-                <></>
-              );
-            }
+                );
+              }
 
-            if (item === BANNER) {
-              return (
-                <ContentGutters className="max-md:hidden pt-3">
-                  <CommunityBanner communityName={communityName} />
-                  <></>
-                </ContentGutters>
-              );
-            }
+              if (item === BANNER) {
+                return (
+                  <ContentGutters className="max-md:hidden pt-3">
+                    <CommunityBanner communityName={communityName} />
+                    <></>
+                  </ContentGutters>
+                );
+              }
 
-            if (item === POST_SORT_BAR) {
-              return null;
-              // return (
-              //   <ContentGutters>
-              //     <XStack
-              //       ai="center"
-              //       gap="$3"
-              //       flex={1}
-              //       py="$2"
-              //       bbc="$color3"
-              //       bbw={1}
-              //       $md={{
-              //         bbw: 0.5,
-              //         px: "$3",
-              //         py: "$1.5",
-              //       }}
-              //     >
-              //       <PostSortBar />
-              //       {hasNewPost && (
-              //         <RefreshButton
-              //           onPress={() => {
-              //             ref.current?.scrollToOffset({
-              //               offset: 0,
-              //             });
-              //             refetch();
-              //           }}
-              //         />
-              //       )}
-              //     </XStack>
-              //     <></>
-              //   </ContentGutters>
-              // );
-            }
+              if (item === POST_SORT_BAR) {
+                return null;
+                // return (
+                //   <ContentGutters>
+                //     <XStack
+                //       ai="center"
+                //       gap="$3"
+                //       flex={1}
+                //       py="$2"
+                //       bbc="$color3"
+                //       bbw={1}
+                //       $md={{
+                //         bbw: 0.5,
+                //         px: "$3",
+                //         py: "$1.5",
+                //       }}
+                //     >
+                //       <PostSortBar />
+                //       {hasNewPost && (
+                //         <RefreshButton
+                //           onPress={() => {
+                //             ref.current?.scrollToOffset({
+                //               offset: 0,
+                //             });
+                //             refetch();
+                //           }}
+                //         />
+                //       )}
+                //     </XStack>
+                //     <></>
+                //   </ContentGutters>
+                // );
+              }
 
-            return <Post {...item} />;
-          }}
-          onEndReached={() => {
-            if (hasNextPage && !isFetchingNextPage) {
-              fetchNextPage();
-            }
-          }}
-          stickyHeaderIndices={[2]}
-          estimatedItemSize={475}
-        />
-        {/* </PostReportProvider> */}
+              return <Post {...item} />;
+            }}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }
+            }}
+            stickyHeaderIndices={[2]}
+            estimatedItemSize={475}
+          />
+        </PostReportProvider>
+
+        <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
+          <div className="flex-1" />
+          {communityName && <CommunitySidebar communityName={communityName} />}
+        </ContentGutters>
       </IonContent>
     </IonPage>
   );

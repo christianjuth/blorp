@@ -54,18 +54,17 @@ ion-button {
   --border-radius: 9999px;
 }
 
-ion-toolbar {
-  --min-height: 60px;
+ion-toolbar.md {
+  -webkit-padding-start: 20px;
+  padding-inline-start: 20px;
+  -webkit-padding-end: 20px;
+  padding-inline-end: 20px;
 }
 
 ion-tab-bar {
-  padding-right: var(--ion-safe-area-right);
-  padding-bottom: var(--ion-safe-area-bottom, 0);
-  padding-left: var(--ion-safe-area-left);
-}
-
-ion-title {
-  font-weight: 900;
+  padding-right: max(var(--safe-area-inset-right, 0px), var(--ion-safe-area-right, 0px)) !important;
+  padding-bottom: max(var(--safe-area-inset-bottom, 0px), var(--ion-safe-area-bottom, 0px)) !important;
+  padding-left: max(var(--safe-area-inset-left, 0px), var(--ion-safe-area-left, 0px)) !important;
 }
 
 *::selection {
@@ -91,3 +90,20 @@ ion-title {
 /*   background-color: var(--color7); */
 /*   border-radius: 12px; */
 /* } */
+
+.prose hr {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+
+html.plt-mobileweb ion-toolbar,
+html.plt-desktop ion-toolbar {
+  --min-height: 55px;
+}
+
+@media screen and (width >= 48rem) {
+  html.plt-mobileweb ion-toolbar,
+  html.plt-desktop ion-toolbar {
+    --min-height: 60px;
+  }
+}

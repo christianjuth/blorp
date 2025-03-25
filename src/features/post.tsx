@@ -8,7 +8,7 @@ import {
   PostProps,
   getPostProps,
 } from "~/src/components/posts/post";
-// import { CommunitySidebar } from "~/src/components/communities/community-sidebar";
+import { CommunitySidebar } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 
 import { memo, useMemo } from "react";
@@ -32,7 +32,6 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { useParams } from "react-router";
-import { caretBack } from "ionicons/icons";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -45,15 +44,9 @@ const MemoedPostCard = memo((props: PostProps) => (
   </ContentGutters>
 ));
 
-export function Post({
-  communityName,
-  commentPath,
-  isReady,
-}: {
-  communityName?: string;
-  commentPath?: string;
-  isReady?: boolean;
-}) {
+export function Post({ commentPath }: { commentPath?: string }) {
+  const { communityName } = useParams<{ communityName: string }>();
+
   // const ref = useRef(null);
   // useScrollToTop(ref);
 
@@ -83,6 +76,8 @@ export function Post({
   });
 
   const communityTitle = post?.community?.slug;
+
+  const isReady = true;
 
   const allComments = useMemo(
     () =>
@@ -127,6 +122,17 @@ export function Post({
     }
   };
 
+  const data = useMemo(
+    () =>
+      [
+        "post",
+        "post-bottom-bar",
+        "comment",
+        ...(structured ? structured.topLevelItems : EMPTY_ARR),
+      ] as const,
+    [structured],
+  );
+
   if (!post || !decodedApId) {
     return null;
   }
@@ -143,18 +149,18 @@ export function Post({
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <ContentGutters>
+        <IonToolbar data-tauri-drag-region>
+          <ContentGutters data-tauri-drag-region>
             <>
-              <IonButtons slot="start">
-                <IonBackButton icon={caretBack}></IonBackButton>
+              <IonButtons>
+                <IonBackButton text="" />
               </IonButtons>
-              <IonTitle>{communityTitle}</IonTitle>
+              <IonTitle data-tauri-drag-region>{communityTitle}</IonTitle>
             </>
           </ContentGutters>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent scrollY={false}>
         <PostReportProvider>
           <CommentReplyContext
             postId={post.post.id}
@@ -169,79 +175,77 @@ export function Post({
               </div>
             </ContentGutters>
 
-            {!isReady ? (
-              <MemoedPostCard {...getPostProps(post)} />
-            ) : (
-              <FlashList
-                // ref={ref}
-                data={
-                  [
-                    "post",
-                    "post-bottom-bar",
-                    "comment",
-                    ...(structured ? structured.topLevelItems : EMPTY_ARR),
-                  ] as const
+            <FlashList
+              className="h-full ion-content-scroll-host"
+              // ref={ref}
+              data={data}
+              renderItem={({ item }) => {
+                if (item === "post") {
+                  return <MemoedPostCard {...getPostProps(post)} />;
                 }
-                renderItem={({ item }) => {
-                  if (item === "post") {
-                    return <MemoedPostCard {...getPostProps(post)} />;
-                  }
 
-                  if (item === "post-bottom-bar") {
-                    return (
-                      <ContentGutters>
-                        <PostBottomBar
-                          apId={decodedApId}
-                          commentsCount={post.counts.comments}
-                        />
-                        <></>
-                      </ContentGutters>
-                    );
-                  }
+                if (item === "post-bottom-bar") {
+                  return null;
+                  // return (
+                  //   <ContentGutters>
+                  //     <PostBottomBar
+                  //       apId={decodedApId}
+                  //       commentsCount={post.counts.comments}
+                  //     />
+                  //     <></>
+                  //   </ContentGutters>
+                  // );
+                }
 
-                  if (item === "comment") {
-                    return (
-                      <ContentGutters>
-                        <div
-                        // flex={1} pt="$3"
-                        >
-                          <InlineCommentReply
-                            postId={post.post.id}
-                            queryKeyParentId={parentId}
-                          />
-                        </div>
-                        <></>
-                      </ContentGutters>
-                    );
-                  }
+                if (item === "comment") {
+                  return null;
+                  // return (
+                  //   <ContentGutters>
+                  //     <div
+                  //     // flex={1} pt="$3"
+                  //     >
+                  //       <InlineCommentReply
+                  //         postId={post.post.id}
+                  //         queryKeyParentId={parentId}
+                  //       />
+                  //     </div>
+                  //     <></>
+                  //   </ContentGutters>
+                  // );
+                }
 
-                  return (
-                    <ContentGutters>
-                      <MemoedPostComment
-                        postApId={decodedApId}
-                        queryKeyParentId={parentId}
-                        commentMap={item[1]}
-                        level={0}
-                        opId={opId}
-                        myUserId={myUserId}
-                        noBorder={item[0] === lastComment?.[0]}
-                        communityName={communityName}
-                      />
-                      <></>
-                    </ContentGutters>
-                  );
-                }}
-                // keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
-                onEndReached={loadMore}
-                // onEndReachedThreshold={0.5}
-                // onRefresh={refresh}
-                // refreshing={refreshing}
-                estimatedItemSize={450}
-                stickyHeaderIndices={[1]}
-              />
-            )}
+                return (
+                  <ContentGutters>
+                    <span>{item[0]}</span>
+                    {/* <MemoedPostComment */}
+                    {/*   postApId={decodedApId} */}
+                    {/*   queryKeyParentId={parentId} */}
+                    {/*   commentMap={item[1]} */}
+                    {/*   level={0} */}
+                    {/*   opId={opId} */}
+                    {/*   myUserId={myUserId} */}
+                    {/*   noBorder={item[0] === lastComment?.[0]} */}
+                    {/*   communityName={communityName} */}
+                    {/* /> */}
+                    <></>
+                  </ContentGutters>
+                );
+              }}
+              // keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
+              onEndReached={loadMore}
+              // onEndReachedThreshold={0.5}
+              // onRefresh={refresh}
+              // refreshing={refreshing}
+              estimatedItemSize={450}
+              stickyHeaderIndices={[1]}
+            />
           </CommentReplyContext>
         </PostReportProvider>
+
+        <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
+          <div className="flex-1" />
+          {communityName && <CommunitySidebar communityName={communityName} />}
+        </ContentGutters>
       </IonContent>
     </IonPage>
   );

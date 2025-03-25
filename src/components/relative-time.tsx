@@ -43,19 +43,21 @@ interface Props
  */
 export function RelativeTime({ time, prefix, ...rest }: Props) {
   const dateObj = useMemo(() => dayjs(time), [time]);
-
-  const [, setSignal] = useState(0);
+  const [dateStr, setDateStr] = useState(dateObj.fromNow());
 
   useEffect(() => {
-    const updateTime = () => setSignal((s) => s + 1);
-    const interval = setInterval(updateTime, 500);
+    const updateTime = () => {
+      setDateStr(dateObj.fromNow());
+    };
+    requestAnimationFrame(updateTime);
+    const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, [dateObj]);
 
   return (
     <span {...rest}>
       {prefix}
-      {dateObj.fromNow()}
+      {dateStr}
     </span>
   );
 }

@@ -35,7 +35,7 @@ import {
 import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "~/src/stores/filters";
 import { useAuth } from "../../stores/auth";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { prefetch as prefetchImage } from "~/src/components/image";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
@@ -403,11 +403,13 @@ export function useComments(form: GetComments) {
 
   const cacheComments = useCommentsStore((s) => s.cacheComments);
 
+  const prevPage = useRef("");
+
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
       const limit = form.limit ?? 50;
-      const { comments } = await client.getComments(
+      const { comments, ...rest } = await client.getComments(
         {
           ...form,
           limit,
@@ -418,6 +420,17 @@ export function useComments(form: GetComments) {
           signal,
         },
       );
+
+      const page = comments.map((c) => c.comment.ap_id).join();
+
+      if (page === prevPage.current) {
+        return {
+          comments: [],
+          nextPage: null,
+        };
+      }
+
+      prevPage.current = page;
 
       cacheComments(comments.map(flattenComment));
 

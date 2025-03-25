@@ -52,23 +52,9 @@ const INBOX_STACK = [<Route exact path="/inbox" component={Inbox} />];
 
 const SETTINGS = [<Route exact path="/settings" component={SettingsPage} />];
 
-function Sidebar() {
+function SidebarTabs() {
   const router = useIonRouter();
-
   const pathname = router.routeInfo.pathname;
-
-  const recentCommunities = useRecentCommunitiesStore((s) => s.recentlyVisited);
-  const isLoggedIn = useAuth((s) => s.isLoggedIn());
-
-  const subscribedCommunities = useListCommunities({
-    type_: "Subscribed",
-    limit: 50,
-  });
-
-  const sortedCommunities = _.sortBy(
-    subscribedCommunities.data?.pages.flatMap((p) => p.communities),
-    (c) => c.community.name,
-  );
 
   return (
     <>
@@ -92,6 +78,27 @@ function Sidebar() {
           <span className="text-sm">{t.label}</span>
         </button>
       ))}
+    </>
+  );
+}
+
+function Sidebar() {
+  const recentCommunities = useRecentCommunitiesStore((s) => s.recentlyVisited);
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+
+  const subscribedCommunities = useListCommunities({
+    type_: "Subscribed",
+    limit: 50,
+  });
+
+  const sortedCommunities = _.sortBy(
+    subscribedCommunities.data?.pages.flatMap((p) => p.communities),
+    (c) => c.community.name,
+  );
+
+  return (
+    <>
+      <SidebarTabs />
 
       <div className="h-px w-full bg-zinc-200 dark:bg-zinc-800 my-2" />
 

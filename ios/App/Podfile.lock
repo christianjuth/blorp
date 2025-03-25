@@ -1,6 +1,12 @@
 PODS:
   - Capacitor (7.1.0):
     - CapacitorCordova
+  - CapacitorCommunitySafeArea (7.0.0-alpha.1):
+    - Capacitor
+  - CapacitorCommunitySqlite (7.0.0):
+    - Capacitor
+    - SQLCipher
+    - ZIPFoundation
   - CapacitorCordova (7.1.0)
   - CapacitorHaptics (7.0.0):
     - Capacitor
@@ -8,17 +14,34 @@ PODS:
     - Capacitor
   - CapacitorStatusBar (7.0.0):
     - Capacitor
+  - SQLCipher (4.6.1):
+    - SQLCipher/standard (= 4.6.1)
+  - SQLCipher/common (4.6.1)
+  - SQLCipher/standard (4.6.1):
+    - SQLCipher/common
+  - ZIPFoundation (0.9.19)
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorCommunitySafeArea (from `../../node_modules/@capacitor-community/safe-area`)"
+  - "CapacitorCommunitySqlite (from `../../node_modules/@capacitor-community/sqlite`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
 
+SPEC REPOS:
+  trunk:
+    - SQLCipher
+    - ZIPFoundation
+
 EXTERNAL SOURCES:
   Capacitor:
     :path: "../../node_modules/@capacitor/ios"
+  CapacitorCommunitySafeArea:
+    :path: "../../node_modules/@capacitor-community/safe-area"
+  CapacitorCommunitySqlite:
+    :path: "../../node_modules/@capacitor-community/sqlite"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorHaptics:
@@ -30,11 +53,15 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Capacitor: 68ff8eabbcce387e69767c13b5fbcc1c5399eabc
+  CapacitorCommunitySafeArea: cc370b4f8d4aa340e4616acef9b73eda41ba0914
+  CapacitorCommunitySqlite: 6501e7349acf998346acf24ef757861bb3f6fc2b
   CapacitorCordova: 866217f32c1d25b326c568a10ea3ed0c36b13e29
   CapacitorHaptics: 1fba3e460e7614349c6d5f868b1fccdc5c87b66d
   CapacitorSplashScreen: f4e58cc02aafd91c7cbaf32a3d1b44d02a115125
   CapacitorStatusBar: 438e90beeeefa8276b24e6c5991cb02dd13e51bf
+  SQLCipher: 77fbe633cd84db04b07876dd50766b4924b57d61
+  ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
-PODFILE CHECKSUM: bd20b5f3fa8ff3b5b9cc2ff1cabeb616e7e229bf
+PODFILE CHECKSUM: a94a047502acbd41c4b05fd699f45b344d1dfd80
 
 COCOAPODS: 1.15.2

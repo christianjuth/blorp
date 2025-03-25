@@ -10,7 +10,13 @@ import {
   useReplies,
 } from "~/src/lib/lemmy/index";
 import { createCommunitySlug } from "~/src/lib/lemmy/utils";
-import { IonContent, IonPage } from "@ionic/react";
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
 
 function Reply({
   replyView,
@@ -86,6 +92,11 @@ export function Inbox() {
 
   return (
     <IonPage>
+      <IonHeader>
+        <IonToolbar data-tauri-drag-region>
+          <IonTitle data-tauri-drag-region>Inbox</IonTitle>
+        </IonToolbar>
+      </IonHeader>
       <IonContent>
         <FlashList
           data={allReplies}
