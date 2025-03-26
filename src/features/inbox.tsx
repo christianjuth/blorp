@@ -11,12 +11,14 @@ import {
 } from "~/src/lib/lemmy/index";
 import { createCommunitySlug } from "~/src/lib/lemmy/utils";
 import {
+  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
+import { UserDropdown } from "../components/nav";
 
 function Reply({
   replyView,
@@ -95,6 +97,9 @@ export default function Inbox() {
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonTitle data-tauri-drag-region>Inbox</IonTitle>
+          <IonButtons slot="end">
+            <UserDropdown />
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>

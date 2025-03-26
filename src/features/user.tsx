@@ -25,6 +25,7 @@ import { isNotNull } from "../lib/utils";
 import { CommentView } from "lemmy-js-client";
 import { Link, useParams } from "react-router-dom";
 import {
+  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -35,6 +36,7 @@ import {
   RefresherEventDetail,
 } from "@ionic/react";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { UserDropdown } from "../components/nav";
 
 const BANNER = "banner";
 const POST_SORT_BAR = "post-sort-bar";
@@ -148,6 +150,9 @@ export default function User() {
             {personQuery.data?.person_view.person.display_name ??
               personQuery.data?.person_view.person.name}
           </IonTitle>
+          <IonButtons slot="end">
+            <UserDropdown />
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>

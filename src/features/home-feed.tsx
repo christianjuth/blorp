@@ -102,14 +102,12 @@ export default function HomeFeed() {
   return (
     <IonPage>
       <IonHeader>
-        <ContentGutters>
-          <IonToolbar data-tauri-drag-region>
-            <IonTitle data-tauri-drag-region>Home</IonTitle>
-            <IonButtons slot="end">
-              <UserDropdown />
-            </IonButtons>
-          </IonToolbar>
-        </ContentGutters>
+        <IonToolbar data-tauri-drag-region>
+          <IonTitle data-tauri-drag-region>Home</IonTitle>
+          <IonButtons slot="end">
+            <UserDropdown />
+          </IonButtons>
+        </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>

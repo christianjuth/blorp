@@ -7,6 +7,7 @@ import { FlashList } from "~/src/components/flashlist";
 import { CommunityView } from "lemmy-js-client";
 import { useMedia } from "../lib/hooks";
 import {
+  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -17,6 +18,7 @@ import {
   RefresherEventDetail,
 } from "@ionic/react";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { UserDropdown } from "../components/nav";
 
 const MemoedListItem = memo(
   function ListItem(props: CommunityView) {
@@ -73,6 +75,9 @@ export default function Communities() {
       <IonHeader>
         <IonToolbar>
           <IonTitle>Communities</IonTitle>
+          <IonButtons slot="end">
+            <UserDropdown />
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>

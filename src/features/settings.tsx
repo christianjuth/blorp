@@ -11,6 +11,7 @@ import { getDbSizes } from "~/src/lib/create-storage";
 
 import { Link, LinkProps } from "react-router-dom";
 import {
+  IonButtons,
   IonContent,
   IonHeader,
   IonInput,
@@ -22,6 +23,7 @@ import {
   IonToggle,
   IonToolbar,
 } from "@ionic/react";
+import { UserDropdown } from "../components/nav";
 
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
@@ -273,6 +275,9 @@ export default function SettingsPage() {
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonTitle data-tauri-drag-region>Settings</IonTitle>
+          <IonButtons slot="end">
+            <UserDropdown />
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>

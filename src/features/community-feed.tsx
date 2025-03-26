@@ -36,6 +36,7 @@ import { CommunityBanner } from "../components/communities/community-banner";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { UserDropdown } from "../components/nav";
 
 const EMPTY_ARR = [];
 
@@ -124,14 +125,13 @@ export default function CommunityFeed() {
     <IonPage>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <ContentGutters data-tauri-drag-region>
-            <>
-              <IonButtons slot="start">
-                <IonBackButton text="" />
-              </IonButtons>
-              <IonTitle data-tauri-drag-region>{communityName}</IonTitle>
-            </>
-          </ContentGutters>
+          <IonButtons slot="start">
+            <IonBackButton text="" />
+          </IonButtons>
+          <IonTitle data-tauri-drag-region>{communityName}</IonTitle>
+          <IonButtons slot="end">
+            <UserDropdown />
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>

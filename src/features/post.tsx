@@ -32,6 +32,7 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { useParams } from "react-router";
+import { UserDropdown } from "../components/nav";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -150,14 +151,13 @@ export default function Post({ commentPath }: { commentPath?: string }) {
     <IonPage>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <ContentGutters data-tauri-drag-region>
-            <>
-              <IonButtons>
-                <IonBackButton text="" />
-              </IonButtons>
-              <IonTitle data-tauri-drag-region>{communityTitle}</IonTitle>
-            </>
-          </ContentGutters>
+          <IonButtons slot="start">
+            <IonBackButton text="" />
+          </IonButtons>
+          <IonTitle data-tauri-drag-region>{communityTitle}</IonTitle>
+          <IonButtons slot="end">
+            <UserDropdown />
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
