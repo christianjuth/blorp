@@ -12,6 +12,7 @@ import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
 import { PostCommentsButton, Voting } from "./post-buttons";
 import Markdown from "react-markdown";
+import { twMerge } from "tailwind-merge";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return null;
@@ -291,7 +292,10 @@ export function FeedPostCard(props: PostProps) {
         className="gap-2 flex flex-col"
       >
         <span
-          className="text-xl font-medium"
+          className={twMerge(
+            "text-xl font-medium",
+            !detailView && read && "text-zinc-500",
+          )}
           // fontWeight={500}
           // fontSize="$6"
           // lineHeight="$4"

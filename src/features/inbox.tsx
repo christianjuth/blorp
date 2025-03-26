@@ -79,7 +79,7 @@ function Reply({
   );
 }
 
-export function Inbox() {
+export default function Inbox() {
   const replies = useReplies({});
 
   // This updates in the backgroudn,

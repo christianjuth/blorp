@@ -14,6 +14,7 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
 import {
+  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -23,8 +24,8 @@ import {
   IonToolbar,
   RefresherEventDetail,
 } from "@ionic/react";
-import { HomeHeader } from "../components/nav/headers";
 import { FlashList } from "../components/flashlist";
+import { UserDropdown } from "../components/nav";
 
 const HEADER = "header";
 
@@ -43,7 +44,7 @@ const Post = memo((props: PostProps) => (
   </ContentGutters>
 ));
 
-export function HomeFeed() {
+export default function HomeFeed() {
   const postSort = useFiltersStore((s) => s.postSort);
   const listingType = useFiltersStore((s) => s.listingType);
 
@@ -101,9 +102,14 @@ export function HomeFeed() {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar data-tauri-drag-region>
-          <IonTitle data-tauri-drag-region>Home</IonTitle>
-        </IonToolbar>
+        <ContentGutters>
+          <IonToolbar data-tauri-drag-region>
+            <IonTitle data-tauri-drag-region>Home</IonTitle>
+            <IonButtons slot="end">
+              <UserDropdown />
+            </IonButtons>
+          </IonToolbar>
+        </ContentGutters>
       </IonHeader>
       <IonContent scrollY={false}>
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>

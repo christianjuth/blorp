@@ -71,7 +71,7 @@ If you have any questions about this Privacy Policy or your data, please contact
 We may update this Privacy Policy occasionally. Updates will be posted in the app or on our website.
 `;
 
-export function Privacy() {
+export default function Privacy() {
   return (
     <IonPage>
       <IonContent>

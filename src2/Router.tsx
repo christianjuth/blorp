@@ -28,24 +28,38 @@ import { useAuth } from "~/src/stores/auth";
 import { useListCommunities } from "~/src/lib/lemmy";
 import { SmallCommunityCard } from "~/src/components/communities/community-card";
 
+import { lazy } from "react";
 import * as routes from "~/src/lib/routes";
 
-import { Inbox } from "../src/features/inbox";
-import { Privacy } from "../src/features/privacy";
-import { HomeFeed } from "../src/features/home-feed";
-import { Post } from "../src/features/post";
-import { SettingsPage } from "~/src/features/settings";
-import { CommunityFeed } from "~/src/features/community-feed";
+const Inbox = lazy(() => import("~/src/features/inbox"));
+const Privacy = lazy(() => import("~/src/features/privacy"));
+const HomeFeed = lazy(() => import("~/src/features/home-feed"));
+const Post = lazy(() => import("~/src/features/post"));
+const SettingsPage = lazy(() => import("~/src/features/settings"));
+const CommunityFeed = lazy(() => import("~/src/features/community-feed"));
+const CommunitiesFeed = lazy(() => import("~/src/features/communities-feed"));
+const User = lazy(() => import("~/src/features/user"));
 
 const HOME_STACK = [
   <Route exact path="/home" component={HomeFeed} />,
   <Route exact path="/home/c/:communityName" component={CommunityFeed} />,
   <Route exact path="/home/c/:communityName/posts/:post" component={Post} />,
+  <Route exact path="/home/u/:userId" component={User} />,
 ];
 
 const COMMUNITIES_STACK = [
-  // <Route exact path="/communities/" component={Feed} />,
-  // <Route exact path="/communities/post" component={Post} />,
+  <Route exact path="/communities/" component={CommunitiesFeed} />,
+  <Route
+    exact
+    path="/communities/c/:communityName"
+    component={CommunityFeed}
+  />,
+  <Route
+    exact
+    path="/communities/c/:communityName/posts/:post"
+    component={Post}
+  />,
+  <Route exact path="/communities/u/:userId" component={User} />,
 ];
 
 const INBOX_STACK = [<Route exact path="/inbox" component={Inbox} />];

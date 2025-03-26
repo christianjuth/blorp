@@ -56,7 +56,7 @@ const Post = memo((props: PostProps) => (
   </ContentGutters>
 ));
 
-export function CommunityFeed() {
+export default function CommunityFeed() {
   const { communityName } = useParams<{ communityName: string }>();
 
   const posts = usePosts({

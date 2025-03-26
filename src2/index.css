@@ -67,6 +67,15 @@ ion-tab-bar {
   padding-left: max(var(--safe-area-inset-left, 0px), var(--ion-safe-area-left, 0px)) !important;
 }
 
+ion-list {
+  --ion-item-background: var(--color-zinc-800);
+}
+
+ion-list.list-inset {
+  margin-inline-start: 0 !important;
+  margin-inline-end: 0 !important;
+}
+
 *::selection {
   color: white !important;
   background-color: var(--accent-color) !important;

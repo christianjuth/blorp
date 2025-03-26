@@ -13,6 +13,10 @@ import { Link, LinkProps } from "react-router-dom";
 import {
   IonContent,
   IonHeader,
+  IonInput,
+  IonItem,
+  IonList,
+  IonNavLink,
   IonPage,
   IonTitle,
   IonToggle,
@@ -44,37 +48,37 @@ function AccountSection() {
     <>
       <SectionLabel>ACCOUNTS</SectionLabel>
 
-      <div>
+      <IonList inset>
         {accounts.map((a, index) => {
           const { person, instance } = parseAccountInfo(a);
           const isLoggedIn = Boolean(a.jwt);
           return (
-            <Fragment key={instance + index}>
-              {index > 0 && <Divider />}
-              <SettingsButton
-                onClick={() => {
-                  if (isLoggedIn || index > 0) {
-                    logout(index);
-                  } else {
-                    requireAuth();
-                  }
-                }}
-              >
-                {[
-                  isLoggedIn ? "Logout" : index === 0 ? "Login" : "Remove",
-                  person
-                    ? `${person.display_name ?? person.name}@${instance}`
-                    : index > 0
-                      ? instance
-                      : null,
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              </SettingsButton>
-            </Fragment>
+            <IonItem
+              key={instance + index}
+              button
+              detail={false}
+              onClick={() => {
+                if (isLoggedIn || index > 0) {
+                  logout(index);
+                } else {
+                  requireAuth();
+                }
+              }}
+            >
+              {[
+                isLoggedIn ? "Logout" : index === 0 ? "Login" : "Remove",
+                person
+                  ? `${person.display_name ?? person.name}@${instance}`
+                  : index > 0
+                    ? instance
+                    : null,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            </IonItem>
           );
         })}
-      </div>
+      </IonList>
     </>
   );
 }
@@ -111,68 +115,80 @@ function CacheSection() {
     <>
       <SectionLabel>STORAGE</SectionLabel>
 
-      <div>
-        <span>
-          Cache {formatSize(totalSize)}
-          {settings.cacheImages ? " (excludes images)" : ""}
-        </span>
+      <IonList inset>
+        <IonItem>
+          <div className="py-2.5 flex-1 flex flex-col gap-2">
+            <span className="text-sm text-zinc-400">
+              Cache {formatSize(totalSize)}
+              {settings.cacheImages ? " (excludes images)" : ""}
+            </span>
 
-        {totalSize > 0 && (
-          <div>
-            <div>
-              {cacheSizes.map(([key, size], index) => (
-                <div
-                  key={key}
-                  // w={`${(size / totalSize) * 100}%`}
-                  // h="100%"
-                  // bg="$accentColor"
-                  // o={(cacheSizes.length - index) / cacheSizes.length}
-                />
-              ))}
-            </div>
-
-            <div>
-              {cacheSizes.map(([key], index) => (
-                <div key={key}>
-                  <div
-                  // h={11}
-                  // w={11}
-                  // bg="$accentColor"
-                  // br={9999}
-                  // o={(cacheSizes.length - index) / cacheSizes.length}
-                  />
-                  <span
-                  // col="$color11"
-                  // fontSize="$3"
-                  // $md={{ fontSize: "$2" }}
-                  // textTransform="capitalize"
-                  >
-                    {key.split("_")[1]?.replaceAll("-", " ")}
-                  </span>
+            {totalSize > 0 && (
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-row flex-1 gap-px rounded-md overflow-hidden">
+                  {cacheSizes.map(([key, size], index) => (
+                    <div
+                      key={key}
+                      style={{
+                        width: `${(size / totalSize) * 100}%`,
+                        opacity:
+                          (cacheSizes.length - index) / cacheSizes.length,
+                      }}
+                      className="h-6 bg-white"
+                      // w={`${(size / totalSize) * 100}%`}
+                      // h="100%"
+                      // bg="$accentColor"
+                      // o={(cacheSizes.length - index) / cacheSizes.length}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+
+                <div className="flex flex-row flex-wrap items-center gap-2">
+                  {cacheSizes.map(([key], index) => (
+                    <div key={key} className="flex flex-row gap-1 items-center">
+                      <div
+                        className="h-3 w-3 bg-white rounded-full"
+                        // h={11}
+                        // w={11}
+                        // bg="$accentColor"
+                        // br={9999}
+                        // o={(cacheSizes.length - index) / cacheSizes.length}
+                      />
+                      <span
+                        // col="$color11"
+                        // fontSize="$3"
+                        // $md={{ fontSize: "$2" }}
+                        // textTransform="capitalize"
+                        className="capitalize text-sm"
+                      >
+                        {key.split("_")[1]?.replaceAll("-", " ")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* <Divider /> */}
+
+            {/* <SettingsButton */}
+            {/*   onClick={() => { */}
+            {/*     alrt("Clear data cache?").then(async () => { */}
+            {/*       try { */}
+            {/*         queryClient.clear(); */}
+            {/*       } catch (err) {} */}
+            {/*       try { */}
+            {/*         queryClient.invalidateQueries(); */}
+            {/*       } catch (err) {} */}
+            {/*       refreshCacheSizes(); */}
+            {/*     }); */}
+            {/*   }} */}
+            {/* > */}
+            {/*   Clear data cache */}
+            {/* </SettingsButton> */}
           </div>
-        )}
-
-        {/* <Divider /> */}
-
-        {/* <SettingsButton */}
-        {/*   onClick={() => { */}
-        {/*     alrt("Clear data cache?").then(async () => { */}
-        {/*       try { */}
-        {/*         queryClient.clear(); */}
-        {/*       } catch (err) {} */}
-        {/*       try { */}
-        {/*         queryClient.invalidateQueries(); */}
-        {/*       } catch (err) {} */}
-        {/*       refreshCacheSizes(); */}
-        {/*     }); */}
-        {/*   }} */}
-        {/* > */}
-        {/*   Clear data cache */}
-        {/* </SettingsButton> */}
-      </div>
+        </IonItem>
+      </IonList>
     </>
   );
 }
@@ -239,7 +255,7 @@ function Divider() {
   return <div />;
 }
 
-export function SettingsPage() {
+export default function SettingsPage() {
   const showNsfw = useSettingsStore((s) => s.showNsfw);
   const setShowNsfw = useSettingsStore((s) => s.setShowNsfw);
 
@@ -249,11 +265,6 @@ export function SettingsPage() {
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
   const setFilterKeywords = useSettingsStore((s) => s.setFilterKeywords);
   const pruneFiltersKeywords = useSettingsStore((s) => s.pruneFiltersKeywords);
-
-  const setFilterKeywordsDebounced = useMemo(
-    () => _.debounce(setFilterKeywords, 500),
-    [],
-  );
 
   const keywords = [...filterKeywords, ""];
 
@@ -265,69 +276,79 @@ export function SettingsPage() {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>
-        <ContentGutters>
-          <div>
+        <ContentGutters className="py-4 max-md:px-4">
+          <div className="flex-1 gap-3 flex flex-col">
             <AccountSection />
 
             <SectionLabel>FILTERS</SectionLabel>
 
-            <div>
-              <SettingsToggle value={hideRead} onToggle={setHideRead}>
-                Hide read posts from feeds
-              </SettingsToggle>
-              <SettingsToggle value={showNsfw} onToggle={setShowNsfw}>
-                Show NSFW
-              </SettingsToggle>
-            </div>
+            <IonList inset>
+              <IonItem>
+                <IonToggle
+                  checked={hideRead}
+                  onIonChange={(e) => setHideRead(e.detail.checked)}
+                >
+                  Hide read posts from feeds
+                </IonToggle>
+              </IonItem>
+              <IonItem>
+                <IonToggle
+                  checked={showNsfw}
+                  onIonChange={(e) => setShowNsfw(e.detail.checked)}
+                >
+                  Show NSFW
+                </IonToggle>
+              </IonItem>
+            </IonList>
 
             <SectionLabel>FILTER KEYWORDS</SectionLabel>
 
-            <div>
+            <IonList inset>
               {keywords.map((keyword, index) => (
-                <Fragment key={index}>
+                <IonItem key={index}>
                   {index > 0 && <Divider />}
-                  <input
+                  <IonInput
                     defaultValue={keyword}
-                    onChange={(e) =>
-                      setFilterKeywordsDebounced({
+                    onIonChange={(e) =>
+                      setFilterKeywords({
                         index,
-                        keyword: e.target.value,
+                        keyword: e.detail.value ?? "",
                       })
                     }
-                    onBlur={() => {
-                      setFilterKeywordsDebounced.flush();
+                    onIonBlur={() => {
                       pruneFiltersKeywords();
                     }}
                     placeholder="Keyword to filter..."
                   />
-                </Fragment>
+                </IonItem>
               ))}
-            </div>
+            </IonList>
 
             <CacheSection />
 
             <SectionLabel>OTHER</SectionLabel>
 
-            <div>
-              <SettignsLink
-                to="https://github.com/christianjuth/blorp/tags"
+            <IonList inset>
+              <IonItem
+                href="https://github.com/christianjuth/blorp/releases"
                 target="_blank"
+                detail={false}
               >
                 What's new
-              </SettignsLink>
-              <Divider />
-              <SettignsLink
-                to="https://github.com/christianjuth/blorp/issues/new"
+              </IonItem>
+              <IonItem
+                href="https://github.com/christianjuth/blorp/issues/new"
                 target="_blank"
+                detail={false}
               >
                 Report issue
-              </SettignsLink>
+              </IonItem>
+              <IonItem routerLink="/privacy" detail={false}>
+                Privacy Policy
+              </IonItem>
+            </IonList>
 
-              <Divider />
-              <SettignsLink to="/privacy">Privacy Policy</SettignsLink>
-            </div>
-
-            <div>
+            <div className="flex flex-col items-center">
               <Logo />
               <span>v{version}</span>
             </div>

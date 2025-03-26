@@ -13,18 +13,7 @@ export function SmallCommunityCard({
 
   const content = (
     <div className="flex flex-row gap-2.5 items-center">
-      <img src={community.icon} className="h-8 w-8 rounded-full" />
-      {/* <Avatar size="$2.5" borderRadius="$12"> */}
-      {/*   <Avatar.Image src={community.icon} /> */}
-      {/*   <Avatar.Fallback */}
-      {/*     backgroundColor="$color8" */}
-      {/*     borderRadius="$12" */}
-      {/*     ai="center" */}
-      {/*     jc="center" */}
-      {/*   > */}
-      {/*     <Text fontSize="$4">{community.title.substring(0, 1)}</Text> */}
-      {/*   </Avatar.Fallback> */}
-      {/* </Avatar> */}
+      <img src={community.icon} className="h-8 w-8 rounded-full object-cover" />
       <span className="text-sm">c/{community.name}</span>
     </div>
   );

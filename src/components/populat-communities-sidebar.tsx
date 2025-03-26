@@ -31,7 +31,7 @@ function SmallComunityCard({
         >
           c/{community.name}
         </span>
-        <span className="text-xs text-zinc-600">
+        <span className="text-xs text-zinc-500">
           {abbriviateNumber(counts.subscribers)} members
         </span>
       </div>

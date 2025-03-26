@@ -44,7 +44,7 @@ const MemoedPostCard = memo((props: PostProps) => (
   </ContentGutters>
 ));
 
-export function Post({ commentPath }: { commentPath?: string }) {
+export default function Post({ commentPath }: { commentPath?: string }) {
   const { communityName } = useParams<{ communityName: string }>();
 
   // const ref = useRef(null);
