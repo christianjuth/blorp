@@ -1,4 +1,3 @@
-import { Regex } from "@tamagui/lucide-icons";
 import {
   Community,
   ImageDetails,

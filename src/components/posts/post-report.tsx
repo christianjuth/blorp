@@ -1,11 +1,9 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import _ from "lodash";
-import { Modal } from "../ui/modal";
-import { TextArea, Text, YStack, Form, XStack } from "tamagui";
 import { usePostsStore } from "~/src/stores/posts";
-import { Button } from "../ui/button";
 import { useCreatePostReport, useCreateCommentReport } from "~/src/lib/lemmy";
 import { useCommentsStore } from "~/src/stores/comments";
+import { IonModal } from "@ionic/react";
 
 const Context = createContext<{
   apId?: string;
@@ -46,14 +44,14 @@ export function PostReportProvider({
 
   return (
     <Context.Provider value={value}>
-      <Modal
-        open={!!post || !!commentPath}
-        onClose={() => {
+      <IonModal
+        isOpen={!!post || !!commentPath}
+        onDidDismiss={() => {
           setApId(undefined);
           setCommentPath(undefined);
         }}
       >
-        <Form
+        <form
           onSubmit={() => {
             if (post) {
               createPostReport
@@ -78,46 +76,52 @@ export function PostReportProvider({
             }
           }}
         >
-          <YStack p="$3" gap="$3">
+          <div
+          // p="$3" gap="$3"
+          >
             {post && (
               <>
-                <Text fontWeight="bold">Report post</Text>
-                <Text>{post?.name}</Text>
+                <span className="font-bold">Report post</span>
+                <span>{post?.name}</span>
               </>
             )}
 
             {comment && (
               <>
-                <Text fontWeight="bold">Report comment</Text>
-                <Text maxWidth={400} numberOfLines={3}>
-                  {comment.data.comment.content}
-                </Text>
+                <span className="font-bold">Report comment</span>
+                <span>{comment.data.comment.content}</span>
               </>
             )}
 
-            <TextArea value={reason} onChangeText={setReason} />
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+            />
 
-            <XStack gap="$2">
-              <Button
-                size="$3"
-                f={1}
-                bg="$color9"
-                onPress={() => {
+            <div
+            // gap="$2"
+            >
+              <button
+                // size="$3"
+                // f={1}
+                // bg="$color9"
+                onClick={() => {
                   setApId(undefined);
                   setCommentPath(undefined);
                 }}
+                type="button"
               >
                 Cancel
-              </Button>
-              <Form.Trigger asChild>
-                <Button size="$3" f={1}>
-                  Submit
-                </Button>
-              </Form.Trigger>
-            </XStack>
-          </YStack>
-        </Form>
-      </Modal>
+              </button>
+              <button
+              // size="$3" f={1}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </form>
+      </IonModal>
       {children}
     </Context.Provider>
   );

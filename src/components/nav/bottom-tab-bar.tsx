@@ -21,10 +21,10 @@ export const useCustomTabBarHeight = () => {
   });
 
   // Add safe area top inset to ensure the header accounts for the status bar
-  const height = defaultHeaderHeight + insets.bottom;
+  const height = defaultHeaderHeight + 30;
   return {
     height,
-    insetBottom: insets.bottom,
+    insetBottom: 30,
   };
 };
 

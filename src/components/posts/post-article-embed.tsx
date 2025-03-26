@@ -1,4 +1,3 @@
-import { Text, View } from "tamagui";
 import { Image } from "~/src/components/image";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { isTauri } from "~/src/lib/tauri";
@@ -26,30 +25,26 @@ export function PostArticleEmbed({
       style={{
         display: !url ? "none" : undefined,
       }}
+      className="flex flex-col"
     >
-      <View br={10} overflow="hidden">
-        {thumbnail && (
-          <Image
-            imageUrl={thumbnail}
-            aspectRatio={16 / 9}
-            objectFit="cover"
-            disableShare
-            borderTopRadius={10}
-            priority
-          />
-        )}
-        {url && (
-          <Text
-            p="$3"
-            bg="$color5"
-            color="$color11"
-            numberOfLines={1}
-            fontSize="$4"
-          >
-            {displayUrl ?? url}
-          </Text>
-        )}
-      </View>
+      {thumbnail && (
+        <img
+          src={thumbnail}
+          className="object-cover aspect-video rounded-t-xl"
+        />
+      )}
+      {url && (
+        <span
+          // p="$3"
+          // bg="$color5"
+          // color="$color11"
+          // numberOfLines={1}
+          // fontSize="$4"
+          className="p-3 bg-zinc-200 dark:bg-zinc-800 truncate text-ellipsis rounded-b-xl text-sm text-zinc-500"
+        >
+          {displayUrl ?? url}
+        </span>
+      )}
     </a>
   );
 }

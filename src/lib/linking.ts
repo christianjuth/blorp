@@ -1,5 +1,5 @@
 import { openUrl as tauriOpenUrl } from "@tauri-apps/plugin-opener";
-import { Linking } from "react-native";
+// import { Linking } from "react-native";
 import { isTauri } from "./tauri";
 
 export function shouldOpenInNewTab(url: string) {
@@ -15,6 +15,6 @@ export async function openUrl(url: string) {
   if (isTauri()) {
     return await tauriOpenUrl(url);
   }
-  await Linking.canOpenURL(url);
-  return await Linking.openURL(url);
+  // await Linking.canOpenURL(url);
+  // return await Linking.openURL(url);
 }

@@ -5,41 +5,11 @@ import {
   PostSortType,
 } from "lemmy-js-client";
 import { Option, Select } from "~/src/components/ui/select";
-import {
-  Flame,
-  ArrowUpCircle,
-  Clock3,
-  Sword,
-  Hourglass,
-  ChevronDown,
-  ArrowUpDown,
-} from "@tamagui/lucide-icons";
 import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 import { useFiltersStore } from "~/src/stores/filters";
 import { Text, useMedia, useTheme, View, XStack } from "tamagui";
 import { ComponentProps, useMemo } from "react";
 import { useAuth } from "../stores/auth";
-
-function createIcon(defaultProps: ComponentProps<typeof FontAwesome6>) {
-  return (
-    props: Omit<ComponentProps<typeof FontAwesome6>, "name" | "iconStyle">,
-  ) => {
-    const theme = useTheme();
-    return (
-      <FontAwesome6
-        {...defaultProps}
-        {...props}
-        color={props.color ?? theme.color.val}
-      />
-    );
-  };
-}
-
-const PersonRunning = createIcon({
-  name: "person-running",
-  iconStyle: "solid",
-  size: 18,
-});
 
 const COMMUNITY_SORT_OPTIONS: Option<CommunitySortType, string>[] = [
   {
@@ -161,37 +131,30 @@ const POST_SORT_OPTIONS: Option<PostSortType, PostSortType>[] = [
   {
     label: "Active",
     value: "Active",
-    icon: PersonRunning,
   },
   {
     label: "Hot",
     value: "Hot",
-    icon: Flame,
   },
   {
     label: "TopDay",
     value: "TopDay",
-    icon: ArrowUpCircle,
   },
   {
     label: "TopWeek",
     value: "TopWeek",
-    icon: ArrowUpCircle,
   },
   {
     label: "New",
     value: "New",
-    icon: Clock3,
   },
   {
     label: "Controversial",
     value: "Controversial",
-    icon: Sword,
   },
   {
     label: "Old",
     value: "Old",
-    icon: Hourglass,
   },
 ];
 

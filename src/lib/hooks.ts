@@ -1,24 +1,56 @@
-import { useEffect, useState } from "react";
-import { Dimensions } from "react-native";
+import { useMemo } from "react";
+import { useMediaQuery } from "react-responsive";
 
-const windowDimensions = Dimensions.get("window");
-const screenDimensions = Dimensions.get("screen");
-
+/**
+ * @deprecated
+ */
 export function useWindowDimensions() {
-  const [dimensions, setDimensions] = useState({
-    window: windowDimensions,
-    screen: screenDimensions,
+  return {
+    window: {
+      height: 0,
+      width: 0,
+    },
+    screen: {
+      height: 0,
+      width: 0,
+    },
+  };
+}
+
+export function useMedia() {
+  const sm = useMediaQuery({
+    minWidth: "40rem",
   });
 
-  useEffect(() => {
-    const subscription = Dimensions.addEventListener(
-      "change",
-      ({ window, screen }) => {
-        setDimensions({ window, screen });
-      },
-    );
-    return () => subscription?.remove();
+  const md = useMediaQuery({
+    minWidth: "48rem",
   });
 
-  return dimensions;
+  const lg = useMediaQuery({
+    minWidth: "64rem",
+  });
+
+  const xl = useMediaQuery({
+    minWidth: "80rem",
+  });
+
+  const xxl = useMediaQuery({
+    minWidth: "96rem",
+  });
+
+  return useMemo(
+    () => ({
+      sm,
+      md,
+      lg,
+      xl,
+      xxl,
+      maxSm: !sm,
+      maxMd: !md,
+      maxLg: !lg,
+      maxXl: !xl,
+      maxXxl: !xxl,
+    }),
+    [sm, md, lg, xl, xxl],
+  );
 }

@@ -1,7 +1,6 @@
-import { View, Text, XStack, YStack, Avatar } from "tamagui";
-import { Markdown } from "~/src/components/markdown";
+import Markdown from "react-markdown";
 import _ from "lodash";
-import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
+// import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
 import {
   InlineCommentReply,
   useCommentReaplyContext,
@@ -9,18 +8,14 @@ import {
 import { useEffect, useState } from "react";
 import { useCommentsStore } from "~/src/stores/comments";
 import { RelativeTime } from "../relative-time";
-import { ActionMenu } from "~/src/components/ui/action-menu";
-import { Ellipsis } from "@tamagui/lucide-icons";
 import { useBlockPerson, useDeleteComment } from "~/src/lib/lemmy/index";
-import { Share } from "react-native";
 import { CommentMap } from "~/src/lib/comment-map";
 import { useShowCommentReportModal } from "./post-report";
 import { useRequireAuth } from "../auth-context";
-import { useAlert } from "../ui/alert";
 import { useLinkContext } from "../nav/link-context";
-import { Link } from "one";
 import { Person } from "lemmy-js-client";
 import { encodeApId } from "~/src/lib/lemmy/utils";
+import { Link } from "react-router-dom";
 
 function Byline({
   creator,
@@ -35,35 +30,39 @@ function Byline({
 }) {
   const linkCtx = useLinkContext();
   return (
-    <XStack ai="center">
-      <Avatar size={21} mr="$2">
-        <Avatar.Image src={creator.avatar} borderRadius="$12" />
-        <Avatar.Fallback
-          backgroundColor="$color8"
-          borderRadius="$12"
-          ai="center"
-          jc="center"
+    <div
+    // ai="center"
+    >
+      {/* <Avatar size={21} mr="$2"> */}
+      {/*   <Avatar.Image src={creator.avatar} borderRadius="$12" /> */}
+      {/*   <Avatar.Fallback */}
+      {/*     backgroundColor="$color8" */}
+      {/*     borderRadius="$12" */}
+      {/*     ai="center" */}
+      {/*     jc="center" */}
+      {/*   > */}
+      {/*     <Text fontSize="$1"> */}
+      {/*       {creator.name?.substring(0, 1).toUpperCase()} */}
+      {/*     </Text> */}
+      {/*   </Avatar.Fallback> */}
+      {/* </Avatar> */}
+      <Link to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}>
+        <span
+        // fontSize="$3" fontWeight={500}
         >
-          <Text fontSize="$1">
-            {creator.name?.substring(0, 1).toUpperCase()}
-          </Text>
-        </Avatar.Fallback>
-      </Avatar>
-      <Link href={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}>
-        <Text fontSize="$3" fontWeight={500}>
           {creator.name}
-          {authorType && <Text color={"$accentColor"}> ({authorType})</Text>}
-        </Text>
+          {authorType && <span> ({authorType})</span>}
+        </span>
       </Link>
       <RelativeTime
         prefix=" • "
         time={publishedDate}
-        color="$color11"
-        fontSize="$3"
+        // color="$color11"
+        // fontSize="$3"
       />
 
-      <View flex={1} onPress={onPress} h="100%" />
-    </XStack>
+      <div className="flex-1 h-full" onClick={onPress} />
+    </div>
   );
 }
 
@@ -86,7 +85,6 @@ export function PostComment({
   noBorder?: boolean;
   communityName?: string;
 }) {
-  const alrt = useAlert();
   const showReportModal = useShowCommentReportModal();
   const requireAuth = useRequireAuth();
 
@@ -150,19 +148,19 @@ export function PostComment({
   const hideContent = comment.removed || comment.deleted;
 
   return (
-    <YStack
-      mt={level === 0 ? "$2" : undefined}
-      py={level === 0 ? "$3" : "$2"}
-      bg="$background"
-      bbc="$color3"
-      bbw={level === 0 && !noBorder ? 1 : 0}
-      $md={{
-        px: level === 0 ? "$2.5" : undefined,
-        bbw: level === 0 && !noBorder ? 0.5 : 0,
-      }}
-      flex={1}
-      w="100%"
-      opacity={comment.id < 0 ? 0.5 : undefined}
+    <div
+    // mt={level === 0 ? "$2" : undefined}
+    // py={level === 0 ? "$3" : "$2"}
+    // bg="$background"
+    // bbc="$color3"
+    // bbw={level === 0 && !noBorder ? 1 : 0}
+    // $md={{
+    //   px: level === 0 ? "$2.5" : undefined,
+    //   bbw: level === 0 && !noBorder ? 0.5 : 0,
+    // }}
+    // flex={1}
+    // w="100%"
+    // opacity={comment.id < 0 ? 0.5 : undefined}
     >
       <Byline
         creator={creator}
@@ -177,24 +175,26 @@ export function PostComment({
         onPress={() => setCollapsed((c) => !c)}
       />
 
-      <View
-        blw={2}
-        blc={color}
-        p="$2"
-        pr={0}
-        pb={0}
-        mt="$1"
-        ml={9}
-        ai="flex-start"
-        dsp={collapsed ? "none" : undefined}
+      <div
+      // blw={2}
+      // blc={color}
+      // p="$2"
+      // pr={0}
+      // pb={0}
+      // mt="$1"
+      // ml={9}
+      // ai="flex-start"
+      // dsp={collapsed ? "none" : undefined}
       >
-        {comment.deleted && <Text fontStyle="italic">deleted</Text>}
-        {comment.removed && <Text fontStyle="italic">removed</Text>}
+        {comment.deleted && <span className="italic">deleted</span>}
+        {comment.removed && <span className="italic">removed</span>}
 
         {!hideContent && (
-          <View $gtMd={{ dsp: editing ? "none" : undefined }} w="100%">
-            <Markdown markdown={comment.content} />
-          </View>
+          <div
+          // $gtMd={{ dsp: editing ? "none" : undefined }} w="100%"
+          >
+            <Markdown>{comment.content}</Markdown>
+          </div>
         )}
 
         {editing && (
@@ -207,84 +207,84 @@ export function PostComment({
           />
         )}
 
-        <XStack
-          ai="center"
-          jc="flex-end"
-          w="100%"
-          mt="$1.5"
-          mb="$1"
-          mr="$1"
-          gap="$3"
+        <div
+        // ai="center"
+        // jc="flex-end"
+        // w="100%"
+        // mt="$1.5"
+        // mb="$1"
+        // mr="$1"
+        // gap="$3"
         >
-          <ActionMenu
-            placement="top"
-            actions={[
-              {
-                label: "Share",
-                onClick: () =>
-                  Share.share({
-                    url: `https://blorpblorp.xyz/c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
-                  }),
-              },
-              ...(isMyComment && !comment.deleted
-                ? [
-                    {
-                      label: "Edit",
-                      onClick: () => {
-                        setEditing((e) => !e);
-                        replyCtx.setComment(comment);
-                      },
-                    },
-                  ]
-                : []),
-              ...(isMyComment
-                ? [
-                    {
-                      label: comment.deleted ? "Restore" : "Delete",
-                      onClick: () => {
-                        deleteComment.mutate({
-                          comment_id: comment.id,
-                          path: comment.path,
-                          deleted: !comment.deleted,
-                        });
-                      },
-                      danger: true,
-                    },
-                  ]
-                : [
-                    {
-                      label: "Report",
-                      onClick: () =>
-                        requireAuth().then(() => showReportModal(comment.path)),
-                      danger: true,
-                    },
-                    {
-                      label: "Block person",
-                      onClick: async () => {
-                        try {
-                          await requireAuth();
-                          await alrt(`Block ${commentView.creator.name}`);
-                          blockPerson.mutate({
-                            person_id: commentView.creator.id,
-                            block: true,
-                          });
-                        } catch (err) {}
-                      },
-                      danger: true,
-                    },
-                  ]),
-            ]}
-            trigger={<Ellipsis size={16} />}
-          />
+          {/* <ActionMenu */}
+          {/*   placement="top" */}
+          {/*   actions={[ */}
+          {/*     { */}
+          {/*       label: "Share", */}
+          {/*       onClick: () => */}
+          {/*         Share.share({ */}
+          {/*           url: `https://blorpblorp.xyz/c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`, */}
+          {/*         }), */}
+          {/*     }, */}
+          {/*     ...(isMyComment && !comment.deleted */}
+          {/*       ? [ */}
+          {/*           { */}
+          {/*             label: "Edit", */}
+          {/*             onClick: () => { */}
+          {/*               setEditing((e) => !e); */}
+          {/*               replyCtx.setComment(comment); */}
+          {/*             }, */}
+          {/*           }, */}
+          {/*         ] */}
+          {/*       : []), */}
+          {/*     ...(isMyComment */}
+          {/*       ? [ */}
+          {/*           { */}
+          {/*             label: comment.deleted ? "Restore" : "Delete", */}
+          {/*             onClick: () => { */}
+          {/*               deleteComment.mutate({ */}
+          {/*                 comment_id: comment.id, */}
+          {/*                 path: comment.path, */}
+          {/*                 deleted: !comment.deleted, */}
+          {/*               }); */}
+          {/*             }, */}
+          {/*             danger: true, */}
+          {/*           }, */}
+          {/*         ] */}
+          {/*       : [ */}
+          {/*           { */}
+          {/*             label: "Report", */}
+          {/*             onClick: () => */}
+          {/*               requireAuth().then(() => showReportModal(comment.path)), */}
+          {/*             danger: true, */}
+          {/*           }, */}
+          {/*           { */}
+          {/*             label: "Block person", */}
+          {/*             onClick: async () => { */}
+          {/*               try { */}
+          {/*                 await requireAuth(); */}
+          {/*                 await alrt(`Block ${commentView.creator.name}`); */}
+          {/*                 blockPerson.mutate({ */}
+          {/*                   person_id: commentView.creator.id, */}
+          {/*                   block: true, */}
+          {/*                 }); */}
+          {/*               } catch (err) {} */}
+          {/*             }, */}
+          {/*             danger: true, */}
+          {/*           }, */}
+          {/*         ]), */}
+          {/*   ]} */}
+          {/*   trigger={<Ellipsis size={16} />} */}
+          {/* /> */}
 
-          <CommentReplyButton
-            onPress={() => {
-              setReplying(true);
-              replyCtx.setParentComment(commentView);
-            }}
-          />
-          <CommentVoting commentView={commentView} />
-        </XStack>
+          {/* <CommentReplyButton */}
+          {/*   onPress={() => { */}
+          {/*     setReplying(true); */}
+          {/*     replyCtx.setParentComment(commentView); */}
+          {/*   }} */}
+          {/* /> */}
+          {/* <CommentVoting commentView={commentView} /> */}
+        </div>
 
         {replying && (
           <InlineCommentReply
@@ -309,7 +309,7 @@ export function PostComment({
             communityName={communityName}
           />
         ))}
-      </View>
-    </YStack>
+      </div>
+    </div>
   );
 }

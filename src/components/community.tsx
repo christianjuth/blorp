@@ -1,9 +1,8 @@
 import { CommunityView } from "lemmy-js-client";
-import { Text, YStack, XStack, Square } from "tamagui";
-import { Link } from "one";
 import { abbriviateNumber } from "~/src/lib/format";
 import { createCommunitySlug } from "../lib/lemmy/utils";
 import { useLinkContext } from "./nav/link-context";
+import { Link } from "react-router-dom";
 
 export function Community({ communityView }: { communityView: CommunityView }) {
   const { community, counts } = communityView;
@@ -12,35 +11,22 @@ export function Community({ communityView }: { communityView: CommunityView }) {
   const linkCtx = useLinkContext();
 
   return (
-    <Link href={`${linkCtx.root}c/${slug}`} asChild push>
-      <XStack
-        flex={1}
-        ai="center"
-        gap="$2"
-        tag="a"
-        py="$2"
-        overflow="hidden"
-        $md={{ px: "$3" }}
-      >
-        <Square
-          size="$3"
-          borderRadius={9999}
-          backgroundColor="$color8"
-          ai="center"
-          jc="center"
-        >
-          <Text fontSize="$4">{community.title.substring(0, 1)}</Text>
-        </Square>
-        <YStack gap="$1" flex={1}>
-          <Text fontSize="$3" numberOfLines={1} textOverflow="ellipsis">
-            {createCommunitySlug(community)}
-          </Text>
-          <Text fontSize="$3" col="$color11">
-            {abbriviateNumber(counts.subscribers)} members •{" "}
-            {abbriviateNumber(counts.posts)} posts
-          </Text>
-        </YStack>
-      </XStack>
+    <Link
+      to={`${linkCtx.root}c/${slug}`}
+      className="flex flex-row py-2 gap-2 items-center"
+    >
+      <div className="h-9 w-9 bg-zinc-300 dark:bg-zinc-700 flex items-center rounded-full">
+        <span className="text-center mx-auto">
+          {community.title.substring(0, 1)}
+        </span>
+      </div>
+      <div className="flex flex-col">
+        <span className="text-sm">c/{community.name}</span>
+        <span className="text-xs text-zinc-500">
+          {abbriviateNumber(counts.subscribers)} members •{" "}
+          {abbriviateNumber(counts.posts)} posts
+        </span>
+      </div>
     </Link>
   );
 }

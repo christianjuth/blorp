@@ -1,8 +1,13 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
-import { useEffect, useMemo, useState } from "react";
-import { Tooltip, Text, TextProps } from "tamagui";
+import {
+  DetailedHTMLProps,
+  HTMLAttributes,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -25,7 +30,8 @@ dayjs.updateLocale("en", {
   },
 });
 
-interface Props extends TextProps {
+interface Props
+  extends DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement> {
   time: string;
   prefix?: string;
 }
@@ -37,19 +43,21 @@ interface Props extends TextProps {
  */
 export function RelativeTime({ time, prefix, ...rest }: Props) {
   const dateObj = useMemo(() => dayjs(time), [time]);
-
-  const [, setSignal] = useState(0);
+  const [dateStr, setDateStr] = useState(dateObj.fromNow());
 
   useEffect(() => {
-    const updateTime = () => setSignal((s) => s + 1);
-    const interval = setInterval(updateTime, 500);
+    const updateTime = () => {
+      setDateStr(dateObj.fromNow());
+    };
+    requestAnimationFrame(updateTime);
+    const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, [dateObj]);
 
   return (
-    <Text {...rest}>
+    <span {...rest}>
       {prefix}
-      {dateObj.fromNow()}
-    </Text>
+      {dateStr}
+    </span>
   );
 }

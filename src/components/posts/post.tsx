@@ -1,29 +1,26 @@
-import { useMedia, View, XStack, YStack, Text } from "tamagui";
-import { Image, shareImage } from "~/src/components/image";
-import { PostCommentsButton, Voting } from "./post-buttons";
-import { Link } from "one";
-import { PostByline } from "./post-byline";
+// import { PostByline } from "./post-byline";
 import { useState } from "react";
 import { usePostsStore } from "~/src/stores/posts";
 import { useLinkContext } from "../nav/link-context";
-import { PostArticleEmbed } from "./post-article-embed";
-import { Markdown } from "~/src/components/markdown";
-import { PostVideoEmbed } from "./post-video-embed";
-import { useCommentReaplyContext } from "../comments/comment-reply-modal";
-import { YouTubeVideoEmbed } from "../youtube";
-import { Repeat2 } from "@tamagui/lucide-icons";
+// import { useCommentReaplyContext } from "../comments/comment-reply-modal";
 import { useSettingsStore } from "~/src/stores/settings";
 import { getPostEmbed } from "~/src/lib/post";
-import { PostLoopsEmbed } from "./post-loops-embed";
-import { CommentSortSelect } from "../lemmy-sort";
 import { encodeApId, FlattenedPost } from "~/src/lib/lemmy/utils";
 
+import { Link } from "react-router-dom";
+import { PostArticleEmbed } from "./post-article-embed";
+import { PostByline } from "./post-byline";
+import { PostCommentsButton, Voting } from "./post-buttons";
+import Markdown from "react-markdown";
+import { twMerge } from "tailwind-merge";
+
 function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <Text color="$color11" fontStyle="italic" py="$4">
-      {children}
-    </Text>
-  );
+  return null;
+  // return (
+  //   <Text color="$color11" fontStyle="italic" py="$4">
+  //     {children}
+  //   </Text>
+  // );
 }
 
 export function getPostProps(
@@ -116,123 +113,111 @@ export function getPostProps(
   };
 }
 
-export type PostProps = ReturnType<typeof getPostProps>;
-
-export function DetailPostCard(props: PostProps) {
-  const media = useMedia();
-
-  const {
-    deleted,
-    name,
-    type,
-    url,
-    displayUrl,
-    thumbnail,
-    aspectRatio,
-    body,
-    nsfw,
-    crossPostEncodedApId,
-    crossPostCommunitySlug,
-  } = props;
-
-  const linkCtx = useLinkContext();
-
-  const showNsfw = useSettingsStore((s) => s.setShowNsfw);
-  const filterKeywords = useSettingsStore((s) => s.filterKeywords);
-
-  if (nsfw && !showNsfw) {
-    return <Notice>NSFW content hidden</Notice>;
-  }
-
-  for (const keyword of filterKeywords) {
-    if (name.toLowerCase().includes(keyword.toLowerCase())) {
-      return <Notice>Hidden by "{keyword}" keyword filter</Notice>;
-    }
-  }
-
-  const showImage = type === "image" && thumbnail && !deleted;
-  const showArticle = type === "article" && thumbnail && !deleted;
-
-  return (
-    <YStack
-      pt="$4"
-      pb="$2"
-      bbc="$color3"
-      mx="auto"
-      flex={1}
-      $md={{
-        px: "$3",
-      }}
-      gap="$2"
-      w="100%"
-    >
-      <PostByline {...props} />
-
-      <Text
-        fontWeight={500}
-        fontSize="$6"
-        lineHeight="$4"
-        fontStyle={deleted ? "italic" : undefined}
-      >
-        {deleted ? "deleted" : name}
-      </Text>
-
-      {showImage && (
-        <View
-          br="$5"
-          $md={{ mx: "$-3", br: 0 }}
-          onLongPress={() => thumbnail && shareImage(thumbnail)}
-        >
-          <Image
-            imageUrl={thumbnail}
-            aspectRatio={aspectRatio}
-            borderRadius={media.gtMd ? 10 : 0}
-            priority
-          />
-        </View>
-      )}
-
-      {showArticle && (
-        <PostArticleEmbed
-          url={url}
-          displayUrl={displayUrl}
-          thumbnail={thumbnail}
-        />
-      )}
-      {type === "video" && !deleted && url && (
-        <PostVideoEmbed url={url} autoPlay={false} />
-      )}
-      {type === "loops" && !deleted && url && (
-        <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} />
-      )}
-      {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
-
-      {crossPostEncodedApId && crossPostCommunitySlug && (
-        <Link
-          href={`${linkCtx.root}c/${crossPostCommunitySlug}/posts/${crossPostEncodedApId}`}
-          asChild
-        >
-          <XStack gap="$1" mt="$2">
-            <Repeat2 color="$accentColor" size={16} />
-            <Text fontSize={13} color="$accentColor">
-              Cross posted from {crossPostCommunitySlug}
-            </Text>
-          </XStack>
-        </Link>
-      )}
-
-      {body && !deleted && (
-        <View pt="$2">
-          <Markdown markdown={body} />
-        </View>
-      )}
-    </YStack>
-  );
+export interface PostProps extends ReturnType<typeof getPostProps> {
+  detailView?: boolean;
 }
 
-export function FeedPostCard(props: PostProps) {
-  const media = useMedia();
+// export function DetailPostCard(props: PostProps) {
+//   const {
+//     deleted,
+//     name,
+//     type,
+//     url,
+//     displayUrl,
+//     thumbnail,
+//     aspectRatio,
+//     body,
+//     nsfw,
+//     crossPostEncodedApId,
+//     crossPostCommunitySlug,
+//   } = props;
 
+//   const linkCtx = useLinkContext();
+
+//   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
+//   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
+
+//   if (nsfw && !showNsfw) {
+//     return <Notice>NSFW content hidden</Notice>;
+//   }
+
+//   for (const keyword of filterKeywords) {
+//     if (name.toLowerCase().includes(keyword.toLowerCase())) {
+//       return <Notice>Hidden by "{keyword}" keyword filter</Notice>;
+//     }
+//   }
+
+//   const showImage = type === "image" && thumbnail && !deleted;
+//   const showArticle = type === "article" && thumbnail && !deleted;
+
+//   return (
+//     <div>
+//       {/* <PostByline {...props} /> */}
+
+//       <span
+//       // fontWeight={500}
+//       // fontSize="$6"
+//       // lineHeight="$4"
+//       // fontStyle={deleted ? "italic" : undefined}
+//       >
+//         {deleted ? "deleted" : name}
+//       </span>
+
+//       {showImage && (
+//         <div
+//         // br="$5"
+//         // $md={{ mx: "$-3", br: 0 }}
+//         // onLongPress={() => thumbnail && shareImage(thumbnail)}
+//         >
+//           <img
+//             src={thumbnail}
+//             // imageUrl={thumbnail}
+//             // aspectRatio={aspectRatio}
+//             // borderRadius={media.gtMd ? 10 : 0}
+//             // priority
+//           />
+//         </div>
+//       )}
+
+//       {/* {showArticle && ( */}
+//       {/*   <PostArticleEmbed */}
+//       {/*     url={url} */}
+//       {/*     displayUrl={displayUrl} */}
+//       {/*     thumbnail={thumbnail} */}
+//       {/*   /> */}
+//       {/* )} */}
+//       {/* {type === "video" && !deleted && url && ( */}
+//       {/*   <PostVideoEmbed url={url} autoPlay={false} /> */}
+//       {/* )} */}
+//       {/* {type === "loops" && !deleted && url && ( */}
+//       {/*   <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} /> */}
+//       {/* )} */}
+//       {/* {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />} */}
+
+//       {/* {crossPostEncodedApId && crossPostCommunitySlug && ( */}
+//       {/*   <Link */}
+//       {/*     href={`${linkCtx.root}c/${crossPostCommunitySlug}/posts/${crossPostEncodedApId}`} */}
+//       {/*     asChild */}
+//       {/*   > */}
+//       {/*     <XStack gap="$1" mt="$2"> */}
+//       {/*       <Repeat2 color="$accentColor" size={16} /> */}
+//       {/*       <Text fontSize={13} color="$accentColor"> */}
+//       {/*         Cross posted from {crossPostCommunitySlug} */}
+//       {/*       </Text> */}
+//       {/*     </XStack> */}
+//       {/*   </Link> */}
+//       {/* )} */}
+
+//       {/* {body && !deleted && ( */}
+//       {/*   <View pt="$2"> */}
+//       {/*     <Markdown markdown={body} /> */}
+//       {/*   </View> */}
+//       {/* )} */}
+//     </div>
+//   );
+// }
+
+export function FeedPostCard(props: PostProps) {
   const {
     apId,
     read,
@@ -249,6 +234,8 @@ export function FeedPostCard(props: PostProps) {
     encodedApId,
     commentsCount,
     displayUrl,
+    body,
+    detailView,
   } = props;
 
   const [pressed, setPressed] = useState(false);
@@ -274,79 +261,105 @@ export function FeedPostCard(props: PostProps) {
   const showImage = type === "image" && thumbnail && !deleted;
   const showArticle = type === "article" && thumbnail && !deleted;
 
+  const patchPost = usePostsStore((s) => s.patchPost);
+
   return (
-    <YStack
-      pt="$4"
-      pb="$4"
-      bbc="$color3"
-      bbw={1}
-      mx="auto"
-      flex={1}
-      $md={{
-        px: "$3",
-        bbw: 0.5,
-      }}
-      gap="$2"
-      opacity={pressed ? 0.8 : 1}
-      animation="100ms"
-      w="100%"
+    <div
+      className="flex-1 py-4 border-b border-zinc-100 gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-3"
+      // pt="$4"
+      // pb="$4"
+      // bbc="$color3"
+      // bbw={1}
+      // mx="auto"
+      // flex={1}
+      // $md={{
+      //   px: "$3",
+      //   bbw: 0.5,
+      // }}
+      // gap="$2"
+      // opacity={pressed ? 0.8 : 1}
+      // animation="100ms"
+      // w="100%"
     >
       <PostByline {...props} />
 
       <Link
-        href={postDetailsLink}
-        onPressIn={() => setPressed(true)}
-        onPressOut={() => setPressed(false)}
-        onLongPress={thumbnail ? () => shareImage(thumbnail) : undefined}
-        asChild
+        to={postDetailsLink}
+        // onPressIn={() => setPressed(true)}
+        // onPressOut={() => setPressed(false)}
+        // onLongPress={thumbnail ? () => shareImage(thumbnail) : undefined}
+        // asChild
+        className="gap-2 flex flex-col"
       >
-        <YStack tag="a" gap="$2">
-          <Text
-            fontWeight={500}
-            fontSize="$6"
-            lineHeight="$4"
-            col={read ? "$color10" : "$color"}
-            fontStyle={deleted ? "italic" : undefined}
-          >
-            {deleted ? "deleted" : name}
-          </Text>
+        <span
+          className={twMerge(
+            "text-xl font-medium",
+            !detailView && read && "text-zinc-500",
+          )}
+          // fontWeight={500}
+          // fontSize="$6"
+          // lineHeight="$4"
+          // col={read ? "$color10" : "$color"}
+          // fontStyle={deleted ? "italic" : undefined}
+        >
+          {deleted ? "deleted" : name}
+        </span>
 
-          <View
-            br="$5"
-            $md={{ mx: "$-3", br: 0 }}
-            dsp={showImage ? "flex" : "none"}
-          >
-            <Image
-              imageUrl={showImage ? thumbnail : undefined}
-              aspectRatio={aspectRatio}
-              borderRadius={media.gtMd ? 10 : 0}
-              priority
+        {showImage && (
+          <div className="max-md:-mx-3 flex flex-col">
+            <img
+              src={thumbnail}
+              className="md:rounded-lg object-cover"
+              onLoad={(e) => {
+                if (!aspectRatio) {
+                  patchPost(apId, {
+                    imageDetails: {
+                      height: e.currentTarget.naturalHeight,
+                      width: e.currentTarget.naturalWidth,
+                    },
+                  });
+                }
+              }}
+              style={{
+                aspectRatio,
+              }}
+              // borderRadius={media.gtMd ? 10 : 0}
+              // priority
             />
-          </View>
-        </YStack>
+          </div>
+        )}
       </Link>
 
-      <PostArticleEmbed
-        url={showArticle ? url : undefined}
-        displayUrl={showArticle ? displayUrl : undefined}
-        thumbnail={showArticle ? thumbnail : undefined}
-      />
-
-      {type === "video" && !deleted && url && (
-        <PostVideoEmbed url={url} autoPlay={false} />
+      {showArticle && (
+        <PostArticleEmbed
+          url={showArticle ? url : undefined}
+          displayUrl={showArticle ? displayUrl : undefined}
+          thumbnail={showArticle ? thumbnail : undefined}
+        />
       )}
-      {type === "loops" && !deleted && url && (
-        <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} />
-      )}
-      {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
 
-      <XStack jc="flex-end" gap="$2">
-        <Link href={postDetailsLink} asChild>
-          <PostCommentsButton commentsCount={commentsCount} />
-        </Link>
+      {/* {type === "video" && !deleted && url && ( */}
+      {/*   <PostVideoEmbed url={url} autoPlay={false} /> */}
+      {/* )} */}
+      {/* {type === "loops" && !deleted && url && ( */}
+      {/*   <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} /> */}
+      {/* )} */}
+      {/* {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />} */}
+
+      {detailView && (
+        <div className="prose dark:prose-invert leading-normal">
+          <Markdown>{body}</Markdown>
+        </div>
+      )}
+
+      <div className="flex flex-row justify-end gap-2">
+        <PostCommentsButton
+          commentsCount={commentsCount}
+          href={postDetailsLink}
+        />
         <Voting apId={apId} score={score} myVote={myVote} />
-      </XStack>
-    </YStack>
+      </div>
+    </div>
   );
 }
 
@@ -358,36 +371,36 @@ export function PostBottomBar({
   commentsCount: number;
 }) {
   const postView = usePostsStore((s) => s.posts[apId]?.data);
-  const replyCtx = useCommentReaplyContext();
+  // const replyCtx = useCommentReaplyContext();
 
   if (!postView) {
     return null;
   }
 
   return (
-    <XStack
-      ai="center"
-      gap="$2"
-      py="$2"
-      bbc="$color3"
-      mx="auto"
-      flex={1}
-      $md={{
-        bbw: 0.5,
-        px: "$3",
-        py: "$1.5",
-      }}
-      bg="$background"
+    <div
+    // ai="center"
+    // gap="$2"
+    // py="$2"
+    // bbc="$color3"
+    // mx="auto"
+    // flex={1}
+    // $md={{
+    //   bbw: 0.5,
+    //   px: "$3",
+    //   py: "$1.5",
+    // }}
+    // bg="$background"
     >
-      <CommentSortSelect />
+      {/* <CommentSortSelect /> */}
 
-      <View flex={1} />
+      <div className="flex-1" />
 
-      <PostCommentsButton
-        commentsCount={commentsCount}
-        onPress={replyCtx.focus}
-      />
-      {postView && <Voting {...getPostProps(postView)} />}
-    </XStack>
+      {/* <PostCommentsButton */}
+      {/*   commentsCount={commentsCount} */}
+      {/*   onPress={replyCtx.focus} */}
+      {/* /> */}
+      {/* {postView && <Voting {...getPostProps(postView)} />} */}
+    </div>
   );
 }

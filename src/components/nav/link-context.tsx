@@ -1,4 +1,5 @@
-import { createContext, useContext } from "react";
+import { createContext } from "react";
+import { useIonRouter } from "@ionic/react";
 
 export const LinkContext = createContext<{
   root: "/" | "/communities/" | "/inbox/";
@@ -7,5 +8,17 @@ export const LinkContext = createContext<{
 });
 
 export function useLinkContext() {
-  return useContext(LinkContext);
+  const pathname = useIonRouter().routeInfo.pathname;
+
+  let root: "/home/" | "/communities/" | "/inbox/" = "/home/";
+
+  if (pathname.startsWith("/communities")) {
+    root = "/communities/";
+  } else if (pathname.startsWith("/inbox")) {
+    root = "/inbox/";
+  }
+
+  return {
+    root,
+  };
 }

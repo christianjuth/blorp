@@ -1,28 +1,28 @@
 import {
   createContext,
+  FormEvent,
   useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useAuth } from "~/src/stores/auth";
-import {
-  Form,
-  AnimatePresence,
-  Spinner,
-  Button,
-  YStack,
-  Text,
-  Input,
-  isWeb,
-} from "tamagui";
 import { useInstances, useLogin, useRefreshAuth } from "../lib/lemmy";
-import { Modal } from "./ui/modal";
-import { KeyboardAvoidingView, useWindowDimensions } from "react-native";
-import { ChevronLeft } from "@tamagui/lucide-icons";
 import fuzzysort from "fuzzysort";
 import _ from "lodash";
+import {
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonInput,
+  IonModal,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
 import { FlashList } from "./flashlist";
 
 const Context = createContext<{
@@ -142,9 +142,8 @@ function AuthModal({
 
   // const insets = useSafeAreaInsets();
 
-  const windowDimensions = useWindowDimensions();
-
-  const submitLogin = () => {
+  const submitLogin = (e?: FormEvent) => {
+    e?.preventDefault();
     login
       .mutateAsync({
         username_or_email: userName,
@@ -171,188 +170,176 @@ function AuthModal({
     ? sortedInstances.length
     : defaultSort.length;
 
+  const modal = useRef<HTMLIonModalElement>(null);
+
   return (
-    <Modal open={open} onClose={onClose} scrollable={false}>
-      <KeyboardAvoidingView behavior="padding">
-        <YStack
-          bg="$color2"
-          p="$4"
-          br="$4"
-          gap="$3"
-          $gtMd={{
-            w: isWeb ? 400 : undefined,
-          }}
-          maxWidth="100%"
-          height={windowDimensions.height / 2}
-        >
-          {!instance.url ? (
-            <>
-              <Text flexShrink={0}>
-                Pick the server you created your account on
-              </Text>
-              <Input
-                placeholder="Enter URL or search for your server"
-                size="$4"
-                fontSize="$5"
-                flexShrink={0}
-                defaultValue={search}
-                onChangeText={setSearch}
-                autoCorrect={false}
-                autoCapitalize="none"
-                bc="$color3"
-              />
-              <FlashList
-                data={sortedInstances ?? defaultSort}
-                keyExtractor={(i) => i.url}
-                renderItem={(i) => (
-                  <Button
-                    p={0}
-                    bg="transparent"
-                    h="auto"
-                    bbw={i.index < numItems - 1 ? 1 : 0}
-                    bbc="$color5"
-                    w="100%"
-                    br={0}
-                  >
-                    <Text
-                      py="$2.5"
-                      onPress={() => {
-                        setInstanceLocal(i.item);
-                        if (!addAccount) {
-                          updateAccount({
-                            instance: i.item.url,
-                          });
-                        }
-                      }}
-                      textAlign="left"
-                      mr="auto"
-                      fontSize="$5"
-                    >
-                      {i.item.baseurl}
-                    </Text>
-                  </Button>
-                )}
-                style={{ maxHeight: 500 }}
-                estimatedItemSize={35}
-              />
-            </>
-          ) : (
-            <>
-              <Form
-                flexDirection="column"
-                alignItems="stretch"
-                width="100%"
-                gap="$4"
-                onSubmit={submitLogin}
-              >
-                <Button
-                  onPress={() => setInstanceLocal({})}
-                  p={0}
-                  bg="transparent"
-                  h="auto"
-                  jc="flex-start"
-                >
-                  <ChevronLeft color="$accentColor" />
-                  <Text color="$accentColor">Back</Text>
-                </Button>
-
-                <Text fontWeight="bold">
-                  You are logging in to {instance.baseurl}
-                </Text>
-
-                <Input
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  autoComplete="username"
-                  id="username"
-                  placeholder="username"
-                  defaultValue={userName}
-                  onChangeText={setUsername}
-                  size="$4"
-                  fontSize="$5"
-                  bc="$color3"
-                />
-
-                <Input
-                  autoComplete="password"
-                  textContentType="password"
-                  secureTextEntry
-                  id="password"
-                  placeholder="Enter password"
-                  defaultValue={password}
-                  onChangeText={setPassword}
-                  size="$4"
-                  fontSize="$5"
-                  bc="$color3"
-                />
-
-                {(login.needs2FA || _.isString(mfaToken)) && (
-                  <Input
-                    autoComplete="one-time-code"
-                    placeholder="2FA"
-                    defaultValue={mfaToken}
-                    onChangeText={setMfaToken}
-                    size="$4"
-                    fontSize="$5"
-                    bc="$color3"
-                  />
-                )}
-
-                <Form.Trigger asChild>
-                  <Button
-                    size="$4"
-                    fontSize="$5"
-                    bg="$accentColor"
-                    color="white"
-                    disabled={login.status === "pending"}
-                    // onPress={signIn}
-                    width="100%"
-                    iconAfter={
-                      <AnimatePresence>
-                        {login.status === "pending" && (
-                          <Spinner
-                            color="$color"
-                            key="loading-spinner"
-                            opacity={1}
-                            scale={1}
-                            animation="quick"
-                            position="absolute"
-                            left="60%"
-                            enterStyle={{
-                              opacity: 0,
-                              scale: 0.5,
-                            }}
-                            exitStyle={{
-                              opacity: 0,
-                              scale: 0.5,
-                            }}
-                          />
-                        )}
-                      </AnimatePresence>
-                    }
-                  >
-                    <Button.Text>Sign In</Button.Text>
-                  </Button>
-                </Form.Trigger>
-              </Form>
-
-              <Button.Text
-                fontSize="$5"
-                textAlign="center"
-                onPress={() => {
-                  addAccountFn({
-                    instance: instance.url,
-                  });
+    <IonModal isOpen={open} onDidDismiss={onClose} ref={modal}>
+      <IonHeader>
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonButton
+              onClick={() => {
+                if (instance.url) {
                   setInstanceLocal({});
-                  onClose();
-                }}
+                } else {
+                  modal.current?.dismiss();
+                }
+              }}
+            >
+              Back
+            </IonButton>
+          </IonButtons>
+          <IonTitle>Login</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+
+      <IonContent className="ion-padding">
+        {!instance.url ? (
+          <div className="flex flex-col h-full">
+            <IonHeader>Pick the server you created your account on</IonHeader>
+            <IonInput
+              placeholder="Enter URL or search for your server"
+              fill="solid"
+              // size="$4"
+              // fontSize="$5"
+              // flexShrink={0}
+              // defaultValue={search}
+              onIonInput={({ detail }) => setSearch(detail.value ?? "")}
+              // autoCorrect={false}
+              // autoCapitalize="none"
+              // bc="$color3"
+            />
+            <FlashList
+              estimatedItemSize={50}
+              stickyHeaderIndices={[]}
+              data={sortedInstances ?? defaultSort}
+              renderItem={({ item: i }) => (
+                <button
+                  key={i.url}
+                  // p={0}
+                  // bg="transparent"
+                  // h="auto"
+                  // bbw={i.index < numItems - 1 ? 1 : 0}
+                  // bbc="$color5"
+                  // w="100%"
+                  // br={0}
+                  onClick={() => {
+                    setInstanceLocal(i);
+                    if (!addAccount) {
+                      updateAccount({
+                        instance: i.url,
+                      });
+                    }
+                  }}
+                  className="py-2.5 text-lg border-b w-full text-start border-zinc-300 dark:border-zinc-800"
+                >
+                  <span>{i.baseurl}</span>
+                </button>
+              )}
+            />
+          </div>
+        ) : (
+          <>
+            <form
+              // flexDirection="column"
+              // alignItems="stretch"
+              // width="100%"
+              // gap="$4"
+              onSubmit={submitLogin}
+              className="gap-4 flex flex-col"
+            >
+              <span className="text-bold">
+                You are logging in to {instance.baseurl}
+              </span>
+
+              <input
+                placeholder="username"
+                autoCapitalize="none"
+                // autoCorrect={false}
+                autoComplete="username"
+                id="username"
+                defaultValue={userName}
+                onChange={(e) => setUsername(e.target.value)}
+                // size="$4"
+                // fontSize="$5"
+                // bc="$color3"
+              />
+
+              <input
+                placeholder="Enter password"
+                autoComplete="password"
+                type="password"
+                // textContentType="password"
+                // secureTextEntry
+                id="password"
+                defaultValue={password}
+                onChange={(e) => setPassword(e.target.value)}
+                // size="$4"
+                // fontSize="$5"
+                // bc="$color3"
+              />
+
+              {(login.needs2FA || _.isString(mfaToken)) && (
+                <input
+                  autoComplete="one-time-code"
+                  placeholder="2FA"
+                  defaultValue={mfaToken}
+                  onChange={(e) => setMfaToken(e.target.value)}
+                  // size="$4"
+                  // fontSize="$5"
+                  // bc="$color3"
+                />
+              )}
+
+              <button
+                // size="$4"
+                // fontSize="$5"
+                // bg="$accentColor"
+                // color="white"
+                // disabled={login.status === "pending"}
+                // // onPress={signIn}
+                // width="100%"
+                // iconAfter={
+                //       <Spinner
+                //         color="$color"
+                //         key="loading-spinner"
+                //         opacity={1}
+                //         scale={1}
+                //         animation="quick"
+                //         position="absolute"
+                //         left="60%"
+                //         enterStyle={{
+                //           opacity: 0,
+                //           scale: 0.5,
+                //         }}
+                //         exitStyle={{
+                //           opacity: 0,
+                //           scale: 0.5,
+                //         }}
+                //       />
+                // }
+                type="submit"
               >
-                Continue as Guest
-              </Button.Text>
-            </>
-          )}
-        </YStack>
-      </KeyboardAvoidingView>
-    </Modal>
+                Sign In
+              </button>
+            </form>
+
+            <button
+              // fontSize="$5"
+              // textAlign="center"
+              onClick={() => {
+                addAccountFn({
+                  instance: instance.url,
+                });
+                setInstanceLocal({});
+                onClose();
+              }}
+            >
+              Continue as Guest
+            </button>
+          </>
+        )}
+      </IonContent>
+    </IonModal>
   );
 }

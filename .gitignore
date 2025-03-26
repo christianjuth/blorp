@@ -31,10 +31,6 @@ tsconfig.tsbuildinfo
 
 .expo
 
-# generated code
-/ios
-/android
-
 # Test artifacts
 /coverage/
 
