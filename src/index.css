@@ -29,15 +29,7 @@
 @import "tw-animate-css";
 
 :root {
-  --accent-color: #ce46e6;
-
-  --ion-color-primary: var(--accent-color);
-  --ion-tab-bar-color-selected: var(--accent-color);
-  /* --ion-toolbar-color: #ce46e6; */
-
-  --ion-item-border-color: gray;
-  --ion-toolbar-background: white;
-  --ion-tab-bar-background: white;
+  --brand: #ce46e6;
 
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -55,7 +47,7 @@
   --accent: oklch(0.967 0.001 286.375);
   --accent-foreground: oklch(0.21 0.006 285.885);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
+  --tailwind-border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
   --chart-1: oklch(0.646 0.222 41.116);
@@ -71,13 +63,16 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+
+  --ion-border-color: var(--tailwind-border);
+  --ion-color-primary: var(--brand);
+  --ion-tab-bar-color-selected: var(--brand);
+  --ion-toolbar-background: white;
+  --ion-tab-bar-background: white;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ion-background-color: black;
-    --ion-toolbar-background: black;
-    --ion-tab-bar-background: black;
 
     --background: oklch(0.141 0.005 285.823);
     --foreground: oklch(0.985 0 0);
@@ -94,7 +89,7 @@
     --accent: oklch(0.274 0.006 286.033);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
+    --tailwind-border: oklch(1 0 0 / 20%);
     --input: oklch(1 0 0 / 15%);
     --ring: oklch(0.552 0.016 285.938);
     --chart-1: oklch(0.488 0.243 264.376);
@@ -110,6 +105,11 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.552 0.016 285.938);
+
+
+    --ion-background-color: black;
+    --ion-toolbar-background: black;
+    --ion-tab-bar-background: black;
   }
 }
 
@@ -144,20 +144,27 @@ ion-tab-bar {
   padding-right: max(var(--safe-area-inset-right, 0px), var(--ion-safe-area-right, 0px)) !important;
   padding-bottom: max(var(--safe-area-inset-bottom, 0px), var(--ion-safe-area-bottom, 0px)) !important;
   padding-left: max(var(--safe-area-inset-left, 0px), var(--ion-safe-area-left, 0px)) !important;
+  border-top: var(--border) !important;
 }
 
 ion-list {
-  --ion-item-background: var(--color-zinc-800);
+  --ion-item-background: var(--secondary);
+}
+
+list-item {
+  --border-color: red;
 }
 
 ion-list.list-inset {
   margin-inline-start: 0 !important;
   margin-inline-end: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 *::selection {
   color: white !important;
-  background-color: var(--accent-color) !important;
+  background-color: var(--brand) !important;
 }
 
 [data-tauri-drag-region] {
@@ -201,6 +208,8 @@ html.plt-desktop ion-toolbar {
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-brand: var(--brand);
+  --color-brand-foreground: white;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -216,7 +225,7 @@ html.plt-desktop ion-toolbar {
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
-  --color-border: var(--border);
+  --color-border: var(--tailwind-border);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
@@ -241,4 +250,9 @@ html.plt-desktop ion-toolbar {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.prose * {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

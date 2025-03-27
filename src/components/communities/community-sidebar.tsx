@@ -85,7 +85,7 @@ export function CommunitySidebar({
 
       {community.description && !hideDescription && (
         <div
-          className="prose dark:prose-invert prose-xs leading-normal pt-3"
+          className="prose dark:prose-invert prose-sm leading-normal pt-3"
           // py="$3" btc="$color0" btw={1}
         >
           <Markdown>{community.description}</Markdown>

@@ -10,6 +10,7 @@ import { useRouteMatch } from "react-router";
 import { twMerge } from "tailwind-merge";
 
 import { RefObject } from "react";
+import { subscribeToScrollEvent } from "../lib/scroll-events";
 
 interface ObserverOptions {
   root?: Element | null;
@@ -71,16 +72,6 @@ export function FlashList<T>({
 
   const parentRef = useRef<HTMLDivElement>(null);
 
-  if (ref) {
-    // ref.current = {
-    //   scrollToOffset: (offset: number) => {
-    //     parentRef.current?.scrollTo({
-    //       top: offset,
-    //     });
-    //   },
-    // };
-  }
-
   const initialItem = cache.current?.[index.current];
 
   const dataLen = data?.length ?? 0;
@@ -100,7 +91,7 @@ export function FlashList<T>({
   const rowVirtualizer = useVirtualizer({
     count: dataLen,
     overscan,
-    lanes: numColumns,
+    lanes: numColumns === 1 ? undefined : numColumns,
     getScrollElement: () => parentRef.current,
     estimateSize: (index) => cache.current?.[index]?.size ?? estimatedItemSize,
     onChange: (instance) => {
@@ -139,15 +130,24 @@ export function FlashList<T>({
     }, []),
   });
 
-  // useScrollToTop({
-  //   current: {
-  //     scrollToTop: () => {
-  //       index = 0;
-  //       offset = 0;
-  //       rowVirtualizer.scrollToIndex(0);
-  //     },
-  //   },
-  // });
+  const match = useRouteMatch();
+  useEffect(
+    () =>
+      subscribeToScrollEvent(match.path, () =>
+        rowVirtualizer.scrollToIndex(0, { behavior: "smooth" }),
+      ),
+    [],
+  );
+
+  useEffect(() => {
+    if (focused) {
+      const listener = () => {
+        rowVirtualizer.scrollToIndex(0, { behavior: "smooth" });
+      };
+      window.addEventListener("statusTap", listener);
+      return () => window.removeEventListener("statusTap", listener);
+    }
+  }, [focused]);
 
   useEffect(() => {
     const [lastItem] = [...rowVirtualizer.getVirtualItems()].reverse();

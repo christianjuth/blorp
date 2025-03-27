@@ -44,7 +44,7 @@ function Reply({
             read: true,
           });
         }}
-        className="border-b border-zinc-300 dark:border-zinc-800 pb-2.5 mt-2.5 flex-1 text-sm leading-6"
+        className="border-b-[0.5px] border-border pb-2.5 mt-2.5 flex-1 text-sm leading-6"
       >
         <div className="flex flex-row flex-wrap">
           {replyView.comment_reply.read ? null : (

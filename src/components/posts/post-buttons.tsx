@@ -12,6 +12,7 @@ import {
   PiArrowFatUpFill,
 } from "react-icons/pi";
 import { TbMessageCircle } from "react-icons/tb";
+import { cn } from "~/src/lib/utils";
 
 export function Voting({
   apId,
@@ -30,7 +31,7 @@ export function Voting({
   const isDownvoted = myVote < 0;
 
   return (
-    <div className="flex flex-row border-zinc-200 dark:border-zinc-700 border rounded-full items-center h-7">
+    <div className="flex flex-row border-[0.5px] rounded-full items-center h-7">
       <button
         onClick={async () => {
           const newVote = isUpvoted ? 0 : 1;
@@ -40,7 +41,10 @@ export function Voting({
           });
         }}
         disabled={vote.isPending}
-        className="pl-2 pr-1.5 flex items-center space-x-1 text-left"
+        className={cn(
+          "pl-2 pr-1.5 flex items-center space-x-1 text-left",
+          isUpvoted && "text-brand",
+        )}
       >
         <>
           {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
@@ -57,13 +61,12 @@ export function Voting({
           });
         }}
         disabled={vote.isPending}
-        className="pr-2 flex items-center"
-      >
-        {isDownvoted ? (
-          <PiArrowFatDownFill className="text-red-500" />
-        ) : (
-          <PiArrowFatDownBold />
+        className={cn(
+          "pr-2 flex items-center",
+          isDownvoted && "text-destructive",
         )}
+      >
+        {isDownvoted ? <PiArrowFatDownFill /> : <PiArrowFatDownBold />}
       </button>
     </div>
   );
@@ -82,7 +85,7 @@ export function PostCommentsButton({
   return (
     <Link
       to={href}
-      className="h-7 flex items-center gap-1 border px-2.5 rounded-full border-zinc-200 dark:border-zinc-700"
+      className="h-7 flex items-center gap-1 border-[0.5px] px-2.5 rounded-full"
     >
       <TbMessageCircle className="text-lg" />
       <span>{commentsCount}</span>

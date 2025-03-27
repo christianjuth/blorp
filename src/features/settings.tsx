@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSettingsStore } from "~/src/stores/settings";
 import { useLogout } from "~/src/lib/lemmy/index";
 import { parseAccountInfo, useAuth } from "~/src/stores/auth";
@@ -8,8 +8,8 @@ import _ from "lodash";
 import { Logo } from "~/src/components/logo";
 import pkgJson from "~/package.json";
 import { getDbSizes } from "~/src/lib/create-storage";
+import * as Sentry from "@sentry/react";
 
-import { Link, LinkProps } from "react-router-dom";
 import {
   IonButtons,
   IonContent,
@@ -17,7 +17,6 @@ import {
   IonInput,
   IonItem,
   IonList,
-  IonNavLink,
   IonPage,
   IonTitle,
   IonToggle,
@@ -28,18 +27,8 @@ import { UserDropdown } from "../components/nav";
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
 
-function SettignsLink({ children, ...rest }: LinkProps) {
-  return (
-    <Link {...rest}>
-      {/* <Text h="$4" px="$3.5" tag="a" lh="$9" col="$accentColor"> */}
-      {children}
-      {/* </Text> */}
-    </Link>
-  );
-}
-
 function SectionLabel({ children }: { children: string }) {
-  return <span>{children}</span>;
+  return <span className="text-sm text-muted-foreground mt-4">{children}</span>;
 }
 
 function AccountSection() {
@@ -120,7 +109,7 @@ function CacheSection() {
       <IonList inset>
         <IonItem>
           <div className="py-2.5 flex-1 flex flex-col gap-2">
-            <span className="text-sm text-zinc-400">
+            <span className="text-sm text-muted-foreground">
               Cache {formatSize(totalSize)}
               {settings.cacheImages ? " (excludes images)" : ""}
             </span>
@@ -136,11 +125,7 @@ function CacheSection() {
                         opacity:
                           (cacheSizes.length - index) / cacheSizes.length,
                       }}
-                      className="h-6 bg-white"
-                      // w={`${(size / totalSize) * 100}%`}
-                      // h="100%"
-                      // bg="$accentColor"
-                      // o={(cacheSizes.length - index) / cacheSizes.length}
+                      className="h-6 bg-brand"
                     />
                   ))}
                 </div>
@@ -149,20 +134,13 @@ function CacheSection() {
                   {cacheSizes.map(([key], index) => (
                     <div key={key} className="flex flex-row gap-1 items-center">
                       <div
-                        className="h-3 w-3 bg-white rounded-full"
-                        // h={11}
-                        // w={11}
-                        // bg="$accentColor"
-                        // br={9999}
-                        // o={(cacheSizes.length - index) / cacheSizes.length}
+                        className="h-3 w-3 bg-brand rounded-full"
+                        style={{
+                          opacity:
+                            (cacheSizes.length - index) / cacheSizes.length,
+                        }}
                       />
-                      <span
-                        // col="$color11"
-                        // fontSize="$3"
-                        // $md={{ fontSize: "$2" }}
-                        // textTransform="capitalize"
-                        className="capitalize text-sm"
-                      >
+                      <span className="capitalize text-sm text-muted-foreground">
                         {key.split("_")[1]?.replaceAll("-", " ")}
                       </span>
                     </div>
@@ -258,6 +236,16 @@ function Divider() {
 }
 
 export default function SettingsPage() {
+  const [logoClicks, setLogoClicks] = useState(0);
+
+  useEffect(() => {
+    if (logoClicks >= 10) {
+      window.location.reload();
+      // Sentry.captureException(new Error("Simulated error from settings page"));
+      setLogoClicks(0);
+    }
+  }, [logoClicks]);
+
   const showNsfw = useSettingsStore((s) => s.showNsfw);
   const setShowNsfw = useSettingsStore((s) => s.setShowNsfw);
 
@@ -281,8 +269,8 @@ export default function SettingsPage() {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>
-        <ContentGutters className="py-4 max-md:px-4">
-          <div className="flex-1 gap-3 flex flex-col">
+        <ContentGutters className="pt-4 pb-8 max-md:px-4">
+          <div className="flex-1 gap-2 flex flex-col">
             <AccountSection />
 
             <SectionLabel>FILTERS</SectionLabel>
@@ -313,7 +301,7 @@ export default function SettingsPage() {
                 <IonItem key={index}>
                   {index > 0 && <Divider />}
                   <IonInput
-                    defaultValue={keyword}
+                    value={keyword}
                     onIonChange={(e) =>
                       setFilterKeywords({
                         index,
@@ -353,7 +341,10 @@ export default function SettingsPage() {
               </IonItem>
             </IonList>
 
-            <div className="flex flex-col items-center">
+            <div
+              className="flex flex-col items-center pt-6"
+              onClick={() => setLogoClicks((c) => c + 1)}
+            >
               <Logo />
               <span>v{version}</span>
             </div>

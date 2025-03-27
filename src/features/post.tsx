@@ -39,7 +39,7 @@ const MemoedPostComment = memo(PostComment);
 const EMPTY_ARR = [];
 
 const MemoedPostCard = memo((props: PostProps) => (
-  <ContentGutters>
+  <ContentGutters className="px-0">
     <FeedPostCard {...props} detailView />
     <></>
   </ContentGutters>
@@ -216,17 +216,16 @@ export default function Post({ commentPath }: { commentPath?: string }) {
 
                 return (
                   <ContentGutters>
-                    <span>{item[0]}</span>
-                    {/* <MemoedPostComment */}
-                    {/*   postApId={decodedApId} */}
-                    {/*   queryKeyParentId={parentId} */}
-                    {/*   commentMap={item[1]} */}
-                    {/*   level={0} */}
-                    {/*   opId={opId} */}
-                    {/*   myUserId={myUserId} */}
-                    {/*   noBorder={item[0] === lastComment?.[0]} */}
-                    {/*   communityName={communityName} */}
-                    {/* /> */}
+                    <MemoedPostComment
+                      postApId={decodedApId}
+                      queryKeyParentId={parentId}
+                      commentMap={item[1]}
+                      level={0}
+                      opId={opId}
+                      myUserId={myUserId}
+                      noBorder={item[0] === lastComment?.[0]}
+                      communityName={communityName}
+                    />
                     <></>
                   </ContentGutters>
                 );

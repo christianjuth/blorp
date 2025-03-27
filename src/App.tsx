@@ -10,6 +10,11 @@ import { Providers } from "~/src/components/providers";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { useEffect } from "react";
 import Bowser from "bowser";
+import { initSentry } from "./components/sentry";
+import { initAnalytics } from "./lib/analytics";
+
+initSentry();
+initAnalytics();
 
 const browser = Bowser.getParser(window.navigator.userAgent);
 
@@ -26,7 +31,7 @@ switch (browser.getOS().name?.toLowerCase()) {
 
 setupIonicReact({
   mode,
-  statusTap: true,
+  statusTap: false,
   swipeBackEnabled: true,
 });
 

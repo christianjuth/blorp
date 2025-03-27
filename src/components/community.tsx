@@ -13,7 +13,7 @@ export function Community({ communityView }: { communityView: CommunityView }) {
   return (
     <Link
       to={`${linkCtx.root}c/${slug}`}
-      className="flex flex-row py-2 gap-2 items-center"
+      className="flex flex-row pt-3 gap-2 items-center flex-1"
     >
       <div className="h-9 w-9 bg-zinc-300 dark:bg-zinc-700 flex items-center rounded-full">
         <span className="text-center mx-auto">

@@ -265,7 +265,7 @@ export function FeedPostCard(props: PostProps) {
 
   return (
     <div
-      className="flex-1 py-4 border-b border-zinc-100 gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-3"
+      className="flex-1 py-4 border-b-[0.5px] border-border gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-3"
       // pt="$4"
       // pb="$4"
       // bbc="$color3"
@@ -294,7 +294,7 @@ export function FeedPostCard(props: PostProps) {
         <span
           className={twMerge(
             "text-xl font-medium",
-            !detailView && read && "text-zinc-500",
+            !detailView && read && "text-muted-foreground",
           )}
           // fontWeight={500}
           // fontSize="$6"

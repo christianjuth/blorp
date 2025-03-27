@@ -22,7 +22,11 @@ import { UserDropdown } from "../components/nav";
 
 const MemoedListItem = memo(
   function ListItem(props: CommunityView) {
-    return <Community communityView={props} />;
+    return (
+      <ContentGutters className="md:contents">
+        <Community communityView={props} />
+      </ContentGutters>
+    );
   },
   (a, b) => {
     return a.community.actor_id === b.community.actor_id;
@@ -85,7 +89,7 @@ export default function Communities() {
           <IonRefresherContent />
         </IonRefresher>
 
-        <ContentGutters className="h-full">
+        <ContentGutters className="h-full max-md:contents">
           <FlashList<CommunityView>
             className="h-full ion-content-scroll-host"
             numColumns={numCols}
@@ -96,7 +100,7 @@ export default function Communities() {
                 fetchNextPage();
               }
             }}
-            estimatedItemSize={52}
+            estimatedItemSize={48}
           />
         </ContentGutters>
       </IonContent>

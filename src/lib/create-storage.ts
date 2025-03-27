@@ -8,7 +8,6 @@ import {
   SQLiteDBConnection,
 } from "@capacitor-community/sqlite";
 import { isCapacitor } from "./capacitor";
-import { size } from "lodash";
 
 const DB_VERSION = 1;
 const DB_NAME = "lemmy-db";
@@ -19,7 +18,17 @@ let db: Promise<SQLiteDBConnection> | null = null;
 function createSqliteStore(rowName?: string) {
   if (!db) {
     const sqlite: SQLiteConnection = new SQLiteConnection(CapacitorSQLite);
-    db = sqlite.createConnection(DB_NAME, false, "", DB_VERSION, false);
+    db = (async function () {
+      await sqlite.closeConnection(DB_NAME, false);
+      const p = await sqlite.createConnection(
+        DB_NAME,
+        false,
+        "",
+        DB_VERSION,
+        false,
+      );
+      return p;
+    })();
   }
 
   // Lazily create/open the connection and ensure the table exists.
@@ -73,18 +82,29 @@ function createSqliteStore(rowName?: string) {
 
     async getDbSize() {
       const connection = await getDb();
+
       // Retrieve both key and value from the kv table
       const res = await connection.query(`SELECT key, value FROM kv`, []);
+
+      let totalSize = 0;
       const sizes: [string, number][] = [];
       if (res.values) {
         for (const row of res.values) {
           if (row.value) {
+            const size = new Blob([JSON.stringify(row.value)]).size;
+            totalSize += size;
             // Estimate size in bytes using a Blob of the JSON-stringified value.
-            sizes.push([row.key, new Blob([JSON.stringify(row.value)]).size]);
+            sizes.push([row.key, size]);
           }
         }
       }
-      return sizes;
+      return sizes
+        .filter(([_, size]) => {
+          return size / totalSize > 0.01;
+        })
+        .sort(([aKey, aSize], [bKey, bSize]) => {
+          return bSize - aSize;
+        });
     },
   };
 }

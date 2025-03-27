@@ -116,7 +116,7 @@ export function UserDropdown() {
           </>
         ) : (
           <>
-            <Link to="/saved">
+            <Link to="/home/saved">
               <DropdownMenuItem>Saved</DropdownMenuItem>
             </Link>
             <Link to={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}>

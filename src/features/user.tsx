@@ -25,6 +25,7 @@ import { isNotNull } from "../lib/utils";
 import { CommentView } from "lemmy-js-client";
 import { Link, useParams } from "react-router-dom";
 import {
+  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
@@ -48,7 +49,7 @@ function isPost(item: Item): item is PostProps {
 }
 
 const Post = memo((props: PostProps) => (
-  <ContentGutters>
+  <ContentGutters className="px-0">
     <FeedPostCard {...props} />
     <></>
   </ContentGutters>
@@ -146,10 +147,10 @@ export default function User() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>
-            {personQuery.data?.person_view.person.display_name ??
-              personQuery.data?.person_view.person.name}
-          </IonTitle>
+          <IonButtons slot="start">
+            <IonBackButton text="" />
+          </IonButtons>
+          <IonTitle>{person?.display_name ?? person?.name}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

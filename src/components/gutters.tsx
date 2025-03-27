@@ -14,20 +14,14 @@ export function ContentGutters({
     <div
       {...props}
       className={twMerge(
-        "max-w-[1050px] w-full flex flex-row mx-auto gap-5 md:px-6",
+        "max-w-[1050px] w-full flex flex-row mx-auto gap-5 px-3 md:px-6",
         props.className,
       )}
-      // {...props}
-      // $gtMd={{ px: "$4", ...props.$gtMd }}
-      // $gtLg={{ px: "$5", gap: "$5", ...props.$gtLg }}
     >
       {second ? (
         <>
           {first}
-          <div
-            className="w-[230px] lg:w-[270px] max-md:hidden flex-shrink-0 relative"
-            // w={230} $gtLg={{ w: 270 }} $md={{ dsp: "none" }}
-          >
+          <div className="w-[230px] lg:w-[270px] max-md:hidden flex-shrink-0 relative">
             {second}
           </div>
         </>

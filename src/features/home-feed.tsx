@@ -38,7 +38,7 @@ type Item = typeof HEADER | PostProps;
 const EMPTY_ARR = [];
 
 const Post = memo((props: PostProps) => (
-  <ContentGutters>
+  <ContentGutters className="px-0">
     <FeedPostCard {...props} />
     <></>
   </ContentGutters>

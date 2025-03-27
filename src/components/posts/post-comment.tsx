@@ -16,6 +16,12 @@ import { useLinkContext } from "../nav/link-context";
 import { Person } from "lemmy-js-client";
 import { encodeApId } from "~/src/lib/lemmy/utils";
 import { Link } from "react-router-dom";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/src/components/ui/avatar";
+import { cn } from "~/src/lib/utils";
 
 function Byline({
   creator,
@@ -31,8 +37,15 @@ function Byline({
   const linkCtx = useLinkContext();
   return (
     <div
-    // ai="center"
+      // ai="center"
+      className="flex flex-row gap-1.5 items-center py-px"
     >
+      <Avatar className="w-5 h-5">
+        <AvatarImage src={creator.avatar} />
+        <AvatarFallback className="text-xs">
+          {creator.name?.substring(0, 1).toUpperCase()}{" "}
+        </AvatarFallback>
+      </Avatar>
       {/* <Avatar size={21} mr="$2"> */}
       {/*   <Avatar.Image src={creator.avatar} borderRadius="$12" /> */}
       {/*   <Avatar.Fallback */}
@@ -46,17 +59,17 @@ function Byline({
       {/*     </Text> */}
       {/*   </Avatar.Fallback> */}
       {/* </Avatar> */}
-      <Link to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}>
-        <span
-        // fontSize="$3" fontWeight={500}
-        >
-          {creator.name}
-          {authorType && <span> ({authorType})</span>}
-        </span>
+      <Link
+        to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}
+        className="text-sm"
+      >
+        {creator.name}
+        {authorType && <span> ({authorType})</span>}
       </Link>
       <RelativeTime
         prefix=" • "
         time={publishedDate}
+        className="text-sm"
         // color="$color11"
         // fontSize="$3"
       />
@@ -149,18 +162,20 @@ export function PostComment({
 
   return (
     <div
-    // mt={level === 0 ? "$2" : undefined}
-    // py={level === 0 ? "$3" : "$2"}
-    // bg="$background"
-    // bbc="$color3"
-    // bbw={level === 0 && !noBorder ? 1 : 0}
-    // $md={{
-    //   px: level === 0 ? "$2.5" : undefined,
-    //   bbw: level === 0 && !noBorder ? 0.5 : 0,
-    // }}
-    // flex={1}
-    // w="100%"
-    // opacity={comment.id < 0 ? 0.5 : undefined}
+      className={cn(
+        "flex-1 py-2 overflow-x-hidden",
+        level === 0 && "mt-2",
+        level === 0 && !noBorder && "border-b-[0.5px] pb-5",
+        comment.id < 0 && "opacity-50",
+      )}
+      // bg="$background"
+      // bbc="$color3"
+      // bbw={level === 0 && !noBorder ? 1 : 0}
+      // $md={{
+      //   px: level === 0 ? "$2.5" : undefined,
+      //   bbw: level === 0 && !noBorder ? 0.5 : 0,
+      // }}
+      // w="100%"
     >
       <Byline
         creator={creator}
@@ -176,22 +191,25 @@ export function PostComment({
       />
 
       <div
-      // blw={2}
-      // blc={color}
-      // p="$2"
-      // pr={0}
-      // pb={0}
-      // mt="$1"
-      // ml={9}
-      // ai="flex-start"
-      // dsp={collapsed ? "none" : undefined}
+        className="border-l-2 px-2 ml-2 pt-px"
+        style={{ borderColor: color }}
+        // blw={2}
+        // blc={color}
+        // p="$2"
+        // pr={0}
+        // pb={0}
+        // mt="$1"
+        // ml={9}
+        // ai="flex-start"
+        // dsp={collapsed ? "none" : undefined}
       >
         {comment.deleted && <span className="italic">deleted</span>}
         {comment.removed && <span className="italic">removed</span>}
 
         {!hideContent && (
           <div
-          // $gtMd={{ dsp: editing ? "none" : undefined }} w="100%"
+            className="prose dark:prose-invert prose-sm"
+            // $gtMd={{ dsp: editing ? "none" : undefined }} w="100%"
           >
             <Markdown>{comment.content}</Markdown>
           </div>

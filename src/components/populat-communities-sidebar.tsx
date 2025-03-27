@@ -31,7 +31,7 @@ function SmallComunityCard({
         >
           c/{community.name}
         </span>
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-muted-foreground">
           {abbriviateNumber(counts.subscribers)} members
         </span>
       </div>
@@ -58,7 +58,7 @@ export function PopularCommunitiesSidebar() {
     <div className="gap-3 flex flex-col py-4 absolute inset-x-0 h-[calc(100vh-60px)] overflow-auto">
       <span
         // color="$color10" fontSize="$3"
-        className="text-xs text-zinc-500"
+        className="text-xs text-muted-foreground"
       >
         {listingType === "All" && "POPULAR COMMUNITIES"}
         {listingType === "Local" && "POPULAR COMMUNITIES"}

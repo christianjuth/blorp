@@ -1,19 +1,15 @@
 import {
   IonTabs,
-  IonTab,
-  IonToolbar,
   IonTabBar,
   IonTabButton,
-  IonHeader,
-  IonTitle,
   IonContent,
   IonIcon,
-  IonApp,
   IonRouterOutlet,
   IonSplitPane,
   IonMenu,
-  IonPage,
   useIonRouter,
+  IonBadge,
+  IonLabel,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import { pencil, cog, notifications, people, home } from "ionicons/icons";
@@ -25,11 +21,13 @@ import { useMedia } from "~/src/lib/hooks";
 import { Logo } from "~/src/components/logo";
 import { useRecentCommunitiesStore } from "~/src/stores/recent-communities";
 import { useAuth } from "~/src/stores/auth";
-import { useListCommunities } from "~/src/lib/lemmy";
+import { useListCommunities, useNotificationCount } from "~/src/lib/lemmy";
 import { SmallCommunityCard } from "~/src/components/communities/community-card";
+import { SentryAddCtx } from "./components/sentry";
 
 import { lazy } from "react";
 import * as routes from "~/src/lib/routes";
+import { dispatchScrollEvent } from "./lib/scroll-events";
 
 const Inbox = lazy(() => import("~/src/features/inbox"));
 const Privacy = lazy(() => import("~/src/features/privacy"));
@@ -39,12 +37,19 @@ const SettingsPage = lazy(() => import("~/src/features/settings"));
 const CommunityFeed = lazy(() => import("~/src/features/community-feed"));
 const CommunitiesFeed = lazy(() => import("~/src/features/communities-feed"));
 const User = lazy(() => import("~/src/features/user"));
+const SavedFeed = lazy(() => import("~/src/features/saved-feed"));
 
 const HOME_STACK = [
   <Route exact path="/home" component={HomeFeed} />,
   <Route exact path="/home/c/:communityName" component={CommunityFeed} />,
   <Route exact path="/home/c/:communityName/posts/:post" component={Post} />,
+  <Route
+    exact
+    path="/home/c/:communityName/posts/:post/comment/:comment"
+    component={Post}
+  />,
   <Route exact path="/home/u/:userId" component={User} />,
+  <Route exact path="/home/saved" component={SavedFeed} />,
 ];
 
 const COMMUNITIES_STACK = [
@@ -59,10 +64,25 @@ const COMMUNITIES_STACK = [
     path="/communities/c/:communityName/posts/:post"
     component={Post}
   />,
+  <Route
+    exact
+    path="/communities/c/:communityName/posts/:post/comment/:comment"
+    component={Post}
+  />,
   <Route exact path="/communities/u/:userId" component={User} />,
 ];
 
-const INBOX_STACK = [<Route exact path="/inbox" component={Inbox} />];
+const INBOX_STACK = [
+  <Route exact path="/inbox" component={Inbox} />,
+  <Route exact path="/inbox/c/:communityName" component={CommunityFeed} />,
+  <Route exact path="/inbox/c/:communityName/posts/:post" component={Post} />,
+  <Route
+    exact
+    path="/inbox/c/:communityName/posts/:post/comments/:comment"
+    component={Post}
+  />,
+  <Route exact path="/inbox/u/:userId" component={User} />,
+];
 
 const SETTINGS = [<Route exact path="/settings" component={SettingsPage} />];
 
@@ -84,8 +104,8 @@ function SidebarTabs() {
           className={twMerge(
             "text-md flex flex-row items-center gap-2 py-2 px-3 rounded-xl",
             pathname.startsWith(t.to)
-              ? "bg-zinc-200 dark:bg-zinc-800"
-              : "text-zinc-500",
+              ? "bg-secondary text-brand"
+              : "text-muted-foreground",
           )}
         >
           <IonIcon icon={t.icon} className="text-2xl" />
@@ -114,24 +134,26 @@ function Sidebar() {
     <>
       <SidebarTabs />
 
-      <div className="h-px w-full bg-zinc-200 dark:bg-zinc-800 my-2" />
+      <div className="h-[0.5px] w-full bg-border my-2" />
 
       {recentCommunities.length > 0 && (
         <>
-          <span className="px-4 py-1 text-sm dark:text-zinc-500">RECENT</span>
+          <span className="px-4 py-1 text-sm text-muted-foreground">
+            RECENT
+          </span>
           {recentCommunities.map((c) => (
             <div key={c.id} className="px-4 py-0.75 flex flex-row">
               <SmallCommunityCard community={c} />
             </div>
           ))}
 
-          <div className="h-px w-full bg-zinc-200 dark:bg-zinc-800 my-2" />
+          <div className="h-[0.5px] w-full bg-border my-2" />
         </>
       )}
 
       {isLoggedIn && sortedCommunities.length > 0 && (
         <>
-          <span className="px-4 py-1 text-sm dark:text-zinc-500">
+          <span className="px-4 py-1 text-sm text-muted-foreground">
             COMMUNITIES
           </span>
           {sortedCommunities.map(({ community: c }) => (
@@ -140,11 +162,11 @@ function Sidebar() {
             </div>
           ))}
 
-          <div className="h-px w-full bg-zinc-200 dark:bg-zinc-800 my-2" />
+          <div className="h-[0.5px] w-full bg-border my-2" />
         </>
       )}
 
-      <Link to={routes.privacy} className="px-4 dark:text-zinc-500">
+      <Link to={routes.privacy} className="px-4 text-muted-foreground">
         Privacy Policy
       </Link>
     </>
@@ -152,7 +174,10 @@ function Sidebar() {
 }
 
 function Tabs() {
+  const count = useNotificationCount();
   const media = useMedia();
+  const router = useIonRouter();
+  const pathname = router.routeInfo.pathname;
 
   return (
     <IonSplitPane when="md" contentId="main">
@@ -161,7 +186,7 @@ function Tabs() {
         style={{
           "--side-max-width": "270px",
         }}
-        className="border-r-1 border-zinc-200 dark:border-zinc-800"
+        className="border-r-[0.5px] border-border"
       >
         <IonContent>
           <button
@@ -194,9 +219,27 @@ function Tabs() {
 
           <IonTabBar slot="bottom" className="md:hidden">
             {TABS.map((t) => (
-              <IonTabButton key={t.id} tab={t.id} href={t.to}>
+              <IonTabButton
+                key={t.id}
+                tab={t.id}
+                href={t.to}
+                onClick={() => {
+                  const isRoot = pathname === t.to;
+                  if (isRoot) {
+                    dispatchScrollEvent(pathname);
+                  }
+                }}
+              >
                 <IonIcon icon={t.icon} />
-                {t.label}
+                <IonLabel>{t.label}</IonLabel>
+                {t.id === "inbox" && (
+                  <IonBadge
+                    className="bg-destructive px-1.5 -mt"
+                    hidden={!count.data}
+                  >
+                    {count.data}
+                  </IonBadge>
+                )}
               </IonTabButton>
             ))}
           </IonTabBar>
@@ -247,6 +290,7 @@ const TABS: {
 export default function Router() {
   return (
     <IonReactRouter>
+      <SentryAddCtx />
       <Tabs />
     </IonReactRouter>
   );

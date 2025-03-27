@@ -1,12 +1,43 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { persist } from "./query-storage";
-// import { AuthProvider } from "./auth-context";
-// import { AlertProvider } from "./ui/alert";
+import { QueryClient } from "@tanstack/react-query";
+import {
+  Persister,
+  PersistQueryClientProvider,
+} from "@tanstack/react-query-persist-client";
 import _ from "lodash";
 import { useNotificationCount } from "../lib/lemmy";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { isTauri, updateTauri } from "../lib/tauri";
 import { AuthProvider } from "./auth-context";
+import { createDb } from "../lib/create-storage";
+import pRetry from "p-retry";
+import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
+import * as Sentry from "@sentry/react";
+
+const CACHE_VERSON = 2;
+
+const db = createDb("react-query");
+const persister: Persister = {
+  persistClient: async (client) => {
+    await db.setItem("react-query-cache", JSON.stringify(client));
+  },
+  restoreClient: async () => {
+    try {
+      const cache = await pRetry(() => db.getItem("react-query-cache"), {
+        retries: 5,
+        onFailedAttempt: (err) => {
+          Sentry.captureException(err);
+        },
+      });
+      return cache ? JSON.parse(cache) : undefined;
+    } catch (err) {
+      Sentry.captureException(err);
+      window.location.reload();
+    }
+  },
+  removeClient: async () => {
+    await db.removeItem("react-query-cache");
+  },
+};
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
 
@@ -21,7 +52,11 @@ const queryClient = new QueryClient({
   },
 });
 
-persist(queryClient);
+// Enable multi-tab synchronization
+broadcastQueryClient({
+  queryClient,
+  broadcastChannel: "react-query-sync",
+});
 
 updateTauri();
 
@@ -35,10 +70,16 @@ function RefreshNotificationCount() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister,
+        buster: String(CACHE_VERSON),
+      }}
+    >
       <RefreshNotificationCount />
       <AuthProvider>{children}</AuthProvider>
       {/* </AlertProvider> */}
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }

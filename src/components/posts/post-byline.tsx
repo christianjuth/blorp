@@ -138,7 +138,7 @@ export function PostByline({
         <Link to={`${linkCtx.root}c/${communitySlug}`} className="text-xs">
           c/{communitySlug}
         </Link>
-        <div className="flex flex-row text-xs text-zinc-500">
+        <div className="flex flex-row text-xs text-muted-foreground">
           <Link to={`${linkCtx.root}u/${encodedCreatorApId}`}>
             u/{creatorName}
           </Link>
