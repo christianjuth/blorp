@@ -4,19 +4,21 @@ import { LoadProgressBar, Slot } from "one";
 import { Providers } from "~/src/components/providers";
 import { initSentry, SentryAddCtx } from "~/src/components/sentry";
 import { GarbageCollector } from "~/src/stores/GarbageCollector";
+import Plausible from "plausible-tracker";
+import { isWeb } from "tamagui";
 
 initSentry();
+if (isWeb) {
+  const { enableAutoPageviews } = Plausible({
+    domain: "blorpblorp.xyz",
+  });
+  enableAutoPageviews();
+}
 
 export default function Layout() {
   return (
     <html lang="en-US">
       <head>
-        <script
-          defer
-          data-domain="blorpblorp.xyz"
-          src="https://plausible.io/js/script.js"
-        ></script>
-
         <meta name="apple-itunes-app" content="app-id=6739925430" />
 
         <meta charSet="utf-8" />

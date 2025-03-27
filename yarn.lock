@@ -12869,6 +12869,7 @@ __metadata:
     lodash: "npm:^4.17.21"
     markdown-it: "npm:14.1.0"
     one: "npm:1.1.470"
+    plausible-tracker: "npm:^0.3.9"
     prettier: "npm:3.4.1"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
@@ -15234,6 +15235,13 @@ __metadata:
     mlly: "npm:^1.7.3"
     pathe: "npm:^1.1.2"
   checksum: 10c0/76c3a49f9106f648b7fad4b5aa18ce84e27c4eafc297e41cbd00e252a9ac1d2625907a05319b0fbcce3c43438d59a677f8306b88daa61c15c6d837a236ce7e2c
+  languageName: node
+  linkType: hard
+
+"plausible-tracker@npm:^0.3.9":
+  version: 0.3.9
+  resolution: "plausible-tracker@npm:0.3.9"
+  checksum: 10c0/750018ad255119f7a5e6d108b35c1c7e4dd04ad9b0e950951812658b02b464865fdcb22a72f8a29881bcf3e5a4da7653ff881d333362ee6c319e63fae03153fb
   languageName: node
   linkType: hard
 

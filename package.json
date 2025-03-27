@@ -81,6 +81,7 @@
     "lodash": "^4.17.21",
     "markdown-it": "14.1.0",
     "one": "1.1.470",
+    "plausible-tracker": "^0.3.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-native": "0.76.7",
