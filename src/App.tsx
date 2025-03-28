@@ -13,6 +13,8 @@ import Bowser from "bowser";
 import { initSentry } from "./components/sentry";
 import { initAnalytics } from "./lib/analytics";
 
+import "remove-focus-outline";
+
 initSentry();
 initAnalytics();
 

@@ -5,7 +5,7 @@ import {
 } from "~/src/lib/lemmy/index";
 // import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
-import { ActionMenu } from "../ui/action-menu";
+// import { ActionMenu } from "../ui/action-menu";
 // import { Ellipsis, Pin } from "@tamagui/lucide-icons";
 import { useRequireAuth } from "../auth-context";
 // import { useShowPostReportModal } from "./post-report";
@@ -14,6 +14,8 @@ import { openUrl } from "~/src/lib/linking";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { RelativeTime } from "../relative-time";
+import { ActionMenu, ActionMenuProps } from "../action-menu";
+import { IoEllipsisHorizontal } from "react-icons/io5";
 
 export function PostByline({
   id,
@@ -57,7 +59,7 @@ export function PostByline({
   const isMyPost = creatorApId === myUserId;
 
   const [openSignal, setOpenSignal] = useState(0);
-  const actions = useMemo(
+  const actions: ActionMenuProps["actions"] = useMemo(
     () => [
       // {
       //   label: "Share",
@@ -67,7 +69,7 @@ export function PostByline({
       //     }),
       // },
       {
-        label: saved ? "Unsave" : "Save",
+        text: saved ? "Unsave" : "Save",
         onClick: () =>
           requireAuth().then(() => {
             savePost.mutate({
@@ -77,7 +79,7 @@ export function PostByline({
           }),
       },
       {
-        label: "View source",
+        text: "View source",
         onClick: async () => {
           try {
             openUrl(apId);
@@ -89,7 +91,7 @@ export function PostByline({
       ...(isMyPost
         ? [
             {
-              label: deleted ? "Restore" : "Delete",
+              text: deleted ? "Restore" : "Delete",
               onClick: () =>
                 deletePost.mutate({
                   post_id: id,
@@ -100,7 +102,7 @@ export function PostByline({
           ]
         : [
             // {
-            //   label: "Report",
+            //   text: "Report",
             //   onClick: () =>
             //     requireAuth().then(() => {
             //       showReportModal(apId);
@@ -108,7 +110,7 @@ export function PostByline({
             //   danger: true,
             // },
             {
-              label: "Block person",
+              text: "Block person",
               onClick: async () => {
                 try {
                   await requireAuth();
@@ -152,22 +154,23 @@ export function PostByline({
         </div>
       </div>
 
-      {/* <View flex={1} /> */}
+      <div className="flex-1" />
 
       {/* {pinned && ( */}
       {/*   <Pin fill="#17B169" color="#17B169" size="$1" rotate="45deg" /> */}
       {/* )} */}
 
-      {/* <ActionMenu */}
-      {/*   placement="bottom-end" */}
-      {/*   actions={actions} */}
-      {/*   onOpenChange={() => setOpenSignal((s) => s + 1)} */}
-      {/*   trigger={ */}
-      {/*     <View p="$2" pr={0}> */}
-      {/*       <Ellipsis size={16} /> */}
-      {/*     </View> */}
-      {/*   } */}
-      {/* /> */}
+      <ActionMenu
+        // placement="bottom-end"
+        actions={actions}
+        trigger={<IoEllipsisHorizontal />}
+        onOpen={() => setOpenSignal((s) => s + 1)}
+        // trigger={
+        //   <View p="$2" pr={0}>
+        //     <Ellipsis size={16} />
+        //   </View>
+        // }
+      />
     </div>
   );
 }

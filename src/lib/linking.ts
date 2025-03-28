@@ -15,6 +15,5 @@ export async function openUrl(url: string) {
   if (isTauri()) {
     return await tauriOpenUrl(url);
   }
-  // await Linking.canOpenURL(url);
-  // return await Linking.openURL(url);
+  window.open(url, "_blank");
 }

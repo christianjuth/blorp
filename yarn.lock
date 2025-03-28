@@ -14168,6 +14168,7 @@ __metadata:
     react-router: "npm:^5.3.4"
     react-router-dom: "npm:^5.3.4"
     react-scan: "npm:^0.3.3"
+    remove-focus-outline: "npm:^1.2.1"
     storybook: "npm:^8.5.3"
     tailwind-merge: "npm:^3.0.2"
     tailwindcss: "npm:^4.0.14"
@@ -18709,6 +18710,13 @@ __metadata:
     unified: "npm:^11.0.0"
     vfile: "npm:^6.0.0"
   checksum: 10c0/68f986e8ee758d415e93babda2a0d89477c15b7c200edc23b8b1d914dd6e963c5fc151a11cbbbcfa7dd237367ff3ef86e302be90f31f37a17b0748668bd8c65b
+  languageName: node
+  linkType: hard
+
+"remove-focus-outline@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "remove-focus-outline@npm:1.2.1"
+  checksum: 10c0/907da859d3fc49672a46f4d931e6964eb445a21ec43247b3f510d7572c28fa7f8a3080d20f94dd662b7340e4497486965589956357d0a109b564eb9b5d0162a6
   languageName: node
   linkType: hard
 

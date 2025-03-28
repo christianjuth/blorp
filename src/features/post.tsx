@@ -45,13 +45,16 @@ const MemoedPostCard = memo((props: PostProps) => (
   </ContentGutters>
 ));
 
-export default function Post({ commentPath }: { commentPath?: string }) {
+export default function Post() {
   const { communityName } = useParams<{ communityName: string }>();
 
   // const ref = useRef(null);
   // useScrollToTop(ref);
 
-  const { post: apId } = useParams<{ post: string }>();
+  const { post: apId, comment: commentPath } = useParams<{
+    post: string;
+    comment?: string;
+  }>();
 
   const decodedApId = apId ? decodeURIComponent(apId) : undefined;
 
