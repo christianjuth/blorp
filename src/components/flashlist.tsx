@@ -43,6 +43,14 @@ export function useIntersectionObserver<T extends HTMLElement | null>(
   return isVisible;
 }
 
+function useRouterSafe() {
+  try {
+    return useIonRouter();
+  } catch {
+    return null;
+  }
+}
+
 export function FlashList<T>({
   data,
   estimatedItemSize,
@@ -130,14 +138,17 @@ export function FlashList<T>({
     }, []),
   });
 
-  const match = useRouteMatch();
-  useEffect(
-    () =>
-      subscribeToScrollEvent(match.path, () =>
-        rowVirtualizer.scrollToIndex(0, { behavior: "smooth" }),
-      ),
-    [],
-  );
+  const r = useRouterSafe();
+  const pathname = r?.routeInfo.pathname;
+  useEffect(() => {
+    if (pathname) {
+      return subscribeToScrollEvent(pathname, () => {
+        if (rowVirtualizer.scrollOffset) {
+          rowVirtualizer.scrollToIndex(0, { behavior: "smooth" });
+        }
+      });
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (focused) {

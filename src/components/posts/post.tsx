@@ -101,6 +101,7 @@ export function getPostProps(
     creatorApId: postView.creator.actor_id,
     encodedCreatorApId: encodeApId(postView.creator.actor_id),
     creatorName: postView.creator.name,
+    creatorAvatar: postView.creator.avatar,
     communitySlug: postView.community.slug,
     published: postView.post.published,
     body: postView.post.body,
@@ -265,7 +266,7 @@ export function FeedPostCard(props: PostProps) {
 
   return (
     <div
-      className="flex-1 py-4 border-b-[0.5px] border-border gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-3"
+      className="flex-1 py-4 border-b-[0.5px] border-border gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-2.5"
       // pt="$4"
       // pb="$4"
       // bbc="$color3"

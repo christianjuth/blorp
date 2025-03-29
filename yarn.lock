@@ -7400,6 +7400,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-document-title@npm:^2.0.10":
+  version: 2.0.10
+  resolution: "@types/react-document-title@npm:2.0.10"
+  dependencies:
+    "@types/react": "npm:*"
+  checksum: 10c0/0a3585a7a41fd7ae59de0dfe3f021f9e97485c249eb8bd5b60bed40b1b70ad59f88a7b1e11665bdbf8e482713b9f697f99277a59ef892d7c4d335cfebab0b377
+  languageName: node
+  linkType: hard
+
 "@types/react-dom@npm:^19.0.4":
   version: 19.0.4
   resolution: "@types/react-dom@npm:19.0.4"
@@ -14113,6 +14122,7 @@ __metadata:
     "@types/markdown-it": "npm:14.1.2"
     "@types/node": "npm:^22.13.0"
     "@types/react": "npm:^19.0.10"
+    "@types/react-document-title": "npm:^2.0.10"
     "@types/react-dom": "npm:^19.0.4"
     "@types/react-native-safari-view": "npm:^2"
     "@types/react-router": "npm:^5.1.20"
@@ -14152,6 +14162,7 @@ __metadata:
     plausible-tracker: "npm:^0.3.9"
     prettier: "npm:3.4.1"
     react: "npm:^19.0.0"
+    react-document-title: "npm:^2.0.3"
     react-dom: "npm:^19.0.0"
     react-icons: "npm:^5.5.0"
     react-markdown: "npm:^10.1.0"
@@ -17717,7 +17728,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:15.8.1, prop-types@npm:^15.5.10, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:15.8.1, prop-types@npm:^15.5.10, prop-types@npm:^15.5.6, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -17952,6 +17963,16 @@ __metadata:
     resolve: "npm:^1.22.1"
     strip-indent: "npm:^4.0.0"
   checksum: 10c0/961e69487f6acbd9110afbda31f5a0c7fa7ab8b1ebe09fc0138c17efd297fa0b69518df873e937cac108732cd8125433bf939115d23ff99c1c171844140705a7
+  languageName: node
+  linkType: hard
+
+"react-document-title@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "react-document-title@npm:2.0.3"
+  dependencies:
+    prop-types: "npm:^15.5.6"
+    react-side-effect: "npm:^1.0.2"
+  checksum: 10c0/63407633ce4b401dea462ed59fbfa5e58f7f90b811d27eda7ebd0c08d654d1ea6ba9b8688cfc49b5c0e46a9c5f53d0d2e5a37385293d9e723a4988a3ba887783
   languageName: node
   linkType: hard
 
@@ -18440,6 +18461,17 @@ __metadata:
   bin:
     react-scan: bin/cli.js
   checksum: 10c0/7c16f951d697155dbe532ff8665ef2bc1ca86a57911a455ad39e81e7d8cfcdc00d5ccd374d40294615d805457f664068bb94a6ce76adac51305fef5561ee1a8f
+  languageName: node
+  linkType: hard
+
+"react-side-effect@npm:^1.0.2":
+  version: 1.2.0
+  resolution: "react-side-effect@npm:1.2.0"
+  dependencies:
+    shallowequal: "npm:^1.0.1"
+  peerDependencies:
+    react: ^0.13.0 || ^0.14.0 || ^15.0.0 || ^16.0.0
+  checksum: 10c0/7f8ad8f6eace0c8c3190624cd11aa71e5868ca7197aa2f28571c76aabbb87894beba22c5ce4eeed63c9e4b9029fb693eceee0a8523d6ee3672aac8de49104204
   languageName: node
   linkType: hard
 
@@ -19411,6 +19443,13 @@ __metadata:
   version: 3.1.0
   resolution: "shallow-equal@npm:3.1.0"
   checksum: 10c0/57079f8741a86b25229b58b86df5d503414aca324e486ec7ddb2423db65914c80c8282149ef66a6803092847dc0d840da8fc338ea5027bbf4fc877f944df9bf6
+  languageName: node
+  linkType: hard
+
+"shallowequal@npm:^1.0.1":
+  version: 1.1.0
+  resolution: "shallowequal@npm:1.1.0"
+  checksum: 10c0/b926efb51cd0f47aa9bc061add788a4a650550bbe50647962113a4579b60af2abe7b62f9b02314acc6f97151d4cf87033a2b15fc20852fae306d1a095215396c
   languageName: node
   linkType: hard
 

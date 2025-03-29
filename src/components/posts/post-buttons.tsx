@@ -1,6 +1,5 @@
-// import { ArrowBigUp, ArrowBigDown, MessageCircle } from "@tamagui/lucide-icons";
 import { useLikePost } from "~/src/lib/lemmy/index";
-// import { voteHaptics } from "~/src/lib/voting";
+import { voteHaptics } from "~/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 
 import { Link } from "react-router-dom";
@@ -35,7 +34,7 @@ export function Voting({
       <button
         onClick={async () => {
           const newVote = isUpvoted ? 0 : 1;
-          // voteHaptics(newVote);
+          voteHaptics(newVote);
           requireAuth().then(() => {
             vote.mutate(newVote);
           });
@@ -55,7 +54,7 @@ export function Voting({
       <button
         onClick={async () => {
           const newVote = isDownvoted ? 0 : -1;
-          // voteHaptics(newVote);
+          voteHaptics(newVote);
           requireAuth().then(() => {
             vote.mutate(newVote);
           });

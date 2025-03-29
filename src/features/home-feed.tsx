@@ -20,12 +20,12 @@ import {
   IonPage,
   IonRefresher,
   IonRefresherContent,
-  IonTitle,
   IonToolbar,
   RefresherEventDetail,
 } from "@ionic/react";
 import { FlashList } from "../components/flashlist";
 import { UserDropdown } from "../components/nav";
+import { HomeFilter, PostSortBar } from "../components/lemmy-sort";
 
 const HEADER = "header";
 
@@ -103,8 +103,11 @@ export default function HomeFeed() {
     <IonPage>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonTitle data-tauri-drag-region>Home</IonTitle>
-          <IonButtons slot="end">
+          <IonButtons slot="start">
+            <HomeFilter />
+          </IonButtons>
+          <IonButtons slot="end" className="gap-3">
+            <PostSortBar />
             <UserDropdown />
           </IonButtons>
         </IonToolbar>

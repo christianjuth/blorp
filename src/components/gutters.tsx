@@ -14,7 +14,7 @@ export function ContentGutters({
     <div
       {...props}
       className={twMerge(
-        "max-w-[1050px] w-full flex flex-row mx-auto gap-5 px-3 md:px-6",
+        "max-w-[1050px] w-full flex flex-row mx-auto gap-5 px-2.5 md:px-6",
         props.className,
       )}
     >

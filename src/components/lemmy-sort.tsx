@@ -4,159 +4,159 @@ import {
   ListingType,
   PostSortType,
 } from "lemmy-js-client";
-import { Option, Select } from "~/src/components/ui/select";
 import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 import { useFiltersStore } from "~/src/stores/filters";
-import { Text, useMedia, useTheme, View, XStack } from "tamagui";
 import { ComponentProps, useMemo } from "react";
 import { useAuth } from "../stores/auth";
-
-const COMMUNITY_SORT_OPTIONS: Option<CommunitySortType, string>[] = [
-  {
-    label: "Top All",
-    value: "TopAll",
-    icon: ArrowUpCircle,
-  },
-  {
-    label: "Hot",
-    value: "Hot",
-    icon: Flame,
-  },
-  {
-    label: "Active",
-    value: "Active",
-    icon: Flame,
-  },
-  // {
-  //   label: "Scaled",
-  //   value: "Scaled",
-  //   // icon: Clock3,
-  // },
-  {
-    label: "Controversial",
-    value: "Controversial",
-    icon: Sword,
-  },
-  {
-    label: "New",
-    value: "New",
-    icon: Clock3,
-  },
-  {
-    label: "Old",
-    value: "Old",
-    icon: Hourglass,
-  },
-];
+import { useMedia } from "../lib/hooks";
+import { ActionMenu } from "./action-menu";
+import { FaCaretDown } from "react-icons/fa";
+import { TbArrowsDownUp } from "react-icons/tb";
 
 export function CommunitySortSelect() {
   const communitySort = useFiltersStore((s) => s.communitySort);
   const setCommunitySort = useFiltersStore((s) => s.setCommunitySort);
-  const theme = useTheme();
 
-  function getIconForCommunitySort(sort: CommunitySortType) {
-    const Icon = COMMUNITY_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
-    return Icon ? <Icon color={theme.accentColor.val} /> : undefined;
-  }
+  // function getIconForCommunitySort(sort: CommunitySortType) {
+  //   const Icon = COMMUNITY_SORT_OPTIONS.find((s) => s.value === sort)?.icon;
+  //   return Icon ? <Icon /> : undefined;
+  // }
+  //
+  //
+
+  const COMMUNITY_SORT_OPTIONS = useMemo(
+    () =>
+      [
+        {
+          label: "Top All",
+          value: "TopAll",
+          // icon: ArrowUpCircle,
+        } as const,
+        {
+          label: "Hot",
+          value: "Hot",
+          // icon: Flame,
+        } as const,
+        {
+          label: "Active",
+          value: "Active",
+          // icon: Flame,
+        } as const,
+        // {
+        //   label: "Scaled",
+        //   value: "Scaled",
+        //   // icon: Clock3,
+        // },
+        {
+          label: "Controversial",
+          value: "Controversial",
+          // icon: Sword,
+        } as const,
+        {
+          label: "New",
+          value: "New",
+          // icon: Clock3,
+        } as const,
+        {
+          label: "Old",
+          value: "Old",
+          // icon: Hourglass,
+        } as const,
+      ].map((opt) => ({
+        value: opt.value,
+        text: opt.label,
+        onClick: () => {},
+      })),
+    [],
+  );
 
   return (
-    <Select
-      options={COMMUNITY_SORT_OPTIONS}
-      title="Sort Communities By"
-      value={communitySort}
-      onValueChange={setCommunitySort}
-      trigger={getIconForCommunitySort(communitySort)}
+    <ActionMenu
+      align="start"
+      actions={COMMUNITY_SORT_OPTIONS}
+      trigger={
+        <div className="flex flex-row items-center gap-1 h-7.5 px-4 border rounded-full text-sm text-muted-foreground">
+          <span className="capitalize text-sort">
+            {
+              COMMUNITY_SORT_OPTIONS.find(
+                ({ value }) => value === communitySort,
+              )?.text
+            }
+          </span>
+          <TbArrowsDownUp />
+        </div>
+      }
     />
   );
+
+  // return (
+  //   <Select
+  //     options={COMMUNITY_SORT_OPTIONS}
+  //     title="Sort Communities By"
+  //     value={communitySort}
+  //     onValueChange={setCommunitySort}
+  //     // trigger={getIconForCommunitySort(communitySort)}
+  //   />
+  // );
 }
 
-const COMMENT_SORT_OPTIONS: Option<CommentSortType, CommentSortType>[] = [
+const COMMENT_SORT_OPTIONS = [
   {
     label: "Hot",
     value: "Hot",
-    icon: Flame,
+    // icon: Flame,
   },
   {
     label: "Top",
     value: "Top",
-    icon: ArrowUpCircle,
+    // icon: ArrowUpCircle,
   },
   {
     label: "New",
     value: "New",
-    icon: Clock3,
+    // icon: Clock3,
   },
   {
     label: "Controversial",
     value: "Controversial",
-    icon: Sword,
+    // icon: Sword,
   },
   {
     label: "Old",
     value: "Old",
-    icon: Hourglass,
+    // icon: Hourglass,
   },
 ];
 
 export function CommentSortSelect() {
   const commentSort = useFiltersStore((s) => s.commentSort);
   const setCommentSort = useFiltersStore((s) => s.setCommentSort);
-  return (
-    <Select
-      options={COMMENT_SORT_OPTIONS}
-      title="Sort Comments By"
-      value={commentSort}
-      onValueChange={setCommentSort}
-      trigger={
-        <XStack
-          gap="$1.5"
-          ai="center"
-          bw={1}
-          bc="$color5"
-          br={99999}
-          py={7}
-          px={13}
-        >
-          <Text fontWeight={500} fontSize="$3">
-            {commentSort}
-          </Text>
-          <ArrowUpDown size={15} />
-        </XStack>
-      }
-    />
-  );
+  return null;
+  // return (
+  //   <Select
+  //     options={COMMENT_SORT_OPTIONS}
+  //     title="Sort Comments By"
+  //     value={commentSort}
+  //     onValueChange={setCommentSort}
+  //     trigger={
+  //       <XStack
+  //         gap="$1.5"
+  //         ai="center"
+  //         bw={1}
+  //         bc="$color5"
+  //         br={99999}
+  //         py={7}
+  //         px={13}
+  //       >
+  //         <Text fontWeight={500} fontSize="$3">
+  //           {commentSort}
+  //         </Text>
+  //         <ArrowUpDown size={15} />
+  //       </XStack>
+  //     }
+  //   />
+  // );
 }
-
-const POST_SORT_OPTIONS: Option<PostSortType, PostSortType>[] = [
-  {
-    label: "Active",
-    value: "Active",
-  },
-  {
-    label: "Hot",
-    value: "Hot",
-  },
-  {
-    label: "TopDay",
-    value: "TopDay",
-  },
-  {
-    label: "TopWeek",
-    value: "TopWeek",
-  },
-  {
-    label: "New",
-    value: "New",
-  },
-  {
-    label: "Controversial",
-    value: "Controversial",
-  },
-  {
-    label: "Old",
-    value: "Old",
-  },
-];
 
 export function PostSortBar({ hideOnGtMd }: { hideOnGtMd?: boolean }) {
   const postSort = useFiltersStore((s) => s.postSort);
@@ -164,31 +164,60 @@ export function PostSortBar({ hideOnGtMd }: { hideOnGtMd?: boolean }) {
 
   const media = useMedia();
 
-  if (hideOnGtMd && media.gtMd) {
+  if (hideOnGtMd && media.md) {
     return null;
   }
 
+  const actions = useMemo(
+    () =>
+      [
+        {
+          label: "Active",
+          value: "Active",
+        } as const,
+        {
+          label: "Hot",
+          value: "Hot",
+        } as const,
+        {
+          label: "Top Day",
+          value: "TopDay",
+        } as const,
+        {
+          label: "Top Week",
+          value: "TopWeek",
+        } as const,
+        {
+          label: "New",
+          value: "New",
+        } as const,
+        {
+          label: "Controversial",
+          value: "Controversial",
+        } as const,
+        {
+          label: "Old",
+          value: "Old",
+        } as const,
+      ].map((opt) => ({
+        text: opt.label,
+        value: opt.value,
+        onClick: () => setPostSort(opt.value),
+      })),
+    [],
+  );
+
   return (
-    <Select
-      options={POST_SORT_OPTIONS}
-      title="Sort Posts By"
-      value={postSort}
-      onValueChange={setPostSort}
+    <ActionMenu
+      align="end"
+      actions={actions}
       trigger={
-        <XStack
-          gap="$1.5"
-          ai="center"
-          bw={1}
-          bc="$color5"
-          br={99999}
-          py={7}
-          px={13}
-        >
-          <Text fontWeight={500} color="$color11" fontSize="$3">
-            {postSort}
-          </Text>
-          <ArrowUpDown size={15} col="$color10" />
-        </XStack>
+        <div className="flex flex-row items-center gap-1 h-7.5 px-4 border rounded-full text-sm text-muted-foreground">
+          <span className="capitalize text-sort">
+            {actions.find(({ value }) => value === postSort)?.text}
+          </span>
+          <TbArrowsDownUp />
+        </div>
       }
     />
   );
@@ -200,53 +229,50 @@ export function HomeFilter() {
   const listingType = useFiltersStore((s) => s.listingType);
   const setListingType = useFiltersStore((s) => s.setListingType);
 
-  const LISTING_TYPE_OPTIONS: Option<ListingType, string>[] = useMemo(
-    () => [
-      {
-        label: "All",
-        value: "All",
-        // icon: Flame,
-      },
-      {
-        label: `Local (${instance ? new URL(instance).host : ""})`,
-        value: "Local",
-        // icon: Flame,
-      },
-      ...(isLoggedIn
-        ? ([
-            {
-              label: "Subscribed",
-              value: "Subscribed",
-              // icon: ArrowUpCircle,
-            },
-          ] as const)
-        : []),
-      // {
-      //   label: "ModeratorView",
-      //   value: "ModeratorView",
-      //   // icon: ArrowUpCircle,
-      // },
-    ],
+  const LISTING_TYPE_OPTIONS = useMemo(
+    () =>
+      [
+        {
+          label: "All",
+          value: "All",
+          // icon: Flame,
+        } as const,
+        {
+          label: `Local (${instance ? new URL(instance).host : ""})`,
+          value: "Local",
+          // icon: Flame,
+        } as const,
+        ...(isLoggedIn
+          ? ([
+              {
+                label: "Subscribed",
+                value: "Subscribed",
+                // icon: ArrowUpCircle,
+              },
+            ] as const)
+          : []),
+        // {
+        //   label: "ModeratorView",
+        //   value: "ModeratorView",
+        //   // icon: ArrowUpCircle,
+        // },
+      ].map((opt) => ({
+        text: opt.label,
+        value: opt.value,
+        onClick: () => setListingType(opt.value),
+      })),
     [instance, isLoggedIn],
   );
 
   return (
-    <Select
-      options={LISTING_TYPE_OPTIONS}
-      title="Explore posts..."
-      value={listingType}
-      onValueChange={setListingType}
+    <ActionMenu
+      align="start"
+      actions={LISTING_TYPE_OPTIONS}
       trigger={
-        <XStack ai="center" gap="$1">
-          <Text fontWeight={900} fontSize="$5">
-            {
-              LISTING_TYPE_OPTIONS.find(
-                (option) => option.value === listingType,
-              )?.value
-            }
-          </Text>
-          <ChevronDown size="$1" col="$color10" />
-        </XStack>
+        <div className="flex flex-row items-center gap-0.5">
+          <span className="font-black capitalize">{listingType}</span>
+          <FaCaretDown className="text-muted-foreground" />
+        </div>
       }
     />
   );
@@ -259,53 +285,50 @@ export function CommunityFilter() {
   const setListingType = useFiltersStore((s) => s.setCommunitiesListingType);
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
-  const LISTING_TYPE_OPTIONS: Option<ListingType, string>[] = useMemo(
-    () => [
-      {
-        label: "All",
-        value: "All",
-        // icon: Flame,
-      },
-      {
-        label: `Local (${instance ? new URL(instance).host : ""})`,
-        value: "Local",
-        // icon: Flame,
-      },
-      ...(isLoggedIn
-        ? ([
-            {
-              label: "Subscribed",
-              value: "Subscribed",
-              // icon: ArrowUpCircle,
-            },
-          ] as const)
-        : []),
-      // {
-      //   label: "ModeratorView",
-      //   value: "ModeratorView",
-      //   // icon: ArrowUpCircle,
-      // },
-    ],
+  const LISTING_TYPE_OPTIONS = useMemo(
+    () =>
+      [
+        {
+          label: "All",
+          value: "All",
+          // icon: Flame,
+        } as const,
+        {
+          label: `Local (${instance ? new URL(instance).host : ""})`,
+          value: "Local",
+          // icon: Flame,
+        } as const,
+        ...(isLoggedIn
+          ? ([
+              {
+                label: "Subscribed",
+                value: "Subscribed",
+                // icon: ArrowUpCircle,
+              },
+            ] as const)
+          : []),
+        // {
+        //   label: "ModeratorView",
+        //   value: "ModeratorView",
+        //   // icon: ArrowUpCircle,
+        // },
+      ].map((opt) => ({
+        text: opt.label,
+        value: opt.value,
+        onClick: () => setListingType(opt.value),
+      })),
     [instance, isLoggedIn],
   );
 
   return (
-    <Select
-      options={LISTING_TYPE_OPTIONS}
-      title="Show posts..."
-      value={listingType}
-      onValueChange={setListingType}
+    <ActionMenu
+      align="start"
+      actions={LISTING_TYPE_OPTIONS}
       trigger={
-        <XStack ai="center" gap="$1">
-          <Text fontWeight={900} fontSize="$5">
-            {
-              LISTING_TYPE_OPTIONS.find(
-                (option) => option.value === listingType,
-              )?.value
-            }
-          </Text>
-          <ChevronDown size="$1" col="$color10" />
-        </XStack>
+        <div className="flex flex-row items-center gap-0.5">
+          <span className="font-black capitalize">{listingType}</span>
+          <FaCaretDown className="text-muted-foreground" />
+        </div>
       }
     />
   );

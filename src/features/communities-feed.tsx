@@ -19,6 +19,8 @@ import {
 } from "@ionic/react";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
+import { CommunityFilter } from "../components/lemmy-sort";
+import { Title } from "../components/title";
 
 const MemoedListItem = memo(
   function ListItem(props: CommunityView) {
@@ -76,9 +78,12 @@ export default function Communities() {
 
   return (
     <IonPage>
+      <Title>Communities</Title>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Communities</IonTitle>
+          <IonButtons slot="start">
+            <CommunityFilter />
+          </IonButtons>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

@@ -2,6 +2,7 @@ import { ContentGutters } from "~/src/components/gutters";
 import Markdown from "react-markdown";
 import { Link } from "react-router-dom";
 import { IonContent, IonPage } from "@ionic/react";
+import { Title } from "../components/title";
 
 const POLICY = `
 ### **Privacy Policy for Blorp**
@@ -74,6 +75,7 @@ We may update this Privacy Policy occasionally. Updates will be posted in the ap
 export default function Privacy() {
   return (
     <IonPage>
+      <Title>Privacy</Title>
       <IonContent>
         <ContentGutters>
           <div>

@@ -31,6 +31,7 @@ import {
 } from "@ionic/react";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
+import { Title } from "../components/title";
 
 const EMPTY_ARR = [];
 
@@ -134,6 +135,7 @@ export default function SavedFeed() {
 
   return (
     <IonPage>
+      <Title>Saved</Title>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">

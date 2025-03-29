@@ -114,7 +114,7 @@
 }
 
 ion-toolbar::part(container) {
-  @apply max-w-[1050px] mx-auto md:px-6;
+  @apply max-w-[1050px] mx-auto px-2.5 md:px-6;
 }
 
 ion-toolbar::part(.toolbar-container) {

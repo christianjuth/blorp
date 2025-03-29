@@ -14,7 +14,7 @@ import { useScrollToTop } from "@react-navigation/native";
 // import { CakeSlice } from "@tamagui/lucide-icons";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { decodeApId, encodeApId } from "../lib/lemmy/utils";
+import { createPersonSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
 import { ToggleGroup } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
@@ -38,6 +38,7 @@ import {
 } from "@ionic/react";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
+import { Title } from "../components/title";
 
 const BANNER = "banner";
 const POST_SORT_BAR = "post-sort-bar";
@@ -145,12 +146,13 @@ export default function User() {
 
   return (
     <IonPage>
+      <Title>{person ? createPersonSlug(person) : "Person"}</Title>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>
-          <IonTitle>{person?.display_name ?? person?.name}</IonTitle>
+          <IonTitle>{person ? createPersonSlug(person) : "Person"}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

@@ -8,7 +8,7 @@ import { useLinkContext } from "../nav/link-context";
 // import { ActionMenu } from "../ui/action-menu";
 // import { Ellipsis, Pin } from "@tamagui/lucide-icons";
 import { useRequireAuth } from "../auth-context";
-// import { useShowPostReportModal } from "./post-report";
+import { useShowPostReportModal } from "./post-report";
 import { useAuth } from "~/src/stores/auth";
 import { openUrl } from "~/src/lib/linking";
 import { useMemo, useState } from "react";
@@ -16,6 +16,15 @@ import { Link } from "react-router-dom";
 import { RelativeTime } from "../relative-time";
 import { ActionMenu, ActionMenuProps } from "../action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/src/components/ui/avatar";
+import { BsFillPinAngleFill } from "react-icons/bs";
+import { useIonAlert, useIonToast } from "@ionic/react";
+import { useToast } from "~/src/lib/hooks";
+import { Deferred } from "~/src/lib/deferred";
 
 export function PostByline({
   id,
@@ -28,6 +37,7 @@ export function PostByline({
   creatorApId,
   encodedCreatorApId,
   creatorName,
+  creatorAvatar,
   communitySlug,
   published,
 }: {
@@ -39,12 +49,16 @@ export function PostByline({
   deleted: boolean;
   creatorId: number;
   creatorApId: string;
+  creatorAvatar?: string;
   encodedCreatorApId: string;
   creatorName: string;
   communitySlug: string;
   published: string;
 }) {
-  // const showReportModal = useShowPostReportModal();
+  const [alrt] = useIonAlert();
+  const toast = useToast();
+
+  const showReportModal = useShowPostReportModal();
   const requireAuth = useRequireAuth();
   const blockPerson = useBlockPerson();
   const deletePost = useDeletePost(apId);
@@ -72,10 +86,17 @@ export function PostByline({
         text: saved ? "Unsave" : "Save",
         onClick: () =>
           requireAuth().then(() => {
-            savePost.mutate({
-              post_id: id,
-              save: !saved,
-            });
+            savePost
+              .mutateAsync({
+                post_id: id,
+                save: !saved,
+              })
+              .then(() => {
+                toast({
+                  message: saved ? "Unsaved" : "Saved",
+                  duration: 1000,
+                });
+              });
           }),
       },
       {
@@ -101,20 +122,36 @@ export function PostByline({
             },
           ]
         : [
-            // {
-            //   text: "Report",
-            //   onClick: () =>
-            //     requireAuth().then(() => {
-            //       showReportModal(apId);
-            //     }),
-            //   danger: true,
-            // },
+            {
+              text: "Report",
+              onClick: () =>
+                requireAuth().then(() => {
+                  showReportModal(apId);
+                }),
+              // danger: true,
+            },
             {
               text: "Block person",
               onClick: async () => {
                 try {
                   await requireAuth();
-                  // await alrt(`Block ${creatorName}`);
+                  const deferred = new Deferred();
+                  alrt({
+                    message: `Block ${creatorName}`,
+                    buttons: [
+                      {
+                        text: "Cancel",
+                        role: "cancel",
+                        handler: () => deferred.reject(),
+                      },
+                      {
+                        text: "OK",
+                        role: "confirm",
+                        handler: () => deferred.resolve(),
+                      },
+                    ],
+                  });
+                  await deferred.promise;
                   blockPerson.mutate({
                     person_id: creatorId,
                     block: true,
@@ -129,12 +166,13 @@ export function PostByline({
   );
 
   return (
-    <div className="flex flex-row items-center gap-2">
-      <div className="h-8 w-8 bg-zinc-300 dark:bg-zinc-700 flex items-center rounded-full">
-        <span className="text-center mx-auto">
+    <div className="flex flex-row items-center gap-3">
+      <Avatar className="h-8 w-8">
+        <AvatarImage src={creatorAvatar} />
+        <AvatarFallback>
           {creatorName?.substring(0, 1).toUpperCase()}
-        </span>
-      </div>
+        </AvatarFallback>
+      </Avatar>
 
       <div className="flex flex-col">
         <Link to={`${linkCtx.root}c/${communitySlug}`} className="text-xs">
@@ -156,20 +194,13 @@ export function PostByline({
 
       <div className="flex-1" />
 
-      {/* {pinned && ( */}
-      {/*   <Pin fill="#17B169" color="#17B169" size="$1" rotate="45deg" /> */}
-      {/* )} */}
+      {pinned && <BsFillPinAngleFill className="text-xl text-[#17B169]" />}
 
       <ActionMenu
-        // placement="bottom-end"
+        align="end"
         actions={actions}
-        trigger={<IoEllipsisHorizontal />}
+        trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
         onOpen={() => setOpenSignal((s) => s + 1)}
-        // trigger={
-        //   <View p="$2" pr={0}>
-        //     <Ellipsis size={16} />
-        //   </View>
-        // }
       />
     </div>
   );

@@ -28,11 +28,16 @@ import {
   IonContent,
   IonHeader,
   IonPage,
+  IonRefresher,
+  IonRefresherContent,
   IonTitle,
   IonToolbar,
+  RefresherEventDetail,
 } from "@ionic/react";
 import { useParams } from "react-router";
 import { UserDropdown } from "../components/nav";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { Title } from "../components/title";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -150,8 +155,19 @@ export default function Post() {
   //   paddingBottom += tabBar.height;
   // }
 
+  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
+    Haptics.impact({ style: ImpactStyle.Medium });
+
+    if (!refreshing) {
+      refresh().finally(() => {
+        event.detail.complete();
+      });
+    }
+  }
+
   return (
     <IonPage>
+      <Title>{post.post.name}</Title>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
@@ -164,6 +180,10 @@ export default function Post() {
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent />
+        </IonRefresher>
+
         <PostReportProvider>
           <CommentReplyContext
             postId={post.post.id}

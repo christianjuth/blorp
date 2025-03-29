@@ -23,6 +23,7 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
+import { Title } from "../components/title";
 
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
@@ -260,6 +261,7 @@ export default function SettingsPage() {
 
   return (
     <IonPage>
+      <Title>Settings</Title>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonTitle data-tauri-drag-region>Settings</IonTitle>
@@ -269,7 +271,7 @@ export default function SettingsPage() {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>
-        <ContentGutters className="pt-4 pb-8 max-md:px-4">
+        <ContentGutters className="pt-4 pb-8 max-md:px-2.5">
           <div className="flex-1 gap-2 flex flex-col">
             <AccountSection />
 

@@ -19,6 +19,7 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
+import { Title } from "../components/title";
 
 function Reply({
   replyView,
@@ -94,6 +95,7 @@ export default function Inbox() {
 
   return (
     <IonPage>
+      <Title>Inbox</Title>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonTitle data-tauri-drag-region>Inbox</IonTitle>

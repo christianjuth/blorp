@@ -1,6 +1,6 @@
 import Markdown from "react-markdown";
 import _ from "lodash";
-// import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
+import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
 import {
   InlineCommentReply,
   useCommentReaplyContext,
@@ -14,7 +14,7 @@ import { useShowCommentReportModal } from "./post-report";
 import { useRequireAuth } from "../auth-context";
 import { useLinkContext } from "../nav/link-context";
 import { Person } from "lemmy-js-client";
-import { encodeApId } from "~/src/lib/lemmy/utils";
+import { createPersonSlug, encodeApId } from "~/src/lib/lemmy/utils";
 import { Link } from "react-router-dom";
 import {
   Avatar,
@@ -22,6 +22,11 @@ import {
   AvatarImage,
 } from "~/src/components/ui/avatar";
 import { cn } from "~/src/lib/utils";
+import { ActionMenu } from "../action-menu";
+import { IoEllipsisHorizontal } from "react-icons/io5";
+import { useIonAlert } from "@ionic/react";
+import { message } from "@tauri-apps/plugin-dialog";
+import { Deferred } from "~/src/lib/deferred";
 
 function Byline({
   creator,
@@ -63,7 +68,7 @@ function Byline({
         to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}
         className="text-sm"
       >
-        {creator.name}
+        {createPersonSlug(creator)}
         {authorType && <span> ({authorType})</span>}
       </Link>
       <RelativeTime
@@ -98,6 +103,8 @@ export function PostComment({
   noBorder?: boolean;
   communityName?: string;
 }) {
+  const [alrt] = useIonAlert();
+
   const showReportModal = useShowCommentReportModal();
   const requireAuth = useRequireAuth();
 
@@ -193,15 +200,6 @@ export function PostComment({
       <div
         className="border-l-2 px-2 ml-2 pt-px"
         style={{ borderColor: color }}
-        // blw={2}
-        // blc={color}
-        // p="$2"
-        // pr={0}
-        // pb={0}
-        // mt="$1"
-        // ml={9}
-        // ai="flex-start"
-        // dsp={collapsed ? "none" : undefined}
       >
         {comment.deleted && <span className="italic">deleted</span>}
         {comment.removed && <span className="italic">removed</span>}
@@ -225,83 +223,92 @@ export function PostComment({
           />
         )}
 
-        <div
-        // ai="center"
-        // jc="flex-end"
-        // w="100%"
-        // mt="$1.5"
-        // mb="$1"
-        // mr="$1"
-        // gap="$3"
-        >
-          {/* <ActionMenu */}
-          {/*   placement="top" */}
-          {/*   actions={[ */}
-          {/*     { */}
-          {/*       label: "Share", */}
-          {/*       onClick: () => */}
-          {/*         Share.share({ */}
-          {/*           url: `https://blorpblorp.xyz/c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`, */}
-          {/*         }), */}
-          {/*     }, */}
-          {/*     ...(isMyComment && !comment.deleted */}
-          {/*       ? [ */}
-          {/*           { */}
-          {/*             label: "Edit", */}
-          {/*             onClick: () => { */}
-          {/*               setEditing((e) => !e); */}
-          {/*               replyCtx.setComment(comment); */}
-          {/*             }, */}
-          {/*           }, */}
-          {/*         ] */}
-          {/*       : []), */}
-          {/*     ...(isMyComment */}
-          {/*       ? [ */}
-          {/*           { */}
-          {/*             label: comment.deleted ? "Restore" : "Delete", */}
-          {/*             onClick: () => { */}
-          {/*               deleteComment.mutate({ */}
-          {/*                 comment_id: comment.id, */}
-          {/*                 path: comment.path, */}
-          {/*                 deleted: !comment.deleted, */}
-          {/*               }); */}
-          {/*             }, */}
-          {/*             danger: true, */}
-          {/*           }, */}
-          {/*         ] */}
-          {/*       : [ */}
-          {/*           { */}
-          {/*             label: "Report", */}
-          {/*             onClick: () => */}
-          {/*               requireAuth().then(() => showReportModal(comment.path)), */}
-          {/*             danger: true, */}
-          {/*           }, */}
-          {/*           { */}
-          {/*             label: "Block person", */}
-          {/*             onClick: async () => { */}
-          {/*               try { */}
-          {/*                 await requireAuth(); */}
-          {/*                 await alrt(`Block ${commentView.creator.name}`); */}
-          {/*                 blockPerson.mutate({ */}
-          {/*                   person_id: commentView.creator.id, */}
-          {/*                   block: true, */}
-          {/*                 }); */}
-          {/*               } catch (err) {} */}
-          {/*             }, */}
-          {/*             danger: true, */}
-          {/*           }, */}
-          {/*         ]), */}
-          {/*   ]} */}
-          {/*   trigger={<Ellipsis size={16} />} */}
-          {/* /> */}
+        <div className="flex flex-row items-center gap-5 text-sm text-muted-foreground justify-end">
+          <ActionMenu
+            // placement="top"
+            actions={[
+              {
+                text: "Share",
+                onClick: () => {
+                  // Share.share({
+                  //   url: `https://blorpblorp.xyz/c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
+                  // }),
+                },
+              } as const,
+              ...(isMyComment && !comment.deleted
+                ? [
+                    {
+                      text: "Edit",
+                      onClick: () => {
+                        setEditing((e) => !e);
+                        replyCtx.setComment(comment);
+                      },
+                    } as const,
+                  ]
+                : []),
+              ...(isMyComment
+                ? [
+                    {
+                      text: comment.deleted ? "Restore" : "Delete",
+                      onClick: () => {
+                        deleteComment.mutate({
+                          comment_id: comment.id,
+                          path: comment.path,
+                          deleted: !comment.deleted,
+                        });
+                      },
+                      // danger: true,
+                    } as const,
+                  ]
+                : [
+                    {
+                      text: "Report",
+                      onClick: () =>
+                        requireAuth().then(() => showReportModal(comment.path)),
+                      // danger: true,
+                    } as const,
+                    {
+                      text: "Block person",
+                      onClick: async () => {
+                        try {
+                          await requireAuth();
+                          const deferred = new Deferred();
+                          alrt({
+                            message: `Block ${commentView.creator.name}`,
+                            buttons: [
+                              {
+                                text: "Cancel",
+                                role: "cancel",
+                                handler: () => deferred.reject(),
+                              },
+                              {
+                                text: "OK",
+                                role: "confirm",
+                                handler: () => deferred.resolve(),
+                              },
+                            ],
+                          });
+                          await deferred.promise;
+                          blockPerson.mutate({
+                            person_id: commentView.creator.id,
+                            block: true,
+                          });
+                        } catch (err) {}
+                      },
+                      // danger: true,
+                    } as const,
+                  ]),
+            ]}
+            trigger={<IoEllipsisHorizontal size={16} />}
+          />
 
-          {/* <CommentReplyButton */}
-          {/*   onPress={() => { */}
-          {/*     setReplying(true); */}
-          {/*     replyCtx.setParentComment(commentView); */}
-          {/*   }} */}
-          {/* /> */}
-          {/* <CommentVoting commentView={commentView} /> */}
+          <CommentReplyButton
+            onClick={() => {
+              setReplying(true);
+              replyCtx.setParentComment(commentView);
+            }}
+          />
+          <CommentVoting commentView={commentView} />
         </div>
 
         {replying && (

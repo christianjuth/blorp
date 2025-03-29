@@ -22,13 +22,15 @@ export interface ActionMenuProps
     onClick: () => any;
   }[];
   trigger: React.ReactNode;
-  onOpen: () => any;
+  onOpen?: () => any;
+  align?: "start" | "end";
 }
 
 export function ActionMenu({
   trigger,
   actions,
   onOpen,
+  align,
   ...props
 }: ActionMenuProps) {
   const media = useMedia();
@@ -52,7 +54,7 @@ export function ActionMenu({
     return (
       <DropdownMenu onOpenChange={(open) => open && onOpen?.()}>
         <DropdownMenuTrigger>{trigger}</DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align={align}>
           {actions.map((a, index) => (
             <DropdownMenuItem key={a.text + index} onClick={a.onClick}>
               {a.text}
@@ -69,7 +71,6 @@ export function ActionMenu({
       <IonActionSheet
         {...props}
         trigger={id}
-        header="Actions"
         buttons={buttons}
         onDidDismiss={({ detail }) => {
           const index = _.isNumber(detail.data) ? detail.data : null;

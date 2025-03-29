@@ -37,6 +37,8 @@ import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
+import { CommunityFilter, CommunitySortSelect } from "../components/lemmy-sort";
+import { Title } from "../components/title";
 
 const EMPTY_ARR = [];
 
@@ -123,6 +125,7 @@ export default function CommunityFeed() {
 
   return (
     <IonPage>
+      <Title>{communityName}</Title>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
@@ -166,7 +169,14 @@ export default function CommunityFeed() {
               }
 
               if (item === POST_SORT_BAR) {
-                return null;
+                return (
+                  <ContentGutters className="max-md:py-1 max-md:bg-background max-md:border-b-[0.5px]">
+                    <div className="md:py-2 flex-1 md:bg-background md:border-b-[0.5px]">
+                      <CommunitySortSelect />
+                    </div>
+                    <></>
+                  </ContentGutters>
+                );
                 // return (
                 //   <ContentGutters>
                 //     <XStack

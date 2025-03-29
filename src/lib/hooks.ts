@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { ToastOptions, useIonToast } from "@ionic/react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useMediaQuery } from "react-responsive";
 
 /**
@@ -53,4 +54,13 @@ export function useMedia() {
     }),
     [sm, md, lg, xl, xxl],
   );
+}
+
+export function useToast() {
+  const [present, dismiss] = useIonToast();
+
+  return useCallback(async (options: ToastOptions) => {
+    await dismiss();
+    return present(options);
+  }, []);
 }
