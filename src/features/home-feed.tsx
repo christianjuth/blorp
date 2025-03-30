@@ -26,6 +26,7 @@ import {
 import { FlashList } from "../components/flashlist";
 import { UserDropdown } from "../components/nav";
 import { HomeFilter, PostSortBar } from "../components/lemmy-sort";
+import { useMedia } from "../lib/hooks";
 
 const HEADER = "header";
 
@@ -45,6 +46,7 @@ const Post = memo((props: PostProps) => (
 ));
 
 export default function HomeFeed() {
+  const media = useMedia();
   const postSort = useFiltersStore((s) => s.postSort);
   const listingType = useFiltersStore((s) => s.listingType);
 
@@ -101,8 +103,8 @@ export default function HomeFeed() {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar data-tauri-drag-region>
+      <IonHeader className="bg-background dismissable">
+        <IonToolbar data-tauri-drag-region className="dismissable">
           <IonButtons slot="start">
             <HomeFilter />
           </IonButtons>
@@ -112,16 +114,17 @@ export default function HomeFeed() {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent scrollY={false}>
+      <IonContent scrollY={false} fullscreen={media.maxMd}>
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent />
         </IonRefresher>
 
         <FlashList
+          dismissHeaderTabBar={media.maxMd}
           estimatedItemSize={450}
           data={data}
           renderItem={({ item: post }) => <Post key={post.apId} {...post} />}
-          className="h-full ion-content-scroll-host"
+          className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) {
               fetchNextPage();
@@ -135,75 +138,4 @@ export default function HomeFeed() {
       </IonContent>
     </IonPage>
   );
-
-  // return (
-  //   <PostReportProvider>
-  //     <ContentGutters>
-  //       <View flex={1} />
-  //       <View>
-  //         <PopularCommunitiesSidebar />
-  //       </View>
-  //     </ContentGutters>
-
-  //     <List
-  //       ref={ref}
-  //       data={data}
-  //       renderItem={({ item }) => {
-  //         if (item === HEADER) {
-  //           return (
-  //             <ContentGutters>
-  //               <XStack
-  //                 flex={1}
-  //                 py="$2"
-  //                 ai="center"
-  //                 gap="$3"
-  //                 bg="$background"
-  //                 $md={{ dsp: "none" }}
-  //               >
-  //                 <PostSortBar />
-  //                 {hasNewPost && (
-  //                   <RefreshButton
-  //                     onPress={() => {
-  //                       scrollToTop.current.scrollToOffset();
-  //                       refresh();
-  //                     }}
-  //                   />
-  //                 )}
-  //               </XStack>
-  //               <></>
-  //             </ContentGutters>
-  //           );
-  //         }
-  //         return <Post {...item} />;
-  //       }}
-  //       onEndReached={() => {
-  //         if (hasNextPage && !isFetchingNextPage) {
-  //           fetchNextPage();
-  //         }
-  //       }}
-  //       onEndReachedThreshold={0.5}
-  //       keyExtractor={(item) => (_.isString(item) ? item : item.apId)}
-  //       getItemType={(item) => (_.isString(item) ? item : item.recyclingType)}
-  //       contentContainerStyle={{
-  //         paddingBottom: isWeb ? tabBar.height : 0,
-  //       }}
-  //       refreshing={isRefetching}
-  //       onRefresh={refresh}
-  //       scrollEventThrottle={16}
-  //       estimatedItemSize={475}
-  //       contentInset={{
-  //         top: !isWeb && media.md ? header.height : undefined,
-  //         bottom: !isWeb && media.md ? tabBar.height : undefined,
-  //       }}
-  //       scrollIndicatorInsets={{
-  //         top: !isWeb && media.md ? header.height : undefined,
-  //         bottom: !isWeb && media.md ? tabBar.height : undefined,
-  //       }}
-  //       automaticallyAdjustsScrollIndicatorInsets={false}
-  //       automaticallyAdjustContentInsets={false}
-  //       onScroll={isWeb ? undefined : scrollHandler}
-  //       stickyHeaderIndices={[0]}
-  //     />
-  //   </PostReportProvider>
-  // );
 }

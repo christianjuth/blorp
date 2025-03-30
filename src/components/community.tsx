@@ -21,7 +21,7 @@ export function Community({ communityView }: { communityView: CommunityView }) {
       className="flex flex-row pt-3 gap-2 items-center flex-1"
     >
       <Avatar className="h-9 w-9">
-        <AvatarImage src={community.icon} />
+        <AvatarImage src={community.icon} className="object-cover" />
         <AvatarFallback>{community.title.substring(0, 1)}</AvatarFallback>
       </Avatar>
 

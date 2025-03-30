@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  UIEventHandler,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   useVirtualizer,
   VirtualItem,
@@ -6,11 +13,11 @@ import {
   Range,
 } from "@tanstack/react-virtual";
 import { useIonRouter } from "@ionic/react";
-import { useRouteMatch } from "react-router";
 import { twMerge } from "tailwind-merge";
 
 import { RefObject } from "react";
 import { subscribeToScrollEvent } from "../lib/scroll-events";
+import _ from "lodash";
 
 interface ObserverOptions {
   root?: Element | null;
@@ -62,6 +69,7 @@ export function FlashList<T>({
   numColumns,
   scrollGutterBothEdges,
   className,
+  dismissHeaderTabBar,
 }: {
   data?: T[] | readonly T[];
   estimatedItemSize: number;
@@ -73,6 +81,7 @@ export function FlashList<T>({
   numColumns?: number;
   scrollGutterBothEdges?: boolean;
   className?: string;
+  dismissHeaderTabBar?: boolean;
 }) {
   const index = useRef(0);
   const offset = useRef(0);
@@ -172,6 +181,87 @@ export function FlashList<T>({
 
   const colWidth = 100 / (numColumns ?? 1);
 
+  const prevOffsetRef = useRef<number | null>(null);
+  const headerAnimateRef = useRef(0);
+  const tabBarAnimateRef = useRef(0);
+
+  const { tabBar, header, toolbar } = useMemo(() => {
+    const tabBar = document.querySelector("ion-tab-bar");
+
+    const header = document.querySelector<HTMLIonHeaderElement>(
+      "ion-header.dismissable",
+    );
+    const toolbar = document.querySelector<HTMLIonToolbarElement>(
+      "ion-toolbar.dismissable",
+    );
+
+    return {
+      tabBar,
+      header,
+      toolbar,
+    };
+  }, [focused]);
+
+  const throttledHandleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      if (prevOffsetRef.current === null) {
+        return;
+      }
+
+      const safeAreaTop = parseInt(
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--ion-safe-area-top")
+          .trim(),
+        10,
+      );
+
+      if (header && toolbar && tabBar) {
+        const headerHeight = _.isNumber(safeAreaTop)
+          ? header.offsetHeight - safeAreaTop
+          : header.offsetHeight;
+
+        const scrollOffset = Math.max(e.currentTarget.scrollTop, 0);
+        const delta = scrollOffset - prevOffsetRef.current;
+        prevOffsetRef.current = scrollOffset;
+
+        headerAnimateRef.current = _.clamp(
+          headerAnimateRef.current + delta / headerHeight,
+          0,
+          1,
+        );
+        tabBarAnimateRef.current = _.clamp(
+          headerAnimateRef.current + delta / tabBar.offsetHeight,
+          0,
+          1,
+        );
+
+        header.style.transform = `translate(0, -${
+          headerAnimateRef.current * headerHeight
+        }px)`;
+        toolbar.style.opacity = String((1 - headerAnimateRef.current) ** 3);
+        tabBar.style.transform = `translate(0, ${
+          tabBarAnimateRef.current * 100
+        }%)`;
+      }
+    },
+    [header, toolbar, tabBar],
+  );
+
+  useEffect(() => {
+    if (!focused || !dismissHeaderTabBar) {
+      prevOffsetRef.current = null;
+      headerAnimateRef.current = 0;
+      tabBarAnimateRef.current = 0;
+      if (header && tabBar && toolbar) {
+        header.style.transform = `translate(0)`;
+        toolbar.style.opacity = "1";
+        tabBar.style.transform = `translate(0)`;
+      }
+    } else {
+      prevOffsetRef.current = parentRef.current?.scrollTop ?? 0;
+    }
+  }, [focused, dismissHeaderTabBar, tabBar, header, toolbar]);
+
   return (
     <>
       <div
@@ -182,6 +272,7 @@ export function FlashList<T>({
           }
         }
         className={twMerge("overflow-auto overscroll-auto flex-1", className)}
+        onScroll={dismissHeaderTabBar ? throttledHandleScroll : undefined}
       >
         {/* The large inner element to hold all of the items */}
         <div

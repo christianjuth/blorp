@@ -67,6 +67,11 @@ const COMMUNITIES_STACK = [
   />,
   <Route
     exact
+    path="/communities/c/:communityName/sidebar"
+    component={CommunitySidebar}
+  />,
+  <Route
+    exact
     path="/communities/c/:communityName/posts/:post"
     component={Post}
   />,
@@ -81,6 +86,11 @@ const COMMUNITIES_STACK = [
 const INBOX_STACK = [
   <Route exact path="/inbox" component={Inbox} />,
   <Route exact path="/inbox/c/:communityName" component={CommunityFeed} />,
+  <Route
+    exact
+    path="/inbox/c/:communityName/sidebar"
+    component={CommunitySidebar}
+  />,
   <Route exact path="/inbox/c/:communityName/posts/:post" component={Post} />,
   <Route
     exact
