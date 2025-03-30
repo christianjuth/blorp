@@ -176,7 +176,14 @@ export function usePersonDetails({ actorId }: { actorId?: string }) {
 export function usePersonFeed({ actorId }: { actorId?: string }) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
-  const queryKey = [...queryKeyPrefix, "getPersonFeed", actorId];
+  const postSort = useFiltersStore((s) => s.postSort);
+
+  const queryKey = [
+    ...queryKeyPrefix,
+    "getPersonFeed",
+    actorId,
+    `sort-${postSort}`,
+  ];
 
   const cacheComments = useCommentsStore((s) => s.cacheComments);
 
@@ -210,6 +217,7 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
           person_id: person.person.id,
           limit,
           page: pageParam,
+          sort: postSort,
         },
         {
           signal,

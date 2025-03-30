@@ -11,7 +11,6 @@ import { FlashList } from "../components/flashlist";
 import { PostSortBar } from "../components/lemmy-sort";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useScrollToTop } from "@react-navigation/native";
-// import { CakeSlice } from "@tamagui/lucide-icons";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { createPersonSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
@@ -39,6 +38,12 @@ import {
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/src/components/ui/avatar";
+import { LuCakeSlice } from "react-icons/lu";
 
 const BANNER = "banner";
 const POST_SORT_BAR = "post-sort-bar";
@@ -159,45 +164,41 @@ export default function User() {
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
-        {/* <ContentGutters> */}
-        {/*   <View flex={1} /> */}
-        {/*   <YStack py="$4" br="$4" zIndex="$5" gap="$4" pos="absolute" w="100%"> */}
-        {/*     <Text fontWeight="bold" fontSize="$5"> */}
-        {/*       {personView.person.display_name ?? personView.person.name} */}
-        {/*     </Text> */}
+        <ContentGutters className="max-md:hidden">
+          <div className="flex-1" />
+          <div className="absolute py-4 flex flex-col gap-3 w-full">
+            <span>
+              {personView.person.display_name ?? personView.person.name}
+            </span>
 
-        {/*     <XStack ai="center" gap="$1.5"> */}
-        {/*       <CakeSlice size="$1" color="$color11" /> */}
-        {/*       <Text fontSize="$3" color="$color11"> */}
-        {/*         Created {dayjs(personView.person.published).format("ll")} */}
-        {/*       </Text> */}
-        {/*     </XStack> */}
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <LuCakeSlice />
+              <span>
+                Created {dayjs(personView.person.published).format("ll")}
+              </span>
+            </div>
 
-        {/*     {person?.bio && <Markdown markdown={person.bio} />} */}
+            {person?.bio && <Markdown>{person.bio}</Markdown>}
 
-        {/*     {counts && ( */}
-        {/*       <XStack> */}
-        {/*         <YStack gap="$1" flex={1}> */}
-        {/*           <Text fontWeight="bold" fontSize="$4"> */}
-        {/*             {abbriviateNumber(counts.post_count)} */}
-        {/*           </Text> */}
-        {/*           <Text fontSize="$3" color="$color11"> */}
-        {/*             Posts */}
-        {/*           </Text> */}
-        {/*         </YStack> */}
+            {counts && (
+              <div className="grid grid-cols-2 grid-flow-dense">
+                <span className="col-start-1">
+                  {abbriviateNumber(counts.post_count)}
+                </span>
+                <span className="col-start-1 text-sm text-muted-foreground">
+                  Posts
+                </span>
 
-        {/*         <YStack gap="$1" flex={1}> */}
-        {/*           <Text fontWeight="bold" fontSize="$4"> */}
-        {/*             {abbriviateNumber(counts.comment_count)} */}
-        {/*           </Text> */}
-        {/*           <Text fontSize="$3" color="$color11"> */}
-        {/*             Comments */}
-        {/*           </Text> */}
-        {/*         </YStack> */}
-        {/*       </XStack> */}
-        {/*     )} */}
-        {/*   </YStack> */}
-        {/* </ContentGutters> */}
+                <span className="col-start-2">
+                  {abbriviateNumber(counts.comment_count)}
+                </span>
+                <span className="col-start-2 text-sm text-muted-foreground">
+                  Comments
+                </span>
+              </div>
+            )}
+          </div>
+        </ContentGutters>
 
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent />
@@ -226,41 +227,40 @@ export default function User() {
             // }
 
             if (item === "banner") {
-              return null;
-              // return (
-              //   <ContentGutters>
-              //     <XStack ai="center" flex={1} $md={{ px: "$2" }}>
-              //       <Avatar size="$5" mr="$2">
-              //         <Avatar.Image src={person?.avatar} borderRadius="$12" />
-              //         <Avatar.Fallback
-              //           backgroundColor="$color8"
-              //           borderRadius="$12"
-              //           ai="center"
-              //           jc="center"
-              //         >
-              //           <Text fontSize="$7">
-              //             {person?.name?.substring(0, 1).toUpperCase()}
-              //           </Text>
-              //         </Avatar.Fallback>
-              //       </Avatar>
+              return (
+                <ContentGutters className="pt-4 pb-2">
+                  <div className="flex flex-row gap-2.5">
+                    <Avatar className="h-13 w-13">
+                      <AvatarImage src={person?.avatar} />
+                      <AvatarFallback className="text-xl">
+                        {person?.name?.substring(0, 1).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
 
-              //       <YStack flex={1} py="$4" gap="$1">
-              //         <Text fontWeight="bold" fontSize="$7">
-              //           {personView.person.display_name ?? personView.person.name}
-              //         </Text>
-              //         <Text>u/{personView.person.name}</Text>
-              //       </YStack>
-              //     </XStack>
-              //   </ContentGutters>
-              // );
+                    <div className="flex flex-col leading-4">
+                      <span className="font-bold text-lg">
+                        {personView.person.display_name ??
+                          personView.person.name}
+                      </span>
+                      <span>u/{personView.person.name}</span>
+                    </div>
+                  </div>
+                </ContentGutters>
+              );
             }
 
             if (item === "post-sort-bar") {
-              return null;
+              return (
+                <ContentGutters className="max-md:py-1 max-md:bg-background max-md:border-b-[0.5px]">
+                  <div className="md:py-2 flex-1 md:bg-background md:border-b-[0.5px]">
+                    <PostSortBar align="start" />
+                  </div>
+                  <></>
+                </ContentGutters>
+              );
               // return (
               //   <ContentGutters>
-              //     <XStack
-              //       flex={1}
+              //     <XStack flex={1}
               //       py="$2"
               //       gap="$3"
               //       bbc="$color3"

@@ -26,23 +26,20 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
             />
           </div>
 
-          <div className="absolute left-5 h-20 w-20 outline-white outline-2 -translate-y-1/2 bg-white rounded-full flex items-center justify-center">
+          <div className="absolute left-5 h-20 w-20 outline-background outline-2 -translate-y-1/2 bg-background rounded-full flex items-center justify-center">
             <img src={icon} className="h-20 w-20 object-cover rounded-full" />
           </div>
         </div>
       )}
 
       <div
-        className={twMerge("my-1", !hideBanner && "pl-28")}
-        // pl={hideBanner ? 0 : 120} ai="center" jc="space-between" my="$2"
+        className={twMerge(
+          "my-1.5 flex flex-row justify-between",
+          !hideBanner && "pl-28 pb-3",
+        )}
       >
-        <span
-          className="font-bold text-lg"
-          // fontWeight="bold" fontSize="$7" h="$3"
-        >
-          c/{slug}
-        </span>
-        {/* <CommunityJoinButton communityName={communityName} /> */}
+        <span className="font-bold text-lg">c/{slug}</span>
+        <CommunityJoinButton communityName={communityName} />
       </div>
     </div>
   );

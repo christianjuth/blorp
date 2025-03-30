@@ -35,6 +35,7 @@ const HomeFeed = lazy(() => import("~/src/features/home-feed"));
 const Post = lazy(() => import("~/src/features/post"));
 const SettingsPage = lazy(() => import("~/src/features/settings"));
 const CommunityFeed = lazy(() => import("~/src/features/community-feed"));
+const CommunitySidebar = lazy(() => import("~/src/features/community-sidebar"));
 const CommunitiesFeed = lazy(() => import("~/src/features/communities-feed"));
 const User = lazy(() => import("~/src/features/user"));
 const SavedFeed = lazy(() => import("~/src/features/saved-feed"));
@@ -42,6 +43,11 @@ const SavedFeed = lazy(() => import("~/src/features/saved-feed"));
 const HOME_STACK = [
   <Route exact path="/home" component={HomeFeed} />,
   <Route exact path="/home/c/:communityName" component={CommunityFeed} />,
+  <Route
+    exact
+    path="/home/c/:communityName/sidebar"
+    component={CommunitySidebar}
+  />,
   <Route exact path="/home/c/:communityName/posts/:post" component={Post} />,
   <Route
     exact

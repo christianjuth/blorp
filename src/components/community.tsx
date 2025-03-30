@@ -3,6 +3,11 @@ import { abbriviateNumber } from "~/src/lib/format";
 import { createCommunitySlug } from "../lib/lemmy/utils";
 import { useLinkContext } from "./nav/link-context";
 import { Link } from "react-router-dom";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/src/components/ui/avatar";
 
 export function Community({ communityView }: { communityView: CommunityView }) {
   const { community, counts } = communityView;
@@ -15,11 +20,11 @@ export function Community({ communityView }: { communityView: CommunityView }) {
       to={`${linkCtx.root}c/${slug}`}
       className="flex flex-row pt-3 gap-2 items-center flex-1"
     >
-      <div className="h-9 w-9 bg-zinc-300 dark:bg-zinc-700 flex items-center rounded-full">
-        <span className="text-center mx-auto">
-          {community.title.substring(0, 1)}
-        </span>
-      </div>
+      <Avatar className="h-9 w-9">
+        <AvatarImage src={community.icon} />
+        <AvatarFallback>{community.title.substring(0, 1)}</AvatarFallback>
+      </Avatar>
+
       <div className="flex flex-col">
         <span className="text-sm">c/{community.name}</span>
         <span className="text-xs text-zinc-500">

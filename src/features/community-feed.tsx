@@ -37,7 +37,11 @@ import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
-import { CommunityFilter, CommunitySortSelect } from "../components/lemmy-sort";
+import {
+  CommunityFilter,
+  CommunitySortSelect,
+  PostSortBar,
+} from "../components/lemmy-sort";
 import { Title } from "../components/title";
 
 const EMPTY_ARR = [];
@@ -151,7 +155,7 @@ export default function CommunityFeed() {
               if (item === SIDEBAR_MOBILE) {
                 return communityName ? (
                   <ContentGutters>
-                    {/* <SmallScreenSidebar communityName={communityName} /> */}
+                    <SmallScreenSidebar communityName={communityName} />
                     <></>
                   </ContentGutters>
                 ) : (
@@ -172,41 +176,21 @@ export default function CommunityFeed() {
                 return (
                   <ContentGutters className="max-md:py-1 max-md:bg-background max-md:border-b-[0.5px]">
                     <div className="md:py-2 flex-1 md:bg-background md:border-b-[0.5px]">
-                      <CommunitySortSelect />
+                      <PostSortBar align="start" />
                     </div>
                     <></>
                   </ContentGutters>
                 );
-                // return (
-                //   <ContentGutters>
-                //     <XStack
-                //       ai="center"
-                //       gap="$3"
-                //       flex={1}
-                //       py="$2"
-                //       bbc="$color3"
-                //       bbw={1}
-                //       $md={{
-                //         bbw: 0.5,
-                //         px: "$3",
-                //         py: "$1.5",
-                //       }}
-                //     >
-                //       <PostSortBar />
-                //       {hasNewPost && (
-                //         <RefreshButton
-                //           onPress={() => {
-                //             ref.current?.scrollToOffset({
-                //               offset: 0,
-                //             });
-                //             refetch();
-                //           }}
-                //         />
-                //       )}
-                //     </XStack>
-                //     <></>
-                //   </ContentGutters>
-                // );
+                // {hasNewPost && (
+                //   <RefreshButton
+                //     onPress={() => {
+                //       ref.current?.scrollToOffset({
+                //         offset: 0,
+                //       });
+                //       refetch();
+                //     }}
+                //   />
+                // )}
               }
 
               return <Post {...item} />;

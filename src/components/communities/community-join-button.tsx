@@ -1,11 +1,11 @@
-import { ButtonProps } from "tamagui";
+import { IonButton } from "@ionic/react";
 import { useFollowCommunity } from "~/src/lib/lemmy/index";
 import { useAuth } from "~/src/stores/auth";
 import { useCommunitiesStore } from "~/src/stores/communities";
-import { Button } from "~/src/components/ui/button";
 
-interface Props extends ButtonProps {
+interface Props {
   communityName: string | undefined;
+  className?: string;
 }
 
 export function CommunityJoinButton({ communityName, ...props }: Props) {
@@ -34,13 +34,10 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
   }
 
   return (
-    <Button
-      bg="$accentColor"
-      br="$12"
-      fontWeight="bold"
-      size="$3"
+    <IonButton
+      size="small"
       {...props}
-      onPress={() => {
+      onClick={() => {
         if (communityView) {
           follow.mutate({
             community: communityView.community,
@@ -50,6 +47,6 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
       }}
     >
       {copy}
-    </Button>
+    </IonButton>
   );
 }

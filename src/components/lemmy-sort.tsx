@@ -65,7 +65,7 @@ export function CommunitySortSelect() {
       ].map((opt) => ({
         value: opt.value,
         text: opt.label,
-        onClick: () => {},
+        onClick: () => setCommunitySort(opt.value),
       })),
     [],
   );
@@ -158,7 +158,13 @@ export function CommentSortSelect() {
   // );
 }
 
-export function PostSortBar({ hideOnGtMd }: { hideOnGtMd?: boolean }) {
+export function PostSortBar({
+  hideOnGtMd,
+  align = "end",
+}: {
+  hideOnGtMd?: boolean;
+  align?: "start" | "end";
+}) {
   const postSort = useFiltersStore((s) => s.postSort);
   const setPostSort = useFiltersStore((s) => s.setPostSort);
 
@@ -209,10 +215,10 @@ export function PostSortBar({ hideOnGtMd }: { hideOnGtMd?: boolean }) {
 
   return (
     <ActionMenu
-      align="end"
+      align={align}
       actions={actions}
       trigger={
-        <div className="flex flex-row items-center gap-1 h-7.5 px-4 border rounded-full text-sm text-muted-foreground">
+        <div className="flex flex-row items-center gap-1 h-7.5 px-3 border rounded-full text-sm text-muted-foreground">
           <span className="capitalize text-sort">
             {actions.find(({ value }) => value === postSort)?.text}
           </span>
