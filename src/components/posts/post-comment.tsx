@@ -198,7 +198,7 @@ export function PostComment({
       />
 
       <div
-        className="border-l-2 px-2 ml-2 pt-px"
+        className="border-l-2 pl-1.5 ml-2 pt-px"
         style={{ borderColor: color }}
       >
         {comment.deleted && <span className="italic">deleted</span>}

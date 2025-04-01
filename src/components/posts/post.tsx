@@ -116,6 +116,7 @@ export function getPostProps(
 
 export interface PostProps extends ReturnType<typeof getPostProps> {
   detailView?: boolean;
+  onNavigate?: () => any;
 }
 
 // export function DetailPostCard(props: PostProps) {
@@ -237,6 +238,7 @@ export function FeedPostCard(props: PostProps) {
     displayUrl,
     body,
     detailView,
+    onNavigate,
   } = props;
 
   const [pressed, setPressed] = useState(false);
@@ -260,7 +262,7 @@ export function FeedPostCard(props: PostProps) {
     `${linkCtx.root}c/${communitySlug}/posts/${encodedApId}` as const;
 
   const showImage = type === "image" && thumbnail && !deleted;
-  const showArticle = type === "article" && thumbnail && !deleted;
+  const showArticle = type === "article" && !deleted;
 
   const patchPost = usePostsStore((s) => s.patchPost);
 
@@ -286,6 +288,7 @@ export function FeedPostCard(props: PostProps) {
 
       <Link
         to={postDetailsLink}
+        onClickCapture={onNavigate}
         // onPressIn={() => setPressed(true)}
         // onPressOut={() => setPressed(false)}
         // onLongPress={thumbnail ? () => shareImage(thumbnail) : undefined}

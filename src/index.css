@@ -172,7 +172,7 @@ ion-list.list-inset {
 }
 
 * {
-  scrollbar-color: var(--color7) transparent;
+  scrollbar-color: var(--secondary) transparent;
 }
 
 /* ::-webkit-scrollbar { */
@@ -194,6 +194,16 @@ ion-list.list-inset {
 html.plt-mobileweb ion-toolbar,
 html.plt-desktop ion-toolbar {
   --min-height: 55px;
+}
+
+ion-toolbar ion-buttons {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+ion-toolbar ion-searchbar {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 @media screen and (width >= 48rem) {

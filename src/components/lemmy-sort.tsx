@@ -275,7 +275,7 @@ export function HomeFilter() {
       align="start"
       actions={LISTING_TYPE_OPTIONS}
       trigger={
-        <div className="flex flex-row items-center gap-0.5">
+        <div className="flex flex-row items-center gap-0.5 text-lg">
           <span className="font-black capitalize">{listingType}</span>
           <FaCaretDown className="text-muted-foreground" />
         </div>
@@ -331,7 +331,7 @@ export function CommunityFilter() {
       align="start"
       actions={LISTING_TYPE_OPTIONS}
       trigger={
-        <div className="flex flex-row items-center gap-0.5">
+        <div className="flex flex-row items-center gap-0.5 text-lg">
           <span className="font-black capitalize">{listingType}</span>
           <FaCaretDown className="text-muted-foreground" />
         </div>

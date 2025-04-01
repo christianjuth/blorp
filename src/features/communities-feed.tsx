@@ -1,6 +1,6 @@
 import { useListCommunities } from "~/src/lib/lemmy/index";
 import { Community } from "~/src/components/community";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import { useFiltersStore } from "~/src/stores/filters";
 import { ContentGutters } from "~/src/components/gutters";
 import { FlashList } from "~/src/components/flashlist";
@@ -13,9 +13,11 @@ import {
   IonPage,
   IonRefresher,
   IonRefresherContent,
+  IonSearchbar,
   IonTitle,
   IonToolbar,
   RefresherEventDetail,
+  useIonRouter,
 } from "@ionic/react";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
@@ -36,6 +38,9 @@ const MemoedListItem = memo(
 );
 
 export default function Communities() {
+  const router = useIonRouter();
+  const [search, setSearch] = useState("");
+
   const communitySort = useFiltersStore((s) => s.communitySort);
   const listingType = useFiltersStore((s) => s.communitiesListingType);
 
@@ -84,6 +89,18 @@ export default function Communities() {
           <IonButtons slot="start">
             <CommunityFilter />
           </IonButtons>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              router.push(`/communities/s?q=${search}`);
+            }}
+          >
+            <IonSearchbar
+              className="max-w-md mx-auto"
+              value={search}
+              onIonInput={(e) => setSearch(e.detail.value ?? "")}
+            />
+          </form>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>
@@ -96,6 +113,7 @@ export default function Communities() {
 
         <ContentGutters className="h-full max-md:contents">
           <FlashList<CommunityView>
+            key={communitySort + listingType}
             className="h-full ion-content-scroll-host"
             numColumns={numCols}
             data={communities}

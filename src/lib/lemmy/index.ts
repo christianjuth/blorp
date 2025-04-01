@@ -413,6 +413,7 @@ export function useComments(form: GetComments) {
 
   const cacheComments = useCommentsStore((s) => s.cacheComments);
 
+  const prevPageParam = useRef(-1);
   const prevPage = useRef("");
 
   return useThrottledInfiniteQuery({
@@ -433,7 +434,7 @@ export function useComments(form: GetComments) {
 
       const page = comments.map((c) => c.comment.ap_id).join();
 
-      if (page === prevPage.current) {
+      if (page === prevPage.current && pageParam !== prevPageParam.current) {
         return {
           comments: [],
           nextPage: null,
@@ -441,6 +442,7 @@ export function useComments(form: GetComments) {
       }
 
       prevPage.current = page;
+      prevPageParam.current = pageParam;
 
       cacheComments(comments.map(flattenComment));
 

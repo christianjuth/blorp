@@ -10,7 +10,7 @@ import {
 // import { CommunityBanner } from "../components/communities/community-banner";
 import { ContentGutters } from "../components/gutters";
 import { useScrollToTop } from "@react-navigation/native";
-import { memo, useEffect, useMemo, useRef } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 // import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
 import { useCommunity, useMostRecentPost, usePosts } from "../lib/lemmy";
@@ -27,9 +27,11 @@ import {
   IonPage,
   IonRefresher,
   IonRefresherContent,
+  IonSearchbar,
   IonTitle,
   IonToolbar,
   RefresherEventDetail,
+  useIonRouter,
 } from "@ionic/react";
 import { useParams } from "react-router";
 import { CommunityBanner } from "../components/communities/community-banner";
@@ -43,6 +45,7 @@ import {
   PostSortBar,
 } from "../components/lemmy-sort";
 import { Title } from "../components/title";
+import { useLinkContext } from "../components/nav/link-context";
 
 const EMPTY_ARR = [];
 
@@ -64,6 +67,10 @@ const Post = memo((props: PostProps) => (
 ));
 
 export default function CommunityFeed() {
+  const linkCtx = useLinkContext();
+  const router = useIonRouter();
+  const [search, setSearch] = useState("");
+
   const { communityName } = useParams<{ communityName: string }>();
 
   const posts = usePosts({
@@ -135,7 +142,19 @@ export default function CommunityFeed() {
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>
-          <IonTitle data-tauri-drag-region>{communityName}</IonTitle>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              router.push(`${linkCtx.root}c/${communityName}/s?q=${search}`);
+            }}
+          >
+            <IonSearchbar
+              className="max-w-md mx-auto"
+              placeholder={`Search ${communityName}`}
+              value={search}
+              onIonInput={(e) => setSearch(e.detail.value ?? "")}
+            />
+          </form>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

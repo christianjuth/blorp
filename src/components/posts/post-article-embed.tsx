@@ -1,6 +1,6 @@
-import { Image } from "~/src/components/image";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { isTauri } from "~/src/lib/tauri";
+import { cn } from "~/src/lib/utils";
 
 export function PostArticleEmbed({
   url,
@@ -34,16 +34,14 @@ export function PostArticleEmbed({
         />
       )}
       {url && (
-        <span
-          // p="$3"
-          // bg="$color5"
-          // color="$color11"
-          // numberOfLines={1}
-          // fontSize="$4"
-          className="p-3 bg-zinc-200 dark:bg-zinc-800 truncate text-ellipsis rounded-b-xl text-sm text-zinc-500"
+        <div
+          className={cn(
+            "p-3 bg-zinc-200 dark:bg-zinc-800 truncate text-ellipsis rounded-b-xl text-sm text-zinc-500",
+            !thumbnail && "rounded-t-xl",
+          )}
         >
-          {displayUrl ?? url}
-        </span>
+          <span className="line-clamp-1">{displayUrl ?? url}</span>
+        </div>
       )}
     </a>
   );

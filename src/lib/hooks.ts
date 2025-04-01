@@ -1,5 +1,5 @@
 import { ToastOptions, useIonToast } from "@ionic/react";
-import { useCallback, useEffect, useMemo } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 
 /**
@@ -63,4 +63,35 @@ export function useToast() {
     await dismiss();
     return present(options);
   }, []);
+}
+
+interface ObserverOptions {
+  root?: Element | null;
+  rootMargin?: string;
+  threshold?: number | number[];
+}
+
+export function useElementHadFocus<T extends HTMLElement | null>(
+  ref: RefObject<T>,
+  options: ObserverOptions = { root: null, rootMargin: "0px", threshold: 0.1 },
+): boolean {
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      options,
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [ref, options.root, options.rootMargin, options.threshold]);
+
+  return isVisible;
 }

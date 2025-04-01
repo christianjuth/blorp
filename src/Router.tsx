@@ -39,10 +39,15 @@ const CommunitySidebar = lazy(() => import("~/src/features/community-sidebar"));
 const CommunitiesFeed = lazy(() => import("~/src/features/communities-feed"));
 const User = lazy(() => import("~/src/features/user"));
 const SavedFeed = lazy(() => import("~/src/features/saved-feed"));
+const Search = lazy(() => import("~/src/features/search"));
 
 const HOME_STACK = [
   <Route exact path="/home" component={HomeFeed} />,
+  <Route exact path="/home/s" component={Search} />,
   <Route exact path="/home/c/:communityName" component={CommunityFeed} />,
+  <Route exact path="/home/c/:communityName/s">
+    <Search defaultType="communities" />
+  </Route>,
   <Route
     exact
     path="/home/c/:communityName/sidebar"
@@ -60,11 +65,17 @@ const HOME_STACK = [
 
 const COMMUNITIES_STACK = [
   <Route exact path="/communities/" component={CommunitiesFeed} />,
+  <Route exact path="/communities/s">
+    <Search defaultType="communities" />
+  </Route>,
   <Route
     exact
     path="/communities/c/:communityName"
     component={CommunityFeed}
   />,
+  <Route exact path="/communities/c/:communityName/s">
+    <Search defaultType="communities" />
+  </Route>,
   <Route
     exact
     path="/communities/c/:communityName/sidebar"
@@ -85,7 +96,11 @@ const COMMUNITIES_STACK = [
 
 const INBOX_STACK = [
   <Route exact path="/inbox" component={Inbox} />,
+  <Route exact path="/inbox/s" component={Search} />,
   <Route exact path="/inbox/c/:communityName" component={CommunityFeed} />,
+  <Route exact path="/inbox/c/:communityName/s">
+    <Search defaultType="communities" />
+  </Route>,
   <Route
     exact
     path="/inbox/c/:communityName/sidebar"

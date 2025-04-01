@@ -40,6 +40,7 @@ export function PostByline({
   creatorAvatar,
   communitySlug,
   published,
+  onNavigate,
 }: {
   id: number;
   apId: string;
@@ -54,6 +55,7 @@ export function PostByline({
   creatorName: string;
   communitySlug: string;
   published: string;
+  onNavigate?: () => any;
 }) {
   const [alrt] = useIonAlert();
   const toast = useToast();
@@ -175,11 +177,18 @@ export function PostByline({
       </Avatar>
 
       <div className="flex flex-col">
-        <Link to={`${linkCtx.root}c/${communitySlug}`} className="text-xs">
+        <Link
+          to={`${linkCtx.root}c/${communitySlug}`}
+          className="text-xs"
+          onClickCapture={onNavigate}
+        >
           c/{communitySlug}
         </Link>
         <div className="flex flex-row text-xs text-muted-foreground">
-          <Link to={`${linkCtx.root}u/${encodedCreatorApId}`}>
+          <Link
+            to={`${linkCtx.root}u/${encodedCreatorApId}`}
+            onClickCapture={onNavigate}
+          >
             u/{creatorName}
           </Link>
 
