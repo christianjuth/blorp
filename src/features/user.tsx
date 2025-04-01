@@ -28,9 +28,12 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
+  IonLabel,
   IonPage,
   IonRefresher,
   IonRefresherContent,
+  IonSegment,
+  IonSegmentButton,
   IonTitle,
   IonToolbar,
   RefresherEventDetail,
@@ -80,6 +83,7 @@ const Comment = memo(function Comment({ path }: { path: string }) {
     <ContentGutters>
       <Link
         to={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
+        className="py-2 border-b flex-1"
       >
         <Markdown>{comment.content}</Markdown>
       </Link>
@@ -133,7 +137,7 @@ export default function User() {
       .filter(isNotNull);
 
     return postViews;
-  }, [data?.pages, postCache]);
+  }, [data?.pages, postCache, type]);
 
   if (!personView) {
     return null;
@@ -252,8 +256,29 @@ export default function User() {
             if (item === "post-sort-bar") {
               return (
                 <ContentGutters className="max-md:py-1 max-md:bg-background max-md:border-b-[0.5px]">
-                  <div className="md:py-2 flex-1 md:bg-background md:border-b-[0.5px]">
-                    <PostSortBar align="start" />
+                  <div className="flex flex-row h-12 border-b-[0.5px] flex-1 items-center">
+                    <div>
+                      <IonSegment
+                        value={type}
+                        onIonChange={(e) =>
+                          setType(e.detail.value as "posts" | "comments")
+                        }
+                      >
+                        <IonSegmentButton value="posts">
+                          <IonLabel>Posts</IonLabel>
+                        </IonSegmentButton>
+                        <IonSegmentButton value="comments">
+                          <IonLabel>Comments</IonLabel>
+                        </IonSegmentButton>
+                      </IonSegment>
+                    </div>
+
+                    {type === "posts" && (
+                      <>
+                        <div className="w-[.5px] h-2/3 bg-border mx-3 my-auto" />
+                        <PostSortBar />
+                      </>
+                    )}
                   </div>
                   <></>
                 </ContentGutters>

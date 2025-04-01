@@ -56,7 +56,7 @@ const HOME_STACK = [
   <Route exact path="/home/c/:communityName/posts/:post" component={Post} />,
   <Route
     exact
-    path="/home/c/:communityName/posts/:post/comment/:comment"
+    path="/home/c/:communityName/posts/:post/comments/:comment"
     component={Post}
   />,
   <Route exact path="/home/u/:userId" component={User} />,
