@@ -1,5 +1,4 @@
 import type { StorybookConfig } from "@storybook/react-vite";
-import path from "path";
 
 import tsconfigPaths from "vite-tsconfig-paths";
 
@@ -12,12 +11,11 @@ const config: StorybookConfig = {
     "@storybook/addon-interactions",
     "@storybook/addon-a11y",
   ],
-  framework: "@storybook/react-native-web-vite",
+  framework: "@storybook/react-vite",
   async viteFinal(config) {
-    config.plugins?.unshift(tsconfigPaths());
-    config.resolve!.alias = {
-      one: path.resolve(__dirname, "../test-utils/mocks/one.js"),
-    };
+    // @ts-expect-error
+    const tailwindcss = (await import("@tailwindcss/vite")).default;
+    config.plugins?.unshift(tsconfigPaths(), tailwindcss());
     return config;
   },
 };

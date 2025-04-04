@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-import { Video } from "react-native-video";
-import { isWeb, View, XStack, YStack } from "tamagui";
+// import { Video } from "react-native-video";
 import { Image } from "../image";
 import { extractLoopsVideoSrc } from "~/src/lib/html-parsing";
-import { Link } from "one";
-import { Play } from "@tamagui/lucide-icons";
 import { isTauri } from "~/src/lib/tauri";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 
@@ -36,72 +33,74 @@ export function PostLoopsEmbed({
     getVideo(url).then(setSrc);
   }, [url]);
 
-  const linkOut = isWeb && !isTauri();
+  return null;
 
-  const content = (
-    <XStack jc="center" pos="relative" bg="$gray1">
-      <YStack
-        flex={1}
-        aspectRatio={AR}
-        bg="black"
-        $md={{
-          mx: "$-3",
-          br: 0,
-        }}
-        $gtMd={{
-          maxWidth: MAX_WIDTH_GT_MD * AR,
-          maxHeight: MAX_WIDTH_GT_MD,
-        }}
-      >
-        {!src && thumbnail && (
-          <Image
-            imageUrl={thumbnail}
-            style={{
-              height: "100%",
-              width: "100%",
-            }}
-          />
-        )}
-        {!linkOut && src && (
-          <Video
-            style={{
-              height: "100%",
-              width: "100%",
-            }}
-            source={{
-              uri: src,
-            }}
-            controls
-            resizeMode="contain"
-            paused={!autoPlay}
-          />
-        )}
-      </YStack>
+  // const linkOut = isWeb && !isTauri();
 
-      {linkOut && (
-        <View
-          br={99999}
-          p="$4"
-          bg="$color05"
-          pos="absolute"
-          t="50%"
-          l="50%"
-          transform={[{ translateX: "-50%" }, { translateY: "-50%" }]}
-          hoverStyle={{
-            opacity: 0.8,
-          }}
-        >
-          <Play color="white" size="$3" />
-        </View>
-      )}
-    </XStack>
-  );
+  // const content = (
+  //   <XStack jc="center" pos="relative" bg="$gray1">
+  //     <YStack
+  //       flex={1}
+  //       aspectRatio={AR}
+  //       bg="black"
+  //       $md={{
+  //         mx: "$-3",
+  //         br: 0,
+  //       }}
+  //       $gtMd={{
+  //         maxWidth: MAX_WIDTH_GT_MD * AR,
+  //         maxHeight: MAX_WIDTH_GT_MD,
+  //       }}
+  //     >
+  //       {!src && thumbnail && (
+  //         <Image
+  //           imageUrl={thumbnail}
+  //           style={{
+  //             height: "100%",
+  //             width: "100%",
+  //           }}
+  //         />
+  //       )}
+  //       {!linkOut && src && (
+  //         <Video
+  //           style={{
+  //             height: "100%",
+  //             width: "100%",
+  //           }}
+  //           source={{
+  //             uri: src,
+  //           }}
+  //           controls
+  //           resizeMode="contain"
+  //           paused={!autoPlay}
+  //         />
+  //       )}
+  //     </YStack>
 
-  return linkOut ? (
-    <Link href={url as any} target="_blank">
-      {content}
-    </Link>
-  ) : (
-    content
-  );
+  //     {linkOut && (
+  //       <View
+  //         br={99999}
+  //         p="$4"
+  //         bg="$color05"
+  //         pos="absolute"
+  //         t="50%"
+  //         l="50%"
+  //         transform={[{ translateX: "-50%" }, { translateY: "-50%" }]}
+  //         hoverStyle={{
+  //           opacity: 0.8,
+  //         }}
+  //       >
+  //         <Play color="white" size="$3" />
+  //       </View>
+  //     )}
+  //   </XStack>
+  // );
+
+  // return linkOut ? (
+  //   <Link href={url as any} target="_blank">
+  //     {content}
+  //   </Link>
+  // ) : (
+  //   content
+  // );
 }

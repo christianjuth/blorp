@@ -1,4 +1,9 @@
-@import "tailwindcss";
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+/* @import "tailwindcss/preflight.css" layer(base); */
+@import "./tailwind-preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+
 @plugin "@tailwindcss/typography";
 
 /* Core CSS required for Ionic components to work properly */
@@ -113,7 +118,8 @@
   }
 }
 
-ion-toolbar::part(container) {
+ion-toolbar.ios.ios::part(container),
+ion-toolbar.md.md {
   @apply max-w-[1050px] mx-auto px-2.5 md:px-6;
 }
 
@@ -138,13 +144,6 @@ ion-toolbar.md {
   padding-inline-start: 20px;
   -webkit-padding-end: 20px;
   padding-inline-end: 20px;
-}
-
-ion-tab-bar {
-  padding-right: max(var(--safe-area-inset-right, 0px), var(--ion-safe-area-right, 0px)) !important;
-  padding-bottom: max(var(--safe-area-inset-bottom, 0px), var(--ion-safe-area-bottom, 0px)) !important;
-  padding-left: max(var(--safe-area-inset-left, 0px), var(--ion-safe-area-left, 0px)) !important;
-  border-top: var(--border) !important;
 }
 
 ion-list {
@@ -191,8 +190,8 @@ ion-list.list-inset {
   margin-bottom: 0.8em;
 }
 
-html.plt-mobileweb ion-toolbar,
-html.plt-desktop ion-toolbar {
+html.plt-mobileweb ion-header ion-toolbar:first-of-type,
+html.plt-desktop ion-header ion-toolbar:first-of-type {
   --min-height: 55px;
 }
 
@@ -253,16 +252,31 @@ ion-toolbar ion-searchbar {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
+/* @layer base { */
+/*   body { */
+/*     @apply bg-background text-foreground; */
+/*   } */
+/* } */
 
 .prose * {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.action-sheet-button-inner {
+  justify-content: flex-start !important;
+}
+
+
+/* Material Design 3 */
+.header-md.header-md {
+  box-shadow: none;
+}
+.searchbar-input-container.searchbar-input-container {
+  --border-radius: 9999px;
+}
+ion-button.md.md {
+  --box-shadow: none;
+}
+
+@import './markdown-editor.css';

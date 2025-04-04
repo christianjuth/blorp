@@ -13,15 +13,15 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchAutoHide: false,
     },
-    SafeArea: {
-      enabled: true,
-      customColorsForSystemBars: false,
-      statusBarColor: "#00000000",
-      statusBarContent: "light",
-      navigationBarColor: "#00000000",
-      navigationBarContent: "light",
-      offset: 0,
-    },
+    // SafeArea: {
+    //   enabled: true,
+    //   customColorsForSystemBars: true,
+    //   statusBarColor: "#000000",
+    //   statusBarContent: "light",
+    //   navigationBarColor: "#000000",
+    //   navigationBarContent: "light",
+    //   offset: 0,
+    // },
     CapacitorSQLite: {
       iosDatabaseLocation: "Library/CapacitorDatabase",
       iosIsEncryption: false,

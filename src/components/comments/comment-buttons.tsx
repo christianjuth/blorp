@@ -1,4 +1,3 @@
-// import { ArrowBigUp, ArrowBigDown, Reply } from "@tamagui/lucide-icons";
 import { FlattenedComment, useLikeComment } from "~/src/lib/lemmy/index";
 import { voteHaptics } from "~/src/lib/voting";
 import { useRequireAuth } from "../auth-context";

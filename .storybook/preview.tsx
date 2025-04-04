@@ -1,9 +1,7 @@
 import * as React from "react";
 import type { Preview } from "@storybook/react";
 import { Providers } from "../src/components/providers";
-import { NavigationContainer } from "@react-navigation/native";
-import "../app/_layout.css";
-import "../app/tamagui.css";
+import "../src/index.css";
 
 const preview: Preview = {
   parameters: {
@@ -15,11 +13,9 @@ const preview: Preview = {
     },
   },
   decorators: (Story) => (
-    <NavigationContainer>
-      <Providers>
-        <Story />
-      </Providers>
-    </NavigationContainer>
+    <Providers>
+      <Story />
+    </Providers>
   ),
 };
 

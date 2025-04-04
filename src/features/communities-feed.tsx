@@ -96,6 +96,7 @@ export default function Communities() {
             }}
           >
             <IonSearchbar
+              mode="ios"
               className="max-w-md mx-auto"
               value={search}
               onIonInput={(e) => setSearch(e.detail.value ?? "")}

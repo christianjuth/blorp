@@ -1,38 +1,58 @@
-import { ArrowUp } from "@tamagui/lucide-icons";
-import { Button as TButton, ButtonProps, XStack, Text } from "tamagui";
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
 
-export function Button({ children, ...props }: ButtonProps) {
+import { cn } from "~/src/lib/utils";
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  {
+    variants: {
+      variant: {
+        default: "bg-brand shadow-xs hover:bg-brand/90",
+        destructive:
+          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        outline:
+          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+        secondary:
+          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+        ghost:
+          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-9 px-4 py-2 has-[>svg]:px-3",
+        sm: "h-8 gap-1.5 px-3 has-[>svg]:px-2.5",
+        lg: "h-10 px-6 has-[>svg]:px-4",
+        icon: "size-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  },
+);
+
+function Button({
+  className,
+  variant,
+  size,
+  asChild = false,
+  ...props
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+  }) {
+  const Comp = asChild ? Slot : "button";
+
   return (
-    <TButton bg="$accentColor" color="white" br={9999} {...props}>
-      {children}
-    </TButton>
-  );
-}
-
-interface RefreshButtonProps extends ButtonProps {
-  hideOnGtMd?: boolean;
-}
-
-export function RefreshButton({ hideOnGtMd, ...props }: RefreshButtonProps) {
-  return (
-    <XStack
-      tag="button"
-      gap="$1.5"
-      ai="center"
-      bw={1}
-      bc="$accentColor"
-      br={99999}
-      py={7}
-      px={13}
-      $gtMd={{
-        display: hideOnGtMd ? "none" : "flex",
-      }}
+    <Comp
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    >
-      <Text col="$accentColor" fontSize="$3">
-        New posts
-      </Text>
-      <ArrowUp size={15} col="$accentColor" />
-    </XStack>
+    />
   );
 }
+
+export { Button, buttonVariants };

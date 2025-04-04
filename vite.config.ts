@@ -8,9 +8,9 @@ import vitePluginChecker from "vite-plugin-checker";
 export default defineConfig(({ mode }) => ({
   plugins: [
     tsconfigPaths(),
-    // vitePluginChecker({
-    //   typescript: true,
-    // }),
+    vitePluginChecker({
+      typescript: true,
+    }),
     tailwindcss(),
     react(),
   ],

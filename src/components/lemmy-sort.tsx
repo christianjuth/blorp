@@ -4,14 +4,15 @@ import {
   ListingType,
   PostSortType,
 } from "lemmy-js-client";
-import FontAwesome6 from "@react-native-vector-icons/fontawesome6";
 import { useFiltersStore } from "~/src/stores/filters";
 import { ComponentProps, useMemo } from "react";
 import { useAuth } from "../stores/auth";
 import { useMedia } from "../lib/hooks";
-import { ActionMenu } from "./action-menu";
-import { FaCaretDown } from "react-icons/fa";
+import { ActionMenu, ActionMenuProps } from "./action-menu";
+
 import { TbArrowsDownUp } from "react-icons/tb";
+import { LuFlame } from "react-icons/lu";
+import { FaPersonRunning, FaCaretDown } from "react-icons/fa6";
 
 export function CommunitySortSelect() {
   const communitySort = useFiltersStore((s) => s.communitySort);
@@ -73,6 +74,7 @@ export function CommunitySortSelect() {
   return (
     <ActionMenu
       align="start"
+      header="Community Sort"
       actions={COMMUNITY_SORT_OPTIONS}
       trigger={
         <div className="flex flex-row items-center gap-1 h-7.5 px-4 border rounded-full text-sm text-muted-foreground">
@@ -158,6 +160,34 @@ export function CommentSortSelect() {
   // );
 }
 
+function formatPostSort(sort: PostSortType) {
+  switch (sort) {
+    case "TopSixHour":
+      return "Top 6 Hours";
+    case "TopTwelveHour":
+      return "Top 12 Hours";
+    case "TopThreeMonths":
+      return "Top 3 Months";
+    case "TopSixMonths":
+      return "Top 6 Months";
+    case "TopNineMonths":
+      return "Top 9 Months";
+    default:
+      return sort.replace(/([A-Z])/g, " $1");
+  }
+}
+
+function getIconForSort(sort: PostSortType) {
+  switch (sort) {
+    case "Hot":
+      return <LuFlame />;
+    case "Active":
+      return <FaPersonRunning />;
+    default:
+      return <TbArrowsDownUp />;
+  }
+}
+
 export function PostSortBar({
   hideOnGtMd,
   align = "end",
@@ -170,59 +200,105 @@ export function PostSortBar({
 
   const media = useMedia();
 
+  const actions: ActionMenuProps["actions"] = useMemo(
+    () => [
+      {
+        text: "Active",
+        onClick: () => setPostSort("Active"),
+      },
+      {
+        text: "Hot",
+        onClick: () => setPostSort("Hot"),
+      },
+      {
+        text: "Top",
+        actions: [
+          {
+            text: "Hour",
+            onClick: () => setPostSort("TopHour"),
+          },
+          {
+            text: "6 Hours",
+            onClick: () => setPostSort("TopSixHour"),
+          },
+          {
+            text: "12 Hours",
+            onClick: () => setPostSort("TopTwelveHour"),
+          },
+          {
+            text: "Day",
+            onClick: () => setPostSort("TopDay"),
+          },
+          {
+            text: "Week",
+            onClick: () => setPostSort("TopWeek"),
+          },
+          {
+            text: "Month",
+            onClick: () => setPostSort("TopMonth"),
+          },
+          {
+            text: "3 Months",
+            onClick: () => setPostSort("TopThreeMonths"),
+          },
+          {
+            text: "6 Months",
+            onClick: () => setPostSort("TopSixMonths"),
+          },
+          {
+            text: "9 Months",
+            onClick: () => setPostSort("TopNineMonths"),
+          },
+          {
+            text: "Year",
+            onClick: () => setPostSort("TopYear"),
+          },
+          {
+            text: "All Time",
+            onClick: () => setPostSort("TopAll"),
+          },
+        ],
+      },
+      {
+        text: "New",
+        onClick: () => setPostSort("New"),
+      },
+      {
+        text: "Controversial",
+        onClick: () => setPostSort("Controversial"),
+      },
+      {
+        text: "Scaled",
+        onClick: () => setPostSort("Scaled"),
+      },
+      {
+        text: "Most Comments",
+        onClick: () => setPostSort("MostComments"),
+      },
+      {
+        text: "New Comments",
+        onClick: () => setPostSort("NewComments"),
+      },
+      {
+        text: "Old",
+        onClick: () => setPostSort("Old"),
+      },
+    ],
+    [],
+  );
+
   if (hideOnGtMd && media.md) {
     return null;
   }
 
-  const actions = useMemo(
-    () =>
-      [
-        {
-          label: "Active",
-          value: "Active",
-        } as const,
-        {
-          label: "Hot",
-          value: "Hot",
-        } as const,
-        {
-          label: "Top Day",
-          value: "TopDay",
-        } as const,
-        {
-          label: "Top Week",
-          value: "TopWeek",
-        } as const,
-        {
-          label: "New",
-          value: "New",
-        } as const,
-        {
-          label: "Controversial",
-          value: "Controversial",
-        } as const,
-        {
-          label: "Old",
-          value: "Old",
-        } as const,
-      ].map((opt) => ({
-        text: opt.label,
-        value: opt.value,
-        onClick: () => setPostSort(opt.value),
-      })),
-    [],
-  );
-
   return (
     <ActionMenu
+      header="Sort by"
       align={align}
       actions={actions}
       trigger={
-        <div className="flex flex-row items-center gap-1 h-7.5 px-3 border rounded-full text-sm text-muted-foreground">
-          <span className="capitalize text-sort">
-            {actions.find(({ value }) => value === postSort)?.text}
-          </span>
-          <TbArrowsDownUp />
+        <div className="flex flex-row items-center gap-1 h-7.5 text-xl text-muted-foreground">
+          {getIconForSort(postSort)}
         </div>
       }
     />
@@ -235,7 +311,7 @@ export function HomeFilter() {
   const listingType = useFiltersStore((s) => s.listingType);
   const setListingType = useFiltersStore((s) => s.setListingType);
 
-  const LISTING_TYPE_OPTIONS = useMemo(
+  const LISTING_TYPE_OPTIONS: ActionMenuProps["actions"] = useMemo(
     () =>
       [
         {

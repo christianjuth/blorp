@@ -1,0 +1,111 @@
+@import "@mdxeditor/editor/style.css";
+
+._editorRoot_uazmk_53._editorRoot_uazmk_53 {
+  --accentBase: var(--blue-1);
+  --accentBgSubtle: var(--blue-2);
+  --accentBg: var(--blue-3);
+  --accentBgHover: var(--blue-4);
+  --accentBgActive: var(--blue-5);
+  --accentLine: var(--blue-6);
+  --accentBorder: var(--blue-7);
+  --accentBorderHover: var(--blue-8);
+  --accentSolid: var(--blue-9);
+  --accentSolidHover: var(--blue-10);
+  --accentText: var(--blue-11);
+  --accentTextContrast: var(--blue-12);
+
+  --basePageBg: var(--secondary);
+  --baseBase: var(--slate-1);
+  --baseBgSubtle: var(--slate-2);
+  --baseBg: var(--background);
+  --baseBgHover: var(--secondary);
+  --baseBgActive: var(--secondary);
+  --baseLine: var(--slate-6);
+  --baseBorder: var(--slate-7);
+  --baseBorderHover: var(--slate-8);
+  --baseSolid: var(--slate-9);
+  --baseSolidHover: var(--slate-10);
+  --baseText: var(--muted-foreground);
+  --baseTextContrast: var(--foreground);
+
+  --admonitionTipBg: var(--cyan-4);
+  --admonitionTipBorder: var(--cyan-8);
+
+  --admonitionInfoBg: var(--grass-4);
+  --admonitionInfoBorder: var(--grass-8);
+
+  --admonitionCautionBg: var(--amber-4);
+  --admonitionCautionBorder: var(--amber-8);
+
+  --admonitionDangerBg: var(--red-4);
+  --admonitionDangerBorder: var(--red-8);
+
+  --admonitionNoteBg: var(--slate-4);
+  --admonitionNoteBorder: var(--slate-8);
+
+  --error-color: var(--red-10);
+
+  --spacing-0: 0px;
+  --spacing-px: 1px;
+  --spacing-0_5: 0.125rem;
+  --spacing-1: 0.25rem;
+  --spacing-1_5: 0.375rem;
+  --spacing-2: 0.5rem;
+  --spacing-2_5: 0.625rem;
+  --spacing-3: 0.75rem;
+  --spacing-3_5: 0.875rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-7: 1.75rem;
+  --spacing-8: 2rem;
+  --spacing-9: 2.25rem;
+  --spacing-10: 2.5rem;
+  --spacing-11: 2.75rem;
+  --spacing-12: 3rem;
+  --spacing-14: 3.5rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+  --spacing-28: 7rem;
+  --spacing-32: 8rem;
+  --spacing-36: 9rem;
+  --spacing-40: 10rem;
+  --spacing-44: 11rem;
+  --spacing-48: 12rem;
+  --spacing-52: 13rem;
+  --spacing-56: 14rem;
+  --spacing-60: 15rem;
+  --spacing-64: 16rem;
+  --spacing-72: 18rem;
+  --spacing-80: 20rem;
+  --spacing-96: 24rem;
+
+  --radius-none: 0px;
+  --radius-small: var(--spacing-0_5);
+  --radius-base: var(--spacing-1);
+  --radius-medium: var(--spacing-1_5);
+  --radius-large: var(--spacing-2);
+  --radius-extra-large: var(--spacing-3);
+  --radius-full: 9999px;
+
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  --text-base: 1rem;
+  --text-sm: 0.875rem;
+  --text-xs: 0.75rem;
+  --text-xxs: 0.6rem;
+
+  font-family: var(--font-body);
+  color: var(--baseText);
+}
+
+.mdxeditor.mdxeditor .mdxeditor-toolbar.mdxeditor-toolbar {
+  border-radius: 0;
+  padding: var(--spacing-1);
+}
+
+.mdxeditor.mdxeditor * {
+  box-shadow: none;
+}

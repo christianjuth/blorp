@@ -12,10 +12,12 @@ import { useEffect } from "react";
 import Bowser from "bowser";
 import { initSentry } from "./components/sentry";
 import { initAnalytics } from "./lib/analytics";
+import { registerSafeArea } from "./lib/android";
 
 import "remove-focus-outline";
 
 initSentry();
+registerSafeArea();
 initAnalytics();
 
 const browser = Bowser.getParser(window.navigator.userAgent);

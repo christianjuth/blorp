@@ -268,7 +268,7 @@ export function FeedPostCard(props: PostProps) {
 
   return (
     <div
-      className="flex-1 py-4 border-b-[0.5px] border-border gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-2.5"
+      className="flex-1 py-4 border-b-[0.5px] gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-2.5"
       // pt="$4"
       // pb="$4"
       // bbc="$color3"

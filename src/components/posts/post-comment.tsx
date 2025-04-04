@@ -3,9 +3,9 @@ import _ from "lodash";
 import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
 import {
   InlineCommentReply,
-  useCommentReaplyContext,
+  useInlineCommentReplyState,
 } from "../comments/comment-reply-modal";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useCommentsStore } from "~/src/stores/comments";
 import { RelativeTime } from "../relative-time";
 import { useBlockPerson, useDeleteComment } from "~/src/lib/lemmy/index";
@@ -110,9 +110,6 @@ export function PostComment({
 
   const blockPerson = useBlockPerson();
 
-  const replyCtx = useCommentReaplyContext();
-  const [editing, setEditing] = useState(false);
-  const [replying, setReplying] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
   const { comment: commentPath, sort, ...rest } = commentMap;
@@ -121,11 +118,19 @@ export function PostComment({
     commentPath ? s.comments[commentPath.path]?.data : undefined,
   );
 
+  const edit = useInlineCommentReplyState(
+    commentView?.comment.ap_id,
+    commentView?.comment.content,
+  );
+  const reply = useInlineCommentReplyState(
+    commentView?.comment.ap_id + "reply",
+  );
+
   // console.log(commentPath, commentView?.comment.content);
 
-  useEffect(() => {
-    setEditing(false);
-  }, [commentView?.comment.content]);
+  // useEffect(() => {
+  //   setEditing(false);
+  // }, [commentView?.comment.content]);
 
   const deleteComment = useDeleteComment();
 
@@ -170,7 +175,7 @@ export function PostComment({
   return (
     <div
       className={cn(
-        "flex-1 py-2 overflow-x-hidden",
+        "flex-1 pt-2 overflow-x-hidden",
         level === 0 && "mt-2",
         level === 0 && !noBorder && "border-b-[0.5px] pb-5",
         comment.id < 0 && "opacity-50",
@@ -204,7 +209,7 @@ export function PostComment({
         {comment.deleted && <span className="italic">deleted</span>}
         {comment.removed && <span className="italic">removed</span>}
 
-        {!hideContent && (
+        {!hideContent && !edit.isEditing && (
           <div
             className="prose dark:prose-invert prose-sm"
             // $gtMd={{ dsp: editing ? "none" : undefined }} w="100%"
@@ -213,13 +218,14 @@ export function PostComment({
           </div>
         )}
 
-        {editing && (
+        {edit.isEditing && (
           <InlineCommentReply
+            state={edit}
             postId={comment.post_id}
             comment={comment}
             autoFocus
-            onCancel={() => setEditing(false)}
-            onSubmit={() => setEditing(false)}
+            // onCancel={() => edit.setIsEditing(false)}
+            // onSubmit={() => edit.setIsEditing(false)}
           />
         )}
 
@@ -240,8 +246,7 @@ export function PostComment({
                     {
                       text: "Edit",
                       onClick: () => {
-                        setEditing((e) => !e);
-                        replyCtx.setComment(comment);
+                        edit.setIsEditing(!edit.isEditing);
                       },
                     } as const,
                   ]
@@ -302,21 +307,17 @@ export function PostComment({
             trigger={<IoEllipsisHorizontal size={16} />}
           />
 
-          <CommentReplyButton
-            onClick={() => {
-              setReplying(true);
-              replyCtx.setParentComment(commentView);
-            }}
-          />
+          <CommentReplyButton onClick={() => reply.setIsEditing(true)} />
           <CommentVoting commentView={commentView} />
         </div>
 
-        {replying && (
+        {reply.isEditing && (
           <InlineCommentReply
+            state={reply}
             postId={comment.post_id}
             queryKeyParentId={queryKeyParentId}
-            onCancel={() => setReplying(false)}
-            onSubmit={() => setReplying(false)}
+            // onCancel={() => reply.setIsEditing(false)}
+            // onSubmit={() => reply.setIsEditing(false)}
             parent={commentView}
             autoFocus
           />

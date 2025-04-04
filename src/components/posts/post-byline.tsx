@@ -3,10 +3,8 @@ import {
   useDeletePost,
   useSavePost,
 } from "~/src/lib/lemmy/index";
-// import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
 // import { ActionMenu } from "../ui/action-menu";
-// import { Ellipsis, Pin } from "@tamagui/lucide-icons";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
 import { useAuth } from "~/src/stores/auth";
@@ -168,7 +166,7 @@ export function PostByline({
   );
 
   return (
-    <div className="flex flex-row items-center gap-3">
+    <div className="flex flex-row items-center gap-2">
       <Avatar className="h-8 w-8">
         <AvatarImage src={creatorAvatar} />
         <AvatarFallback>
@@ -176,7 +174,7 @@ export function PostByline({
         </AvatarFallback>
       </Avatar>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-0.5">
         <Link
           to={`${linkCtx.root}c/${communitySlug}`}
           className="text-xs"

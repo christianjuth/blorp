@@ -1,219 +1,63 @@
-import { createContext, useContext, useMemo, useRef, useState } from "react";
-import { PostId, Comment } from "lemmy-js-client";
-// import {
-//   Button,
-//   Form,
-//   View,
-//   XStack,
-//   Text,
-//   YStack,
-//   useMedia,
-//   ScrollView,
-// } from "tamagui";
+import { useEffect, useId, useState } from "react";
+import { Comment } from "lemmy-js-client";
 import {
   FlattenedComment,
   useCreateComment,
   useEditComment,
 } from "~/src/lib/lemmy/index";
-import { ContentGutters } from "../gutters";
 import _ from "lodash";
-import { MarkdownEditorState } from "../markdown-editor/editor-state";
+import { useMedia } from "~/src/lib/hooks";
+import { MarkdownEditor } from "../markdown-editor";
+import { useCommentRepliesStore } from "~/src/stores/comment-replies";
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonModal,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
+import { Button } from "~/src/components/ui/button";
 
-const Context = createContext<{
-  setComment: (comment: Comment | undefined) => void;
-  parentComment?: FlattenedComment;
-  setParentComment: (comment: FlattenedComment | undefined) => void;
-  focus: () => void;
-}>({
-  setComment: () => {},
-  setParentComment: () => {},
-  focus: _.noop,
-});
+export function useInlineCommentReplyState(
+  commentKey?: number | string,
+  initContent?: string,
+) {
+  const media = useMedia();
 
-export function useCommentReaplyContext() {
-  return useContext(Context);
-}
+  const lastResortId = useId();
+  commentKey ??= lastResortId;
+  const content =
+    useCommentRepliesStore((s) => s.getComment(commentKey)) ||
+    initContent ||
+    "";
+  const setContent = useCommentRepliesStore((s) => s.setComment);
 
-export function CommentReplyContext({
-  postId,
-  queryKeyParentId,
-  children,
-}: {
-  postId: PostId;
-  queryKeyParentId?: number;
-  children: React.ReactNode;
-}) {
-  const inputRef = useRef<any>(null);
+  const isEditing = useCommentRepliesStore((s) => s.isEditing(commentKey));
+  const setIsEditing = useCommentRepliesStore((s) => s.setIsEditing);
 
-  const [parentComment, setParentComment] = useState<FlattenedComment>();
-  const [comment, setComment] = useState<Comment>();
-  const [focused, setFocused] = useState(false);
-  const [content, setContent] = useState<Record<number, MarkdownEditorState>>(
-    {},
-  );
-
-  const createComment = useCreateComment({
-    queryKeyParentId: queryKeyParentId,
-  });
-  const editComment = useEditComment();
-
-  if (!content[comment?.id ?? parentComment?.comment.id ?? 0]) {
-    setContent((prev) => ({
-      ...prev,
-      [comment?.id ?? parentComment?.comment.id ?? 0]: new MarkdownEditorState(
-        "",
-      ),
-    }));
+  const [localIsEditing, setLocalIsEditing] = useState(false);
+  if (localIsEditing && media.md) {
+    setLocalIsEditing(false);
   }
 
-  return (
-    <Context.Provider
-      value={{
-        parentComment,
-        setComment: (comment) => {
-          if (comment) {
-            setContent((prev) => ({
-              ...prev,
-              [comment.id]: new MarkdownEditorState(comment.content),
-            }));
-          }
-          setComment(comment);
-          // if (media.md) {
-          //   inputRef.current?.focus();
-          // }
-        },
-        setParentComment: (val) => {
-          setParentComment(val);
-          // if (media.md) {
-          //   inputRef.current?.focus();
-          // }
-        },
-        focus: () => inputRef.current?.focus(),
-      }}
-    >
-      {children}
-
-      {focused && (
-        <div
-          // pos="absolute"
-          // t={0}
-          // r={0}
-          // b={0}
-          // l={0}
-          onClick={() => {
-            setFocused(false);
-            inputRef.current?.blur();
-            setParentComment(undefined);
-          }}
-        />
-      )}
-
-      <form
-        onSubmit={() => {
-          if (comment) {
-            const editor = content[comment.id];
-            editComment.mutate({
-              path: comment.path,
-              comment_id: comment.id,
-              content: editor.getState().content,
-            });
-            editor.reset();
-          } else {
-            const editor = content[parentComment?.comment.id ?? 0];
-            createComment.mutate({
-              post_id: postId,
-              content: editor.getState().content,
-              parent_id: parentComment?.comment.id,
-              parentPath: parentComment?.comment.path ?? "0",
-            });
-            editor.reset();
-          }
-          inputRef.current?.blur();
-          setParentComment(undefined);
-          setComment(undefined);
-        }}
-        className="md:hidden"
-      >
-        <ContentGutters className="w-full">
-          <div
-          // btw={0.5} bg="$background" bc="$color4" flex={1}
-          >
-            <div
-            // px="$4"
-            >
-              {parentComment && (
-                <span
-                // pt="$2"
-                >
-                  Replying to {parentComment?.creator.name}
-                </span>
-              )}
-              {comment && (
-                <span
-                // pt="$2"
-                >
-                  Editing
-                </span>
-              )}
-
-              {/* <ScrollView */}
-              {/*   height={ */}
-              {/*     focused ? 175 : bottomTabBar.height - bottomTabBar.insetBottom */}
-              {/*   } */}
-              {/* > */}
-              {/*   <MarkdownEditor */}
-              {/*     inputRef={inputRef} */}
-              {/*     placeholder="Add a comment..." */}
-              {/*     onFocus={() => setFocused(true)} */}
-              {/*     onBlur={() => { */}
-              {/*       setTimeout(() => { */}
-              {/*         setFocused(false); */}
-              {/*       }, 0); */}
-              {/*     }} */}
-              {/*     editor={ */}
-              {/*       content[comment?.id ?? parentComment?.comment.id ?? 0] */}
-              {/*     } */}
-              {/*     style={{ */}
-              {/*       borderWidth: 0, */}
-              {/*       paddingVertical: 10, */}
-              {/*       backgroundColor: "transparent", */}
-              {/*     }} */}
-              {/*   /> */}
-              {/* </ScrollView> */}
-
-              {focused && (
-                <div
-                // pt="$1" pb="$2" jc="flex-end"
-                >
-                  <button
-                    type="button"
-                    // size="$2.5"
-                    // br="$12"
-                    onClick={() => {
-                      setParentComment(undefined);
-                      setComment(undefined);
-                      inputRef.current?.blur();
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                  // bg="$accentBackground" size="$2.5" br="$12"
-                  >
-                    {comment ? "Update" : parentComment ? "Reply" : "Comment"}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          <></>
-        </ContentGutters>
-      </form>
-    </Context.Provider>
-  );
+  return {
+    content,
+    setContent: (content: string) => setContent(commentKey, content),
+    isEditing: media.maxMd ? localIsEditing : isEditing,
+    setIsEditing: (isEditing: boolean) => {
+      if (media.maxMd) {
+        setLocalIsEditing(isEditing);
+      } else {
+        setIsEditing(commentKey, isEditing);
+      }
+    },
+  };
 }
 
 export function InlineCommentReply({
+  state,
   comment,
   postId,
   queryKeyParentId,
@@ -222,6 +66,7 @@ export function InlineCommentReply({
   onSubmit,
   autoFocus,
 }: {
+  state: ReturnType<typeof useInlineCommentReplyState>;
   comment?: Comment;
   postId: number | string;
   queryKeyParentId?: number;
@@ -230,80 +75,153 @@ export function InlineCommentReply({
   onSubmit?: () => void;
   autoFocus?: boolean;
 }) {
-  const [focused, setFocused] = useState(autoFocus ?? false);
-
-  const editor = useMemo(
-    () => new MarkdownEditorState(comment?.content),
-    [comment?.updated],
-  );
+  const media = useMedia();
 
   const createComment = useCreateComment({
     queryKeyParentId: queryKeyParentId,
   });
   const editComment = useEditComment();
 
-  if (autoFocus /* && !media.gtMd */) {
-    return null;
+  const handleSubmit = () => {
+    if (comment) {
+      editComment.mutate({
+        path: comment.path,
+        comment_id: comment.id,
+        content: state.content,
+      });
+    } else {
+      createComment.mutate({
+        post_id: +postId,
+        content: state.content,
+        parent_id: parent?.comment.id,
+        parentPath: parent?.comment.path ?? "0",
+      });
+    }
+    state.setIsEditing(false);
+  };
+
+  if (!media.md) {
+    return (
+      <IonModal
+        isOpen={state.isEditing}
+        onWillDismiss={(event) => state.setIsEditing(false)}
+      >
+        <IonHeader>
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonButton onClick={() => state.setIsEditing(false)}>
+                Cancel
+              </IonButton>
+            </IonButtons>
+            <IonTitle>Welcome</IonTitle>
+            <IonButtons slot="end">
+              <IonButton strong={true} onClick={handleSubmit}>
+                Confirm
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (comment) {
+                editComment.mutate({
+                  path: comment.path,
+                  comment_id: comment.id,
+                  content: state.content,
+                });
+              } else {
+                createComment.mutate({
+                  post_id: +postId,
+                  content: state.content,
+                  parent_id: parent?.comment.id,
+                  parentPath: parent?.comment.path ?? "0",
+                });
+              }
+              onSubmit?.();
+            }}
+          >
+            <div className="flex-1">
+              <MarkdownEditor
+                value={state.content}
+                onChange={(val) => state.setContent(val)}
+                showToolbar={state.isEditing}
+                autoFocus={autoFocus}
+              />
+              {state.isEditing && (
+                <div>
+                  <button
+                    type="button"
+                    // size="$2.5"
+                    // br="$12"
+                    onClick={() => {
+                      state.setIsEditing(false);
+                      onCancel?.();
+                    }}
+                  >
+                    Cancel
+                  </button>
+
+                  <button>
+                    {comment ? "Update" : parent ? "Reply" : "Comment"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </form>
+        </IonContent>
+      </IonModal>
+    );
   }
 
   return (
     <form
-      onSubmit={() => {
-        if (comment) {
-          editComment.mutate({
-            path: comment.path,
-            comment_id: comment.id,
-            content: editor.getState().content,
-          });
-        } else {
-          createComment.mutate({
-            post_id: +postId,
-            content: editor.getState().content,
-            parent_id: parent?.comment.id,
-            parentPath: parent?.comment.path ?? "0",
-          });
-        }
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit();
         onSubmit?.();
-        editor.reset();
       }}
-      className="max-md:hidden w-full"
+      className="max-md:hidden w-full flex-1 py-2"
     >
       <div
-      // px="$3" bw={1} bc="$color5" br="$5"
+        className="flex-1 border rounded-xl overflow-hidden"
+        // onFocus={() => setIsEditing(commentKey, true)}
+        // onBlur={() => {
+        //   if (!content.trim()) {
+        //     onCancel?.();
+        //   }
+        // }}
+        // px="$3" bw={1} bc="$color5" br="$5"
       >
-        {/* <MarkdownEditor */}
-        {/*   placeholder="Add a comment..." */}
-        {/*   onFocus={() => setFocused(true)} */}
-        {/*   editor={editor} */}
-        {/*   onBlur={() => { */}
-        {/*     if (editor.getState().content.trim() === "") { */}
-        {/*       setFocused(false); */}
-        {/*       onCancel?.(); */}
-        {/*     } */}
-        {/*   }} */}
-        {/*   autoFocus={autoFocus} */}
-        {/* /> */}
-        {focused && (
-          <div
-          // jc="flex-end" py="$2"
-          >
-            <button
+        <MarkdownEditor
+          value={state.content}
+          onChange={(val) => state.setContent(val)}
+          showToolbar={state.isEditing}
+          autoFocus={autoFocus}
+        />
+        {state.isEditing && (
+          <div className="flex flex-row justify-end p-2 gap-2">
+            <Button
+              size="sm"
               type="button"
+              variant="outline"
               // size="$2.5"
               // br="$12"
               onClick={() => {
-                setFocused(false);
+                state.setIsEditing(false);
                 onCancel?.();
               }}
             >
               Cancel
-            </button>
+            </Button>
 
-            <button
-            // bg="$accentBackground" size="$2.5" br="$12"
+            <Button
+              size="sm"
+              // bg="$accentBackground" size="$2.5" br="$12"
             >
               {comment ? "Update" : parent ? "Reply" : "Comment"}
-            </button>
+            </Button>
           </div>
         )}
       </div>

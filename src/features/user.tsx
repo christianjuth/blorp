@@ -9,12 +9,11 @@ import {
 import Markdown from "react-markdown";
 import { FlashList } from "../components/flashlist";
 import { PostSortBar } from "../components/lemmy-sort";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { useScrollToTop } from "@react-navigation/native";
+import { memo, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { createPersonSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
-import { ToggleGroup } from "../components/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
 import { useLinkContext } from "../components/nav/link-context";
@@ -28,12 +27,9 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
-  IonLabel,
   IonPage,
   IonRefresher,
   IonRefresherContent,
-  IonSegment,
-  IonSegmentButton,
   IonTitle,
   IonToolbar,
   RefresherEventDetail,
@@ -47,6 +43,7 @@ import {
   AvatarImage,
 } from "~/src/components/ui/avatar";
 import { LuCakeSlice } from "react-icons/lu";
+import { useMedia } from "../lib/hooks";
 
 const BANNER = "banner";
 const POST_SORT_BAR = "post-sort-bar";
@@ -83,9 +80,13 @@ const Comment = memo(function Comment({ path }: { path: string }) {
     <ContentGutters>
       <Link
         to={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
-        className="py-2 border-b flex-1"
+        className="py-2 border-b flex-1 overflow-hidden"
       >
-        <Markdown>{comment.content}</Markdown>
+        {comment.deleted ? (
+          <span className="text-sm text-muted-foreground italic">deleted</span>
+        ) : (
+          <Markdown>{comment.content}</Markdown>
+        )}
       </Link>
       <></>
     </ContentGutters>
@@ -97,13 +98,14 @@ dayjs.extend(localizedFormat);
 const EMPTY_ARR = [];
 
 export default function User() {
+  const media = useMedia();
   const { userId } = useParams<{ userId: string }>();
 
   const actorId = userId ? decodeApId(userId) : undefined;
 
-  const [type, setType] = useState<"posts" | "comments">("posts");
+  const [type, setType] = useState<"posts" | "comments" | "all">("all");
 
-  const personQuery = usePersonDetails({ actorId });
+  usePersonDetails({ actorId });
   const {
     hasNextPage,
     fetchNextPage,
@@ -123,9 +125,8 @@ export default function User() {
   const postCache = usePostsStore((s) => s.posts);
 
   const listData = useMemo(() => {
-    if (type === "comments") {
-      return data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR;
-    }
+    const commentViews =
+      data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR;
 
     const postIds = data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
@@ -136,7 +137,22 @@ export default function User() {
       })
       .filter(isNotNull);
 
-    return postViews;
+    switch (type) {
+      case "posts":
+        return postViews;
+      case "comments":
+        return commentViews;
+      default:
+        return [...postViews, ...commentViews].sort((a, b) => {
+          const aPublished = isPost(a)
+            ? a.published
+            : (a as CommentView).comment.published;
+          const bPublished = isPost(b)
+            ? b.published
+            : (b as CommentView).comment.published;
+          return bPublished.localeCompare(aPublished);
+        });
+    }
   }, [data?.pages, postCache, type]);
 
   if (!personView) {
@@ -157,7 +173,11 @@ export default function User() {
     <IonPage>
       <Title>{person ? createPersonSlug(person) : "Person"}</Title>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar
+          style={
+            media.maxMd ? { "--border-color": "var(--background)" } : undefined
+          }
+        >
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>
@@ -256,27 +276,29 @@ export default function User() {
             if (item === "post-sort-bar") {
               return (
                 <ContentGutters className="max-md:py-1 max-md:bg-background max-md:border-b-[0.5px]">
-                  <div className="flex flex-row h-12 border-b-[0.5px] flex-1 items-center">
+                  <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
                     <div>
-                      <IonSegment
+                      <ToggleGroup
+                        type="single"
+                        variant="outline"
+                        size="sm"
                         value={type}
-                        onIonChange={(e) =>
-                          setType(e.detail.value as "posts" | "comments")
+                        onValueChange={(val) =>
+                          val && setType(val as "posts" | "comments" | "all")
                         }
                       >
-                        <IonSegmentButton value="posts">
-                          <IonLabel>Posts</IonLabel>
-                        </IonSegmentButton>
-                        <IonSegmentButton value="comments">
-                          <IonLabel>Comments</IonLabel>
-                        </IonSegmentButton>
-                      </IonSegment>
+                        <ToggleGroupItem value="all">All</ToggleGroupItem>
+                        <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                        <ToggleGroupItem value="comments">
+                          <span>Comments</span>
+                        </ToggleGroupItem>
+                      </ToggleGroup>
                     </div>
 
                     {type === "posts" && (
                       <>
-                        <div className="w-[.5px] h-2/3 bg-border mx-3 my-auto" />
-                        <PostSortBar />
+                        <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
+                        <PostSortBar align="start" />
                       </>
                     )}
                   </div>

@@ -7,15 +7,12 @@ import {
   CommunitySidebar,
   SmallScreenSidebar,
 } from "~/src/components/communities/community-sidebar";
-// import { CommunityBanner } from "../components/communities/community-banner";
 import { ContentGutters } from "../components/gutters";
-import { useScrollToTop } from "@react-navigation/native";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-// import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
 import { useCommunity, useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
-import { RefreshButton } from "../components/ui/button";
+// import { RefreshButton } from "../components/ui/button";
 import { isNotNull } from "../lib/utils";
 import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
@@ -28,7 +25,6 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonSearchbar,
-  IonTitle,
   IonToolbar,
   RefresherEventDetail,
   useIonRouter,
@@ -39,11 +35,7 @@ import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
-import {
-  CommunityFilter,
-  CommunitySortSelect,
-  PostSortBar,
-} from "../components/lemmy-sort";
+import { PostSortBar } from "../components/lemmy-sort";
 import { Title } from "../components/title";
 import { useLinkContext } from "../components/nav/link-context";
 
@@ -51,13 +43,8 @@ const EMPTY_ARR = [];
 
 const SIDEBAR_MOBILE = "sidebar-mobile";
 const BANNER = "banner";
-const POST_SORT_BAR = "post-sort-bar";
 
-type Item =
-  | typeof SIDEBAR_MOBILE
-  | typeof BANNER
-  | typeof POST_SORT_BAR
-  | PostProps;
+type Item = typeof SIDEBAR_MOBILE | typeof BANNER | PostProps;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
@@ -118,8 +105,10 @@ export default function CommunityFeed() {
       })
       .filter(isNotNull);
 
-    return [BANNER, SIDEBAR_MOBILE, POST_SORT_BAR, ...postViews] as const;
+    return [BANNER, SIDEBAR_MOBILE, ...postViews] as const;
   }, [posts.data?.pages, postCache]);
+
+  console.log(data);
 
   const firstPost = posts.data?.pages[0]?.posts[0];
   const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
@@ -149,13 +138,15 @@ export default function CommunityFeed() {
             }}
           >
             <IonSearchbar
+              mode="ios"
               className="max-w-md mx-auto"
               placeholder={`Search ${communityName}`}
               value={search}
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end">
+          <IonButtons slot="end" className="gap-3">
+            <PostSortBar align="end" />
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
@@ -191,27 +182,6 @@ export default function CommunityFeed() {
                 );
               }
 
-              if (item === POST_SORT_BAR) {
-                return (
-                  <ContentGutters className="max-md:py-1 max-md:bg-background max-md:border-b-[0.5px]">
-                    <div className="md:py-2 flex-1 md:bg-background md:border-b-[0.5px]">
-                      <PostSortBar align="start" />
-                    </div>
-                    <></>
-                  </ContentGutters>
-                );
-                // {hasNewPost && (
-                //   <RefreshButton
-                //     onPress={() => {
-                //       ref.current?.scrollToOffset({
-                //         offset: 0,
-                //       });
-                //       refetch();
-                //     }}
-                //   />
-                // )}
-              }
-
               return <Post {...item} />;
             }}
             onEndReached={() => {
@@ -219,7 +189,6 @@ export default function CommunityFeed() {
                 fetchNextPage();
               }
             }}
-            stickyHeaderIndices={[2]}
             estimatedItemSize={475}
           />
         </PostReportProvider>

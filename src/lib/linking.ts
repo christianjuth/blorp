@@ -1,5 +1,4 @@
 import { openUrl as tauriOpenUrl } from "@tauri-apps/plugin-opener";
-// import { Linking } from "react-native";
 import { isTauri } from "./tauri";
 
 export function shouldOpenInNewTab(url: string) {

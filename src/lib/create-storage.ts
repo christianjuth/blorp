@@ -19,7 +19,9 @@ function createSqliteStore(rowName?: string) {
   if (!db) {
     const sqlite: SQLiteConnection = new SQLiteConnection(CapacitorSQLite);
     db = (async function () {
-      await sqlite.closeConnection(DB_NAME, false);
+      try {
+        await sqlite.closeConnection(DB_NAME, false);
+      } catch {}
       const p = await sqlite.createConnection(
         DB_NAME,
         false,

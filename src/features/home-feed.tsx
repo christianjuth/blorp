@@ -17,6 +17,7 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
   IonPage,
   IonRefresher,
   IonRefresherContent,
@@ -30,14 +31,12 @@ import { FlashList } from "../components/flashlist";
 import { UserDropdown } from "../components/nav";
 import { HomeFilter, PostSortBar } from "../components/lemmy-sort";
 import { useElementHadFocus, useMedia } from "../lib/hooks";
-
-const HEADER = "header";
+import { Link } from "react-router-dom";
+import { searchOutline } from "ionicons/icons";
 
 export const scrollToTop = {
   current: { scrollToOffset: () => {} },
 };
-
-type Item = typeof HEADER | PostProps;
 
 const EMPTY_ARR = [];
 
@@ -182,10 +181,7 @@ export default function HomeFeed() {
       })
       .filter(isNotNull);
 
-    return [
-      // HEADER,
-      ...postViews,
-    ] as const;
+    return postViews;
   }, [posts.data?.pages, postCache]);
 
   const firstPost = posts.data?.pages[0]?.posts[0];
@@ -216,6 +212,7 @@ export default function HomeFeed() {
             <HomeFilter />
           </IonButtons>
           <form
+            className="max-md:hidden"
             onSubmit={(e) => {
               e.preventDefault();
               router.push(`/home/s?q=${search}`);
@@ -228,7 +225,13 @@ export default function HomeFeed() {
             />
           </form>
           <IonButtons slot="end" className="gap-3">
-            <PostSortBar />
+            <Link
+              to="/home/s"
+              className="text-2xl contents text-brand md:hidden"
+            >
+              <IonIcon icon={searchOutline} />
+            </Link>
+            <PostSortBar align="end" />
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
@@ -244,13 +247,15 @@ export default function HomeFeed() {
           ref={scrollRef}
           estimatedItemSize={450}
           data={data}
-          renderItem={({ item: post }) => (
-            <Post
-              key={post.apId}
-              {...post}
-              onNavigate={scrollAnimation.reset}
-            />
-          )}
+          renderItem={({ item }) => {
+            return (
+              <Post
+                key={item.apId}
+                {...item}
+                onNavigate={scrollAnimation.reset}
+              />
+            );
+          }}
           className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) {

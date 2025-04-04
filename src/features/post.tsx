@@ -14,10 +14,7 @@ import { ContentGutters } from "../components/gutters";
 import { memo, useMemo } from "react";
 import _ from "lodash";
 import { useRef, useState } from "react";
-import {
-  CommentReplyContext,
-  InlineCommentReply,
-} from "../components/comments/comment-reply-modal";
+import { InlineCommentReply } from "../components/comments/comment-reply-modal";
 import { useAuth } from "../stores/auth";
 import { FlashList } from "../components/flashlist";
 import { PostReportProvider } from "../components/posts/post-report";
@@ -42,6 +39,15 @@ import { Title } from "../components/title";
 const MemoedPostComment = memo(PostComment);
 
 const EMPTY_ARR = [];
+
+function useDelayedReady(delay: number) {
+  const [isReady, setIsReady] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setIsReady(true), delay);
+    return () => clearTimeout(id);
+  }, []);
+  return isReady;
+}
 
 const MemoedPostCard = memo((props: PostProps) => (
   <ContentGutters className="px-0">
@@ -86,7 +92,7 @@ export default function Post() {
 
   const communityTitle = post?.community?.slug;
 
-  const isReady = true;
+  const isReady = useDelayedReady(500);
 
   const allComments = useMemo(
     () =>
@@ -185,83 +191,74 @@ export default function Post() {
         </IonRefresher>
 
         <PostReportProvider>
-          <CommentReplyContext
-            postId={post.post.id}
-            queryKeyParentId={parentId}
-          >
-            <ContentGutters>
-              <div className="flex-1" />
-              <div>
-                {/* {communityName && ( */}
-                {/*   <CommunitySidebar communityName={communityName} /> */}
-                {/* )} */}
-              </div>
-            </ContentGutters>
+          <ContentGutters>
+            <div className="flex-1" />
+            <div>
+              {/* {communityName && ( */}
+              {/*   <CommunitySidebar communityName={communityName} /> */}
+              {/* )} */}
+            </div>
+          </ContentGutters>
 
-            <FlashList
-              className="h-full ion-content-scroll-host"
-              // ref={ref}
-              data={data}
-              renderItem={({ item }) => {
-                if (item === "post") {
-                  return <MemoedPostCard {...getPostProps(post)} />;
-                }
+          <FlashList
+            className="h-full ion-content-scroll-host pb-4"
+            // ref={ref}
+            data={data}
+            renderItem={({ item }) => {
+              if (item === "post") {
+                return <MemoedPostCard {...getPostProps(post)} />;
+              }
 
-                if (item === "post-bottom-bar") {
-                  return null;
-                  // return (
-                  //   <ContentGutters>
-                  //     <PostBottomBar
-                  //       apId={decodedApId}
-                  //       commentsCount={post.counts.comments}
-                  //     />
-                  //     <></>
-                  //   </ContentGutters>
-                  // );
-                }
+              if (item === "post-bottom-bar") {
+                return null;
+                // return (
+                //   <ContentGutters>
+                //     <PostBottomBar
+                //       apId={decodedApId}
+                //       commentsCount={post.counts.comments}
+                //     />
+                //     <></>
+                //   </ContentGutters>
+                // );
+              }
 
-                if (item === "comment") {
-                  return null;
-                  // return (
-                  //   <ContentGutters>
-                  //     <div
-                  //     // flex={1} pt="$3"
-                  //     >
-                  //       <InlineCommentReply
-                  //         postId={post.post.id}
-                  //         queryKeyParentId={parentId}
-                  //       />
-                  //     </div>
-                  //     <></>
-                  //   </ContentGutters>
-                  // );
-                }
+              if (item === "comment") {
+                return null;
+                // return (
+                //   <ContentGutters>
+                //     <InlineCommentReply
+                //       postId={post.post.id}
+                //       queryKeyParentId={parentId}
+                //     />
+                //     <></>
+                //   </ContentGutters>
+                // );
+              }
 
-                return (
-                  <ContentGutters>
-                    <MemoedPostComment
-                      postApId={decodedApId}
-                      queryKeyParentId={parentId}
-                      commentMap={item[1]}
-                      level={0}
-                      opId={opId}
-                      myUserId={myUserId}
-                      noBorder={item[0] === lastComment?.[0]}
-                      communityName={communityName}
-                    />
-                    <></>
-                  </ContentGutters>
-                );
-              }}
-              // keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
-              onEndReached={loadMore}
-              // onEndReachedThreshold={0.5}
-              // onRefresh={refresh}
-              // refreshing={refreshing}
-              estimatedItemSize={450}
-              stickyHeaderIndices={[1]}
-            />
-          </CommentReplyContext>
+              return (
+                <ContentGutters>
+                  <MemoedPostComment
+                    postApId={decodedApId}
+                    queryKeyParentId={parentId}
+                    commentMap={item[1]}
+                    level={0}
+                    opId={opId}
+                    myUserId={myUserId}
+                    noBorder={item[0] === lastComment?.[0]}
+                    communityName={communityName}
+                  />
+                  <></>
+                </ContentGutters>
+              );
+            }}
+            // keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
+            onEndReached={loadMore}
+            // onEndReachedThreshold={0.5}
+            // onRefresh={refresh}
+            // refreshing={refreshing}
+            estimatedItemSize={450}
+            stickyHeaderIndices={[1]}
+          />
         </PostReportProvider>
 
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">

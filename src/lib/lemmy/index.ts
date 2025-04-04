@@ -44,7 +44,6 @@ import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
 import { useThrottleQueue } from "../throttle-queue";
 import { useCommunitiesStore } from "../../stores/communities";
-// import { useRouter } from "one";
 import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
 // import { measureImage } from "../image";
 import { getPostEmbed } from "../post";

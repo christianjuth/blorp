@@ -1,48 +1,61 @@
-import { useState } from "react";
-import { XStack, Text } from "tamagui";
+"use client";
 
-export type Option<V, L = string> = {
-  label: L;
-  value: V;
-  icon?: React.ComponentType<{ size?: number; color?: string }>;
-};
+import * as React from "react";
+import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group";
+import { type VariantProps } from "class-variance-authority";
 
-export interface ToggleGroupProps<V extends string> {
-  options: Option<V>[];
-  value?: V;
-  defaultValue?: V;
-  onValueChange?: (value: V) => void;
-}
+import { cn } from "~/src/lib/utils";
+import { toggleVariants } from "~/src/components/ui/toggle";
 
-export function ToggleGroup<V extends string>({
-  options,
-  value,
-  defaultValue,
-  onValueChange,
-}: ToggleGroupProps<V>) {
-  const [localValue, setLocalValue] = useState<V>(
-    defaultValue ?? options[0]?.value,
-  );
-  value = value ?? localValue;
+const ToggleGroupContext = React.createContext<
+  VariantProps<typeof toggleVariants>
+>({
+  size: "default",
+  variant: "default",
+});
+
+const ToggleGroup = React.forwardRef<
+  React.ElementRef<typeof ToggleGroupPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root> &
+    VariantProps<typeof toggleVariants>
+>(({ className, variant, size, children, ...props }, ref) => (
+  <ToggleGroupPrimitive.Root
+    ref={ref}
+    className={cn("flex items-center justify-center gap-1.5", className)}
+    {...props}
+  >
+    <ToggleGroupContext.Provider value={{ variant, size }}>
+      {children}
+    </ToggleGroupContext.Provider>
+  </ToggleGroupPrimitive.Root>
+));
+
+ToggleGroup.displayName = ToggleGroupPrimitive.Root.displayName;
+
+const ToggleGroupItem = React.forwardRef<
+  React.ElementRef<typeof ToggleGroupPrimitive.Item>,
+  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Item> &
+    VariantProps<typeof toggleVariants>
+>(({ className, children, variant, size, ...props }, ref) => {
+  const context = React.useContext(ToggleGroupContext);
 
   return (
-    <XStack>
-      {options.map((opt) => (
-        <Text
-          key={opt.value}
-          py="$2"
-          px="$3"
-          bg={value === opt.value ? "$color4" : undefined}
-          br={99999}
-          onPress={() => {
-            setLocalValue(opt.value);
-            onValueChange?.(opt.value);
-          }}
-          tag="button"
-        >
-          {opt.label}
-        </Text>
-      ))}
-    </XStack>
+    <ToggleGroupPrimitive.Item
+      ref={ref}
+      className={cn(
+        toggleVariants({
+          variant: context.variant || variant,
+          size: context.size || size,
+        }),
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </ToggleGroupPrimitive.Item>
   );
-}
+});
+
+ToggleGroupItem.displayName = ToggleGroupPrimitive.Item.displayName;
+
+export { ToggleGroup, ToggleGroupItem };

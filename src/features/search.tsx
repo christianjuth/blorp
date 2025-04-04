@@ -15,24 +15,20 @@ import { FlashList } from "../components/flashlist";
 import { Community } from "~/src/components/community";
 import { useFiltersStore } from "../stores/filters";
 import _ from "lodash";
-// import { ToggleGroup } from "../components/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
 import { CommunityView } from "lemmy-js-client";
 import { useHistory, useParams } from "react-router";
 import {
   IonBackButton,
-  IonButton,
   IonButtons,
   IonContent,
   IonHeader,
-  IonLabel,
   IonPage,
   IonRefresher,
   IonRefresherContent,
   IonSearchbar,
-  IonSegment,
-  IonSegmentButton,
   IonToolbar,
   RefresherEventDetail,
   useIonRouter,
@@ -40,6 +36,7 @@ import {
 import { Title } from "../components/title";
 import { UserDropdown } from "../components/nav";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { useMedia } from "../lib/hooks";
 
 const EMPTY_ARR = [];
 
@@ -57,7 +54,7 @@ function isPost(item: Item): item is PostProps {
 }
 
 const Post = memo((props: PostProps) => (
-  <ContentGutters>
+  <ContentGutters className="max-md:px-0">
     <FeedPostCard {...props} />
     <></>
   </ContentGutters>
@@ -66,8 +63,10 @@ const Post = memo((props: PostProps) => (
 export function SearchFeed({
   defaultType = "posts",
 }: {
-  defaultType?: "posts" | "communities";
+  defaultType?: "posts" | "communities" | "all";
 }) {
+  const media = useMedia();
+
   const router = useIonRouter();
   const history = useHistory();
   const initSearch = useRef(new URLSearchParams(location.search)).current.get(
@@ -96,7 +95,7 @@ export function SearchFeed({
   const searchResults = useSearch({
     q: debouncedSearch ?? "",
     sort: postSort,
-    community_name: communityName,
+    community_name: type === "posts" ? communityName : undefined,
   });
 
   const {
@@ -150,13 +149,18 @@ export function SearchFeed({
 
   return (
     <IonPage>
-      <Title>{communityName}</Title>
+      <Title>{communityName ? `Search ${communityName}` : "Search"}</Title>
       <IonHeader>
-        <IonToolbar data-tauri-drag-region>
+        <IonToolbar
+        // style={
+        //   media.maxMd ? { "--border-color": "var(--background)" } : undefined
+        // }
+        >
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>
           <IonSearchbar
+            mode="ios"
             className="max-w-md mx-auto"
             value={search}
             onIonInput={(e) => {
@@ -168,6 +172,24 @@ export function SearchFeed({
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
+        {media.maxMd && (
+          <IonToolbar>
+            <ToggleGroup
+              slot="start"
+              type="single"
+              variant="outline"
+              size="sm"
+              value={type}
+              onValueChange={(val) =>
+                val && setType(val as "posts" | "communities" | "all")
+              }
+            >
+              <ToggleGroupItem value="all">All</ToggleGroupItem>
+              <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+              <ToggleGroupItem value="communities">Communities</ToggleGroupItem>
+            </ToggleGroup>
+          </IonToolbar>
+        )}
       </IonHeader>
       <IonContent scrollY={false}>
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
@@ -208,28 +230,30 @@ export function SearchFeed({
 
             if (item === FILTER_SORT_BAR) {
               return (
-                <ContentGutters className="bg-background">
-                  <div className="flex flex-row h-12 border-b-[0.5px] flex-1 items-center">
+                <ContentGutters className="max-md:hidden">
+                  <div className="flex flex-row h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
                     <div>
-                      <IonSegment
+                      <ToggleGroup
+                        type="single"
+                        variant="outline"
+                        size="sm"
                         value={type}
-                        onIonChange={(e) =>
-                          setType(e.detail.value as "posts" | "communities")
+                        onValueChange={(val) =>
+                          val && setType(val as "posts" | "communities" | "all")
                         }
                       >
-                        <IonSegmentButton value="posts">
-                          <IonLabel>Posts</IonLabel>
-                        </IonSegmentButton>
-                        <IonSegmentButton value="communities">
-                          <IonLabel>Communities</IonLabel>
-                        </IonSegmentButton>
-                      </IonSegment>
+                        <ToggleGroupItem value="all">All</ToggleGroupItem>
+                        <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                        <ToggleGroupItem value="communities">
+                          Communities
+                        </ToggleGroupItem>
+                      </ToggleGroup>
                     </div>
 
                     {type === "posts" && (
                       <>
                         <div className="w-[.5px] h-2/3 bg-border mx-3 my-auto" />
-                        <PostSortBar />
+                        <PostSortBar align="start" />
                       </>
                     )}
                   </div>

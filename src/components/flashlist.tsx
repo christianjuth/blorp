@@ -143,7 +143,7 @@ export function FlashListInternal<T>({
     >
       {/* Only the visible items in the virtualizer, manually positioned to be in view */}
       {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-        const item = data?.[virtualItem.index];
+        const item = data?.[virtualItem?.index];
 
         if (!item) {
           return null;
@@ -209,7 +209,7 @@ export function FlashList<T>({
   const [focused, setFocused] = useState(false);
 
   const r = useRouterSafe();
-  const pathname = r?.routeInfo.pathname;
+  const pathname = r?.routeInfo?.pathname;
   useEffect(() => {
     if (pathname) {
       return subscribeToScrollEvent(pathname, () => {
