@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { Comment } from "lemmy-js-client";
 import {
   FlattenedComment,
@@ -7,7 +7,7 @@ import {
 } from "~/src/lib/lemmy/index";
 import _ from "lodash";
 import { useMedia } from "~/src/lib/hooks";
-import { MarkdownEditor } from "../markdown-editor";
+import { MarkdownEditor } from "../markdown/editor";
 import { useCommentRepliesStore } from "~/src/stores/comment-replies";
 import {
   IonButton,
@@ -32,6 +32,7 @@ export function useInlineCommentReplyState(
     useCommentRepliesStore((s) => s.getComment(commentKey)) ||
     initContent ||
     "";
+
   const setContent = useCommentRepliesStore((s) => s.setComment);
 
   const isEditing = useCommentRepliesStore((s) => s.isEditing(commentKey));
@@ -44,7 +45,9 @@ export function useInlineCommentReplyState(
 
   return {
     content,
-    setContent: (content: string) => setContent(commentKey, content),
+    setContent: (content: string) => {
+      setContent(commentKey, content);
+    },
     isEditing: media.maxMd ? localIsEditing : isEditing,
     setIsEditing: (isEditing: boolean) => {
       if (media.maxMd) {
@@ -144,10 +147,10 @@ export function InlineCommentReply({
           >
             <div className="flex-1">
               <MarkdownEditor
-                value={state.content}
+                content={state.content}
                 onChange={(val) => state.setContent(val)}
-                showToolbar={state.isEditing}
-                autoFocus={autoFocus}
+                // showToolbar={state.isEditing}
+                // autoFocus={autoFocus}
               />
               {state.isEditing && (
                 <div>
@@ -185,7 +188,7 @@ export function InlineCommentReply({
       className="max-md:hidden w-full flex-1 py-2"
     >
       <div
-        className="flex-1 border rounded-xl overflow-hidden"
+        className="flex-1 border rounded-xl focus-within:shadow-xs focus-within:border-ring"
         // onFocus={() => setIsEditing(commentKey, true)}
         // onBlur={() => {
         //   if (!content.trim()) {
@@ -195,10 +198,10 @@ export function InlineCommentReply({
         // px="$3" bw={1} bc="$color5" br="$5"
       >
         <MarkdownEditor
-          value={state.content}
+          content={state.content}
           onChange={(val) => state.setContent(val)}
-          showToolbar={state.isEditing}
-          autoFocus={autoFocus}
+          // showToolbar={state.isEditing}
+          // autoFocus={autoFocus}
         />
         {state.isEditing && (
           <div className="flex flex-row justify-end p-2 gap-2">

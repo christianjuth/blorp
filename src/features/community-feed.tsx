@@ -108,8 +108,6 @@ export default function CommunityFeed() {
     return [BANNER, SIDEBAR_MOBILE, ...postViews] as const;
   }, [posts.data?.pages, postCache]);
 
-  console.log(data);
-
   const firstPost = posts.data?.pages[0]?.posts[0];
   const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
 

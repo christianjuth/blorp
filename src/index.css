@@ -258,9 +258,24 @@ ion-toolbar ion-searchbar {
 /*   } */
 /* } */
 
-.prose * {
+.prose *:not(li) {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Remove default margins from paragraphs */
+.prose p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Add margin only between consecutive paragraphs */
+.prose p + p {
+  margin-top: 1rem; /* Adjust the value as needed */
+}
+
+.tiptap {
+  outline: none;
 }
 
 .action-sheet-button-inner {
@@ -279,4 +294,10 @@ ion-button.md.md {
   --box-shadow: none;
 }
 
-@import './markdown-editor.css';
+.spoiler [data-node-view-content-react] > *:first-child::before {
+  content: "▼ ";
+}
+
+details summary {
+  @apply cursor-pointer;
+}

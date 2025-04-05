@@ -1,4 +1,4 @@
-import Markdown from "react-markdown";
+import { MarkdownRenderer } from "../markdown/renderer";
 import _ from "lodash";
 import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
 import {
@@ -175,7 +175,7 @@ export function PostComment({
   return (
     <div
       className={cn(
-        "flex-1 pt-2 overflow-x-hidden",
+        "flex-1 pt-2",
         level === 0 && "mt-2",
         level === 0 && !noBorder && "border-b-[0.5px] pb-5",
         comment.id < 0 && "opacity-50",
@@ -210,12 +210,7 @@ export function PostComment({
         {comment.removed && <span className="italic">removed</span>}
 
         {!hideContent && !edit.isEditing && (
-          <div
-            className="prose dark:prose-invert prose-sm"
-            // $gtMd={{ dsp: editing ? "none" : undefined }} w="100%"
-          >
-            <Markdown>{comment.content}</Markdown>
-          </div>
+          <MarkdownRenderer markdown={comment.content} />
         )}
 
         {edit.isEditing && (

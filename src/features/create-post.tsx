@@ -1,7 +1,6 @@
 import { ContentGutters } from "../components/gutters";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { MarkdownEditor } from "../components/markdown-editor";
 import { useCreatePostStore } from "../stores/create-post";
 import { FlashList } from "~/src/components/flashlist";
 import { SmallCommunityCard } from "../components/communities/community-card";

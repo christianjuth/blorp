@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
 import { PostCommentsButton, Voting } from "./post-buttons";
-import Markdown from "react-markdown";
+import { MarkdownRenderer } from "../markdown/renderer";
 import { twMerge } from "tailwind-merge";
 
 function Notice({ children }: { children: React.ReactNode }) {
@@ -350,11 +350,7 @@ export function FeedPostCard(props: PostProps) {
       {/* )} */}
       {/* {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />} */}
 
-      {detailView && (
-        <div className="prose dark:prose-invert leading-normal">
-          <Markdown>{body}</Markdown>
-        </div>
-      )}
+      {detailView && body && <MarkdownRenderer markdown={body} />}
 
       <div className="flex flex-row justify-end gap-2">
         <PostCommentsButton

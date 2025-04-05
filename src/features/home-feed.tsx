@@ -224,7 +224,7 @@ export default function HomeFeed() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3">
+          <IonButtons slot="end" className="gap-4">
             <Link
               to="/home/s"
               className="text-2xl contents text-brand md:hidden"

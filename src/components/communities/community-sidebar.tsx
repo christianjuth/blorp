@@ -1,12 +1,11 @@
 import { useCommunity } from "~/src/lib/lemmy/index";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import Markdown from "react-markdown";
+import { MarkdownRenderer } from "../markdown/renderer";
 import { abbriviateNumber } from "~/src/lib/format";
 import { CommunityJoinButton } from "./community-join-button";
 import { useLinkContext } from "../nav/link-context";
 import { useCommunitiesStore } from "~/src/stores/communities";
-import { ContentGutters } from "../gutters";
 import { LuCakeSlice } from "react-icons/lu";
 import { Link } from "react-router-dom";
 import { cn } from "~/src/lib/utils";
@@ -82,10 +81,10 @@ export function CommunitySidebar({
 
         {community.description && !hideDescription && (
           <div
-            className="prose dark:prose-invert prose-sm leading-normal pt-3"
+            className="pt-3"
             // py="$3" btc="$color0" btw={1}
           >
-            <Markdown>{community.description}</Markdown>
+            <MarkdownRenderer markdown={community.description} />
           </div>
         )}
       </div>
