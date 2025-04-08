@@ -72,7 +72,7 @@ export default function Communities() {
     <IonPage>
       <Title>Communities</Title>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <CommunityFilter />
           </IonButtons>
@@ -81,6 +81,7 @@ export default function Communities() {
               e.preventDefault();
               router.push(`/communities/s?q=${search}`);
             }}
+            data-tauri-drag-region
           >
             <IonSearchbar
               mode="ios"

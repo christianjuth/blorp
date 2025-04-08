@@ -31,7 +31,6 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
 import {
@@ -161,6 +160,7 @@ export default function User() {
       <Title>{person ? createPersonSlug(person) : "Person"}</Title>
       <IonHeader>
         <IonToolbar
+          data-tauri-drag-region
           style={
             media.maxMd ? { "--border-color": "var(--background)" } : undefined
           }
@@ -168,7 +168,9 @@ export default function User() {
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>
-          <IonTitle>{person ? createPersonSlug(person) : "Person"}</IonTitle>
+          <IonTitle data-tauri-drag-region>
+            {person ? createPersonSlug(person) : "Person"}
+          </IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

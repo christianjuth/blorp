@@ -13,6 +13,9 @@ import { PostByline } from "./post-byline";
 import { PostCommentsButton, Voting } from "./post-buttons";
 import { MarkdownRenderer } from "../markdown/renderer";
 import { twMerge } from "tailwind-merge";
+import { PostLoopsEmbed } from "./post-loops-embed";
+import { YouTubeVideoEmbed } from "../youtube";
+import { PostVideoEmbed } from "./post-video-embed";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return null;
@@ -342,13 +345,13 @@ export function FeedPostCard(props: PostProps) {
         />
       )}
 
-      {/* {type === "video" && !deleted && url && ( */}
-      {/*   <PostVideoEmbed url={url} autoPlay={false} /> */}
-      {/* )} */}
-      {/* {type === "loops" && !deleted && url && ( */}
-      {/*   <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} /> */}
-      {/* )} */}
-      {/* {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />} */}
+      {type === "video" && !deleted && url && (
+        <PostVideoEmbed url={url} autoPlay={false} />
+      )}
+      {type === "loops" && !deleted && url && (
+        <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} />
+      )}
+      {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
 
       {detailView && body && <MarkdownRenderer markdown={body} />}
 

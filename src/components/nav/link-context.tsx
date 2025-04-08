@@ -2,9 +2,9 @@ import { createContext } from "react";
 import { useIonRouter } from "@ionic/react";
 
 export const LinkContext = createContext<{
-  root: "/" | "/communities/" | "/inbox/";
+  root: "/home/" | "/communities/" | "/inbox/";
 }>({
-  root: "/",
+  root: "/home/",
 });
 
 export function useLinkContext() {

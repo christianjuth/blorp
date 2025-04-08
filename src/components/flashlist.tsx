@@ -241,26 +241,28 @@ export function FlashList<T>({
   }
 
   return (
-    <div
-      ref={scrollRef}
-      className={twMerge("overflow-auto overscroll-auto flex-1", className)}
-      onScroll={onScroll}
-    >
+    <>
       {refresh && (
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent />
         </IonRefresher>
       )}
 
-      <FlashListInternal
-        key={key}
-        {...props}
+      <div
         ref={scrollRef}
-        onFocusChange={(newFocused) => {
-          setFocused(newFocused);
-          onFocusChange?.(newFocused);
-        }}
-      />
-    </div>
+        className={twMerge("overflow-auto overscroll-auto flex-1", className)}
+        onScroll={onScroll}
+      >
+        <FlashListInternal
+          key={key}
+          {...props}
+          ref={scrollRef}
+          onFocusChange={(newFocused) => {
+            setFocused(newFocused);
+            onFocusChange?.(newFocused);
+          }}
+        />
+      </div>
+    </>
   );
 }

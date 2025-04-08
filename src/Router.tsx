@@ -28,6 +28,7 @@ import { SentryAddCtx } from "./components/sentry";
 import { lazy } from "react";
 import * as routes from "~/src/lib/routes";
 import { dispatchScrollEvent } from "./lib/scroll-events";
+import { isTauri } from "./lib/tauri";
 
 const Inbox = lazy(() => import("~/src/features/inbox"));
 const Privacy = lazy(() => import("~/src/features/privacy"));
@@ -214,6 +215,12 @@ function Tabs() {
         className="border-r-[0.5px] border-border"
       >
         <IonContent>
+          {isTauri() && (
+            <div
+              className="h-12 -mb-6 w-full top-0 sticky bg-gradient-to-b from-black to-transparent from-30% z-10"
+              data-tauri-drag-region
+            />
+          )}
           <button
             className="h-[60px] px-6 flex items-center"
             onClick={() => {

@@ -121,6 +121,7 @@ export default function Inbox() {
           }}
           estimatedItemSize={375}
           className="h-full ion-content-scroll-host"
+          refresh={replies.refetch}
         />
       </IonContent>
     </IonPage>

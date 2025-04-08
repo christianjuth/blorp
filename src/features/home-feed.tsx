@@ -202,6 +202,7 @@ export default function HomeFeed() {
               e.preventDefault();
               router.push(`/home/s?q=${search}`);
             }}
+            data-tauri-drag-region
           >
             <IonSearchbar
               className="max-w-md mx-auto"

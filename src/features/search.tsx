@@ -138,11 +138,7 @@ export function SearchFeed({
     <IonPage>
       <Title>{communityName ? `Search ${communityName}` : "Search"}</Title>
       <IonHeader>
-        <IonToolbar
-        // style={
-        //   media.maxMd ? { "--border-color": "var(--background)" } : undefined
-        // }
-        >
+        <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>

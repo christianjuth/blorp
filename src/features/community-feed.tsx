@@ -121,6 +121,7 @@ export default function CommunityFeed() {
               e.preventDefault();
               router.push(`${linkCtx.root}c/${communityName}/s?q=${search}`);
             }}
+            data-tauri-drag-region
           >
             <IonSearchbar
               mode="ios"

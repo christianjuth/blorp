@@ -33,74 +33,52 @@ export function PostLoopsEmbed({
     getVideo(url).then(setSrc);
   }, [url]);
 
-  return null;
-
   // const linkOut = isWeb && !isTauri();
+  const linkOut = false;
 
-  // const content = (
-  //   <XStack jc="center" pos="relative" bg="$gray1">
-  //     <YStack
-  //       flex={1}
-  //       aspectRatio={AR}
-  //       bg="black"
-  //       $md={{
-  //         mx: "$-3",
-  //         br: 0,
-  //       }}
-  //       $gtMd={{
-  //         maxWidth: MAX_WIDTH_GT_MD * AR,
-  //         maxHeight: MAX_WIDTH_GT_MD,
-  //       }}
-  //     >
-  //       {!src && thumbnail && (
-  //         <Image
-  //           imageUrl={thumbnail}
-  //           style={{
-  //             height: "100%",
-  //             width: "100%",
-  //           }}
-  //         />
-  //       )}
-  //       {!linkOut && src && (
-  //         <Video
-  //           style={{
-  //             height: "100%",
-  //             width: "100%",
-  //           }}
-  //           source={{
-  //             uri: src,
-  //           }}
-  //           controls
-  //           resizeMode="contain"
-  //           paused={!autoPlay}
-  //         />
-  //       )}
-  //     </YStack>
+  const content = (
+    <div className="bg-muted max-md:contents">
+      <div className="aspect-[9/16] md:max-w-xs mx-auto relative max-md:-mx-2.5">
+        {!src && thumbnail && (
+          <img
+            src={thumbnail}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
+        {!linkOut && src && (
+          <video
+            src={src}
+            controls
+            className="absolute inset-0 h-full w-full object-cover"
+            autoPlay={autoPlay}
+          />
+        )}
+      </div>
 
-  //     {linkOut && (
-  //       <View
-  //         br={99999}
-  //         p="$4"
-  //         bg="$color05"
-  //         pos="absolute"
-  //         t="50%"
-  //         l="50%"
-  //         transform={[{ translateX: "-50%" }, { translateY: "-50%" }]}
-  //         hoverStyle={{
-  //           opacity: 0.8,
-  //         }}
-  //       >
-  //         <Play color="white" size="$3" />
-  //       </View>
-  //     )}
-  //   </XStack>
-  // );
+      {/* {linkOut && ( */}
+      {/*   <div */}
+      {/*     br={99999} */}
+      {/*     p="$4" */}
+      {/*     bg="$color05" */}
+      {/*     pos="absolute" */}
+      {/*     t="50%" */}
+      {/*     l="50%" */}
+      {/*     transform={[{ translateX: "-50%" }, { translateY: "-50%" }]} */}
+      {/*     hoverStyle={{ */}
+      {/*       opacity: 0.8, */}
+      {/*     }} */}
+      {/*   > */}
+      {/*     <Play color="white" size="$3" /> */}
+      {/*   </div> */}
+      {/* )} */}
+    </div>
+  );
 
-  // return linkOut ? (
-  //   <Link href={url as any} target="_blank">
-  //     {content}
-  //   </Link>
-  // ) : (
-  //   content
-  // );
+  return linkOut ? (
+    <a href={url as any} target="_blank">
+      {content}
+    </a>
+  ) : (
+    content
+  );
 }
