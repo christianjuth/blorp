@@ -21,8 +21,10 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
   IonPage,
   IonSearchbar,
+  IonTitle,
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
@@ -30,11 +32,12 @@ import { useParams } from "react-router";
 import { CommunityBanner } from "../components/communities/community-banner";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
-import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
 import { PostSortBar } from "../components/lemmy-sort";
 import { Title } from "../components/title";
 import { useLinkContext } from "../components/nav/link-context";
+import { Link } from "react-router-dom";
+import { searchOutline } from "ionicons/icons";
 
 const EMPTY_ARR = [];
 
@@ -115,6 +118,9 @@ export default function CommunityFeed() {
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
+            <span className="font-bold w-4/5 overflow-hidden overflow-ellipsis md:hidden">
+              {communityName}
+            </span>
           </IonButtons>
           <form
             onSubmit={(e) => {
@@ -122,6 +128,7 @@ export default function CommunityFeed() {
               router.push(`${linkCtx.root}c/${communityName}/s?q=${search}`);
             }}
             data-tauri-drag-region
+            className="max-md:hidden"
           >
             <IonSearchbar
               mode="ios"
@@ -131,7 +138,13 @@ export default function CommunityFeed() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3">
+          <IonButtons slot="end" className="gap-4">
+            <Link
+              to="/home/s"
+              className="text-2xl contents text-brand md:hidden"
+            >
+              <IonIcon icon={searchOutline} />
+            </Link>
             <PostSortBar align="end" />
             <UserDropdown />
           </IonButtons>

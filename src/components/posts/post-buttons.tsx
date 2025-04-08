@@ -74,20 +74,33 @@ export function Voting({
 export function PostCommentsButton({
   commentsCount,
   href,
+  onClick,
 }: {
   commentsCount: number;
   href?: string;
+  onClick?: () => void;
 }) {
-  if (!href) {
-    return null;
+  if (href) {
+    return (
+      <Link
+        to={href}
+        className="h-7 flex items-center gap-1 border-[0.5px] px-2.5 rounded-full"
+      >
+        <TbMessageCircle className="text-lg" />
+        <span>{commentsCount}</span>
+      </Link>
+    );
   }
-  return (
-    <Link
-      to={href}
-      className="h-7 flex items-center gap-1 border-[0.5px] px-2.5 rounded-full"
-    >
-      <TbMessageCircle className="text-lg" />
-      <span>{commentsCount}</span>
-    </Link>
-  );
+  if (onClick) {
+    return (
+      <button
+        onClick={onClick}
+        className="h-7 flex items-center gap-1 border-[0.5px] px-2.5 rounded-full"
+      >
+        <TbMessageCircle className="text-lg" />
+        <span>{commentsCount}</span>
+      </button>
+    );
+  }
+  return null;
 }

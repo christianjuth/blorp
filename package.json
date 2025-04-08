@@ -58,6 +58,7 @@
     "@testing-library/react": "^16.2.0",
     "@tiptap/core": "^2.11.7",
     "@tiptap/extension-code-block-lowlight": "^2.11.7",
+    "@tiptap/extension-placeholder": "^2.11.7",
     "@tiptap/react": "^2.11.7",
     "@tiptap/starter-kit": "^2.11.7",
     "@types/autosize": "^4.0.3",

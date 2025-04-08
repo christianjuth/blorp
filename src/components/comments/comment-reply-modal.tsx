@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { Comment } from "lemmy-js-client";
 import {
   FlattenedComment,
@@ -68,6 +68,7 @@ export function InlineCommentReply({
   onCancel,
   onSubmit,
   autoFocus,
+  mode = "auto",
 }: {
   state: ReturnType<typeof useInlineCommentReplyState>;
   comment?: Comment;
@@ -77,7 +78,9 @@ export function InlineCommentReply({
   onCancel?: () => void;
   onSubmit?: () => void;
   autoFocus?: boolean;
+  mode?: "auto" | "mobile-only" | "desktop-only";
 }) {
+  const [submitSignal, setSubmitSignal] = useState(0);
   const media = useMedia();
 
   const createComment = useCreateComment({
@@ -86,6 +89,10 @@ export function InlineCommentReply({
   const editComment = useEditComment();
 
   const handleSubmit = () => {
+    if (!state.content) {
+      state.setIsEditing(false);
+      return;
+    }
     if (comment) {
       editComment.mutate({
         path: comment.path,
@@ -101,10 +108,20 @@ export function InlineCommentReply({
       });
     }
     state.setIsEditing(false);
+    state.setContent("");
+    setSubmitSignal((s) => s + 1);
     onSubmit?.();
   };
 
-  if (!media.md) {
+  const debouncedBlur = useMemo(
+    () => _.debounce(() => state.setIsEditing(false), 100),
+    [],
+  );
+
+  if (media.maxMd) {
+    if (mode === "desktop-only") {
+      return null;
+    }
     return (
       <IonModal
         isOpen={state.isEditing}
@@ -131,10 +148,15 @@ export function InlineCommentReply({
             onChange={(val) => state.setContent(val)}
             className="h-full"
             autoFocus
+            placeholder="Add a comment..."
           />
         </IonContent>
       </IonModal>
     );
+  }
+
+  if (mode === "mobile-only") {
+    return null;
   }
 
   return (
@@ -148,8 +170,16 @@ export function InlineCommentReply({
     >
       <div className="flex-1 border rounded-xl focus-within:shadow-xs focus-within:border-ring">
         <MarkdownEditor
+          key={submitSignal}
           content={state.content}
           onChange={(val) => state.setContent(val)}
+          autoFocus={autoFocus}
+          placeholder="Add a comment..."
+          onFocus={() => {
+            debouncedBlur.cancel();
+            state.setIsEditing(true);
+          }}
+          onBlur={debouncedBlur}
         />
         {state.isEditing && (
           <div className="flex flex-row justify-end p-1.5 pt-0 gap-2">

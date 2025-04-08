@@ -104,7 +104,7 @@ export default function Inbox() {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent scrollY={false}>
         <FlashList
           data={allReplies}
           renderItem={({ item, index }) => (

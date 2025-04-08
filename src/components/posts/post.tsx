@@ -16,6 +16,7 @@ import { twMerge } from "tailwind-merge";
 import { PostLoopsEmbed } from "./post-loops-embed";
 import { YouTubeVideoEmbed } from "../youtube";
 import { PostVideoEmbed } from "./post-video-embed";
+import { cn } from "~/src/lib/utils";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return null;
@@ -271,7 +272,10 @@ export function FeedPostCard(props: PostProps) {
 
   return (
     <div
-      className="flex-1 py-4 border-b-[0.5px] gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-2.5"
+      className={cn(
+        "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-2.5",
+        !detailView && "border-b-[0.5px] pb-4",
+      )}
       // pt="$4"
       // pb="$4"
       // bbc="$color3"
@@ -355,13 +359,15 @@ export function FeedPostCard(props: PostProps) {
 
       {detailView && body && <MarkdownRenderer markdown={body} />}
 
-      <div className="flex flex-row justify-end gap-2">
-        <PostCommentsButton
-          commentsCount={commentsCount}
-          href={postDetailsLink}
-        />
-        <Voting apId={apId} score={score} myVote={myVote} />
-      </div>
+      {!detailView && (
+        <div className="flex flex-row justify-end gap-2">
+          <PostCommentsButton
+            commentsCount={commentsCount}
+            href={postDetailsLink}
+          />
+          <Voting apId={apId} score={score} myVote={myVote} />
+        </div>
+      )}
     </div>
   );
 }
@@ -369,41 +375,30 @@ export function FeedPostCard(props: PostProps) {
 export function PostBottomBar({
   apId,
   commentsCount,
+  onReply,
 }: {
   apId: string;
   commentsCount: number;
+  onReply: () => void;
 }) {
   const postView = usePostsStore((s) => s.posts[apId]?.data);
-  // const replyCtx = useCommentReaplyContext();
 
   if (!postView) {
     return null;
   }
 
+  const diff =
+    typeof postView?.optimisticMyVote === "number"
+      ? postView?.optimisticMyVote - (postView?.myVote ?? 0)
+      : 0;
+  const score = postView?.counts.score + diff;
+
+  const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
+
   return (
-    <div
-    // ai="center"
-    // gap="$2"
-    // py="$2"
-    // bbc="$color3"
-    // mx="auto"
-    // flex={1}
-    // $md={{
-    //   bbw: 0.5,
-    //   px: "$3",
-    //   py: "$1.5",
-    // }}
-    // bg="$background"
-    >
-      {/* <CommentSortSelect /> */}
-
-      <div className="flex-1" />
-
-      {/* <PostCommentsButton */}
-      {/*   commentsCount={commentsCount} */}
-      {/*   onPress={replyCtx.focus} */}
-      {/* /> */}
-      {/* {postView && <Voting {...getPostProps(postView)} />} */}
+    <div className="py-2 flex flex-row justify-end gap-2 bg-background">
+      <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
+      <Voting apId={apId} score={score} myVote={myVote} />
     </div>
   );
 }

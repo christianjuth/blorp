@@ -13,8 +13,11 @@ import { ContentGutters } from "../components/gutters";
 
 import { memo, useMemo } from "react";
 import _ from "lodash";
-import { useRef, useState } from "react";
-import { InlineCommentReply } from "../components/comments/comment-reply-modal";
+import { useState } from "react";
+import {
+  InlineCommentReply,
+  useInlineCommentReplyState,
+} from "../components/comments/comment-reply-modal";
 import { useAuth } from "../stores/auth";
 import { FlashList } from "../components/flashlist";
 import { PostReportProvider } from "../components/posts/post-report";
@@ -32,6 +35,7 @@ import { useParams } from "react-router";
 import { UserDropdown } from "../components/nav";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { Title } from "../components/title";
+import { useMedia } from "../lib/hooks";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -54,10 +58,8 @@ const MemoedPostCard = memo((props: PostProps) => (
 ));
 
 export default function Post() {
+  const media = useMedia();
   const { communityName } = useParams<{ communityName: string }>();
-
-  // const ref = useRef(null);
-  // useScrollToTop(ref);
 
   const { post: apId, comment: commentPath } = useParams<{
     post: string;
@@ -145,6 +147,9 @@ export default function Post() {
     [structured],
   );
 
+  const mobleReply = useInlineCommentReplyState();
+  const reply = useInlineCommentReplyState();
+
   if (!post || !decodedApId) {
     return null;
   }
@@ -162,7 +167,12 @@ export default function Post() {
     <IonPage>
       <Title>{post.post.name}</Title>
       <IonHeader>
-        <IonToolbar data-tauri-drag-region>
+        <IonToolbar
+          data-tauri-drag-region
+          style={
+            media.maxMd ? { "--border-color": "var(--background)" } : undefined
+          }
+        >
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>
@@ -193,29 +203,40 @@ export default function Post() {
               }
 
               if (item === "post-bottom-bar") {
-                return null;
-                // return (
-                //   <ContentGutters>
-                //     <PostBottomBar
-                //       apId={decodedApId}
-                //       commentsCount={post.counts.comments}
-                //     />
-                //     <></>
-                //   </ContentGutters>
-                // );
+                return (
+                  <>
+                    <ContentGutters className="max-md:border-b-[.5px]">
+                      <PostBottomBar
+                        apId={decodedApId}
+                        commentsCount={post.counts.comments}
+                        onReply={() => mobleReply.setIsEditing(true)}
+                      />
+                      <></>
+                    </ContentGutters>
+                    <InlineCommentReply
+                      state={mobleReply}
+                      postId={post.post.id}
+                      queryKeyParentId={parentId}
+                      autoFocus={reply.isEditing}
+                      mode="mobile-only"
+                    />
+                  </>
+                );
               }
 
               if (item === "comment") {
-                return null;
-                // return (
-                //   <ContentGutters>
-                //     <InlineCommentReply
-                //       postId={post.post.id}
-                //       queryKeyParentId={parentId}
-                //     />
-                //     <></>
-                //   </ContentGutters>
-                // );
+                return (
+                  <ContentGutters className="md:pt-4">
+                    <InlineCommentReply
+                      state={reply}
+                      postId={post.post.id}
+                      queryKeyParentId={parentId}
+                      autoFocus={reply.isEditing}
+                      mode="desktop-only"
+                    />
+                    <></>
+                  </ContentGutters>
+                );
               }
 
               return (

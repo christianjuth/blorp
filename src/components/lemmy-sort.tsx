@@ -5,14 +5,22 @@ import {
   PostSortType,
 } from "lemmy-js-client";
 import { useFiltersStore } from "~/src/stores/filters";
-import { ComponentProps, useMemo } from "react";
+import { useMemo } from "react";
 import { useAuth } from "../stores/auth";
 import { useMedia } from "../lib/hooks";
 import { ActionMenu, ActionMenuProps } from "./action-menu";
 
-import { TbArrowsDownUp } from "react-icons/tb";
-import { LuFlame } from "react-icons/lu";
-import { FaPersonRunning, FaCaretDown } from "react-icons/fa6";
+import { TbArrowsDownUp, TbMessageCircle } from "react-icons/tb";
+import { LuClock3, LuCalendarArrowUp } from "react-icons/lu";
+import {
+  FaPersonRunning,
+  FaCaretDown,
+  FaArrowTrendUp,
+  FaHourglassEnd,
+} from "react-icons/fa6";
+import { IoSkullOutline } from "react-icons/io5";
+import { TbMessageCircleUp } from "react-icons/tb";
+import { PiFireSimpleBold } from "react-icons/pi";
 
 export function CommunitySortSelect() {
   const communitySort = useFiltersStore((s) => s.communitySort);
@@ -160,29 +168,28 @@ export function CommentSortSelect() {
   // );
 }
 
-function formatPostSort(sort: PostSortType) {
-  switch (sort) {
-    case "TopSixHour":
-      return "Top 6 Hours";
-    case "TopTwelveHour":
-      return "Top 12 Hours";
-    case "TopThreeMonths":
-      return "Top 3 Months";
-    case "TopSixMonths":
-      return "Top 6 Months";
-    case "TopNineMonths":
-      return "Top 9 Months";
-    default:
-      return sort.replace(/([A-Z])/g, " $1");
-  }
-}
-
 function getIconForSort(sort: PostSortType) {
+  if (sort.startsWith("Top")) {
+    return <LuCalendarArrowUp />;
+  }
+
   switch (sort) {
     case "Hot":
-      return <LuFlame />;
+      return <PiFireSimpleBold />;
     case "Active":
       return <FaPersonRunning />;
+    case "New":
+      return <LuClock3 />;
+    case "Controversial":
+      return <IoSkullOutline />;
+    case "Scaled":
+      return <FaArrowTrendUp />;
+    case "MostComments":
+      return <TbMessageCircleUp />;
+    case "NewComments":
+      return <TbMessageCircle />;
+    case "Old":
+      return <FaHourglassEnd />;
     default:
       return <TbArrowsDownUp />;
   }
@@ -297,7 +304,7 @@ export function PostSortBar({
       align={align}
       actions={actions}
       trigger={
-        <div className="flex flex-row items-center gap-1 h-7.5 text-xl text-muted-foreground">
+        <div className="flex flex-row items-center gap-1 h-7.5 text-xl text-brand">
           {getIconForSort(postSort)}
         </div>
       }

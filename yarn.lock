@@ -4439,6 +4439,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/extension-placeholder@npm:^2.11.7":
+  version: 2.11.7
+  resolution: "@tiptap/extension-placeholder@npm:2.11.7"
+  peerDependencies:
+    "@tiptap/core": ^2.7.0
+    "@tiptap/pm": ^2.7.0
+  checksum: 10c0/542c9c2473c4ed2a65329a96a7ce7d53d71bd9d48df3ee5e1ed157ddfaa52317c812acbbfaaacd3299758726410a052124c50e130f413da7905df1fe040f8ea3
+  languageName: node
+  linkType: hard
+
 "@tiptap/extension-strike@npm:^2.11.7":
   version: 2.11.7
   resolution: "@tiptap/extension-strike@npm:2.11.7"
@@ -9549,6 +9559,7 @@ __metadata:
     "@testing-library/react": "npm:^16.2.0"
     "@tiptap/core": "npm:^2.11.7"
     "@tiptap/extension-code-block-lowlight": "npm:^2.11.7"
+    "@tiptap/extension-placeholder": "npm:^2.11.7"
     "@tiptap/react": "npm:^2.11.7"
     "@tiptap/starter-kit": "npm:^2.11.7"
     "@types/autosize": "npm:^4.0.3"

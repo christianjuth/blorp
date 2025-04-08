@@ -217,7 +217,7 @@ function Tabs() {
         <IonContent>
           {isTauri() && (
             <div
-              className="h-12 -mb-6 w-full top-0 sticky bg-gradient-to-b from-black to-transparent from-30% z-10"
+              className="h-12 -mb-6 w-full top-0 sticky bg-gradient-to-b from-background to-transparent from-30% z-10"
               data-tauri-drag-region
             />
           )}

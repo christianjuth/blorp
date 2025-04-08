@@ -4,6 +4,7 @@ import {
   ReactNodeViewRenderer,
   useEditor,
 } from "@tiptap/react";
+import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "tiptap-markdown";
 import Spoiler from "./spoiler-plugin";
@@ -226,16 +227,25 @@ function MarkdownEditorInner({
   content,
   onChange,
   onChangeEditorType,
+  placeholder,
+  onFocus,
+  onBlur,
 }: {
   autoFocus?: boolean;
   content: string;
   onChange: (content: string) => void;
   onChangeEditorType: () => void;
+  placeholder?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }) {
   const editor = useEditor({
     autofocus: autoFocus,
     content,
     extensions: [
+      Placeholder.configure({
+        placeholder,
+      }),
       StarterKit,
       Markdown,
       Spoiler,
@@ -251,6 +261,8 @@ function MarkdownEditorInner({
       const markdown = editor?.storage.markdown.getMarkdown();
       onChange(markdown);
     },
+    onFocus: () => onFocus?.(),
+    onBlur: () => onBlur?.(),
   });
 
   return (
@@ -279,11 +291,17 @@ function PlainTextEditorInner({
   onChange,
   onChangeEditorType,
   autoFocus,
+  placeholder,
+  onFocus,
+  onBlur,
 }: {
   content: string;
   onChange: (content: string) => void;
   onChangeEditorType: () => void;
   autoFocus?: boolean;
+  placeholder?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }) {
   return (
     <>
@@ -302,6 +320,9 @@ function PlainTextEditorInner({
         defaultValue={content}
         onChange={(e) => onChange(e.target.value)}
         className="prose dark:prose-invert prose-sm resize-none max-w-full font-mono outline-none py-2 px-3"
+        placeholder={placeholder}
+        onFocus={onFocus}
+        onBlur={onBlur}
       />
     </>
   );
@@ -312,11 +333,17 @@ export function MarkdownEditor({
   onChange,
   className,
   autoFocus: autoFocusDefault,
+  placeholder,
+  onFocus,
+  onBlur,
 }: {
   content: string;
   onChange: (content: string) => void;
   className?: string;
   autoFocus?: boolean;
+  placeholder?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }) {
   const [autoFocus, setAutoFocus] = useState(autoFocusDefault ?? false);
   const [showMarkdown, setShowMarkdown] = useState(false);
@@ -330,8 +357,12 @@ export function MarkdownEditor({
           onChangeEditorType={() => {
             setAutoFocus(true);
             setShowMarkdown(false);
+            onFocus?.();
           }}
           autoFocus={autoFocus}
+          placeholder={placeholder}
+          onFocus={onFocus}
+          onBlur={onBlur}
         />
       ) : (
         <MarkdownEditorInner
@@ -340,8 +371,12 @@ export function MarkdownEditor({
           onChangeEditorType={() => {
             setAutoFocus(true);
             setShowMarkdown(true);
+            onFocus?.();
           }}
           autoFocus={autoFocus}
+          placeholder={placeholder}
+          onFocus={onFocus}
+          onBlur={onBlur}
         />
       )}
     </div>
