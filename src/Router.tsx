@@ -205,7 +205,7 @@ function Tabs() {
   const pathname = router.routeInfo.pathname;
 
   return (
-    <IonSplitPane when="md" contentId="main">
+    <IonSplitPane when="lg" contentId="main">
       <IonMenu
         contentId="main"
         style={{
@@ -242,7 +242,7 @@ function Tabs() {
             <Redirect exact from="/" to="/home" />
           </IonRouterOutlet>
 
-          <IonTabBar slot="bottom" className="md:hidden">
+          <IonTabBar slot="bottom" className="lg:hidden">
             {TABS.map((t) => (
               <IonTabButton
                 key={t.id}

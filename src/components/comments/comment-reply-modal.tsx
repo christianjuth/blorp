@@ -101,6 +101,7 @@ export function InlineCommentReply({
       });
     }
     state.setIsEditing(false);
+    onSubmit?.();
   };
 
   if (!media.md) {
@@ -125,54 +126,12 @@ export function InlineCommentReply({
           </IonToolbar>
         </IonHeader>
         <IonContent>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (comment) {
-                editComment.mutate({
-                  path: comment.path,
-                  comment_id: comment.id,
-                  content: state.content,
-                });
-              } else {
-                createComment.mutate({
-                  post_id: +postId,
-                  content: state.content,
-                  parent_id: parent?.comment.id,
-                  parentPath: parent?.comment.path ?? "0",
-                });
-              }
-              onSubmit?.();
-            }}
-          >
-            <div className="flex-1">
-              <MarkdownEditor
-                content={state.content}
-                onChange={(val) => state.setContent(val)}
-                // showToolbar={state.isEditing}
-                // autoFocus={autoFocus}
-              />
-              {state.isEditing && (
-                <div>
-                  <button
-                    type="button"
-                    // size="$2.5"
-                    // br="$12"
-                    onClick={() => {
-                      state.setIsEditing(false);
-                      onCancel?.();
-                    }}
-                  >
-                    Cancel
-                  </button>
-
-                  <button>
-                    {comment ? "Update" : parent ? "Reply" : "Comment"}
-                  </button>
-                </div>
-              )}
-            </div>
-          </form>
+          <MarkdownEditor
+            content={state.content}
+            onChange={(val) => state.setContent(val)}
+            className="h-full"
+            autoFocus
+          />
         </IonContent>
       </IonModal>
     );
@@ -187,30 +146,17 @@ export function InlineCommentReply({
       }}
       className="max-md:hidden w-full flex-1 py-2"
     >
-      <div
-        className="flex-1 border rounded-xl focus-within:shadow-xs focus-within:border-ring"
-        // onFocus={() => setIsEditing(commentKey, true)}
-        // onBlur={() => {
-        //   if (!content.trim()) {
-        //     onCancel?.();
-        //   }
-        // }}
-        // px="$3" bw={1} bc="$color5" br="$5"
-      >
+      <div className="flex-1 border rounded-xl focus-within:shadow-xs focus-within:border-ring">
         <MarkdownEditor
           content={state.content}
           onChange={(val) => state.setContent(val)}
-          // showToolbar={state.isEditing}
-          // autoFocus={autoFocus}
         />
         {state.isEditing && (
-          <div className="flex flex-row justify-end p-2 gap-2">
+          <div className="flex flex-row justify-end p-1.5 pt-0 gap-2">
             <Button
               size="sm"
               type="button"
               variant="outline"
-              // size="$2.5"
-              // br="$12"
               onClick={() => {
                 state.setIsEditing(false);
                 onCancel?.();
@@ -219,10 +165,7 @@ export function InlineCommentReply({
               Cancel
             </Button>
 
-            <Button
-              size="sm"
-              // bg="$accentBackground" size="$2.5" br="$12"
-            >
+            <Button size="sm">
               {comment ? "Update" : parent ? "Reply" : "Comment"}
             </Button>
           </div>

@@ -1,4 +1,4 @@
-import { IonButton } from "@ionic/react";
+import { Button } from "../ui/button";
 import { useFollowCommunity } from "~/src/lib/lemmy/index";
 import { useAuth } from "~/src/stores/auth";
 import { useCommunitiesStore } from "~/src/stores/communities";
@@ -34,8 +34,8 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
   }
 
   return (
-    <IonButton
-      size="small"
+    <Button
+      size="sm"
       {...props}
       onClick={() => {
         if (communityView) {
@@ -47,6 +47,6 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
       }}
     >
       {copy}
-    </IonButton>
+    </Button>
   );
 }

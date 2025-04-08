@@ -11,12 +11,9 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonRefresher,
-  IonRefresherContent,
   IonSearchbar,
   IonTitle,
   IonToolbar,
-  RefresherEventDetail,
   useIonRouter,
 } from "@ionic/react";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
@@ -71,16 +68,6 @@ export default function Communities() {
     numCols = 2;
   }
 
-  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
-    Haptics.impact({ style: ImpactStyle.Medium });
-
-    if (!isRefetching) {
-      refetch().then(() => {
-        event.detail.complete();
-      });
-    }
-  }
-
   return (
     <IonPage>
       <Title>Communities</Title>
@@ -108,10 +95,6 @@ export default function Communities() {
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent />
-        </IonRefresher>
-
         <ContentGutters className="h-full max-md:contents">
           <FlashList<CommunityView>
             key={communitySort + listingType}
@@ -125,6 +108,7 @@ export default function Communities() {
               }
             }}
             estimatedItemSize={48}
+            refresh={refetch}
           />
         </ContentGutters>
       </IonContent>

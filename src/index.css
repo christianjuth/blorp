@@ -206,8 +206,8 @@ ion-toolbar ion-searchbar {
 }
 
 @media screen and (width >= 48rem) {
-  html.plt-mobileweb ion-toolbar,
-  html.plt-desktop ion-toolbar {
+  html.plt-mobileweb ion-header ion-toolbar:first-of-type,
+  html.plt-desktop ion-header ion-toolbar:first-of-type {
     --min-height: 60px;
   }
 }
@@ -300,4 +300,8 @@ ion-button.md.md {
 
 details summary {
   @apply cursor-pointer;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
 }

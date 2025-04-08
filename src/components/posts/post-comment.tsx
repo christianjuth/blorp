@@ -206,8 +206,8 @@ export function PostComment({
         className="border-l-2 pl-1.5 ml-2 pt-px"
         style={{ borderColor: color }}
       >
-        {comment.deleted && <span className="italic">deleted</span>}
-        {comment.removed && <span className="italic">removed</span>}
+        {comment.deleted && <span className="italic text-sm">deleted</span>}
+        {comment.removed && <span className="italic text-sm">removed</span>}
 
         {!hideContent && !edit.isEditing && (
           <MarkdownRenderer markdown={comment.content} />
@@ -224,7 +224,7 @@ export function PostComment({
           />
         )}
 
-        <div className="flex flex-row items-center gap-5 text-sm text-muted-foreground justify-end">
+        <div className="flex flex-row items-center gap-5 text-sm text-muted-foreground justify-end pt-2.5">
           <ActionMenu
             // placement="top"
             actions={[

@@ -25,11 +25,8 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonRefresher,
-  IonRefresherContent,
   IonTitle,
   IonToolbar,
-  RefresherEventDetail,
 } from "@ionic/react";
 import { useParams } from "react-router";
 import { UserDropdown } from "../components/nav";
@@ -161,16 +158,6 @@ export default function Post() {
   //   paddingBottom += tabBar.height;
   // }
 
-  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
-    Haptics.impact({ style: ImpactStyle.Medium });
-
-    if (!refreshing) {
-      refresh().finally(() => {
-        event.detail.complete();
-      });
-    }
-  }
-
   return (
     <IonPage>
       <Title>{post.post.name}</Title>
@@ -186,10 +173,6 @@ export default function Post() {
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent />
-        </IonRefresher>
-
         <PostReportProvider>
           <ContentGutters>
             <div className="flex-1" />
@@ -258,6 +241,7 @@ export default function Post() {
             // refreshing={refreshing}
             estimatedItemSize={450}
             stickyHeaderIndices={[1]}
+            refresh={refresh}
           />
         </PostReportProvider>
 

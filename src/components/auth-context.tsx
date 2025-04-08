@@ -13,7 +13,6 @@ import { useInstances, useLogin, useRefreshAuth } from "../lib/lemmy";
 import fuzzysort from "fuzzysort";
 import _ from "lodash";
 import {
-  IonBackButton,
   IonButton,
   IonButtons,
   IonContent,

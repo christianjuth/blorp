@@ -12,12 +12,18 @@ import {
   defaultRangeExtractor,
   Range,
 } from "@tanstack/react-virtual";
-import { useIonRouter } from "@ionic/react";
+import {
+  IonRefresher,
+  IonRefresherContent,
+  RefresherEventDetail,
+  useIonRouter,
+} from "@ionic/react";
 import { twMerge } from "tailwind-merge";
 
 import { subscribeToScrollEvent } from "../lib/scroll-events";
 import _ from "lodash";
 import { useElementHadFocus } from "../lib/hooks";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 function useRouterSafe() {
   try {
@@ -52,7 +58,6 @@ export function FlashListInternal<T>({
   scrollGutterBothEdges?: boolean;
   className?: string;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => any;
-
   onFocusChange?: (focused: boolean) => any;
 }) {
   const index = useRef(0);
@@ -186,6 +191,7 @@ export function FlashList<T>({
   onFocusChange,
   className,
   onScroll,
+  refresh,
   ...props
 }: {
   data?: T[] | readonly T[];
@@ -200,6 +206,7 @@ export function FlashList<T>({
   className?: string;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => any;
   onFocusChange?: (focused: boolean) => any;
+  refresh?: () => Promise<any>;
 }) {
   const [key, setKey] = useState(0);
 
@@ -228,12 +235,23 @@ export function FlashList<T>({
     }
   }, [focused]);
 
+  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
+    Haptics.impact({ style: ImpactStyle.Medium });
+    refresh?.().finally(() => event.detail.complete());
+  }
+
   return (
     <div
       ref={scrollRef}
       className={twMerge("overflow-auto overscroll-auto flex-1", className)}
       onScroll={onScroll}
     >
+      {refresh && (
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent />
+        </IonRefresher>
+      )}
+
       <FlashListInternal
         key={key}
         {...props}

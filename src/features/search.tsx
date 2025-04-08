@@ -26,11 +26,8 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonRefresher,
-  IonRefresherContent,
   IonSearchbar,
   IonToolbar,
-  RefresherEventDetail,
   useIonRouter,
 } from "@ionic/react";
 import { Title } from "../components/title";
@@ -137,16 +134,6 @@ export function SearchFeed({
     return postViews;
   }, [searchResults.data?.pages, postCache, type]);
 
-  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
-    Haptics.impact({ style: ImpactStyle.Medium });
-
-    if (!isRefetching) {
-      refetch().finally(() => {
-        event.detail.complete();
-      });
-    }
-  }
-
   return (
     <IonPage>
       <Title>{communityName ? `Search ${communityName}` : "Search"}</Title>
@@ -192,10 +179,6 @@ export function SearchFeed({
         )}
       </IonHeader>
       <IonContent scrollY={false}>
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent />
-        </IonRefresher>
-
         <FlashList<Item>
           className="h-full ion-content-scroll-host"
           // ref={ref}
@@ -287,6 +270,7 @@ export function SearchFeed({
           estimatedItemSize={type === "posts" ? 475 : 52}
           key={type}
           stickyHeaderIndices={[1]}
+          refresh={refetch}
         />
 
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">

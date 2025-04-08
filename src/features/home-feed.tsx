@@ -10,7 +10,6 @@ import { useMostRecentPost, usePosts } from "../lib/lemmy";
 import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
 import { isNotNull } from "../lib/utils";
-import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
 import {
@@ -19,12 +18,8 @@ import {
   IonHeader,
   IonIcon,
   IonPage,
-  IonRefresher,
-  IonRefresherContent,
   IonSearchbar,
-  IonTitle,
   IonToolbar,
-  RefresherEventDetail,
   useIonRouter,
 } from "@ionic/react";
 import { FlashList } from "../components/flashlist";
@@ -187,16 +182,6 @@ export default function HomeFeed() {
   const firstPost = posts.data?.pages[0]?.posts[0];
   const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
 
-  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
-    Haptics.impact({ style: ImpactStyle.Medium });
-
-    if (!isRefetching) {
-      Promise.all([refetch(), mostRecentPost.refetch()]).finally(() => {
-        event.detail.complete();
-      });
-    }
-  }
-
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focused, setFocused] = useState(false);
   const scrollAnimation = useHideHeaderTabBar(
@@ -237,10 +222,6 @@ export default function HomeFeed() {
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false} fullscreen={media.maxMd}>
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent />
-        </IonRefresher>
-
         <FlashList
           key={postSort + listingType}
           onFocusChange={setFocused}
@@ -263,6 +244,7 @@ export default function HomeFeed() {
             }
           }}
           onScroll={scrollAnimation.scrollHandler}
+          refresh={() => Promise.all([refetch(), mostRecentPost.refetch()])}
         />
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
           <div className="flex-1" />

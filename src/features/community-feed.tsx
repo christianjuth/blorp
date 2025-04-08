@@ -22,11 +22,8 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonRefresher,
-  IonRefresherContent,
   IonSearchbar,
   IonToolbar,
-  RefresherEventDetail,
   useIonRouter,
 } from "@ionic/react";
 import { useParams } from "react-router";
@@ -111,16 +108,6 @@ export default function CommunityFeed() {
   const firstPost = posts.data?.pages[0]?.posts[0];
   const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
 
-  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
-    Haptics.impact({ style: ImpactStyle.Medium });
-
-    if (!isRefetching) {
-      Promise.all([refetch(), mostRecentPost.refetch()]).finally(() => {
-        event.detail.complete();
-      });
-    }
-  }
-
   return (
     <IonPage>
       <Title>{communityName}</Title>
@@ -151,10 +138,6 @@ export default function CommunityFeed() {
       </IonHeader>
       <IonContent scrollY={false}>
         <PostReportProvider>
-          <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-            <IonRefresherContent />
-          </IonRefresher>
-
           <FlashList<Item>
             className="h-full ion-content-scroll-host"
             // ref={ref}
@@ -188,6 +171,7 @@ export default function CommunityFeed() {
               }
             }}
             estimatedItemSize={475}
+            refresh={() => Promise.all([refetch(), mostRecentPost.refetch()])}
           />
         </PostReportProvider>
 

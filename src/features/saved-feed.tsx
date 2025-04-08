@@ -23,11 +23,8 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonRefresher,
-  IonRefresherContent,
   IonTitle,
   IonToolbar,
-  RefresherEventDetail,
 } from "@ionic/react";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
@@ -124,15 +121,6 @@ export default function SavedFeed() {
     return postViews;
   }, [posts.data?.pages, comments.data?.pages, postCache]);
 
-  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
-    Haptics.impact({ style: ImpactStyle.Medium });
-
-    if (!isRefetching) {
-      refetch();
-      event.detail.complete();
-    }
-  }
-
   return (
     <IonPage>
       <Title>Saved</Title>
@@ -148,10 +136,6 @@ export default function SavedFeed() {
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent />
-        </IonRefresher>
-
         <PostReportProvider>
           <FlashList<Item>
             className="h-full ion-content-scroll-host"
@@ -216,6 +200,7 @@ export default function SavedFeed() {
             // }}
             estimatedItemSize={475}
             stickyHeaderIndices={[0]}
+            refresh={refetch}
           />
         </PostReportProvider>
       </IonContent>

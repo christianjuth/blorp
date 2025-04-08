@@ -1,4 +1,9 @@
-import { Editor, EditorContent, useEditor } from "@tiptap/react";
+import {
+  Editor,
+  EditorContent,
+  ReactNodeViewRenderer,
+  useEditor,
+} from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "tiptap-markdown";
 import Spoiler from "./spoiler-plugin";
@@ -12,6 +17,9 @@ import {
 } from "react-icons/ai";
 import { FaQuoteRight } from "react-icons/fa6";
 import { Toggle } from "../ui/toggle";
+import { cn } from "~/src/lib/utils";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { CodeBlockEditor, lowlight } from "./code-block";
 
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) {
@@ -214,17 +222,31 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
 };
 
 function MarkdownEditorInner({
+  autoFocus,
   content,
   onChange,
   onChangeEditorType,
 }: {
+  autoFocus?: boolean;
   content: string;
   onChange: (content: string) => void;
   onChangeEditorType: () => void;
 }) {
   const editor = useEditor({
+    autofocus: autoFocus,
     content,
-    extensions: [StarterKit, Markdown, Spoiler],
+    extensions: [
+      StarterKit,
+      Markdown,
+      Spoiler,
+      CodeBlockLowlight.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(CodeBlockEditor);
+        },
+      }).configure({
+        lowlight,
+      }),
+    ],
     onUpdate: ({ editor }) => {
       const markdown = editor?.storage.markdown.getMarkdown();
       onChange(markdown);
@@ -233,7 +255,7 @@ function MarkdownEditorInner({
 
   return (
     <>
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-row justify-between p-1.5 pb-0">
         <MenuBar editor={editor} />
         <Button
           size="sm"
@@ -245,8 +267,7 @@ function MarkdownEditorInner({
         </Button>
       </div>
       <EditorContent
-        autoFocus
-        className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal p-2"
+        className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3"
         editor={editor}
       />
     </>
@@ -257,14 +278,16 @@ function PlainTextEditorInner({
   content,
   onChange,
   onChangeEditorType,
+  autoFocus,
 }: {
   content: string;
   onChange: (content: string) => void;
   onChangeEditorType: () => void;
+  autoFocus?: boolean;
 }) {
   return (
     <>
-      <div className="flex flex-row justify-end">
+      <div className="flex flex-row justify-end p-1.5 pb-0">
         <Button
           size="sm"
           variant="ghost"
@@ -275,10 +298,10 @@ function PlainTextEditorInner({
         </Button>
       </div>
       <TextareaAutosize
-        autoFocus
+        autoFocus={autoFocus}
         defaultValue={content}
         onChange={(e) => onChange(e.target.value)}
-        className="prose dark:prose-invert prose-sm resize-none max-w-full font-mono outline-none"
+        className="prose dark:prose-invert prose-sm resize-none max-w-full font-mono outline-none py-2 px-3"
       />
     </>
   );
@@ -287,25 +310,38 @@ function PlainTextEditorInner({
 export function MarkdownEditor({
   content,
   onChange,
+  className,
+  autoFocus: autoFocusDefault,
 }: {
   content: string;
   onChange: (content: string) => void;
+  className?: string;
+  autoFocus?: boolean;
 }) {
+  const [autoFocus, setAutoFocus] = useState(autoFocusDefault ?? false);
   const [showMarkdown, setShowMarkdown] = useState(false);
 
   return (
-    <div className="flex flex-col flex-1 p-2">
+    <div className={cn("flex flex-col flex-1", className)}>
       {showMarkdown ? (
         <PlainTextEditorInner
           content={content}
           onChange={onChange}
-          onChangeEditorType={() => setShowMarkdown(false)}
+          onChangeEditorType={() => {
+            setAutoFocus(true);
+            setShowMarkdown(false);
+          }}
+          autoFocus={autoFocus}
         />
       ) : (
         <MarkdownEditorInner
           content={content}
           onChange={onChange}
-          onChangeEditorType={() => setShowMarkdown(true)}
+          onChangeEditorType={() => {
+            setAutoFocus(true);
+            setShowMarkdown(true);
+          }}
+          autoFocus={autoFocus}
         />
       )}
     </div>

@@ -28,11 +28,8 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonRefresher,
-  IonRefresherContent,
   IonTitle,
   IonToolbar,
-  RefresherEventDetail,
 } from "@ionic/react";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
@@ -159,16 +156,6 @@ export default function User() {
     return null;
   }
 
-  function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
-    Haptics.impact({ style: ImpactStyle.Medium });
-
-    if (!isRefetching) {
-      refetch().then(() => {
-        event.detail.complete();
-      });
-    }
-  }
-
   return (
     <IonPage>
       <Title>{person ? createPersonSlug(person) : "Person"}</Title>
@@ -223,10 +210,6 @@ export default function User() {
             )}
           </div>
         </ContentGutters>
-
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent />
-        </IonRefresher>
 
         <FlashList<Item>
           className="h-full ion-content-scroll-host"
@@ -357,6 +340,7 @@ export default function User() {
           }}
           stickyHeaderIndices={[1]}
           estimatedItemSize={475}
+          refresh={refetch}
         />
       </IonContent>
     </IonPage>

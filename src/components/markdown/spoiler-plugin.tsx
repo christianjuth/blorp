@@ -5,18 +5,20 @@ import markdownitContainer from "markdown-it-container";
 import MarkdownIt from "markdown-it";
 const md = MarkdownIt();
 
+const SPOILER_TAG_NAME = "lemmy-spoiler";
+
 import * as Prosemirror from "prosemirror-model";
 
 function Component() {
   return (
-    <NodeViewWrapper className="border m-2">
+    <NodeViewWrapper className="border border-foreground border-dashed p-2 inline-block">
       <NodeViewContent className="spoiler" />
     </NodeViewWrapper>
   );
 }
 
 export default Node.create({
-  name: "reactComponent",
+  name: SPOILER_TAG_NAME,
 
   group: "block",
   content: "block+",
@@ -24,7 +26,7 @@ export default Node.create({
   parseHTML() {
     return [
       {
-        tag: "react-component",
+        tag: SPOILER_TAG_NAME,
       },
     ];
   },
@@ -34,9 +36,10 @@ export default Node.create({
       insertSpoiler: () => {
         return this.editor
           .chain()
-          .insertContentAt(this.editor.state.selection.head, {
-            type: this.type.name,
-          })
+          .insertContentAt(
+            this.editor.state.selection.head,
+            `<${SPOILER_TAG_NAME}>Spoiler\nDetails</${SPOILER_TAG_NAME}>`,
+          )
           .focus()
           .run();
       },
@@ -44,7 +47,7 @@ export default Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["react-component", mergeAttributes(HTMLAttributes), 0];
+    return [SPOILER_TAG_NAME, mergeAttributes(HTMLAttributes), 0];
   },
 
   addNodeView() {
@@ -80,10 +83,11 @@ export default Node.create({
                 const m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
                 if (tokens[idx].nesting === 1) {
                   // opening tag
-                  return "<react-component>" + md.utils.escapeHtml(m[1]);
+                  const content = md.utils.escapeHtml(m[1]);
+                  return `<${SPOILER_TAG_NAME}>${content}`;
                 } else {
                   // closing tag
-                  return "</react-component>\n";
+                  return `</${SPOILER_TAG_NAME}>\n`;
                 }
               },
             });
