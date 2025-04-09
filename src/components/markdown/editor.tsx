@@ -281,6 +281,11 @@ function MarkdownEditorInner({
       <EditorContent
         className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3"
         editor={editor}
+        onClick={() => {
+          if (editor && !editor.isFocused) {
+            editor.commands.focus("end");
+          }
+        }}
       />
     </>
   );
@@ -319,7 +324,7 @@ function PlainTextEditorInner({
         autoFocus={autoFocus}
         defaultValue={content}
         onChange={(e) => onChange(e.target.value)}
-        className="prose dark:prose-invert prose-sm resize-none max-w-full font-mono outline-none py-2 px-3"
+        className="prose dark:prose-invert prose-sm resize-none max-w-full font-mono outline-none py-2 px-3 flex-1"
         placeholder={placeholder}
         onFocus={onFocus}
         onBlur={onBlur}

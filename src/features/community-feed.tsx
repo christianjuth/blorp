@@ -140,7 +140,7 @@ export default function CommunityFeed() {
           </form>
           <IonButtons slot="end" className="gap-4">
             <Link
-              to="/home/s"
+              to={`${linkCtx.root}c/${communityName}/s`}
               className="text-2xl contents text-brand md:hidden"
             >
               <IonIcon icon={searchOutline} />

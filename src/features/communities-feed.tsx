@@ -12,14 +12,15 @@ import {
   IonHeader,
   IonPage,
   IonSearchbar,
-  IonTitle,
   IonToolbar,
+  IonIcon,
   useIonRouter,
 } from "@ionic/react";
-import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
 import { CommunityFilter } from "../components/lemmy-sort";
 import { Title } from "../components/title";
+import { Link } from "react-router-dom";
+import { searchOutline } from "ionicons/icons";
 
 const MemoedListItem = memo(
   function ListItem(props: CommunityView) {
@@ -77,6 +78,7 @@ export default function Communities() {
             <CommunityFilter />
           </IonButtons>
           <form
+            className="max-md:hidden"
             onSubmit={(e) => {
               e.preventDefault();
               router.push(`/communities/s?q=${search}`);
@@ -90,7 +92,13 @@ export default function Communities() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end">
+          <IonButtons slot="end" className="gap-4">
+            <Link
+              to="/communities/s"
+              className="text-2xl contents text-brand md:hidden"
+            >
+              <IonIcon icon={searchOutline} />
+            </Link>
             <UserDropdown />
           </IonButtons>
         </IonToolbar>

@@ -4,59 +4,154 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCreatePostStore } from "../stores/create-post";
 import { FlashList } from "~/src/components/flashlist";
 import { SmallCommunityCard } from "../components/communities/community-card";
-import { useListCommunities, useSearch } from "../lib/lemmy";
+import { useCreatePost, useListCommunities, useSearch } from "../lib/lemmy";
 import _ from "lodash";
 import { Community } from "lemmy-js-client";
 import { Image } from "../components/image";
 import { parseOgData } from "../lib/html-parsing";
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  useIonRouter,
+} from "@ionic/react";
+import { UserDropdown } from "../components/nav";
+import { MarkdownEditor } from "../components/markdown/editor";
+import { Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { close } from "ionicons/icons";
+import { FaCheck, FaChevronDown } from "react-icons/fa6";
+import { LuLoaderCircle } from "react-icons/lu";
 
 const EMPTY_ARR = [];
 
-export function CreatePostStepOne() {
-  return null;
-  // const community = useCreatePostStore((s) => s.community);
+function CreatePostStepOne({ setStep }: { setStep: (step: 1 | 2) => void }) {
+  const router = useIonRouter();
 
-  // const editorKey = useCreatePostStore((s) => s.key);
+  const community = useCreatePostStore((s) => s.community);
 
-  // const title = useCreatePostStore((s) => s.title);
-  // const setTitle = useCreatePostStore((s) => s.setTitle);
+  const editorKey = useCreatePostStore((s) => s.key);
 
-  // const url = useCreatePostStore((s) => s.url);
-  // const setUrl = useCreatePostStore((s) => s.setUrl);
+  const reset = useCreatePostStore((s) => s.reset);
 
-  // const content = useCreatePostStore((s) => s.content);
-  // const setContent = useCreatePostStore((s) => s.setContent);
+  const title = useCreatePostStore((s) => s.title);
+  const setTitle = useCreatePostStore((s) => s.setTitle);
 
-  // const thumbnailUrl = useCreatePostStore((s) => s.thumbnailUrl);
-  // const setThumbnailUrl = useCreatePostStore((s) => s.setThumbnailUrl);
+  const url = useCreatePostStore((s) => s.url);
+  const setUrl = useCreatePostStore((s) => s.setUrl);
 
-  // const editor = useMemo(() => new MarkdownEditorState(content), [editorKey]);
+  const content = useCreatePostStore((s) => s.content);
+  const setContent = useCreatePostStore((s) => s.setContent);
 
-  // useEffect(() => {
-  //   return editor.addEventListener(() => {
-  //     setContent(editor.getState().content);
-  //   });
-  // }, [editor]);
+  const thumbnailUrl = useCreatePostStore((s) => s.thumbnailUrl);
+  const setThumbnailUrl = useCreatePostStore((s) => s.setThumbnailUrl);
 
-  // const parseUrl = (url: string) => {
-  //   if (url) {
-  //     try {
-  //       fetch(url)
-  //         .then((res) => res.text())
-  //         .then((body) => {
-  //           const ogData = parseOgData(body);
+  const createPost = useCreatePost();
 
-  //           if (!title && ogData.title) {
-  //             setTitle(ogData.title);
-  //           }
+  const parseUrl = (url: string) => {
+    if (url) {
+      try {
+        fetch(url)
+          .then((res) => res.text())
+          .then((body) => {
+            const ogData = parseOgData(body);
 
-  //           if (ogData.image) {
-  //             setThumbnailUrl(ogData.image);
-  //           }
-  //         });
-  //     } catch (err) {}
-  //   }
-  // };
+            if (!title && ogData.title) {
+              setTitle(ogData.title);
+            }
+
+            if (ogData.image) {
+              setThumbnailUrl(ogData.image);
+            }
+          });
+      } catch (err) {}
+    }
+  };
+
+  return (
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Create post</IonTitle>
+
+          <IonButtons slot="end" className="gap-4">
+            <Button
+              size="sm"
+              onClick={() => {
+                if (!community) {
+                  setStep(2);
+                } else {
+                  createPost
+                    .mutateAsync({
+                      name: title,
+                      community_id: community.id,
+                      body: content,
+                      url: url || undefined,
+                      custom_thumbnail: thumbnailUrl,
+                    })
+                    .then(() => reset());
+                }
+              }}
+            >
+              {community ? "Post" : "Next"}
+              {createPost.isPending && (
+                <LuLoaderCircle className="animate-spin" />
+              )}
+            </Button>
+            <UserDropdown />
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        <ContentGutters className="h-full">
+          <div className="flex flex-col py-4 gap-4">
+            {community && (
+              <button
+                onClick={() => setStep(2)}
+                className="flex flex-row items-center gap-2"
+              >
+                <SmallCommunityCard community={community} disableLink />
+                <FaChevronDown className="text-brand" />
+              </button>
+            )}
+
+            <IonInput
+              label="Link"
+              labelPlacement="floating"
+              className="border-b border-border"
+              value={url}
+              onIonInput={({ detail }) => setUrl(detail.value ?? "")}
+              onIonChange={({ detail }) =>
+                detail.value && parseUrl(detail.value)
+              }
+            />
+
+            <IonInput
+              label="Title"
+              labelPlacement="floating"
+              className="border-b border-border"
+              value={title}
+              onIonInput={({ detail }) => setTitle(detail.value ?? "")}
+            />
+
+            <span className="text-muted-foreground text-sm">Body</span>
+            <MarkdownEditor
+              content={content}
+              onChange={setContent}
+              className="md:-mx-3"
+              placeholder="Write something..."
+            />
+          </div>
+        </ContentGutters>
+      </IonContent>
+    </IonPage>
+  );
 
   // return (
   //   <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
@@ -166,114 +261,143 @@ export function CreatePostStepOne() {
   // );
 }
 
-export function CreatePostStepTwo() {
-  return null;
-  // const router = useRouter();
-  // const recentCommunities = useRecentCommunitiesStore();
+function CreatePostStepTwo({ setStep }: { setStep: (step: 1 | 2) => void }) {
+  const router = useIonRouter();
+  const recentCommunities = useRecentCommunitiesStore();
 
-  // const [search, setSearch] = useState("");
-  // const debouncedSetSearch = useCallback(_.debounce(setSearch, 500), []);
+  const [search, setSearch] = useState("");
+  const debouncedSetSearch = useCallback(_.debounce(setSearch, 500), []);
 
-  // const selectedCommunity = useCreatePostStore((s) => s.community);
+  const selectedCommunity = useCreatePostStore((s) => s.community);
 
-  // const setCommunity = useCreatePostStore((s) => s.setCommunity);
+  const setCommunity = useCreatePostStore((s) => s.setCommunity);
 
-  // const subscribedCommunitiesRes = useListCommunities({
-  //   type_: "Subscribed",
-  //   limit: 50,
-  // });
-  // const subscribedCommunities =
-  //   subscribedCommunitiesRes.data?.pages
-  //     .flatMap((p) => p.communities)
-  //     .sort((a, b) => a.community.name.localeCompare(b.community.name))
-  //     .map(({ community }) => community) ?? EMPTY_ARR;
+  const subscribedCommunitiesRes = useListCommunities({
+    type_: "Subscribed",
+    limit: 50,
+  });
+  const subscribedCommunities =
+    subscribedCommunitiesRes.data?.pages
+      .flatMap((p) => p.communities)
+      .sort((a, b) => a.community.name.localeCompare(b.community.name))
+      .map(({ community }) => community) ?? EMPTY_ARR;
 
-  // const searchResultsRes = useSearch({
-  //   q: search,
-  //   type_: "Communities",
-  //   limit: 10,
-  // });
+  const searchResultsRes = useSearch({
+    q: search,
+    type_: "Communities",
+    limit: 10,
+  });
 
-  // const searchResultsCommunities =
-  //   searchResultsRes.data?.pages.flatMap((p) =>
-  //     p.communities.map(({ community }) => community),
-  //   ) ?? EMPTY_ARR;
+  const searchResultsCommunities =
+    searchResultsRes.data?.pages.flatMap((p) =>
+      p.communities.map(({ community }) => community),
+    ) ?? EMPTY_ARR;
 
-  // let data: (
-  //   | Pick<Community, "name" | "id" | "title" | "icon" | "actor_id">
-  //   | "Selected"
-  //   | "Recent"
-  //   | "Subscribed"
-  //   | "Search results"
-  // )[] = [
-  //   "Recent",
-  //   ...recentCommunities.recentlyVisited,
-  //   "Subscribed",
-  //   ...subscribedCommunities,
-  // ];
+  let data: (
+    | Pick<Community, "name" | "id" | "title" | "icon" | "actor_id">
+    | "Selected"
+    | "Recent"
+    | "Subscribed"
+    | "Search results"
+  )[] = [
+    "Recent",
+    ...recentCommunities.recentlyVisited,
+    "Subscribed",
+    ...subscribedCommunities,
+  ];
 
-  // if (search) {
-  //   data = ["Search results", ...searchResultsCommunities];
-  // }
-  // if (selectedCommunity) {
-  //   data = ["Selected", selectedCommunity, ...data];
-  // }
+  if (search) {
+    data = ["Search results", ...searchResultsCommunities];
+  }
+  if (selectedCommunity) {
+    data = ["Selected", selectedCommunity, ...data];
+  }
 
-  // data = _.uniqBy(data, (item) => {
-  //   if (typeof item === "string") {
-  //     return item;
-  //   }
-  //   return item.actor_id;
-  // });
+  data = _.uniqBy(data, (item) => {
+    if (typeof item === "string") {
+      return item;
+    }
+    return item.actor_id;
+  });
+
+  return (
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonButton onClick={() => setStep(1)}>
+              <IonIcon icon={close} />
+            </IonButton>
+          </IonButtons>
+
+          <IonTitle>Choose Community</IonTitle>
+
+          <IonButtons className="gap-4" slot="end">
+            <UserDropdown />
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent scrollY={false}>
+        <ContentGutters>
+          <IonInput
+            label="Search communities"
+            labelPlacement="floating"
+            value={search}
+            onIonInput={({ detail }) => debouncedSetSearch(detail.value ?? "")}
+          />
+        </ContentGutters>
+
+        <FlashList
+          data={data}
+          renderItem={({ item }) => {
+            if (typeof item === "string") {
+              return (
+                <ContentGutters className="py-2">
+                  <span className="text-muted-foreground text-sm">{item}</span>
+                </ContentGutters>
+              );
+            }
+
+            return (
+              <ContentGutters className="py-2 cursor-pointer">
+                <button
+                  onClick={() => {
+                    setCommunity(item);
+                    setStep(1);
+                  }}
+                  className="flex flex-row items-center gap-2"
+                >
+                  <SmallCommunityCard community={item} disableLink />
+                  {selectedCommunity &&
+                    item.actor_id === selectedCommunity?.actor_id && (
+                      <FaCheck className="text-brand" />
+                    )}
+                </button>
+              </ContentGutters>
+            );
+          }}
+          estimatedItemSize={50}
+        />
+      </IonContent>
+    </IonPage>
+  );
 
   // return (
   //   <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
   //     <ContentGutters p="$3" flex={1}>
   //       <YStack flex={1} gap="$2">
-  //         <FlashList
-  //           data={data}
-  //           renderItem={({ item }) => {
-  //             if (typeof item === "string") {
-  //               return (
-  //                 <Text color="$color10" fontSize="$2" mt="$3">
-  //                   {item}
-  //                 </Text>
-  //               );
-  //             }
-
-  //             return (
-  //               <Pressable
-  //                 onPress={() => {
-  //                   setCommunity(item);
-  //                   router.back();
-  //                 }}
-  //               >
-  //                 <XStack py="$2" ai="center" gap="$2">
-  //                   <SmallCommunityCard community={item} disableLink />
-  //                   {selectedCommunity &&
-  //                     item.actor_id === selectedCommunity?.actor_id && (
-  //                       <Check color="$accentColor" />
-  //                     )}
-  //                 </XStack>
-  //               </Pressable>
-  //             );
-  //           }}
-  //           estimatedItemSize={50}
-  //           ListHeaderComponent={
-  //             <Input
-  //               onChangeText={debouncedSetSearch}
-  //               placeholder="Search communities..."
-  //             />
-  //           }
-  //           keyExtractor={(item) =>
-  //             typeof item === "string" ? item : item.actor_id
-  //           }
-  //           getItemType={(item) =>
-  //             typeof item === "string" ? "title" : "community"
-  //           }
-  //         />
   //       </YStack>
   //     </ContentGutters>
   //   </KeyboardAvoidingView>
   // );
+}
+
+export default function CreatePost() {
+  const [step, setStep] = useState<1 | 2>(1);
+  switch (step) {
+    case 1:
+      return <CreatePostStepOne setStep={setStep} />;
+    case 2:
+      return <CreatePostStepTwo setStep={setStep} />;
+  }
 }

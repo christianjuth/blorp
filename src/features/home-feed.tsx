@@ -25,7 +25,7 @@ import {
 import { FlashList } from "../components/flashlist";
 import { UserDropdown } from "../components/nav";
 import { HomeFilter, PostSortBar } from "../components/lemmy-sort";
-import { useElementHadFocus, useMedia } from "../lib/hooks";
+import { useMedia } from "../lib/hooks";
 import { Link } from "react-router-dom";
 import { searchOutline } from "ionicons/icons";
 

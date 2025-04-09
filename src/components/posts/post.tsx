@@ -19,12 +19,9 @@ import { PostVideoEmbed } from "./post-video-embed";
 import { cn } from "~/src/lib/utils";
 
 function Notice({ children }: { children: React.ReactNode }) {
-  return null;
-  // return (
-  //   <Text color="$color11" fontStyle="italic" py="$4">
-  //     {children}
-  //   </Text>
-  // );
+  return (
+    <span className="italic text-muted-foreground text-sm">{children}</span>
+  );
 }
 
 export function getPostProps(
@@ -357,7 +354,7 @@ export function FeedPostCard(props: PostProps) {
       )}
       {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
 
-      {detailView && body && <MarkdownRenderer markdown={body} />}
+      {detailView && body && !deleted && <MarkdownRenderer markdown={body} />}
 
       {!detailView && (
         <div className="flex flex-row justify-end gap-2">

@@ -41,6 +41,7 @@ const CommunitiesFeed = lazy(() => import("~/src/features/communities-feed"));
 const User = lazy(() => import("~/src/features/user"));
 const SavedFeed = lazy(() => import("~/src/features/saved-feed"));
 const Search = lazy(() => import("~/src/features/search"));
+const CreatePost = lazy(() => import("~/src/features/create-post"));
 
 const HOME_STACK = [
   <Route exact path="/home" component={HomeFeed} />,
@@ -60,6 +61,10 @@ const HOME_STACK = [
   />,
   <Route exact path="/home/u/:userId" component={User} />,
   <Route exact path="/home/saved" component={SavedFeed} />,
+];
+
+const CREATE_POST_STACK = [
+  <Route exact path="/create" component={CreatePost} />,
 ];
 
 const COMMUNITIES_STACK = [
@@ -243,6 +248,7 @@ function Tabs() {
           <IonRouterOutlet animated={media.maxMd}>
             {...HOME_STACK}
             {...COMMUNITIES_STACK}
+            {...CREATE_POST_STACK}
             {...INBOX_STACK}
             {...SETTINGS}
             <Route exact path="/privacy" component={Privacy} />
@@ -301,9 +307,9 @@ const TABS: {
   },
   {
     icon: pencil,
-    to: "/post",
+    to: "/create",
     label: "Post",
-    id: "post",
+    id: "create",
   },
   {
     icon: notifications,

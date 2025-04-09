@@ -37,14 +37,9 @@ import { useMedia } from "../lib/hooks";
 
 const EMPTY_ARR = [];
 
-const SIDEBAR_MOBILE = "sidebar-mobile";
 const FILTER_SORT_BAR = "filter-sort-bar";
 
-type Item =
-  | typeof SIDEBAR_MOBILE
-  | typeof FILTER_SORT_BAR
-  | PostProps
-  | CommunityView;
+type Item = typeof FILTER_SORT_BAR | PostProps | CommunityView;
 
 function isPost(item: Item): item is PostProps {
   return _.isObject(item) && "apId" in item;
@@ -95,13 +90,8 @@ export function SearchFeed({
     community_name: type === "posts" ? communityName : undefined,
   });
 
-  const {
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    refetch,
-    isRefetching,
-  } = searchResults;
+  const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } =
+    searchResults;
 
   const postCache = usePostsStore((s) => s.posts);
 
@@ -150,6 +140,11 @@ export function SearchFeed({
               setSearch(e.detail.value ?? "");
               setDebouncedSearch(e.detail.value ?? "");
             }}
+            placeholder={
+              communityName && type === "posts"
+                ? `Search ${communityName}`
+                : undefined
+            }
           />
           <IonButtons slot="end">
             <UserDropdown />
@@ -177,36 +172,8 @@ export function SearchFeed({
       <IonContent scrollY={false}>
         <FlashList<Item>
           className="h-full ion-content-scroll-host"
-          // ref={ref}
-          data={["sidebar-mobile", "filter-sort-bar", ...data]}
+          data={["filter-sort-bar", ...data]}
           renderItem={({ item }) => {
-            // if (item === "sidebar-desktop") {
-            //   return (
-            //     <ContentGutters>
-            //       <View flex={1} />
-            //       {communityName ? (
-            //         <CommunitySidebar
-            //           communityName={communityName}
-            //           hideDescription
-            //         />
-            //       ) : (
-            //         <></>
-            //       )}
-            //     </ContentGutters>
-            //   );
-            // }
-
-            if (item === SIDEBAR_MOBILE) {
-              return communityName ? (
-                <ContentGutters>
-                  <SmallScreenSidebar communityName={communityName} />
-                  <></>
-                </ContentGutters>
-              ) : (
-                <></>
-              );
-            }
-
             if (item === FILTER_SORT_BAR) {
               return (
                 <ContentGutters className="max-md:hidden">
@@ -265,7 +232,6 @@ export function SearchFeed({
           // }}
           estimatedItemSize={type === "posts" ? 475 : 52}
           key={type}
-          stickyHeaderIndices={[1]}
           refresh={refetch}
         />
 

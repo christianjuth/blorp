@@ -50,6 +50,7 @@ import { getPostEmbed } from "../post";
 import { useProfilesStore } from "~/src/stores/profiles";
 import { useToast } from "../hooks";
 import { message } from "@tauri-apps/plugin-dialog";
+import { useIonRouter } from "@ionic/react";
 
 function useLemmyClient(config?: { instance?: string }) {
   let jwt = useAuth((s) => s.getSelectedAccount().jwt);
@@ -1500,14 +1501,14 @@ export function useMarkReplyRead() {
 
 export function useCreatePost() {
   const toast = useToast();
-  // const router = useRouter();
+  const router = useIonRouter();
   const { client } = useLemmyClient();
   return useMutation({
     mutationFn: (form: CreatePost) => client.createPost(form),
     onSuccess: (res) => {
       const apId = res.post_view.post.ap_id;
       const slug = createCommunitySlug(res.post_view.community);
-      // router.push(`/c/${slug}/posts/${encodeURIComponent(apId)}`);
+      router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
     },
     onError: () => {
       toast({
