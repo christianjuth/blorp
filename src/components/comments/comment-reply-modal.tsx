@@ -113,11 +113,6 @@ export function InlineCommentReply({
     onSubmit?.();
   };
 
-  const debouncedBlur = useMemo(
-    () => _.debounce(() => state.setIsEditing(false), 100),
-    [],
-  );
-
   if (media.maxMd) {
     if (mode === "desktop-only") {
       return null;
@@ -142,7 +137,7 @@ export function InlineCommentReply({
             </IonButtons>
           </IonToolbar>
         </IonHeader>
-        <IonContent>
+        <IonContent scrollY={false}>
           <MarkdownEditor
             content={state.content}
             onChange={(val) => state.setContent(val)}
@@ -170,16 +165,14 @@ export function InlineCommentReply({
     >
       <div className="flex-1 border rounded-xl focus-within:shadow-xs focus-within:border-ring">
         <MarkdownEditor
+          className="block"
           key={submitSignal}
           content={state.content}
           onChange={(val) => state.setContent(val)}
           autoFocus={autoFocus}
           placeholder="Add a comment..."
-          onFocus={() => {
-            debouncedBlur.cancel();
-            state.setIsEditing(true);
-          }}
-          onBlur={debouncedBlur}
+          onFocus={() => state.setIsEditing(true)}
+          onBlur={() => state.setIsEditing(false)}
         />
         {state.isEditing && (
           <div className="flex flex-row justify-end p-1.5 pt-0 gap-2">

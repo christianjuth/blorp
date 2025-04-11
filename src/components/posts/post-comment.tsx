@@ -41,43 +41,21 @@ function Byline({
 }) {
   const linkCtx = useLinkContext();
   return (
-    <div
-      // ai="center"
-      className="flex flex-row gap-1.5 items-center py-px"
-    >
+    <div className="flex flex-row gap-1.5 items-center py-px">
       <Avatar className="w-5 h-5">
         <AvatarImage src={creator.avatar} />
         <AvatarFallback className="text-xs">
           {creator.name?.substring(0, 1).toUpperCase()}{" "}
         </AvatarFallback>
       </Avatar>
-      {/* <Avatar size={21} mr="$2"> */}
-      {/*   <Avatar.Image src={creator.avatar} borderRadius="$12" /> */}
-      {/*   <Avatar.Fallback */}
-      {/*     backgroundColor="$color8" */}
-      {/*     borderRadius="$12" */}
-      {/*     ai="center" */}
-      {/*     jc="center" */}
-      {/*   > */}
-      {/*     <Text fontSize="$1"> */}
-      {/*       {creator.name?.substring(0, 1).toUpperCase()} */}
-      {/*     </Text> */}
-      {/*   </Avatar.Fallback> */}
-      {/* </Avatar> */}
       <Link
         to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}
-        className="text-sm"
+        className="text-sm overflow-ellipsis overflow-x-hidden"
       >
         {createPersonSlug(creator)}
         {authorType && <span> ({authorType})</span>}
       </Link>
-      <RelativeTime
-        prefix=" • "
-        time={publishedDate}
-        className="text-sm"
-        // color="$color11"
-        // fontSize="$3"
-      />
+      <RelativeTime prefix=" • " time={publishedDate} className="text-sm" />
 
       <div className="flex-1 h-full" onClick={onPress} />
     </div>

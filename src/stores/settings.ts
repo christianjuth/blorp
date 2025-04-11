@@ -3,6 +3,8 @@ import { persist } from "zustand/middleware";
 import { createStorage } from "./storage";
 
 type SettingsStore = {
+  showMarkdown: boolean;
+  setShowMarkdown: (newVal: boolean) => any;
   cacheImages: boolean;
   setCacheImages: (newVal: boolean) => any;
   showNsfw: boolean;
@@ -17,6 +19,8 @@ type SettingsStore = {
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set, get) => ({
+      showMarkdown: false,
+      setShowMarkdown: (showMarkdown) => set({ showMarkdown }),
       cacheImages: false,
       setCacheImages: (cacheImages) => set({ cacheImages }),
       showNsfw: false,

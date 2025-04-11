@@ -8,7 +8,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "tiptap-markdown";
 import Spoiler from "./spoiler-plugin";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Button } from "../ui/button";
 import {
@@ -21,6 +21,7 @@ import { Toggle } from "../ui/toggle";
 import { cn } from "~/src/lib/utils";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { CodeBlockEditor, lowlight } from "./code-block";
+import { useSettingsStore } from "~/src/stores/settings";
 
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) {
@@ -262,7 +263,12 @@ function MarkdownEditorInner({
       onChange(markdown);
     },
     onFocus: () => onFocus?.(),
-    onBlur: () => onBlur?.(),
+    onBlur,
+    editorProps: {
+      attributes: {
+        class: "flex-1 h-full",
+      },
+    },
   });
 
   return (
@@ -279,13 +285,8 @@ function MarkdownEditorInner({
         </Button>
       </div>
       <EditorContent
-        className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3"
+        className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3 overflow-auto"
         editor={editor}
-        onClick={() => {
-          if (editor && !editor.isFocused) {
-            editor.commands.focus("end");
-          }
-        }}
       />
     </>
   );
@@ -324,7 +325,7 @@ function PlainTextEditorInner({
         autoFocus={autoFocus}
         defaultValue={content}
         onChange={(e) => onChange(e.target.value)}
-        className="prose dark:prose-invert prose-sm resize-none max-w-full font-mono outline-none py-2 px-3 flex-1"
+        className="prose dark:prose-invert prose-sm resize-none w-full font-mono outline-none pt-2 px-3 flex-1"
         placeholder={placeholder}
         onFocus={onFocus}
         onBlur={onBlur}
@@ -341,6 +342,7 @@ export function MarkdownEditor({
   placeholder,
   onFocus,
   onBlur,
+  onChageEditorType,
 }: {
   content: string;
   onChange: (content: string) => void;
@@ -349,39 +351,60 @@ export function MarkdownEditor({
   placeholder?: string;
   onFocus?: () => void;
   onBlur?: () => void;
+  onChageEditorType?: () => void;
 }) {
+  const skipBlurRef = useRef(-1);
+
   const [autoFocus, setAutoFocus] = useState(autoFocusDefault ?? false);
-  const [showMarkdown, setShowMarkdown] = useState(false);
+  const showMarkdown = useSettingsStore((s) => s.showMarkdown);
+  const setShowMarkdown = useSettingsStore((s) => s.setShowMarkdown);
 
   return (
-    <div className={cn("flex flex-col flex-1", className)}>
+    <div
+      className={cn("flex flex-col flex-1", className)}
+      onMouseDown={() => {
+        skipBlurRef.current = Date.now();
+      }}
+    >
       {showMarkdown ? (
         <PlainTextEditorInner
           content={content}
           onChange={onChange}
           onChangeEditorType={() => {
+            onChageEditorType?.();
             setAutoFocus(true);
             setShowMarkdown(false);
-            onFocus?.();
           }}
           autoFocus={autoFocus}
           placeholder={placeholder}
           onFocus={onFocus}
-          onBlur={onBlur}
+          onBlur={() => {
+            if (Date.now() - skipBlurRef.current < 50) {
+              skipBlurRef.current = -1;
+              return;
+            }
+            onBlur?.();
+          }}
         />
       ) : (
         <MarkdownEditorInner
           content={content}
           onChange={onChange}
           onChangeEditorType={() => {
+            onChageEditorType?.();
             setAutoFocus(true);
             setShowMarkdown(true);
-            onFocus?.();
           }}
           autoFocus={autoFocus}
           placeholder={placeholder}
           onFocus={onFocus}
-          onBlur={onBlur}
+          onBlur={() => {
+            if (Date.now() - skipBlurRef.current < 50) {
+              skipBlurRef.current = -1;
+              return;
+            }
+            onBlur?.();
+          }}
         />
       )}
     </div>

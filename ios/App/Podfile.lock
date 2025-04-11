@@ -12,6 +12,8 @@ PODS:
   - CapacitorCordova (7.1.0)
   - CapacitorHaptics (7.0.0):
     - Capacitor
+  - CapacitorKeyboard (7.0.1):
+    - Capacitor
   - CapacitorPluginSafeArea (4.0.0):
     - Capacitor
   - CapacitorSplashScreen (7.0.0):
@@ -32,6 +34,7 @@ DEPENDENCIES:
   - "CapacitorCommunitySqlite (from `../../node_modules/@capacitor-community/sqlite`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
+  - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
   - CapacitorPluginSafeArea (from `../../node_modules/capacitor-plugin-safe-area`)
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
@@ -54,6 +57,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorHaptics:
     :path: "../../node_modules/@capacitor/haptics"
+  CapacitorKeyboard:
+    :path: "../../node_modules/@capacitor/keyboard"
   CapacitorPluginSafeArea:
     :path: "../../node_modules/capacitor-plugin-safe-area"
   CapacitorSplashScreen:
@@ -68,12 +73,13 @@ SPEC CHECKSUMS:
   CapacitorCommunitySqlite: 6501e7349acf998346acf24ef757861bb3f6fc2b
   CapacitorCordova: 866217f32c1d25b326c568a10ea3ed0c36b13e29
   CapacitorHaptics: 1fba3e460e7614349c6d5f868b1fccdc5c87b66d
+  CapacitorKeyboard: 969647d0ca2e5c737d7300088e2517aa832434e2
   CapacitorPluginSafeArea: af80830df43015a915e504a56318a3027d3fc806
   CapacitorSplashScreen: f4e58cc02aafd91c7cbaf32a3d1b44d02a115125
   CapacitorStatusBar: 438e90beeeefa8276b24e6c5991cb02dd13e51bf
   SQLCipher: 77fbe633cd84db04b07876dd50766b4924b57d61
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
-PODFILE CHECKSUM: 232d9be83b858302e34ace5c304e6b8a90b72ad9
+PODFILE CHECKSUM: 7f3174d2ee9013d58bb265963dfadd54ca1a35d9
 
 COCOAPODS: 1.15.2

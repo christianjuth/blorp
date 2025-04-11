@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { cn } from "../lib/utils";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -55,7 +56,7 @@ export function RelativeTime({ time, prefix, ...rest }: Props) {
   }, [dateObj]);
 
   return (
-    <span {...rest}>
+    <span {...rest} className={cn("whitespace-nowrap", rest.className)}>
       {prefix}
       {dateStr}
     </span>

@@ -16,14 +16,13 @@ import {
   IonHeader,
   IonIcon,
   IonInput,
+  IonModal,
   IonPage,
   IonTitle,
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
-import { UserDropdown } from "../components/nav";
 import { MarkdownEditor } from "../components/markdown/editor";
-import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { close } from "ionicons/icons";
 import { FaCheck, FaChevronDown } from "react-icons/fa6";
@@ -31,8 +30,8 @@ import { LuLoaderCircle } from "react-icons/lu";
 
 const EMPTY_ARR = [];
 
-function CreatePostStepOne({ setStep }: { setStep: (step: 1 | 2) => void }) {
-  const router = useIonRouter();
+export default function CreatePost() {
+  const [chooseCommunity, setChooseCommunity] = useState(false);
 
   const community = useCreatePostStore((s) => s.community);
 
@@ -80,12 +79,12 @@ function CreatePostStepOne({ setStep }: { setStep: (step: 1 | 2) => void }) {
         <IonToolbar>
           <IonTitle>Create post</IonTitle>
 
-          <IonButtons slot="end" className="gap-4">
+          <IonButtons slot="end">
             <Button
               size="sm"
               onClick={() => {
                 if (!community) {
-                  setStep(2);
+                  setChooseCommunity(true);
                 } else {
                   createPost
                     .mutateAsync({
@@ -104,22 +103,30 @@ function CreatePostStepOne({ setStep }: { setStep: (step: 1 | 2) => void }) {
                 <LuLoaderCircle className="animate-spin" />
               )}
             </Button>
-            <UserDropdown />
           </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>
+        <ChooseCommunity
+          isOpen={chooseCommunity}
+          closeModal={() => setChooseCommunity(false)}
+        />
+
         <ContentGutters className="h-full">
           <div className="flex flex-col py-4 gap-4">
-            {community && (
+            {
               <button
-                onClick={() => setStep(2)}
-                className="flex flex-row items-center gap-2"
+                onClick={() => setChooseCommunity(true)}
+                className="flex flex-row items-center gap-2 h-8"
               >
-                <SmallCommunityCard community={community} disableLink />
+                {community ? (
+                  <SmallCommunityCard community={community} disableLink />
+                ) : (
+                  <span className="font-bold">Select a community</span>
+                )}
                 <FaChevronDown className="text-brand" />
               </button>
-            )}
+            }
 
             <IonInput
               label="Link"
@@ -135,12 +142,11 @@ function CreatePostStepOne({ setStep }: { setStep: (step: 1 | 2) => void }) {
             <IonInput
               label="Title"
               labelPlacement="floating"
-              className="border-b border-border"
               value={title}
               onIonInput={({ detail }) => setTitle(detail.value ?? "")}
+              className="font-bold"
             />
 
-            <span className="text-muted-foreground text-sm">Body</span>
             <MarkdownEditor
               content={content}
               onChange={setContent}
@@ -261,8 +267,13 @@ function CreatePostStepOne({ setStep }: { setStep: (step: 1 | 2) => void }) {
   // );
 }
 
-function CreatePostStepTwo({ setStep }: { setStep: (step: 1 | 2) => void }) {
-  const router = useIonRouter();
+function ChooseCommunity({
+  isOpen,
+  closeModal,
+}: {
+  isOpen: boolean;
+  closeModal: () => void;
+}) {
   const recentCommunities = useRecentCommunitiesStore();
 
   const [search, setSearch] = useState("");
@@ -321,20 +332,16 @@ function CreatePostStepTwo({ setStep }: { setStep: (step: 1 | 2) => void }) {
   });
 
   return (
-    <IonPage>
+    <IonModal isOpen={isOpen} onWillDismiss={closeModal}>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonButton onClick={() => setStep(1)}>
+            <IonButton onClick={closeModal}>
               <IonIcon icon={close} />
             </IonButton>
           </IonButtons>
 
           <IonTitle>Choose Community</IonTitle>
-
-          <IonButtons className="gap-4" slot="end">
-            <UserDropdown />
-          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
@@ -348,6 +355,7 @@ function CreatePostStepTwo({ setStep }: { setStep: (step: 1 | 2) => void }) {
         </ContentGutters>
 
         <FlashList
+          className="h-full"
           data={data}
           renderItem={({ item }) => {
             if (typeof item === "string") {
@@ -363,7 +371,7 @@ function CreatePostStepTwo({ setStep }: { setStep: (step: 1 | 2) => void }) {
                 <button
                   onClick={() => {
                     setCommunity(item);
-                    setStep(1);
+                    closeModal();
                   }}
                   className="flex flex-row items-center gap-2"
                 >
@@ -379,25 +387,6 @@ function CreatePostStepTwo({ setStep }: { setStep: (step: 1 | 2) => void }) {
           estimatedItemSize={50}
         />
       </IonContent>
-    </IonPage>
+    </IonModal>
   );
-
-  // return (
-  //   <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-  //     <ContentGutters p="$3" flex={1}>
-  //       <YStack flex={1} gap="$2">
-  //       </YStack>
-  //     </ContentGutters>
-  //   </KeyboardAvoidingView>
-  // );
-}
-
-export default function CreatePost() {
-  const [step, setStep] = useState<1 | 2>(1);
-  switch (step) {
-    case 1:
-      return <CreatePostStepOne setStep={setStep} />;
-    case 2:
-      return <CreatePostStepTwo setStep={setStep} />;
-  }
 }

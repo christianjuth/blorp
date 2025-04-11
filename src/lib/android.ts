@@ -1,4 +1,4 @@
-// import { Keyboard } from "@capacitor/keyboard";
+import { Keyboard } from "@capacitor/keyboard";
 import { StatusBar } from "@capacitor/status-bar";
 import { SafeArea, SafeAreaInsets } from "capacitor-plugin-safe-area";
 
@@ -29,5 +29,15 @@ export function registerSafeArea() {
   //   keyboardShowing = false;
   //   SafeArea.getSafeAreaInsets().then(updateInsets);
   // });
-  // }
+
+  Keyboard.addListener("keyboardDidShow", (info) => {
+    document.body.style.setProperty(
+      "--keyboard-height",
+      `${info.keyboardHeight}px`,
+    );
+  });
+
+  Keyboard.addListener("keyboardDidHide", () => {
+    document.body.style.setProperty("--keyboard-height", "0");
+  });
 }

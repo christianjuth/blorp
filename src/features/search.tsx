@@ -134,7 +134,7 @@ export function SearchFeed({
           </IonButtons>
           <IonSearchbar
             mode="ios"
-            className="max-w-md mx-auto"
+            className="max-w-md mx-auto h-3"
             value={search}
             onIonInput={(e) => {
               setSearch(e.detail.value ?? "");

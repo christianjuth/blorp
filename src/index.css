@@ -313,3 +313,15 @@ input[type="search"]::-webkit-search-cancel-button {
   height: 0;
   pointer-events: none;
 }
+
+.searchbar-input-container.sc-ion-searchbar-ios {
+  min-height: unset !important;
+}
+
+ion-toolbar.sc-ion-searchbar-ios-h, ion-toolbar .sc-ion-searchbar-ios-h {
+  min-height: 45px !important;
+}
+
+ion-modal {
+  max-height: calc(100svh - var(--keyboard-height));
+}

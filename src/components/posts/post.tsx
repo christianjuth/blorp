@@ -271,7 +271,7 @@ export function FeedPostCard(props: PostProps) {
     <div
       className={cn(
         "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-2.5",
-        !detailView && "border-b-[0.5px] pb-4",
+        detailView ? "pb-2" : "border-b-[0.5px] pb-4",
       )}
       // pt="$4"
       // pb="$4"
@@ -393,7 +393,7 @@ export function PostBottomBar({
   const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
 
   return (
-    <div className="py-2 flex flex-row justify-end gap-2 bg-background">
+    <div className="pb-1.5 md:py-2 flex flex-row justify-end gap-2 bg-background">
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
       <Voting apId={apId} score={score} myVote={myVote} />
     </div>

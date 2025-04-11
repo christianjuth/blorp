@@ -1,8 +1,10 @@
 /// <reference types="@capacitor/splash-screen" />
 /// <reference types="@capacitor-community/safe-area" />
 /// <reference types="@capacitor-community/sqlite" />
+/// <reference types="@capacitor/keyboard" />
 
 import type { CapacitorConfig } from "@capacitor/cli";
+import { KeyboardResize, KeyboardStyle } from "@capacitor/keyboard";
 
 const config: CapacitorConfig = {
   appId: "xyz.blorpblorp.app",
@@ -27,6 +29,11 @@ const config: CapacitorConfig = {
       iosIsEncryption: false,
       iosKeychainPrefix: "blorp",
       androidIsEncryption: false,
+    },
+    Keyboard: {
+      resize: KeyboardResize.Ionic,
+      style: KeyboardStyle.Dark,
+      resizeOnFullScreen: true,
     },
   },
 };
