@@ -13,7 +13,6 @@ import Bowser from "bowser";
 import { initSentry } from "./components/sentry";
 import { initAnalytics } from "./lib/analytics";
 import { registerSafeArea } from "./lib/android";
-import { Keyboard } from "@capacitor/keyboard";
 
 import "remove-focus-outline";
 

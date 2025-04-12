@@ -2,7 +2,7 @@ import { CommentReplyView } from "lemmy-js-client";
 import { Link } from "react-router-dom";
 import { FlashList } from "~/src/components/flashlist";
 import { ContentGutters } from "~/src/components/gutters";
-import Markdown from "react-markdown";
+import { MarkdownRenderer } from "../components/markdown/renderer";
 import { RelativeTime } from "~/src/components/relative-time";
 import {
   useMarkReplyRead,
@@ -71,7 +71,7 @@ function Reply({
             </span>
           </span>
         </div>
-        <Markdown>{replyView.comment.content}</Markdown>
+        <MarkdownRenderer markdown={replyView.comment.content} />
         <RelativeTime
           time={replyView.comment.published}
           className="text-zinc-400"

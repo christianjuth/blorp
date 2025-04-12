@@ -1,5 +1,5 @@
 import { ContentGutters } from "~/src/components/gutters";
-import Markdown from "react-markdown";
+import { MarkdownRenderer } from "../components/markdown/renderer";
 import { Link } from "react-router-dom";
 import { IonContent, IonPage } from "@ionic/react";
 import { Title } from "../components/title";
@@ -81,7 +81,7 @@ export default function Privacy() {
           <div>
             <Link to="/">Return home</Link>
 
-            <Markdown>{POLICY}</Markdown>
+            <MarkdownRenderer markdown={POLICY} />
 
             <Link to="/">Return home</Link>
           </div>

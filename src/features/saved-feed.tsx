@@ -11,7 +11,7 @@ import { PostReportProvider } from "../components/posts/post-report";
 import { ToggleGroup } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
-import Markdown from "react-markdown";
+import { MarkdownRenderer } from "../components/markdown/renderer";
 import { useLinkContext } from "../components/nav/link-context";
 import { encodeApId } from "../lib/lemmy/utils";
 import { usePostsStore } from "../stores/posts";
@@ -73,7 +73,7 @@ function Comment({ path }: { path: string }) {
     <Link
       to={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
     >
-      <Markdown>{comment.content}</Markdown>
+      <MarkdownRenderer markdown={comment.content} />
     </Link>
   );
 }

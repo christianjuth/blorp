@@ -6,7 +6,7 @@ import {
   getPostProps,
   PostProps,
 } from "../components/posts/post";
-import Markdown from "react-markdown";
+import { MarkdownRenderer } from "../components/markdown/renderer";
 import { FlashList } from "../components/flashlist";
 import { PostSortBar } from "../components/lemmy-sort";
 import { memo, useMemo, useState } from "react";
@@ -82,7 +82,7 @@ const Comment = memo(function Comment({ path }: { path: string }) {
         {comment.deleted ? (
           <span className="text-sm text-muted-foreground italic">deleted</span>
         ) : (
-          <Markdown>{comment.content}</Markdown>
+          <MarkdownRenderer markdown={comment.content} />
         )}
       </Link>
       <></>
@@ -192,7 +192,7 @@ export default function User() {
               </span>
             </div>
 
-            {person?.bio && <Markdown>{person.bio}</Markdown>}
+            {person?.bio && <MarkdownRenderer markdown={person.bio} />}
 
             {counts && (
               <div className="grid grid-cols-2 grid-flow-dense">
