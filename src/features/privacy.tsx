@@ -1,4 +1,4 @@
-import { ContentGutters } from "~/src/components/gutters";
+import { ContentGutters } from "@/src/components/gutters";
 import { MarkdownRenderer } from "../components/markdown/renderer";
 import { Link } from "react-router-dom";
 import { IonContent, IonPage } from "@ionic/react";

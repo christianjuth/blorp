@@ -1,5 +1,5 @@
 import { CommunityAggregates, CommunityView } from "lemmy-js-client";
-import { abbriviateNumber } from "~/src/lib/format";
+import { abbriviateNumber } from "@/src/lib/format";
 import { createCommunitySlug } from "../lib/lemmy/utils";
 import { useLinkContext } from "./nav/link-context";
 import { Link } from "react-router-dom";
@@ -7,7 +7,7 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "~/src/components/ui/avatar";
+} from "@/src/components/ui/avatar";
 import { CommunityPartial } from "../stores/create-post";
 import { cn } from "../lib/utils";
 

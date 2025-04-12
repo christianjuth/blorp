@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useAuth } from "~/src/stores/auth";
+import { useAuth } from "@/src/stores/auth";
 import { useInstances, useLogin, useRefreshAuth } from "../lib/lemmy";
 import fuzzysort from "fuzzysort";
 import _ from "lodash";

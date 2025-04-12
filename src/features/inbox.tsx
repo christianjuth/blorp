@@ -1,15 +1,15 @@
 import { CommentReplyView } from "lemmy-js-client";
 import { Link } from "react-router-dom";
-import { FlashList } from "~/src/components/flashlist";
-import { ContentGutters } from "~/src/components/gutters";
+import { FlashList } from "@/src/components/flashlist";
+import { ContentGutters } from "@/src/components/gutters";
 import { MarkdownRenderer } from "../components/markdown/renderer";
-import { RelativeTime } from "~/src/components/relative-time";
+import { RelativeTime } from "@/src/components/relative-time";
 import {
   useMarkReplyRead,
   useNotificationCount,
   useReplies,
-} from "~/src/lib/lemmy/index";
-import { createCommunitySlug } from "~/src/lib/lemmy/utils";
+} from "@/src/lib/lemmy/index";
+import { createCommunitySlug } from "@/src/lib/lemmy/utils";
 import {
   IonButtons,
   IonContent,

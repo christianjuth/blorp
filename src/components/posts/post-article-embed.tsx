@@ -1,6 +1,6 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { isTauri } from "~/src/lib/tauri";
-import { cn } from "~/src/lib/utils";
+import { isTauri } from "@/src/lib/tauri";
+import { cn } from "@/src/lib/utils";
 
 export function PostArticleEmbed({
   url,

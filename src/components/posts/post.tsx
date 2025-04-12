@@ -1,8 +1,8 @@
-import { usePostsStore } from "~/src/stores/posts";
+import { usePostsStore } from "@/src/stores/posts";
 import { useLinkContext } from "../nav/link-context";
-import { useSettingsStore } from "~/src/stores/settings";
-import { getPostEmbed } from "~/src/lib/post";
-import { encodeApId, FlattenedPost } from "~/src/lib/lemmy/utils";
+import { useSettingsStore } from "@/src/stores/settings";
+import { getPostEmbed } from "@/src/lib/post";
+import { encodeApId, FlattenedPost } from "@/src/lib/lemmy/utils";
 
 import { Link } from "react-router-dom";
 import { PostArticleEmbed } from "./post-article-embed";
@@ -13,7 +13,7 @@ import { twMerge } from "tailwind-merge";
 import { PostLoopsEmbed } from "./post-loops-embed";
 import { YouTubeVideoEmbed } from "../youtube";
 import { PostVideoEmbed } from "./post-video-embed";
-import { cn } from "~/src/lib/utils";
+import { cn } from "@/src/lib/utils";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (

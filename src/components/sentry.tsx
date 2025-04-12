@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { useAuth } from "../stores/auth";
-import pkgJson from "~/package.json";
+import pkgJson from "@/package.json";
 import _ from "lodash";
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;

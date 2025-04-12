@@ -18,10 +18,10 @@ import {
 } from "react-icons/ai";
 import { FaQuoteRight } from "react-icons/fa6";
 import { Toggle } from "../ui/toggle";
-import { cn } from "~/src/lib/utils";
+import { cn } from "@/src/lib/utils";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { CodeBlockEditor, lowlight } from "./code-block";
-import { useSettingsStore } from "~/src/stores/settings";
+import { useSettingsStore } from "@/src/stores/settings";
 import { JSX } from "@ionic/core/dist/types/stencil-public-runtime";
 
 const MenuBar = ({ editor }: { editor: Editor | null }) => {

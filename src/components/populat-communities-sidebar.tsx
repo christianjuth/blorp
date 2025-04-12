@@ -1,9 +1,9 @@
-import { useListCommunities } from "~/src/lib/lemmy/index";
+import { useListCommunities } from "@/src/lib/lemmy/index";
 import { createCommunitySlug } from "../lib/lemmy/utils";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { CommunityView } from "lemmy-js-client";
-import { abbriviateNumber } from "~/src/lib/format";
+import { abbriviateNumber } from "@/src/lib/format";
 import { useFiltersStore } from "../stores/filters";
 import _ from "lodash";
 import { Link } from "react-router-dom";

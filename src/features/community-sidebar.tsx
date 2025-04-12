@@ -1,4 +1,4 @@
-import { CommunitySidebar } from "~/src/components/communities/community-sidebar";
+import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
 import { useEffect } from "react";
 import { useCommunity } from "../lib/lemmy";
 import _ from "lodash";

@@ -1,7 +1,7 @@
 import { twMerge } from "tailwind-merge";
 import { CommunityJoinButton } from "./community-join-button";
-import { createCommunitySlug } from "~/src/lib/lemmy/utils";
-import { useCommunitiesStore } from "~/src/stores/communities";
+import { createCommunitySlug } from "@/src/lib/lemmy/utils";
+import { useCommunitiesStore } from "@/src/stores/communities";
 
 export function CommunityBanner({ communityName }: { communityName?: string }) {
   const data = useCommunitiesStore((s) =>

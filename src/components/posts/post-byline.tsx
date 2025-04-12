@@ -2,12 +2,12 @@ import {
   useBlockPerson,
   useDeletePost,
   useSavePost,
-} from "~/src/lib/lemmy/index";
+} from "@/src/lib/lemmy/index";
 import { useLinkContext } from "../nav/link-context";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
-import { useAuth } from "~/src/stores/auth";
-import { openUrl } from "~/src/lib/linking";
+import { useAuth } from "@/src/stores/auth";
+import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { RelativeTime } from "../relative-time";
@@ -17,11 +17,11 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "~/src/components/ui/avatar";
+} from "@/src/components/ui/avatar";
 import { BsFillPinAngleFill } from "react-icons/bs";
 import { useIonAlert, useIonToast } from "@ionic/react";
-import { useToast } from "~/src/lib/hooks";
-import { Deferred } from "~/src/lib/deferred";
+import { useToast } from "@/src/lib/hooks";
+import { Deferred } from "@/src/lib/deferred";
 
 export function PostByline({
   id,

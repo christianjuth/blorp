@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { useRecentCommunitiesStore, MAX_VISITED } from "./recent-communities";
-import * as lemmy from "~/test-utils/lemmy";
+import * as lemmy from "@/test-utils/lemmy";
 import { renderHook, act } from "@testing-library/react";
 import _ from "lodash";
 

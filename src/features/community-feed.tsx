@@ -2,11 +2,11 @@ import {
   FeedPostCard,
   getPostProps,
   PostProps,
-} from "~/src/components/posts/post";
+} from "@/src/components/posts/post";
 import {
   CommunitySidebar,
   SmallScreenSidebar,
-} from "~/src/components/communities/community-sidebar";
+} from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { FlashList } from "../components/flashlist";

@@ -1,9 +1,9 @@
-import { useListCommunities } from "~/src/lib/lemmy/index";
-import { Community } from "~/src/components/community";
+import { useListCommunities } from "@/src/lib/lemmy/index";
+import { Community } from "@/src/components/community";
 import { memo, useMemo, useState } from "react";
-import { useFiltersStore } from "~/src/stores/filters";
-import { ContentGutters } from "~/src/components/gutters";
-import { FlashList } from "~/src/components/flashlist";
+import { useFiltersStore } from "@/src/stores/filters";
+import { ContentGutters } from "@/src/components/gutters";
+import { FlashList } from "@/src/components/flashlist";
 import { CommunityView } from "lemmy-js-client";
 import { useMedia } from "../lib/hooks";
 import {

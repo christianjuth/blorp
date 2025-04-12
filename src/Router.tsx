@@ -16,32 +16,32 @@ import { pencil, cog, notifications, people, home } from "ionicons/icons";
 import { Route, Redirect, Link } from "react-router-dom";
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
-import { useMedia } from "~/src/lib/hooks";
+import { useMedia } from "@/src/lib/hooks";
 
-import { Logo } from "~/src/components/logo";
-import { useRecentCommunitiesStore } from "~/src/stores/recent-communities";
-import { useAuth } from "~/src/stores/auth";
-import { useListCommunities, useNotificationCount } from "~/src/lib/lemmy";
-import { SmallCommunityCard } from "~/src/components/communities/community-card";
+import { Logo } from "@/src/components/logo";
+import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
+import { useAuth } from "@/src/stores/auth";
+import { useListCommunities, useNotificationCount } from "@/src/lib/lemmy";
+import { SmallCommunityCard } from "@/src/components/communities/community-card";
 import { SentryAddCtx } from "./components/sentry";
 
 import { lazy } from "react";
-import * as routes from "~/src/lib/routes";
+import * as routes from "@/src/lib/routes";
 import { dispatchScrollEvent } from "./lib/scroll-events";
 import { isTauri } from "./lib/tauri";
 
-const Inbox = lazy(() => import("~/src/features/inbox"));
-const Privacy = lazy(() => import("~/src/features/privacy"));
-const HomeFeed = lazy(() => import("~/src/features/home-feed"));
-const Post = lazy(() => import("~/src/features/post"));
-const SettingsPage = lazy(() => import("~/src/features/settings"));
-const CommunityFeed = lazy(() => import("~/src/features/community-feed"));
-const CommunitySidebar = lazy(() => import("~/src/features/community-sidebar"));
-const CommunitiesFeed = lazy(() => import("~/src/features/communities-feed"));
-const User = lazy(() => import("~/src/features/user"));
-const SavedFeed = lazy(() => import("~/src/features/saved-feed"));
-const Search = lazy(() => import("~/src/features/search"));
-const CreatePost = lazy(() => import("~/src/features/create-post"));
+const Inbox = lazy(() => import("@/src/features/inbox"));
+const Privacy = lazy(() => import("@/src/features/privacy"));
+const HomeFeed = lazy(() => import("@/src/features/home-feed"));
+const Post = lazy(() => import("@/src/features/post"));
+const SettingsPage = lazy(() => import("@/src/features/settings"));
+const CommunityFeed = lazy(() => import("@/src/features/community-feed"));
+const CommunitySidebar = lazy(() => import("@/src/features/community-sidebar"));
+const CommunitiesFeed = lazy(() => import("@/src/features/communities-feed"));
+const User = lazy(() => import("@/src/features/user"));
+const SavedFeed = lazy(() => import("@/src/features/saved-feed"));
+const Search = lazy(() => import("@/src/features/search"));
+const CreatePost = lazy(() => import("@/src/features/create-post"));
 
 const HOME_STACK = [
   <Route exact path="/home" component={HomeFeed} />,

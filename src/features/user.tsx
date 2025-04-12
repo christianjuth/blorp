@@ -37,7 +37,7 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "~/src/components/ui/avatar";
+} from "@/src/components/ui/avatar";
 import { LuCakeSlice } from "react-icons/lu";
 import { useMedia } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";

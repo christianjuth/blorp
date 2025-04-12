@@ -13,7 +13,7 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-} from "~/src/components/ui/dropdown-menu";
+} from "@/src/components/ui/dropdown-menu";
 import { useMedia } from "../lib/hooks";
 
 export interface ActionMenuProps

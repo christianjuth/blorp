@@ -1,14 +1,14 @@
-import { useCommunity } from "~/src/lib/lemmy/index";
+import { useCommunity } from "@/src/lib/lemmy/index";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { MarkdownRenderer } from "../markdown/renderer";
-import { abbriviateNumber } from "~/src/lib/format";
+import { abbriviateNumber } from "@/src/lib/format";
 import { CommunityJoinButton } from "./community-join-button";
 import { useLinkContext } from "../nav/link-context";
-import { useCommunitiesStore } from "~/src/stores/communities";
+import { useCommunitiesStore } from "@/src/stores/communities";
 import { LuCakeSlice } from "react-icons/lu";
 import { Link } from "react-router-dom";
-import { cn } from "~/src/lib/utils";
+import { cn } from "@/src/lib/utils";
 
 dayjs.extend(localizedFormat);
 

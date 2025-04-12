@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 // import { Video } from "react-native-video";
 import { Image } from "../image";
-import { extractLoopsVideoSrc } from "~/src/lib/html-parsing";
-import { isTauri } from "~/src/lib/tauri";
+import { extractLoopsVideoSrc } from "@/src/lib/html-parsing";
+import { isTauri } from "@/src/lib/tauri";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 
 const AR = 9 / 16;

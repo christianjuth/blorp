@@ -6,7 +6,7 @@ import type { IonicConfig } from "@ionic/core";
 import _ from "lodash";
 import Router from "./Router";
 
-import { Providers } from "~/src/components/providers";
+import { Providers } from "@/src/components/providers";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { useEffect } from "react";
 import Bowser from "bowser";

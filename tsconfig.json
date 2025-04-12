@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./*"]
+      "@/*": ["./*"]
     },
     "strict": true,
     "rootDir": ".",

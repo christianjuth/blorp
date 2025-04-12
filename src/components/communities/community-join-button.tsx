@@ -1,7 +1,7 @@
 import { Button } from "../ui/button";
-import { useFollowCommunity } from "~/src/lib/lemmy/index";
-import { useAuth } from "~/src/stores/auth";
-import { useCommunitiesStore } from "~/src/stores/communities";
+import { useFollowCommunity } from "@/src/lib/lemmy/index";
+import { useAuth } from "@/src/stores/auth";
+import { useCommunitiesStore } from "@/src/stores/communities";
 
 interface Props {
   communityName: string | undefined;

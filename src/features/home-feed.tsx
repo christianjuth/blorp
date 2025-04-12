@@ -2,7 +2,7 @@ import {
   FeedPostCard,
   getPostProps,
   PostProps,
-} from "~/src/components/posts/post";
+} from "@/src/components/posts/post";
 import { ContentGutters } from "../components/gutters";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFiltersStore } from "../stores/filters";

@@ -1,5 +1,5 @@
 import { PersistStorage } from "zustand/middleware";
-import { createDb } from "~/src/lib/create-storage";
+import { createDb } from "@/src/lib/create-storage";
 import pRetry from "p-retry";
 import * as Sentry from "@sentry/react";
 

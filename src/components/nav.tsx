@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from "~/src/components/ui/dropdown-menu";
+} from "@/src/components/ui/dropdown-menu";
 import { parseAccountInfo, useAuth } from "../stores/auth";
 import { useLinkContext } from "./nav/link-context";
 import { encodeApId } from "../lib/lemmy/utils";
@@ -13,7 +13,7 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "~/src/components/ui/avatar";
+} from "@/src/components/ui/avatar";
 import { useState } from "react";
 import { useRequireAuth } from "./auth-context";
 import { IonButton } from "@ionic/react";

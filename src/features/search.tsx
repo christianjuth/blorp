@@ -3,16 +3,16 @@ import {
   FeedPostCard,
   getPostProps,
   PostProps,
-} from "~/src/components/posts/post";
+} from "@/src/components/posts/post";
 import {
   CommunitySidebar,
   SmallScreenSidebar,
-} from "~/src/components/communities/community-sidebar";
+} from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 import { memo, useMemo, useRef, useState } from "react";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
-import { Community } from "~/src/components/community";
+import { Community } from "@/src/components/community";
 import { useFiltersStore } from "../stores/filters";
 import _ from "lodash";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";

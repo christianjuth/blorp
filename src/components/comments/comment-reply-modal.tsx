@@ -4,11 +4,11 @@ import {
   FlattenedComment,
   useCreateComment,
   useEditComment,
-} from "~/src/lib/lemmy/index";
+} from "@/src/lib/lemmy/index";
 import _ from "lodash";
-import { useMedia } from "~/src/lib/hooks";
+import { useMedia } from "@/src/lib/hooks";
 import { MarkdownEditor } from "../markdown/editor";
-import { useCommentRepliesStore } from "~/src/stores/comment-replies";
+import { useCommentRepliesStore } from "@/src/stores/comment-replies";
 import {
   IonButton,
   IonButtons,
@@ -18,7 +18,7 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { Button } from "~/src/components/ui/button";
+import { Button } from "@/src/components/ui/button";
 
 export function useInlineCommentReplyState(
   commentKey?: number | string,

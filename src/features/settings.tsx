@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { useSettingsStore } from "~/src/stores/settings";
-import { useLogout } from "~/src/lib/lemmy/index";
-import { parseAccountInfo, useAuth } from "~/src/stores/auth";
-import { useRequireAuth } from "~/src/components/auth-context";
-import { ContentGutters } from "~/src/components/gutters";
+import { useSettingsStore } from "@/src/stores/settings";
+import { useLogout } from "@/src/lib/lemmy/index";
+import { parseAccountInfo, useAuth } from "@/src/stores/auth";
+import { useRequireAuth } from "@/src/components/auth-context";
+import { ContentGutters } from "@/src/components/gutters";
 import _ from "lodash";
-import { Logo } from "~/src/components/logo";
-import pkgJson from "~/package.json";
-import { getDbSizes } from "~/src/lib/create-storage";
+import { Logo } from "@/src/components/logo";
+import pkgJson from "@/package.json";
+import { getDbSizes } from "@/src/lib/create-storage";
 import * as Sentry from "@sentry/react";
 
 import {

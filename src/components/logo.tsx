@@ -1,5 +1,5 @@
-import LogoDark from "~/assets/logo-dark.svg";
-import LogoLight from "~/assets/logo-light.svg";
+import LogoDark from "@/assets/logo-dark.svg";
+import LogoLight from "@/assets/logo-light.svg";
 
 export function Logo() {
   return (

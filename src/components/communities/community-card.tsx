@@ -1,6 +1,6 @@
 import { Community } from "lemmy-js-client";
 import { Link } from "react-router-dom";
-import { createCommunitySlug } from "~/src/lib/lemmy/utils";
+import { createCommunitySlug } from "@/src/lib/lemmy/utils";
 
 export function SmallCommunityCard({
   disableLink = false,

@@ -1,8 +1,8 @@
-import { FlattenedComment, useLikeComment } from "~/src/lib/lemmy/index";
-import { voteHaptics } from "~/src/lib/voting";
+import { FlattenedComment, useLikeComment } from "@/src/lib/lemmy/index";
+import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
-import { cn } from "~/src/lib/utils";
+import { cn } from "@/src/lib/utils";
 import {
   PiArrowBendUpLeftBold,
   PiArrowFatUpBold,

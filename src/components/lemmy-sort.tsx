@@ -4,7 +4,7 @@ import {
   ListingType,
   PostSortType,
 } from "lemmy-js-client";
-import { useFiltersStore } from "~/src/stores/filters";
+import { useFiltersStore } from "@/src/stores/filters";
 import { useMemo } from "react";
 import { useAuth } from "../stores/auth";
 import { useMedia } from "../lib/hooks";

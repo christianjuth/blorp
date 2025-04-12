@@ -1,5 +1,5 @@
-import { useLikePost } from "~/src/lib/lemmy/index";
-import { voteHaptics } from "~/src/lib/voting";
+import { useLikePost } from "@/src/lib/lemmy/index";
+import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 
 import { Link } from "react-router-dom";
@@ -11,7 +11,7 @@ import {
   PiArrowFatUpFill,
 } from "react-icons/pi";
 import { TbMessageCircle } from "react-icons/tb";
-import { cn } from "~/src/lib/utils";
+import { cn } from "@/src/lib/utils";
 
 export function Voting({
   apId,

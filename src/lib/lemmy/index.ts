@@ -33,10 +33,10 @@ import {
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
-import { useFiltersStore } from "~/src/stores/filters";
+import { useFiltersStore } from "@/src/stores/filters";
 import { useAuth } from "../../stores/auth";
 import { useEffect, useMemo, useRef } from "react";
-import { prefetch as prefetchImage } from "~/src/components/image";
+import { prefetch as prefetchImage } from "@/src/components/image";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
 import { useSettingsStore } from "../../stores/settings";
@@ -47,7 +47,7 @@ import { useCommunitiesStore } from "../../stores/communities";
 import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
 // import { measureImage } from "../image";
 import { getPostEmbed } from "../post";
-import { useProfilesStore } from "~/src/stores/profiles";
+import { useProfilesStore } from "@/src/stores/profiles";
 import { useToast } from "../hooks";
 import { message } from "@tauri-apps/plugin-dialog";
 import { useIonRouter } from "@ionic/react";

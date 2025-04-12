@@ -6,27 +6,27 @@ import {
   useInlineCommentReplyState,
 } from "../comments/comment-reply-modal";
 import { useEffect, useId, useState } from "react";
-import { useCommentsStore } from "~/src/stores/comments";
+import { useCommentsStore } from "@/src/stores/comments";
 import { RelativeTime } from "../relative-time";
-import { useBlockPerson, useDeleteComment } from "~/src/lib/lemmy/index";
-import { CommentMap } from "~/src/lib/comment-map";
+import { useBlockPerson, useDeleteComment } from "@/src/lib/lemmy/index";
+import { CommentMap } from "@/src/lib/comment-map";
 import { useShowCommentReportModal } from "./post-report";
 import { useRequireAuth } from "../auth-context";
 import { useLinkContext } from "../nav/link-context";
 import { Person } from "lemmy-js-client";
-import { createPersonSlug, encodeApId } from "~/src/lib/lemmy/utils";
+import { createPersonSlug, encodeApId } from "@/src/lib/lemmy/utils";
 import { Link } from "react-router-dom";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "~/src/components/ui/avatar";
-import { cn } from "~/src/lib/utils";
+} from "@/src/components/ui/avatar";
+import { cn } from "@/src/lib/utils";
 import { ActionMenu } from "../action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import { useIonAlert } from "@ionic/react";
 import { message } from "@tauri-apps/plugin-dialog";
-import { Deferred } from "~/src/lib/deferred";
+import { Deferred } from "@/src/lib/deferred";
 
 function Byline({
   creator,
