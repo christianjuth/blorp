@@ -22,6 +22,7 @@ import { cn } from "~/src/lib/utils";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { CodeBlockEditor, lowlight } from "./code-block";
 import { useSettingsStore } from "~/src/stores/settings";
+import { JSX } from "@ionic/core/dist/types/stencil-public-runtime";
 
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) {
@@ -343,6 +344,7 @@ export function MarkdownEditor({
   onFocus,
   onBlur,
   onChageEditorType,
+  footer,
 }: {
   content: string;
   onChange: (content: string) => void;
@@ -352,6 +354,7 @@ export function MarkdownEditor({
   onFocus?: () => void;
   onBlur?: () => void;
   onChageEditorType?: () => void;
+  footer?: React.ReactNode;
 }) {
   const skipBlurRef = useRef(-1);
 
@@ -407,6 +410,7 @@ export function MarkdownEditor({
           }}
         />
       )}
+      {footer}
     </div>
   );
 }

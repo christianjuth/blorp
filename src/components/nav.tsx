@@ -17,6 +17,7 @@ import {
 import { useState } from "react";
 import { useRequireAuth } from "./auth-context";
 import { IonButton } from "@ionic/react";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 
 export function UserDropdown() {
   const linkCtx = useLinkContext();
@@ -46,26 +47,33 @@ export function UserDropdown() {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
+      <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem
-          className="flex flex-col"
+          className="flex flex-col items-start"
           onClick={(e) => {
             e.preventDefault();
             setAccountSwitcher((s) => !s);
           }}
         >
-          <Avatar className="h-12 w-12">
+          <Avatar className="h-16 w-16">
             <AvatarImage src={person.avatar} />
             <AvatarFallback>
               {person.name?.substring(0, 1).toUpperCase()}
             </AvatarFallback>
           </Avatar>
+          <div className="flex flex-row gap-2 items-center">
+            <div className="flex flex-col">
+              <span className="text-md">
+                {person?.display_name ?? person?.name}
+              </span>
+              <span className="text-xs text-muted-foreground">@{instance}</span>
+            </div>
 
-          <div className="flex flex-col">
-            <span className="text-md">
-              {person?.display_name ?? person?.name}
-            </span>
-            <span className="text-sm">{instance}</span>
+            {accountSwitcher ? (
+              <FaChevronUp className="text-brand" />
+            ) : (
+              <FaChevronDown className="text-brand" />
+            )}
           </div>
         </DropdownMenuItem>
 
@@ -98,7 +106,9 @@ export function UserDropdown() {
                   )}
                   <div className="flex flex-col">
                     <span>{person?.display_name ?? person?.name}</span>
-                    <span className="text-zinc-500">{instance}</span>
+                    <span className="text-muted-foreground text-xs">
+                      @{instance}
+                    </span>
                   </div>
                 </DropdownMenuItem>
               );

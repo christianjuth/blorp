@@ -173,26 +173,28 @@ export function InlineCommentReply({
           placeholder="Add a comment..."
           onFocus={() => state.setIsEditing(true)}
           onBlur={() => state.setIsEditing(false)}
-        />
-        {state.isEditing && (
-          <div className="flex flex-row justify-end p-1.5 pt-0 gap-2">
-            <Button
-              size="sm"
-              type="button"
-              variant="outline"
-              onClick={() => {
-                state.setIsEditing(false);
-                onCancel?.();
-              }}
-            >
-              Cancel
-            </Button>
+          footer={
+            state.isEditing && (
+              <div className="flex flex-row justify-end p-1.5 pt-0 gap-2">
+                <Button
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    state.setIsEditing(false);
+                    onCancel?.();
+                  }}
+                >
+                  Cancel
+                </Button>
 
-            <Button size="sm">
-              {comment ? "Update" : parent ? "Reply" : "Comment"}
-            </Button>
-          </div>
-        )}
+                <Button size="sm">
+                  {comment ? "Update" : parent ? "Reply" : "Comment"}
+                </Button>
+              </div>
+            )
+          }
+        />
       </div>
     </form>
   );

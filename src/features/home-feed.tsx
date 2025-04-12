@@ -28,6 +28,10 @@ import { HomeFilter, PostSortBar } from "../components/lemmy-sort";
 import { useMedia } from "../lib/hooks";
 import { Link } from "react-router-dom";
 import { searchOutline } from "ionicons/icons";
+import { Button } from "../components/ui/button";
+import { FaArrowUp } from "react-icons/fa6";
+import { LuLoaderCircle } from "react-icons/lu";
+import { dispatchScrollEvent } from "../lib/scroll-events";
 
 export const scrollToTop = {
   current: { scrollToOffset: () => {} },
@@ -151,7 +155,6 @@ export default function HomeFeed() {
   });
 
   const mostRecentPost = useMostRecentPost({
-    limit: 50,
     sort: postSort,
     type_: listingType,
   });
@@ -179,8 +182,9 @@ export default function HomeFeed() {
     return postViews;
   }, [posts.data?.pages, postCache]);
 
-  const firstPost = posts.data?.pages[0]?.posts[0];
-  const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
+  const firstPost = data.find((p) => !p.pinned);
+  const hasNewPost =
+    firstPost && mostRecentPost?.data?.post.ap_id !== firstPost?.apId;
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focused, setFocused] = useState(false);
@@ -188,6 +192,8 @@ export default function HomeFeed() {
     scrollRef.current,
     focused && media.maxMd,
   );
+
+  const refreshFeed = () => Promise.all([refetch(), mostRecentPost.refetch()]);
 
   return (
     <IonPage>
@@ -221,6 +227,28 @@ export default function HomeFeed() {
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
+
+        {hasNewPost && (
+          <ContentGutters className="absolute mt-2 inset-x-0">
+            <div className="flex flex-row justify-center flex-1">
+              <Button
+                size="sm"
+                className="absolute"
+                onClick={() => {
+                  refreshFeed().then(() => dispatchScrollEvent("/home/"));
+                }}
+              >
+                New posts
+                {isRefetching ? (
+                  <LuLoaderCircle className="animate-spin" />
+                ) : (
+                  <FaArrowUp />
+                )}
+              </Button>
+            </div>
+            <></>
+          </ContentGutters>
+        )}
       </IonHeader>
       <IonContent scrollY={false} fullscreen={media.maxMd}>
         <FlashList
@@ -245,7 +273,7 @@ export default function HomeFeed() {
             }
           }}
           onScroll={scrollAnimation.scrollHandler}
-          refresh={() => Promise.all([refetch(), mostRecentPost.refetch()])}
+          refresh={refreshFeed}
         />
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
           <div className="flex-1" />

@@ -26,7 +26,7 @@ const MemoedListItem = memo(
   function ListItem(props: CommunityView) {
     return (
       <ContentGutters className="md:contents">
-        <Community communityView={props} />
+        <Community communityView={props} className="pt-3.5" />
       </ContentGutters>
     );
   },

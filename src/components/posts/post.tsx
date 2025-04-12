@@ -1,8 +1,5 @@
-// import { PostByline } from "./post-byline";
-import { useState } from "react";
 import { usePostsStore } from "~/src/stores/posts";
 import { useLinkContext } from "../nav/link-context";
-// import { useCommentReaplyContext } from "../comments/comment-reply-modal";
 import { useSettingsStore } from "~/src/stores/settings";
 import { getPostEmbed } from "~/src/lib/post";
 import { encodeApId, FlattenedPost } from "~/src/lib/lemmy/utils";
@@ -20,7 +17,9 @@ import { cn } from "~/src/lib/utils";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
-    <span className="italic text-muted-foreground text-sm">{children}</span>
+    <span className="italic text-muted-foreground text-sm pt-3">
+      {children}
+    </span>
   );
 }
 
@@ -120,106 +119,6 @@ export interface PostProps extends ReturnType<typeof getPostProps> {
   onNavigate?: () => any;
 }
 
-// export function DetailPostCard(props: PostProps) {
-//   const {
-//     deleted,
-//     name,
-//     type,
-//     url,
-//     displayUrl,
-//     thumbnail,
-//     aspectRatio,
-//     body,
-//     nsfw,
-//     crossPostEncodedApId,
-//     crossPostCommunitySlug,
-//   } = props;
-
-//   const linkCtx = useLinkContext();
-
-//   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
-//   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
-
-//   if (nsfw && !showNsfw) {
-//     return <Notice>NSFW content hidden</Notice>;
-//   }
-
-//   for (const keyword of filterKeywords) {
-//     if (name.toLowerCase().includes(keyword.toLowerCase())) {
-//       return <Notice>Hidden by "{keyword}" keyword filter</Notice>;
-//     }
-//   }
-
-//   const showImage = type === "image" && thumbnail && !deleted;
-//   const showArticle = type === "article" && thumbnail && !deleted;
-
-//   return (
-//     <div>
-//       {/* <PostByline {...props} /> */}
-
-//       <span
-//       // fontWeight={500}
-//       // fontSize="$6"
-//       // lineHeight="$4"
-//       // fontStyle={deleted ? "italic" : undefined}
-//       >
-//         {deleted ? "deleted" : name}
-//       </span>
-
-//       {showImage && (
-//         <div
-//         // br="$5"
-//         // $md={{ mx: "$-3", br: 0 }}
-//         // onLongPress={() => thumbnail && shareImage(thumbnail)}
-//         >
-//           <img
-//             src={thumbnail}
-//             // imageUrl={thumbnail}
-//             // aspectRatio={aspectRatio}
-//             // borderRadius={media.gtMd ? 10 : 0}
-//             // priority
-//           />
-//         </div>
-//       )}
-
-//       {/* {showArticle && ( */}
-//       {/*   <PostArticleEmbed */}
-//       {/*     url={url} */}
-//       {/*     displayUrl={displayUrl} */}
-//       {/*     thumbnail={thumbnail} */}
-//       {/*   /> */}
-//       {/* )} */}
-//       {/* {type === "video" && !deleted && url && ( */}
-//       {/*   <PostVideoEmbed url={url} autoPlay={false} /> */}
-//       {/* )} */}
-//       {/* {type === "loops" && !deleted && url && ( */}
-//       {/*   <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} /> */}
-//       {/* )} */}
-//       {/* {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />} */}
-
-//       {/* {crossPostEncodedApId && crossPostCommunitySlug && ( */}
-//       {/*   <Link */}
-//       {/*     href={`${linkCtx.root}c/${crossPostCommunitySlug}/posts/${crossPostEncodedApId}`} */}
-//       {/*     asChild */}
-//       {/*   > */}
-//       {/*     <XStack gap="$1" mt="$2"> */}
-//       {/*       <Repeat2 color="$accentColor" size={16} /> */}
-//       {/*       <Text fontSize={13} color="$accentColor"> */}
-//       {/*         Cross posted from {crossPostCommunitySlug} */}
-//       {/*       </Text> */}
-//       {/*     </XStack> */}
-//       {/*   </Link> */}
-//       {/* )} */}
-
-//       {/* {body && !deleted && ( */}
-//       {/*   <View pt="$2"> */}
-//       {/*     <Markdown markdown={body} /> */}
-//       {/*   </View> */}
-//       {/* )} */}
-//     </div>
-//   );
-// }
-
 export function FeedPostCard(props: PostProps) {
   const {
     apId,
@@ -242,20 +141,20 @@ export function FeedPostCard(props: PostProps) {
     onNavigate,
   } = props;
 
-  const [pressed, setPressed] = useState(false);
-
   const linkCtx = useLinkContext();
 
   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
 
   if (nsfw && !showNsfw) {
-    return null;
+    return detailView ? <Notice>Hidden due to NSFW</Notice> : null;
   }
 
   for (const keyword of filterKeywords) {
     if (name.toLowerCase().includes(keyword.toLowerCase())) {
-      return null;
+      return detailView ? (
+        <Notice>Hidden due to keyword filter "{keyword}"</Notice>
+      ) : null;
     }
   }
 
@@ -273,30 +172,12 @@ export function FeedPostCard(props: PostProps) {
         "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-2.5",
         detailView ? "pb-2" : "border-b-[0.5px] pb-4",
       )}
-      // pt="$4"
-      // pb="$4"
-      // bbc="$color3"
-      // bbw={1}
-      // mx="auto"
-      // flex={1}
-      // $md={{
-      //   px: "$3",
-      //   bbw: 0.5,
-      // }}
-      // gap="$2"
-      // opacity={pressed ? 0.8 : 1}
-      // animation="100ms"
-      // w="100%"
     >
       <PostByline {...props} />
 
       <Link
         to={postDetailsLink}
         onClickCapture={onNavigate}
-        // onPressIn={() => setPressed(true)}
-        // onPressOut={() => setPressed(false)}
-        // onLongPress={thumbnail ? () => shareImage(thumbnail) : undefined}
-        // asChild
         className="gap-2 flex flex-col"
       >
         <span
@@ -304,11 +185,6 @@ export function FeedPostCard(props: PostProps) {
             "text-xl font-medium",
             !detailView && read && "text-muted-foreground",
           )}
-          // fontWeight={500}
-          // fontSize="$6"
-          // lineHeight="$4"
-          // col={read ? "$color10" : "$color"}
-          // fontStyle={deleted ? "italic" : undefined}
         >
           {deleted ? "deleted" : name}
         </span>
@@ -331,8 +207,6 @@ export function FeedPostCard(props: PostProps) {
               style={{
                 aspectRatio,
               }}
-              // borderRadius={media.gtMd ? 10 : 0}
-              // priority
             />
           </div>
         )}

@@ -86,7 +86,7 @@ export function SearchFeed({
 
   const searchResults = useSearch({
     q: debouncedSearch ?? "",
-    sort: postSort,
+    sort: type === "communities" ? "TopAll" : postSort,
     community_name: type === "posts" ? communityName : undefined,
   });
 
@@ -101,12 +101,12 @@ export function SearchFeed({
         searchResults.data?.pages.map((res) => res.communities).flat() ??
         EMPTY_ARR;
 
-      communities.sort((a, b) => {
-        if (_.isString(a) || _.isString(b)) {
-          return 0;
-        }
-        return b.counts.subscribers - a.counts.subscribers;
-      });
+      // communities.sort((a, b) => {
+      //   if (_.isString(a) || _.isString(b)) {
+      //     return 0;
+      //   }
+      //   return b.counts.subscribers - a.counts.subscribers;
+      // });
 
       return communities;
     }
@@ -214,7 +214,7 @@ export function SearchFeed({
 
             return (
               <ContentGutters>
-                <Community communityView={item} />
+                <Community communityView={item} className="pt-3.5" />
                 <></>
               </ContentGutters>
             );

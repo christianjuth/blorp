@@ -526,11 +526,11 @@ export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
 
   form = {
     show_read: !hideRead,
-    limit: 1,
     sort,
     show_nsfw: showNsfw,
     ...form,
-  };
+    limit: 10,
+  } satisfies GetPosts;
 
   const queryKey = usePostsKey(form);
 
@@ -544,7 +544,9 @@ export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
 
   return {
     ...query,
-    data: query.data?.posts?.[0],
+    data: query.data?.posts?.find(
+      ({ post }) => !post.featured_local && !post.featured_community,
+    ),
   };
 }
 

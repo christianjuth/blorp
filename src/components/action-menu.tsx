@@ -27,12 +27,18 @@ export interface ActionMenuProps
         value?: string;
         onClick: () => any;
         actions?: undefined;
+        danger?: boolean;
       }
     | {
         text: string;
         value?: string;
         onClick?: undefined;
-        actions: { text: string; onClick: () => any }[];
+        actions: {
+          text: string;
+          onClick: () => any;
+          danger?: boolean;
+        }[];
+        danger?: undefined;
       }
   )[];
   trigger: React.ReactNode;
@@ -121,6 +127,7 @@ export function ActionMenu({
                       <DropdownMenuItem
                         key={sa.text + index}
                         onClick={sa.onClick}
+                        className={sa.danger ? "text-destructive!" : undefined}
                       >
                         {sa.text}
                       </DropdownMenuItem>
@@ -129,7 +136,11 @@ export function ActionMenu({
                 </DropdownMenuPortal>
               </DropdownMenuSub>
             ) : (
-              <DropdownMenuItem key={a.text + index} onClick={a.onClick}>
+              <DropdownMenuItem
+                key={a.text + index}
+                onClick={a.onClick}
+                className={a.danger ? "text-destructive!" : undefined}
+              >
                 {a.text}
               </DropdownMenuItem>
             ),

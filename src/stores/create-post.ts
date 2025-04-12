@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage } from "./storage";
 
-type CommunityPartial = Pick<
+export type CommunityPartial = Pick<
   Community,
   "name" | "id" | "title" | "icon" | "actor_id"
 >;

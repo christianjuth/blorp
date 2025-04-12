@@ -3,7 +3,8 @@ import { useRecentCommunitiesStore } from "../stores/recent-communities";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCreatePostStore } from "../stores/create-post";
 import { FlashList } from "~/src/components/flashlist";
-import { SmallCommunityCard } from "../components/communities/community-card";
+// import { SmallCommunityCard } from "../components/communities/community-card";
+import { Community as CommunityCard } from "~/src/components/community";
 import { useCreatePost, useListCommunities, useSearch } from "../lib/lemmy";
 import _ from "lodash";
 import { Community } from "lemmy-js-client";
@@ -117,10 +118,10 @@ export default function CreatePost() {
             {
               <button
                 onClick={() => setChooseCommunity(true)}
-                className="flex flex-row items-center gap-2 h-8"
+                className="flex flex-row items-center gap-2 h-9 self-start"
               >
                 {community ? (
-                  <SmallCommunityCard community={community} disableLink />
+                  <CommunityCard communityView={community} disableLink />
                 ) : (
                   <span className="font-bold">Select a community</span>
                 )}
@@ -139,18 +140,17 @@ export default function CreatePost() {
               }
             />
 
-            <IonInput
-              label="Title"
-              labelPlacement="floating"
+            <input
+              placeholder="Title"
               value={title}
-              onIonInput={({ detail }) => setTitle(detail.value ?? "")}
-              className="font-bold"
+              onInput={(e) => setTitle(e.currentTarget.value ?? "")}
+              className="font-bold text-lg"
             />
 
             <MarkdownEditor
               content={content}
               onChange={setContent}
-              className="md:-mx-3"
+              className="-mx-3"
               placeholder="Write something..."
             />
           </div>
@@ -296,7 +296,7 @@ function ChooseCommunity({
   const searchResultsRes = useSearch({
     q: search,
     type_: "Communities",
-    limit: 10,
+    sort: "TopAll",
   });
 
   const searchResultsCommunities =
@@ -375,7 +375,7 @@ function ChooseCommunity({
                   }}
                   className="flex flex-row items-center gap-2"
                 >
-                  <SmallCommunityCard community={item} disableLink />
+                  <CommunityCard communityView={item} disableLink />
                   {selectedCommunity &&
                     item.actor_id === selectedCommunity?.actor_id && (
                       <FaCheck className="text-brand" />

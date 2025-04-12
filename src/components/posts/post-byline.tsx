@@ -128,7 +128,7 @@ export function PostByline({
                 requireAuth().then(() => {
                   showReportModal(apId);
                 }),
-              // danger: true,
+              danger: true,
             },
             {
               text: "Block person",
@@ -165,6 +165,8 @@ export function PostByline({
     [openSignal],
   );
 
+  const [communityName, communityHost] = communitySlug.split("@");
+
   return (
     <div className="flex flex-row items-center gap-2">
       <Avatar className="h-8 w-8">
@@ -180,7 +182,8 @@ export function PostByline({
           className="text-xs"
           onClickCapture={onNavigate}
         >
-          c/{communitySlug}
+          {communityName}
+          <span className="text-muted-foreground italic">@{communityHost}</span>
         </Link>
         <div className="flex flex-row text-xs text-muted-foreground">
           <Link
