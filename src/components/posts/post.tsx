@@ -221,10 +221,10 @@ export function FeedPostCard(props: PostProps) {
       )}
 
       {type === "video" && !deleted && url && (
-        <PostVideoEmbed url={url} autoPlay={false} />
+        <PostVideoEmbed url={url} autoPlay={detailView} />
       )}
       {type === "loops" && !deleted && url && (
-        <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} />
+        <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={detailView} />
       )}
       {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
 

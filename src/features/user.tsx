@@ -40,6 +40,7 @@ import {
 } from "~/src/components/ui/avatar";
 import { LuCakeSlice } from "react-icons/lu";
 import { useMedia } from "../lib/hooks";
+import { PostReportProvider } from "../components/posts/post-report";
 
 const BANNER = "banner";
 const POST_SORT_BAR = "post-sort-bar";
@@ -213,137 +214,139 @@ export default function User() {
           </div>
         </ContentGutters>
 
-        <FlashList<Item>
-          className="h-full ion-content-scroll-host"
-          data={
-            [
-              BANNER,
-              // "sidebar-mobile",
-              POST_SORT_BAR,
-              ...listData,
-            ] as const
-          }
-          renderItem={({ item }) => {
-            // if (item === "sidebar-mobile") {
-            //   return communityName ? (
-            //     <ContentGutters>
-            //       <SmallScreenSidebar communityName={communityName} />
-            //       <></>
-            //     </ContentGutters>
-            //   ) : (
-            //     <></>
-            //   );
-            // }
-
-            if (item === "banner") {
-              return (
-                <ContentGutters className="pt-4 pb-2">
-                  <div className="flex flex-row gap-2.5">
-                    <Avatar className="h-13 w-13">
-                      <AvatarImage src={person?.avatar} />
-                      <AvatarFallback className="text-xl">
-                        {person?.name?.substring(0, 1).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="flex flex-col leading-4">
-                      <span className="font-bold text-lg">
-                        {personView.person.display_name ??
-                          personView.person.name}
-                      </span>
-                      <span>u/{personView.person.name}</span>
-                    </div>
-                  </div>
-                </ContentGutters>
-              );
+        <PostReportProvider>
+          <FlashList<Item>
+            className="h-full ion-content-scroll-host"
+            data={
+              [
+                BANNER,
+                // "sidebar-mobile",
+                POST_SORT_BAR,
+                ...listData,
+              ] as const
             }
-
-            if (item === "post-sort-bar") {
-              return (
-                <ContentGutters className="max-md:py-1 max-md:bg-background max-md:border-b-[0.5px]">
-                  <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
-                    <div>
-                      <ToggleGroup
-                        type="single"
-                        variant="outline"
-                        size="sm"
-                        value={type}
-                        onValueChange={(val) =>
-                          val && setType(val as "posts" | "comments" | "all")
-                        }
-                      >
-                        <ToggleGroupItem value="all">All</ToggleGroupItem>
-                        <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                        <ToggleGroupItem value="comments">
-                          <span>Comments</span>
-                        </ToggleGroupItem>
-                      </ToggleGroup>
-                    </div>
-
-                    {type === "posts" && (
-                      <>
-                        <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
-                        <PostSortBar align="start" />
-                      </>
-                    )}
-                  </div>
-                  <></>
-                </ContentGutters>
-              );
-              // return (
-              //   <ContentGutters>
-              //     <XStack flex={1}
-              //       py="$2"
-              //       gap="$3"
-              //       bbc="$color3"
-              //       bbw={1}
-              //       $md={{
-              //         bbw: 0.5,
-              //         px: "$3",
-              //       }}
-              //       ai="center"
-              //       bg="$background"
-              //     >
-              //       <ToggleGroup
-              //         defaultValue={type}
-              //         options={[
-              //           { value: "posts", label: "Posts" },
-              //           { value: "comments", label: "Comments" },
-              //         ]}
-              //         onValueChange={(newType) => {
-              //           setTimeout(() => {
-              //             setType(newType);
-              //           }, 0);
-              //         }}
-              //       />
-
-              //       {type === "posts" && (
-              //         <>
-              //           <View h="$1" w={1} bg="$color6" />
-              //           <PostSortBar />
-              //         </>
-              //       )}
-              //     </XStack>
+            renderItem={({ item }) => {
+              // if (item === "sidebar-mobile") {
+              //   return communityName ? (
+              //     <ContentGutters>
+              //       <SmallScreenSidebar communityName={communityName} />
+              //       <></>
+              //     </ContentGutters>
+              //   ) : (
               //     <></>
-              //   </ContentGutters>
-              // );
-            }
+              //   );
+              // }
 
-            if (isPost(item)) {
-              return <Post {...item} />;
-            }
+              if (item === "banner") {
+                return (
+                  <ContentGutters className="pt-4 pb-2">
+                    <div className="flex flex-row gap-2.5">
+                      <Avatar className="h-13 w-13">
+                        <AvatarImage src={person?.avatar} />
+                        <AvatarFallback className="text-xl">
+                          {person?.name?.substring(0, 1).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
 
-            return <Comment path={item.comment.path} />;
-          }}
-          onEndReached={() => {
-            if (hasNextPage && !isFetchingNextPage) {
-              fetchNextPage();
-            }
-          }}
-          stickyHeaderIndices={[1]}
-          estimatedItemSize={475}
-          refresh={refetch}
-        />
+                      <div className="flex flex-col leading-4">
+                        <span className="font-bold text-lg">
+                          {personView.person.display_name ??
+                            personView.person.name}
+                        </span>
+                        <span>u/{personView.person.name}</span>
+                      </div>
+                    </div>
+                  </ContentGutters>
+                );
+              }
+
+              if (item === "post-sort-bar") {
+                return (
+                  <ContentGutters className="max-md:py-1 max-md:bg-background max-md:border-b-[0.5px]">
+                    <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
+                      <div>
+                        <ToggleGroup
+                          type="single"
+                          variant="outline"
+                          size="sm"
+                          value={type}
+                          onValueChange={(val) =>
+                            val && setType(val as "posts" | "comments" | "all")
+                          }
+                        >
+                          <ToggleGroupItem value="all">All</ToggleGroupItem>
+                          <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                          <ToggleGroupItem value="comments">
+                            <span>Comments</span>
+                          </ToggleGroupItem>
+                        </ToggleGroup>
+                      </div>
+
+                      {type === "posts" && (
+                        <>
+                          <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
+                          <PostSortBar align="start" />
+                        </>
+                      )}
+                    </div>
+                    <></>
+                  </ContentGutters>
+                );
+                // return (
+                //   <ContentGutters>
+                //     <XStack flex={1}
+                //       py="$2"
+                //       gap="$3"
+                //       bbc="$color3"
+                //       bbw={1}
+                //       $md={{
+                //         bbw: 0.5,
+                //         px: "$3",
+                //       }}
+                //       ai="center"
+                //       bg="$background"
+                //     >
+                //       <ToggleGroup
+                //         defaultValue={type}
+                //         options={[
+                //           { value: "posts", label: "Posts" },
+                //           { value: "comments", label: "Comments" },
+                //         ]}
+                //         onValueChange={(newType) => {
+                //           setTimeout(() => {
+                //             setType(newType);
+                //           }, 0);
+                //         }}
+                //       />
+
+                //       {type === "posts" && (
+                //         <>
+                //           <View h="$1" w={1} bg="$color6" />
+                //           <PostSortBar />
+                //         </>
+                //       )}
+                //     </XStack>
+                //     <></>
+                //   </ContentGutters>
+                // );
+              }
+
+              if (isPost(item)) {
+                return <Post {...item} />;
+              }
+
+              return <Comment path={item.comment.path} />;
+            }}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }
+            }}
+            stickyHeaderIndices={[1]}
+            estimatedItemSize={475}
+            refresh={refetch}
+          />
+        </PostReportProvider>
       </IonContent>
     </IonPage>
   );

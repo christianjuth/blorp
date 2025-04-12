@@ -3,7 +3,18 @@ import _ from "lodash";
 import { usePostsStore } from "~/src/stores/posts";
 import { useCreatePostReport, useCreateCommentReport } from "~/src/lib/lemmy";
 import { useCommentsStore } from "~/src/stores/comments";
-import { IonModal } from "@ionic/react";
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonModal,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
+import { Button } from "../ui/button";
+import { MarkdownRenderer } from "../markdown/renderer";
+import { Textarea } from "../ui/textarea";
 
 const Context = createContext<{
   apId?: string;
@@ -42,6 +53,35 @@ export function PostReportProvider({
     [],
   );
 
+  const submit = () => {
+    if (post) {
+      createPostReport
+        .mutateAsync({
+          post_id: post.id,
+          reason,
+        })
+        .then(() => {
+          setReason("");
+          setApId(undefined);
+        });
+    } else if (comment) {
+      createCommentReport
+        .mutateAsync({
+          comment_id: comment.data.comment.id,
+          reason,
+        })
+        .then(() => {
+          setReason("");
+          setApId(undefined);
+        });
+    }
+  };
+
+  const cancel = () => {
+    setApId(undefined);
+    setCommentPath(undefined);
+  };
+
   return (
     <Context.Provider value={value}>
       <IonModal
@@ -51,76 +91,59 @@ export function PostReportProvider({
           setCommentPath(undefined);
         }}
       >
-        <form
-          onSubmit={() => {
-            if (post) {
-              createPostReport
-                .mutateAsync({
-                  post_id: post.id,
-                  reason,
-                })
-                .then(() => {
-                  setReason("");
-                  setApId(undefined);
-                });
-            } else if (comment) {
-              createCommentReport
-                .mutateAsync({
-                  comment_id: comment.data.comment.id,
-                  reason,
-                })
-                .then(() => {
-                  setReason("");
-                  setApId(undefined);
-                });
-            }
-          }}
-        >
-          <div
-          // p="$3" gap="$3"
+        <IonHeader>
+          <IonToolbar>
+            <IonButtons slot="start" className="md:hidden">
+              <IonButton onClick={cancel}>Cancel</IonButton>
+            </IonButtons>
+            <IonTitle>
+              Report {post && "Post"}
+              {comment && "Comment"}
+            </IonTitle>
+            <IonButtons slot="end" className="md:hidden">
+              <IonButton onClick={submit}>Submit</IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <form
+            className="h-full"
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit();
+            }}
           >
-            {post && (
-              <>
-                <span className="font-bold">Report post</span>
-                <span>{post?.name}</span>
-              </>
-            )}
+            <div className="p-3 h-full flex flex-col gap-3">
+              <div className="p-3 bg-secondary rounded-lg max-h-[250px] overflow-auto">
+                {post && <span className="font-bold">{post?.name}</span>}
 
-            {comment && (
-              <>
-                <span className="font-bold">Report comment</span>
-                <span>{comment.data.comment.content}</span>
-              </>
-            )}
+                {comment && (
+                  <MarkdownRenderer markdown={comment.data.comment.content} />
+                )}
+              </div>
 
-            <textarea
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-            />
+              <Textarea
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="Report reason"
+                className="flex-1 min-h-[200px]"
+              />
 
-            <div
-            // gap="$2"
-            >
-              <button
-                // size="$3"
-                // f={1}
-                // bg="$color9"
-                onClick={() => {
-                  setApId(undefined);
-                  setCommentPath(undefined);
-                }}
-                type="button"
-              >
-                Cancel
-              </button>
-              <button
-              // size="$3" f={1}
-              >
-                Submit
-              </button>
+              <div className="flex flex-row gap-3 justify-end max-md:hidden">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={cancel}
+                  type="button"
+                >
+                  Cancel
+                </Button>
+
+                <Button>Submit</Button>
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </IonContent>
       </IonModal>
       {children}
     </Context.Provider>

@@ -29,12 +29,24 @@ export function registerSafeArea() {
   //   keyboardShowing = false;
   //   SafeArea.getSafeAreaInsets().then(updateInsets);
   // });
+  //
+
+  Keyboard.addListener("keyboardWillShow", (info) => {
+    document.body.style.setProperty(
+      "--keyboard-height",
+      `${info.keyboardHeight}px`,
+    );
+  });
 
   Keyboard.addListener("keyboardDidShow", (info) => {
     document.body.style.setProperty(
       "--keyboard-height",
       `${info.keyboardHeight}px`,
     );
+  });
+
+  Keyboard.addListener("keyboardDidHide", () => {
+    document.body.style.setProperty("--keyboard-height", "0");
   });
 
   Keyboard.addListener("keyboardDidHide", () => {

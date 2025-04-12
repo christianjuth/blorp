@@ -235,7 +235,7 @@ export function PostComment({
                           deleted: !comment.deleted,
                         });
                       },
-                      // danger: true,
+                      danger: true,
                     } as const,
                   ]
                 : [
@@ -243,7 +243,7 @@ export function PostComment({
                       text: "Report",
                       onClick: () =>
                         requireAuth().then(() => showReportModal(comment.path)),
-                      // danger: true,
+                      danger: true,
                     } as const,
                     {
                       text: "Block person",
@@ -273,7 +273,7 @@ export function PostComment({
                           });
                         } catch (err) {}
                       },
-                      // danger: true,
+                      danger: true,
                     } as const,
                   ]),
             ]}

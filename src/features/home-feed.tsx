@@ -32,6 +32,7 @@ import { Button } from "../components/ui/button";
 import { FaArrowUp } from "react-icons/fa6";
 import { LuLoaderCircle } from "react-icons/lu";
 import { dispatchScrollEvent } from "../lib/scroll-events";
+import { PostReportProvider } from "../components/posts/post-report";
 
 export const scrollToTop = {
   current: { scrollToOffset: () => {} },
@@ -251,30 +252,32 @@ export default function HomeFeed() {
         )}
       </IonHeader>
       <IonContent scrollY={false} fullscreen={media.maxMd}>
-        <FlashList
-          key={postSort + listingType}
-          onFocusChange={setFocused}
-          ref={scrollRef}
-          estimatedItemSize={450}
-          data={data}
-          renderItem={({ item }) => {
-            return (
-              <Post
-                key={item.apId}
-                {...item}
-                onNavigate={scrollAnimation.reset}
-              />
-            );
-          }}
-          className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
-          onEndReached={() => {
-            if (hasNextPage && !isFetchingNextPage) {
-              fetchNextPage();
-            }
-          }}
-          onScroll={scrollAnimation.scrollHandler}
-          refresh={refreshFeed}
-        />
+        <PostReportProvider>
+          <FlashList
+            key={postSort + listingType}
+            onFocusChange={setFocused}
+            ref={scrollRef}
+            estimatedItemSize={450}
+            data={data}
+            renderItem={({ item }) => {
+              return (
+                <Post
+                  key={item.apId}
+                  {...item}
+                  onNavigate={scrollAnimation.reset}
+                />
+              );
+            }}
+            className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }
+            }}
+            onScroll={scrollAnimation.scrollHandler}
+            refresh={refreshFeed}
+          />
+        </PostReportProvider>
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
           <div className="flex-1" />
           <PopularCommunitiesSidebar />

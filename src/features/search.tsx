@@ -9,7 +9,7 @@ import {
   SmallScreenSidebar,
 } from "~/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
-import { memo, useCallback, useId, useMemo, useRef, useState } from "react";
+import { memo, useMemo, useRef, useState } from "react";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
 import { Community } from "~/src/components/community";
@@ -34,6 +34,7 @@ import { Title } from "../components/title";
 import { UserDropdown } from "../components/nav";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useMedia } from "../lib/hooks";
+import { PostReportProvider } from "../components/posts/post-report";
 
 const EMPTY_ARR = [];
 
@@ -170,70 +171,73 @@ export function SearchFeed({
         )}
       </IonHeader>
       <IonContent scrollY={false}>
-        <FlashList<Item>
-          className="h-full ion-content-scroll-host"
-          data={["filter-sort-bar", ...data]}
-          renderItem={({ item }) => {
-            if (item === FILTER_SORT_BAR) {
-              return (
-                <ContentGutters className="max-md:hidden">
-                  <div className="flex flex-row h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
-                    <div>
-                      <ToggleGroup
-                        type="single"
-                        variant="outline"
-                        size="sm"
-                        value={type}
-                        onValueChange={(val) =>
-                          val && setType(val as "posts" | "communities" | "all")
-                        }
-                      >
-                        <ToggleGroupItem value="all">All</ToggleGroupItem>
-                        <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                        <ToggleGroupItem value="communities">
-                          Communities
-                        </ToggleGroupItem>
-                      </ToggleGroup>
-                    </div>
+        <PostReportProvider>
+          <FlashList<Item>
+            className="h-full ion-content-scroll-host"
+            data={["filter-sort-bar", ...data]}
+            renderItem={({ item }) => {
+              if (item === FILTER_SORT_BAR) {
+                return (
+                  <ContentGutters className="max-md:hidden">
+                    <div className="flex flex-row h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
+                      <div>
+                        <ToggleGroup
+                          type="single"
+                          variant="outline"
+                          size="sm"
+                          value={type}
+                          onValueChange={(val) =>
+                            val &&
+                            setType(val as "posts" | "communities" | "all")
+                          }
+                        >
+                          <ToggleGroupItem value="all">All</ToggleGroupItem>
+                          <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                          <ToggleGroupItem value="communities">
+                            Communities
+                          </ToggleGroupItem>
+                        </ToggleGroup>
+                      </div>
 
-                    {type === "posts" && (
-                      <>
-                        <div className="w-[.5px] h-2/3 bg-border mx-3 my-auto" />
-                        <PostSortBar align="start" />
-                      </>
-                    )}
-                  </div>
+                      {type === "posts" && (
+                        <>
+                          <div className="w-[.5px] h-2/3 bg-border mx-3 my-auto" />
+                          <PostSortBar align="start" />
+                        </>
+                      )}
+                    </div>
+                    <></>
+                  </ContentGutters>
+                );
+              }
+
+              if (isPost(item)) {
+                return <Post {...item} />;
+              }
+
+              return (
+                <ContentGutters>
+                  <Community communityView={item} className="pt-3.5" />
                   <></>
                 </ContentGutters>
               );
-            }
-
-            if (isPost(item)) {
-              return <Post {...item} />;
-            }
-
-            return (
-              <ContentGutters>
-                <Community communityView={item} className="pt-3.5" />
-                <></>
-              </ContentGutters>
-            );
-          }}
-          onEndReached={() => {
-            if (hasNextPage && !isFetchingNextPage) {
-              fetchNextPage();
-            }
-          }}
-          // refreshing={isRefetching}
-          // onRefresh={() => {
-          //   if (!isRefetching) {
-          //     refetch();
-          //   }
-          // }}
-          estimatedItemSize={type === "posts" ? 475 : 52}
-          key={type}
-          refresh={refetch}
-        />
+            }}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }
+            }}
+            // refreshing={isRefetching}
+            // onRefresh={() => {
+            //   if (!isRefetching) {
+            //     refetch();
+            //   }
+            // }}
+            estimatedItemSize={type === "posts" ? 475 : 52}
+            key={type}
+            refresh={refetch}
+          />
+        </PostReportProvider>
 
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
           <div className="flex-1" />

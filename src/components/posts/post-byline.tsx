@@ -4,7 +4,6 @@ import {
   useSavePost,
 } from "~/src/lib/lemmy/index";
 import { useLinkContext } from "../nav/link-context";
-// import { ActionMenu } from "../ui/action-menu";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
 import { useAuth } from "~/src/stores/auth";

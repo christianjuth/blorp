@@ -41,8 +41,6 @@ const options: HTMLReactParserOptions = {
           ? domNode.children[0].data || ""
           : "";
 
-      console.log(language);
-
       // Replace the node with our CodeBlock component.
       return <CodeBlock language={language} code={code} />;
     }
