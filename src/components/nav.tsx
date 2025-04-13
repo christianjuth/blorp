@@ -18,6 +18,7 @@ import { useState } from "react";
 import { useRequireAuth } from "./auth-context";
 import { IonButton } from "@ionic/react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
+import { IoPerson } from "react-icons/io5";
 import { useLogout } from "../lib/lemmy";
 
 export function UserDropdown() {
@@ -33,17 +34,18 @@ export function UserDropdown() {
 
   const [accountSwitcher, setAccountSwitcher] = useState(false);
 
-  if (!person) {
+  if (!person && accounts.length <= 1) {
     return <IonButton onClick={() => requireAuth()}>Login</IonButton>;
   }
 
   return (
     <DropdownMenu onOpenChange={() => setAccountSwitcher(false)}>
       <DropdownMenuTrigger>
-        <Avatar>
-          <AvatarImage src={person.avatar} />
+        <Avatar key={person ? 0 : 1}>
+          {person && <AvatarImage src={person.avatar} />}
           <AvatarFallback>
-            {person.name?.substring(0, 1).toUpperCase()}
+            {person && person.name?.substring(0, 1).toUpperCase()}
+            {!person && <IoPerson />}
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -56,9 +58,10 @@ export function UserDropdown() {
           }}
         >
           <Avatar className="h-16 w-16">
-            <AvatarImage src={person.avatar} />
+            {person && <AvatarImage src={person.avatar} />}
             <AvatarFallback>
-              {person.name?.substring(0, 1).toUpperCase()}
+              {person && person.name?.substring(0, 1).toUpperCase()}
+              {!person && <IoPerson />}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-row gap-2 items-center">
@@ -85,25 +88,19 @@ export function UserDropdown() {
               const { person, instance } = parseAccountInfo(a);
               return (
                 <DropdownMenuItem
-                  // py="$1.5"
-                  // tag="button"
-                  // ai="center"
-                  // px="$2.5"
-                  // gap="$2.5"
                   onClick={() => {
                     close();
                     setAccountIndex(index);
                   }}
                   key={instance + index}
                 >
-                  {person && (
-                    <Avatar>
-                      <AvatarImage src={person.avatar} />
-                      <AvatarFallback>
-                        {person.name?.substring(0, 1).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
+                  <Avatar>
+                    {person && <AvatarImage src={person.avatar} />}
+                    <AvatarFallback>
+                      {person && person.name?.substring(0, 1).toUpperCase()}
+                      {!person && <IoPerson />}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex flex-col">
                     <span>{person?.display_name ?? person?.name}</span>
                     <span className="text-muted-foreground text-xs">
@@ -120,18 +117,21 @@ export function UserDropdown() {
                 requireAuth({ addAccount: true });
               }}
             >
-              {/* <PlusCircle size="$2" px="$1" col="$color9" /> */}
               Add account
             </DropdownMenuItem>
           </>
         ) : (
           <>
-            <Link to="/home/saved">
-              <DropdownMenuItem>Saved</DropdownMenuItem>
-            </Link>
-            <Link to={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}>
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-            </Link>
+            {person && (
+              <Link to="/home/saved">
+                <DropdownMenuItem>Saved</DropdownMenuItem>
+              </Link>
+            )}
+            {person && (
+              <Link to={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}>
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+              </Link>
+            )}
             <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
           </>
         )}
