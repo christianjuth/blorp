@@ -133,7 +133,13 @@ function flattenComment(commentView: CommentView): FlattenedComment {
   };
 }
 
-export function usePersonDetails({ actorId }: { actorId?: string }) {
+export function usePersonDetails({
+  actorId,
+  enabled = true,
+}: {
+  actorId?: string;
+  enabled?: boolean;
+}) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
   const queryKey = [...queryKeyPrefix, "getPersonDetails", actorId];
@@ -168,7 +174,7 @@ export function usePersonDetails({ actorId }: { actorId?: string }) {
       );
       return _.omit(res, ["posts", "comments"]);
     },
-    enabled: !!actorId,
+    enabled: !!actorId && enabled,
   });
 }
 
@@ -825,7 +831,14 @@ export function useListCommunities(form: ListCommunities) {
     enabled: form.type_ === "Subscribed" ? isLoggedIn : true,
   });
 }
-export function useCommunity(form: { name?: string; instance?: string }) {
+export function useCommunity({
+  enabled = true,
+  ...form
+}: {
+  enabled?: boolean;
+  name?: string;
+  instance?: string;
+}) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
@@ -854,7 +867,7 @@ export function useCommunity(form: { name?: string; instance?: string }) {
       ]);
       return res;
     },
-    enabled: !!form.name,
+    enabled: !!form.name && enabled,
     staleTime: 1000 * 60 * 5,
   });
 }

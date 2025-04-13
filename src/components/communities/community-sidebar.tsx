@@ -9,6 +9,7 @@ import { useCommunitiesStore } from "@/src/stores/communities";
 import { LuCakeSlice } from "react-icons/lu";
 import { Link } from "react-router-dom";
 import { cn } from "@/src/lib/utils";
+import { Skeleton } from "../ui/skeleton";
 
 dayjs.extend(localizedFormat);
 
@@ -57,22 +58,34 @@ export function CommunitySidebar({
         </div>
 
         <div className="grid grid-cols-3 text-sm">
-          <span className="font-bold">
-            {counts && abbriviateNumber(counts.subscribers)}
+          <span className="font-semibold h-5">
+            {counts ? (
+              abbriviateNumber(counts.subscribers)
+            ) : (
+              <Skeleton className="w-2/3 h-full" />
+            )}
           </span>
           <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
             Members
           </span>
 
-          <span className="font-bold">
-            {counts && abbriviateNumber(counts.posts)}
+          <span className="font-semibold h-5">
+            {counts ? (
+              abbriviateNumber(counts.posts)
+            ) : (
+              <Skeleton className="w-2/3 h-full" />
+            )}
           </span>
           <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
             Posts
           </span>
 
-          <span className="font-bold">
-            {counts && abbriviateNumber(counts.comments)}
+          <span className="font-semibold h-5">
+            {counts ? (
+              abbriviateNumber(counts.comments)
+            ) : (
+              <Skeleton className="w-2/3 h-full" />
+            )}
           </span>
           <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
             Comments
@@ -125,22 +138,34 @@ export function SmallScreenSidebar({
       </div>
 
       <div className="grid grid-cols-3 text-sm">
-        <span className="font-bold">
-          {counts && abbriviateNumber(counts.subscribers)}
+        <span className="font-semibold h-5">
+          {counts ? (
+            abbriviateNumber(counts.subscribers)
+          ) : (
+            <Skeleton className="w-2/3 h-full" />
+          )}
         </span>
         <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
           Members
         </span>
 
-        <span className="font-bold">
-          {counts && abbriviateNumber(counts.posts)}
+        <span className="font-semibold h-5">
+          {counts ? (
+            abbriviateNumber(counts.posts)
+          ) : (
+            <Skeleton className="w-2/3 h-full" />
+          )}
         </span>
         <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
           Posts
         </span>
 
-        <span className="font-bold">
-          {counts && abbriviateNumber(counts.comments)}
+        <span className="font-semibold h-5">
+          {counts ? (
+            abbriviateNumber(counts.comments)
+          ) : (
+            <Skeleton className="w-2/3 h-full" />
+          )}
         </span>
         <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
           Comments

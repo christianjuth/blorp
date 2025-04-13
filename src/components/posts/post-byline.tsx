@@ -23,6 +23,8 @@ import { useIonAlert } from "@ionic/react";
 import { useToast } from "@/src/lib/hooks";
 import { Deferred } from "@/src/lib/deferred";
 import { Slug } from "@/src/lib/lemmy/utils";
+import { CommunityHoverCard } from "../communities/community-hover-card";
+import { PersonHoverCard } from "../person/person-hover-card";
 
 export function PostByline({
   id,
@@ -178,22 +180,28 @@ export function PostByline({
       </Avatar>
 
       <div className="flex flex-col gap-0.5">
-        <Link
-          to={`${linkCtx.root}c/${communitySlug}`}
-          className="text-xs"
-          onClickCapture={onNavigate}
-        >
-          {communityName}
-          <span className="text-muted-foreground italic">@{communityHost}</span>
-        </Link>
-        <div className="flex flex-row text-xs text-muted-foreground gap-1">
+        <CommunityHoverCard communityName={communitySlug}>
           <Link
-            to={`${linkCtx.root}u/${encodedCreatorApId}`}
+            to={`${linkCtx.root}c/${communitySlug}`}
+            className="text-xs"
             onClickCapture={onNavigate}
           >
-            {creatorSlug?.name}
-            <span className="italic">@{creatorSlug?.host}</span>
+            {communityName}
+            <span className="text-muted-foreground italic">
+              @{communityHost}
+            </span>
           </Link>
+        </CommunityHoverCard>
+        <div className="flex flex-row text-xs text-muted-foreground gap-1">
+          <PersonHoverCard actorId={creatorApId}>
+            <Link
+              to={`${linkCtx.root}u/${encodedCreatorApId}`}
+              onClickCapture={onNavigate}
+            >
+              {creatorSlug?.name}
+              <span className="italic">@{creatorSlug?.host}</span>
+            </Link>
+          </PersonHoverCard>
           <RelativeTime prefix=" • " time={published} />
         </div>
       </div>

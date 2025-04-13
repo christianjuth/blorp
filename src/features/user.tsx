@@ -41,6 +41,7 @@ import {
 import { LuCakeSlice } from "react-icons/lu";
 import { useMedia } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";
+import { Skeleton } from "../components/ui/skeleton";
 
 const BANNER = "banner";
 const POST_SORT_BAR = "post-sort-bar";
@@ -181,7 +182,7 @@ export default function User() {
         <ContentGutters className="max-md:hidden">
           <div className="flex-1" />
           <div className="absolute py-4 flex flex-col gap-3 w-full">
-            <span>
+            <span className="font-bold">
               {personView.person.display_name ?? personView.person.name}
             </span>
 
@@ -194,23 +195,29 @@ export default function User() {
 
             {person?.bio && <MarkdownRenderer markdown={person.bio} />}
 
-            {counts && (
-              <div className="grid grid-cols-2 grid-flow-dense">
-                <span className="col-start-1">
-                  {abbriviateNumber(counts.post_count)}
-                </span>
-                <span className="col-start-1 text-sm text-muted-foreground">
-                  Posts
-                </span>
+            <div className="grid grid-cols-2 grid-flow-dense text-sm">
+              <span className="font-semibold col-start-1 h-5">
+                {counts ? (
+                  abbriviateNumber(counts.post_count)
+                ) : (
+                  <Skeleton className="w-1/4 h-full" />
+                )}
+              </span>
+              <span className="col-start-1 text-sm text-muted-foreground">
+                Posts
+              </span>
 
-                <span className="col-start-2">
-                  {abbriviateNumber(counts.comment_count)}
-                </span>
-                <span className="col-start-2 text-sm text-muted-foreground">
-                  Comments
-                </span>
-              </div>
-            )}
+              <span className="font-semibold col-start-2 h-5">
+                {counts ? (
+                  abbriviateNumber(counts.comment_count)
+                ) : (
+                  <Skeleton className="w-1/4 h-full" />
+                )}
+              </span>
+              <span className="col-start-2 text-sm text-muted-foreground">
+                Comments
+              </span>
+            </div>
           </div>
         </ContentGutters>
 

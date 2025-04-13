@@ -25,17 +25,16 @@ import { ActionMenu } from "../action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import { useIonAlert } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
+import { PersonHoverCard } from "../person/person-hover-card";
 
 function Byline({
   creator,
   publishedDate,
   authorType,
-  onPress,
 }: {
   creator: Pick<Person, "actor_id" | "avatar" | "name">;
   publishedDate: string;
   authorType?: "OP" | "Me";
-  onPress?: () => void;
 }) {
   const linkCtx = useLinkContext();
   const slug = createSlug(creator);
@@ -47,17 +46,17 @@ function Byline({
           {creator.name?.substring(0, 1).toUpperCase()}{" "}
         </AvatarFallback>
       </Avatar>
-      <Link
-        to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}
-        className="text-sm overflow-ellipsis overflow-x-hidden"
-      >
-        {slug?.name}
-        <span className="italic text-muted-foreground">@{slug?.host}</span>
-        {authorType && <span> ({authorType})</span>}
-      </Link>
+      <PersonHoverCard actorId={creator.actor_id}>
+        <Link
+          to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}
+          className="text-sm overflow-ellipsis overflow-x-hidden"
+        >
+          {slug?.name}
+          <span className="italic text-muted-foreground">@{slug?.host}</span>
+          {authorType && <span> ({authorType})</span>}
+        </Link>
+      </PersonHoverCard>
       <RelativeTime prefix=" • " time={publishedDate} className="text-sm" />
-
-      <div className="flex-1 h-full" onClick={onPress} />
     </summary>
   );
 }
@@ -164,7 +163,7 @@ export function PostComment({
       />
 
       <div
-        className="border-l-2 pl-1.5 ml-2 pt-px"
+        className="border-l-2 pl-1.5 ml-2 pt-1"
         style={{ borderColor: color }}
       >
         {comment.deleted && <span className="italic text-sm">deleted</span>}
