@@ -1,19 +1,20 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { SmallCommunityCard } from "./community-card";
+import { CommunityCard } from "./community-card";
 import _ from "lodash";
 import * as lemmy from "@/test-utils/lemmy";
 
 //👇 This default export determines where your story goes in the story list
-const meta: Meta<typeof SmallCommunityCard> = {
-  component: SmallCommunityCard,
+const meta: Meta<typeof CommunityCard> = {
+  component: CommunityCard,
 };
 
 export default meta;
-type Story = StoryObj<typeof SmallCommunityCard>;
+type Story = StoryObj<typeof CommunityCard>;
 
 export const Card: Story = {
   args: {
-    community: lemmy.getCommunity().community,
+    communityView: lemmy.getCommunity().community,
+    size: "md",
   },
 };

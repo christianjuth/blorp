@@ -8,11 +8,10 @@ import {
   SmallScreenSidebar,
 } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { FlashList } from "../components/flashlist";
 import { useCommunity, useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
-// import { RefreshButton } from "../components/ui/button";
 import { isNotNull } from "../lib/utils";
 import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
@@ -24,7 +23,6 @@ import {
   IonIcon,
   IonPage,
   IonSearchbar,
-  IonTitle,
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
@@ -64,7 +62,7 @@ export default function CommunityFeed() {
     community_name: communityName,
   });
 
-  const mostRecentPost = useMostRecentPost({
+  const mostRecentPost = useMostRecentPost("community", {
     community_name: communityName,
   });
 
@@ -79,11 +77,6 @@ export default function CommunityFeed() {
       updateRecent(community.data.community_view.community);
     }
   }, [community.data]);
-
-  // const tabBar = useCustomTabBarHeight();
-
-  // const ref = useRef<FlashList<any>>(null);
-  // useScrollToTop(ref);
 
   const {
     hasNextPage,

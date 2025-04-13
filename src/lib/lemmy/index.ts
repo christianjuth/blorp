@@ -44,7 +44,12 @@ import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
 import { useThrottleQueue } from "../throttle-queue";
 import { useCommunitiesStore } from "../../stores/communities";
-import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
+import {
+  createCommunitySlug,
+  createSlug,
+  FlattenedPost,
+  flattenPost,
+} from "./utils";
 // import { measureImage } from "../image";
 import { getPostEmbed } from "../post";
 import { useProfilesStore } from "@/src/stores/profiles";
@@ -514,7 +519,10 @@ function usePostsKey(form: GetPosts) {
   return queryKey;
 }
 
-export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
+export function useMostRecentPost(
+  featuredContext: "local" | "community",
+  { enabled, ...form }: UsePostsConfig,
+) {
   const { client } = useLemmyClient();
 
   const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
@@ -544,9 +552,15 @@ export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
 
   return {
     ...query,
-    data: query.data?.posts?.find(
-      ({ post }) => !post.featured_local && !post.featured_community,
-    ),
+    data: query.data?.posts?.find(({ post }) => {
+      switch (featuredContext) {
+        case "local":
+          return !post.featured_local;
+        case "community":
+          return !post.featured_community;
+      }
+      return true;
+    }),
   };
 }
 

@@ -1,27 +1,85 @@
-import { Community } from "lemmy-js-client";
-import { Link } from "react-router-dom";
+import { CommunityAggregates, CommunityView } from "lemmy-js-client";
+import { abbriviateNumber } from "@/src/lib/format";
 import { createCommunitySlug } from "@/src/lib/lemmy/utils";
+import { useLinkContext } from "@/src/components/nav/link-context";
+import { Link } from "react-router-dom";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
+import { CommunityPartial } from "@/src/stores/create-post";
+import { cn } from "@/src/lib/utils";
 
-export function SmallCommunityCard({
-  disableLink = false,
-  community,
+export function CommunityCard({
+  communityView,
+  disableLink,
+  className,
+  size = "md",
 }: {
+  communityView: CommunityView | CommunityPartial;
   disableLink?: boolean;
-  community: Pick<Community, "icon" | "title" | "name" | "id" | "actor_id">;
+  className?: string;
+  size?: "sm" | "md";
 }) {
-  const slug = createCommunitySlug(community);
+  let icon: string | undefined = undefined;
+  let title: string;
+  let slug: string;
+  let name: string;
+  let counts: CommunityAggregates | undefined = undefined;
+
+  if ("actor_id" in communityView) {
+    icon = communityView.icon;
+    title = communityView.title;
+    slug = createCommunitySlug(communityView);
+    name = communityView.name;
+  } else {
+    const { community } = communityView;
+    counts = communityView.counts;
+    icon = community.icon;
+    title = community.title;
+    slug = createCommunitySlug(community);
+    name = community.name;
+  }
+
+  const linkCtx = useLinkContext();
+
+  const [slugName, slugHost] = slug.split("@");
 
   const content = (
-    <div className="flex flex-row gap-2.5 items-center">
-      <img src={community.icon} className="h-8 w-8 rounded-full object-cover" />
-      <span className="text-sm">c/{community.name}</span>
-    </div>
+    <>
+      <Avatar className={cn("h-9 w-9", size === "sm" && "h-8 w-8")}>
+        <AvatarImage src={icon} className="object-cover" />
+        <AvatarFallback>{title.substring(0, 1)}</AvatarFallback>
+      </Avatar>
+
+      <div className="flex flex-col gap-0.5">
+        <span className={cn("text-sm", size === "sm" && "text-xs")}>
+          {slugName}
+          <span className="text-muted-foreground italic">@{slugHost}</span>
+        </span>
+        {counts && (
+          <span className="text-xs text-muted-foreground">
+            {abbriviateNumber(counts.subscribers)} members
+          </span>
+        )}
+      </div>
+    </>
   );
 
-  return disableLink ? (
-    content
-  ) : (
-    <Link to={`/home/c/${slug}`} key={community.id}>
+  if (disableLink) {
+    return (
+      <div className={cn("flex flex-row gap-2 items-center", className)}>
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      to={`${linkCtx.root}c/${slug}`}
+      className={cn("flex flex-row gap-2 items-center", className)}
+    >
       {content}
     </Link>
   );

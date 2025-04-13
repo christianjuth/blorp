@@ -1,14 +1,12 @@
 import { ContentGutters } from "../components/gutters";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useCreatePostStore } from "../stores/create-post";
 import { FlashList } from "@/src/components/flashlist";
-// import { SmallCommunityCard } from "../components/communities/community-card";
-import { Community as CommunityCard } from "@/src/components/community";
+import { CommunityCard } from "../components/communities/community-card";
 import { useCreatePost, useListCommunities, useSearch } from "../lib/lemmy";
 import _ from "lodash";
 import { Community } from "lemmy-js-client";
-import { Image } from "../components/image";
 import { parseOgData } from "../lib/html-parsing";
 import {
   IonButton,
@@ -21,7 +19,6 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  useIonRouter,
 } from "@ionic/react";
 import { MarkdownEditor } from "../components/markdown/editor";
 import { Button } from "../components/ui/button";

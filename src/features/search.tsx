@@ -4,15 +4,12 @@ import {
   getPostProps,
   PostProps,
 } from "@/src/components/posts/post";
-import {
-  CommunitySidebar,
-  SmallScreenSidebar,
-} from "@/src/components/communities/community-sidebar";
+import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 import { memo, useMemo, useRef, useState } from "react";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
-import { Community } from "@/src/components/community";
+import { CommunityCard } from "../components/communities/community-card";
 import { useFiltersStore } from "../stores/filters";
 import _ from "lodash";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
@@ -32,7 +29,6 @@ import {
 } from "@ionic/react";
 import { Title } from "../components/title";
 import { UserDropdown } from "../components/nav";
-import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useMedia } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";
 
@@ -101,14 +97,6 @@ export function SearchFeed({
       const communities =
         searchResults.data?.pages.map((res) => res.communities).flat() ??
         EMPTY_ARR;
-
-      // communities.sort((a, b) => {
-      //   if (_.isString(a) || _.isString(b)) {
-      //     return 0;
-      //   }
-      //   return b.counts.subscribers - a.counts.subscribers;
-      // });
-
       return communities;
     }
 
@@ -217,7 +205,7 @@ export function SearchFeed({
 
               return (
                 <ContentGutters>
-                  <Community communityView={item} className="pt-3.5" />
+                  <CommunityCard communityView={item} className="pt-3.5" />
                   <></>
                 </ContentGutters>
               );
@@ -227,12 +215,6 @@ export function SearchFeed({
                 fetchNextPage();
               }
             }}
-            // refreshing={isRefetching}
-            // onRefresh={() => {
-            //   if (!isRefetching) {
-            //     refetch();
-            //   }
-            // }}
             estimatedItemSize={type === "posts" ? 475 : 52}
             key={type}
             refresh={refetch}

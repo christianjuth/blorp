@@ -22,6 +22,7 @@ import { BsFillPinAngleFill } from "react-icons/bs";
 import { useIonAlert, useIonToast } from "@ionic/react";
 import { useToast } from "@/src/lib/hooks";
 import { Deferred } from "@/src/lib/deferred";
+import { Slug } from "@/src/lib/lemmy/utils";
 
 export function PostByline({
   id,
@@ -32,6 +33,7 @@ export function PostByline({
   deleted,
   creatorId,
   creatorApId,
+  creatorSlug,
   encodedCreatorApId,
   creatorName,
   creatorAvatar,
@@ -47,6 +49,7 @@ export function PostByline({
   deleted: boolean;
   creatorId: number;
   creatorApId: string;
+  creatorSlug: Slug | null;
   creatorAvatar?: string;
   encodedCreatorApId: string;
   creatorName: string;
@@ -184,20 +187,15 @@ export function PostByline({
           {communityName}
           <span className="text-muted-foreground italic">@{communityHost}</span>
         </Link>
-        <div className="flex flex-row text-xs text-muted-foreground">
+        <div className="flex flex-row text-xs text-muted-foreground gap-1">
           <Link
             to={`${linkCtx.root}u/${encodedCreatorApId}`}
             onClickCapture={onNavigate}
           >
-            u/{creatorName}
+            {creatorSlug?.name}
+            <span className="italic">@{creatorSlug?.host}</span>
           </Link>
-
-          <RelativeTime
-            prefix=" • "
-            time={published}
-            // color="$color11"
-            // fontSize="$3"
-          />
+          <RelativeTime prefix=" • " time={published} />
         </div>
       </div>
 

@@ -22,13 +22,13 @@ import { Logo } from "@/src/components/logo";
 import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
 import { useAuth } from "@/src/stores/auth";
 import { useListCommunities, useNotificationCount } from "@/src/lib/lemmy";
-import { SmallCommunityCard } from "@/src/components/communities/community-card";
 import { SentryAddCtx } from "./components/sentry";
 
 import { lazy } from "react";
 import * as routes from "@/src/lib/routes";
 import { dispatchScrollEvent } from "./lib/scroll-events";
 import { isTauri } from "./lib/tauri";
+import { CommunityCard } from "./components/communities/community-card";
 
 const Inbox = lazy(() => import("@/src/features/inbox"));
 const Privacy = lazy(() => import("@/src/features/privacy"));
@@ -174,7 +174,7 @@ function Sidebar() {
           </span>
           {recentCommunities.map((c) => (
             <div key={c.id} className="px-4 py-0.75 flex flex-row">
-              <SmallCommunityCard community={c} />
+              <CommunityCard communityView={c} size="sm" />
             </div>
           ))}
 
@@ -189,7 +189,7 @@ function Sidebar() {
           </span>
           {sortedCommunities.map(({ community: c }) => (
             <div key={c.id} className="px-4 py-0.75 flex flex-row">
-              <SmallCommunityCard community={c} />
+              <CommunityCard communityView={c} size="sm" />
             </div>
           ))}
 

@@ -1,5 +1,5 @@
 import { useListCommunities } from "@/src/lib/lemmy/index";
-import { Community } from "@/src/components/community";
+import { CommunityCard } from "../components/communities/community-card";
 import { memo, useMemo, useState } from "react";
 import { useFiltersStore } from "@/src/stores/filters";
 import { ContentGutters } from "@/src/components/gutters";
@@ -26,7 +26,7 @@ const MemoedListItem = memo(
   function ListItem(props: CommunityView) {
     return (
       <ContentGutters className="md:contents">
-        <Community communityView={props} className="pt-3.5" />
+        <CommunityCard communityView={props} className="pt-3.5" />
       </ContentGutters>
     );
   },

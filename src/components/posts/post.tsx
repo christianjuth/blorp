@@ -2,7 +2,7 @@ import { usePostsStore } from "@/src/stores/posts";
 import { useLinkContext } from "../nav/link-context";
 import { useSettingsStore } from "@/src/stores/settings";
 import { getPostEmbed } from "@/src/lib/post";
-import { encodeApId, FlattenedPost } from "@/src/lib/lemmy/utils";
+import { createSlug, encodeApId, FlattenedPost } from "@/src/lib/lemmy/utils";
 
 import { Link } from "react-router-dom";
 import { PostArticleEmbed } from "./post-article-embed";
@@ -64,26 +64,8 @@ export function getPostProps(
     displayUrl = `${parsedUrl.host.replace(/^www\./, "")}${parsedUrl.pathname.replace(/\/$/, "")}`;
   }
 
-  let recyclingType = 0;
-  switch (embed.type) {
-    case "article":
-    case "image":
-      recyclingType = 1;
-      break;
-    case "video":
-      recyclingType = 2;
-      break;
-    case "youtube":
-      recyclingType = 3;
-      break;
-    case "loops":
-      recyclingType = 4;
-      break;
-  }
-
   return {
     ...embed,
-    recyclingType,
     id: postView.post.id,
     apId: postView.post.ap_id,
     encodedApId: encodeApId(postView.post.ap_id),
@@ -99,6 +81,7 @@ export function getPostProps(
     saved: postView.optimisticSaved ?? postView.saved,
     creatorId: postView.creator.id,
     creatorApId: postView.creator.actor_id,
+    creatorSlug: createSlug(postView.creator),
     encodedCreatorApId: encodeApId(postView.creator.actor_id),
     creatorName: postView.creator.name,
     creatorAvatar: postView.creator.avatar,

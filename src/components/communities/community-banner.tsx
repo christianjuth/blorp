@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge";
 import { CommunityJoinButton } from "./community-join-button";
-import { createCommunitySlug } from "@/src/lib/lemmy/utils";
+import { createCommunitySlug, createSlug } from "@/src/lib/lemmy/utils";
 import { useCommunitiesStore } from "@/src/stores/communities";
 
 export function CommunityBanner({ communityName }: { communityName?: string }) {
@@ -8,7 +8,7 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
     communityName ? s.communities[communityName]?.data : null,
   );
 
-  const slug = data ? createCommunitySlug(data.communityView.community) : null;
+  const slug = data ? createSlug(data.communityView.community) : null;
 
   const banner = data?.communityView.community.banner;
   const icon = data?.communityView.community.icon;
@@ -26,19 +26,25 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
             />
           </div>
 
-          <div className="absolute left-5 h-20 w-20 outline-background outline-2 -translate-y-1/2 bg-background rounded-full flex items-center justify-center">
-            <img src={icon} className="h-20 w-20 object-cover rounded-full" />
-          </div>
+          {icon && (
+            <div className="absolute left-5 h-20 w-20 outline-background outline-2 -translate-y-1/2 bg-background rounded-full flex items-center justify-center">
+              <img src={icon} className="h-20 w-20 object-cover rounded-full" />
+            </div>
+          )}
         </div>
       )}
 
       <div
         className={twMerge(
           "my-1.5 flex flex-row justify-between",
-          !hideBanner && "pl-28 pb-3",
+          !hideBanner && icon && "pl-28",
+          !hideBanner && "pb-3",
         )}
       >
-        <span className="font-bold text-lg">c/{slug}</span>
+        <span className="font-bold text-lg">
+          {slug?.name}
+          <span className="italic">@{slug?.host}</span>
+        </span>
         <CommunityJoinButton communityName={communityName} />
       </div>
     </div>
