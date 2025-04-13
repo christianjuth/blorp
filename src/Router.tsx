@@ -44,78 +44,138 @@ const Search = lazy(() => import("@/src/features/search"));
 const CreatePost = lazy(() => import("@/src/features/create-post"));
 
 const HOME_STACK = [
-  <Route exact path="/home" component={HomeFeed} />,
-  <Route exact path="/home/s" component={Search} />,
-  <Route exact path="/home/c/:communityName" component={CommunityFeed} />,
-  <Route exact path="/home/c/:communityName/s" component={Search} />,
+  <Route key="/home" exact path="/home" component={HomeFeed} />,
+  <Route key="/home/s" exact path="/home/s" component={Search} />,
   <Route
+    key="/home/c/:communityName"
+    exact
+    path="/home/c/:communityName"
+    component={CommunityFeed}
+  />,
+  <Route
+    key="/home/c/:communityName/s"
+    exact
+    path="/home/c/:communityName/s"
+    component={Search}
+  />,
+  <Route
+    key="/home/c/:communityName/sidebar"
     exact
     path="/home/c/:communityName/sidebar"
     component={CommunitySidebar}
   />,
-  <Route exact path="/home/c/:communityName/posts/:post" component={Post} />,
   <Route
+    key="/home/c/:communityName/posts/:post"
+    exact
+    path="/home/c/:communityName/posts/:post"
+    component={Post}
+  />,
+  <Route
+    key="/home/c/:communityName/posts/:post/comments/:comment"
     exact
     path="/home/c/:communityName/posts/:post/comments/:comment"
     component={Post}
   />,
-  <Route exact path="/home/u/:userId" component={User} />,
-  <Route exact path="/home/saved" component={SavedFeed} />,
+  <Route key="/home/u/:userId" exact path="/home/u/:userId" component={User} />,
+  <Route key="/home/saved" exact path="/home/saved" component={SavedFeed} />,
 ];
 
 const CREATE_POST_STACK = [
-  <Route exact path="/create" component={CreatePost} />,
+  <Route key="/create" exact path="/create" component={CreatePost} />,
 ];
 
 const COMMUNITIES_STACK = [
-  <Route exact path="/communities/" component={CommunitiesFeed} />,
-  <Route exact path="/communities/s">
+  <Route
+    key="/communities/"
+    exact
+    path="/communities/"
+    component={CommunitiesFeed}
+  />,
+  <Route key="/communities/s" exact path="/communities/s">
     <Search defaultType="communities" />
   </Route>,
   <Route
+    key="/communities/c/:communityName"
     exact
     path="/communities/c/:communityName"
     component={CommunityFeed}
   />,
-  <Route exact path="/communities/c/:communityName/s" component={Search} />,
   <Route
+    key="/communities/c/:communityName/s"
+    exact
+    path="/communities/c/:communityName/s"
+    component={Search}
+  />,
+  <Route
+    key="/communities/c/:communityName/sidebar"
     exact
     path="/communities/c/:communityName/sidebar"
     component={CommunitySidebar}
   />,
   <Route
+    key="/communities/c/:communityName/posts/:post"
     exact
     path="/communities/c/:communityName/posts/:post"
     component={Post}
   />,
   <Route
+    key="/communities/c/:communityName/posts/:post/comment/:comment"
     exact
     path="/communities/c/:communityName/posts/:post/comment/:comment"
     component={Post}
   />,
-  <Route exact path="/communities/u/:userId" component={User} />,
+  <Route
+    key="/communities/u/:userId"
+    exact
+    path="/communities/u/:userId"
+    component={User}
+  />,
 ];
 
 const INBOX_STACK = [
-  <Route exact path="/inbox" component={Inbox} />,
-  <Route exact path="/inbox/s" component={Search} />,
-  <Route exact path="/inbox/c/:communityName" component={CommunityFeed} />,
-  <Route exact path="/inbox/c/:communityName/s" component={Search} />,
+  <Route key="/inbox" exact path="/inbox" component={Inbox} />,
+  <Route key="/inbox/s" exact path="/inbox/s" component={Search} />,
   <Route
+    key="/inbox/c/:communityName"
+    exact
+    path="/inbox/c/:communityName"
+    component={CommunityFeed}
+  />,
+  <Route
+    key="/inbox/c/:communityName/s"
+    exact
+    path="/inbox/c/:communityName/s"
+    component={Search}
+  />,
+  <Route
+    key="/inbox/c/:communityName/sidebar"
     exact
     path="/inbox/c/:communityName/sidebar"
     component={CommunitySidebar}
   />,
-  <Route exact path="/inbox/c/:communityName/posts/:post" component={Post} />,
   <Route
+    key="/inbox/c/:communityName/posts/:post"
+    exact
+    path="/inbox/c/:communityName/posts/:post"
+    component={Post}
+  />,
+  <Route
+    key="/inbox/c/:communityName/posts/:post/comments/:comment"
     exact
     path="/inbox/c/:communityName/posts/:post/comments/:comment"
     component={Post}
   />,
-  <Route exact path="/inbox/u/:userId" component={User} />,
+  <Route
+    key="/inbox/u/:userId"
+    exact
+    path="/inbox/u/:userId"
+    component={User}
+  />,
 ];
 
-const SETTINGS = [<Route exact path="/settings" component={SettingsPage} />];
+const SETTINGS = [
+  <Route key="/settings" exact path="/settings" component={SettingsPage} />,
+];
 
 function SidebarTabs() {
   const router = useIonRouter();

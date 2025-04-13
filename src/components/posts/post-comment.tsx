@@ -5,7 +5,6 @@ import {
   InlineCommentReply,
   useInlineCommentReplyState,
 } from "../comments/comment-reply-modal";
-import { useEffect, useId, useState } from "react";
 import { useCommentsStore } from "@/src/stores/comments";
 import { RelativeTime } from "../relative-time";
 import { useBlockPerson, useDeleteComment } from "@/src/lib/lemmy/index";
@@ -14,7 +13,7 @@ import { useShowCommentReportModal } from "./post-report";
 import { useRequireAuth } from "../auth-context";
 import { useLinkContext } from "../nav/link-context";
 import { Person } from "lemmy-js-client";
-import { createPersonSlug, encodeApId } from "@/src/lib/lemmy/utils";
+import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
 import { Link } from "react-router-dom";
 import {
   Avatar,
@@ -25,7 +24,6 @@ import { cn } from "@/src/lib/utils";
 import { ActionMenu } from "../action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import { useIonAlert } from "@ionic/react";
-import { message } from "@tauri-apps/plugin-dialog";
 import { Deferred } from "@/src/lib/deferred";
 
 function Byline({
@@ -40,8 +38,9 @@ function Byline({
   onPress?: () => void;
 }) {
   const linkCtx = useLinkContext();
+  const slug = createSlug(creator);
   return (
-    <div className="flex flex-row gap-1.5 items-center py-px">
+    <summary className="flex flex-row gap-1.5 items-center py-px">
       <Avatar className="w-5 h-5">
         <AvatarImage src={creator.avatar} />
         <AvatarFallback className="text-xs">
@@ -52,13 +51,14 @@ function Byline({
         to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}
         className="text-sm overflow-ellipsis overflow-x-hidden"
       >
-        {createPersonSlug(creator)}
+        {slug?.name}
+        <span className="italic text-muted-foreground">@{slug?.host}</span>
         {authorType && <span> ({authorType})</span>}
       </Link>
       <RelativeTime prefix=" • " time={publishedDate} className="text-sm" />
 
       <div className="flex-1 h-full" onClick={onPress} />
-    </div>
+    </summary>
   );
 }
 
@@ -88,9 +88,7 @@ export function PostComment({
 
   const blockPerson = useBlockPerson();
 
-  const [collapsed, setCollapsed] = useState(false);
-
-  const { comment: commentPath, sort, ...rest } = commentMap;
+  const { comment: commentPath, ...rest } = commentMap;
 
   const commentView = useCommentsStore((s) =>
     commentPath ? s.comments[commentPath.path]?.data : undefined,
@@ -104,12 +102,6 @@ export function PostComment({
     commentView?.comment.ap_id + "reply",
   );
 
-  // console.log(commentPath, commentView?.comment.content);
-
-  // useEffect(() => {
-  //   setEditing(false);
-  // }, [commentView?.comment.content]);
-
   const deleteComment = useDeleteComment();
 
   const isMyComment = commentView?.comment.creator_id === myUserId;
@@ -118,8 +110,8 @@ export function PostComment({
     return null;
   }
 
-  const sorted = _.entries(_.omit(rest)).sort(
-    ([id1, a], [id2, b]) => a.sort - b.sort,
+  const sorted = _.entries(_.omit(rest, "sort")).sort(
+    ([_id1, a], [_id2, b]) => a.sort - b.sort,
   );
 
   let color = "red";
@@ -146,26 +138,18 @@ export function PostComment({
 
   const comment = commentView.comment;
   const creator = commentView.creator;
-  const avatar = creator.avatar;
 
   const hideContent = comment.removed || comment.deleted;
 
   return (
-    <div
+    <details
+      open
       className={cn(
         "flex-1 pt-2",
         level === 0 && "mt-2",
         level === 0 && !noBorder && "border-b-[0.5px] pb-5",
         comment.id < 0 && "opacity-50",
       )}
-      // bg="$background"
-      // bbc="$color3"
-      // bbw={level === 0 && !noBorder ? 1 : 0}
-      // $md={{
-      //   px: level === 0 ? "$2.5" : undefined,
-      //   bbw: level === 0 && !noBorder ? 0.5 : 0,
-      // }}
-      // w="100%"
     >
       <Byline
         creator={creator}
@@ -177,7 +161,6 @@ export function PostComment({
               ? "Me"
               : undefined
         }
-        onPress={() => setCollapsed((c) => !c)}
       />
 
       <div
@@ -271,7 +254,7 @@ export function PostComment({
                             person_id: commentView.creator.id,
                             block: true,
                           });
-                        } catch (err) {}
+                        } catch {}
                       },
                       danger: true,
                     } as const,
@@ -289,14 +272,12 @@ export function PostComment({
             state={reply}
             postId={comment.post_id}
             queryKeyParentId={queryKeyParentId}
-            // onCancel={() => reply.setIsEditing(false)}
-            // onSubmit={() => reply.setIsEditing(false)}
             parent={commentView}
             autoFocus
           />
         )}
 
-        {sorted.map(([id, map], i) => (
+        {sorted.map(([id, map]) => (
           <PostComment
             postApId={postApId}
             queryKeyParentId={queryKeyParentId}
@@ -309,6 +290,6 @@ export function PostComment({
           />
         ))}
       </div>
-    </div>
+    </details>
   );
 }

@@ -13,7 +13,7 @@ import pRetry from "p-retry";
 import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
 import * as Sentry from "@sentry/react";
 
-const CACHE_VERSON = 2;
+const CACHE_VERSON = 3;
 
 const db = createDb("react-query");
 const persister: Persister = {

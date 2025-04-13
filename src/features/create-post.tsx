@@ -33,7 +33,7 @@ export default function CreatePost() {
 
   const community = useCreatePostStore((s) => s.community);
 
-  const editorKey = useCreatePostStore((s) => s.key);
+  // const editorKey = useCreatePostStore((s) => s.key);
 
   const reset = useCreatePostStore((s) => s.reset);
 
@@ -67,7 +67,7 @@ export default function CreatePost() {
               setThumbnailUrl(ogData.image);
             }
           });
-      } catch (err) {}
+      } catch {}
     }
   };
 

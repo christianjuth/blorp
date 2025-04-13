@@ -18,13 +18,13 @@ import { useState } from "react";
 import { useRequireAuth } from "./auth-context";
 import { IonButton } from "@ionic/react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
+import { useLogout } from "../lib/lemmy";
 
 export function UserDropdown() {
   const linkCtx = useLinkContext();
-  // const logout = useLogout();
+  const logout = useLogout();
   const requireAuth = useRequireAuth();
 
-  const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const selectedAccount = useAuth((s) => s.getSelectedAccount());
   const accounts = useAuth((s) => s.accounts);
   const setAccountIndex = useAuth((s) => s.setAccountIndex);
@@ -132,7 +132,7 @@ export function UserDropdown() {
             <Link to={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}>
               <DropdownMenuItem>Profile</DropdownMenuItem>
             </Link>
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
           </>
         )}
       </DropdownMenuContent>

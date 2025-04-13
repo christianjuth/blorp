@@ -20,6 +20,7 @@ import {
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
+import { cn } from "../lib/utils";
 
 function Reply({
   replyView,
@@ -45,30 +46,17 @@ function Reply({
             read: true,
           });
         }}
-        className="border-b-[0.5px] border-border pb-2.5 mt-2.5 flex-1 text-sm leading-6"
+        className={cn(
+          "pb-2.5 mt-2.5 flex-1 text-sm leading-6",
+          !noBorder && "border-b-[0.5px]",
+        )}
       >
         <div className="flex flex-row flex-wrap">
-          {replyView.comment_reply.read ? null : (
-            <div
-            // h={8} w={8} bg="$accentColor" my={6} mr={5} br={9999}
-            />
-          )}
-          <span
-          // lineHeight="$1.5"
-          >
-            <span
-              // fontSize="$4" fontWeight="bold"
-              className="font-bold"
-            >
-              {replyView.creator.name}
-            </span>
+          {replyView.comment_reply.read ? null : <div />}
+          <span>
+            <span className="font-bold">{replyView.creator.name}</span>
             <span> replied to your comment in </span>
-            <span
-              // fontSize="$4" fontWeight="bold"
-              className="font-bold"
-            >
-              {replyView.post.name}
-            </span>
+            <span className="font-bold">{replyView.post.name}</span>
           </span>
         </div>
         <MarkdownRenderer markdown={replyView.comment.content} />

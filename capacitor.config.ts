@@ -1,7 +1,6 @@
 /// <reference types="@capacitor/splash-screen" />
 /// <reference types="@capacitor-community/safe-area" />
 /// <reference types="@capacitor-community/sqlite" />
-/// <reference types="@capacitor/keyboard" />
 
 import type { CapacitorConfig } from "@capacitor/cli";
 import { KeyboardResize, KeyboardStyle } from "@capacitor/keyboard";

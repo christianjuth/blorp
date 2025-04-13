@@ -81,7 +81,7 @@ export default function CommunityFeed() {
     fetchNextPage,
     isFetchingNextPage,
     refetch,
-    isRefetching,
+    // isRefetching,
   } = posts;
 
   const postCache = usePostsStore((s) => s.posts);

@@ -165,10 +165,6 @@ function AuthModal({
     }
   }, [mfaToken]);
 
-  const numItems = sortedInstances
-    ? sortedInstances.length
-    : defaultSort.length;
-
   const modal = useRef<HTMLIonModalElement>(null);
 
   return (

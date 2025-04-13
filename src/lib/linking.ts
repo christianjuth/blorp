@@ -5,7 +5,7 @@ export function shouldOpenInNewTab(url: string) {
   try {
     const urlObject = new URL(url, window.location.origin);
     return !!urlObject.host && !url.startsWith("/");
-  } catch (e) {
+  } catch {
     return false; // Treat invalid URLs as relative
   }
 }

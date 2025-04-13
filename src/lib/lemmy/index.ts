@@ -44,17 +44,11 @@ import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
 import { useThrottleQueue } from "../throttle-queue";
 import { useCommunitiesStore } from "../../stores/communities";
-import {
-  createCommunitySlug,
-  createSlug,
-  FlattenedPost,
-  flattenPost,
-} from "./utils";
+import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
 // import { measureImage } from "../image";
 import { getPostEmbed } from "../post";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useToast } from "../hooks";
-import { message } from "@tauri-apps/plugin-dialog";
 import { useIonRouter } from "@ionic/react";
 
 function useLemmyClient(config?: { instance?: string }) {
@@ -163,7 +157,7 @@ export function usePersonDetails({ actorId }: { actorId?: string }) {
 
       cacheProfiles([_.omit(person, "is_admin")]);
 
-      const { posts, comments, ...rest } = await client.getPersonDetails(
+      const res = await client.getPersonDetails(
         {
           person_id: person?.person.id,
           limit: 1,
@@ -172,7 +166,7 @@ export function usePersonDetails({ actorId }: { actorId?: string }) {
           signal,
         },
       );
-      return rest;
+      return _.omit(res, ["posts", "comments"]);
     },
     enabled: !!actorId,
   });
@@ -193,10 +187,8 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
   const cacheComments = useCommentsStore((s) => s.cacheComments);
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
-  const patchPost = usePostsStore((s) => s.patchPost);
+  // const patchPost = usePostsStore((s) => s.patchPost);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
-
-  const cacheImages = useSettingsStore((s) => s.cacheImages);
 
   return useThrottledInfiniteQuery({
     queryKey,
@@ -286,9 +278,7 @@ export function usePost({
   );
 
   const cachePost = usePostsStore((s) => s.cachePost);
-  const patchPost = usePostsStore((s) => s.patchPost);
-
-  const cacheImages = useSettingsStore((s) => s.cacheImages);
+  // const patchPost = usePostsStore((s) => s.patchPost);
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
@@ -425,7 +415,7 @@ export function useComments(form: GetComments) {
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
       const limit = form.limit ?? 50;
-      const { comments, ...rest } = await client.getComments(
+      const { comments } = await client.getComments(
         {
           ...form,
           limit,
@@ -456,6 +446,7 @@ export function useComments(form: GetComments) {
           path: c.comment.path,
           postId: c.comment.post_id,
           creatorId: c.creator.id,
+          published: c.comment.published,
         })),
         nextPage: comments.length < limit ? null : pageParam + 1,
       };
@@ -548,6 +539,7 @@ export function useMostRecentPost(
     refetchInterval: 1000 * 60,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
+    enabled,
   });
 
   return {
@@ -559,7 +551,6 @@ export function useMostRecentPost(
         case "community":
           return !post.featured_community;
       }
-      return true;
     }),
   };
 }
@@ -587,7 +578,7 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   const queryKeyStr = queryKey.join("-");
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
-  const patchPost = usePostsStore((s) => s.patchPost);
+  // const patchPost = usePostsStore((s) => s.patchPost);
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
@@ -973,34 +964,30 @@ export function useLikePost(apId: string) {
 
   return useMutation({
     mutationKey: ["likePost", apId],
-    mutationFn: async (score: -1 | 0 | 1) => {
+    mutationFn: (score: -1 | 0 | 1) => {
       if (!post) {
         throw new Error("post not found");
       }
-      const res = await client.likePost({
+      return client.likePost({
         post_id: post.post.id,
         score,
       });
-      return res;
     },
-    onMutate: (myVote) => {
+    onMutate: (myVote) =>
       cachePost({
         ...post,
         optimisticMyVote: myVote,
-      });
-    },
-    onSuccess: (data) => {
+      }),
+    onSuccess: (data) =>
       cachePost({
         ..._.omit(post, ["optimisticMyVote"]),
         ...flattenPost(data),
-      });
-    },
-    onError: (err) => {
+      }),
+    onError: () =>
       cachePost({
         ...post,
         optimisticMyVote: undefined,
-      });
-    },
+      }),
   });
 }
 
@@ -1015,9 +1002,8 @@ export function useLikeComment() {
   const cacheComment = useCommentsStore((s) => s.cacheComment);
 
   return useMutation({
-    mutationFn: async ({ post_id, path, ...form }: CustumCreateCommentLike) => {
-      return await client.likeComment(form);
-    },
+    mutationFn: (form: CustumCreateCommentLike) =>
+      client.likeComment(_.omit(form, ["path", "post_id"])),
     onMutate: ({ score, path }) => {
       patchComment(path, () => ({
         optimisticMyVote: score,
@@ -1055,9 +1041,8 @@ export function useCreateComment({
   const getCommentsKey = useCommentsKey();
 
   return useMutation({
-    mutationFn: async ({ parentPath, ...form }: CreateCommentWithPath) => {
-      return await client.createComment(form);
-    },
+    mutationFn: (form: CreateCommentWithPath) =>
+      client.createComment(_.omit(form, "parentPath")),
     onMutate: ({ post_id, parentPath, content }) => {
       const date = new Date();
       const isoDate = date.toISOString();
@@ -1211,16 +1196,8 @@ export function useEditComment() {
   const patchComment = useCommentsStore((s) => s.patchComment);
 
   return useMutation({
-    mutationFn: async ({
-      path,
-      ...form
-    }: {
-      comment_id: number;
-      content: string;
-      path: string;
-    }) => {
-      return await client.editComment(form);
-    },
+    mutationFn: (form: { comment_id: number; content: string; path: string }) =>
+      client.editComment(_.omit(form, "path")),
     onMutate: ({ path, content }) => {
       patchComment(path, (prev) => ({
         comment: {
@@ -1240,16 +1217,11 @@ export function useDeleteComment() {
   const patchComment = useCommentsStore((s) => s.patchComment);
   const cacheComment = useCommentsStore((s) => s.cacheComment);
   return useMutation({
-    mutationFn: async ({
-      path,
-      ...form
-    }: {
+    mutationFn: (form: {
       comment_id: number;
       path: string;
       deleted: boolean;
-    }) => {
-      return await client.deleteComment(form);
-    },
+    }) => client.deleteComment(_.omit(form, "path")),
     onMutate: ({ path, deleted }) => {
       patchComment(path, (prev) => ({
         ...prev,
@@ -1355,9 +1327,7 @@ export function useSearch(form: Search) {
   const limit = form.limit ?? 50;
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
-  const patchPost = usePostsStore((s) => s.patchPost);
-
-  const cacheImages = useSettingsStore((s) => s.cacheImages);
+  // const patchPost = usePostsStore((s) => s.patchPost);
 
   return useThrottledInfiniteQuery({
     queryKey,
@@ -1383,15 +1353,15 @@ export function useSearch(form: Search) {
               //   });
               // });
             }
-            // ExpoImage.prefetch([thumbnail], {
-            //   cachePolicy: cacheImages ? "disk" : "memory",
-            // });
           }, i);
           i += 50;
         }
       }
 
-      const { communities, comments, users } = res;
+      const {
+        communities,
+        // comments, users
+      } = res;
       return {
         communities,
         posts: posts.map((p) => p.post.ap_id),
@@ -1436,7 +1406,7 @@ export function useInstances() {
             }),
           )
           .parse(data);
-      } catch (error) {
+      } catch {
         return undefined;
       }
     },
@@ -1640,7 +1610,7 @@ export function useDeletePost(apId: string) {
   });
 }
 
-function useMarkPostRead() {
+export function useMarkPostRead() {
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
 

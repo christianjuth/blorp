@@ -2,6 +2,7 @@ import { useSearch } from "../lib/lemmy";
 import {
   FeedPostCard,
   getPostProps,
+  PostCardSkeleton,
   PostProps,
 } from "@/src/components/posts/post";
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
@@ -9,7 +10,10 @@ import { ContentGutters } from "../components/gutters";
 import { memo, useMemo, useRef, useState } from "react";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
-import { CommunityCard } from "../components/communities/community-card";
+import {
+  CommunityCard,
+  CommunityCardSkeleton,
+} from "../components/communities/community-card";
 import { useFiltersStore } from "../stores/filters";
 import _ from "lodash";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
@@ -34,9 +38,7 @@ import { PostReportProvider } from "../components/posts/post-report";
 
 const EMPTY_ARR = [];
 
-const FILTER_SORT_BAR = "filter-sort-bar";
-
-type Item = typeof FILTER_SORT_BAR | PostProps | CommunityView;
+type Item = PostProps | CommunityView;
 
 function isPost(item: Item): item is PostProps {
   return _.isObject(item) && "apId" in item;
@@ -162,43 +164,39 @@ export function SearchFeed({
         <PostReportProvider>
           <FlashList<Item>
             className="h-full ion-content-scroll-host"
-            data={["filter-sort-bar", ...data]}
+            data={data}
+            header={
+              <ContentGutters className="max-md:hidden">
+                <div className="flex flex-row h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
+                  <div>
+                    <ToggleGroup
+                      type="single"
+                      variant="outline"
+                      size="sm"
+                      value={type}
+                      onValueChange={(val) =>
+                        val && setType(val as "posts" | "communities" | "all")
+                      }
+                    >
+                      <ToggleGroupItem value="all">All</ToggleGroupItem>
+                      <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                      <ToggleGroupItem value="communities">
+                        Communities
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  </div>
+
+                  {type === "posts" && (
+                    <>
+                      <div className="w-[.5px] h-2/3 bg-border mx-3 my-auto" />
+                      <PostSortBar align="start" />
+                    </>
+                  )}
+                </div>
+                <></>
+              </ContentGutters>
+            }
             renderItem={({ item }) => {
-              if (item === FILTER_SORT_BAR) {
-                return (
-                  <ContentGutters className="max-md:hidden">
-                    <div className="flex flex-row h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
-                      <div>
-                        <ToggleGroup
-                          type="single"
-                          variant="outline"
-                          size="sm"
-                          value={type}
-                          onValueChange={(val) =>
-                            val &&
-                            setType(val as "posts" | "communities" | "all")
-                          }
-                        >
-                          <ToggleGroupItem value="all">All</ToggleGroupItem>
-                          <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                          <ToggleGroupItem value="communities">
-                            Communities
-                          </ToggleGroupItem>
-                        </ToggleGroup>
-                      </div>
-
-                      {type === "posts" && (
-                        <>
-                          <div className="w-[.5px] h-2/3 bg-border mx-3 my-auto" />
-                          <PostSortBar align="start" />
-                        </>
-                      )}
-                    </div>
-                    <></>
-                  </ContentGutters>
-                );
-              }
-
               if (isPost(item)) {
                 return <Post {...item} />;
               }
@@ -218,6 +216,17 @@ export function SearchFeed({
             estimatedItemSize={type === "posts" ? 475 : 52}
             key={type}
             refresh={refetch}
+            placeholder={
+              <ContentGutters>
+                {type === "communities" ? (
+                  <CommunityCardSkeleton className="flex-1" />
+                ) : (
+                  <PostCardSkeleton />
+                )}
+                <></>
+              </ContentGutters>
+            }
+            stickyHeaderIndices={[0]}
           />
         </PostReportProvider>
 

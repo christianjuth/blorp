@@ -52,7 +52,7 @@ export default function Communities() {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-    isRefetching,
+    // isRefetching,
     refetch,
   } = useListCommunities({
     limit: 50,

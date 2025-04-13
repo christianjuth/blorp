@@ -8,7 +8,6 @@ import _ from "lodash";
 import { Logo } from "@/src/components/logo";
 import pkgJson from "@/package.json";
 import { getDbSizes } from "@/src/lib/create-storage";
-import * as Sentry from "@sentry/react";
 
 import {
   IonButtons,
@@ -174,64 +173,6 @@ function CacheSection() {
   );
 }
 
-function SettingsButton({
-  onClick,
-  children,
-}: {
-  onClick: () => any;
-  children: React.ReactNode;
-}) {
-  const [pressed, setPressed] = useState(false);
-  return (
-    <button
-      onClick={async () => {
-        if (pressed) {
-          return;
-        }
-        setPressed(true);
-        const p = onClick();
-        if (p instanceof Promise) {
-          p.finally(() => {
-            setPressed(false);
-          });
-        } else {
-          setPressed(false);
-        }
-      }}
-      // unstyled
-      // h="$4"
-      // px="$3.5"
-      // jc="center"
-      // ai="flex-start"
-      // br="$4"
-      // bg={pressed ? "$color4" : "transparent"}
-      // bw={0}
-    >
-      {children}
-    </button>
-  );
-}
-
-function SettingsToggle({
-  value,
-  onToggle,
-  children,
-}: {
-  value: boolean;
-  onToggle: (newVal: boolean) => void;
-  children: string;
-}) {
-  return (
-    <div>
-      <span>{children}</span>
-      <IonToggle
-        checked={value}
-        onIonChange={(e) => onToggle(e.detail.checked)}
-      />
-    </div>
-  );
-}
-
 function Divider() {
   return <div />;
 }
@@ -242,7 +183,6 @@ export default function SettingsPage() {
   useEffect(() => {
     if (logoClicks >= 10) {
       window.location.reload();
-      // Sentry.captureException(new Error("Simulated error from settings page"));
       setLogoClicks(0);
     }
   }, [logoClicks]);

@@ -4,7 +4,7 @@ export const extractLoopsVideoSrc = (html: string) => {
     const doc = parser.parseFromString(html, "text/html");
     const videoPlayer = doc.querySelector("video-player");
     return videoPlayer?.getAttribute("video-src") || undefined;
-  } catch (err) {
+  } catch {
     return undefined;
   }
 };

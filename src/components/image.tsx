@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import _ from "lodash";
 // import { imageSizeCache, measureImage } from "../lib/image";
 
-export const shareImage = async (imageUrl: string) => {};
+export const shareImage = async (_imageUrl: string) => {};
 
-export function prefetch(urls: string[]) {}
+export function prefetch(_urls: string[]) {}
 
 export function clearCache() {}
 
@@ -89,7 +89,7 @@ export function Image({
         aspectRatio,
         ...style,
       }}
-      onLoad={(e) => {
+      onLoad={() => {
         setLoaded(true);
         onLoad?.();
       }}

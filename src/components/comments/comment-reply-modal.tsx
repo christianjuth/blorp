@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState } from "react";
+import { useId, useState } from "react";
 import { Comment } from "lemmy-js-client";
 import {
   FlattenedComment,
@@ -120,7 +120,7 @@ export function InlineCommentReply({
     return (
       <IonModal
         isOpen={state.isEditing}
-        onWillDismiss={(event) => state.setIsEditing(false)}
+        onWillDismiss={() => state.setIsEditing(false)}
       >
         <IonHeader>
           <IonToolbar>

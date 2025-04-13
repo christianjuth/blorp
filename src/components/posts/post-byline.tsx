@@ -19,14 +19,13 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { BsFillPinAngleFill } from "react-icons/bs";
-import { useIonAlert, useIonToast } from "@ionic/react";
+import { useIonAlert } from "@ionic/react";
 import { useToast } from "@/src/lib/hooks";
 import { Deferred } from "@/src/lib/deferred";
 import { Slug } from "@/src/lib/lemmy/utils";
 
 export function PostByline({
   id,
-  encodedApId,
   apId,
   pinned,
   saved,
@@ -158,7 +157,7 @@ export function PostByline({
                     person_id: creatorId,
                     block: true,
                   });
-                } catch (err) {}
+                } catch {}
               },
               danger: true,
             },

@@ -1,9 +1,4 @@
-import {
-  CommentSortType,
-  CommunitySortType,
-  ListingType,
-  PostSortType,
-} from "lemmy-js-client";
+import { PostSortType } from "lemmy-js-client";
 import { useFiltersStore } from "@/src/stores/filters";
 import { useMemo } from "react";
 import { useAuth } from "../stores/auth";

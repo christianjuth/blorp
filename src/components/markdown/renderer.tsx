@@ -23,7 +23,7 @@ const options: HTMLReactParserOptions = {
         );
       } else {
         return (
-          <a href={href} target="_blank">
+          <a href={href} target="_blank" rel="noreferrer noopener">
             {domToReact(domNode.children as DOMNode[], options)}
           </a>
         );
@@ -56,7 +56,7 @@ function createMd(root: ReturnType<typeof useLinkContext>["root"]) {
   md.linkify.add("!", {
     // The validate function checks that the text starting at position pos
     // matches our desired lemmy link pattern.
-    validate: function (text, pos, self) {
+    validate: function (text, pos) {
       // Attempt to match the pattern: !community@host
       const tail = text.slice(pos);
       const match = tail.match(/^([\w-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);

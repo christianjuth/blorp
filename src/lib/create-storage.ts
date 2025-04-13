@@ -104,7 +104,7 @@ function createSqliteStore(rowName?: string) {
         .filter(([_, size]) => {
           return size / totalSize > 0.01;
         })
-        .sort(([aKey, aSize], [bKey, bSize]) => {
+        .sort(([_aKey, aSize], [_bKey, bSize]) => {
           return bSize - aSize;
         });
     },
@@ -246,7 +246,7 @@ export async function getDbSizes() {
     .filter(([_, size]) => {
       return size / totalSize > 0.01;
     })
-    .sort(([aKey, aSize], [bKey, bSize]) => {
+    .sort(([_aKey, aSize], [_bKey, bSize]) => {
       return bSize - aSize;
     });
 }

@@ -1,7 +1,7 @@
 import { PostComment } from "@/src/components/posts/post-comment";
 import { buildCommentMap } from "../lib/comment-map";
 import { useEffect } from "react";
-import { useCommunity, usePost, useComments } from "@/src/lib/lemmy/index";
+import { usePost, useComments } from "@/src/lib/lemmy/index";
 import {
   PostBottomBar,
   FeedPostCard,
@@ -33,7 +33,6 @@ import {
 } from "@ionic/react";
 import { useParams } from "react-router";
 import { UserDropdown } from "../components/nav";
-import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { Title } from "../components/title";
 import { useMedia } from "../lib/hooks";
 

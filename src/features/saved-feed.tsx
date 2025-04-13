@@ -8,7 +8,7 @@ import { memo, useMemo, useState } from "react";
 import { FlashList } from "../components/flashlist";
 import { useComments, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
-import { ToggleGroup } from "../components/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
 import { MarkdownRenderer } from "../components/markdown/renderer";
@@ -26,7 +26,6 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
 
@@ -71,6 +70,7 @@ function Comment({ path }: { path: string }) {
 
   return (
     <Link
+      className="border-b pb-4 mt-4"
       to={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
     >
       <MarkdownRenderer markdown={comment.content} />
@@ -79,7 +79,7 @@ function Comment({ path }: { path: string }) {
 }
 
 export default function SavedFeed() {
-  const [type, setType] = useState<"posts" | "comments">("posts");
+  const [type, setType] = useState<"posts" | "comments" | "all">("all");
 
   const comments = useComments({
     saved_only: true,
@@ -97,17 +97,14 @@ export default function SavedFeed() {
     fetchNextPage,
     isFetchingNextPage,
     refetch,
-    isRefetching,
+    // isRefetching,
   } = posts;
 
   const postCache = usePostsStore((s) => s.posts);
 
   const data = useMemo(() => {
-    if (type === "comments") {
-      return (
-        comments.data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR
-      );
-    }
+    const commentViews =
+      comments.data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR;
 
     const postIds = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
@@ -118,8 +115,23 @@ export default function SavedFeed() {
       })
       .filter(isNotNull);
 
-    return postViews;
-  }, [posts.data?.pages, comments.data?.pages, postCache]);
+    switch (type) {
+      case "posts":
+        return postViews;
+      case "comments":
+        return commentViews;
+      default:
+        return [...postViews, ...commentViews].sort((a, b) => {
+          const aPublished = isPost(a)
+            ? a.published
+            : (a as { published: string }).published;
+          const bPublished = isPost(b)
+            ? b.published
+            : (b as { published: string }).published;
+          return bPublished.localeCompare(aPublished);
+        });
+    }
+  }, [posts.data?.pages, comments.data?.pages, postCache, type]);
 
   return (
     <IonPage>
@@ -142,38 +154,28 @@ export default function SavedFeed() {
             data={[HEADER, ...data]}
             renderItem={({ item }) => {
               if (item === HEADER) {
-                return null;
-                // return (
-                //   <ContentGutters>
-                //     <div
-                //       flex={1}
-                //       py="$3"
-                //       gap="$3"
-                //       bbc="$color3"
-                //       bbw={1}
-                //       $md={{
-                //         bbw: 0.5,
-                //         pt: "$2",
-                //         px: "$3",
-                //       }}
-                //       ai="center"
-                //     >
-                //       <ToggleGroup
-                //         defaultValue={type}
-                //         options={[
-                //           { value: "posts", label: "Posts" },
-                //           { value: "comments", label: "Comments" },
-                //         ]}
-                //         onValueChange={(newType) => {
-                //           setTimeout(() => {
-                //             setType(newType);
-                //           }, 0);
-                //         }}
-                //       />
-                //     </XStack>
-                //     <></>
-                //   </ContentGutters>
-                // );
+                return (
+                  <ContentGutters className="bg-background py-2">
+                    <div className="flex-1">
+                      <ToggleGroup
+                        type="single"
+                        variant="outline"
+                        size="sm"
+                        value={type}
+                        onValueChange={(val) =>
+                          val && setType(val as "posts" | "comments" | "all")
+                        }
+                      >
+                        <ToggleGroupItem value="all">All</ToggleGroupItem>
+                        <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                        <ToggleGroupItem value="comments">
+                          comments
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                    </div>
+                    <></>
+                  </ContentGutters>
+                );
               }
 
               if (isPost(item)) {
@@ -192,12 +194,6 @@ export default function SavedFeed() {
                 fetchNextPage();
               }
             }}
-            // refreshing={isRefetching}
-            // onRefresh={() => {
-            //   if (!isRefetching) {
-            //     refetch();
-            //   }
-            // }}
             estimatedItemSize={475}
             stickyHeaderIndices={[0]}
             refresh={refetch}

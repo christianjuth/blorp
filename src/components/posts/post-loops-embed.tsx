@@ -1,19 +1,19 @@
+// TODO: gracefully handle can't fetch loops on web fallback to link out
+
 import { useEffect, useState } from "react";
-// import { Video } from "react-native-video";
-import { Image } from "../image";
 import { extractLoopsVideoSrc } from "@/src/lib/html-parsing";
 import { isTauri } from "@/src/lib/tauri";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 
-const AR = 9 / 16;
-const MAX_WIDTH_GT_MD = 700;
+// const AR = 9 / 16;
+// const MAX_WIDTH_GT_MD = 700;
 
 const getVideo = async (url: string) => {
   try {
     const res = await (isTauri() ? tauriFetch(url) : fetch(url));
     const html = await res.text();
     return extractLoopsVideoSrc(html);
-  } catch (err) {
+  } catch {
     return undefined;
   }
 };

@@ -1,6 +1,6 @@
 import { CommunityAggregates, CommunityView } from "lemmy-js-client";
 import { abbriviateNumber } from "@/src/lib/format";
-import { createCommunitySlug } from "@/src/lib/lemmy/utils";
+import { createSlug, Slug } from "@/src/lib/lemmy/utils";
 import { useLinkContext } from "@/src/components/nav/link-context";
 import { Link } from "react-router-dom";
 import {
@@ -25,27 +25,22 @@ export function CommunityCard({
 }) {
   let icon: string | undefined = undefined;
   let title: string;
-  let slug: string;
-  let name: string;
+  let slug: Slug | null;
   let counts: CommunityAggregates | undefined = undefined;
 
   if ("actor_id" in communityView) {
     icon = communityView.icon;
     title = communityView.title;
-    slug = createCommunitySlug(communityView);
-    name = communityView.name;
+    slug = createSlug(communityView);
   } else {
     const { community } = communityView;
     counts = communityView.counts;
     icon = community.icon;
     title = community.title;
-    slug = createCommunitySlug(community);
-    name = community.name;
+    slug = createSlug(community);
   }
 
   const linkCtx = useLinkContext();
-
-  const [slugName, slugHost] = slug.split("@");
 
   const content = (
     <>
@@ -56,8 +51,8 @@ export function CommunityCard({
 
       <div className="flex flex-col gap-0.5">
         <span className={cn("text-sm", size === "sm" && "text-xs")}>
-          {slugName}
-          <span className="text-muted-foreground italic">@{slugHost}</span>
+          {slug?.name}
+          <span className="text-muted-foreground italic">@{slug?.host}</span>
         </span>
         {counts && (
           <span className="text-xs text-muted-foreground">
@@ -84,7 +79,7 @@ export function CommunityCard({
 
   return (
     <Link
-      to={`${linkCtx.root}c/${slug}`}
+      to={`${linkCtx.root}c/${slug?.slug}`}
       className={cn(
         "flex flex-row gap-2 items-center flex-shrink-0 h-12",
         size === "sm" && "h-9",

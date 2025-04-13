@@ -1,12 +1,4 @@
-import {
-  ReactNode,
-  UIEventHandler,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
   useVirtualizer,
   VirtualItem,
@@ -43,9 +35,6 @@ export function FlashListInternal<T>({
   ref,
   drawDistance,
   numColumns,
-  scrollGutterBothEdges,
-  className,
-  onScroll,
   onFocusChange,
   placeholder,
   header,
@@ -58,9 +47,6 @@ export function FlashListInternal<T>({
   ref: React.RefObject<HTMLDivElement | null>;
   drawDistance?: number;
   numColumns?: number;
-  scrollGutterBothEdges?: boolean;
-  className?: string;
-  onScroll?: (e: React.UIEvent<HTMLDivElement>) => any;
   onFocusChange?: (focused: boolean) => any;
   placeholder?: ReactNode;
   header?: ReactNode;
@@ -218,7 +204,6 @@ export function FlashList<T>({
   ref?: React.RefObject<HTMLDivElement | null>;
   drawDistance?: number;
   numColumns?: number;
-  scrollGutterBothEdges?: boolean;
   className?: string;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => any;
   onFocusChange?: (focused: boolean) => any;

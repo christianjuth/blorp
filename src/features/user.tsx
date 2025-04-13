@@ -107,7 +107,7 @@ export default function User() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-    isRefetching,
+    // isRefetching,
     refetch,
     data,
   } = usePersonFeed({ actorId });
