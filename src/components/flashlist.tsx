@@ -1,4 +1,5 @@
 import {
+  ReactNode,
   UIEventHandler,
   useCallback,
   useEffect,
@@ -46,6 +47,8 @@ export function FlashListInternal<T>({
   className,
   onScroll,
   onFocusChange,
+  placeholder,
+  header,
 }: {
   data?: T[] | readonly T[];
   estimatedItemSize: number;
@@ -59,6 +62,8 @@ export function FlashListInternal<T>({
   className?: string;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => any;
   onFocusChange?: (focused: boolean) => any;
+  placeholder?: ReactNode;
+  header?: ReactNode;
 }) {
   const index = useRef(0);
   const offset = useRef(0);
@@ -68,7 +73,7 @@ export function FlashListInternal<T>({
 
   const initialItem = cache.current?.[index.current];
 
-  const dataLen = data?.length ?? 0;
+  const dataLen = data?.length;
 
   const activeStickyIndexRef = useRef(-1);
 
@@ -84,8 +89,13 @@ export function FlashListInternal<T>({
 
   useEffect(() => onFocusChange?.(focused), [focused]);
 
+  let count = dataLen || (placeholder ? 25 : 0);
+  if (header) {
+    count++;
+  }
+
   const rowVirtualizer = useVirtualizer({
-    count: dataLen,
+    count,
     overscan,
     lanes: numColumns === 1 ? undefined : numColumns,
     getScrollElement: () => scrollRef.current,
@@ -128,7 +138,7 @@ export function FlashListInternal<T>({
 
   useEffect(() => {
     const [lastItem] = [...rowVirtualizer.getVirtualItems()].reverse();
-    if (!lastItem) {
+    if (!lastItem || _.isNil(dataLen)) {
       return;
     }
     if (lastItem.index >= dataLen - 1) {
@@ -148,11 +158,13 @@ export function FlashListInternal<T>({
     >
       {/* Only the visible items in the virtualizer, manually positioned to be in view */}
       {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-        const item = data?.[virtualItem?.index];
-
-        if (!item) {
-          return null;
+        let index = virtualItem.index;
+        if (header) {
+          index--;
         }
+        const item = data?.[index];
+
+        const showHeader = !item && !!header && virtualItem.index === 0;
 
         return (
           <div
@@ -175,10 +187,14 @@ export function FlashListInternal<T>({
                   }
             }
           >
-            {renderItem?.({
-              item,
-              index: virtualItem.index,
-            })}
+            {item
+              ? renderItem?.({
+                  item,
+                  index,
+                })
+              : showHeader
+                ? header
+                : placeholder}
           </div>
         );
       })}
@@ -207,6 +223,8 @@ export function FlashList<T>({
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => any;
   onFocusChange?: (focused: boolean) => any;
   refresh?: () => Promise<any>;
+  placeholder?: ReactNode;
+  header?: ReactNode;
 }) {
   const [key, setKey] = useState(0);
 
@@ -254,7 +272,7 @@ export function FlashList<T>({
         onScroll={onScroll}
       >
         <FlashListInternal
-          key={key}
+          key={`${key}-${props.numColumns}`}
           {...props}
           ref={scrollRef}
           onFocusChange={(newFocused) => {

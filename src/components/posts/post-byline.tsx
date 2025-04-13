@@ -170,7 +170,7 @@ export function PostByline({
   const [communityName, communityHost] = communitySlug.split("@");
 
   return (
-    <div className="flex flex-row items-center gap-2">
+    <div className="flex flex-row items-center gap-2 h-9">
       <Avatar className="h-8 w-8">
         <AvatarImage src={creatorAvatar} />
         <AvatarFallback>

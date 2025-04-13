@@ -7,7 +7,12 @@ export function PostVideoEmbed({
 }) {
   return (
     <div className="max-md:-mx-2.5 md:contents">
-      <video className="aspect-video" src={url} controls autoPlay={autoPlay} />
+      <video
+        className="aspect-video w-full"
+        src={url}
+        controls
+        autoPlay={autoPlay}
+      />
     </div>
   );
 }

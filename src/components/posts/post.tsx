@@ -14,6 +14,8 @@ import { PostLoopsEmbed } from "./post-loops-embed";
 import { YouTubeVideoEmbed } from "../youtube";
 import { PostVideoEmbed } from "./post-video-embed";
 import { cn } from "@/src/lib/utils";
+import { Skeleton } from "../ui/skeleton";
+import { useRef } from "react";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -100,6 +102,35 @@ export function getPostProps(
 export interface PostProps extends ReturnType<typeof getPostProps> {
   detailView?: boolean;
   onNavigate?: () => any;
+}
+
+export function PostCardSkeleton() {
+  const hideImage = useRef(Math.random()).current < 0.4;
+  return (
+    <div className="flex-1 pt-4 gap-2 flex flex-col max-md:px-2.5 pb-4">
+      <div className="flex flex-row items-center gap-2 h-9">
+        <Skeleton className="h-8 w-8 rounded-full" />
+
+        <div className="flex flex-col gap-1">
+          <Skeleton className="h-2.5 w-32" />
+          <Skeleton className="h-2.5 w-44" />
+        </div>
+      </div>
+
+      <Skeleton className="h-7" />
+
+      {!hideImage && (
+        <Skeleton className="aspect-video max-md:-mx-2.5 max-md:rounded-none" />
+      )}
+
+      <div className="flex flex-row justify-end gap-2">
+        <Skeleton className="h-7 w-10 rounded-full" />
+        <Skeleton className="h-7 w-16 rounded-full" />
+      </div>
+
+      <Skeleton className="h-[.5px] w-full rounded-full max-md:-mx-2.5" />
+    </div>
+  );
 }
 
 export function FeedPostCard(props: PostProps) {

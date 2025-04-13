@@ -1,6 +1,7 @@
 import {
   FeedPostCard,
   getPostProps,
+  PostCardSkeleton,
   PostProps,
 } from "@/src/components/posts/post";
 import {
@@ -39,10 +40,7 @@ import { searchOutline } from "ionicons/icons";
 
 const EMPTY_ARR = [];
 
-const SIDEBAR_MOBILE = "sidebar-mobile";
-const BANNER = "banner";
-
-type Item = typeof SIDEBAR_MOBILE | typeof BANNER | PostProps;
+type Item = PostProps;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
@@ -98,7 +96,7 @@ export default function CommunityFeed() {
       })
       .filter(isNotNull);
 
-    return [BANNER, SIDEBAR_MOBILE, ...postViews] as const;
+    return postViews;
   }, [posts.data?.pages, postCache]);
 
   const firstPost = posts.data?.pages[0]?.posts[0];
@@ -111,7 +109,7 @@ export default function CommunityFeed() {
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
-            <span className="font-bold w-4/5 overflow-hidden overflow-ellipsis md:hidden">
+            <span className="font-bold max-w-[calc(100vw-180px)] overflow-hidden overflow-ellipsis md:hidden">
               {communityName}
             </span>
           </IonButtons>
@@ -131,7 +129,7 @@ export default function CommunityFeed() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-4">
+          <IonButtons slot="end" className="gap-3 md:gap-4">
             <Link
               to={`${linkCtx.root}c/${communityName}/s`}
               className="text-2xl contents text-brand md:hidden"
@@ -147,31 +145,23 @@ export default function CommunityFeed() {
         <PostReportProvider>
           <FlashList<Item>
             className="h-full ion-content-scroll-host"
-            // ref={ref}
             data={data}
-            renderItem={({ item }) => {
-              if (item === SIDEBAR_MOBILE) {
-                return communityName ? (
+            header={
+              <>
+                {communityName && (
                   <ContentGutters>
                     <SmallScreenSidebar communityName={communityName} />
                     <></>
                   </ContentGutters>
-                ) : (
+                )}
+
+                <ContentGutters className="max-md:hidden pt-3">
+                  <CommunityBanner communityName={communityName} />
                   <></>
-                );
-              }
-
-              if (item === BANNER) {
-                return (
-                  <ContentGutters className="max-md:hidden pt-3">
-                    <CommunityBanner communityName={communityName} />
-                    <></>
-                  </ContentGutters>
-                );
-              }
-
-              return <Post {...item} />;
-            }}
+                </ContentGutters>
+              </>
+            }
+            renderItem={({ item }) => <Post {...item} />}
             onEndReached={() => {
               if (hasNextPage && !isFetchingNextPage) {
                 fetchNextPage();
@@ -179,6 +169,12 @@ export default function CommunityFeed() {
             }}
             estimatedItemSize={475}
             refresh={() => Promise.all([refetch(), mostRecentPost.refetch()])}
+            placeholder={
+              <ContentGutters className="px-0">
+                <PostCardSkeleton />
+                <></>
+              </ContentGutters>
+            }
           />
         </PostReportProvider>
 

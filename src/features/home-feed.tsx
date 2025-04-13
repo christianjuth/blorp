@@ -1,6 +1,7 @@
 import {
   FeedPostCard,
   getPostProps,
+  PostCardSkeleton,
   PostProps,
 } from "@/src/components/posts/post";
 import { ContentGutters } from "../components/gutters";
@@ -217,7 +218,7 @@ export default function HomeFeed() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-4">
+          <IonButtons slot="end" className="gap-3 md:gap-4">
             <Link
               to="/home/s"
               className="text-2xl contents text-brand md:hidden"
@@ -259,6 +260,12 @@ export default function HomeFeed() {
             ref={scrollRef}
             estimatedItemSize={450}
             data={data}
+            placeholder={
+              <ContentGutters className="px-0">
+                <PostCardSkeleton />
+                <></>
+              </ContentGutters>
+            }
             renderItem={({ item }) => {
               return (
                 <Post

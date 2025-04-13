@@ -1,5 +1,8 @@
 import { useListCommunities } from "@/src/lib/lemmy/index";
-import { CommunityCard } from "../components/communities/community-card";
+import {
+  CommunityCard,
+  CommunityCardSkeleton,
+} from "../components/communities/community-card";
 import { memo, useMemo, useState } from "react";
 import { useFiltersStore } from "@/src/stores/filters";
 import { ContentGutters } from "@/src/components/gutters";
@@ -26,7 +29,7 @@ const MemoedListItem = memo(
   function ListItem(props: CommunityView) {
     return (
       <ContentGutters className="md:contents">
-        <CommunityCard communityView={props} className="pt-3.5" />
+        <CommunityCard communityView={props} className="mt-1" />
       </ContentGutters>
     );
   },
@@ -92,7 +95,7 @@ export default function Communities() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-4">
+          <IonButtons slot="end" className="gap-3 md:gap-4">
             <Link
               to="/communities/s"
               className="text-2xl contents text-brand md:hidden"
@@ -116,8 +119,13 @@ export default function Communities() {
                 fetchNextPage();
               }
             }}
-            estimatedItemSize={48}
+            estimatedItemSize={52}
             refresh={refetch}
+            placeholder={
+              <ContentGutters className="md:contents">
+                <CommunityCardSkeleton className="mt-1" />
+              </ContentGutters>
+            }
           />
         </ContentGutters>
       </IonContent>

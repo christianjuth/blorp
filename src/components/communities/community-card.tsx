@@ -10,6 +10,7 @@ import {
 } from "@/src/components/ui/avatar";
 import { CommunityPartial } from "@/src/stores/create-post";
 import { cn } from "@/src/lib/utils";
+import { Skeleton } from "../ui/skeleton";
 
 export function CommunityCard({
   communityView,
@@ -69,7 +70,13 @@ export function CommunityCard({
 
   if (disableLink) {
     return (
-      <div className={cn("flex flex-row gap-2 items-center", className)}>
+      <div
+        className={cn(
+          "flex flex-row gap-2 items-center flex-shrink-0 h-12",
+          size === "sm" && "h-9",
+          className,
+        )}
+      >
         {content}
       </div>
     );
@@ -78,9 +85,39 @@ export function CommunityCard({
   return (
     <Link
       to={`${linkCtx.root}c/${slug}`}
-      className={cn("flex flex-row gap-2 items-center", className)}
+      className={cn(
+        "flex flex-row gap-2 items-center flex-shrink-0 h-12",
+        size === "sm" && "h-9",
+        className,
+      )}
     >
       {content}
     </Link>
+  );
+}
+
+export function CommunityCardSkeleton({
+  className,
+  size = "md",
+}: {
+  className?: string;
+  size?: "sm" | "md";
+}) {
+  return (
+    <div
+      className={cn(
+        "flex flex-row gap-2 items-center flex-shrink-0 h-12",
+        className,
+      )}
+    >
+      <Skeleton
+        className={cn("h-9 w-9 rounded-full", size === "sm" && "h-8 w-8")}
+      />
+
+      <div className="flex flex-col gap-1">
+        <Skeleton className="h-3 w-32" />
+        <Skeleton className="h-3 w-44" />
+      </div>
+    </div>
   );
 }
