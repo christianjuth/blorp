@@ -130,7 +130,7 @@ export default function CreatePost() {
             <Input
               placeholder="Link (optional)"
               className="border-b border-border"
-              value={url}
+              value={url ?? ""}
               onChange={(e) => setUrl(e.target.value)}
               onBlur={() => url && parseUrl(url)}
             />
@@ -153,113 +153,6 @@ export default function CreatePost() {
       </IonContent>
     </IonPage>
   );
-
-  // return (
-  //   <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-  //     <ContentGutters flex={1}>
-  //       <YStack flex={1} py="$4" px="$4" gap="$3" $gtMd={{ gap: "$5", px: 0 }}>
-  //         {community && (
-  //           <Link href="/create/choose-community" asChild>
-  //             <XStack ai="center" gap="$2" tag="a">
-  //               <SmallCommunityCard community={community} disableLink />
-  //               <ChevronDown />
-  //             </XStack>
-  //           </Link>
-  //         )}
-
-  //         <YStack>
-  //           <Text color="$color11" fontSize="$3">
-  //             Link
-  //           </Text>
-  //           <Input
-  //             placeholder="Link"
-  //             value={url}
-  //             $md={{
-  //               px: 0,
-  //               bw: 0,
-  //             }}
-  //             onChangeText={(newUrl) => {
-  //               setUrl(newUrl);
-  //               if (newUrl.length - (url?.length ?? 0) > 1) {
-  //                 parseUrl(newUrl);
-  //               }
-  //             }}
-  //             color="$color11"
-  //             br={0}
-  //             bw={0}
-  //             bbw={1}
-  //             px={0}
-  //             fontSize="$5"
-  //             h="$3"
-  //             bc="$color4"
-  //           />
-  //         </YStack>
-
-  //         <YStack>
-  //           <Text color="$color11" fontSize="$3">
-  //             Title
-  //           </Text>
-  //           <Input
-  //             placeholder="Title"
-  //             value={title}
-  //             onChangeText={setTitle}
-  //             $md={{
-  //               px: 0,
-  //               bw: 0,
-  //             }}
-  //             br={0}
-  //             bw={0}
-  //             bbw={1}
-  //             px={0}
-  //             fontSize="$5"
-  //             h="$3"
-  //             bc="$color4"
-  //           />
-  //         </YStack>
-
-  //         {thumbnailUrl && (
-  //           <YStack gap="$2">
-  //             <Text color="$color11" fontSize="$3">
-  //               Image
-  //             </Text>
-  //             <XStack bbw={1} bc="$color4" pb="$3" ai="flex-start">
-  //               <View pos="relative">
-  //                 <Image imageUrl={thumbnailUrl} maxWidth={200} />
-  //                 <View
-  //                   tag="button"
-  //                   pos="absolute"
-  //                   bg="$background"
-  //                   br={9999}
-  //                   right={0}
-  //                   p={1}
-  //                   transform={[{ translateX: "50%" }, { translateY: "-50%" }]}
-  //                   onPress={() => setThumbnailUrl(undefined)}
-  //                 >
-  //                   <X color="red" />
-  //                 </View>
-  //               </View>
-  //             </XStack>
-  //           </YStack>
-  //         )}
-
-  //         <YStack bw={0} bc="$color4" flex={1} gap="$1">
-  //           <Text color="$color11" fontSize="$3">
-  //             Body
-  //           </Text>
-  //           <MarkdownEditor
-  //             editor={editor}
-  //             style={{
-  //               flex: 1,
-  //               borderRadius: 0,
-  //             }}
-  //             placeholder="Body..."
-  //             scrollEnabled
-  //           />
-  //         </YStack>
-  //       </YStack>
-  //     </ContentGutters>
-  //   </KeyboardAvoidingView>
-  // );
 }
 
 function ChooseCommunity({
@@ -307,7 +200,7 @@ function ChooseCommunity({
     | "Search results"
   )[] = [
     "Recent",
-    ...recentCommunities.recentlyVisited,
+    ...recentCommunities.recentlyVisited.slice(0, 5),
     "Subscribed",
     ...subscribedCommunities,
   ];

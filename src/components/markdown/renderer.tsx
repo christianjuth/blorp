@@ -13,6 +13,7 @@ import { DetailedHTMLProps, ImgHTMLAttributes } from "react";
 import { useLongPress } from "use-long-press";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { shareImage } from "@/src/lib/share";
+import { cn } from "@/src/lib/utils";
 
 function Image(
   props: DetailedHTMLProps<
@@ -135,10 +136,21 @@ const RENDERERS: Record<ReturnType<typeof useLinkContext>["root"], MarkdownIt> =
     "/communities/": createMd("/communities/"),
   };
 
-export function MarkdownRenderer({ markdown }: { markdown: string }) {
+export function MarkdownRenderer({
+  markdown,
+  className,
+}: {
+  markdown: string;
+  className?: string;
+}) {
   const root = useLinkContext().root;
   return (
-    <div className="prose dark:prose-invert prose-sm leading-normal max-w-full">
+    <div
+      className={cn(
+        "prose dark:prose-invert prose-sm leading-normal max-w-full",
+        className,
+      )}
+    >
       {parse(RENDERERS[root].render(markdown), options)}
     </div>
   );

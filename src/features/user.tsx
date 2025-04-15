@@ -307,7 +307,7 @@ export default function User() {
             estimatedItemSize={475}
             refresh={refetch}
             placeholder={
-              <ContentGutters>
+              <ContentGutters className="px-0">
                 <PostCardSkeleton />
                 <></>
               </ContentGutters>

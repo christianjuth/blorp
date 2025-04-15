@@ -20,6 +20,7 @@ import {
   IonTitle,
   IonToggle,
   IonToolbar,
+  useIonAlert,
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
@@ -48,6 +49,7 @@ function AccountSection() {
               key={instance + index}
               button
               detail={false}
+              className="text-brand"
               onClick={() => {
                 if (isLoggedIn || index > 0) {
                   logout(index);
@@ -173,6 +175,77 @@ function CacheSection() {
   );
 }
 
+function PrivacySection() {
+  const [alrt] = useIonAlert();
+  const shareAnalyticsData = useSettingsStore((s) => s.shareAnalyticsData);
+  const setShareAnayticsData = useSettingsStore((s) => s.setShareAnayticsData);
+  const shareCrashData = useSettingsStore((s) => s.shareCrashData);
+  const setShareCrashData = useSettingsStore((s) => s.setShareCrashData);
+  return (
+    <>
+      <SectionLabel>PRIVACY</SectionLabel>
+
+      <IonList inset>
+        <IonItem className="text-sm text-muted-foreground">
+          <div className="py-3">
+            <p>
+              We collect minimal analytics data using the EU-based,
+              privacy-conscious service Plausible.
+            </p>
+            <a
+              className="text-brand"
+              href="https://plausible.io/blorpblorp.xyz"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              You can verify exactly what data is collected here.
+            </a>
+          </div>
+        </IonItem>
+        <IonItem>
+          <IonToggle
+            checked={shareAnalyticsData}
+            onIonChange={(e) => {
+              setShareAnayticsData(e.detail.checked);
+              if (!e.detail.checked) {
+                alrt("You must restart the app for this change to take effect");
+              }
+            }}
+          >
+            Share analytics data
+          </IonToggle>
+        </IonItem>
+
+        <IonItem className="text-sm text-muted-foreground">
+          <div className="py-3">
+            <p className="max-w-xl">
+              We collect very minimal crash data that DOES NOT include any
+              information about your Lemmy account except the server you are
+              connected to.
+            </p>
+            <a
+              className="text-brand"
+              href="https://github.com/christianjuth/blorp/blob/main/src/components/sentry.tsx"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              You can view the code we use to collect crash data
+            </a>
+          </div>
+        </IonItem>
+        <IonItem>
+          <IonToggle
+            checked={shareCrashData}
+            onIonChange={(e) => setShareCrashData(e.detail.checked)}
+          >
+            Share crash data
+          </IonToggle>
+        </IonItem>
+      </IonList>
+    </>
+  );
+}
+
 function Divider() {
   return <div />;
 }
@@ -261,6 +334,8 @@ export default function SettingsPage() {
 
             <CacheSection />
 
+            <PrivacySection />
+
             <SectionLabel>OTHER</SectionLabel>
 
             <IonList inset>
@@ -268,6 +343,7 @@ export default function SettingsPage() {
                 href="https://github.com/christianjuth/blorp/releases"
                 target="_blank"
                 detail={false}
+                className="text-brand"
               >
                 What's new
               </IonItem>
@@ -275,10 +351,15 @@ export default function SettingsPage() {
                 href="https://github.com/christianjuth/blorp/issues/new"
                 target="_blank"
                 detail={false}
+                className="text-brand"
               >
                 Report issue
               </IonItem>
-              <IonItem routerLink="/privacy" detail={false}>
+              <IonItem
+                routerLink="/privacy"
+                detail={false}
+                className="text-brand"
+              >
                 Privacy Policy
               </IonItem>
             </IonList>

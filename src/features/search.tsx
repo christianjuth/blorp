@@ -217,7 +217,9 @@ export function SearchFeed({
             estimatedItemSize={type === "posts" ? 475 : 52}
             refresh={refetch}
             placeholder={
-              <ContentGutters>
+              <ContentGutters
+                className={type !== "communities" ? "px-0" : undefined}
+              >
                 {type === "communities" ? (
                   <CommunityCardSkeleton className="flex-1" />
                 ) : (

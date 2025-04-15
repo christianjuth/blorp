@@ -9,14 +9,31 @@ const isProd = import.meta.env.PROD;
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
 
+const LOCAL_STORAGE_KEY = "sentry_ignore";
+
+export function setSentryEnabled(enabled: boolean) {
+  if (!enabled) {
+    localStorage.setItem(LOCAL_STORAGE_KEY, "true");
+  } else {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+  }
+  initSentry();
+}
+
+function isSentryEnabled() {
+  return localStorage.getItem(LOCAL_STORAGE_KEY) !== "true";
+}
+
 export function initSentry() {
-  if (typeof SENTRY_DSN === "string") {
+  if (typeof SENTRY_DSN === "string" && isSentryEnabled()) {
     Sentry.init({
       dsn: SENTRY_DSN,
       enabled: isProd,
       integrations: [Sentry.browserTracingIntegration()],
       release: version,
     });
+  } else {
+    Sentry.close();
   }
 }
 

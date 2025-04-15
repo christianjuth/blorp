@@ -1,8 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
+import { setSentryEnabled } from "../components/sentry";
+import { setPlausibleEnabled } from "../lib/analytics";
 
 type SettingsStore = {
+  shareAnalyticsData: boolean;
+  setShareAnayticsData: (newVal: boolean) => void;
+  shareCrashData: boolean;
+  setShareCrashData: (newVal: boolean) => void;
   showMarkdown: boolean;
   setShowMarkdown: (newVal: boolean) => any;
   cacheImages: boolean;
@@ -19,6 +25,16 @@ type SettingsStore = {
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set, get) => ({
+      shareAnalyticsData: true,
+      setShareAnayticsData: (shareAnalyticsData) => {
+        setPlausibleEnabled(shareAnalyticsData);
+        set({ shareAnalyticsData });
+      },
+      shareCrashData: true,
+      setShareCrashData: (shareCrashData) => {
+        setSentryEnabled(shareCrashData);
+        set({ shareCrashData });
+      },
       showMarkdown: false,
       setShowMarkdown: (showMarkdown) => set({ showMarkdown }),
       cacheImages: false,

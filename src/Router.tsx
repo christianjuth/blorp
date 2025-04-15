@@ -33,6 +33,7 @@ import { CommunityCard } from "./components/communities/community-card";
 
 const Inbox = lazy(() => import("@/src/features/inbox"));
 const Privacy = lazy(() => import("@/src/features/privacy"));
+const Support = lazy(() => import("@/src/features/support"));
 const HomeFeed = lazy(() => import("@/src/features/home-feed"));
 const Post = lazy(() => import("@/src/features/post"));
 const SettingsPage = lazy(() => import("@/src/features/settings"));
@@ -179,6 +180,7 @@ const SETTINGS = [
 ];
 
 function SidebarTabs() {
+  const count = useNotificationCount();
   const router = useIonRouter();
   const pathname = router.routeInfo.pathname;
 
@@ -194,14 +196,22 @@ function SidebarTabs() {
             }
           }}
           className={twMerge(
-            "max-md:hidden text-md flex flex-row items-center gap-2 py-2 px-3 rounded-xl",
+            "relative max-md:hidden text-md flex flex-row items-center py-2 px-3 rounded-xl",
             pathname.startsWith(t.to)
               ? "bg-secondary text-brand"
               : "text-muted-foreground",
           )}
         >
           <IonIcon icon={t.icon} className="text-2xl" />
-          <span className="text-sm">{t.label}</span>
+          <span className="text-sm ml-2">{t.label}</span>
+          {t.id === "inbox" && (
+            <IonBadge
+              className="bg-destructive px-1 -mt-3 py-0.5"
+              hidden={!count.data}
+            >
+              {count.data}
+            </IonBadge>
+          )}
         </button>
       ))}
 
@@ -315,6 +325,7 @@ function Tabs() {
             {...CREATE_POST_STACK}
             {...INBOX_STACK}
             {...SETTINGS}
+            <Route exact path="/support" component={Support} />
             <Route exact path="/privacy" component={Privacy} />
             <Redirect exact from="/" to="/home" />
           </IonRouterOutlet>

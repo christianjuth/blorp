@@ -76,7 +76,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:root {
 
     --background: oklch(0.141 0.005 285.823);
     --foreground: oklch(0.985 0 0);

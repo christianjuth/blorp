@@ -38,6 +38,10 @@ import { useLinkContext } from "../components/nav/link-context";
 import { Link } from "react-router-dom";
 import { searchOutline } from "ionicons/icons";
 import { useFiltersStore } from "../stores/filters";
+import { Button } from "../components/ui/button";
+import { dispatchScrollEvent } from "../lib/scroll-events";
+import { LuLoaderCircle } from "react-icons/lu";
+import { FaArrowUp } from "react-icons/fa6";
 
 const EMPTY_ARR = [];
 
@@ -83,7 +87,7 @@ export default function CommunityFeed() {
     fetchNextPage,
     isFetchingNextPage,
     refetch,
-    // isRefetching,
+    isRefetching,
   } = posts;
 
   const postCache = usePostsStore((s) => s.posts);
@@ -101,8 +105,9 @@ export default function CommunityFeed() {
     return postViews;
   }, [posts.data?.pages, postCache]);
 
-  const firstPost = posts.data?.pages[0]?.posts[0];
-  const hasNewPost = mostRecentPost?.data?.post.ap_id !== firstPost;
+  const firstPost = data.find((p) => !p.pinned);
+  const hasNewPost =
+    firstPost && mostRecentPost?.data?.post.ap_id !== firstPost?.apId;
 
   return (
     <IonPage>
@@ -142,6 +147,30 @@ export default function CommunityFeed() {
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
+
+        {hasNewPost && (
+          <ContentGutters className="absolute mt-2 inset-x-0">
+            <div className="flex flex-row justify-center flex-1">
+              <Button
+                size="sm"
+                className="absolute"
+                onClick={() => {
+                  refetch().then(() =>
+                    dispatchScrollEvent(router.routeInfo.pathname),
+                  );
+                }}
+              >
+                New posts
+                {isRefetching ? (
+                  <LuLoaderCircle className="animate-spin" />
+                ) : (
+                  <FaArrowUp />
+                )}
+              </Button>
+            </div>
+            <></>
+          </ContentGutters>
+        )}
       </IonHeader>
       <IonContent scrollY={false}>
         <PostReportProvider>

@@ -162,7 +162,9 @@ export function FlashListInternal<T>({
                 ? {
                     position: "sticky",
                     zIndex: 1,
-                    top: 0,
+                    // Without this, there was a small gap.
+                    // I'm sure there's a better way to fix this
+                    top: -0.5,
                   }
                 : {
                     position: "absolute",
