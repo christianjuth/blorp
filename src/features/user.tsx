@@ -4,6 +4,7 @@ import { usePersonDetails, usePersonFeed } from "../lib/lemmy";
 import {
   FeedPostCard,
   getPostProps,
+  PostCardSkeleton,
   PostProps,
 } from "../components/posts/post";
 import { MarkdownRenderer } from "../components/markdown/renderer";
@@ -43,10 +44,7 @@ import { useMedia } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";
 import { Skeleton } from "../components/ui/skeleton";
 
-const BANNER = "banner";
-const POST_SORT_BAR = "post-sort-bar";
-
-type Item = typeof BANNER | typeof POST_SORT_BAR | PostProps | CommentView;
+type Item = PostProps | CommentView;
 
 function isPost(item: Item): item is PostProps {
   return _.isObject(item) && "apId" in item;
@@ -161,12 +159,7 @@ export default function User() {
     <IonPage>
       <Title>{person ? createPersonSlug(person) : "Person"}</Title>
       <IonHeader>
-        <IonToolbar
-          data-tauri-drag-region
-          style={
-            media.maxMd ? { "--border-color": "var(--background)" } : undefined
-          }
-        >
+        <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>
@@ -177,11 +170,48 @@ export default function User() {
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
+        <IonToolbar>
+          <IonButtons slot="start">
+            <div className="flex flex-row items-center">
+              <div>
+                <ToggleGroup
+                  type="single"
+                  variant="outline"
+                  size="sm"
+                  value={type}
+                  onValueChange={(val) =>
+                    val && setType(val as "posts" | "comments" | "all")
+                  }
+                >
+                  <ToggleGroupItem value="all">All</ToggleGroupItem>
+                  <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                  <ToggleGroupItem value="comments">
+                    <span>Comments</span>
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+
+              {type === "posts" && (
+                <>
+                  <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
+                  <PostSortBar align="start" />
+                </>
+              )}
+            </div>
+          </IonButtons>
+        </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
         <ContentGutters className="max-md:hidden">
           <div className="flex-1" />
           <div className="absolute py-4 flex flex-col gap-3 w-full">
+            <Avatar className="h-13 w-13">
+              <AvatarImage src={person?.avatar} />
+              <AvatarFallback className="text-xl">
+                {person?.name?.substring(0, 1).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+
             <span className="font-bold">
               {personView.person.display_name ?? personView.person.name}
             </span>
@@ -224,120 +254,39 @@ export default function User() {
         <PostReportProvider>
           <FlashList<Item>
             className="h-full ion-content-scroll-host"
-            data={
-              [
-                BANNER,
-                // "sidebar-mobile",
-                POST_SORT_BAR,
-                ...listData,
-              ] as const
+            data={listData}
+            header={
+              <ContentGutters className="max-md:hidden">
+                <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
+                  <div>
+                    <ToggleGroup
+                      type="single"
+                      variant="outline"
+                      size="sm"
+                      value={type}
+                      onValueChange={(val) =>
+                        val && setType(val as "posts" | "comments" | "all")
+                      }
+                    >
+                      <ToggleGroupItem value="all">All</ToggleGroupItem>
+                      <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                      <ToggleGroupItem value="comments">
+                        <span>Comments</span>
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  </div>
+
+                  {type === "posts" && (
+                    <>
+                      <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
+                      <PostSortBar align="start" />
+                    </>
+                  )}
+                </div>
+                <></>
+              </ContentGutters>
             }
             renderItem={({ item }) => {
-              // if (item === "sidebar-mobile") {
-              //   return communityName ? (
-              //     <ContentGutters>
-              //       <SmallScreenSidebar communityName={communityName} />
-              //       <></>
-              //     </ContentGutters>
-              //   ) : (
-              //     <></>
-              //   );
-              // }
-
-              if (item === "banner") {
-                return (
-                  <ContentGutters className="pt-4 pb-2">
-                    <div className="flex flex-row gap-2.5">
-                      <Avatar className="h-13 w-13">
-                        <AvatarImage src={person?.avatar} />
-                        <AvatarFallback className="text-xl">
-                          {person?.name?.substring(0, 1).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-
-                      <div className="flex flex-col leading-4">
-                        <span className="font-bold text-lg">
-                          {personView.person.display_name ??
-                            personView.person.name}
-                        </span>
-                        <span>u/{personView.person.name}</span>
-                      </div>
-                    </div>
-                  </ContentGutters>
-                );
-              }
-
-              if (item === "post-sort-bar") {
-                return (
-                  <ContentGutters className="max-md:py-1 max-md:bg-background max-md:border-b-[0.5px]">
-                    <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
-                      <div>
-                        <ToggleGroup
-                          type="single"
-                          variant="outline"
-                          size="sm"
-                          value={type}
-                          onValueChange={(val) =>
-                            val && setType(val as "posts" | "comments" | "all")
-                          }
-                        >
-                          <ToggleGroupItem value="all">All</ToggleGroupItem>
-                          <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                          <ToggleGroupItem value="comments">
-                            <span>Comments</span>
-                          </ToggleGroupItem>
-                        </ToggleGroup>
-                      </div>
-
-                      {type === "posts" && (
-                        <>
-                          <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
-                          <PostSortBar align="start" />
-                        </>
-                      )}
-                    </div>
-                    <></>
-                  </ContentGutters>
-                );
-                // return (
-                //   <ContentGutters>
-                //     <XStack flex={1}
-                //       py="$2"
-                //       gap="$3"
-                //       bbc="$color3"
-                //       bbw={1}
-                //       $md={{
-                //         bbw: 0.5,
-                //         px: "$3",
-                //       }}
-                //       ai="center"
-                //       bg="$background"
-                //     >
-                //       <ToggleGroup
-                //         defaultValue={type}
-                //         options={[
-                //           { value: "posts", label: "Posts" },
-                //           { value: "comments", label: "Comments" },
-                //         ]}
-                //         onValueChange={(newType) => {
-                //           setTimeout(() => {
-                //             setType(newType);
-                //           }, 0);
-                //         }}
-                //       />
-
-                //       {type === "posts" && (
-                //         <>
-                //           <View h="$1" w={1} bg="$color6" />
-                //           <PostSortBar />
-                //         </>
-                //       )}
-                //     </XStack>
-                //     <></>
-                //   </ContentGutters>
-                // );
-              }
-
               if (isPost(item)) {
                 return <Post {...item} />;
               }
@@ -349,9 +298,15 @@ export default function User() {
                 fetchNextPage();
               }
             }}
-            stickyHeaderIndices={[1]}
+            stickyHeaderIndices={[0]}
             estimatedItemSize={475}
             refresh={refetch}
+            placeholder={
+              <ContentGutters>
+                <PostCardSkeleton />
+                <></>
+              </ContentGutters>
+            }
           />
         </PostReportProvider>
       </IonContent>

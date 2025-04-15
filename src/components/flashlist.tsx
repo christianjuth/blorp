@@ -15,7 +15,7 @@ import { twMerge } from "tailwind-merge";
 
 import { subscribeToScrollEvent } from "../lib/scroll-events";
 import _ from "lodash";
-import { useElementHadFocus } from "../lib/hooks";
+import { useElementHadFocus, useIsInAppBrowserOpen } from "../lib/hooks";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 function useRouterSafe() {
@@ -228,15 +228,16 @@ export function FlashList<T>({
     }
   }, [pathname]);
 
+  const isBrowserOpen = useIsInAppBrowserOpen();
   useEffect(() => {
-    if (focused) {
+    if (focused && !isBrowserOpen) {
       const listener = () => {
         setKey((k) => k + 1);
       };
       window.addEventListener("statusTap", listener);
       return () => window.removeEventListener("statusTap", listener);
     }
-  }, [focused]);
+  }, [focused, isBrowserOpen]);
 
   function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
     Haptics.impact({ style: ImpactStyle.Medium });

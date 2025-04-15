@@ -49,8 +49,13 @@ export function CommunityCard({
         <AvatarFallback>{title.substring(0, 1)}</AvatarFallback>
       </Avatar>
 
-      <div className="flex flex-col gap-0.5">
-        <span className={cn("text-sm", size === "sm" && "text-xs")}>
+      <div className="flex flex-col gap-0.5 flex-1 overflow-hidden">
+        <span
+          className={cn(
+            "text-sm overflow-hidden overflow-ellipsis",
+            size === "sm" && "text-xs",
+          )}
+        >
           {slug?.name}
           <span className="text-muted-foreground italic">@{slug?.host}</span>
         </span>
@@ -81,7 +86,7 @@ export function CommunityCard({
     <Link
       to={`${linkCtx.root}c/${slug?.slug}`}
       className={cn(
-        "flex flex-row gap-2 items-center flex-shrink-0 h-12",
+        "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full",
         size === "sm" && "h-9",
         className,
       )}

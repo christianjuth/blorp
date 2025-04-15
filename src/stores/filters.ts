@@ -6,7 +6,7 @@ import {
 } from "lemmy-js-client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { createStorage } from "./storage";
+import { createStorage, sync } from "./storage";
 
 type SortsStore = {
   communitySort: CommunitySortType;
@@ -48,3 +48,5 @@ export const useFiltersStore = create<SortsStore>()(
     },
   ),
 );
+
+sync(useFiltersStore);

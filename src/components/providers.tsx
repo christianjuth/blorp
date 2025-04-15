@@ -12,6 +12,7 @@ import { createDb } from "../lib/create-storage";
 import pRetry from "p-retry";
 import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
 import * as Sentry from "@sentry/react";
+import { Toaster } from "@/src/components/ui/sonner";
 
 const CACHE_VERSON = 3;
 
@@ -79,7 +80,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <RefreshNotificationCount />
       <AuthProvider>{children}</AuthProvider>
-      {/* </AlertProvider> */}
+      <Toaster />
     </PersistQueryClientProvider>
   );
 }

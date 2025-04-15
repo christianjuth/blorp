@@ -23,6 +23,15 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { FlashList } from "./flashlist";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "./ui/input-otp";
+import { LuLoaderCircle } from "react-icons/lu";
 
 const Context = createContext<{
   authenticate: (config?: { addAccount?: boolean }) => Promise<void>;
@@ -181,43 +190,37 @@ function AuthModal({
                 }
               }}
             >
-              Back
+              {instance.baseurl ? "Back" : "Close"}
             </IonButton>
           </IonButtons>
-          <IonTitle>Login</IonTitle>
+          <IonTitle>{instance.baseurl ? instance.baseurl : "Login"}</IonTitle>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent className="ion-padding">
+      <IonContent>
         {!instance.url ? (
           <div className="flex flex-col h-full">
-            <IonHeader>Pick the server you created your account on</IonHeader>
-            <IonInput
-              placeholder="Enter URL or search for your server"
-              fill="solid"
-              // size="$4"
-              // fontSize="$5"
-              // flexShrink={0}
-              // defaultValue={search}
-              onIonInput={({ detail }) => setSearch(detail.value ?? "")}
-              // autoCorrect={false}
-              // autoCapitalize="none"
-              // bc="$color3"
-            />
             <FlashList
+              className="px-4"
               estimatedItemSize={50}
-              stickyHeaderIndices={[]}
+              stickyHeaderIndices={[0]}
               data={sortedInstances ?? defaultSort}
+              header={
+                <div className="bg-background py-3 border-b-[.5px]">
+                  <IonHeader className="mb-2">
+                    Pick the server you created your account on
+                  </IonHeader>
+                  <Input
+                    placeholder="Enter URL or search for your server"
+                    onChange={(e) => setSearch(e.target.value)}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                  />
+                </div>
+              }
               renderItem={({ item: i }) => (
                 <button
                   key={i.url}
-                  // p={0}
-                  // bg="transparent"
-                  // h="auto"
-                  // bbw={i.index < numItems - 1 ? 1 : 0}
-                  // bbc="$color5"
-                  // w="100%"
-                  // br={0}
                   onClick={() => {
                     setInstanceLocal(i);
                     if (!addAccount) {
@@ -226,7 +229,7 @@ function AuthModal({
                       });
                     }
                   }}
-                  className="py-2.5 text-lg border-b w-full text-start border-zinc-300 dark:border-zinc-800"
+                  className="py-2.5 text-lg border-b-[.5px] w-full text-start"
                 >
                   <span>{i.baseurl}</span>
                 </button>
@@ -235,103 +238,77 @@ function AuthModal({
           </div>
         ) : (
           <>
-            <form
-              // flexDirection="column"
-              // alignItems="stretch"
-              // width="100%"
-              // gap="$4"
-              onSubmit={submitLogin}
-              className="gap-4 flex flex-col"
-            >
-              <span className="text-bold">
-                You are logging in to {instance.baseurl}
-              </span>
-
-              <input
+            <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
+              <Input
                 placeholder="username"
-                autoCapitalize="none"
-                // autoCorrect={false}
-                autoComplete="username"
                 id="username"
                 defaultValue={userName}
                 onChange={(e) => setUsername(e.target.value)}
-                // size="$4"
-                // fontSize="$5"
-                // bc="$color3"
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                required
               />
 
-              <input
+              <Input
                 placeholder="Enter password"
-                autoComplete="password"
                 type="password"
-                // textContentType="password"
-                // secureTextEntry
                 id="password"
                 defaultValue={password}
                 onChange={(e) => setPassword(e.target.value)}
-                // size="$4"
-                // fontSize="$5"
-                // bc="$color3"
+                autoComplete="current-password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                required
               />
 
               {(login.needs2FA || _.isString(mfaToken)) && (
-                <input
-                  autoComplete="one-time-code"
-                  placeholder="2FA"
+                <InputOTP
+                  maxLength={6}
                   defaultValue={mfaToken}
-                  onChange={(e) => setMfaToken(e.target.value)}
-                  // size="$4"
-                  // fontSize="$5"
-                  // bc="$color3"
-                />
+                  onChange={(newVal) => setMfaToken(newVal)}
+                  autoComplete="one-time-code"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  required
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                  </InputOTPGroup>
+                  <InputOTPSeparator />
+                  <InputOTPGroup>
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
               )}
 
-              <button
-                // size="$4"
-                // fontSize="$5"
-                // bg="$accentColor"
-                // color="white"
-                // disabled={login.status === "pending"}
-                // // onPress={signIn}
-                // width="100%"
-                // iconAfter={
-                //       <Spinner
-                //         color="$color"
-                //         key="loading-spinner"
-                //         opacity={1}
-                //         scale={1}
-                //         animation="quick"
-                //         position="absolute"
-                //         left="60%"
-                //         enterStyle={{
-                //           opacity: 0,
-                //           scale: 0.5,
-                //         }}
-                //         exitStyle={{
-                //           opacity: 0,
-                //           scale: 0.5,
-                //         }}
-                //       />
-                // }
-                type="submit"
-              >
+              <Button type="submit" className="mx-auto">
                 Sign In
-              </button>
-            </form>
+                {login.isPending && <LuLoaderCircle className="animate-spin" />}
+              </Button>
 
-            <button
-              // fontSize="$5"
-              // textAlign="center"
-              onClick={() => {
-                addAccountFn({
-                  instance: instance.url,
-                });
-                setInstanceLocal({});
-                onClose();
-              }}
-            >
-              Continue as Guest
-            </button>
+              <Button
+                type="button"
+                className="mx-auto"
+                variant="ghost"
+                onClick={() => {
+                  addAccountFn({
+                    instance: instance.url,
+                  });
+                  setInstanceLocal({});
+                  onClose();
+                }}
+              >
+                Continue as Guest
+              </Button>
+            </form>
           </>
         )}
       </IonContent>

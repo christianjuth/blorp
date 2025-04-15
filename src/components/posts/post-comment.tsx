@@ -26,6 +26,7 @@ import { IoEllipsisHorizontal } from "react-icons/io5";
 import { useIonAlert } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
 import { PersonHoverCard } from "../person/person-hover-card";
+import { Share } from "@capacitor/share";
 
 function Byline({
   creator,
@@ -186,15 +187,13 @@ export function PostComment({
 
         <div className="flex flex-row items-center gap-5 text-sm text-muted-foreground justify-end pt-2.5">
           <ActionMenu
-            // placement="top"
             actions={[
               {
                 text: "Share",
-                onClick: () => {
-                  // Share.share({
-                  //   url: `https://blorpblorp.xyz/c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
-                  // }),
-                },
+                onClick: () =>
+                  Share.share({
+                    url: `https://blorpblorp.xyz/c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
+                  }),
               } as const,
               ...(isMyComment && !comment.deleted
                 ? [

@@ -1,10 +1,9 @@
 import { Keyboard } from "@capacitor/keyboard";
 import { StatusBar } from "@capacitor/status-bar";
 import { SafeArea, SafeAreaInsets } from "capacitor-plugin-safe-area";
+import { Capacitor } from "@capacitor/core";
 
 export function registerSafeArea() {
-  // Android safe area inset management is bad, we have to do it manually
-  // if (isNative() && isAndroid()) {
   let keyboardShowing = false;
 
   const updateInsets = ({ insets }: SafeAreaInsets) => {
@@ -17,39 +16,42 @@ export function registerSafeArea() {
     }
   };
 
+  if (!Capacitor.isNativePlatform()) {
+    updateInsets({ insets: { top: 0, right: 0, bottom: 0, left: 0 } });
+    return;
+  }
+
   SafeArea.getSafeAreaInsets().then(updateInsets);
   SafeArea.addListener("safeAreaChanged", updateInsets);
   StatusBar.setOverlaysWebView({ overlay: true });
 
-  // Keyboard.addListener("keyboardWillShow", () => {
-  //   keyboardShowing = true;
-  //   SafeArea.getSafeAreaInsets().then(updateInsets);
-  // });
-  // Keyboard.addListener("keyboardWillHide", () => {
-  //   keyboardShowing = false;
-  //   SafeArea.getSafeAreaInsets().then(updateInsets);
-  // });
-  //
-
   Keyboard.addListener("keyboardWillShow", (info) => {
+    keyboardShowing = true;
     document.body.style.setProperty(
       "--keyboard-height",
       `${info.keyboardHeight}px`,
     );
+    SafeArea.getSafeAreaInsets().then(updateInsets);
   });
 
   Keyboard.addListener("keyboardDidShow", (info) => {
+    keyboardShowing = true;
     document.body.style.setProperty(
       "--keyboard-height",
       `${info.keyboardHeight}px`,
     );
+    SafeArea.getSafeAreaInsets().then(updateInsets);
   });
 
   Keyboard.addListener("keyboardDidHide", () => {
+    keyboardShowing = false;
     document.body.style.setProperty("--keyboard-height", "0");
+    SafeArea.getSafeAreaInsets().then(updateInsets);
   });
 
   Keyboard.addListener("keyboardDidHide", () => {
+    keyboardShowing = false;
     document.body.style.setProperty("--keyboard-height", "0");
+    SafeArea.getSafeAreaInsets().then(updateInsets);
   });
 }

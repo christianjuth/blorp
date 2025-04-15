@@ -1,7 +1,7 @@
 import { Community } from "lemmy-js-client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { createStorage } from "./storage";
+import { createStorage, sync } from "./storage";
 
 export type CommunityPartial = Pick<
   Community,
@@ -50,3 +50,5 @@ export const useCreatePostStore = create<CreatePostStore>()(
     },
   ),
 );
+
+sync(useCreatePostStore);

@@ -129,7 +129,7 @@ export default function CommunityFeed() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3 md:gap-4">
+          <IonButtons slot="end" className="gap-3.5 md:gap-4">
             <Link
               to={`${linkCtx.root}c/${communityName}/s`}
               className="text-2xl contents text-brand md:hidden"
@@ -149,7 +149,7 @@ export default function CommunityFeed() {
             header={
               <>
                 {communityName && (
-                  <ContentGutters>
+                  <ContentGutters className="px-0">
                     <SmallScreenSidebar communityName={communityName} />
                     <></>
                   </ContentGutters>

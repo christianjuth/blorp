@@ -281,6 +281,23 @@ ion-toolbar ion-searchbar {
   justify-content: flex-start !important;
 }
 
+.action-sheet-button.action-sheet-selected {
+  font-weight: unset;
+  --button-background-selected: transparent;
+}
+
+ion-action-sheet .action-sheet-selected .action-sheet-button-inner:after {
+  content: "";
+  z-index: 1;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="%23ce46e6" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M416 128L192 384l-96-96"/></svg>');
+  width: 24px;
+  height: 24px;
+}
+
 
 /* Material Design 3 */
 .header-md.header-md {
@@ -323,4 +340,10 @@ ion-toolbar.sc-ion-searchbar-ios-h, ion-toolbar .sc-ion-searchbar-ios-h {
 
 ion-modal {
   max-height: calc(100svh - var(--keyboard-height));
+}
+
+img {
+  -webkit-touch-callout: none;
+  user-select: none;
+  pointer-events: auto;
 }

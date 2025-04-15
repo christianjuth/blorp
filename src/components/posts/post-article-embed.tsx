@@ -1,4 +1,8 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
+import {
+  InAppBrowser,
+  DefaultSystemBrowserOptions,
+} from "@capacitor/inappbrowser";
 import { isTauri } from "@/src/lib/tauri";
 import { cn } from "@/src/lib/utils";
 
@@ -17,9 +21,25 @@ export function PostArticleEmbed({
       target="_blank"
       rel="noopener noreferrer"
       onClick={(e) => {
-        if (isTauri() && url) {
+        if (!url) {
+          return;
+        }
+
+        if (isTauri()) {
           e.preventDefault();
           openUrl(url);
+        } else {
+          e.preventDefault();
+          InAppBrowser.openInSystemBrowser({
+            url,
+            options: {
+              ...DefaultSystemBrowserOptions,
+              iOS: {
+                ...DefaultSystemBrowserOptions.iOS,
+                enableReadersMode: true,
+              },
+            },
+          });
         }
       }}
       style={{

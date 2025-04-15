@@ -18,7 +18,7 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { UserDropdown } from "../components/nav";
+import { MenuButton, UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
 import { cn } from "../lib/utils";
 
@@ -38,33 +38,35 @@ function Reply({
     .join(".");
   return (
     <ContentGutters>
-      <Link
-        to={`/inbox/c/${communitySlug}/posts/${encodeURIComponent(replyView.post.ap_id)}/comments/${newPath}`}
-        onClickCapture={() => {
-          markRead.mutate({
-            comment_reply_id: replyView.comment_reply.id,
-            read: true,
-          });
-        }}
-        className={cn(
-          "pb-2.5 mt-2.5 flex-1 text-sm leading-6",
-          !noBorder && "border-b-[0.5px]",
-        )}
-      >
-        <div className="flex flex-row flex-wrap">
-          {replyView.comment_reply.read ? null : <div />}
-          <span>
-            <span className="font-bold">{replyView.creator.name}</span>
-            <span> replied to your comment in </span>
-            <span className="font-bold">{replyView.post.name}</span>
-          </span>
-        </div>
-        <MarkdownRenderer markdown={replyView.comment.content} />
-        <RelativeTime
-          time={replyView.comment.published}
-          className="text-zinc-400"
-        />
-      </Link>
+      <div className={cn("flex-1", !noBorder && "border-b-[0.5px]")}>
+        <Link
+          to={`/inbox/c/${communitySlug}/posts/${encodeURIComponent(replyView.post.ap_id)}/comments/${newPath}`}
+          onClickCapture={() => {
+            markRead.mutate({
+              comment_reply_id: replyView.comment_reply.id,
+              read: true,
+            });
+          }}
+          className={cn(
+            "my-2.5 flex-1 text-sm leading-6 block",
+            !replyView.comment_reply.read && "border-l-3 border-l-brand pl-2",
+          )}
+        >
+          <div className="flex flex-row flex-wrap">
+            {replyView.comment_reply.read ? null : <div />}
+            <span>
+              <span className="font-bold">{replyView.creator.name}</span>
+              <span> replied to your comment in </span>
+              <span className="font-bold">{replyView.post.name}</span>
+            </span>
+          </div>
+          <MarkdownRenderer markdown={replyView.comment.content} />
+          <RelativeTime
+            time={replyView.comment.published}
+            className="text-zinc-400"
+          />
+        </Link>
+      </div>
       <></>
     </ContentGutters>
   );
@@ -86,6 +88,9 @@ export default function Inbox() {
       <Title>Inbox</Title>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
+          <IonButtons slot="start">
+            <MenuButton />
+          </IonButtons>
           <IonTitle data-tauri-drag-region>Inbox</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />

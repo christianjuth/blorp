@@ -156,11 +156,6 @@ export default function Post() {
   const opId = post.creator.id;
 
   const lastComment = structured?.topLevelItems.at(-1);
-  // let paddingBottom =
-  //   structured && structured.topLevelItems.length > 0 ? 10 : 20;
-  // if (media.md) {
-  //   paddingBottom += tabBar.height;
-  // }
 
   return (
     <IonPage>
@@ -183,15 +178,6 @@ export default function Post() {
       </IonHeader>
       <IonContent scrollY={false}>
         <PostReportProvider>
-          <ContentGutters>
-            <div className="flex-1" />
-            <div>
-              {/* {communityName && ( */}
-              {/*   <CommunitySidebar communityName={communityName} /> */}
-              {/* )} */}
-            </div>
-          </ContentGutters>
-
           <FlashList
             className="h-full ion-content-scroll-host pb-4"
             // ref={ref}
@@ -254,11 +240,7 @@ export default function Post() {
                 </ContentGutters>
               );
             }}
-            // keyExtractor={(id) => (typeof id === "string" ? id : id[0])}
             onEndReached={loadMore}
-            // onEndReachedThreshold={0.5}
-            // onRefresh={refresh}
-            // refreshing={refreshing}
             estimatedItemSize={450}
             stickyHeaderIndices={[1]}
             refresh={refresh}

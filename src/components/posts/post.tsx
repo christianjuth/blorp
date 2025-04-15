@@ -16,6 +16,11 @@ import { PostVideoEmbed } from "./post-video-embed";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useRef } from "react";
+import { CommentSortSelect } from "../lemmy-sort";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { useLongPress } from "use-long-press";
+import _ from "lodash";
+import { shareImage } from "@/src/lib/share";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -180,6 +185,22 @@ export function FeedPostCard(props: PostProps) {
 
   const patchPost = usePostsStore((s) => s.patchPost);
 
+  const handlers = useLongPress(
+    async () => {
+      if (thumbnail) {
+        Haptics.impact({ style: ImpactStyle.Heavy });
+        shareImage(name, thumbnail);
+      }
+    },
+    {
+      cancelOnMovement: 15,
+      onStart: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      },
+    },
+  );
+
   return (
     <div
       className={cn(
@@ -202,7 +223,6 @@ export function FeedPostCard(props: PostProps) {
         >
           {deleted ? "deleted" : name}
         </span>
-
         {showImage && (
           <div className="max-md:-mx-3 flex flex-col">
             <img
@@ -221,6 +241,8 @@ export function FeedPostCard(props: PostProps) {
               style={{
                 aspectRatio,
               }}
+              onContextMenu={(e) => e.preventDefault()}
+              {...handlers()}
             />
           </div>
         )}
@@ -281,7 +303,9 @@ export function PostBottomBar({
   const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
 
   return (
-    <div className="pb-1.5 md:py-2 flex flex-row justify-end gap-2 bg-background">
+    <div className="pb-1.5 md:py-2 flex flex-row gap-2 bg-background">
+      <CommentSortSelect />
+      <div className="flex-1" />
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
       <Voting apId={apId} score={score} myVote={myVote} />
     </div>

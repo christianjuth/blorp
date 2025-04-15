@@ -16,10 +16,11 @@ import {
 } from "@/src/components/ui/avatar";
 import { useState } from "react";
 import { useRequireAuth } from "./auth-context";
-import { IonButton } from "@ionic/react";
+import { IonButton, IonMenuButton } from "@ionic/react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { IoPerson } from "react-icons/io5";
 import { useLogout } from "../lib/lemmy";
+import { LuMenu } from "react-icons/lu";
 
 export function UserDropdown() {
   const linkCtx = useLinkContext();
@@ -137,5 +138,13 @@ export function UserDropdown() {
         )}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+export function MenuButton() {
+  return (
+    <IonMenuButton>
+      <LuMenu className="text-[1.4rem]" />
+    </IonMenuButton>
   );
 }

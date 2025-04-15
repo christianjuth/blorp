@@ -1,6 +1,8 @@
-import { ToastOptions, useIonToast } from "@ionic/react";
+import { ToastOptions } from "@ionic/react";
 import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
 import { useMediaQuery } from "react-responsive";
+import { InAppBrowser } from "@capacitor/inappbrowser";
+import { toast } from "sonner";
 
 /**
  * @deprecated
@@ -57,11 +59,8 @@ export function useMedia() {
 }
 
 export function useToast() {
-  const [present, dismiss] = useIonToast();
-
-  return useCallback(async (options: ToastOptions) => {
-    await dismiss();
-    return present(options);
+  return useCallback(async (options: { message: string }) => {
+    return toast(options.message);
   }, []);
 }
 
@@ -94,4 +93,21 @@ export function useElementHadFocus<T extends HTMLElement | null>(
   }, [ref, options.root, options.rootMargin, options.threshold]);
 
   return isVisible;
+}
+
+export function useIsInAppBrowserOpen() {
+  const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+    const p1 = InAppBrowser.addListener("browserPageLoaded", () => {
+      setIsOpen(true);
+    });
+    const p2 = InAppBrowser.addListener("browserClosed", () => {
+      setIsOpen(false);
+    });
+    return () => {
+      p1.then(({ remove }) => remove());
+      p2.then(({ remove }) => remove());
+    };
+  }, []);
+  return isOpen;
 }

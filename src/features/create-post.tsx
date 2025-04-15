@@ -25,6 +25,7 @@ import { Button } from "../components/ui/button";
 import { close } from "ionicons/icons";
 import { FaCheck, FaChevronDown } from "react-icons/fa6";
 import { LuLoaderCircle } from "react-icons/lu";
+import { Input } from "../components/ui/input";
 
 const EMPTY_ARR = [];
 
@@ -126,15 +127,12 @@ export default function CreatePost() {
               </button>
             }
 
-            <IonInput
-              label="Link"
-              labelPlacement="floating"
+            <Input
+              placeholder="Link (optional)"
               className="border-b border-border"
               value={url}
-              onIonInput={({ detail }) => setUrl(detail.value ?? "")}
-              onIonChange={({ detail }) =>
-                detail.value && parseUrl(detail.value)
-              }
+              onChange={(e) => setUrl(e.target.value)}
+              onBlur={() => url && parseUrl(url)}
             />
 
             <input
@@ -342,18 +340,21 @@ function ChooseCommunity({
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
-        <ContentGutters>
-          <IonInput
-            label="Search communities"
-            labelPlacement="floating"
-            value={search}
-            onIonInput={({ detail }) => debouncedSetSearch(detail.value ?? "")}
-          />
-        </ContentGutters>
-
         <FlashList
           className="h-full"
           data={data}
+          stickyHeaderIndices={[0]}
+          header={
+            <ContentGutters className="bg-background">
+              <div className="border-b-[.5px] py-2">
+                <Input
+                  placeholder="Search communities"
+                  value={search}
+                  onChange={(e) => debouncedSetSearch(e.target.value)}
+                />
+              </div>
+            </ContentGutters>
+          }
           renderItem={({ item }) => {
             if (typeof item === "string") {
               return (
@@ -364,7 +365,7 @@ function ChooseCommunity({
             }
 
             return (
-              <ContentGutters className="py-2 cursor-pointer">
+              <ContentGutters className="cursor-pointer">
                 <button
                   onClick={() => {
                     setCommunity(item);

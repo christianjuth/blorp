@@ -48,8 +48,8 @@ import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
 // import { measureImage } from "../image";
 import { getPostEmbed } from "../post";
 import { useProfilesStore } from "@/src/stores/profiles";
-import { useToast } from "../hooks";
 import { useIonRouter } from "@ionic/react";
+import { toast } from "sonner";
 
 function useLemmyClient(config?: { instance?: string }) {
   let jwt = useAuth((s) => s.getSelectedAccount().jwt);
@@ -877,7 +877,6 @@ function is2faError(err?: Error | null) {
 }
 
 export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
-  const toast = useToast();
   const { client, setJwt } = useLemmyClient(config);
 
   const updateAccount = useAuth((s) => s.updateAccount);
@@ -911,10 +910,7 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
         if (err.message) {
           errorMsg = _.capitalize(err?.message?.replaceAll("_", " "));
         }
-        toast({
-          message: errorMsg,
-          // preset: "error",
-        });
+        toast.error(errorMsg);
         console.error(errorMsg);
       }
     },
@@ -1427,7 +1423,6 @@ export function useInstances() {
 }
 
 export function useFollowCommunity() {
-  const toast = useToast();
   const { client, queryKeyPrefix } = useLemmyClient();
 
   const patchCommunity = useCommunitiesStore((s) => s.patchCommunity);
@@ -1459,9 +1454,7 @@ export function useFollowCommunity() {
       patchCommunity(slug, {
         optimisticSubscribed: undefined,
       });
-      toast({
-        message: "Couldn't follow community",
-      });
+      toast.error("Couldn't follow community");
     },
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -1472,7 +1465,6 @@ export function useFollowCommunity() {
 }
 
 export function useMarkReplyRead() {
-  const toast = useToast();
   const { client, queryKeyPrefix } = useLemmyClient();
   const queryClient = useQueryClient();
 
@@ -1491,15 +1483,12 @@ export function useMarkReplyRead() {
       });
     },
     onError: (_, { read }) => {
-      toast({
-        message: `Couldn't mark post ${read ? "read" : "unread"}`,
-      });
+      toast.error(`Couldn't mark post ${read ? "read" : "unread"}`);
     },
   });
 }
 
 export function useCreatePost() {
-  const toast = useToast();
   const router = useIonRouter();
   const { client } = useLemmyClient();
   return useMutation({
@@ -1510,55 +1499,43 @@ export function useCreatePost() {
       router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
     },
     onError: () => {
-      toast({
-        message: "Couldn't create post",
-      });
+      toast.error("Couldn't create post");
     },
   });
 }
 
 export function useCreatePostReport() {
-  const toast = useToast();
   const { client } = useLemmyClient();
   return useMutation({
     mutationFn: (form: CreatePostReport) => client.createPostReport(form),
     onError: () => {
-      toast({
-        message: "Couldn't create post report",
-      });
+      toast.error("Couldn't create post report");
     },
   });
 }
 
 export function useCreateCommentReport() {
-  const toast = useToast();
   const { client } = useLemmyClient();
   return useMutation({
     mutationFn: (form: CreateCommentReport) => client.createCommentReport(form),
     onError: () => {
-      toast({
-        message: "Couldn't block person",
-      });
+      toast.error("Couldn't block person");
     },
   });
 }
 
 export function useBlockPerson() {
-  const toast = useToast();
   const { client } = useLemmyClient();
 
   return useMutation({
     mutationFn: (form: BlockPerson) => client.blockPerson(form),
     onError: () => {
-      toast({
-        message: "Couldn't block person",
-      });
+      toast.error("Couldn't block person");
     },
   });
 }
 
 export function useSavePost(apId: string) {
-  const toast = useToast();
   const queryClient = useQueryClient();
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
@@ -1587,15 +1564,12 @@ export function useSavePost(apId: string) {
       patchPost(apId, {
         optimisticSaved: undefined,
       });
-      toast({
-        message: `Couldn't ${save ? "save" : "unsave"} post`,
-      });
+      toast.error(`Couldn't ${save ? "save" : "unsave"} post`);
     },
   });
 }
 
 export function useDeletePost(apId: string) {
-  const toast = useToast();
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
 
@@ -1616,9 +1590,7 @@ export function useDeletePost(apId: string) {
       patchPost(apId, {
         optimisticDeleted: undefined,
       });
-      toast({
-        message: `Couldn't ${deleted ? "delete" : "restore"} post`,
-      });
+      toast.error(`Couldn't ${deleted ? "delete" : "restore"} post`);
     },
   });
 }

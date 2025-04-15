@@ -15,8 +15,9 @@ import {
   DropdownMenuSubTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import { useMedia } from "../lib/hooks";
+import { cn } from "../lib/utils";
 
-export interface ActionMenuProps
+export interface ActionMenuProps<V = string>
   extends Omit<
     React.ComponentProps<typeof IonActionSheet>,
     "buttons" | "trigger"
@@ -24,7 +25,7 @@ export interface ActionMenuProps
   actions: (
     | {
         text: string;
-        value?: string;
+        value?: V;
         onClick: () => any;
         actions?: undefined;
         danger?: boolean;
@@ -36,31 +37,37 @@ export interface ActionMenuProps
         actions: {
           text: string;
           onClick: () => any;
+          value?: V;
           danger?: boolean;
         }[];
         danger?: undefined;
       }
   )[];
+  selectedValue?: V;
   trigger: React.ReactNode;
   onOpen?: () => any;
   align?: "start" | "end";
   showCancel?: boolean;
 }
 
-export function ActionMenu({
+export function ActionMenu<V extends string>({
   trigger,
   actions,
   onOpen,
   align,
   showCancel,
+  selectedValue,
   ...props
-}: ActionMenuProps) {
+}: ActionMenuProps<V>) {
   const media = useMedia();
   const id = useId();
+  const [subActionsTitle, setSubActionsTitle] = useState<string>();
   const [subActions, setSubActions] = useState<
     {
       text: string;
       onClick: () => any;
+      value?: string;
+      danger?: boolean;
     }[]
   >();
 
@@ -70,6 +77,11 @@ export function ActionMenu({
         ...actions.map((a, index) => ({
           text: a.text,
           data: index,
+          role: a.danger
+            ? "destructive"
+            : _.isString(a.value) && a.value === selectedValue
+              ? "selected"
+              : undefined,
         })),
         ...(showCancel
           ? [
@@ -80,7 +92,7 @@ export function ActionMenu({
             ]
           : []),
       ],
-      [actions, showCancel],
+      [actions, showCancel, selectedValue],
     );
 
   const subActionButtons:
@@ -92,6 +104,11 @@ export function ActionMenu({
             ...subActions.map((a, index) => ({
               text: a.text,
               data: index,
+              role: a.danger
+                ? "destructive"
+                : _.isString(a.value) && a.value === selectedValue
+                  ? "selected"
+                  : undefined,
             })),
             ...(showCancel
               ? [
@@ -127,7 +144,12 @@ export function ActionMenu({
                       <DropdownMenuItem
                         key={sa.text + index}
                         onClick={sa.onClick}
-                        className={sa.danger ? "text-destructive!" : undefined}
+                        className={cn(
+                          _.isString(a.value) &&
+                            sa.value === selectedValue &&
+                            "font-bold",
+                          sa.danger && "text-destructive!",
+                        )}
                       >
                         {sa.text}
                       </DropdownMenuItem>
@@ -139,7 +161,12 @@ export function ActionMenu({
               <DropdownMenuItem
                 key={a.text + index}
                 onClick={a.onClick}
-                className={a.danger ? "text-destructive!" : undefined}
+                className={cn(
+                  _.isString(a.value) &&
+                    a.value === selectedValue &&
+                    "font-bold",
+                  a.danger && "text-destructive!",
+                )}
               >
                 {a.text}
               </DropdownMenuItem>
@@ -156,6 +183,7 @@ export function ActionMenu({
       {subActionButtons && (
         <IonActionSheet
           {...props}
+          subHeader={subActionsTitle}
           isOpen
           buttons={subActionButtons}
           onWillDismiss={({ detail }) => {
@@ -167,6 +195,7 @@ export function ActionMenu({
               const action = selectedActions[index];
               if (action && action.onClick) {
                 setSubActions(undefined);
+                setSubActionsTitle(undefined);
                 action.onClick();
               }
             }
@@ -190,6 +219,7 @@ export function ActionMenu({
               action.onClick();
             } else {
               setSubActions(action.actions);
+              setSubActionsTitle(action.text);
             }
           }
         }}

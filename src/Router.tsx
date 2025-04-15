@@ -10,6 +10,7 @@ import {
   useIonRouter,
   IonBadge,
   IonLabel,
+  IonMenuToggle,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import { pencil, cog, notifications, people, home } from "ionicons/icons";
@@ -193,7 +194,7 @@ function SidebarTabs() {
             }
           }}
           className={twMerge(
-            "text-md flex flex-row items-center gap-2 py-2 px-3 rounded-xl",
+            "max-md:hidden text-md flex flex-row items-center gap-2 py-2 px-3 rounded-xl",
             pathname.startsWith(t.to)
               ? "bg-secondary text-brand"
               : "text-muted-foreground",
@@ -203,6 +204,8 @@ function SidebarTabs() {
           <span className="text-sm">{t.label}</span>
         </button>
       ))}
+
+      <div className="max-md:hidden h-[0.5px] w-full bg-border my-2" />
     </>
   );
 }
@@ -225,17 +228,15 @@ function Sidebar() {
     <>
       <SidebarTabs />
 
-      <div className="h-[0.5px] w-full bg-border my-2" />
-
       {recentCommunities.length > 0 && (
         <>
           <span className="px-4 py-1 text-sm text-muted-foreground">
             RECENT
           </span>
-          {recentCommunities.map((c) => (
-            <div key={c.id} className="px-4 py-0.75 flex flex-row">
+          {recentCommunities.slice(0, 5).map((c) => (
+            <IonMenuToggle key={c.id} className="px-4 py-0.75 flex flex-row">
               <CommunityCard communityView={c} size="sm" />
-            </div>
+            </IonMenuToggle>
           ))}
 
           <div className="h-[0.5px] w-full bg-border my-2" />
@@ -248,9 +249,9 @@ function Sidebar() {
             COMMUNITIES
           </span>
           {sortedCommunities.map(({ community: c }) => (
-            <div key={c.id} className="px-4 py-0.75 flex flex-row">
+            <IonMenuToggle key={c.id} className="px-4 py-0.75 flex flex-row">
               <CommunityCard communityView={c} size="sm" />
-            </div>
+            </IonMenuToggle>
           ))}
 
           <div className="h-[0.5px] w-full bg-border my-2" />
@@ -273,12 +274,15 @@ function Tabs() {
   return (
     <IonSplitPane when="lg" contentId="main">
       <IonMenu
+        type="push"
         contentId="main"
         style={{
           "--side-max-width": "270px",
         }}
         className="border-r-[0.5px] border-border"
       >
+        <div className="h-[var(--ion-safe-area-top)]" />
+
         <IonContent>
           {isTauri() && (
             <div
@@ -287,7 +291,7 @@ function Tabs() {
             />
           )}
           <button
-            className="h-[60px] px-6 flex items-center"
+            className="h-[60px] mt-3 md:mt-1 px-4 md:px-6 flex items-center"
             onClick={() => {
               const tab = document.querySelector(`ion-tab-button[tab="home"]`);
               if (tab && "click" in tab && _.isFunction(tab.click)) {
@@ -297,7 +301,7 @@ function Tabs() {
           >
             <Logo />
           </button>
-          <div className="px-3 pt-2 pb-4 gap-0.5 flex flex-col">
+          <div className="md:px-3 pt-2 pb-4 gap-0.5 flex flex-col">
             <Sidebar />
           </div>
         </IonContent>

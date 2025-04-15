@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { createStorage } from "./storage";
+import { createStorage, sync } from "./storage";
 
 type SettingsStore = {
   showMarkdown: boolean;
@@ -47,3 +47,5 @@ export const useSettingsStore = create<SettingsStore>()(
     },
   ),
 );
+
+sync(useSettingsStore);

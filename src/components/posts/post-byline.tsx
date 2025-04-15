@@ -20,15 +20,17 @@ import {
 } from "@/src/components/ui/avatar";
 import { BsFillPinAngleFill } from "react-icons/bs";
 import { useIonAlert } from "@ionic/react";
-import { useToast } from "@/src/lib/hooks";
 import { Deferred } from "@/src/lib/deferred";
 import { Slug } from "@/src/lib/lemmy/utils";
 import { CommunityHoverCard } from "../communities/community-hover-card";
 import { PersonHoverCard } from "../person/person-hover-card";
+import { toast } from "sonner";
+import { Share } from "@capacitor/share";
 
 export function PostByline({
   id,
   apId,
+  encodedApId,
   pinned,
   saved,
   deleted,
@@ -59,7 +61,6 @@ export function PostByline({
   onNavigate?: () => any;
 }) {
   const [alrt] = useIonAlert();
-  const toast = useToast();
 
   const showReportModal = useShowPostReportModal();
   const requireAuth = useRequireAuth();
@@ -78,13 +79,13 @@ export function PostByline({
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
     () => [
-      // {
-      //   label: "Share",
-      //   onClick: () =>
-      //     Share.share({
-      //       url: `https://blorpblorp.xyz/c/${communitySlug}/posts/${encodedApId}`,
-      //     }),
-      // },
+      {
+        text: "Share",
+        onClick: () =>
+          Share.share({
+            url: `https://blorpblorp.xyz/c/${communitySlug}/posts/${encodedApId}`,
+          }),
+      },
       {
         text: saved ? "Unsave" : "Save",
         onClick: () =>
@@ -95,10 +96,7 @@ export function PostByline({
                 save: !saved,
               })
               .then(() => {
-                toast({
-                  message: saved ? "Unsaved" : "Saved",
-                  duration: 1000,
-                });
+                toast.success(saved ? "Unsaved post" : "Saved post");
               });
           }),
       },

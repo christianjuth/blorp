@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { createStorage } from "./storage";
+import { createStorage, sync } from "./storage";
 import { GetSiteResponse } from "lemmy-js-client";
 import _ from "lodash";
 
@@ -117,3 +117,5 @@ export const useAuth = create<AuthStore>()(
     },
   ),
 );
+
+sync(useAuth);

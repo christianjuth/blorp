@@ -19,8 +19,8 @@ import {
   IonIcon,
   useIonRouter,
 } from "@ionic/react";
-import { UserDropdown } from "../components/nav";
-import { CommunityFilter } from "../components/lemmy-sort";
+import { MenuButton, UserDropdown } from "../components/nav";
+import { CommunityFilter, CommunitySortSelect } from "../components/lemmy-sort";
 import { Title } from "../components/title";
 import { Link } from "react-router-dom";
 import { searchOutline } from "ionicons/icons";
@@ -77,7 +77,8 @@ export default function Communities() {
       <Title>Communities</Title>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start">
+          <IonButtons slot="start" className="gap-2">
+            <MenuButton />
             <CommunityFilter />
           </IonButtons>
           <form
@@ -95,13 +96,14 @@ export default function Communities() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3 md:gap-4">
+          <IonButtons slot="end" className="gap-3.5 md:gap-4">
             <Link
               to="/communities/s"
               className="text-2xl contents text-brand md:hidden"
             >
               <IonIcon icon={searchOutline} />
             </Link>
+            <CommunitySortSelect />
             <UserDropdown />
           </IonButtons>
         </IonToolbar>

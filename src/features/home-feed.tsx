@@ -11,6 +11,7 @@ import { useMostRecentPost, usePosts } from "../lib/lemmy";
 import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
 import { isNotNull } from "../lib/utils";
+import { IoMenu, IoMenuOutline } from "react-icons/io5";
 
 import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
 import {
@@ -18,20 +19,21 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
+  IonMenuButton,
   IonPage,
   IonSearchbar,
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
 import { FlashList } from "../components/flashlist";
-import { UserDropdown } from "../components/nav";
+import { MenuButton, UserDropdown } from "../components/nav";
 import { HomeFilter, PostSortBar } from "../components/lemmy-sort";
 import { useMedia } from "../lib/hooks";
 import { Link } from "react-router-dom";
 import { searchOutline } from "ionicons/icons";
 import { Button } from "../components/ui/button";
 import { FaArrowUp } from "react-icons/fa6";
-import { LuLoaderCircle } from "react-icons/lu";
+import { LuLoaderCircle, LuMenu } from "react-icons/lu";
 import { dispatchScrollEvent } from "../lib/scroll-events";
 import { PostReportProvider } from "../components/posts/post-report";
 
@@ -201,7 +203,8 @@ export default function HomeFeed() {
     <IonPage>
       <IonHeader className="bg-background dismissable">
         <IonToolbar data-tauri-drag-region className="dismissable">
-          <IonButtons slot="start">
+          <IonButtons slot="start" className="gap-2">
+            <MenuButton />
             <HomeFilter />
           </IonButtons>
           <form
@@ -218,7 +221,7 @@ export default function HomeFeed() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3 md:gap-4">
+          <IonButtons slot="end" className="gap-3.5 md:gap-4">
             <Link
               to="/home/s"
               className="text-2xl contents text-brand md:hidden"

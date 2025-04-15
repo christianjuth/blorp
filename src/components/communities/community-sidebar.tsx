@@ -126,7 +126,7 @@ export function SmallScreenSidebar({
   const counts = communityView.counts;
 
   return (
-    <div className="md:hidden flex flex-col gap-3 py-4 flex-1">
+    <div className="md:hidden flex flex-col gap-3 py-4 flex-1 border-b-[.5px] px-2.5">
       <div className="flex flex-row items-start justify-between flex-1 -mb-1">
         <span className="font-bold">{community.title}</span>
         <CommunityJoinButton communityName={communityName} />
