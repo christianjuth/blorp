@@ -43,6 +43,7 @@ import { LuCakeSlice } from "react-icons/lu";
 import { useMedia } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";
 import { Skeleton } from "../components/ui/skeleton";
+import { useFiltersStore } from "../stores/filters";
 
 type Item = PostProps | CommentView;
 
@@ -101,6 +102,7 @@ export default function User() {
 
   const [type, setType] = useState<"posts" | "comments" | "all">("all");
 
+  const postSort = useFiltersStore((s) => s.postSort);
   usePersonDetails({ actorId });
   const {
     hasNextPage,
@@ -170,36 +172,38 @@ export default function User() {
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <div className="flex flex-row items-center">
-              <div>
-                <ToggleGroup
-                  type="single"
-                  variant="outline"
-                  size="sm"
-                  value={type}
-                  onValueChange={(val) =>
-                    val && setType(val as "posts" | "comments" | "all")
-                  }
-                >
-                  <ToggleGroupItem value="all">All</ToggleGroupItem>
-                  <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                  <ToggleGroupItem value="comments">
-                    <span>Comments</span>
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
+        {media.maxMd && (
+          <IonToolbar>
+            <IonButtons slot="start">
+              <div className="flex flex-row items-center">
+                <div>
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    size="sm"
+                    value={type}
+                    onValueChange={(val) =>
+                      val && setType(val as "posts" | "comments" | "all")
+                    }
+                  >
+                    <ToggleGroupItem value="all">All</ToggleGroupItem>
+                    <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                    <ToggleGroupItem value="comments">
+                      <span>Comments</span>
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
 
-              {type === "posts" && (
-                <>
-                  <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
-                  <PostSortBar align="start" />
-                </>
-              )}
-            </div>
-          </IonButtons>
-        </IonToolbar>
+                {type === "posts" && (
+                  <>
+                    <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
+                    <PostSortBar align="start" />
+                  </>
+                )}
+              </div>
+            </IonButtons>
+          </IonToolbar>
+        )}
       </IonHeader>
       <IonContent scrollY={false}>
         <ContentGutters className="max-md:hidden">
@@ -253,6 +257,7 @@ export default function User() {
 
         <PostReportProvider>
           <FlashList<Item>
+            key={type === "comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={listData}
             header={

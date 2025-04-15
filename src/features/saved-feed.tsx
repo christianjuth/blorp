@@ -28,6 +28,7 @@ import {
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
+import { useFiltersStore } from "../stores/filters";
 
 const EMPTY_ARR = [];
 
@@ -86,6 +87,7 @@ export default function SavedFeed() {
     type_: "All",
   });
 
+  const postSort = useFiltersStore((s) => s.postSort);
   const posts = usePosts({
     limit: 50,
     saved_only: true,
@@ -150,6 +152,7 @@ export default function SavedFeed() {
       <IonContent scrollY={false}>
         <PostReportProvider>
           <FlashList<Item>
+            key={type === "comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={[HEADER, ...data]}
             renderItem={({ item }) => {

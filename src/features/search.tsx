@@ -163,6 +163,7 @@ export function SearchFeed({
       <IonContent scrollY={false}>
         <PostReportProvider>
           <FlashList<Item>
+            key={type === "communities" ? "communities" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={data}
             header={
@@ -214,7 +215,6 @@ export function SearchFeed({
               }
             }}
             estimatedItemSize={type === "posts" ? 475 : 52}
-            key={type}
             refresh={refetch}
             placeholder={
               <ContentGutters>

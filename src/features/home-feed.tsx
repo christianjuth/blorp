@@ -11,7 +11,6 @@ import { useMostRecentPost, usePosts } from "../lib/lemmy";
 import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
 import { isNotNull } from "../lib/utils";
-import { IoMenu, IoMenuOutline } from "react-icons/io5";
 
 import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
 import {
@@ -19,7 +18,6 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonMenuButton,
   IonPage,
   IonSearchbar,
   IonToolbar,
@@ -33,7 +31,7 @@ import { Link } from "react-router-dom";
 import { searchOutline } from "ionicons/icons";
 import { Button } from "../components/ui/button";
 import { FaArrowUp } from "react-icons/fa6";
-import { LuLoaderCircle, LuMenu } from "react-icons/lu";
+import { LuLoaderCircle } from "react-icons/lu";
 import { dispatchScrollEvent } from "../lib/scroll-events";
 import { PostReportProvider } from "../components/posts/post-report";
 

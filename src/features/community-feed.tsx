@@ -37,6 +37,7 @@ import { Title } from "../components/title";
 import { useLinkContext } from "../components/nav/link-context";
 import { Link } from "react-router-dom";
 import { searchOutline } from "ionicons/icons";
+import { useFiltersStore } from "../stores/filters";
 
 const EMPTY_ARR = [];
 
@@ -56,6 +57,7 @@ export default function CommunityFeed() {
 
   const { communityName } = useParams<{ communityName: string }>();
 
+  const postSort = useFiltersStore((s) => s.postSort);
   const posts = usePosts({
     community_name: communityName,
   });
@@ -144,6 +146,7 @@ export default function CommunityFeed() {
       <IonContent scrollY={false}>
         <PostReportProvider>
           <FlashList<Item>
+            key={postSort}
             className="h-full ion-content-scroll-host"
             data={data}
             header={

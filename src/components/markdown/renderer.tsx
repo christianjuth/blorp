@@ -9,6 +9,35 @@ import parse, {
 } from "html-react-parser";
 import { Link } from "react-router-dom";
 import { CodeBlock } from "./code-block";
+import { DetailedHTMLProps, ImgHTMLAttributes } from "react";
+import { useLongPress } from "use-long-press";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { shareImage } from "@/src/lib/share";
+
+function Image(
+  props: DetailedHTMLProps<
+    ImgHTMLAttributes<HTMLImageElement>,
+    HTMLImageElement
+  >,
+) {
+  const handlers = useLongPress(
+    async () => {
+      const src = props.src;
+      if (src) {
+        Haptics.impact({ style: ImpactStyle.Heavy });
+        shareImage(src, src);
+      }
+    },
+    {
+      cancelOnMovement: 15,
+      onStart: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      },
+    },
+  );
+  return <img {...props} {...handlers()} />;
+}
 
 const options: HTMLReactParserOptions = {
   replace: (domNode) => {
@@ -43,6 +72,10 @@ const options: HTMLReactParserOptions = {
 
       // Replace the node with our CodeBlock component.
       return <CodeBlock language={language} code={code} />;
+    }
+
+    if (domNode.type === "tag" && domNode.name === "img") {
+      return <Image {...domNode.attribs} />;
     }
   },
 };

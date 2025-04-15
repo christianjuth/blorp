@@ -165,18 +165,6 @@ export function FeedPostCard(props: PostProps) {
   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
 
-  if (nsfw && !showNsfw) {
-    return detailView ? <Notice>Hidden due to NSFW</Notice> : null;
-  }
-
-  for (const keyword of filterKeywords) {
-    if (name.toLowerCase().includes(keyword.toLowerCase())) {
-      return detailView ? (
-        <Notice>Hidden due to keyword filter "{keyword}"</Notice>
-      ) : null;
-    }
-  }
-
   const postDetailsLink =
     `${linkCtx.root}c/${communitySlug}/posts/${encodedApId}` as const;
 
@@ -200,6 +188,18 @@ export function FeedPostCard(props: PostProps) {
       },
     },
   );
+
+  if (nsfw && !showNsfw) {
+    return detailView ? <Notice>Hidden due to NSFW</Notice> : null;
+  }
+
+  for (const keyword of filterKeywords) {
+    if (name.toLowerCase().includes(keyword.toLowerCase())) {
+      return detailView ? (
+        <Notice>Hidden due to keyword filter "{keyword}"</Notice>
+      ) : null;
+    }
+  }
 
   return (
     <div
