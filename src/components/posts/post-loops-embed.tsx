@@ -4,17 +4,31 @@ import { useEffect, useState } from "react";
 import { extractLoopsVideoSrc } from "@/src/lib/html-parsing";
 import { isTauri } from "@/src/lib/tauri";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
+import { Capacitor, CapacitorHttp } from "@capacitor/core";
+import { FiPlay } from "react-icons/fi";
 
 // const AR = 9 / 16;
 // const MAX_WIDTH_GT_MD = 700;
 
 const getVideo = async (url: string) => {
-  try {
-    const res = await (isTauri() ? tauriFetch(url) : fetch(url));
-    const html = await res.text();
-    return extractLoopsVideoSrc(html);
-  } catch {
-    return undefined;
+  if (isTauri()) {
+    try {
+      const res = await tauriFetch(url);
+      const html = await res.text();
+      return extractLoopsVideoSrc(html);
+    } catch {
+      return undefined;
+    }
+  }
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const res = await CapacitorHttp.get({
+        url,
+      });
+      return extractLoopsVideoSrc(res.data);
+    } catch {
+      return undefined;
+    }
   }
 };
 
@@ -33,11 +47,10 @@ export function PostLoopsEmbed({
     getVideo(url).then(setSrc);
   }, [url]);
 
-  // const linkOut = isWeb && !isTauri();
-  const linkOut = false;
+  const linkOut = !Capacitor.isNativePlatform() && !isTauri();
 
   const content = (
-    <div className="bg-muted max-md:contents">
+    <div className="bg-muted max-md:contents relative">
       <div className="aspect-[9/16] md:max-w-xs mx-auto relative max-md:-mx-2.5">
         {!src && thumbnail && (
           <img
@@ -51,31 +64,22 @@ export function PostLoopsEmbed({
             controls
             className="absolute inset-0 h-full w-full object-cover"
             autoPlay={autoPlay}
+            playsInline
+            poster={thumbnail}
           />
         )}
       </div>
 
-      {/* {linkOut && ( */}
-      {/*   <div */}
-      {/*     br={99999} */}
-      {/*     p="$4" */}
-      {/*     bg="$color05" */}
-      {/*     pos="absolute" */}
-      {/*     t="50%" */}
-      {/*     l="50%" */}
-      {/*     transform={[{ translateX: "-50%" }, { translateY: "-50%" }]} */}
-      {/*     hoverStyle={{ */}
-      {/*       opacity: 0.8, */}
-      {/*     }} */}
-      {/*   > */}
-      {/*     <Play color="white" size="$3" /> */}
-      {/*   </div> */}
-      {/* )} */}
+      {linkOut && (
+        <div className="absolute top-1/2 left-1/2 text-4xl bg-black/50 p-5 rounded-full aspect-square -translate-x-1/2 -translate-y-1/2">
+          <FiPlay color="white" className="m-auto translate-x-0.5" />
+        </div>
+      )}
     </div>
   );
 
   return linkOut ? (
-    <a href={url as any} target="_blank">
+    <a href={url} target="_blank" rel="noopener noreferrer">
       {content}
     </a>
   ) : (
