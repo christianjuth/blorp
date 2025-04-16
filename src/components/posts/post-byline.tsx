@@ -26,6 +26,7 @@ import { CommunityHoverCard } from "../communities/community-hover-card";
 import { PersonHoverCard } from "../person/person-hover-card";
 import { toast } from "sonner";
 import { Share } from "@capacitor/share";
+import { FaBookmark } from "react-icons/fa";
 
 export function PostByline({
   id,
@@ -206,6 +207,7 @@ export function PostByline({
 
       <div className="flex-1" />
 
+      {saved && <FaBookmark className="text-lg text-brand" />}
       {pinned && <BsFillPinAngleFill className="text-xl text-[#17B169]" />}
 
       <ActionMenu

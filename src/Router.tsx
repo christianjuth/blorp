@@ -30,7 +30,9 @@ import * as routes from "@/src/lib/routes";
 import { dispatchScrollEvent } from "./lib/scroll-events";
 import { isTauri } from "./lib/tauri";
 import { CommunityCard } from "./components/communities/community-card";
+import { Button } from "./components/ui/button";
 
+const Download = lazy(() => import("@/src/features/download"));
 const Inbox = lazy(() => import("@/src/features/inbox"));
 const Privacy = lazy(() => import("@/src/features/privacy"));
 const Support = lazy(() => import("@/src/features/support"));
@@ -311,6 +313,7 @@ function Tabs() {
           >
             <Logo />
           </button>
+
           <div className="md:px-3 pt-2 pb-4 gap-0.5 flex flex-col">
             <Sidebar />
           </div>
@@ -325,6 +328,7 @@ function Tabs() {
             {...CREATE_POST_STACK}
             {...INBOX_STACK}
             {...SETTINGS}
+            <Route exact path="/download" component={Download} />
             <Route exact path="/support" component={Support} />
             <Route exact path="/privacy" component={Privacy} />
             <Redirect exact from="/" to="/home" />

@@ -1,14 +1,9 @@
-// TODO: gracefully handle can't fetch loops on web fallback to link out
-
 import { useEffect, useState } from "react";
 import { extractLoopsVideoSrc } from "@/src/lib/html-parsing";
 import { isTauri } from "@/src/lib/tauri";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { FiPlay } from "react-icons/fi";
-
-// const AR = 9 / 16;
-// const MAX_WIDTH_GT_MD = 700;
 
 const getVideo = async (url: string) => {
   if (isTauri()) {

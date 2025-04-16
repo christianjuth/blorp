@@ -2,8 +2,6 @@ import { useIonRouter } from "@ionic/react";
 import { useRouteMatch } from "react-router";
 
 export function Title({ children }: { children?: string }) {
-  return null;
-
   const router = useIonRouter();
   const match = useRouteMatch();
 

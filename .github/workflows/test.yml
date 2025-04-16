@@ -95,7 +95,7 @@ jobs:
       - name: Build Tamagui One app
         env: 
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
-        run: yarn build:web
+        run: yarn build
 
       - name: Hash the output of yarn why playwright
         id: playwright_hash

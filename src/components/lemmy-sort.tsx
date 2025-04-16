@@ -441,27 +441,23 @@ export function HomeFilter() {
         {
           label: "All",
           value: "All",
-          // icon: Flame,
         } as const,
         {
           label: `Local (${instance ? new URL(instance).host : ""})`,
           value: "Local",
-          // icon: Flame,
         } as const,
         ...(isLoggedIn
           ? ([
               {
                 label: "Subscribed",
                 value: "Subscribed",
-                // icon: ArrowUpCircle,
+              },
+              {
+                label: "Moderating",
+                value: "ModeratorView",
               },
             ] as const)
           : []),
-        // {
-        //   label: "ModeratorView",
-        //   value: "ModeratorView",
-        //   // icon: ArrowUpCircle,
-        // },
       ].map((opt) => ({
         text: opt.label,
         value: opt.value,
@@ -474,9 +470,12 @@ export function HomeFilter() {
     <ActionMenu
       align="start"
       actions={LISTING_TYPE_OPTIONS}
+      selectedValue={listingType}
       trigger={
         <div className="flex flex-row items-center gap-0.5 text-lg">
-          <span className="font-black capitalize">{listingType}</span>
+          <span className="font-black capitalize">
+            {listingType === "ModeratorView" ? "Moderating" : listingType}
+          </span>
           <FaCaretDown className="text-muted-foreground" />
         </div>
       }
@@ -497,27 +496,24 @@ export function CommunityFilter() {
         {
           label: "All",
           value: "All",
-          // icon: Flame,
         } as const,
         {
           label: `Local (${instance ? new URL(instance).host : ""})`,
           value: "Local",
-          // icon: Flame,
         } as const,
         ...(isLoggedIn
           ? ([
               {
                 label: "Subscribed",
                 value: "Subscribed",
-                // icon: ArrowUpCircle,
+              },
+
+              {
+                label: "Moderating",
+                value: "ModeratorView",
               },
             ] as const)
           : []),
-        // {
-        //   label: "ModeratorView",
-        //   value: "ModeratorView",
-        //   // icon: ArrowUpCircle,
-        // },
       ].map((opt) => ({
         text: opt.label,
         value: opt.value,
@@ -530,9 +526,12 @@ export function CommunityFilter() {
     <ActionMenu
       align="start"
       actions={LISTING_TYPE_OPTIONS}
+      selectedValue={listingType}
       trigger={
         <div className="flex flex-row items-center gap-0.5 text-lg">
-          <span className="font-black capitalize">{listingType}</span>
+          <span className="font-black capitalize">
+            {listingType === "ModeratorView" ? "Moderating" : listingType}
+          </span>
           <FaCaretDown className="text-muted-foreground" />
         </div>
       }

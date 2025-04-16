@@ -7,6 +7,7 @@
     "postinstall": "husky",
     "dev": "vite dev",
     "dev:tauri": "tauri dev",
+    "dev": "vite dev",
     "lint": "yarn oxlint",
     "build": "vite build && cap sync",
     "build:tauri": "tauri build",
@@ -16,6 +17,7 @@
     "test:e2e": "playwright test",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "serve": "yarn node ./test-utils/express.js",
     "chromatic": "npx chromatic --project-token=chpt_7dfc24d29ee0670"
   },
   "installConfig": {
@@ -93,6 +95,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "react-qr-code": "^2.0.15",
     "react-responsive": "^10.0.1",
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",

@@ -34,6 +34,7 @@ import { FaArrowUp } from "react-icons/fa6";
 import { LuLoaderCircle } from "react-icons/lu";
 import { dispatchScrollEvent } from "../lib/scroll-events";
 import { PostReportProvider } from "../components/posts/post-report";
+import { DownloadButton } from "./download";
 
 export const scrollToTop = {
   current: { scrollToOffset: () => {} },
@@ -220,6 +221,7 @@ export default function HomeFeed() {
             />
           </form>
           <IonButtons slot="end" className="gap-3.5 md:gap-4">
+            <DownloadButton />
             <Link
               to="/home/s"
               className="text-2xl contents text-brand md:hidden"
