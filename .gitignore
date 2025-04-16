@@ -18,8 +18,6 @@ yarn-error.log
 tsconfig.tsbuildinfo
 .DS_Store
 
-.tamagui
-
 .idea
 
 .env
@@ -33,9 +31,6 @@ tsconfig.tsbuildinfo
 
 # Test artifacts
 /coverage/
-
-# Tamagui
-/app/tamagui.css
 
 # Misc
 todo.md
