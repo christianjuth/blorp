@@ -7,7 +7,6 @@
     "postinstall": "husky",
     "dev": "vite dev",
     "dev:tauri": "tauri dev",
-    "dev": "vite dev",
     "lint": "yarn oxlint",
     "build": "vite build && cap sync",
     "build:tauri": "tauri build",
