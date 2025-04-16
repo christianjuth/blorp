@@ -1,18 +1,15 @@
-import { View, Text, XStack, YStack, ScrollView } from "tamagui";
-import { useCommunity } from "~/src/lib/lemmy/index";
+import { useCommunity } from "@/src/lib/lemmy/index";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { Markdown } from "../markdown";
-import { CakeSlice } from "@tamagui/lucide-icons";
-import { abbriviateNumber } from "~/src/lib/format";
-import { useCustomHeaderHeight } from "../nav/hooks";
-import { useWindowDimensions } from "react-native";
+import { MarkdownRenderer } from "../markdown/renderer";
+import { abbriviateNumber } from "@/src/lib/format";
 import { CommunityJoinButton } from "./community-join-button";
-import { Link } from "one";
 import { useLinkContext } from "../nav/link-context";
-import { useCommunitiesStore } from "~/src/stores/communities";
-import { ContentGutters } from "../gutters";
-import { useCustomTabBarHeight } from "../nav/bottom-tab-bar";
+import { useCommunitiesStore } from "@/src/stores/communities";
+import { LuCakeSlice } from "react-icons/lu";
+import { Link } from "react-router-dom";
+import { cn } from "@/src/lib/utils";
+import { Skeleton } from "../ui/skeleton";
 
 dayjs.extend(localizedFormat);
 
@@ -27,10 +24,6 @@ export function CommunitySidebar({
   hideDescription?: boolean;
   asPage?: boolean;
 }) {
-  const header = useCustomHeaderHeight();
-  const tabBar = useCustomTabBarHeight();
-  const dimensions = useWindowDimensions();
-
   const data = useCommunitiesStore((s) => s.communities[communityName]?.data);
 
   if (!data) {
@@ -41,92 +34,74 @@ export function CommunitySidebar({
   const community = communityView.community;
   const counts = communityView.counts;
 
-  const content = (
-    <>
-      <YStack $gtMd={{ py: "$3" }} gap="$3">
-        <XStack ai="flex-start" jc="space-between">
-          <YStack gap="$3">
-            <Text fontSize="$5" fontWeight="bold">
-              {community.title}
-            </Text>
-
-            <XStack ai="center" gap="$1.5">
-              <CakeSlice size="$1" color="$color11" />
-              <Text fontSize="$3" color="$color11">
-                Created {dayjs(community.published).format("ll")}
-              </Text>
-            </XStack>
-          </YStack>
-
+  return (
+    <div
+      className={cn(
+        "gap-3 flex flex-col py-4",
+        asPage
+          ? "px-2.5"
+          : "absolute inset-x-0 h-[calc(100vh-60px)] overflow-auto",
+      )}
+    >
+      <div className="gap-3 flex flex-col">
+        <div className="flex flex-row items-start justify-between flex-1 -mb-1">
+          <span className="font-bold">{community.title}</span>
           <CommunityJoinButton
             communityName={communityName}
-            $gtMd={{ dsp: "none" }}
+            className="md:hidden"
           />
-        </XStack>
+        </div>
 
-        <XStack>
-          <YStack gap="$1" flex={1}>
-            <Text fontWeight="bold" fontSize="$4">
-              {counts && abbriviateNumber(counts.subscribers)}
-            </Text>
-            <Text fontSize="$3" color="$color11">
-              Members
-            </Text>
-          </YStack>
+        <div className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+          <LuCakeSlice />
+          <span>Created {dayjs(community.published).format("ll")}</span>
+        </div>
 
-          <YStack gap="$1" flex={1}>
-            <Text fontWeight="bold" fontSize="$4">
-              {counts && abbriviateNumber(counts.posts)}
-            </Text>
-            <Text fontSize="$3" color="$color11">
-              Posts
-            </Text>
-          </YStack>
+        <div className="grid grid-cols-3 text-sm">
+          <span className="font-semibold h-5">
+            {counts ? (
+              abbriviateNumber(counts.subscribers)
+            ) : (
+              <Skeleton className="w-2/3 h-full" />
+            )}
+          </span>
+          <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
+            Members
+          </span>
 
-          <YStack gap="$1" flex={1}>
-            <Text fontWeight="bold" fontSize="$4">
-              {counts && abbriviateNumber(counts.comments)}
-            </Text>
-            <Text fontSize="$3" color="$color11">
-              Comments
-            </Text>
-          </YStack>
-        </XStack>
-      </YStack>
-      {community.description && !hideDescription && (
-        <View py="$3" btc="$color0" btw={1}>
-          <Markdown markdown={community.description} color="$color11" />
-        </View>
-      )}
-    </>
-  );
+          <span className="font-semibold h-5">
+            {counts ? (
+              abbriviateNumber(counts.posts)
+            ) : (
+              <Skeleton className="w-2/3 h-full" />
+            )}
+          </span>
+          <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
+            Posts
+          </span>
 
-  return (
-    <View
-      position={asPage ? undefined : "absolute"}
-      maxHeight={dimensions.height - header.height}
-      $md={{
-        maxHeight: dimensions.height - header.height - tabBar.height,
-      }}
-      w="100%"
-      h={asPage ? "100%" : undefined}
-    >
-      <ScrollView
-        zIndex="$5"
-        $md={{
-          p: "$4",
-        }}
-        flex={1}
-      >
-        {asPage ? (
-          <ContentGutters>
-            <View flex={1}>{content}</View>
-          </ContentGutters>
-        ) : (
-          content
+          <span className="font-semibold h-5">
+            {counts ? (
+              abbriviateNumber(counts.comments)
+            ) : (
+              <Skeleton className="w-2/3 h-full" />
+            )}
+          </span>
+          <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
+            Comments
+          </span>
+        </div>
+
+        {community.description && !hideDescription && (
+          <div
+            className="pt-3"
+            // py="$3" btc="$color0" btw={1}
+          >
+            <MarkdownRenderer markdown={community.description} />
+          </div>
         )}
-      </ScrollView>
-    </View>
+      </div>
+    </div>
   );
 }
 
@@ -151,56 +126,58 @@ export function SmallScreenSidebar({
   const counts = communityView.counts;
 
   return (
-    <YStack bg="$background" flex={1} p="$3" gap="$3" $gtMd={{ dsp: "none" }}>
-      <XStack ai="flex-start" jc="space-between">
-        <YStack gap="$3">
-          <Text fontSize="$5" fontWeight="bold">
-            {community.title}
-          </Text>
-
-          <XStack ai="center" gap="$1.5">
-            <CakeSlice size="$1" color="$color11" />
-            <Text fontSize="$3" color="$color11">
-              Created {dayjs(community.published).format("ll")}
-            </Text>
-          </XStack>
-        </YStack>
-
+    <div className="md:hidden flex flex-col gap-3 py-4 flex-1 border-b-[.5px] px-2.5">
+      <div className="flex flex-row items-start justify-between flex-1 -mb-1">
+        <span className="font-bold">{community.title}</span>
         <CommunityJoinButton communityName={communityName} />
-      </XStack>
+      </div>
 
-      <XStack>
-        <YStack gap="$1" flex={1}>
-          <Text fontWeight="bold" fontSize="$4">
-            {counts && abbriviateNumber(counts.subscribers)}
-          </Text>
-          <Text fontSize="$3" color="$color11">
-            Members
-          </Text>
-        </YStack>
+      <div className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+        <LuCakeSlice />
+        <span>Created {dayjs(community.published).format("ll")}</span>
+      </div>
 
-        <YStack gap="$1" flex={1}>
-          <Text fontWeight="bold" fontSize="$4">
-            {counts && abbriviateNumber(counts.posts)}
-          </Text>
-          <Text fontSize="$3" color="$color11">
-            Posts
-          </Text>
-        </YStack>
+      <div className="grid grid-cols-3 text-sm">
+        <span className="font-semibold h-5">
+          {counts ? (
+            abbriviateNumber(counts.subscribers)
+          ) : (
+            <Skeleton className="w-2/3 h-full" />
+          )}
+        </span>
+        <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
+          Members
+        </span>
 
-        <YStack gap="$1" flex={1}>
-          <Text fontWeight="bold" fontSize="$4">
-            {counts && abbriviateNumber(counts.comments)}
-          </Text>
-          <Text fontSize="$3" color="$color11">
-            Comments
-          </Text>
-        </YStack>
-      </XStack>
+        <span className="font-semibold h-5">
+          {counts ? (
+            abbriviateNumber(counts.posts)
+          ) : (
+            <Skeleton className="w-2/3 h-full" />
+          )}
+        </span>
+        <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
+          Posts
+        </span>
 
-      <Link href={`${linkCtx.root}c/${communityName}/sidebar`}>
-        <Text color="$accentColor">Show more</Text>
+        <span className="font-semibold h-5">
+          {counts ? (
+            abbriviateNumber(counts.comments)
+          ) : (
+            <Skeleton className="w-2/3 h-full" />
+          )}
+        </span>
+        <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
+          Comments
+        </span>
+      </div>
+
+      <Link
+        to={`${linkCtx.root}c/${communityName}/sidebar`}
+        className="text-brand"
+      >
+        Show more
       </Link>
-    </YStack>
+    </div>
   );
 }

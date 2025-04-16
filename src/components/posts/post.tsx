@@ -1,28 +1,32 @@
-import { useMedia, View, XStack, YStack, Text } from "tamagui";
-import { Image, shareImage } from "~/src/components/image";
-import { PostCommentsButton, Voting } from "./post-buttons";
-import { Link } from "one";
-import { PostByline } from "./post-byline";
-import { useState } from "react";
-import { usePostsStore } from "~/src/stores/posts";
+import { usePostsStore } from "@/src/stores/posts";
 import { useLinkContext } from "../nav/link-context";
+import { useSettingsStore } from "@/src/stores/settings";
+import { getPostEmbed } from "@/src/lib/post";
+import { createSlug, encodeApId, FlattenedPost } from "@/src/lib/lemmy/utils";
+
+import { Link } from "react-router-dom";
 import { PostArticleEmbed } from "./post-article-embed";
-import { Markdown } from "~/src/components/markdown";
-import { PostVideoEmbed } from "./post-video-embed";
-import { useCommentReaplyContext } from "../comments/comment-reply-modal";
-import { YouTubeVideoEmbed } from "../youtube";
-import { Repeat2 } from "@tamagui/lucide-icons";
-import { useSettingsStore } from "~/src/stores/settings";
-import { getPostEmbed } from "~/src/lib/post";
+import { PostByline } from "./post-byline";
+import { PostCommentsButton, Voting } from "./post-buttons";
+import { MarkdownRenderer } from "../markdown/renderer";
+import { twMerge } from "tailwind-merge";
 import { PostLoopsEmbed } from "./post-loops-embed";
+import { YouTubeVideoEmbed } from "../youtube";
+import { PostVideoEmbed } from "./post-video-embed";
+import { cn } from "@/src/lib/utils";
+import { Skeleton } from "../ui/skeleton";
+import { useRef } from "react";
 import { CommentSortSelect } from "../lemmy-sort";
-import { encodeApId, FlattenedPost } from "~/src/lib/lemmy/utils";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { useLongPress } from "use-long-press";
+import _ from "lodash";
+import { shareImage } from "@/src/lib/share";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
-    <Text color="$color11" fontStyle="italic" py="$4">
+    <span className="italic text-muted-foreground text-sm pt-3">
       {children}
-    </Text>
+    </span>
   );
 }
 
@@ -67,26 +71,8 @@ export function getPostProps(
     displayUrl = `${parsedUrl.host.replace(/^www\./, "")}${parsedUrl.pathname.replace(/\/$/, "")}`;
   }
 
-  let recyclingType = 0;
-  switch (embed.type) {
-    case "article":
-    case "image":
-      recyclingType = 1;
-      break;
-    case "video":
-      recyclingType = 2;
-      break;
-    case "youtube":
-      recyclingType = 3;
-      break;
-    case "loops":
-      recyclingType = 4;
-      break;
-  }
-
   return {
     ...embed,
-    recyclingType,
     id: postView.post.id,
     apId: postView.post.ap_id,
     encodedApId: encodeApId(postView.post.ap_id),
@@ -102,8 +88,10 @@ export function getPostProps(
     saved: postView.optimisticSaved ?? postView.saved,
     creatorId: postView.creator.id,
     creatorApId: postView.creator.actor_id,
+    creatorSlug: createSlug(postView.creator),
     encodedCreatorApId: encodeApId(postView.creator.actor_id),
     creatorName: postView.creator.name,
+    creatorAvatar: postView.creator.avatar,
     communitySlug: postView.community.slug,
     published: postView.post.published,
     body: postView.post.body,
@@ -116,123 +104,41 @@ export function getPostProps(
   };
 }
 
-export type PostProps = ReturnType<typeof getPostProps>;
+export interface PostProps extends ReturnType<typeof getPostProps> {
+  detailView?: boolean;
+  onNavigate?: () => any;
+}
 
-export function DetailPostCard(props: PostProps) {
-  const media = useMedia();
-
-  const {
-    deleted,
-    name,
-    type,
-    url,
-    displayUrl,
-    thumbnail,
-    aspectRatio,
-    body,
-    nsfw,
-    crossPostEncodedApId,
-    crossPostCommunitySlug,
-  } = props;
-
-  const linkCtx = useLinkContext();
-
-  const showNsfw = useSettingsStore((s) => s.setShowNsfw);
-  const filterKeywords = useSettingsStore((s) => s.filterKeywords);
-
-  if (nsfw && !showNsfw) {
-    return <Notice>NSFW content hidden</Notice>;
-  }
-
-  for (const keyword of filterKeywords) {
-    if (name.toLowerCase().includes(keyword.toLowerCase())) {
-      return <Notice>Hidden by "{keyword}" keyword filter</Notice>;
-    }
-  }
-
-  const showImage = type === "image" && thumbnail && !deleted;
-  const showArticle = type === "article" && thumbnail && !deleted;
-
+export function PostCardSkeleton() {
+  const hideImage = useRef(Math.random()).current < 0.4;
   return (
-    <YStack
-      pt="$4"
-      pb="$2"
-      bbc="$color3"
-      mx="auto"
-      flex={1}
-      $md={{
-        px: "$3",
-      }}
-      gap="$2"
-      w="100%"
-    >
-      <PostByline {...props} />
+    <div className="flex-1 pt-4 gap-2 flex flex-col max-md:px-2.5 pb-4">
+      <div className="flex flex-row items-center gap-2 h-9">
+        <Skeleton className="h-8 w-8 rounded-full" />
 
-      <Text
-        fontWeight={500}
-        fontSize="$6"
-        lineHeight="$4"
-        fontStyle={deleted ? "italic" : undefined}
-      >
-        {deleted ? "deleted" : name}
-      </Text>
+        <div className="flex flex-col gap-1">
+          <Skeleton className="h-2.5 w-32" />
+          <Skeleton className="h-2.5 w-44" />
+        </div>
+      </div>
 
-      {showImage && (
-        <View
-          br="$5"
-          $md={{ mx: "$-3", br: 0 }}
-          onLongPress={() => thumbnail && shareImage(thumbnail)}
-        >
-          <Image
-            imageUrl={thumbnail}
-            aspectRatio={aspectRatio}
-            borderRadius={media.gtMd ? 10 : 0}
-            priority
-          />
-        </View>
+      <Skeleton className="h-7" />
+
+      {!hideImage && (
+        <Skeleton className="aspect-video max-md:-mx-2.5 max-md:rounded-none" />
       )}
 
-      {showArticle && (
-        <PostArticleEmbed
-          url={url}
-          displayUrl={displayUrl}
-          thumbnail={thumbnail}
-        />
-      )}
-      {type === "video" && !deleted && url && (
-        <PostVideoEmbed url={url} autoPlay={false} />
-      )}
-      {type === "loops" && !deleted && url && (
-        <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} />
-      )}
-      {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
+      <div className="flex flex-row justify-end gap-2">
+        <Skeleton className="h-7 w-10 rounded-full" />
+        <Skeleton className="h-7 w-16 rounded-full" />
+      </div>
 
-      {crossPostEncodedApId && crossPostCommunitySlug && (
-        <Link
-          href={`${linkCtx.root}c/${crossPostCommunitySlug}/posts/${crossPostEncodedApId}`}
-          asChild
-        >
-          <XStack gap="$1" mt="$2">
-            <Repeat2 color="$accentColor" size={16} />
-            <Text fontSize={13} color="$accentColor">
-              Cross posted from {crossPostCommunitySlug}
-            </Text>
-          </XStack>
-        </Link>
-      )}
-
-      {body && !deleted && (
-        <View pt="$2">
-          <Markdown markdown={body} />
-        </View>
-      )}
-    </YStack>
+      <Skeleton className="h-[.5px] w-full rounded-full max-md:-mx-2.5" />
+    </div>
   );
 }
 
 export function FeedPostCard(props: PostProps) {
-  const media = useMedia();
-
   const {
     apId,
     read,
@@ -249,145 +155,159 @@ export function FeedPostCard(props: PostProps) {
     encodedApId,
     commentsCount,
     displayUrl,
+    body,
+    detailView,
+    onNavigate,
   } = props;
-
-  const [pressed, setPressed] = useState(false);
 
   const linkCtx = useLinkContext();
 
   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
 
-  if (nsfw && !showNsfw) {
-    return null;
-  }
-
-  for (const keyword of filterKeywords) {
-    if (name.toLowerCase().includes(keyword.toLowerCase())) {
-      return null;
-    }
-  }
-
   const postDetailsLink =
     `${linkCtx.root}c/${communitySlug}/posts/${encodedApId}` as const;
 
   const showImage = type === "image" && thumbnail && !deleted;
-  const showArticle = type === "article" && thumbnail && !deleted;
+  const showArticle = type === "article" && !deleted;
+
+  const patchPost = usePostsStore((s) => s.patchPost);
+
+  const handlers = useLongPress(
+    async () => {
+      if (thumbnail) {
+        Haptics.impact({ style: ImpactStyle.Heavy });
+        shareImage(name, thumbnail);
+      }
+    },
+    {
+      cancelOnMovement: 15,
+      onStart: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      },
+    },
+  );
+
+  if (nsfw && !showNsfw) {
+    return detailView ? <Notice>Hidden due to NSFW</Notice> : null;
+  }
+
+  for (const keyword of filterKeywords) {
+    if (name.toLowerCase().includes(keyword.toLowerCase())) {
+      return detailView ? (
+        <Notice>Hidden due to keyword filter "{keyword}"</Notice>
+      ) : null;
+    }
+  }
 
   return (
-    <YStack
-      pt="$4"
-      pb="$4"
-      bbc="$color3"
-      bbw={1}
-      mx="auto"
-      flex={1}
-      $md={{
-        px: "$3",
-        bbw: 0.5,
-      }}
-      gap="$2"
-      opacity={pressed ? 0.8 : 1}
-      animation="100ms"
-      w="100%"
+    <div
+      className={cn(
+        "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-2.5",
+        detailView ? "pb-2" : "border-b-[0.5px] pb-4",
+      )}
     >
       <PostByline {...props} />
 
       <Link
-        href={postDetailsLink}
-        onPressIn={() => setPressed(true)}
-        onPressOut={() => setPressed(false)}
-        onLongPress={thumbnail ? () => shareImage(thumbnail) : undefined}
-        asChild
+        to={postDetailsLink}
+        onClickCapture={onNavigate}
+        className="gap-2 flex flex-col"
       >
-        <YStack tag="a" gap="$2">
-          <Text
-            fontWeight={500}
-            fontSize="$6"
-            lineHeight="$4"
-            col={read ? "$color10" : "$color"}
-            fontStyle={deleted ? "italic" : undefined}
-          >
-            {deleted ? "deleted" : name}
-          </Text>
-
-          <View
-            br="$5"
-            $md={{ mx: "$-3", br: 0 }}
-            dsp={showImage ? "flex" : "none"}
-          >
-            <Image
-              imageUrl={showImage ? thumbnail : undefined}
-              aspectRatio={aspectRatio}
-              borderRadius={media.gtMd ? 10 : 0}
-              priority
+        <span
+          className={twMerge(
+            "text-xl font-medium",
+            !detailView && read && "text-muted-foreground",
+          )}
+        >
+          {deleted ? "deleted" : name}
+        </span>
+        {showImage && (
+          <div className="max-md:-mx-3 flex flex-col">
+            <img
+              src={thumbnail}
+              className="md:rounded-lg object-cover"
+              onLoad={(e) => {
+                if (!aspectRatio) {
+                  patchPost(apId, {
+                    imageDetails: {
+                      height: e.currentTarget.naturalHeight,
+                      width: e.currentTarget.naturalWidth,
+                    },
+                  });
+                }
+              }}
+              style={{
+                aspectRatio,
+              }}
+              onContextMenu={(e) => e.preventDefault()}
+              {...handlers()}
             />
-          </View>
-        </YStack>
+          </div>
+        )}
       </Link>
 
-      <PostArticleEmbed
-        url={showArticle ? url : undefined}
-        displayUrl={showArticle ? displayUrl : undefined}
-        thumbnail={showArticle ? thumbnail : undefined}
-      />
+      {showArticle && (
+        <PostArticleEmbed
+          url={showArticle ? url : undefined}
+          displayUrl={showArticle ? displayUrl : undefined}
+          thumbnail={showArticle ? thumbnail : undefined}
+        />
+      )}
 
       {type === "video" && !deleted && url && (
-        <PostVideoEmbed url={url} autoPlay={false} />
+        <PostVideoEmbed url={url} autoPlay={detailView} />
       )}
       {type === "loops" && !deleted && url && (
-        <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={false} />
+        <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={detailView} />
       )}
       {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
 
-      <XStack jc="flex-end" gap="$2">
-        <Link href={postDetailsLink} asChild>
-          <PostCommentsButton commentsCount={commentsCount} />
-        </Link>
-        <Voting apId={apId} score={score} myVote={myVote} />
-      </XStack>
-    </YStack>
+      {detailView && body && !deleted && <MarkdownRenderer markdown={body} />}
+
+      {!detailView && (
+        <div className="flex flex-row justify-end gap-2">
+          <PostCommentsButton
+            commentsCount={commentsCount}
+            href={postDetailsLink}
+          />
+          <Voting apId={apId} score={score} myVote={myVote} />
+        </div>
+      )}
+    </div>
   );
 }
 
 export function PostBottomBar({
   apId,
   commentsCount,
+  onReply,
 }: {
   apId: string;
   commentsCount: number;
+  onReply: () => void;
 }) {
   const postView = usePostsStore((s) => s.posts[apId]?.data);
-  const replyCtx = useCommentReaplyContext();
 
   if (!postView) {
     return null;
   }
 
+  const diff =
+    typeof postView?.optimisticMyVote === "number"
+      ? postView?.optimisticMyVote - (postView?.myVote ?? 0)
+      : 0;
+  const score = postView?.counts.score + diff;
+
+  const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
+
   return (
-    <XStack
-      ai="center"
-      gap="$2"
-      py="$2"
-      bbc="$color3"
-      mx="auto"
-      flex={1}
-      $md={{
-        bbw: 0.5,
-        px: "$3",
-        py: "$1.5",
-      }}
-      bg="$background"
-    >
+    <div className="pb-1.5 md:py-2 flex flex-row gap-2 bg-background">
       <CommentSortSelect />
-
-      <View flex={1} />
-
-      <PostCommentsButton
-        commentsCount={commentsCount}
-        onPress={replyCtx.focus}
-      />
-      {postView && <Voting {...getPostProps(postView)} />}
-    </XStack>
+      <div className="flex-1" />
+      <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
+      <Voting apId={apId} score={score} myVote={myVote} />
+    </div>
   );
 }

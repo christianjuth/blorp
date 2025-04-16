@@ -1,35 +1,49 @@
-import { View, Text, Avatar, YStack, XStack, Square } from "tamagui";
-import { RelativeTime } from "~/src/components/relative-time";
 import {
   useBlockPerson,
   useDeletePost,
   useSavePost,
-} from "~/src/lib/lemmy/index";
-import { Link } from "one";
+} from "@/src/lib/lemmy/index";
 import { useLinkContext } from "../nav/link-context";
-import { ActionMenu } from "../ui/action-menu";
-import { Share } from "react-native";
-import { Ellipsis, Pin } from "@tamagui/lucide-icons";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
-import { useAlert } from "../ui/alert";
-import { useAuth } from "~/src/stores/auth";
-import { openUrl } from "~/src/lib/linking";
+import { useAuth } from "@/src/stores/auth";
+import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { RelativeTime } from "../relative-time";
+import { ActionMenu, ActionMenuProps } from "../action-menu";
+import { IoEllipsisHorizontal } from "react-icons/io5";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
+import { BsFillPinAngleFill } from "react-icons/bs";
+import { useIonAlert } from "@ionic/react";
+import { Deferred } from "@/src/lib/deferred";
+import { Slug } from "@/src/lib/lemmy/utils";
+import { CommunityHoverCard } from "../communities/community-hover-card";
+import { PersonHoverCard } from "../person/person-hover-card";
+import { toast } from "sonner";
+import { Share } from "@capacitor/share";
+import { FaBookmark } from "react-icons/fa";
 
 export function PostByline({
   id,
-  encodedApId,
   apId,
+  encodedApId,
   pinned,
   saved,
   deleted,
   creatorId,
   creatorApId,
+  creatorSlug,
   encodedCreatorApId,
   creatorName,
+  creatorAvatar,
   communitySlug,
   published,
+  onNavigate,
 }: {
   id: number;
   apId: string;
@@ -39,12 +53,15 @@ export function PostByline({
   deleted: boolean;
   creatorId: number;
   creatorApId: string;
+  creatorSlug: Slug | null;
+  creatorAvatar?: string;
   encodedCreatorApId: string;
   creatorName: string;
   communitySlug: string;
   published: string;
+  onNavigate?: () => any;
 }) {
-  const alrt = useAlert();
+  const [alrt] = useIonAlert();
 
   const showReportModal = useShowPostReportModal();
   const requireAuth = useRequireAuth();
@@ -61,27 +78,31 @@ export function PostByline({
   const isMyPost = creatorApId === myUserId;
 
   const [openSignal, setOpenSignal] = useState(0);
-  const actions = useMemo(
+  const actions: ActionMenuProps["actions"] = useMemo(
     () => [
       {
-        label: "Share",
+        text: "Share",
         onClick: () =>
           Share.share({
             url: `https://blorpblorp.xyz/c/${communitySlug}/posts/${encodedApId}`,
           }),
       },
       {
-        label: saved ? "Unsave" : "Save",
+        text: saved ? "Unsave" : "Save",
         onClick: () =>
           requireAuth().then(() => {
-            savePost.mutate({
-              post_id: id,
-              save: !saved,
-            });
+            savePost
+              .mutateAsync({
+                post_id: id,
+                save: !saved,
+              })
+              .then(() => {
+                toast.success(saved ? "Unsaved post" : "Saved post");
+              });
           }),
       },
       {
-        label: "View source",
+        text: "View source",
         onClick: async () => {
           try {
             openUrl(apId);
@@ -93,7 +114,7 @@ export function PostByline({
       ...(isMyPost
         ? [
             {
-              label: deleted ? "Restore" : "Delete",
+              text: deleted ? "Restore" : "Delete",
               onClick: () =>
                 deletePost.mutate({
                   post_id: id,
@@ -104,7 +125,7 @@ export function PostByline({
           ]
         : [
             {
-              label: "Report",
+              text: "Report",
               onClick: () =>
                 requireAuth().then(() => {
                   showReportModal(apId);
@@ -112,16 +133,32 @@ export function PostByline({
               danger: true,
             },
             {
-              label: "Block person",
+              text: "Block person",
               onClick: async () => {
                 try {
                   await requireAuth();
-                  await alrt(`Block ${creatorName}`);
+                  const deferred = new Deferred();
+                  alrt({
+                    message: `Block ${creatorName}`,
+                    buttons: [
+                      {
+                        text: "Cancel",
+                        role: "cancel",
+                        handler: () => deferred.reject(),
+                      },
+                      {
+                        text: "OK",
+                        role: "confirm",
+                        handler: () => deferred.resolve(),
+                      },
+                    ],
+                  });
+                  await deferred.promise;
                   blockPerson.mutate({
                     person_id: creatorId,
                     block: true,
                   });
-                } catch (err) {}
+                } catch {}
               },
               danger: true,
             },
@@ -130,56 +167,55 @@ export function PostByline({
     [openSignal],
   );
 
+  const [communityName, communityHost] = communitySlug.split("@");
+
   return (
-    <XStack dsp="flex" fd="row" ai="center" gap={9}>
-      <Square
-        size="$2.5"
-        backgroundColor="$color8"
-        borderRadius="$12"
-        ai="center"
-        jc="center"
-      >
-        <Text fontSize="$4">{creatorName?.substring(0, 1).toUpperCase()}</Text>
-      </Square>
+    <div className="flex flex-row items-center gap-2 h-9">
+      <Avatar className="h-8 w-8">
+        <AvatarImage src={creatorAvatar} />
+        <AvatarFallback>
+          {creatorName?.substring(0, 1).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
 
-      <YStack gap={4}>
-        <Link href={`${linkCtx.root}c/${communitySlug}`} push asChild>
-          <Text fontSize="$2" fontWeight={500} color="$color12" tag="a">
-            c/{communitySlug}
-          </Text>
-        </Link>
-        <XStack ai="center">
-          <Link href={`${linkCtx.root}u/${encodedCreatorApId}`} push>
-            <Text fontSize="$2" fontWeight={500} color="$color11">
-              u/{creatorName}
-            </Text>
+      <div className="flex flex-col gap-0.5">
+        <CommunityHoverCard communityName={communitySlug}>
+          <Link
+            to={`${linkCtx.root}c/${communitySlug}`}
+            className="text-xs"
+            onClickCapture={onNavigate}
+          >
+            {communityName}
+            <span className="text-muted-foreground italic">
+              @{communityHost}
+            </span>
           </Link>
+        </CommunityHoverCard>
+        <div className="flex flex-row text-xs text-muted-foreground gap-1">
+          <PersonHoverCard actorId={creatorApId}>
+            <Link
+              to={`${linkCtx.root}u/${encodedCreatorApId}`}
+              onClickCapture={onNavigate}
+            >
+              {creatorSlug?.name}
+              <span className="italic">@{creatorSlug?.host}</span>
+            </Link>
+          </PersonHoverCard>
+          <RelativeTime prefix=" • " time={published} />
+        </div>
+      </div>
 
-          <RelativeTime
-            prefix=" • "
-            time={published}
-            color="$color11"
-            fontSize="$3"
-          />
-        </XStack>
-      </YStack>
+      <div className="flex-1" />
 
-      <View flex={1} />
-
-      {pinned && (
-        <Pin fill="#17B169" color="#17B169" size="$1" rotate="45deg" />
-      )}
+      {saved && <FaBookmark className="text-lg text-brand" />}
+      {pinned && <BsFillPinAngleFill className="text-xl text-[#17B169]" />}
 
       <ActionMenu
-        placement="bottom-end"
+        align="end"
         actions={actions}
-        onOpenChange={() => setOpenSignal((s) => s + 1)}
-        trigger={
-          <View p="$2" pr={0}>
-            <Ellipsis size={16} />
-          </View>
-        }
+        trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
+        onOpen={() => setOpenSignal((s) => s + 1)}
       />
-    </XStack>
+    </div>
   );
 }

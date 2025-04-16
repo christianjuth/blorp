@@ -18,8 +18,6 @@ yarn-error.log
 tsconfig.tsbuildinfo
 .DS_Store
 
-.tamagui
-
 .idea
 
 .env
@@ -31,15 +29,8 @@ tsconfig.tsbuildinfo
 
 .expo
 
-# generated code
-/ios
-/android
-
 # Test artifacts
 /coverage/
-
-# Tamagui
-/app/tamagui.css
 
 # Misc
 todo.md

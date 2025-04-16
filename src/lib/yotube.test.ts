@@ -17,6 +17,7 @@ describe("parseYouTubeVideoId", () => {
     [`https://www.youtube.com/embed/${VIDEO_ID}/123`],
     [`https://www.youtube.com/watch?v=${VIDEO_ID}/asd`],
     [`https://youtube.com/shorts/${VIDEO_ID}?feature=share`],
+    [`https://youtube.com/live/${VIDEO_ID}`],
   ])(`parseYouTubeVideoId("%s") == "${VIDEO_ID}"`, (url) => {
     expect(parseYouTubeVideoId(url)).toBe(VIDEO_ID);
   });
@@ -34,6 +35,7 @@ describe("isYouTubeVideoUrl", () => {
     [`https://www.youtube.com/embed/${VIDEO_ID}/123`],
     [`https://www.youtube.com/watch?v=${VIDEO_ID}/asd`],
     [`https://youtube.com/shorts/${VIDEO_ID}?feature=share`],
+    [`https://youtube.com/live/${VIDEO_ID}`],
   ])(`isYouTubeVideoUrl("%s")"`, (url) => {
     expect(isYouTubeVideoUrl(url)).toBe(true);
   });

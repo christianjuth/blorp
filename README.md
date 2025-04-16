@@ -39,7 +39,5 @@ Blorp is a work in progress, and the goal is to check off everything below for v
 
 ## 📚 Stack
 
-* [One](https://onestack.dev/) - One React framework for web and native
-* [Tamagui](https://tamagui.dev/) - Unified style solution optimised for web ant native
 * [Vite](https://vite.dev/) - Next Generation Frontend Tooling
 * [Zustand](https://github.com/pmndrs/zustand) - Bear necessities for state management in React

@@ -29,9 +29,6 @@ jobs:
           corepack enable
           yarn install --immutable
 
-      - name: Build Tamagui One app
-        run: yarn one patch
-
       - name: Run Chromatic
         uses: chromaui/action@latest
         with:
@@ -92,10 +89,10 @@ jobs:
           corepack enable
           yarn install --immutable
 
-      - name: Build Tamagui One app
+      - name: Build Blorp React app
         env: 
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
-        run: yarn build:web
+        run: yarn build
 
       - name: Hash the output of yarn why playwright
         id: playwright_hash

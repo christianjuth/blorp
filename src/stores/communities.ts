@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { createStorage } from "./storage";
+import { createStorage, sync } from "./storage";
 import _ from "lodash";
 import type {
   Community,
@@ -137,3 +137,5 @@ export const useCommunitiesStore = create<SortsStore>()(
     },
   ),
 );
+
+sync(useCommunitiesStore);

@@ -1,7 +1,7 @@
 import { Community } from "lemmy-js-client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { createStorage } from "./storage";
+import { createStorage, sync } from "./storage";
 import _ from "lodash";
 
 type CommunityPartial = Pick<
@@ -14,7 +14,7 @@ type RecentCommunityStore = {
   update: (c: CommunityPartial) => void;
 };
 
-export const MAX_VISITED = 5;
+export const MAX_VISITED = 100;
 
 export const useRecentCommunitiesStore = create<RecentCommunityStore>()(
   persist(
@@ -46,3 +46,5 @@ export const useRecentCommunitiesStore = create<RecentCommunityStore>()(
     },
   ),
 );
+
+sync(useRecentCommunitiesStore);

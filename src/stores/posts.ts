@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { createStorage } from "./storage";
+import { createStorage, sync } from "./storage";
 import { FlattenedPost } from "../lib/lemmy/utils";
 import _ from "lodash";
 import { MAX_CACHE_MS } from "./config";
@@ -118,3 +118,5 @@ export const usePostsStore = create<SortsStore>()(
     },
   ),
 );
+
+sync(usePostsStore);

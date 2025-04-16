@@ -1,4 +1,3 @@
-import { Regex } from "@tamagui/lucide-icons";
 import {
   Community,
   ImageDetails,
@@ -9,6 +8,19 @@ import {
 } from "lemmy-js-client";
 import _ from "lodash";
 
+export function createPersonSlug(person: Pick<Person, "actor_id">) {
+  const url = new URL(person.actor_id);
+  const path = url.pathname.split("/");
+  if (!path[2]) {
+    // TODO: make this more strict
+    return "";
+  }
+  return `${path[2]}@${url.host}`;
+}
+
+/**
+ * @deprecated replace with createSlug
+ */
 export function createCommunitySlug(community: Pick<Community, "actor_id">) {
   const url = new URL(community.actor_id);
   const path = url.pathname.split("/");
@@ -25,6 +37,27 @@ export function parseCommunitySlug(slug: string) {
     communityName,
     lemmyServer,
   };
+}
+
+export type Slug = {
+  name: string;
+  host: string;
+  slug: string;
+};
+
+export function createSlug(object: { actor_id: string }) {
+  const url = new URL(object.actor_id);
+  const path = url.pathname.split("/");
+  if (!path[2]) {
+    return null;
+  }
+  const name = path[2];
+  const host = url.host;
+  return {
+    name,
+    host,
+    slug: `${name}@${host}`,
+  } satisfies Slug;
 }
 
 export type FlattenedPost = {

@@ -1,4 +1,4 @@
-name: Deploy One to GitHub Pages
+name: Deploy Blorp to GitHub Pages
 
 on:
   push:
@@ -33,18 +33,18 @@ jobs:
           corepack enable
           yarn install --immutable
 
-      - name: Build Tamagui One app
+      - name: Build Blorp React app
         env: 
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
-        run: yarn build:web
+        run: yarn build
 
       - name: Handle React SPA Routing
-        run: cp dist/client/index.html dist/client/404.html
+        run: cp dist/index.html dist/404.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/client
+          path: dist
 
   deploy:
     environment:

@@ -33,24 +33,23 @@ import {
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
-import { useFiltersStore } from "~/src/stores/filters";
+import { useFiltersStore } from "@/src/stores/filters";
 import { useAuth } from "../../stores/auth";
-import { useEffect, useMemo } from "react";
-import { prefetch as prefetchImage } from "~/src/components/image";
+import { useEffect, useMemo, useRef } from "react";
+import { prefetch as prefetchImage } from "@/src/components/image";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
 import { useSettingsStore } from "../../stores/settings";
 import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
 import { useThrottleQueue } from "../throttle-queue";
-import { useIsFocused } from "@react-navigation/native";
 import { useCommunitiesStore } from "../../stores/communities";
-import { useRouter } from "one";
 import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
-import { measureImage } from "../image";
+// import { measureImage } from "../image";
 import { getPostEmbed } from "../post";
-import { useToastController } from "@tamagui/toast";
-import { useProfilesStore } from "~/src/stores/profiles";
+import { useProfilesStore } from "@/src/stores/profiles";
+import { useIonRouter } from "@ionic/react";
+import { toast } from "sonner";
 
 function useLemmyClient(config?: { instance?: string }) {
   let jwt = useAuth((s) => s.getSelectedAccount().jwt);
@@ -134,7 +133,13 @@ function flattenComment(commentView: CommentView): FlattenedComment {
   };
 }
 
-export function usePersonDetails({ actorId }: { actorId?: string }) {
+export function usePersonDetails({
+  actorId,
+  enabled = true,
+}: {
+  actorId?: string;
+  enabled?: boolean;
+}) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
   const queryKey = [...queryKeyPrefix, "getPersonDetails", actorId];
@@ -158,7 +163,7 @@ export function usePersonDetails({ actorId }: { actorId?: string }) {
 
       cacheProfiles([_.omit(person, "is_admin")]);
 
-      const { posts, comments, ...rest } = await client.getPersonDetails(
+      const res = await client.getPersonDetails(
         {
           person_id: person?.person.id,
           limit: 1,
@@ -167,24 +172,29 @@ export function usePersonDetails({ actorId }: { actorId?: string }) {
           signal,
         },
       );
-      return rest;
+      return _.omit(res, ["posts", "comments"]);
     },
-    enabled: !!actorId,
+    enabled: !!actorId && enabled,
   });
 }
 
 export function usePersonFeed({ actorId }: { actorId?: string }) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
-  const queryKey = [...queryKeyPrefix, "getPersonFeed", actorId];
+  const postSort = useFiltersStore((s) => s.postSort);
+
+  const queryKey = [
+    ...queryKeyPrefix,
+    "getPersonFeed",
+    actorId,
+    `sort-${postSort}`,
+  ];
 
   const cacheComments = useCommentsStore((s) => s.cacheComments);
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
-  const patchPost = usePostsStore((s) => s.patchPost);
+  // const patchPost = usePostsStore((s) => s.patchPost);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
-
-  const cacheImages = useSettingsStore((s) => s.cacheImages);
 
   return useThrottledInfiniteQuery({
     queryKey,
@@ -210,6 +220,7 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
           person_id: person.person.id,
           limit,
           page: pageParam,
+          sort: postSort,
         },
         {
           signal,
@@ -231,11 +242,11 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
         if (thumbnail) {
           setTimeout(() => {
             if (!cachedPosts[post.ap_id]?.data.imageDetails) {
-              measureImage(thumbnail).then((data) => {
-                patchPost(post.ap_id, {
-                  imageDetails: data,
-                });
-              });
+              // measureImage(thumbnail).then((data) => {
+              //   patchPost(post.ap_id, {
+              //     imageDetails: data,
+              //   });
+              // });
             }
           }, i);
           i += 50;
@@ -273,9 +284,7 @@ export function usePost({
   );
 
   const cachePost = usePostsStore((s) => s.cachePost);
-  const patchPost = usePostsStore((s) => s.patchPost);
-
-  const cacheImages = useSettingsStore((s) => s.cacheImages);
+  // const patchPost = usePostsStore((s) => s.patchPost);
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
@@ -332,13 +341,13 @@ export function usePost({
       const { thumbnail, type: embedType } = getPostEmbed(post.post);
       if (thumbnail) {
         if (!cachedPost.imageDetails && embedType === "image") {
-          measureImage(thumbnail).then((data) => {
-            if (data) {
-              patchPost(ap_id, {
-                imageDetails: data,
-              });
-            }
-          });
+          // measureImage(thumbnail).then((data) => {
+          //   if (data) {
+          //     patchPost(ap_id, {
+          //       imageDetails: data,
+          //     });
+          //   }
+          // });
         }
         prefetchImage([thumbnail]);
       }
@@ -405,6 +414,9 @@ export function useComments(form: GetComments) {
 
   const cacheComments = useCommentsStore((s) => s.cacheComments);
 
+  const prevPageParam = useRef(-1);
+  const prevPage = useRef("");
+
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
@@ -421,6 +433,18 @@ export function useComments(form: GetComments) {
         },
       );
 
+      const page = comments.map((c) => c.comment.ap_id).join();
+
+      if (page === prevPage.current && pageParam !== prevPageParam.current) {
+        return {
+          comments: [],
+          nextPage: null,
+        };
+      }
+
+      prevPage.current = page;
+      prevPageParam.current = pageParam;
+
       cacheComments(comments.map(flattenComment));
 
       return {
@@ -428,6 +452,7 @@ export function useComments(form: GetComments) {
           path: c.comment.path,
           postId: c.comment.post_id,
           creatorId: c.creator.id,
+          published: c.comment.published,
         })),
         nextPage: comments.length < limit ? null : pageParam + 1,
       };
@@ -491,7 +516,10 @@ function usePostsKey(form: GetPosts) {
   return queryKey;
 }
 
-export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
+export function useMostRecentPost(
+  featuredContext: "local" | "community",
+  { enabled, ...form }: UsePostsConfig,
+) {
   const { client } = useLemmyClient();
 
   const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
@@ -503,11 +531,11 @@ export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
 
   form = {
     show_read: !hideRead,
-    limit: 1,
     sort,
     show_nsfw: showNsfw,
     ...form,
-  };
+    limit: 10,
+  } satisfies GetPosts;
 
   const queryKey = usePostsKey(form);
 
@@ -517,11 +545,19 @@ export function useMostRecentPost({ enabled, ...form }: UsePostsConfig) {
     refetchInterval: 1000 * 60,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
+    enabled,
   });
 
   return {
     ...query,
-    data: query.data?.posts?.[0],
+    data: query.data?.posts?.find(({ post }) => {
+      switch (featuredContext) {
+        case "local":
+          return !post.featured_local;
+        case "community":
+          return !post.featured_community;
+      }
+    }),
   };
 }
 
@@ -548,7 +584,7 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   const queryKeyStr = queryKey.join("-");
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
-  const patchPost = usePostsStore((s) => s.patchPost);
+  // const patchPost = usePostsStore((s) => s.patchPost);
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
@@ -597,11 +633,11 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
             !cachedPosts[post.ap_id]?.data.imageDetails &&
             embedType === "image"
           ) {
-            measureImage(thumbnail).then((data) => {
-              patchPost(post.ap_id, {
-                imageDetails: data,
-              });
-            });
+            // measureImage(thumbnail).then((data) => {
+            //   patchPost(post.ap_id, {
+            //     imageDetails: data,
+            //   });
+            // });
           }
         }, i);
         i += 50;
@@ -680,7 +716,8 @@ function useThrottledInfiniteQuery<
   const throttleQueue = useThrottleQueue(options.queryKey);
   const queryFn = options.queryFn;
 
-  const focused = useIsFocused();
+  // const focused = useIsFocused();
+  const focused = true;
 
   useEffect(() => {
     if (focused) {
@@ -794,7 +831,14 @@ export function useListCommunities(form: ListCommunities) {
     enabled: form.type_ === "Subscribed" ? isLoggedIn : true,
   });
 }
-export function useCommunity(form: { name?: string; instance?: string }) {
+export function useCommunity({
+  enabled = true,
+  ...form
+}: {
+  enabled?: boolean;
+  name?: string;
+  instance?: string;
+}) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
@@ -823,7 +867,7 @@ export function useCommunity(form: { name?: string; instance?: string }) {
       ]);
       return res;
     },
-    enabled: !!form.name,
+    enabled: !!form.name && enabled,
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -837,8 +881,6 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
 
   const updateAccount = useAuth((s) => s.updateAccount);
   const addAccount = useAuth((s) => s.addAccount);
-
-  const toast = useToastController();
 
   const mutation = useMutation({
     mutationFn: async (form: Login) => {
@@ -861,18 +903,14 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
       }
       return res;
     },
-    onMutate: () => {
-      toast.hide();
-    },
+    onMutate: () => {},
     onError: (err) => {
       if (!is2faError(err)) {
         let errorMsg = "Unkown error";
         if (err.message) {
           errorMsg = _.capitalize(err?.message?.replaceAll("_", " "));
         }
-        toast.show(errorMsg, {
-          preset: "error",
-        });
+        toast.error(errorMsg);
         console.error(errorMsg);
       }
     },
@@ -935,34 +973,30 @@ export function useLikePost(apId: string) {
 
   return useMutation({
     mutationKey: ["likePost", apId],
-    mutationFn: async (score: -1 | 0 | 1) => {
+    mutationFn: (score: -1 | 0 | 1) => {
       if (!post) {
         throw new Error("post not found");
       }
-      const res = await client.likePost({
+      return client.likePost({
         post_id: post.post.id,
         score,
       });
-      return res;
     },
-    onMutate: (myVote) => {
+    onMutate: (myVote) =>
       cachePost({
         ...post,
         optimisticMyVote: myVote,
-      });
-    },
-    onSuccess: (data) => {
+      }),
+    onSuccess: (data) =>
       cachePost({
         ..._.omit(post, ["optimisticMyVote"]),
         ...flattenPost(data),
-      });
-    },
-    onError: (err) => {
+      }),
+    onError: () =>
       cachePost({
         ...post,
         optimisticMyVote: undefined,
-      });
-    },
+      }),
   });
 }
 
@@ -977,9 +1011,8 @@ export function useLikeComment() {
   const cacheComment = useCommentsStore((s) => s.cacheComment);
 
   return useMutation({
-    mutationFn: async ({ post_id, path, ...form }: CustumCreateCommentLike) => {
-      return await client.likeComment(form);
-    },
+    mutationFn: (form: CustumCreateCommentLike) =>
+      client.likeComment(_.omit(form, ["path", "post_id"])),
     onMutate: ({ score, path }) => {
       patchComment(path, () => ({
         optimisticMyVote: score,
@@ -1017,9 +1050,8 @@ export function useCreateComment({
   const getCommentsKey = useCommentsKey();
 
   return useMutation({
-    mutationFn: async ({ parentPath, ...form }: CreateCommentWithPath) => {
-      return await client.createComment(form);
-    },
+    mutationFn: (form: CreateCommentWithPath) =>
+      client.createComment(_.omit(form, "parentPath")),
     onMutate: ({ post_id, parentPath, content }) => {
       const date = new Date();
       const isoDate = date.toISOString();
@@ -1173,16 +1205,8 @@ export function useEditComment() {
   const patchComment = useCommentsStore((s) => s.patchComment);
 
   return useMutation({
-    mutationFn: async ({
-      path,
-      ...form
-    }: {
-      comment_id: number;
-      content: string;
-      path: string;
-    }) => {
-      return await client.editComment(form);
-    },
+    mutationFn: (form: { comment_id: number; content: string; path: string }) =>
+      client.editComment(_.omit(form, "path")),
     onMutate: ({ path, content }) => {
       patchComment(path, (prev) => ({
         comment: {
@@ -1202,16 +1226,11 @@ export function useDeleteComment() {
   const patchComment = useCommentsStore((s) => s.patchComment);
   const cacheComment = useCommentsStore((s) => s.cacheComment);
   return useMutation({
-    mutationFn: async ({
-      path,
-      ...form
-    }: {
+    mutationFn: (form: {
       comment_id: number;
       path: string;
       deleted: boolean;
-    }) => {
-      return await client.deleteComment(form);
-    },
+    }) => client.deleteComment(_.omit(form, "path")),
     onMutate: ({ path, deleted }) => {
       patchComment(path, (prev) => ({
         ...prev,
@@ -1317,9 +1336,7 @@ export function useSearch(form: Search) {
   const limit = form.limit ?? 50;
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
-  const patchPost = usePostsStore((s) => s.patchPost);
-
-  const cacheImages = useSettingsStore((s) => s.cacheImages);
+  // const patchPost = usePostsStore((s) => s.patchPost);
 
   return useThrottledInfiniteQuery({
     queryKey,
@@ -1339,21 +1356,21 @@ export function useSearch(form: Search) {
         if (thumbnail) {
           setTimeout(() => {
             if (!cachedPosts[post.ap_id]?.data.imageDetails) {
-              measureImage(thumbnail).then((data) => {
-                patchPost(post.ap_id, {
-                  imageDetails: data,
-                });
-              });
+              // measureImage(thumbnail).then((data) => {
+              //   patchPost(post.ap_id, {
+              //     imageDetails: data,
+              //   });
+              // });
             }
-            // ExpoImage.prefetch([thumbnail], {
-            //   cachePolicy: cacheImages ? "disk" : "memory",
-            // });
           }, i);
           i += 50;
         }
       }
 
-      const { communities, comments, users } = res;
+      const {
+        communities,
+        // comments, users
+      } = res;
       return {
         communities,
         posts: posts.map((p) => p.post.ap_id),
@@ -1398,7 +1415,7 @@ export function useInstances() {
             }),
           )
           .parse(data);
-      } catch (error) {
+      } catch {
         return undefined;
       }
     },
@@ -1412,7 +1429,6 @@ export function useFollowCommunity() {
   const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
 
   const queryClient = useQueryClient();
-  const toast = useToastController();
 
   return useMutation({
     mutationFn: (form: { community: Community; follow: boolean }) => {
@@ -1438,9 +1454,7 @@ export function useFollowCommunity() {
       patchCommunity(slug, {
         optimisticSubscribed: undefined,
       });
-      toast.show("Couldn't follow community", {
-        preset: "error",
-      });
+      toast.error("Couldn't follow community");
     },
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -1453,7 +1467,6 @@ export function useFollowCommunity() {
 export function useMarkReplyRead() {
   const { client, queryKeyPrefix } = useLemmyClient();
   const queryClient = useQueryClient();
-  const toast = useToastController();
 
   const notificationCountQueryKey = useNotificationCountQueryKey();
 
@@ -1470,54 +1483,43 @@ export function useMarkReplyRead() {
       });
     },
     onError: (_, { read }) => {
-      toast.show(`Couldn't mark post ${read ? "read" : "unread"}`, {
-        preset: "error",
-      });
+      toast.error(`Couldn't mark post ${read ? "read" : "unread"}`);
     },
   });
 }
 
 export function useCreatePost() {
-  const router = useRouter();
+  const router = useIonRouter();
   const { client } = useLemmyClient();
-  const toast = useToastController();
   return useMutation({
     mutationFn: (form: CreatePost) => client.createPost(form),
     onSuccess: (res) => {
       const apId = res.post_view.post.ap_id;
       const slug = createCommunitySlug(res.post_view.community);
-      router.push(`/c/${slug}/posts/${encodeURIComponent(apId)}`);
+      router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
     },
     onError: () => {
-      toast.show("Couldn't create post", {
-        preset: "error",
-      });
+      toast.error("Couldn't create post");
     },
   });
 }
 
 export function useCreatePostReport() {
   const { client } = useLemmyClient();
-  const toast = useToastController();
   return useMutation({
     mutationFn: (form: CreatePostReport) => client.createPostReport(form),
     onError: () => {
-      toast.show("Couldn't create post report", {
-        preset: "error",
-      });
+      toast.error("Couldn't create post report");
     },
   });
 }
 
 export function useCreateCommentReport() {
   const { client } = useLemmyClient();
-  const toast = useToastController();
   return useMutation({
     mutationFn: (form: CreateCommentReport) => client.createCommentReport(form),
     onError: () => {
-      toast.show("Couldn't block person", {
-        preset: "error",
-      });
+      toast.error("Couldn't block person");
     },
   });
 }
@@ -1525,13 +1527,10 @@ export function useCreateCommentReport() {
 export function useBlockPerson() {
   const { client } = useLemmyClient();
 
-  const toast = useToastController();
   return useMutation({
     mutationFn: (form: BlockPerson) => client.blockPerson(form),
     onError: () => {
-      toast.show("Couldn't block person", {
-        preset: "error",
-      });
+      toast.error("Couldn't block person");
     },
   });
 }
@@ -1544,8 +1543,6 @@ export function useSavePost(apId: string) {
   const postsQueryKey = usePostsKey({
     saved_only: true,
   });
-
-  const toast = useToastController();
 
   return useMutation({
     mutationFn: (form: SavePost) => client.savePost(form),
@@ -1567,9 +1564,7 @@ export function useSavePost(apId: string) {
       patchPost(apId, {
         optimisticSaved: undefined,
       });
-      toast.show(`Couldn't ${save ? "save" : "unsave"} post`, {
-        preset: "error",
-      });
+      toast.error(`Couldn't ${save ? "save" : "unsave"} post`);
     },
   });
 }
@@ -1577,8 +1572,6 @@ export function useSavePost(apId: string) {
 export function useDeletePost(apId: string) {
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
-
-  const toast = useToastController();
 
   return useMutation({
     mutationFn: (form: DeletePost) => client.deletePost(form),
@@ -1597,14 +1590,12 @@ export function useDeletePost(apId: string) {
       patchPost(apId, {
         optimisticDeleted: undefined,
       });
-      toast.show(`Couldn't ${deleted ? "delete" : "restore"} post`, {
-        preset: "error",
-      });
+      toast.error(`Couldn't ${deleted ? "delete" : "restore"} post`);
     },
   });
 }
 
-function useMarkPostRead() {
+export function useMarkPostRead() {
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
 

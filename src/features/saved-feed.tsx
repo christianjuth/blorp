@@ -2,24 +2,33 @@ import {
   FeedPostCard,
   getPostProps,
   PostProps,
-} from "~/src/components/posts/post";
-import { isWeb, XStack, YStack } from "tamagui";
+} from "@/src/components/posts/post";
 import { ContentGutters } from "../components/gutters";
-import { useScrollToTop } from "@react-navigation/native";
-import { memo, useMemo, useRef, useState } from "react";
-import { useCustomTabBarHeight } from "../components/nav/bottom-tab-bar";
+import { memo, useMemo, useState } from "react";
 import { FlashList } from "../components/flashlist";
 import { useComments, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
-import { ToggleGroup } from "../components/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
-import { Markdown } from "../components/markdown";
-import { Link } from "one";
+import { MarkdownRenderer } from "../components/markdown/renderer";
 import { useLinkContext } from "../components/nav/link-context";
 import { encodeApId } from "../lib/lemmy/utils";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
+import { Link } from "react-router-dom";
+import {
+  IonBackButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
+import { UserDropdown } from "../components/nav";
+import { Title } from "../components/title";
+import { useFiltersStore } from "../stores/filters";
 
 const EMPTY_ARR = [];
 
@@ -62,50 +71,42 @@ function Comment({ path }: { path: string }) {
 
   return (
     <Link
-      href={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
+      className="border-b pb-4 mt-4"
+      to={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
     >
-      <YStack py="$3" bbw={1} bbc="$color4" flex={1}>
-        <Markdown markdown={comment.content} />
-      </YStack>
+      <MarkdownRenderer markdown={comment.content} />
     </Link>
   );
 }
 
-export function SavedFeed() {
-  const [type, setType] = useState<"posts" | "comments">("posts");
+export default function SavedFeed() {
+  const [type, setType] = useState<"posts" | "comments" | "all">("all");
 
   const comments = useComments({
     saved_only: true,
     type_: "All",
   });
 
+  const postSort = useFiltersStore((s) => s.postSort);
   const posts = usePosts({
     limit: 50,
     saved_only: true,
     type_: "All",
   });
 
-  const tabBar = useCustomTabBarHeight();
-
-  const ref = useRef(null);
-  useScrollToTop(ref);
-
   const {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
     refetch,
-    isRefetching,
+    // isRefetching,
   } = posts;
 
   const postCache = usePostsStore((s) => s.posts);
 
   const data = useMemo(() => {
-    if (type === "comments") {
-      return (
-        comments.data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR
-      );
-    }
+    const commentViews =
+      comments.data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR;
 
     const postIds = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
@@ -116,96 +117,92 @@ export function SavedFeed() {
       })
       .filter(isNotNull);
 
-    return postViews;
-  }, [posts.data?.pages, comments.data?.pages, postCache]);
+    switch (type) {
+      case "posts":
+        return postViews;
+      case "comments":
+        return commentViews;
+      default:
+        return [...postViews, ...commentViews].sort((a, b) => {
+          const aPublished = isPost(a)
+            ? a.published
+            : (a as { published: string }).published;
+          const bPublished = isPost(b)
+            ? b.published
+            : (b as { published: string }).published;
+          return bPublished.localeCompare(aPublished);
+        });
+    }
+  }, [posts.data?.pages, comments.data?.pages, postCache, type]);
 
   return (
-    <PostReportProvider>
-      <FlashList<Item>
-        ref={ref}
-        data={[HEADER, ...data]}
-        renderItem={({ item }) => {
-          if (item === HEADER) {
-            return (
-              <ContentGutters bg="$background">
-                <XStack
-                  flex={1}
-                  py="$3"
-                  gap="$3"
-                  bbc="$color3"
-                  bbw={1}
-                  $md={{
-                    bbw: 0.5,
-                    pt: "$2",
-                    px: "$3",
-                  }}
-                  ai="center"
-                >
-                  <ToggleGroup
-                    defaultValue={type}
-                    options={[
-                      { value: "posts", label: "Posts" },
-                      { value: "comments", label: "Comments" },
-                    ]}
-                    onValueChange={(newType) => {
-                      setTimeout(() => {
-                        setType(newType);
-                      }, 0);
-                    }}
-                  />
-                </XStack>
-                <></>
-              </ContentGutters>
-            );
-          }
+    <IonPage>
+      <Title>Saved</Title>
+      <IonHeader>
+        <IonToolbar data-tauri-drag-region>
+          <IonButtons slot="start">
+            <IonBackButton text="" />
+          </IonButtons>
+          <IonTitle data-tauri-drag-region>Saved</IonTitle>
+          <IonButtons slot="end">
+            <UserDropdown />
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent scrollY={false}>
+        <PostReportProvider>
+          <FlashList<Item>
+            key={type === "comments" ? "comments" : type + postSort}
+            className="h-full ion-content-scroll-host"
+            data={[HEADER, ...data]}
+            renderItem={({ item }) => {
+              if (item === HEADER) {
+                return (
+                  <ContentGutters className="bg-background py-2">
+                    <div className="flex-1">
+                      <ToggleGroup
+                        type="single"
+                        variant="outline"
+                        size="sm"
+                        value={type}
+                        onValueChange={(val) =>
+                          val && setType(val as "posts" | "comments" | "all")
+                        }
+                      >
+                        <ToggleGroupItem value="all">All</ToggleGroupItem>
+                        <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                        <ToggleGroupItem value="comments">
+                          comments
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                    </div>
+                    <></>
+                  </ContentGutters>
+                );
+              }
 
-          if (isPost(item)) {
-            return (
-              <ContentGutters>
-                <Post {...item} />
-                <></>
-              </ContentGutters>
-            );
-          }
+              if (isPost(item)) {
+                return <Post {...item} />;
+              }
 
-          return (
-            <ContentGutters>
-              <Comment path={item.path} />
-              <></>
-            </ContentGutters>
-          );
-        }}
-        onEndReached={() => {
-          if (hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-          }
-        }}
-        onEndReachedThreshold={0.5}
-        keyExtractor={(item) =>
-          _.isString(item) ? item : isPost(item) ? item.apId : item.path
-        }
-        getItemType={(item) => {
-          if (_.isString(item)) {
-            return item;
-          } else if (isPost(item)) {
-            return item.recyclingType;
-          } else {
-            return "comment";
-          }
-        }}
-        contentContainerStyle={{
-          paddingBottom: isWeb ? tabBar.height : 0,
-        }}
-        refreshing={isRefetching}
-        onRefresh={() => {
-          if (!isRefetching) {
-            refetch();
-          }
-        }}
-        scrollEventThrottle={16}
-        estimatedItemSize={475}
-        stickyHeaderIndices={[0]}
-      />
-    </PostReportProvider>
+              return (
+                <ContentGutters>
+                  <Comment path={item.path} />
+                  <></>
+                </ContentGutters>
+              );
+            }}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }
+            }}
+            estimatedItemSize={475}
+            stickyHeaderIndices={[0]}
+            refresh={refetch}
+          />
+        </PostReportProvider>
+      </IonContent>
+    </IonPage>
   );
 }

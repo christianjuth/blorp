@@ -1,55 +1,10 @@
-import { View, Text, XStack, ScrollView, Avatar, YStack } from "tamagui";
-import { Link } from "one";
-import { useListCommunities } from "~/src/lib/lemmy/index";
-import { createCommunitySlug } from "../lib/lemmy/utils";
-import dayjs from "dayjs";
-import localizedFormat from "dayjs/plugin/localizedFormat";
-import { useCustomHeaderHeight } from "~/src/components/nav/hooks";
-import { useWindowDimensions } from "react-native";
-import { CommunityView } from "lemmy-js-client";
-import { abbriviateNumber } from "~/src/lib/format";
+import { useListCommunities } from "@/src/lib/lemmy/index";
 import { useFiltersStore } from "../stores/filters";
 import _ from "lodash";
-
-dayjs.extend(localizedFormat);
-
-function SmallComunityCard({
-  communityView,
-}: {
-  communityView: CommunityView;
-}) {
-  const { community, counts } = communityView;
-  const slug = createCommunitySlug(community);
-  return (
-    <Link href={`/c/${slug}`} asChild>
-      <XStack ai="center" gap="$3" tag="a">
-        <Avatar size="$2.5" borderRadius="$12">
-          <Avatar.Image src={community.icon} />
-          <Avatar.Fallback
-            backgroundColor="$color8"
-            borderRadius="$12"
-            ai="center"
-            jc="center"
-          >
-            <Text fontSize="$4">{community.title.substring(0, 1)}</Text>
-          </Avatar.Fallback>
-        </Avatar>
-        <YStack gap="$0.5">
-          <Text fontSize="$3">c/{community.name}</Text>
-          <Text fontSize="$3" color="$color10">
-            {abbriviateNumber(counts.subscribers)} members
-          </Text>
-        </YStack>
-      </XStack>
-    </Link>
-  );
-}
+import { CommunityCard } from "./communities/community-card";
 
 export function PopularCommunitiesSidebar() {
   const listingType = useFiltersStore((s) => s.listingType);
-
-  const header = useCustomHeaderHeight();
-  const dimensions = useWindowDimensions();
 
   const { data } = useListCommunities({
     sort: "TopWeek",
@@ -64,20 +19,16 @@ export function PopularCommunitiesSidebar() {
   }
 
   return (
-    <View height={dimensions.height - header.height} position="absolute">
-      <ScrollView zIndex="$5" showsVerticalScrollIndicator={false}>
-        <YStack gap="$3" py="$4">
-          <Text color="$color10" fontSize="$3">
-            {listingType === "All" && "POPULAR COMMUNITIES"}
-            {listingType === "Local" && "POPULAR COMMUNITIES"}
-            {listingType === "Subscribed" && "SUBSCRIBED"}
-          </Text>
+    <div className="gap-3 flex flex-col py-4 absolute inset-x-0 h-[calc(100vh-60px)] overflow-auto">
+      <span className="text-xs text-muted-foreground">
+        {listingType === "All" && "POPULAR COMMUNITIES"}
+        {listingType === "Local" && "POPULAR COMMUNITIES"}
+        {listingType === "Subscribed" && "SUBSCRIBED"}
+      </span>
 
-          {communities?.map((view) => (
-            <SmallComunityCard key={view.community.id} communityView={view} />
-          ))}
-        </YStack>
-      </ScrollView>
-    </View>
+      {communities?.map((view) => (
+        <CommunityCard key={view.community.id} communityView={view} size="sm" />
+      ))}
+    </div>
   );
 }

@@ -1,11 +1,11 @@
-import { ButtonProps } from "tamagui";
-import { useFollowCommunity } from "~/src/lib/lemmy/index";
-import { useAuth } from "~/src/stores/auth";
-import { useCommunitiesStore } from "~/src/stores/communities";
-import { Button } from "~/src/components/ui/button";
+import { Button } from "../ui/button";
+import { useFollowCommunity } from "@/src/lib/lemmy/index";
+import { useAuth } from "@/src/stores/auth";
+import { useCommunitiesStore } from "@/src/stores/communities";
 
-interface Props extends ButtonProps {
+interface Props {
   communityName: string | undefined;
+  className?: string;
 }
 
 export function CommunityJoinButton({ communityName, ...props }: Props) {
@@ -35,12 +35,9 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
 
   return (
     <Button
-      bg="$accentColor"
-      br="$12"
-      fontWeight="bold"
-      size="$3"
+      size="sm"
       {...props}
-      onPress={() => {
+      onClick={() => {
         if (communityView) {
           follow.mutate({
             community: communityView.community,

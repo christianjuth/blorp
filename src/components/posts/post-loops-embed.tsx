@@ -1,23 +1,29 @@
 import { useEffect, useState } from "react";
-import { Video } from "react-native-video";
-import { isWeb, View, XStack, YStack } from "tamagui";
-import { Image } from "../image";
-import { extractLoopsVideoSrc } from "~/src/lib/html-parsing";
-import { Link } from "one";
-import { Play } from "@tamagui/lucide-icons";
-import { isTauri } from "~/src/lib/tauri";
+import { extractLoopsVideoSrc } from "@/src/lib/html-parsing";
+import { isTauri } from "@/src/lib/tauri";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
-
-const AR = 9 / 16;
-const MAX_WIDTH_GT_MD = 700;
+import { Capacitor, CapacitorHttp } from "@capacitor/core";
+import { FiPlay } from "react-icons/fi";
 
 const getVideo = async (url: string) => {
-  try {
-    const res = await (isTauri() ? tauriFetch(url) : fetch(url));
-    const html = await res.text();
-    return extractLoopsVideoSrc(html);
-  } catch (err) {
-    return undefined;
+  if (isTauri()) {
+    try {
+      const res = await tauriFetch(url);
+      const html = await res.text();
+      return extractLoopsVideoSrc(html);
+    } catch {
+      return undefined;
+    }
+  }
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const res = await CapacitorHttp.get({
+        url,
+      });
+      return extractLoopsVideoSrc(res.data);
+    } catch {
+      return undefined;
+    }
   }
 };
 
@@ -36,71 +42,41 @@ export function PostLoopsEmbed({
     getVideo(url).then(setSrc);
   }, [url]);
 
-  const linkOut = isWeb && !isTauri();
+  const linkOut = !Capacitor.isNativePlatform() && !isTauri();
 
   const content = (
-    <XStack jc="center" pos="relative" bg="$gray1">
-      <YStack
-        flex={1}
-        aspectRatio={AR}
-        bg="black"
-        $md={{
-          mx: "$-3",
-          br: 0,
-        }}
-        $gtMd={{
-          maxWidth: MAX_WIDTH_GT_MD * AR,
-          maxHeight: MAX_WIDTH_GT_MD,
-        }}
-      >
+    <div className="bg-muted max-md:contents relative">
+      <div className="aspect-[9/16] md:max-w-xs mx-auto relative max-md:-mx-2.5">
         {!src && thumbnail && (
-          <Image
-            imageUrl={thumbnail}
-            style={{
-              height: "100%",
-              width: "100%",
-            }}
+          <img
+            src={thumbnail}
+            className="absolute inset-0 w-full h-full object-cover"
           />
         )}
         {!linkOut && src && (
-          <Video
-            style={{
-              height: "100%",
-              width: "100%",
-            }}
-            source={{
-              uri: src,
-            }}
+          <video
+            src={src}
             controls
-            resizeMode="contain"
-            paused={!autoPlay}
+            className="absolute inset-0 h-full w-full object-cover"
+            autoPlay={autoPlay}
+            playsInline
+            poster={thumbnail}
           />
         )}
-      </YStack>
+      </div>
 
       {linkOut && (
-        <View
-          br={99999}
-          p="$4"
-          bg="$color05"
-          pos="absolute"
-          t="50%"
-          l="50%"
-          transform={[{ translateX: "-50%" }, { translateY: "-50%" }]}
-          hoverStyle={{
-            opacity: 0.8,
-          }}
-        >
-          <Play color="white" size="$3" />
-        </View>
+        <div className="absolute top-1/2 left-1/2 text-4xl bg-black/50 p-5 rounded-full aspect-square -translate-x-1/2 -translate-y-1/2">
+          <FiPlay color="white" className="m-auto translate-x-0.5" />
+        </div>
       )}
-    </XStack>
+    </div>
   );
 
   return linkOut ? (
-    <Link href={url as any} target="_blank">
+    <a href={url} target="_blank" rel="noopener noreferrer">
       {content}
-    </Link>
+    </a>
   ) : (
     content
   );

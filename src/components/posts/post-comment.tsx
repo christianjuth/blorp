@@ -1,69 +1,64 @@
-import { View, Text, XStack, YStack, Avatar } from "tamagui";
-import { Markdown } from "~/src/components/markdown";
+import { MarkdownRenderer } from "../markdown/renderer";
 import _ from "lodash";
 import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
 import {
   InlineCommentReply,
-  useCommentReaplyContext,
+  useInlineCommentReplyState,
 } from "../comments/comment-reply-modal";
-import { useEffect, useState } from "react";
-import { useCommentsStore } from "~/src/stores/comments";
+import { useCommentsStore } from "@/src/stores/comments";
 import { RelativeTime } from "../relative-time";
-import { ActionMenu } from "~/src/components/ui/action-menu";
-import { Ellipsis } from "@tamagui/lucide-icons";
-import { useBlockPerson, useDeleteComment } from "~/src/lib/lemmy/index";
-import { Share } from "react-native";
-import { CommentMap } from "~/src/lib/comment-map";
+import { useBlockPerson, useDeleteComment } from "@/src/lib/lemmy/index";
+import { CommentMap } from "@/src/lib/comment-map";
 import { useShowCommentReportModal } from "./post-report";
 import { useRequireAuth } from "../auth-context";
-import { useAlert } from "../ui/alert";
 import { useLinkContext } from "../nav/link-context";
-import { Link } from "one";
 import { Person } from "lemmy-js-client";
-import { encodeApId } from "~/src/lib/lemmy/utils";
+import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
+import { Link } from "react-router-dom";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
+import { cn } from "@/src/lib/utils";
+import { ActionMenu } from "../action-menu";
+import { IoEllipsisHorizontal } from "react-icons/io5";
+import { useIonAlert } from "@ionic/react";
+import { Deferred } from "@/src/lib/deferred";
+import { PersonHoverCard } from "../person/person-hover-card";
+import { Share } from "@capacitor/share";
 
 function Byline({
   creator,
   publishedDate,
   authorType,
-  onPress,
 }: {
   creator: Pick<Person, "actor_id" | "avatar" | "name">;
   publishedDate: string;
   authorType?: "OP" | "Me";
-  onPress?: () => void;
 }) {
   const linkCtx = useLinkContext();
+  const slug = createSlug(creator);
   return (
-    <XStack ai="center">
-      <Avatar size={21} mr="$2">
-        <Avatar.Image src={creator.avatar} borderRadius="$12" />
-        <Avatar.Fallback
-          backgroundColor="$color8"
-          borderRadius="$12"
-          ai="center"
-          jc="center"
-        >
-          <Text fontSize="$1">
-            {creator.name?.substring(0, 1).toUpperCase()}
-          </Text>
-        </Avatar.Fallback>
+    <summary className="flex flex-row gap-1.5 items-center py-px">
+      <Avatar className="w-5 h-5">
+        <AvatarImage src={creator.avatar} />
+        <AvatarFallback className="text-xs">
+          {creator.name?.substring(0, 1).toUpperCase()}{" "}
+        </AvatarFallback>
       </Avatar>
-      <Link href={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}>
-        <Text fontSize="$3" fontWeight={500}>
-          {creator.name}
-          {authorType && <Text color={"$accentColor"}> ({authorType})</Text>}
-        </Text>
-      </Link>
-      <RelativeTime
-        prefix=" • "
-        time={publishedDate}
-        color="$color11"
-        fontSize="$3"
-      />
-
-      <View flex={1} onPress={onPress} h="100%" />
-    </XStack>
+      <PersonHoverCard actorId={creator.actor_id}>
+        <Link
+          to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}
+          className="text-sm overflow-ellipsis overflow-x-hidden"
+        >
+          {slug?.name}
+          <span className="italic text-muted-foreground">@{slug?.host}</span>
+          {authorType && <span> ({authorType})</span>}
+        </Link>
+      </PersonHoverCard>
+      <RelativeTime prefix=" • " time={publishedDate} className="text-sm" />
+    </summary>
   );
 }
 
@@ -86,28 +81,26 @@ export function PostComment({
   noBorder?: boolean;
   communityName?: string;
 }) {
-  const alrt = useAlert();
+  const [alrt] = useIonAlert();
+
   const showReportModal = useShowCommentReportModal();
   const requireAuth = useRequireAuth();
 
   const blockPerson = useBlockPerson();
 
-  const replyCtx = useCommentReaplyContext();
-  const [editing, setEditing] = useState(false);
-  const [replying, setReplying] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-
-  const { comment: commentPath, sort, ...rest } = commentMap;
+  const { comment: commentPath, ...rest } = commentMap;
 
   const commentView = useCommentsStore((s) =>
     commentPath ? s.comments[commentPath.path]?.data : undefined,
   );
 
-  // console.log(commentPath, commentView?.comment.content);
-
-  useEffect(() => {
-    setEditing(false);
-  }, [commentView?.comment.content]);
+  const edit = useInlineCommentReplyState(
+    commentView?.comment.ap_id,
+    commentView?.comment.content,
+  );
+  const reply = useInlineCommentReplyState(
+    commentView?.comment.ap_id + "reply",
+  );
 
   const deleteComment = useDeleteComment();
 
@@ -117,8 +110,8 @@ export function PostComment({
     return null;
   }
 
-  const sorted = _.entries(_.omit(rest)).sort(
-    ([id1, a], [id2, b]) => a.sort - b.sort,
+  const sorted = _.entries(_.omit(rest, "sort")).sort(
+    ([_id1, a], [_id2, b]) => a.sort - b.sort,
   );
 
   let color = "red";
@@ -145,24 +138,18 @@ export function PostComment({
 
   const comment = commentView.comment;
   const creator = commentView.creator;
-  const avatar = creator.avatar;
 
   const hideContent = comment.removed || comment.deleted;
 
   return (
-    <YStack
-      mt={level === 0 ? "$2" : undefined}
-      py={level === 0 ? "$3" : "$2"}
-      bg="$background"
-      bbc="$color3"
-      bbw={level === 0 && !noBorder ? 1 : 0}
-      $md={{
-        px: level === 0 ? "$2.5" : undefined,
-        bbw: level === 0 && !noBorder ? 0.5 : 0,
-      }}
-      flex={1}
-      w="100%"
-      opacity={comment.id < 0 ? 0.5 : undefined}
+    <details
+      open
+      className={cn(
+        "flex-1 pt-2",
+        level === 0 && "mt-2",
+        level === 0 && !noBorder && "border-b-[0.5px] pb-5",
+        comment.id < 0 && "opacity-50",
+      )}
     >
       <Byline
         creator={creator}
@@ -174,73 +161,54 @@ export function PostComment({
               ? "Me"
               : undefined
         }
-        onPress={() => setCollapsed((c) => !c)}
       />
 
-      <View
-        blw={2}
-        blc={color}
-        p="$2"
-        pr={0}
-        pb={0}
-        mt="$1"
-        ml={9}
-        ai="flex-start"
-        dsp={collapsed ? "none" : undefined}
+      <div
+        className="border-l-2 pl-1.5 ml-2 pt-1"
+        style={{ borderColor: color }}
       >
-        {comment.deleted && <Text fontStyle="italic">deleted</Text>}
-        {comment.removed && <Text fontStyle="italic">removed</Text>}
+        {comment.deleted && <span className="italic text-sm">deleted</span>}
+        {comment.removed && <span className="italic text-sm">removed</span>}
 
-        {!hideContent && (
-          <View $gtMd={{ dsp: editing ? "none" : undefined }} w="100%">
-            <Markdown markdown={comment.content} />
-          </View>
+        {!hideContent && !edit.isEditing && (
+          <MarkdownRenderer markdown={comment.content} />
         )}
 
-        {editing && (
+        {edit.isEditing && (
           <InlineCommentReply
+            state={edit}
             postId={comment.post_id}
             comment={comment}
             autoFocus
-            onCancel={() => setEditing(false)}
-            onSubmit={() => setEditing(false)}
+            // onCancel={() => edit.setIsEditing(false)}
+            // onSubmit={() => edit.setIsEditing(false)}
           />
         )}
 
-        <XStack
-          ai="center"
-          jc="flex-end"
-          w="100%"
-          mt="$1.5"
-          mb="$1"
-          mr="$1"
-          gap="$3"
-        >
+        <div className="flex flex-row items-center gap-5 text-sm text-muted-foreground justify-end pt-2.5">
           <ActionMenu
-            placement="top"
             actions={[
               {
-                label: "Share",
+                text: "Share",
                 onClick: () =>
                   Share.share({
                     url: `https://blorpblorp.xyz/c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
                   }),
-              },
+              } as const,
               ...(isMyComment && !comment.deleted
                 ? [
                     {
-                      label: "Edit",
+                      text: "Edit",
                       onClick: () => {
-                        setEditing((e) => !e);
-                        replyCtx.setComment(comment);
+                        edit.setIsEditing(!edit.isEditing);
                       },
-                    },
+                    } as const,
                   ]
                 : []),
               ...(isMyComment
                 ? [
                     {
-                      label: comment.deleted ? "Restore" : "Delete",
+                      text: comment.deleted ? "Restore" : "Delete",
                       onClick: () => {
                         deleteComment.mutate({
                           comment_id: comment.id,
@@ -249,55 +217,65 @@ export function PostComment({
                         });
                       },
                       danger: true,
-                    },
+                    } as const,
                   ]
                 : [
                     {
-                      label: "Report",
+                      text: "Report",
                       onClick: () =>
                         requireAuth().then(() => showReportModal(comment.path)),
                       danger: true,
-                    },
+                    } as const,
                     {
-                      label: "Block person",
+                      text: "Block person",
                       onClick: async () => {
                         try {
                           await requireAuth();
-                          await alrt(`Block ${commentView.creator.name}`);
+                          const deferred = new Deferred();
+                          alrt({
+                            message: `Block ${commentView.creator.name}`,
+                            buttons: [
+                              {
+                                text: "Cancel",
+                                role: "cancel",
+                                handler: () => deferred.reject(),
+                              },
+                              {
+                                text: "OK",
+                                role: "confirm",
+                                handler: () => deferred.resolve(),
+                              },
+                            ],
+                          });
+                          await deferred.promise;
                           blockPerson.mutate({
                             person_id: commentView.creator.id,
                             block: true,
                           });
-                        } catch (err) {}
+                        } catch {}
                       },
                       danger: true,
-                    },
+                    } as const,
                   ]),
             ]}
-            trigger={<Ellipsis size={16} />}
+            trigger={<IoEllipsisHorizontal size={16} />}
           />
 
-          <CommentReplyButton
-            onPress={() => {
-              setReplying(true);
-              replyCtx.setParentComment(commentView);
-            }}
-          />
+          <CommentReplyButton onClick={() => reply.setIsEditing(true)} />
           <CommentVoting commentView={commentView} />
-        </XStack>
+        </div>
 
-        {replying && (
+        {reply.isEditing && (
           <InlineCommentReply
+            state={reply}
             postId={comment.post_id}
             queryKeyParentId={queryKeyParentId}
-            onCancel={() => setReplying(false)}
-            onSubmit={() => setReplying(false)}
             parent={commentView}
             autoFocus
           />
         )}
 
-        {sorted.map(([id, map], i) => (
+        {sorted.map(([id, map]) => (
           <PostComment
             postApId={postApId}
             queryKeyParentId={queryKeyParentId}
@@ -309,7 +287,7 @@ export function PostComment({
             communityName={communityName}
           />
         ))}
-      </View>
-    </YStack>
+      </div>
+    </details>
   );
 }

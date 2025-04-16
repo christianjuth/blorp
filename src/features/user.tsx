@@ -1,23 +1,20 @@
 import { ContentGutters } from "../components/gutters";
 import { abbriviateNumber } from "../lib/format";
 import { usePersonDetails, usePersonFeed } from "../lib/lemmy";
-import { Avatar, Text, View, XStack, YStack } from "tamagui";
 import {
   FeedPostCard,
   getPostProps,
+  PostCardSkeleton,
   PostProps,
 } from "../components/posts/post";
-import { Markdown } from "../components/markdown";
+import { MarkdownRenderer } from "../components/markdown/renderer";
 import { FlashList } from "../components/flashlist";
 import { PostSortBar } from "../components/lemmy-sort";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { useScrollToTop } from "@react-navigation/native";
-import { useNavigation, Link } from "one";
-import { CakeSlice } from "@tamagui/lucide-icons";
+import { memo, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { decodeApId, encodeApId } from "../lib/lemmy/utils";
-import { ToggleGroup } from "../components/ui/toggle-group";
+import { createPersonSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
+import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
 import { useLinkContext } from "../components/nav/link-context";
@@ -25,18 +22,37 @@ import { useProfilesStore } from "../stores/profiles";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
 import { CommentView } from "lemmy-js-client";
+import { Link, useParams } from "react-router-dom";
+import {
+  IonBackButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
+import { UserDropdown } from "../components/nav";
+import { Title } from "../components/title";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
+import { LuCakeSlice } from "react-icons/lu";
+import { useMedia } from "../lib/hooks";
+import { PostReportProvider } from "../components/posts/post-report";
+import { Skeleton } from "../components/ui/skeleton";
+import { useFiltersStore } from "../stores/filters";
 
-const BANNER = "banner";
-const POST_SORT_BAR = "post-sort-bar";
-
-type Item = typeof BANNER | typeof POST_SORT_BAR | PostProps | CommentView;
+type Item = PostProps | CommentView;
 
 function isPost(item: Item): item is PostProps {
   return _.isObject(item) && "apId" in item;
 }
 
 const Post = memo((props: PostProps) => (
-  <ContentGutters>
+  <ContentGutters className="px-0">
     <FeedPostCard {...props} />
     <></>
   </ContentGutters>
@@ -60,12 +76,14 @@ const Comment = memo(function Comment({ path }: { path: string }) {
   return (
     <ContentGutters>
       <Link
-        href={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
-        asChild
+        to={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
+        className="py-2 border-b flex-1 overflow-hidden"
       >
-        <YStack py="$3" bbw={1} bbc="$color4" flex={1} tag="a">
-          <Markdown markdown={comment.content} />
-        </YStack>
+        {comment.deleted ? (
+          <span className="text-sm text-muted-foreground italic">deleted</span>
+        ) : (
+          <MarkdownRenderer markdown={comment.content} />
+        )}
       </Link>
       <></>
     </ContentGutters>
@@ -76,32 +94,24 @@ dayjs.extend(localizedFormat);
 
 const EMPTY_ARR = [];
 
-export function User({ userId }: { userId?: string }) {
+export default function User() {
+  const media = useMedia();
+  const { userId } = useParams<{ userId: string }>();
+
   const actorId = userId ? decodeApId(userId) : undefined;
 
-  const [type, setType] = useState<"posts" | "comments">("posts");
+  const [type, setType] = useState<"posts" | "comments" | "all">("all");
 
-  const personQuery = usePersonDetails({ actorId });
+  const postSort = useFiltersStore((s) => s.postSort);
+  usePersonDetails({ actorId });
   const {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-    isRefetching,
+    // isRefetching,
     refetch,
     data,
   } = usePersonFeed({ actorId });
-
-  const ref = useRef(null);
-  useScrollToTop(ref);
-
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    const person = personQuery.data?.person_view.person;
-    if (person) {
-      navigation.setOptions({ title: person.display_name ?? person.name });
-    }
-  }, [personQuery.data?.person_view]);
 
   const personView = useProfilesStore((s) =>
     actorId ? s.profiles[actorId]?.data : undefined,
@@ -113,9 +123,8 @@ export function User({ userId }: { userId?: string }) {
   const postCache = usePostsStore((s) => s.posts);
 
   const listData = useMemo(() => {
-    if (type === "comments") {
-      return data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR;
-    }
+    const commentViews =
+      data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR;
 
     const postIds = data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
@@ -126,185 +135,186 @@ export function User({ userId }: { userId?: string }) {
       })
       .filter(isNotNull);
 
-    return postViews;
-  }, [data?.pages, postCache]);
+    switch (type) {
+      case "posts":
+        return postViews;
+      case "comments":
+        return commentViews;
+      default:
+        return [...postViews, ...commentViews].sort((a, b) => {
+          const aPublished = isPost(a)
+            ? a.published
+            : (a as CommentView).comment.published;
+          const bPublished = isPost(b)
+            ? b.published
+            : (b as CommentView).comment.published;
+          return bPublished.localeCompare(aPublished);
+        });
+    }
+  }, [data?.pages, postCache, type]);
 
   if (!personView) {
     return null;
   }
 
   return (
-    <>
-      <ContentGutters>
-        <View flex={1} />
-        <YStack py="$4" br="$4" zIndex="$5" gap="$4" pos="absolute" w="100%">
-          <Text fontWeight="bold" fontSize="$5">
-            {personView.person.display_name ?? personView.person.name}
-          </Text>
-
-          <XStack ai="center" gap="$1.5">
-            <CakeSlice size="$1" color="$color11" />
-            <Text fontSize="$3" color="$color11">
-              Created {dayjs(personView.person.published).format("ll")}
-            </Text>
-          </XStack>
-
-          {person?.bio && <Markdown markdown={person.bio} />}
-
-          {counts && (
-            <XStack>
-              <YStack gap="$1" flex={1}>
-                <Text fontWeight="bold" fontSize="$4">
-                  {abbriviateNumber(counts.post_count)}
-                </Text>
-                <Text fontSize="$3" color="$color11">
-                  Posts
-                </Text>
-              </YStack>
-
-              <YStack gap="$1" flex={1}>
-                <Text fontWeight="bold" fontSize="$4">
-                  {abbriviateNumber(counts.comment_count)}
-                </Text>
-                <Text fontSize="$3" color="$color11">
-                  Comments
-                </Text>
-              </YStack>
-            </XStack>
-          )}
-        </YStack>
-      </ContentGutters>
-
-      <FlashList<Item>
-        ref={ref}
-        data={
-          [
-            BANNER,
-            // "sidebar-mobile",
-            POST_SORT_BAR,
-            ...listData,
-          ] as const
-        }
-        renderItem={({ item }) => {
-          // if (item === "sidebar-mobile") {
-          //   return communityName ? (
-          //     <ContentGutters>
-          //       <SmallScreenSidebar communityName={communityName} />
-          //       <></>
-          //     </ContentGutters>
-          //   ) : (
-          //     <></>
-          //   );
-          // }
-
-          if (item === "banner") {
-            return (
-              <ContentGutters>
-                <XStack ai="center" flex={1} $md={{ px: "$2" }}>
-                  <Avatar size="$5" mr="$2">
-                    <Avatar.Image src={person?.avatar} borderRadius="$12" />
-                    <Avatar.Fallback
-                      backgroundColor="$color8"
-                      borderRadius="$12"
-                      ai="center"
-                      jc="center"
-                    >
-                      <Text fontSize="$7">
-                        {person?.name?.substring(0, 1).toUpperCase()}
-                      </Text>
-                    </Avatar.Fallback>
-                  </Avatar>
-
-                  <YStack flex={1} py="$4" gap="$1">
-                    <Text fontWeight="bold" fontSize="$7">
-                      {personView.person.display_name ?? personView.person.name}
-                    </Text>
-                    <Text>u/{personView.person.name}</Text>
-                  </YStack>
-                </XStack>
-              </ContentGutters>
-            );
-          }
-
-          if (item === "post-sort-bar") {
-            return (
-              <ContentGutters>
-                <XStack
-                  flex={1}
-                  py="$2"
-                  gap="$3"
-                  bbc="$color3"
-                  bbw={1}
-                  $md={{
-                    bbw: 0.5,
-                    px: "$3",
-                  }}
-                  ai="center"
-                  bg="$background"
-                >
+    <IonPage>
+      <Title>{person ? createPersonSlug(person) : "Person"}</Title>
+      <IonHeader>
+        <IonToolbar data-tauri-drag-region>
+          <IonButtons slot="start">
+            <IonBackButton text="" />
+          </IonButtons>
+          <IonTitle data-tauri-drag-region>
+            {person ? createPersonSlug(person) : "Person"}
+          </IonTitle>
+          <IonButtons slot="end">
+            <UserDropdown />
+          </IonButtons>
+        </IonToolbar>
+        {media.maxMd && (
+          <IonToolbar>
+            <IonButtons slot="start">
+              <div className="flex flex-row items-center">
+                <div>
                   <ToggleGroup
-                    defaultValue={type}
-                    options={[
-                      { value: "posts", label: "Posts" },
-                      { value: "comments", label: "Comments" },
-                    ]}
-                    onValueChange={(newType) => {
-                      setTimeout(() => {
-                        setType(newType);
-                      }, 0);
-                    }}
-                  />
+                    type="single"
+                    variant="outline"
+                    size="sm"
+                    value={type}
+                    onValueChange={(val) =>
+                      val && setType(val as "posts" | "comments" | "all")
+                    }
+                  >
+                    <ToggleGroupItem value="all">All</ToggleGroupItem>
+                    <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                    <ToggleGroupItem value="comments">
+                      <span>Comments</span>
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+
+                {type === "posts" && (
+                  <>
+                    <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
+                    <PostSortBar align="start" />
+                  </>
+                )}
+              </div>
+            </IonButtons>
+          </IonToolbar>
+        )}
+      </IonHeader>
+      <IonContent scrollY={false}>
+        <ContentGutters className="max-md:hidden">
+          <div className="flex-1" />
+          <div className="absolute py-4 flex flex-col gap-3 w-full">
+            <Avatar className="h-13 w-13">
+              <AvatarImage src={person?.avatar} />
+              <AvatarFallback className="text-xl">
+                {person?.name?.substring(0, 1).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+
+            <span className="font-bold">
+              {personView.person.display_name ?? personView.person.name}
+            </span>
+
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <LuCakeSlice />
+              <span>
+                Created {dayjs(personView.person.published).format("ll")}
+              </span>
+            </div>
+
+            {person?.bio && <MarkdownRenderer markdown={person.bio} />}
+
+            <div className="grid grid-cols-2 grid-flow-dense text-sm">
+              <span className="font-semibold col-start-1 h-5">
+                {counts ? (
+                  abbriviateNumber(counts.post_count)
+                ) : (
+                  <Skeleton className="w-1/4 h-full" />
+                )}
+              </span>
+              <span className="col-start-1 text-sm text-muted-foreground">
+                Posts
+              </span>
+
+              <span className="font-semibold col-start-2 h-5">
+                {counts ? (
+                  abbriviateNumber(counts.comment_count)
+                ) : (
+                  <Skeleton className="w-1/4 h-full" />
+                )}
+              </span>
+              <span className="col-start-2 text-sm text-muted-foreground">
+                Comments
+              </span>
+            </div>
+          </div>
+        </ContentGutters>
+
+        <PostReportProvider>
+          <FlashList<Item>
+            key={type === "comments" ? "comments" : type + postSort}
+            className="h-full ion-content-scroll-host"
+            data={listData}
+            header={
+              <ContentGutters className="max-md:hidden">
+                <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
+                  <div>
+                    <ToggleGroup
+                      type="single"
+                      variant="outline"
+                      size="sm"
+                      value={type}
+                      onValueChange={(val) =>
+                        val && setType(val as "posts" | "comments" | "all")
+                      }
+                    >
+                      <ToggleGroupItem value="all">All</ToggleGroupItem>
+                      <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                      <ToggleGroupItem value="comments">
+                        <span>Comments</span>
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  </div>
 
                   {type === "posts" && (
                     <>
-                      <View h="$1" w={1} bg="$color6" />
-                      <PostSortBar />
+                      <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
+                      <PostSortBar align="start" />
                     </>
                   )}
-                </XStack>
+                </div>
                 <></>
               </ContentGutters>
-            );
-          }
+            }
+            renderItem={({ item }) => {
+              if (isPost(item)) {
+                return <Post {...item} />;
+              }
 
-          if (isPost(item)) {
-            return <Post {...item} />;
-          }
-
-          return <Comment path={item.comment.path} />;
-        }}
-        onEndReached={() => {
-          if (hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-          }
-        }}
-        onEndReachedThreshold={0.5}
-        keyExtractor={(item) =>
-          _.isString(item)
-            ? item
-            : isPost(item)
-              ? item.apId
-              : item.comment.ap_id
-        }
-        getItemType={(item) => {
-          if (_.isString(item)) {
-            return item;
-          } else if (isPost(item)) {
-            return item.recyclingType;
-          } else {
-            return "comment";
-          }
-        }}
-        refreshing={isRefetching}
-        onRefresh={() => {
-          if (!isRefetching) {
-            refetch();
-          }
-        }}
-        stickyHeaderIndices={[1]}
-        estimatedItemSize={475}
-        automaticallyAdjustContentInsets={false}
-      />
-    </>
+              return <Comment path={item.comment.path} />;
+            }}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }
+            }}
+            stickyHeaderIndices={[0]}
+            estimatedItemSize={475}
+            refresh={refetch}
+            placeholder={
+              <ContentGutters className="px-0">
+                <PostCardSkeleton />
+                <></>
+              </ContentGutters>
+            }
+          />
+        </PostReportProvider>
+      </IonContent>
+    </IonPage>
   );
 }

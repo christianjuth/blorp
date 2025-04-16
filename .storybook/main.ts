@@ -1,7 +1,4 @@
 import type { StorybookConfig } from "@storybook/react-vite";
-import path from "path";
-
-import tsconfigPaths from "vite-tsconfig-paths";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
@@ -12,13 +9,14 @@ const config: StorybookConfig = {
     "@storybook/addon-interactions",
     "@storybook/addon-a11y",
   ],
-  framework: "@storybook/react-native-web-vite",
-  async viteFinal(config) {
-    config.plugins?.unshift(tsconfigPaths());
-    config.resolve!.alias = {
-      one: path.resolve(__dirname, "../test-utils/mocks/one.js"),
-    };
-    return config;
+  framework: "@storybook/react-vite",
+  core: {
+    builder: {
+      name: "@storybook/builder-vite",
+      options: {
+        viteConfigPath: "./vite-storybook.config.ts",
+      },
+    },
   },
 };
 export default config;

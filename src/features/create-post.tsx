@@ -1,29 +1,42 @@
 import { ContentGutters } from "../components/gutters";
-import { YStack, Input, XStack, Text, View } from "tamagui";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  MarkdownEditor,
-  MarkdownEditorState,
-} from "../components/markdown-editor";
-import { KeyboardAvoidingView, Pressable } from "react-native";
+import { useCallback, useState } from "react";
 import { useCreatePostStore } from "../stores/create-post";
-import { FlashList } from "~/src/components/flashlist";
-import { SmallCommunityCard } from "../components/communities/community-card";
-import { useListCommunities, useSearch } from "../lib/lemmy";
-import { Link, useRouter } from "one";
+import { FlashList } from "@/src/components/flashlist";
+import { CommunityCard } from "../components/communities/community-card";
+import { useCreatePost, useListCommunities, useSearch } from "../lib/lemmy";
 import _ from "lodash";
 import { Community } from "lemmy-js-client";
-import { ChevronDown, Check, X } from "@tamagui/lucide-icons";
-import { Image } from "../components/image";
 import { parseOgData } from "../lib/html-parsing";
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonModal,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
+import { MarkdownEditor } from "../components/markdown/editor";
+import { Button } from "../components/ui/button";
+import { close } from "ionicons/icons";
+import { FaCheck, FaChevronDown } from "react-icons/fa6";
+import { LuLoaderCircle } from "react-icons/lu";
+import { Input } from "../components/ui/input";
 
 const EMPTY_ARR = [];
 
-export function CreatePostStepOne() {
+export default function CreatePost() {
+  const [chooseCommunity, setChooseCommunity] = useState(false);
+
   const community = useCreatePostStore((s) => s.community);
 
-  const editorKey = useCreatePostStore((s) => s.key);
+  // const editorKey = useCreatePostStore((s) => s.key);
+
+  const reset = useCreatePostStore((s) => s.reset);
 
   const title = useCreatePostStore((s) => s.title);
   const setTitle = useCreatePostStore((s) => s.setTitle);
@@ -37,13 +50,7 @@ export function CreatePostStepOne() {
   const thumbnailUrl = useCreatePostStore((s) => s.thumbnailUrl);
   const setThumbnailUrl = useCreatePostStore((s) => s.setThumbnailUrl);
 
-  const editor = useMemo(() => new MarkdownEditorState(content), [editorKey]);
-
-  useEffect(() => {
-    return editor.addEventListener(() => {
-      setContent(editor.getState().content);
-    });
-  }, [editor]);
+  const createPost = useCreatePost();
 
   const parseUrl = (url: string) => {
     if (url) {
@@ -61,120 +68,100 @@ export function CreatePostStepOne() {
               setThumbnailUrl(ogData.image);
             }
           });
-      } catch (err) {}
+      } catch {}
     }
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-      <ContentGutters flex={1}>
-        <YStack flex={1} py="$4" px="$4" gap="$3" $gtMd={{ gap: "$5", px: 0 }}>
-          {community && (
-            <Link href="/create/choose-community" asChild>
-              <XStack ai="center" gap="$2" tag="a">
-                <SmallCommunityCard community={community} disableLink />
-                <ChevronDown />
-              </XStack>
-            </Link>
-          )}
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Create post</IonTitle>
 
-          <YStack>
-            <Text color="$color11" fontSize="$3">
-              Link
-            </Text>
-            <Input
-              placeholder="Link"
-              value={url}
-              $md={{
-                px: 0,
-                bw: 0,
-              }}
-              onChangeText={(newUrl) => {
-                setUrl(newUrl);
-                if (newUrl.length - (url?.length ?? 0) > 1) {
-                  parseUrl(newUrl);
+          <IonButtons slot="end">
+            <Button
+              size="sm"
+              onClick={() => {
+                if (!community) {
+                  setChooseCommunity(true);
+                } else {
+                  createPost
+                    .mutateAsync({
+                      name: title,
+                      community_id: community.id,
+                      body: content,
+                      url: url || undefined,
+                      custom_thumbnail: thumbnailUrl,
+                    })
+                    .then(() => reset());
                 }
               }}
-              color="$color11"
-              br={0}
-              bw={0}
-              bbw={1}
-              px={0}
-              fontSize="$5"
-              h="$3"
-              bc="$color4"
-            />
-          </YStack>
+            >
+              {community ? "Post" : "Next"}
+              {createPost.isPending && (
+                <LuLoaderCircle className="animate-spin" />
+              )}
+            </Button>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        <ChooseCommunity
+          isOpen={chooseCommunity}
+          closeModal={() => setChooseCommunity(false)}
+        />
 
-          <YStack>
-            <Text color="$color11" fontSize="$3">
-              Title
-            </Text>
+        <ContentGutters className="h-full">
+          <div className="flex flex-col py-4 gap-4">
+            {
+              <button
+                onClick={() => setChooseCommunity(true)}
+                className="flex flex-row items-center gap-2 h-9 self-start"
+              >
+                {community ? (
+                  <CommunityCard communityView={community} disableLink />
+                ) : (
+                  <span className="font-bold">Select a community</span>
+                )}
+                <FaChevronDown className="text-brand" />
+              </button>
+            }
+
             <Input
+              placeholder="Link (optional)"
+              className="border-b border-border"
+              value={url ?? ""}
+              onChange={(e) => setUrl(e.target.value)}
+              onBlur={() => url && parseUrl(url)}
+            />
+
+            <input
               placeholder="Title"
               value={title}
-              onChangeText={setTitle}
-              $md={{
-                px: 0,
-                bw: 0,
-              }}
-              br={0}
-              bw={0}
-              bbw={1}
-              px={0}
-              fontSize="$5"
-              h="$3"
-              bc="$color4"
+              onInput={(e) => setTitle(e.currentTarget.value ?? "")}
+              className="font-bold text-lg"
             />
-          </YStack>
 
-          {thumbnailUrl && (
-            <YStack gap="$2">
-              <Text color="$color11" fontSize="$3">
-                Image
-              </Text>
-              <XStack bbw={1} bc="$color4" pb="$3" ai="flex-start">
-                <View pos="relative">
-                  <Image imageUrl={thumbnailUrl} maxWidth={200} />
-                  <View
-                    tag="button"
-                    pos="absolute"
-                    bg="$background"
-                    br={9999}
-                    right={0}
-                    p={1}
-                    transform={[{ translateX: "50%" }, { translateY: "-50%" }]}
-                    onPress={() => setThumbnailUrl(undefined)}
-                  >
-                    <X color="red" />
-                  </View>
-                </View>
-              </XStack>
-            </YStack>
-          )}
-
-          <YStack bw={0} bc="$color4" flex={1} gap="$1">
-            <Text color="$color11" fontSize="$3">
-              Body
-            </Text>
             <MarkdownEditor
-              editor={editor}
-              style={{
-                flex: 1,
-                borderRadius: 0,
-              }}
-              placeholder="Body..."
-              scrollEnabled
+              content={content}
+              onChange={setContent}
+              className="-mx-3"
+              placeholder="Write something..."
             />
-          </YStack>
-        </YStack>
-      </ContentGutters>
-    </KeyboardAvoidingView>
+          </div>
+        </ContentGutters>
+      </IonContent>
+    </IonPage>
   );
 }
 
-export function CreatePostStepTwo() {
-  const router = useRouter();
+function ChooseCommunity({
+  isOpen,
+  closeModal,
+}: {
+  isOpen: boolean;
+  closeModal: () => void;
+}) {
   const recentCommunities = useRecentCommunitiesStore();
 
   const [search, setSearch] = useState("");
@@ -197,7 +184,7 @@ export function CreatePostStepTwo() {
   const searchResultsRes = useSearch({
     q: search,
     type_: "Communities",
-    limit: 10,
+    sort: "TopAll",
   });
 
   const searchResultsCommunities =
@@ -213,7 +200,7 @@ export function CreatePostStepTwo() {
     | "Search results"
   )[] = [
     "Recent",
-    ...recentCommunities.recentlyVisited,
+    ...recentCommunities.recentlyVisited.slice(0, 5),
     "Subscribed",
     ...subscribedCommunities,
   ];
@@ -233,53 +220,64 @@ export function CreatePostStepTwo() {
   });
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-      <ContentGutters p="$3" flex={1}>
-        <YStack flex={1} gap="$2">
-          <FlashList
-            data={data}
-            renderItem={({ item }) => {
-              if (typeof item === "string") {
-                return (
-                  <Text color="$color10" fontSize="$2" mt="$3">
-                    {item}
-                  </Text>
-                );
-              }
+    <IonModal isOpen={isOpen} onWillDismiss={closeModal}>
+      <IonHeader>
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonButton onClick={closeModal}>
+              <IonIcon icon={close} />
+            </IonButton>
+          </IonButtons>
 
+          <IonTitle>Choose Community</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent scrollY={false}>
+        <FlashList
+          className="h-full"
+          data={data}
+          stickyHeaderIndices={[0]}
+          header={
+            <ContentGutters className="bg-background">
+              <div className="border-b-[.5px] py-2">
+                <Input
+                  placeholder="Search communities"
+                  value={search}
+                  onChange={(e) => debouncedSetSearch(e.target.value)}
+                />
+              </div>
+            </ContentGutters>
+          }
+          renderItem={({ item }) => {
+            if (typeof item === "string") {
               return (
-                <Pressable
-                  onPress={() => {
-                    setCommunity(item);
-                    router.back();
-                  }}
-                >
-                  <XStack py="$2" ai="center" gap="$2">
-                    <SmallCommunityCard community={item} disableLink />
-                    {selectedCommunity &&
-                      item.actor_id === selectedCommunity?.actor_id && (
-                        <Check color="$accentColor" />
-                      )}
-                  </XStack>
-                </Pressable>
+                <ContentGutters className="py-2">
+                  <span className="text-muted-foreground text-sm">{item}</span>
+                </ContentGutters>
               );
-            }}
-            estimatedItemSize={50}
-            ListHeaderComponent={
-              <Input
-                onChangeText={debouncedSetSearch}
-                placeholder="Search communities..."
-              />
             }
-            keyExtractor={(item) =>
-              typeof item === "string" ? item : item.actor_id
-            }
-            getItemType={(item) =>
-              typeof item === "string" ? "title" : "community"
-            }
-          />
-        </YStack>
-      </ContentGutters>
-    </KeyboardAvoidingView>
+
+            return (
+              <ContentGutters className="cursor-pointer">
+                <button
+                  onClick={() => {
+                    setCommunity(item);
+                    closeModal();
+                  }}
+                  className="flex flex-row items-center gap-2"
+                >
+                  <CommunityCard communityView={item} disableLink />
+                  {selectedCommunity &&
+                    item.actor_id === selectedCommunity?.actor_id && (
+                      <FaCheck className="text-brand" />
+                    )}
+                </button>
+              </ContentGutters>
+            );
+          }}
+          estimatedItemSize={50}
+        />
+      </IonContent>
+    </IonModal>
   );
 }

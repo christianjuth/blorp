@@ -1,36 +1,28 @@
-import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
+import pRetry from "p-retry";
 
-const CACHE_VERSON = 2;
-
-import { QueryClient } from "@tanstack/react-query";
-import { persistQueryClient } from "@tanstack/react-query-persist-client";
+import { Persister } from "@tanstack/react-query-persist-client";
 import { createDb } from "../lib/create-storage";
+import * as Sentry from "@sentry/react";
 
-export const persist = async (queryClient: QueryClient) => {
-  const db = createDb("react-query");
-  const persister = {
-    persistClient: async (client) => {
-      await db.setItem("react-query-cache", JSON.stringify(client));
-    },
-    restoreClient: async () => {
-      const cache = await db.getItem("react-query-cache");
+const db = createDb("react-query");
+export const persister: Persister = {
+  persistClient: async (client) => {
+    await db.setItem("react-query-cache", JSON.stringify(client));
+  },
+  restoreClient: async () => {
+    try {
+      const cache = await pRetry(() => db.getItem("react-query-cache"), {
+        retries: 5,
+        onFailedAttempt: (err) => {
+          Sentry.captureException(err);
+        },
+      });
       return cache ? JSON.parse(cache) : undefined;
-    },
-    removeClient: async () => {
-      await db.removeItem("react-query-cache");
-    },
-  };
-
-  // Persist the QueryClient state to AsyncStorage
-  persistQueryClient({
-    queryClient,
-    persister,
-    buster: String(CACHE_VERSON),
-  });
-
-  // Enable multi-tab synchronization
-  broadcastQueryClient({
-    queryClient,
-    broadcastChannel: "react-query-sync",
-  });
+    } catch {
+      window.location.reload();
+    }
+  },
+  removeClient: async () => {
+    await db.removeItem("react-query-cache");
+  },
 };

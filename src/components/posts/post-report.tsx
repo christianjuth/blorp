@@ -1,11 +1,20 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import _ from "lodash";
-import { Modal } from "../ui/modal";
-import { TextArea, Text, YStack, Form, XStack } from "tamagui";
-import { usePostsStore } from "~/src/stores/posts";
+import { usePostsStore } from "@/src/stores/posts";
+import { useCreatePostReport, useCreateCommentReport } from "@/src/lib/lemmy";
+import { useCommentsStore } from "@/src/stores/comments";
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonModal,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
 import { Button } from "../ui/button";
-import { useCreatePostReport, useCreateCommentReport } from "~/src/lib/lemmy";
-import { useCommentsStore } from "~/src/stores/comments";
+import { MarkdownRenderer } from "../markdown/renderer";
+import { Textarea } from "../ui/textarea";
 
 const Context = createContext<{
   apId?: string;
@@ -44,80 +53,98 @@ export function PostReportProvider({
     [],
   );
 
+  const submit = () => {
+    if (post) {
+      createPostReport
+        .mutateAsync({
+          post_id: post.id,
+          reason,
+        })
+        .then(() => {
+          setReason("");
+          setApId(undefined);
+        });
+    } else if (comment) {
+      createCommentReport
+        .mutateAsync({
+          comment_id: comment.data.comment.id,
+          reason,
+        })
+        .then(() => {
+          setReason("");
+          setApId(undefined);
+        });
+    }
+  };
+
+  const cancel = () => {
+    setApId(undefined);
+    setCommentPath(undefined);
+  };
+
   return (
     <Context.Provider value={value}>
-      <Modal
-        open={!!post || !!commentPath}
-        onClose={() => {
+      <IonModal
+        isOpen={!!post || !!commentPath}
+        onDidDismiss={() => {
           setApId(undefined);
           setCommentPath(undefined);
         }}
       >
-        <Form
-          onSubmit={() => {
-            if (post) {
-              createPostReport
-                .mutateAsync({
-                  post_id: post.id,
-                  reason,
-                })
-                .then(() => {
-                  setReason("");
-                  setApId(undefined);
-                });
-            } else if (comment) {
-              createCommentReport
-                .mutateAsync({
-                  comment_id: comment.data.comment.id,
-                  reason,
-                })
-                .then(() => {
-                  setReason("");
-                  setApId(undefined);
-                });
-            }
-          }}
-        >
-          <YStack p="$3" gap="$3">
-            {post && (
-              <>
-                <Text fontWeight="bold">Report post</Text>
-                <Text>{post?.name}</Text>
-              </>
-            )}
+        <IonHeader>
+          <IonToolbar>
+            <IonButtons slot="start" className="md:hidden">
+              <IonButton onClick={cancel}>Cancel</IonButton>
+            </IonButtons>
+            <IonTitle>
+              Report {post && "Post"}
+              {comment && "Comment"}
+            </IonTitle>
+            <IonButtons slot="end" className="md:hidden">
+              <IonButton onClick={submit}>Submit</IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <form
+            className="h-full"
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit();
+            }}
+          >
+            <div className="p-3 h-full flex flex-col gap-3">
+              <div className="p-3 bg-secondary rounded-lg max-h-[250px] overflow-auto">
+                {post && <span className="font-bold">{post?.name}</span>}
 
-            {comment && (
-              <>
-                <Text fontWeight="bold">Report comment</Text>
-                <Text maxWidth={400} numberOfLines={3}>
-                  {comment.data.comment.content}
-                </Text>
-              </>
-            )}
+                {comment && (
+                  <MarkdownRenderer markdown={comment.data.comment.content} />
+                )}
+              </div>
 
-            <TextArea value={reason} onChangeText={setReason} />
+              <Textarea
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="Report reason"
+                className="flex-1 min-h-[200px]"
+              />
 
-            <XStack gap="$2">
-              <Button
-                size="$3"
-                f={1}
-                bg="$color9"
-                onPress={() => {
-                  setApId(undefined);
-                  setCommentPath(undefined);
-                }}
-              >
-                Cancel
-              </Button>
-              <Form.Trigger asChild>
-                <Button size="$3" f={1}>
-                  Submit
+              <div className="flex flex-row gap-3 justify-end max-md:hidden">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={cancel}
+                  type="button"
+                >
+                  Cancel
                 </Button>
-              </Form.Trigger>
-            </XStack>
-          </YStack>
-        </Form>
-      </Modal>
+
+                <Button>Submit</Button>
+              </div>
+            </div>
+          </form>
+        </IonContent>
+      </IonModal>
       {children}
     </Context.Provider>
   );

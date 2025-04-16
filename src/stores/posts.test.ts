@@ -1,6 +1,6 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, test, expect } from "vitest";
-import * as lemmy from "~/test-utils/lemmy";
+import * as lemmy from "@/test-utils/lemmy";
 import { usePostsStore } from "./posts";
 import { FlattenedPost, flattenPost } from "../lib/lemmy/utils";
 import _ from "lodash";

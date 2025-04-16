@@ -1,24 +1,44 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { isWeb, TamaguiProvider, YStack } from "tamagui";
-import { Appearance, Platform } from "react-native";
-import config from "~/config/tamagui/tamagui.config";
-import { persist } from "./query-storage";
-import { ScrollProvider } from "./nav/scroll-animation-context";
-import { AuthProvider } from "./auth-context";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { AlertProvider } from "./ui/alert";
-import _ from "lodash";
-import { useEffect, useState } from "react";
+import { QueryClient } from "@tanstack/react-query";
 import {
-  ToastProvider,
-  useToastState,
-  Toast,
-  ToastViewport,
-} from "@tamagui/toast";
-import { useCustomHeaderHeight } from "./nav/hooks";
+  Persister,
+  PersistQueryClientProvider,
+} from "@tanstack/react-query-persist-client";
+import _ from "lodash";
 import { useNotificationCount } from "../lib/lemmy";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { isTauri, updateTauri } from "../lib/tauri";
+import { AuthProvider } from "./auth-context";
+import { createDb } from "../lib/create-storage";
+import pRetry from "p-retry";
+import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
+import * as Sentry from "@sentry/react";
+import { Toaster } from "@/src/components/ui/sonner";
+
+const CACHE_VERSON = 3;
+
+const db = createDb("react-query");
+const persister: Persister = {
+  persistClient: async (client) => {
+    await db.setItem("react-query-cache", JSON.stringify(client));
+  },
+  restoreClient: async () => {
+    try {
+      const cache = await pRetry(() => db.getItem("react-query-cache"), {
+        retries: 5,
+        onFailedAttempt: (err) => {
+          Sentry.captureException(err);
+        },
+      });
+      return cache ? JSON.parse(cache) : undefined;
+    } catch (err) {
+      Sentry.captureException(err);
+      window.location.reload();
+    }
+  },
+  removeClient: async () => {
+    await db.removeItem("react-query-cache");
+  },
+};
 
 const ONE_WEEK = 1000 * 60 * 24 * 7;
 
@@ -33,7 +53,11 @@ const queryClient = new QueryClient({
   },
 });
 
-persist(queryClient);
+// Enable multi-tab synchronization
+broadcastQueryClient({
+  queryClient,
+  broadcastChannel: "react-query-sync",
+});
 
 updateTauri();
 
@@ -45,89 +69,18 @@ function RefreshNotificationCount() {
   return null;
 }
 
-function CurrentToast() {
-  const header = useCustomHeaderHeight();
-  const currentToast = useToastState();
-  return (
-    <>
-      {currentToast && !currentToast.isHandledNatively && (
-        <Toast
-          key={currentToast.id}
-          duration={currentToast.duration}
-          enterStyle={{ opacity: 0, scale: 0.5, y: -25 }}
-          exitStyle={{ opacity: 0, scale: 1, y: -20 }}
-          y={0}
-          opacity={1}
-          scale={1}
-          animation="100ms"
-          viewportName={currentToast.viewportName}
-          bg={currentToast.preset === "error" ? "$redDark" : undefined}
-        >
-          <YStack>
-            <Toast.Title
-              col={currentToast.preset === "error" ? "white" : undefined}
-            >
-              {currentToast.title}
-            </Toast.Title>
-            {!!currentToast.message && (
-              <Toast.Description>{currentToast.message}</Toast.Description>
-            )}
-          </YStack>
-        </Toast>
-      )}
-      <ToastViewport
-        flexDirection="column"
-        // top={header.height + 5}
-        top={header.insetTop + 7}
-        left={0}
-        right={0}
-        portalToRoot={isWeb}
-      />
-    </>
-  );
-}
-
-const TamaguiRootProvider = ({ children }: { children: React.ReactNode }) => {
-  const [scheme, setScheme] = useState(Appearance.getColorScheme() ?? "light");
-
-  useEffect(() => {
-    if (!isWeb) {
-      Appearance.setColorScheme(undefined);
-    }
-
-    const listener: Appearance.AppearanceListener = _.debounce((theme) => {
-      setScheme(theme.colorScheme ?? "light");
-    }, 500);
-
-    const { remove } = Appearance.addChangeListener(listener);
-
-    return () => remove();
-  }, []);
-
-  return (
-    <TamaguiProvider disableInjectCSS config={config} defaultTheme={scheme}>
-      {children}
-    </TamaguiProvider>
-  );
-};
-
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <SafeAreaProvider>
-      <TamaguiRootProvider>
-        <ToastProvider>
-          <ScrollProvider>
-            <QueryClientProvider client={queryClient}>
-              <RefreshNotificationCount />
-              <AlertProvider>
-                <AuthProvider>{children}</AuthProvider>
-              </AlertProvider>
-            </QueryClientProvider>
-          </ScrollProvider>
-
-          <CurrentToast />
-        </ToastProvider>
-      </TamaguiRootProvider>
-    </SafeAreaProvider>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister,
+        buster: String(CACHE_VERSON),
+      }}
+    >
+      <RefreshNotificationCount />
+      <AuthProvider>{children}</AuthProvider>
+      <Toaster />
+    </PersistQueryClientProvider>
   );
 }
