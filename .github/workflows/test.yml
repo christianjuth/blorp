@@ -29,9 +29,6 @@ jobs:
           corepack enable
           yarn install --immutable
 
-      - name: Build Tamagui One app
-        run: yarn one patch
-
       - name: Run Chromatic
         uses: chromaui/action@latest
         with:
