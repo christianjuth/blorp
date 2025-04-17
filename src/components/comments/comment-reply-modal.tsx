@@ -129,7 +129,7 @@ export function InlineCommentReply({
                 Cancel
               </IonButton>
             </IonButtons>
-            <IonTitle>Welcome</IonTitle>
+            <IonTitle>{parent ? "Reply to comment" : "Add comment"}</IonTitle>
             <IonButtons slot="end">
               <IonButton strong={true} onClick={handleSubmit}>
                 Confirm

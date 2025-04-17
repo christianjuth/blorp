@@ -89,15 +89,6 @@ export function CommentVoting({
         )}
       >
         {isDownvoted ? <PiArrowFatDownFill /> : <PiArrowFatDownBold />}
-        {/* <ArrowBigDown */}
-        {/*   // Not sure why this is nessesary, but */}
-        {/*   // it wasn't clearning the color without */}
-        {/*   // this when you undo your vote */}
-        {/*   key={isDownvoted ? 1 : 0} */}
-        {/*   size="$1" */}
-        {/*   fill={isDownvoted ? theme.red.val : theme.background.val} */}
-        {/*   color={isDownvoted ? "$red" : "$color11"} */}
-        {/* /> */}
       </button>
     </div>
   );
