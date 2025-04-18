@@ -161,14 +161,6 @@ export function SmallScreenSidebar({
     (s) => s.communities[getCachePrefixer()(communityName)]?.data,
   );
 
-  if (!data) {
-    return null;
-  }
-
-  const communityView = data.communityView;
-  const community = communityView.community;
-  const counts = communityView.counts;
-
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
     () => [
@@ -196,6 +188,14 @@ export function SmallScreenSidebar({
     ],
     [openSignal],
   );
+
+  if (!data) {
+    return null;
+  }
+
+  const communityView = data.communityView;
+  const community = communityView.community;
+  const counts = communityView.counts;
 
   return (
     <div className="md:hidden flex flex-col gap-3 py-4 flex-1 border-b-[.5px] px-2.5">

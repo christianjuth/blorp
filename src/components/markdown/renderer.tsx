@@ -15,6 +15,9 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { shareImage } from "@/src/lib/share";
 import { cn } from "@/src/lib/utils";
 
+const COMMUNITY_BANG =
+  /^!([A-Za-z0-9_-]+)@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})$/;
+
 function Image(
   props: DetailedHTMLProps<
     ImgHTMLAttributes<HTMLImageElement>,
@@ -40,21 +43,36 @@ function Image(
   return <img {...props} {...handlers()} />;
 }
 
-const options: HTMLReactParserOptions = {
+const options: (
+  root: "/home/" | "/communities/" | "/inbox/",
+) => HTMLReactParserOptions = (root) => ({
   replace: (domNode) => {
     // Check if the node is an anchor element
     if (domNode.type === "tag" && domNode.name === "a" && domNode.attribs) {
+      if (
+        domNode.children.length === 1 &&
+        "data" in domNode.children[0] &&
+        COMMUNITY_BANG.test(domNode.children[0].data)
+      ) {
+        const href = `${root}c/${domNode.children[0].data.substring(1)}`;
+        return (
+          <Link to={href}>
+            {domToReact(domNode.children as DOMNode[], options(root))}
+          </Link>
+        );
+      }
+
       const href = domNode.attribs.href ?? "";
       if (href.startsWith("/")) {
         return (
           <Link to={domNode.attribs.href}>
-            {domToReact(domNode.children as DOMNode[], options)}
+            {domToReact(domNode.children as DOMNode[], options(root))}
           </Link>
         );
       } else {
         return (
           <a href={href} target="_blank" rel="noreferrer noopener">
-            {domToReact(domNode.children as DOMNode[], options)}
+            {domToReact(domNode.children as DOMNode[], options(root))}
           </a>
         );
       }
@@ -79,7 +97,7 @@ const options: HTMLReactParserOptions = {
       return <Image {...domNode.attribs} />;
     }
   },
-};
+});
 
 function createMd(root: ReturnType<typeof useLinkContext>["root"]) {
   const md = markdownit({
@@ -151,7 +169,7 @@ export function MarkdownRenderer({
         className,
       )}
     >
-      {parse(RENDERERS[root].render(markdown), options)}
+      {parse(RENDERERS[root].render(markdown), options(root))}
     </div>
   );
 }
