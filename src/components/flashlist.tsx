@@ -17,6 +17,7 @@ import { subscribeToScrollEvent } from "../lib/scroll-events";
 import _ from "lodash";
 import { useElementHadFocus, useIsInAppBrowserOpen } from "../lib/hooks";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { useAuth } from "../stores/auth";
 
 function useRouterSafe() {
   try {
@@ -215,6 +216,8 @@ export function FlashList<T>({
 }) {
   const [key, setKey] = useState(0);
 
+  const accountIndex = useAuth((s) => s.accountIndex);
+
   const internalRef = useRef<HTMLDivElement>(null);
   const scrollRef = ref ?? internalRef;
 
@@ -260,7 +263,7 @@ export function FlashList<T>({
         onScroll={onScroll}
       >
         <FlashListInternal
-          key={`${key}-${props.numColumns}`}
+          key={`${key}-${props.numColumns}-${accountIndex}`}
           {...props}
           ref={scrollRef}
           onFocusChange={(newFocused) => {

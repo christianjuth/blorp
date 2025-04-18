@@ -5,6 +5,7 @@ import {
 } from "@capacitor/inappbrowser";
 import { isTauri } from "@/src/lib/tauri";
 import { cn } from "@/src/lib/utils";
+import { Capacitor } from "@capacitor/core";
 
 export function PostArticleEmbed({
   url,
@@ -28,7 +29,7 @@ export function PostArticleEmbed({
         if (isTauri()) {
           e.preventDefault();
           openUrl(url);
-        } else {
+        } else if (Capacitor.isNativePlatform()) {
           e.preventDefault();
           InAppBrowser.openInSystemBrowser({
             url,

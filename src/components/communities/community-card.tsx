@@ -71,6 +71,7 @@ export function CommunityCard({
   if (disableLink) {
     return (
       <div
+        data-testid="community-card"
         className={cn(
           "flex flex-row gap-2 items-center flex-shrink-0 h-12",
           size === "sm" && "h-9",
@@ -84,6 +85,7 @@ export function CommunityCard({
 
   return (
     <Link
+      data-testid="community-card"
       to={`${linkCtx.root}c/${slug?.slug}`}
       className={cn(
         "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full",

@@ -205,6 +205,7 @@ export function FeedPostCard(props: PostProps) {
 
   return (
     <div
+      data-testid="post-card"
       className={cn(
         "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-2.5",
         detailView ? "pb-2" : "border-b-[0.5px] pb-4",

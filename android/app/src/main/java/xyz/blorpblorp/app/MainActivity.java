@@ -1,4 +1,4 @@
-package xyz.blorp.app;
+package xyz.blorpblorp.app;
 
 import com.getcapacitor.BridgeActivity;
 

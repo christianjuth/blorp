@@ -9059,6 +9059,7 @@ __metadata:
     jsdom: "npm:^26.0.0"
     lemmy-js-client: "npm:0.20.0-pkce.1"
     lint-staged: "npm:^15.3.0"
+    lite-youtube-embed: "npm:^0.3.3"
     lodash: "npm:^4.17.21"
     lowlight: "npm:^3.3.0"
     lucide-react: "npm:^0.484.0"
@@ -9280,6 +9281,13 @@ __metadata:
     rfdc: "npm:^1.4.1"
     wrap-ansi: "npm:^9.0.0"
   checksum: 10c0/f5a9599514b00c27d7eb32d1117c83c61394b2a985ec20e542c798bf91cf42b19340215701522736f5b7b42f557e544afeadec47866e35e5d4f268f552729671
+  languageName: node
+  linkType: hard
+
+"lite-youtube-embed@npm:^0.3.3":
+  version: 0.3.3
+  resolution: "lite-youtube-embed@npm:0.3.3"
+  checksum: 10c0/de44c657d429bb73d417eb84e7dc5149239a067e218112ba91c901293562985d8c63589b65ce80b1c49a3fa51fb46f379d6ee0f1f9acd81eeba83c59d3e287ee
   languageName: node
   linkType: hard
 

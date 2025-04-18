@@ -38,7 +38,7 @@ export default function Support() {
 
               <a
                 className="text-brand"
-                href="mailto:support@https://blorpblorp.xyz/"
+                href="mailto:support@blorpblorp.xyz"
                 rel="noopener noreferrer"
               >
                 Email support!

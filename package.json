@@ -83,6 +83,7 @@
     "idb": "^8.0.0",
     "input-otp": "^1.4.2",
     "lemmy-js-client": "0.20.0-pkce.1",
+    "lite-youtube-embed": "^0.3.3",
     "lodash": "^4.17.21",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.484.0",

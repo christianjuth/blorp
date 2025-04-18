@@ -31,6 +31,7 @@ import { dispatchScrollEvent } from "./lib/scroll-events";
 import { isTauri } from "./lib/tauri";
 import { CommunityCard } from "./components/communities/community-card";
 
+const CSAE = lazy(() => import("@/src/features/csae"));
 const NotFound = lazy(() => import("@/src/features/not-found"));
 const Download = lazy(() => import("@/src/features/download"));
 const Inbox = lazy(() => import("@/src/features/inbox"));
@@ -336,6 +337,7 @@ function Tabs() {
             <Route exact path="/download" component={Download} />
             <Route exact path="/support" component={Support} />
             <Route exact path="/privacy" component={Privacy} />
+            <Route exact path="/csae" component={CSAE} />
             <Redirect exact from="/" to="/home" />
           </IonRouterOutlet>
 

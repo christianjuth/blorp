@@ -369,7 +369,7 @@ export default function SettingsPage() {
               onClick={() => setLogoClicks((c) => c + 1)}
             >
               <Logo />
-              <span>v{version}</span>
+              <span className="text-muted-foreground">v{version}</span>
             </div>
           </div>
         </ContentGutters>

@@ -1,5 +1,8 @@
 import { parseYouTubeVideoId } from "../lib/youtube";
 
+import "lite-youtube-embed/src/lite-yt-embed.css";
+import "lite-youtube-embed/src/lite-yt-embed.js";
+
 export function YouTubeVideoEmbed({ url }: { url?: string }) {
   const videoId = url ? parseYouTubeVideoId(url) : undefined;
 
@@ -8,14 +11,8 @@ export function YouTubeVideoEmbed({ url }: { url?: string }) {
   }
   return (
     <div className="aspect-video rounded-xl overflow-hidden">
-      <iframe
-        style={{
-          height: "100%",
-          width: "100%",
-          borderWidth: 0,
-        }}
-        src={`https://www.youtube.com/embed/${videoId}`}
-      />
+      {/* @ts-expect-error*/}
+      <lite-youtube videoid={videoId} />
     </div>
   );
 }

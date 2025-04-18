@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Blorp</string>
     <string name="title_activity_main">Blorp</string>
-    <string name="package_name">xyz.blorp.app</string>
-    <string name="custom_url_scheme">xyz.blorp.app</string>
+    <string name="package_name">xyz.blorpblorp.app</string>
+    <string name="custom_url_scheme">xyz.blorpblorp.app</string>
 </resources>

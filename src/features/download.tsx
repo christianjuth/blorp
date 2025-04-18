@@ -51,7 +51,9 @@ function Card({
         )}
       >
         {icon}
-        <span className="text-sm text-muted-foreground">{description}</span>
+        <span className="text-sm text-muted-foreground text-center">
+          {description}
+        </span>
 
         {downloadLink && (
           <div className="flex flex-row gap-1">
@@ -126,7 +128,7 @@ const CARDS: { os: string; card: ReactNode }[] = [
     card: (
       <Card
         icon={<FcAndroidOs className="text-5xl" />}
-        description="Comming soon"
+        description="Closed beta testing, message moseschrute@lemmy.ml to join."
         os="Android"
       />
     ),
