@@ -30,8 +30,8 @@ import * as routes from "@/src/lib/routes";
 import { dispatchScrollEvent } from "./lib/scroll-events";
 import { isTauri } from "./lib/tauri";
 import { CommunityCard } from "./components/communities/community-card";
-import { Button } from "./components/ui/button";
 
+const NotFound = lazy(() => import("@/src/features/not-found"));
 const Download = lazy(() => import("@/src/features/download"));
 const Inbox = lazy(() => import("@/src/features/inbox"));
 const Privacy = lazy(() => import("@/src/features/privacy"));
@@ -48,6 +48,7 @@ const Search = lazy(() => import("@/src/features/search"));
 const CreatePost = lazy(() => import("@/src/features/create-post"));
 
 const HOME_STACK = [
+  <Route path="/home/*" component={NotFound} />,
   <Route key="/home" exact path="/home" component={HomeFeed} />,
   <Route key="/home/s" exact path="/home/s" component={Search} />,
   <Route
@@ -85,10 +86,12 @@ const HOME_STACK = [
 ];
 
 const CREATE_POST_STACK = [
+  <Route path="/create/*" component={NotFound} />,
   <Route key="/create" exact path="/create" component={CreatePost} />,
 ];
 
 const COMMUNITIES_STACK = [
+  <Route path="/communities/*" component={NotFound} />,
   <Route
     key="/communities/"
     exact
@@ -137,6 +140,7 @@ const COMMUNITIES_STACK = [
 ];
 
 const INBOX_STACK = [
+  <Route path="/inbox/*" component={NotFound} />,
   <Route key="/inbox" exact path="/inbox" component={Inbox} />,
   <Route key="/inbox/s" exact path="/inbox/s" component={Search} />,
   <Route
@@ -178,6 +182,7 @@ const INBOX_STACK = [
 ];
 
 const SETTINGS = [
+  <Route path="/settings/*" component={NotFound} />,
   <Route key="/settings" exact path="/settings" component={SettingsPage} />,
 ];
 

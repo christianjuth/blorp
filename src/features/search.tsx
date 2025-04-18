@@ -39,7 +39,8 @@ import { useAuth } from "../stores/auth";
 
 const EMPTY_ARR = [];
 
-type Item = PostProps | CommunityView;
+const NO_ITEMS = "NO_ITEMS";
+type Item = typeof NO_ITEMS | PostProps | CommunityView;
 
 function isPost(item: Item): item is PostProps {
   return _.isObject(item) && "apId" in item;
@@ -171,7 +172,9 @@ export function SearchFeed({
           <FlashList<Item>
             key={type === "communities" ? "communities" : type + postSort}
             className="h-full ion-content-scroll-host"
-            data={data}
+            data={
+              data.length === 0 && !searchResults.isFetching ? [NO_ITEMS] : data
+            }
             header={
               <ContentGutters className="max-md:hidden">
                 <div className="flex flex-row h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
@@ -204,6 +207,17 @@ export function SearchFeed({
               </ContentGutters>
             }
             renderItem={({ item }) => {
+              if (item === NO_ITEMS) {
+                return (
+                  <ContentGutters>
+                    <div className="flex-1 italic text-muted-foreground p-6 text-center">
+                      <span>Nothing to see here</span>
+                    </div>
+                    <></>
+                  </ContentGutters>
+                );
+              }
+
               if (isPost(item)) {
                 return <Post {...item} />;
               }

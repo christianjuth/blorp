@@ -7,6 +7,7 @@ import {
   FeedPostCard,
   PostProps,
   getPostProps,
+  PostCardSkeleton,
 } from "@/src/components/posts/post";
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
@@ -153,17 +154,17 @@ export default function Post() {
   const mobleReply = useInlineCommentReplyState();
   const reply = useInlineCommentReplyState();
 
-  if (!post || !decodedApId) {
+  if (!decodedApId) {
     return null;
   }
 
-  const opId = post.creator.id;
+  const opId = post?.creator.id;
 
   const lastComment = structured?.topLevelItems.at(-1);
 
   return (
     <IonPage>
-      <Title>{post.post.name}</Title>
+      <Title>{post?.post.name ?? "Post"}</Title>
       <IonHeader>
         <IonToolbar
           data-tauri-drag-region
@@ -184,14 +185,20 @@ export default function Post() {
         <PostReportProvider>
           <FlashList
             className="h-full ion-content-scroll-host pb-4"
-            // ref={ref}
             data={data}
             renderItem={({ item }) => {
               if (item === "post") {
-                return <MemoedPostCard {...getPostProps(post)} />;
+                return post ? (
+                  <MemoedPostCard {...getPostProps(post)} />
+                ) : (
+                  <PostCardSkeleton hideImage={false} />
+                );
               }
 
               if (item === "post-bottom-bar") {
+                if (!post) {
+                  return null;
+                }
                 return (
                   <>
                     <ContentGutters className="max-md:border-b-[.5px]">
@@ -214,6 +221,9 @@ export default function Post() {
               }
 
               if (item === "comment") {
+                if (!post) {
+                  return null;
+                }
                 return (
                   <ContentGutters className="md:pt-4">
                     <InlineCommentReply
