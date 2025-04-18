@@ -184,7 +184,12 @@ export default function CommunityFeed() {
               <>
                 {communityName && (
                   <ContentGutters className="px-0">
-                    <SmallScreenSidebar communityName={communityName} />
+                    <SmallScreenSidebar
+                      communityName={communityName}
+                      actorId={
+                        community.data?.community_view.community.actor_id
+                      }
+                    />
                     <></>
                   </ContentGutters>
                 )}
@@ -212,9 +217,14 @@ export default function CommunityFeed() {
           />
         </PostReportProvider>
 
-        <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
+        <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0 z-10">
           <div className="flex-1" />
-          {communityName && <CommunitySidebar communityName={communityName} />}
+          {communityName && (
+            <CommunitySidebar
+              communityName={communityName}
+              actorId={community.data?.community_view.community.actor_id}
+            />
+          )}
         </ContentGutters>
       </IonContent>
     </IonPage>

@@ -11,6 +11,11 @@ import { Link } from "react-router-dom";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/src/stores/auth";
+import { IoEllipsisHorizontal } from "react-icons/io5";
+import { ActionMenu, ActionMenuProps } from "../action-menu";
+import { openUrl } from "@/src/lib/linking";
+import { useMemo, useState } from "react";
+import { Share } from "@capacitor/share";
 
 dayjs.extend(localizedFormat);
 
@@ -18,16 +23,46 @@ export const COMMUNITY_SIDEBAR_WIDTH = 300;
 
 export function CommunitySidebar({
   communityName,
+  actorId,
   hideDescription = false,
   asPage,
 }: {
   communityName: string;
+  actorId?: string;
   hideDescription?: boolean;
   asPage?: boolean;
 }) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const data = useCommunitiesStore(
     (s) => s.communities[getCachePrefixer()(communityName)]?.data,
+  );
+
+  const [openSignal, setOpenSignal] = useState(0);
+  const actions: ActionMenuProps["actions"] = useMemo(
+    () => [
+      {
+        text: "Share",
+        onClick: () =>
+          Share.share({
+            url: `https://blorpblorp.xyz/home/c/${communityName}`,
+          }),
+      },
+      ...(actorId
+        ? [
+            {
+              text: "View source",
+              onClick: async () => {
+                try {
+                  openUrl(actorId);
+                } catch {
+                  // TODO: handle error
+                }
+              },
+            },
+          ]
+        : []),
+    ],
+    [openSignal],
   );
 
   if (!data) {
@@ -50,9 +85,12 @@ export function CommunitySidebar({
       <div className="gap-3 flex flex-col">
         <div className="flex flex-row items-start justify-between flex-1 -mb-1">
           <span className="font-bold">{community.title}</span>
-          <CommunityJoinButton
-            communityName={communityName}
-            className="md:hidden"
+
+          <ActionMenu
+            align="end"
+            actions={actions}
+            trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
+            onOpen={() => setOpenSignal((s) => s + 1)}
           />
         </div>
 
@@ -97,10 +135,7 @@ export function CommunitySidebar({
         </div>
 
         {community.description && !hideDescription && (
-          <div
-            className="pt-3"
-            // py="$3" btc="$color0" btw={1}
-          >
+          <div className="pt-3">
             <MarkdownRenderer markdown={community.description} />
           </div>
         )}
@@ -111,8 +146,10 @@ export function CommunitySidebar({
 
 export function SmallScreenSidebar({
   communityName,
+  actorId,
 }: {
   communityName: string;
+  actorId?: string;
 }) {
   const linkCtx = useLinkContext();
 
@@ -132,10 +169,48 @@ export function SmallScreenSidebar({
   const community = communityView.community;
   const counts = communityView.counts;
 
+  const [openSignal, setOpenSignal] = useState(0);
+  const actions: ActionMenuProps["actions"] = useMemo(
+    () => [
+      {
+        text: "Share",
+        onClick: () =>
+          Share.share({
+            url: `https://blorpblorp.xyz/home/c/${communityName}`,
+          }),
+      },
+      ...(actorId
+        ? [
+            {
+              text: "View source",
+              onClick: async () => {
+                try {
+                  openUrl(actorId);
+                } catch {
+                  // TODO: handle error
+                }
+              },
+            },
+          ]
+        : []),
+    ],
+    [openSignal],
+  );
+
   return (
     <div className="md:hidden flex flex-col gap-3 py-4 flex-1 border-b-[.5px] px-2.5">
-      <div className="flex flex-row items-start justify-between flex-1 -mb-1">
+      <div className="flex flex-row items-center flex-1 -mb-1 gap-4">
         <span className="font-bold">{community.title}</span>
+
+        <div className="flex-1" />
+
+        <ActionMenu
+          align="end"
+          actions={actions}
+          trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
+          onOpen={() => setOpenSignal((s) => s + 1)}
+        />
+
         <CommunityJoinButton communityName={communityName} />
       </div>
 

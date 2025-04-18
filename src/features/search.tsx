@@ -1,4 +1,4 @@
-import { useSearch } from "../lib/lemmy";
+import { useCommunity, useSearch } from "../lib/lemmy";
 import {
   FeedPostCard,
   getPostProps,
@@ -83,6 +83,10 @@ export function SearchFeed({
   const [type, setType] = useState(defaultType);
 
   const postSort = useFiltersStore((s) => s.postSort);
+
+  const community = useCommunity({
+    name: communityName,
+  });
 
   const searchResults = useSearch({
     q: debouncedSearch ?? "",
@@ -234,9 +238,14 @@ export function SearchFeed({
           />
         </PostReportProvider>
 
-        <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
+        <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0 z-10">
           <div className="flex-1" />
-          {communityName && <CommunitySidebar communityName={communityName} />}
+          {communityName && (
+            <CommunitySidebar
+              communityName={communityName}
+              actorId={community.data?.community_view.community.actor_id}
+            />
+          )}
         </ContentGutters>
       </IonContent>
     </IonPage>
