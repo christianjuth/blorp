@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import { PersonView } from "lemmy-js-client";
 import { useProfilesStore } from "@/src/stores/profiles";
+import { useAuth } from "@/src/stores/auth";
 
 dayjs.extend(localizedFormat);
 
@@ -27,8 +28,9 @@ export function PersonHoverCard({
   const [enabled, setEnabled] = useState(false);
 
   usePersonDetails({ actorId, enabled });
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const personView = useProfilesStore((s) =>
-    actorId ? s.profiles[actorId]?.data : undefined,
+    actorId ? s.profiles[getCachePrefixer()(actorId)]?.data : undefined,
   );
   const counts = personView?.counts;
 

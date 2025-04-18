@@ -21,6 +21,7 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useLongPress } from "use-long-press";
 import _ from "lodash";
 import { shareImage } from "@/src/lib/share";
+import { useAuth } from "@/src/stores/auth";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -171,6 +172,7 @@ export function FeedPostCard(props: PostProps) {
   const showImage = type === "image" && thumbnail && !deleted;
   const showArticle = type === "article" && !deleted;
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const patchPost = usePostsStore((s) => s.patchPost);
 
   const handlers = useLongPress(
@@ -230,7 +232,7 @@ export function FeedPostCard(props: PostProps) {
               className="md:rounded-lg object-cover"
               onLoad={(e) => {
                 if (!aspectRatio) {
-                  patchPost(apId, {
+                  patchPost(apId, getCachePrefixer(), {
                     imageDetails: {
                       height: e.currentTarget.naturalHeight,
                       width: e.currentTarget.naturalWidth,
@@ -288,7 +290,10 @@ export function PostBottomBar({
   commentsCount: number;
   onReply: () => void;
 }) {
-  const postView = usePostsStore((s) => s.posts[apId]?.data);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const postView = usePostsStore(
+    (s) => s.posts[getCachePrefixer()(apId)]?.data,
+  );
 
   if (!postView) {
     return null;

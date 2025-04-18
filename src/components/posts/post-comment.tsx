@@ -27,6 +27,7 @@ import { useIonAlert } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
 import { PersonHoverCard } from "../person/person-hover-card";
 import { Share } from "@capacitor/share";
+import { useAuth } from "@/src/stores/auth";
 
 function Byline({
   creator,
@@ -90,8 +91,11 @@ export function PostComment({
 
   const { comment: commentPath, ...rest } = commentMap;
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const commentView = useCommentsStore((s) =>
-    commentPath ? s.comments[commentPath.path]?.data : undefined,
+    commentPath
+      ? s.comments[getCachePrefixer()(commentPath.path)]?.data
+      : undefined,
   );
 
   const edit = useInlineCommentReplyState(

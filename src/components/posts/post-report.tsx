@@ -15,6 +15,7 @@ import {
 import { Button } from "../ui/button";
 import { MarkdownRenderer } from "../markdown/renderer";
 import { Textarea } from "../ui/textarea";
+import { useAuth } from "@/src/stores/auth";
 
 const Context = createContext<{
   apId?: string;
@@ -38,9 +39,12 @@ export function PostReportProvider({
   const createPostReport = useCreatePostReport();
   const createCommentReport = useCreateCommentReport();
 
-  const post = usePostsStore((s) => (apId ? s.posts[apId]?.data.post : null));
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const post = usePostsStore((s) =>
+    apId ? s.posts[getCachePrefixer()(apId)]?.data.post : null,
+  );
   const comment = useCommentsStore((s) =>
-    commentPath ? s.comments[commentPath] : null,
+    commentPath ? s.comments[getCachePrefixer()(commentPath)] : null,
   );
 
   const value = useMemo(

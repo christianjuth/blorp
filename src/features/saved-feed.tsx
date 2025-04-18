@@ -29,6 +29,7 @@ import {
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
 import { useFiltersStore } from "../stores/filters";
+import { useAuth } from "../stores/auth";
 
 const EMPTY_ARR = [];
 
@@ -55,7 +56,10 @@ const Post = memo((props: PostProps) => (
 ));
 
 function Comment({ path }: { path: string }) {
-  const commentView = useCommentsStore((s) => s.comments[path]?.data);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const commentView = useCommentsStore(
+    (s) => s.comments[getCachePrefixer()(path)]?.data,
+  );
   const linkCtx = useLinkContext();
 
   if (!commentView) {
@@ -88,6 +92,7 @@ export default function SavedFeed() {
   });
 
   const postSort = useFiltersStore((s) => s.postSort);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const posts = usePosts({
     limit: 50,
     saved_only: true,
@@ -112,7 +117,7 @@ export default function SavedFeed() {
 
     const postViews = postIds
       .map((apId) => {
-        const postView = postCache[apId]?.data;
+        const postView = postCache[getCachePrefixer()(apId)]?.data;
         return postView ? getPostProps(postView) : null;
       })
       .filter(isNotNull);
@@ -133,7 +138,13 @@ export default function SavedFeed() {
           return bPublished.localeCompare(aPublished);
         });
     }
-  }, [posts.data?.pages, comments.data?.pages, postCache, type]);
+  }, [
+    posts.data?.pages,
+    comments.data?.pages,
+    postCache,
+    type,
+    getCachePrefixer,
+  ]);
 
   return (
     <IonPage>

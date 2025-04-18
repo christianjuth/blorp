@@ -12,8 +12,9 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const follow = useFollowCommunity();
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cache = useCommunitiesStore((s) =>
-    communityName ? s.communities[communityName] : null,
+    communityName ? s.communities[getCachePrefixer()(communityName)] : null,
   );
 
   const data = cache?.data;

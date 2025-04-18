@@ -35,6 +35,7 @@ import { Title } from "../components/title";
 import { UserDropdown } from "../components/nav";
 import { useMedia } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";
+import { useAuth } from "../stores/auth";
 
 const EMPTY_ARR = [];
 
@@ -92,6 +93,7 @@ export function SearchFeed({
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } =
     searchResults;
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const postCache = usePostsStore((s) => s.posts);
 
   const data = useMemo(() => {
@@ -107,13 +109,13 @@ export function SearchFeed({
 
     const postViews = postIds
       .map((apId) => {
-        const postView = postCache[apId]?.data;
+        const postView = postCache[getCachePrefixer()(apId)]?.data;
         return postView ? getPostProps(postView) : null;
       })
       .filter(isNotNull);
 
     return postViews;
-  }, [searchResults.data?.pages, postCache, type]);
+  }, [searchResults.data?.pages, postCache, type, getCachePrefixer]);
 
   return (
     <IonPage>

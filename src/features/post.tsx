@@ -1,7 +1,7 @@
 import { PostComment } from "@/src/components/posts/post-comment";
 import { buildCommentMap } from "../lib/comment-map";
 import { useEffect } from "react";
-import { usePost, useComments } from "@/src/lib/lemmy/index";
+import { usePost, useComments, useCommunity } from "@/src/lib/lemmy/index";
 import {
   PostBottomBar,
   FeedPostCard,
@@ -73,12 +73,16 @@ export default function Post() {
     (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
   );
 
+  useCommunity({
+    name: communityName,
+  });
   const postQuery = usePost({
     ap_id: decodedApId,
   });
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore((s) =>
-    decodedApId ? s.posts[decodedApId]?.data : null,
+    decodedApId ? s.posts[getCachePrefixer()(decodedApId)]?.data : null,
   );
 
   const parentId = commentId ? +commentId : undefined;

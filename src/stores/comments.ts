@@ -4,6 +4,7 @@ import { createStorage, sync } from "./storage";
 import { FlattenedComment } from "../lib/lemmy";
 import _ from "lodash";
 import { MAX_CACHE_MS } from "./config";
+import { CachePrefixer } from "./auth";
 
 type CachedComment = {
   data: FlattenedComment;
@@ -16,13 +17,18 @@ type SortsStore = {
   comments: Record<CommentPath, CachedComment>;
   patchComment: (
     path: FlattenedComment["comment"]["path"],
+    prefix: CachePrefixer,
     comment: (prev: FlattenedComment) => Partial<FlattenedComment>,
   ) => FlattenedComment;
-  cacheComment: (comment: FlattenedComment) => FlattenedComment;
+  cacheComment: (
+    prefix: CachePrefixer,
+    comment: FlattenedComment,
+  ) => FlattenedComment;
   cacheComments: (
+    prefix: CachePrefixer,
     comments: FlattenedComment[],
   ) => Record<CommentPath, CachedComment>;
-  removeComment: (path: string) => void;
+  removeComment: (path: string, prefix: CachePrefixer) => void;
   cleanup: () => any;
 };
 export const useCommentsStore = create<SortsStore>()(
@@ -30,9 +36,10 @@ export const useCommentsStore = create<SortsStore>()(
     (set, get) => ({
       comments: {},
       optimisticComments: {},
-      patchComment: (path, patchFn) => {
+      patchComment: (path, prefix, patchFn) => {
         const prev = get().comments;
-        const prevComment = prev[path];
+        const cacheKey = prefix(path);
+        const prevComment = prev[cacheKey];
         const updatedCommentData = {
           ...prevComment.data,
           ...patchFn(prevComment.data),
@@ -41,7 +48,7 @@ export const useCommentsStore = create<SortsStore>()(
           set({
             comments: {
               ...prev,
-              [path]: {
+              [cacheKey]: {
                 data: updatedCommentData,
                 lastUsed: Date.now(),
               },
@@ -50,17 +57,19 @@ export const useCommentsStore = create<SortsStore>()(
         }
         return updatedCommentData;
       },
-      removeComment: (path) => {
+      removeComment: (path, prefix) => {
         const prev = get().comments;
+        const cacheKey = prefix(path);
         set({
           comments: {
-            ..._.omit(prev, [path]),
+            ..._.omit(prev, [cacheKey]),
           },
         });
       },
-      cacheComment: (view) => {
+      cacheComment: (prefix, view) => {
         const prev = get().comments;
-        const prevPostData = prev[view.comment.path]?.data ?? {};
+        const cacheKey = prefix(view.comment.path);
+        const prevPostData = prev[cacheKey]?.data ?? {};
         const updatedPostData = {
           ..._.pick(prevPostData, ["optimisticMyVote"]),
           ...view,
@@ -68,7 +77,7 @@ export const useCommentsStore = create<SortsStore>()(
         set({
           comments: {
             ...prev,
-            [view.comment.path]: {
+            [cacheKey]: {
               data: updatedPostData,
               lastUsed: Date.now(),
             },
@@ -76,14 +85,15 @@ export const useCommentsStore = create<SortsStore>()(
         });
         return updatedPostData;
       },
-      cacheComments: (views) => {
+      cacheComments: (prefix, views) => {
         const prev = get().comments;
 
         const newComments: Record<CommentPath, CachedComment> = {};
 
         for (const view of views) {
-          const prevCommentData = prev[view.comment.path]?.data ?? {};
-          newComments[view.comment.path] = {
+          const cacheKey = prefix(view.comment.path);
+          const prevCommentData = prev[cacheKey]?.data ?? {};
+          newComments[cacheKey] = {
             data: {
               ..._.pick(prevCommentData, ["optimisticMyVote"]),
               ...view,
@@ -123,7 +133,7 @@ export const useCommentsStore = create<SortsStore>()(
     {
       name: "comments",
       storage: createStorage<SortsStore>(),
-      version: 1,
+      version: 2,
     },
   ),
 );

@@ -4,6 +4,7 @@ import { createStorage, sync } from "./storage";
 import { FlattenedPost } from "../lib/lemmy/utils";
 import _ from "lodash";
 import { MAX_CACHE_MS } from "./config";
+import { CacheKey, CachePrefixer } from "./auth";
 
 type CachedPost = {
   data: FlattenedPost;
@@ -11,13 +12,17 @@ type CachedPost = {
 };
 
 type SortsStore = {
-  posts: Record<string, CachedPost>;
+  posts: Record<CacheKey, CachedPost>;
   patchPost: (
     id: FlattenedPost["post"]["ap_id"],
+    prefix: CachePrefixer,
     post: Partial<FlattenedPost>,
   ) => FlattenedPost;
-  cachePost: (post: FlattenedPost) => FlattenedPost;
-  cachePosts: (post: FlattenedPost[]) => Record<string, CachedPost>;
+  cachePost: (prefix: CachePrefixer, post: FlattenedPost) => FlattenedPost;
+  cachePosts: (
+    prefix: CachePrefixer,
+    post: FlattenedPost[],
+  ) => Record<string, CachedPost>;
   cleanup: () => any;
 };
 
@@ -25,9 +30,10 @@ export const usePostsStore = create<SortsStore>()(
   persist(
     (set, get) => ({
       posts: {},
-      patchPost: (apId, patch) => {
+      patchPost: (apId, prefix, patch) => {
         const prev = get().posts;
-        const prevPost = prev[apId];
+        const cacheKey = prefix(apId);
+        const prevPost = prev[cacheKey];
         const updatedPostData = {
           ...prevPost.data,
           ...patch,
@@ -36,7 +42,7 @@ export const usePostsStore = create<SortsStore>()(
           set({
             posts: {
               ...prev,
-              [apId]: {
+              [cacheKey]: {
                 data: updatedPostData,
                 lastUsed: Date.now(),
               },
@@ -45,9 +51,10 @@ export const usePostsStore = create<SortsStore>()(
         }
         return updatedPostData;
       },
-      cachePost: (view) => {
+      cachePost: (prefix, view) => {
         const prev = get().posts;
-        const prevPostData = prev[view.post.ap_id]?.data ?? {};
+        const cacheKey = prefix(view.post.ap_id);
+        const prevPostData = prev[cacheKey]?.data ?? {};
         const updatedPostData = {
           ...prevPostData,
           ...view,
@@ -57,7 +64,7 @@ export const usePostsStore = create<SortsStore>()(
         set({
           posts: {
             ...prev,
-            [view.post.ap_id]: {
+            [cacheKey]: {
               data: updatedPostData,
               lastUsed: Date.now(),
             },
@@ -65,14 +72,15 @@ export const usePostsStore = create<SortsStore>()(
         });
         return updatedPostData;
       },
-      cachePosts: (views) => {
+      cachePosts: (prefix, views) => {
         const prev = get().posts;
 
         const newPosts: Record<string, CachedPost> = {};
 
         for (const view of views) {
-          const prevPostData = prev[view.post.ap_id]?.data ?? {};
-          newPosts[view.post.ap_id] = {
+          const cacheKey = prefix(view.post.ap_id);
+          const prevPostData = prev[cacheKey]?.data ?? {};
+          newPosts[cacheKey] = {
             data: {
               ...prevPostData,
               ...view,
@@ -114,7 +122,7 @@ export const usePostsStore = create<SortsStore>()(
     {
       name: "posts",
       storage: createStorage<SortsStore>(),
-      version: 2,
+      version: 3,
     },
   ),
 );

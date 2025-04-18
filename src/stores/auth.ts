@@ -6,6 +6,19 @@ import _ from "lodash";
 
 export const DEFAULT_INSTANCES = ["https://lemm.ee"] as const;
 
+export type CacheKey = `cache_${string}`;
+export type CachePrefixer = (cacheKey: string) => CacheKey;
+
+export function getCachePrefixer(account: Account): CachePrefixer {
+  let prefix = `${account.instance}_`;
+  if (account.jwt) {
+    prefix += "authed_";
+  }
+  return (cacheKey) => {
+    return (prefix + cacheKey) as CacheKey;
+  };
+}
+
 type Account = {
   instance: string;
   jwt?: string;
@@ -21,6 +34,7 @@ type AuthStore = {
   addAccount: (patch?: Partial<Account>) => any;
   setAccountIndex: (index: number) => Account | null;
   logout: (index?: number) => any;
+  getCachePrefixer: () => CachePrefixer;
 };
 
 export function parseAccountInfo(account: Account) {
@@ -108,6 +122,11 @@ export const useAuth = create<AuthStore>()(
         set({
           accounts,
         });
+      },
+      getCachePrefixer: () => {
+        let { accounts, accountIndex } = get();
+        const selectedAccount = accounts[accountIndex];
+        return getCachePrefixer(selectedAccount);
       },
     }),
     {

@@ -34,7 +34,7 @@ import {
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "@/src/stores/filters";
-import { useAuth } from "../../stores/auth";
+import { getCachePrefixer, useAuth } from "../../stores/auth";
 import { useEffect, useMemo, useRef } from "react";
 import { prefetch as prefetchImage } from "@/src/components/image";
 import _ from "lodash";
@@ -145,6 +145,7 @@ export function usePersonDetails({
   const queryKey = [...queryKeyPrefix, "getPersonDetails", actorId];
 
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useQuery({
     queryKey,
@@ -161,7 +162,7 @@ export function usePersonDetails({
         throw new Error("person not found");
       }
 
-      cacheProfiles([_.omit(person, "is_admin")]);
+      cacheProfiles(getCachePrefixer(), [_.omit(person, "is_admin")]);
 
       const res = await client.getPersonDetails(
         {
@@ -195,6 +196,7 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
   const cachePosts = usePostsStore((s) => s.cachePosts);
   // const patchPost = usePostsStore((s) => s.patchPost);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useThrottledInfiniteQuery({
     queryKey,
@@ -213,7 +215,7 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
         throw new Error("person not found");
       }
 
-      cacheProfiles([person]);
+      cacheProfiles(getCachePrefixer(), [person]);
 
       const res = await client.getPersonDetails(
         {
@@ -228,7 +230,7 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
       );
 
       const posts = res.posts.map((post_view) => flattenPost({ post_view }));
-      const cachedPosts = cachePosts(posts);
+      const cachedPosts = cachePosts(getCachePrefixer(), posts);
 
       prefetchImage(
         res.posts
@@ -254,7 +256,7 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
       }
 
       const comments = res.comments.map(flattenComment);
-      cacheComments(comments);
+      cacheComments(getCachePrefixer(), comments);
 
       return {
         ...res,
@@ -279,8 +281,10 @@ export function usePost({
 
   const queryKey = [...queryKeyPrefix, "getPost", ap_id];
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+
   const initialData = usePostsStore((s) =>
-    ap_id ? s.posts[ap_id]?.data : undefined,
+    ap_id ? s.posts[getCachePrefixer()(ap_id)]?.data : undefined,
   );
 
   const cachePost = usePostsStore((s) => s.cachePost);
@@ -321,7 +325,7 @@ export function usePost({
         cross_posts: res2.cross_posts,
       });
 
-      const cachedPost = cachePost({
+      const cachedPost = cachePost(getCachePrefixer(), {
         ...post,
         // Fetching an individual post marks it
         // as read, but not until the next request
@@ -330,13 +334,13 @@ export function usePost({
         read: true,
       });
 
-      cacheCommunities([
+      cacheCommunities(getCachePrefixer(), [
         {
           communityView: { community: resPost.community },
         },
       ]);
 
-      cacheProfiles([{ person: resPost.creator }]);
+      cacheProfiles(getCachePrefixer(), [{ person: resPost.creator }]);
 
       const { thumbnail, type: embedType } = getPostEmbed(post.post);
       if (thumbnail) {
@@ -412,6 +416,7 @@ export function useComments(form: GetComments) {
 
   const queryKey = useCommentsKey()(form);
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheComments = useCommentsStore((s) => s.cacheComments);
 
   const prevPageParam = useRef(-1);
@@ -445,7 +450,7 @@ export function useComments(form: GetComments) {
       prevPage.current = page;
       prevPageParam.current = pageParam;
 
-      cacheComments(comments.map(flattenComment));
+      cacheComments(getCachePrefixer(), comments.map(flattenComment));
 
       return {
         comments: comments.map((c) => ({
@@ -588,6 +593,7 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   const queryFn = async ({
     pageParam,
@@ -609,13 +615,17 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
     );
 
     const posts = res.posts.map((post_view) => flattenPost({ post_view }));
-    const cachedPosts = cachePosts(posts);
+    const cachedPosts = cachePosts(getCachePrefixer(), posts);
 
     cacheCommunities(
+      getCachePrefixer(),
       res.posts.map((p) => ({ communityView: { community: p.community } })),
     );
 
-    cacheProfiles(res.posts.map((p) => ({ person: p.creator })));
+    cacheProfiles(
+      getCachePrefixer(),
+      res.posts.map((p) => ({ person: p.creator })),
+    );
 
     prefetchImage(
       res.posts
@@ -785,6 +795,7 @@ export function useListCommunities(form: ListCommunities) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
   const showNsfw = useSettingsStore((s) => s.showNsfw);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   const queryKey = [...queryKeyPrefix, "listCommunities"];
 
@@ -820,7 +831,10 @@ export function useListCommunities(form: ListCommunities) {
           signal,
         },
       );
-      cacheCommunities(communities.map((c) => ({ communityView: c })));
+      cacheCommunities(
+        getCachePrefixer(),
+        communities.map((c) => ({ communityView: c })),
+      );
       return {
         communities,
         nextPage: communities.length < limit ? null : pageParam + 1,
@@ -841,6 +855,7 @@ export function useCommunity({
 }) {
   const { client, queryKeyPrefix } = useLemmyClient();
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
 
   const queryKey = [
@@ -860,7 +875,7 @@ export function useCommunity({
           signal,
         },
       );
-      cacheCommunities([
+      cacheCommunities(getCachePrefixer(), [
         {
           communityView: res.community_view,
         },
@@ -968,7 +983,8 @@ export function useLogout() {
 export function useLikePost(apId: string) {
   const { client } = useLemmyClient();
 
-  const post = usePostsStore((s) => s.posts[apId]?.data);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const post = usePostsStore((s) => s.posts[getCachePrefixer()(apId)]?.data);
   const cachePost = usePostsStore((s) => s.cachePost);
 
   return useMutation({
@@ -983,17 +999,17 @@ export function useLikePost(apId: string) {
       });
     },
     onMutate: (myVote) =>
-      cachePost({
+      cachePost(getCachePrefixer(), {
         ...post,
         optimisticMyVote: myVote,
       }),
     onSuccess: (data) =>
-      cachePost({
+      cachePost(getCachePrefixer(), {
         ..._.omit(post, ["optimisticMyVote"]),
         ...flattenPost(data),
       }),
     onError: () =>
-      cachePost({
+      cachePost(getCachePrefixer(), {
         ...post,
         optimisticMyVote: undefined,
       }),
@@ -1007,6 +1023,7 @@ interface CustumCreateCommentLike extends CreateCommentLike {
 
 export function useLikeComment() {
   const { client } = useLemmyClient();
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const patchComment = useCommentsStore((s) => s.patchComment);
   const cacheComment = useCommentsStore((s) => s.cacheComment);
 
@@ -1014,15 +1031,15 @@ export function useLikeComment() {
     mutationFn: (form: CustumCreateCommentLike) =>
       client.likeComment(_.omit(form, ["path", "post_id"])),
     onMutate: ({ score, path }) => {
-      patchComment(path, () => ({
+      patchComment(path, getCachePrefixer(), () => ({
         optimisticMyVote: score,
       }));
     },
     onSuccess: (data) => {
-      cacheComment(flattenComment(data.comment_view));
+      cacheComment(getCachePrefixer(), flattenComment(data.comment_view));
     },
     onError: (err, { path }) => {
-      patchComment(path, () => ({
+      patchComment(path, getCachePrefixer(), () => ({
         optimisticMyVote: undefined,
       }));
     },
@@ -1046,6 +1063,8 @@ export function useCreateComment({
   const commentSort = useFiltersStore((s) => s.commentSort);
   const cacheComment = useCommentsStore((s) => s.cacheComment);
   const removeComment = useCommentsStore((s) => s.removeComment);
+
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   const getCommentsKey = useCommentsKey();
 
@@ -1091,7 +1110,7 @@ export function useCreateComment({
         },
       };
 
-      cacheComment(newComment);
+      cacheComment(getCachePrefixer(), newComment);
 
       const SORTS = new Set<CommentSortType>([
         commentSort,
@@ -1155,8 +1174,8 @@ export function useCreateComment({
         "Controversial",
       ];
 
-      cacheComment(flattenComment(res.comment_view));
-      removeComment(ctx.comment.path);
+      cacheComment(getCachePrefixer(), flattenComment(res.comment_view));
+      removeComment(ctx.comment.path, getCachePrefixer());
 
       for (const sort of SORTS) {
         const form: GetComments = {
@@ -1203,12 +1222,13 @@ export function useEditComment() {
   const { client } = useLemmyClient();
   const cacheComment = useCommentsStore((s) => s.cacheComment);
   const patchComment = useCommentsStore((s) => s.patchComment);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useMutation({
     mutationFn: (form: { comment_id: number; content: string; path: string }) =>
       client.editComment(_.omit(form, "path")),
     onMutate: ({ path, content }) => {
-      patchComment(path, (prev) => ({
+      patchComment(path, getCachePrefixer(), (prev) => ({
         comment: {
           ...prev.comment,
           content,
@@ -1216,7 +1236,7 @@ export function useEditComment() {
       }));
     },
     onSuccess: ({ comment_view }) => {
-      cacheComment(flattenComment(comment_view));
+      cacheComment(getCachePrefixer(), flattenComment(comment_view));
     },
   });
 }
@@ -1225,6 +1245,8 @@ export function useDeleteComment() {
   const { client } = useLemmyClient();
   const patchComment = useCommentsStore((s) => s.patchComment);
   const cacheComment = useCommentsStore((s) => s.cacheComment);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+
   return useMutation({
     mutationFn: (form: {
       comment_id: number;
@@ -1232,7 +1254,7 @@ export function useDeleteComment() {
       deleted: boolean;
     }) => client.deleteComment(_.omit(form, "path")),
     onMutate: ({ path, deleted }) => {
-      patchComment(path, (prev) => ({
+      patchComment(path, getCachePrefixer(), (prev) => ({
         ...prev,
         comment: {
           ...prev.comment,
@@ -1241,7 +1263,7 @@ export function useDeleteComment() {
       }));
     },
     onSuccess: ({ comment_view }) => {
-      cacheComment(flattenComment(comment_view));
+      cacheComment(getCachePrefixer(), flattenComment(comment_view));
     },
   });
 }
@@ -1336,6 +1358,7 @@ export function useSearch(form: Search) {
   const limit = form.limit ?? 50;
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   // const patchPost = usePostsStore((s) => s.patchPost);
 
   return useThrottledInfiniteQuery({
@@ -1348,7 +1371,7 @@ export function useSearch(form: Search) {
       });
 
       const posts = res.posts.map((post_view) => flattenPost({ post_view }));
-      const cachedPosts = cachePosts(posts);
+      const cachedPosts = cachePosts(getCachePrefixer(), posts);
 
       let i = 0;
       for (const { post } of res.posts) {
@@ -1425,6 +1448,7 @@ export function useInstances() {
 export function useFollowCommunity() {
   const { client, queryKeyPrefix } = useLemmyClient();
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const patchCommunity = useCommunitiesStore((s) => s.patchCommunity);
   const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
 
@@ -1439,19 +1463,19 @@ export function useFollowCommunity() {
     },
     onMutate: (form) => {
       const slug = createCommunitySlug(form.community);
-      patchCommunity(slug, {
+      patchCommunity(slug, getCachePrefixer(), {
         optimisticSubscribed: "Pending",
       });
     },
     onSuccess: (data) => {
-      cacheCommunity({
+      cacheCommunity(getCachePrefixer(), {
         communityView: data.community_view,
         optimisticSubscribed: undefined,
       });
     },
     onError: (err, form) => {
       const slug = createCommunitySlug(form.community);
-      patchCommunity(slug, {
+      patchCommunity(slug, getCachePrefixer(), {
         optimisticSubscribed: undefined,
       });
       toast.error("Couldn't follow community");
@@ -1539,6 +1563,7 @@ export function useSavePost(apId: string) {
   const queryClient = useQueryClient();
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   const postsQueryKey = usePostsKey({
     saved_only: true,
@@ -1547,12 +1572,12 @@ export function useSavePost(apId: string) {
   return useMutation({
     mutationFn: (form: SavePost) => client.savePost(form),
     onMutate: ({ save }) => {
-      patchPost(apId, {
+      patchPost(apId, getCachePrefixer(), {
         optimisticSaved: save,
       });
     },
     onSuccess: ({ post_view }) => {
-      patchPost(apId, {
+      patchPost(apId, getCachePrefixer(), {
         ...flattenPost({ post_view }),
         optimisticSaved: undefined,
       });
@@ -1561,7 +1586,7 @@ export function useSavePost(apId: string) {
       });
     },
     onError: (_, { save }) => {
-      patchPost(apId, {
+      patchPost(apId, getCachePrefixer(), {
         optimisticSaved: undefined,
       });
       toast.error(`Couldn't ${save ? "save" : "unsave"} post`);
@@ -1572,22 +1597,23 @@ export function useSavePost(apId: string) {
 export function useDeletePost(apId: string) {
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useMutation({
     mutationFn: (form: DeletePost) => client.deletePost(form),
     onMutate: ({ deleted }) => {
-      patchPost(apId, {
+      patchPost(apId, getCachePrefixer(), {
         optimisticDeleted: deleted,
       });
     },
     onSuccess: ({ post_view }) => {
-      patchPost(apId, {
+      patchPost(apId, getCachePrefixer(), {
         ...flattenPost({ post_view }),
         optimisticDeleted: undefined,
       });
     },
     onError: (_, { deleted }) => {
-      patchPost(apId, {
+      patchPost(apId, getCachePrefixer(), {
         optimisticDeleted: undefined,
       });
       toast.error(`Couldn't ${deleted ? "delete" : "restore"} post`);
@@ -1598,24 +1624,25 @@ export function useDeletePost(apId: string) {
 export function useMarkPostRead() {
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useMutation({
     mutationFn: (form: { post_id: number; read: boolean; apId: string }) => {
       return client.markPostAsRead(form);
     },
     onMutate: ({ read, apId }) => {
-      patchPost(apId, {
+      patchPost(apId, getCachePrefixer(), {
         optimisticRead: read,
       });
     },
     onSuccess: (_, { read, apId }) => {
-      patchPost(apId, {
+      patchPost(apId, getCachePrefixer(), {
         optimisticRead: undefined,
         read,
       });
     },
     onError: (_, { apId }) => {
-      patchPost(apId, {
+      patchPost(apId, getCachePrefixer(), {
         optimisticRead: undefined,
       });
     },

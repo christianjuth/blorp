@@ -10,6 +10,7 @@ import type {
 } from "lemmy-js-client";
 import { createCommunitySlug } from "../lib/lemmy/utils";
 import { MAX_CACHE_MS } from "./config";
+import { CachePrefixer } from "./auth";
 
 type Data = {
   communityView:
@@ -26,9 +27,16 @@ type CachedCommunity = {
 
 type SortsStore = {
   communities: Record<string, CachedCommunity>;
-  patchCommunity: (id: string, post: Partial<Data>) => Data;
-  cacheCommunity: (data: Data) => Data;
-  cacheCommunities: (data: Data[]) => Record<string, CachedCommunity>;
+  patchCommunity: (
+    id: string,
+    prefix: CachePrefixer,
+    post: Partial<Data>,
+  ) => Data;
+  cacheCommunity: (prefix: CachePrefixer, data: Data) => Data;
+  cacheCommunities: (
+    prefix: CachePrefixer,
+    data: Data[],
+  ) => Record<string, CachedCommunity>;
   cleanup: () => any;
 };
 
@@ -36,9 +44,10 @@ export const useCommunitiesStore = create<SortsStore>()(
   persist(
     (set, get) => ({
       communities: {},
-      patchCommunity: (slug, patch) => {
+      patchCommunity: (slug, prefix, patch) => {
         const communities = get().communities;
-        const prevCommunityData = communities[slug]?.data ?? {};
+        const cacheKey = prefix(slug);
+        const prevCommunityData = communities[cacheKey]?.data ?? {};
         const updatedCommunityData: Data = {
           ...prevCommunityData,
           ...patch,
@@ -50,7 +59,7 @@ export const useCommunitiesStore = create<SortsStore>()(
         set({
           communities: {
             ...communities,
-            [slug]: {
+            [cacheKey]: {
               data: updatedCommunityData,
               lastUsed: Date.now(),
             },
@@ -58,10 +67,11 @@ export const useCommunitiesStore = create<SortsStore>()(
         });
         return updatedCommunityData;
       },
-      cacheCommunity: (view) => {
+      cacheCommunity: (prefix, view) => {
         const prev = get();
         const slug = createCommunitySlug(view.communityView.community);
-        const prevCommunityData = prev.communities[slug]?.data ?? {};
+        const cacheKey = prefix(slug);
+        const prevCommunityData = prev.communities[cacheKey]?.data ?? {};
         const updatedCommunityData: Data = {
           ...prevCommunityData,
           ...view,
@@ -73,7 +83,7 @@ export const useCommunitiesStore = create<SortsStore>()(
         set({
           communities: {
             ...prev.communities,
-            [slug]: {
+            [cacheKey]: {
               data: updatedCommunityData,
               lastUsed: Date.now(),
             },
@@ -81,15 +91,16 @@ export const useCommunitiesStore = create<SortsStore>()(
         });
         return updatedCommunityData;
       },
-      cacheCommunities: (views) => {
+      cacheCommunities: (prefix, views) => {
         const prev = get().communities;
 
         const newCommunities: Record<string, CachedCommunity> = {};
 
         for (const view of views) {
           const slug = createCommunitySlug(view.communityView.community);
-          const prevCommunityData = prev[slug]?.data ?? {};
-          newCommunities[slug] = {
+          const cacheKey = prefix(slug);
+          const prevCommunityData = prev[cacheKey]?.data ?? {};
+          newCommunities[cacheKey] = {
             data: {
               ...prevCommunityData,
               ...view,
@@ -133,7 +144,7 @@ export const useCommunitiesStore = create<SortsStore>()(
     {
       name: "communities",
       storage: createStorage<SortsStore>(),
-      version: 0,
+      version: 1,
     },
   ),
 );

@@ -5,6 +5,9 @@ import _ from "lodash";
 import { renderHook, act } from "@testing-library/react";
 import { createCommunitySlug } from "../lib/lemmy/utils";
 import { SubscribedType } from "lemmy-js-client";
+import { getCachePrefixer } from "./auth";
+
+const prefix = getCachePrefixer({ instance: "123" });
 
 describe("useCommunitiesStore", () => {
   describe("cacheCommunity", () => {
@@ -15,12 +18,12 @@ describe("useCommunitiesStore", () => {
       const { result } = renderHook(() => useCommunitiesStore());
 
       act(() => {
-        result.current.cacheCommunity({
+        result.current.cacheCommunity(prefix, {
           communityView,
         });
       });
 
-      expect(result.current.communities[slug].data).toMatchObject({
+      expect(result.current.communities[prefix(slug)].data).toMatchObject({
         communityView,
       });
     });
@@ -35,19 +38,19 @@ describe("useCommunitiesStore", () => {
       ] satisfies SubscribedType[]);
 
       act(() => {
-        result.current.cacheCommunity({
+        result.current.cacheCommunity(prefix, {
           communityView,
           optimisticSubscribed,
         });
       });
 
       act(() => {
-        result.current.cacheCommunity({
+        result.current.cacheCommunity(prefix, {
           communityView,
         });
       });
 
-      expect(result.current.communities[slug].data).toMatchObject({
+      expect(result.current.communities[prefix(slug)].data).toMatchObject({
         optimisticSubscribed,
       });
     });
@@ -63,12 +66,12 @@ describe("useCommunitiesStore", () => {
       const { result } = renderHook(() => useCommunitiesStore());
 
       act(() => {
-        result.current.patchCommunity(slug, {
+        result.current.patchCommunity(slug, prefix, {
           communityView,
         });
       });
 
-      expect(result.current.communities[slug].data).toMatchObject({
+      expect(result.current.communities[prefix(slug)].data).toMatchObject({
         communityView,
       });
     });
@@ -83,19 +86,19 @@ describe("useCommunitiesStore", () => {
       ] satisfies SubscribedType[]);
 
       act(() => {
-        result.current.patchCommunity(slug, {
+        result.current.patchCommunity(slug, prefix, {
           communityView,
           optimisticSubscribed,
         });
       });
 
       act(() => {
-        result.current.patchCommunity(slug, {
+        result.current.patchCommunity(slug, prefix, {
           communityView,
         });
       });
 
-      expect(result.current.communities[slug].data).toMatchObject({
+      expect(result.current.communities[prefix(slug)].data).toMatchObject({
         optimisticSubscribed,
       });
     });
@@ -113,16 +116,16 @@ describe("useCommunitiesStore", () => {
       const { result } = renderHook(() => useCommunitiesStore());
 
       act(() => {
-        result.current.cacheCommunities([
+        result.current.cacheCommunities(prefix, [
           { communityView: communityView1 },
           { communityView: communityView2 },
         ]);
       });
 
-      expect(result.current.communities[slug1].data).toMatchObject({
+      expect(result.current.communities[prefix(slug1)].data).toMatchObject({
         communityView: communityView1,
       });
-      expect(result.current.communities[slug2].data).toMatchObject({
+      expect(result.current.communities[prefix(slug2)].data).toMatchObject({
         communityView: communityView2,
       });
     });
@@ -138,23 +141,23 @@ describe("useCommunitiesStore", () => {
       ] satisfies SubscribedType[]);
 
       act(() => {
-        result.current.cacheCommunities([
+        result.current.cacheCommunities(prefix, [
           { communityView: communityView1, optimisticSubscribed },
           { communityView: communityView2, optimisticSubscribed },
         ]);
       });
 
       act(() => {
-        result.current.cacheCommunities([
+        result.current.cacheCommunities(prefix, [
           { communityView: communityView1 },
           { communityView: communityView2 },
         ]);
       });
 
-      expect(result.current.communities[slug1].data).toMatchObject({
+      expect(result.current.communities[prefix(slug1)].data).toMatchObject({
         optimisticSubscribed,
       });
-      expect(result.current.communities[slug2].data).toMatchObject({
+      expect(result.current.communities[prefix(slug2)].data).toMatchObject({
         optimisticSubscribed,
       });
     });

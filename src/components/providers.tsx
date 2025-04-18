@@ -14,7 +14,7 @@ import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimen
 import * as Sentry from "@sentry/react";
 import { Toaster } from "@/src/components/ui/sonner";
 
-const CACHE_VERSON = 3;
+const REACT_QUERY_CACHE_VERSON = 4;
 
 const db = createDb("react-query");
 const persister: Persister = {
@@ -75,7 +75,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       client={queryClient}
       persistOptions={{
         persister,
-        buster: String(CACHE_VERSON),
+        buster: String(REACT_QUERY_CACHE_VERSON),
       }}
     >
       <RefreshNotificationCount />

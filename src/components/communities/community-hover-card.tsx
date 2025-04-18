@@ -12,6 +12,7 @@ import {
   HoverCardTrigger,
 } from "@/src/components/ui/hover-card";
 import { useState } from "react";
+import { useAuth } from "@/src/stores/auth";
 
 dayjs.extend(localizedFormat);
 
@@ -27,7 +28,10 @@ export function CommunityHoverCard({
     name: communityName,
     enabled,
   });
-  const data = useCommunitiesStore((s) => s.communities[communityName]?.data);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const data = useCommunitiesStore(
+    (s) => s.communities[getCachePrefixer()(communityName)]?.data,
+  );
 
   const communityView = data?.communityView;
   const community = communityView?.community;

@@ -10,6 +10,7 @@ import { LuCakeSlice } from "react-icons/lu";
 import { Link } from "react-router-dom";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
+import { useAuth } from "@/src/stores/auth";
 
 dayjs.extend(localizedFormat);
 
@@ -24,7 +25,10 @@ export function CommunitySidebar({
   hideDescription?: boolean;
   asPage?: boolean;
 }) {
-  const data = useCommunitiesStore((s) => s.communities[communityName]?.data);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const data = useCommunitiesStore(
+    (s) => s.communities[getCachePrefixer()(communityName)]?.data,
+  );
 
   if (!data) {
     return null;
@@ -115,7 +119,10 @@ export function SmallScreenSidebar({
   useCommunity({
     name: communityName,
   });
-  const data = useCommunitiesStore((s) => s.communities[communityName]?.data);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const data = useCommunitiesStore(
+    (s) => s.communities[getCachePrefixer()(communityName)]?.data,
+  );
 
   if (!data) {
     return null;
