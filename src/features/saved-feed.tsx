@@ -1,6 +1,7 @@
 import {
   FeedPostCard,
   getPostProps,
+  PostCardSkeleton,
   PostProps,
 } from "@/src/components/posts/post";
 import { ContentGutters } from "../components/gutters";
@@ -33,10 +34,9 @@ import { useAuth } from "../stores/auth";
 
 const EMPTY_ARR = [];
 
-const HEADER = "header";
-
+const NO_ITEMS = "NO_ITEMS";
 type Item =
-  | typeof HEADER
+  | typeof NO_ITEMS
   | PostProps
   | {
       path: string;
@@ -104,7 +104,7 @@ export default function SavedFeed() {
     fetchNextPage,
     isFetchingNextPage,
     refetch,
-    // isRefetching,
+    isFetching,
   } = posts;
 
   const postCache = usePostsStore((s) => s.posts);
@@ -165,27 +165,33 @@ export default function SavedFeed() {
           <FlashList<Item>
             key={type === "comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
-            data={[HEADER, ...data]}
+            data={data.length === 0 && !isFetching ? [NO_ITEMS] : data}
+            header={
+              <ContentGutters className="bg-background py-2">
+                <div className="flex-1">
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    size="sm"
+                    value={type}
+                    onValueChange={(val) =>
+                      val && setType(val as "posts" | "comments" | "all")
+                    }
+                  >
+                    <ToggleGroupItem value="all">All</ToggleGroupItem>
+                    <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                    <ToggleGroupItem value="comments">comments</ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+                <></>
+              </ContentGutters>
+            }
             renderItem={({ item }) => {
-              if (item === HEADER) {
+              if (item === NO_ITEMS) {
                 return (
-                  <ContentGutters className="bg-background py-2">
-                    <div className="flex-1">
-                      <ToggleGroup
-                        type="single"
-                        variant="outline"
-                        size="sm"
-                        value={type}
-                        onValueChange={(val) =>
-                          val && setType(val as "posts" | "comments" | "all")
-                        }
-                      >
-                        <ToggleGroupItem value="all">All</ToggleGroupItem>
-                        <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                        <ToggleGroupItem value="comments">
-                          comments
-                        </ToggleGroupItem>
-                      </ToggleGroup>
+                  <ContentGutters>
+                    <div className="flex-1 italic text-muted-foreground p-6 text-center">
+                      <span>Nothing saved yet</span>
                     </div>
                     <></>
                   </ContentGutters>
@@ -211,6 +217,12 @@ export default function SavedFeed() {
             estimatedItemSize={475}
             stickyHeaderIndices={[0]}
             refresh={refetch}
+            placeholder={
+              <ContentGutters className="px-0">
+                <PostCardSkeleton />
+                <></>
+              </ContentGutters>
+            }
           />
         </PostReportProvider>
       </IonContent>

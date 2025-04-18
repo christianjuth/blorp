@@ -46,7 +46,8 @@ import { Skeleton } from "../components/ui/skeleton";
 import { useFiltersStore } from "../stores/filters";
 import { useAuth } from "../stores/auth";
 
-type Item = PostProps | CommentView;
+const NO_ITEMS = "NO_ITEMS";
+type Item = typeof NO_ITEMS | PostProps | CommentView;
 
 function isPost(item: Item): item is PostProps {
   return _.isObject(item) && "apId" in item;
@@ -112,9 +113,9 @@ export default function User() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-    // isRefetching,
     refetch,
     data,
+    isFetching,
   } = usePersonFeed({ actorId });
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -157,10 +158,6 @@ export default function User() {
         });
     }
   }, [data?.pages, postCache, type, getCachePrefixer]);
-
-  if (!personView) {
-    return null;
-  }
 
   return (
     <IonPage>
@@ -222,13 +219,16 @@ export default function User() {
             </Avatar>
 
             <span className="font-bold">
-              {personView.person.display_name ?? personView.person.name}
+              {personView?.person.display_name ?? personView?.person.name}
             </span>
 
             <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <LuCakeSlice />
               <span>
-                Created {dayjs(personView.person.published).format("ll")}
+                Created{" "}
+                {personView
+                  ? dayjs(personView.person.published).format("ll")
+                  : ""}
               </span>
             </div>
 
@@ -264,7 +264,7 @@ export default function User() {
           <FlashList<Item>
             key={type === "comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
-            data={listData}
+            data={listData.length === 0 && !isFetching ? [NO_ITEMS] : listData}
             header={
               <ContentGutters className="max-md:hidden">
                 <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
@@ -297,6 +297,17 @@ export default function User() {
               </ContentGutters>
             }
             renderItem={({ item }) => {
+              if (item === NO_ITEMS) {
+                return (
+                  <ContentGutters>
+                    <div className="flex-1 italic text-muted-foreground p-6 text-center">
+                      <span>Nothing to see here</span>
+                    </div>
+                    <></>
+                  </ContentGutters>
+                );
+              }
+
               if (isPost(item)) {
                 return <Post {...item} />;
               }

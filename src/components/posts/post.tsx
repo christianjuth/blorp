@@ -110,7 +110,7 @@ export interface PostProps extends ReturnType<typeof getPostProps> {
   onNavigate?: () => any;
 }
 
-export function PostCardSkeleton() {
+export function PostCardSkeleton(props: { hideImage?: boolean }) {
   const hideImage = useRef(Math.random()).current < 0.4;
   return (
     <div className="flex-1 pt-4 gap-2 flex flex-col max-md:px-2.5 pb-4">
@@ -125,7 +125,7 @@ export function PostCardSkeleton() {
 
       <Skeleton className="h-7" />
 
-      {!hideImage && (
+      {(!hideImage || props.hideImage === false) && (
         <Skeleton className="aspect-video max-md:-mx-2.5 max-md:rounded-none" />
       )}
 

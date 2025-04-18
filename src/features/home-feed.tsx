@@ -43,6 +43,9 @@ export const scrollToTop = {
 
 const EMPTY_ARR = [];
 
+const NO_ITEMS = "NO_ITEMS";
+type Item = typeof NO_ITEMS | PostProps;
+
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
     <FeedPostCard {...props} />
@@ -169,6 +172,7 @@ export default function HomeFeed() {
     isFetchingNextPage,
     refetch,
     isRefetching,
+    isFetching,
   } = posts;
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -187,9 +191,13 @@ export default function HomeFeed() {
     return postViews;
   }, [posts.data?.pages, postCache, getCachePrefixer]);
 
-  const firstPost = data.find((p) => !p.pinned);
+  const firstReadPost = data.find((p) => !p.pinned);
+  const firstUnreadPost = data.find((p) => !p.pinned && !p.read);
+  const mostRecentPostId = mostRecentPost?.data?.post.ap_id;
   const hasNewPost =
-    firstPost && mostRecentPost?.data?.post.ap_id !== firstPost?.apId;
+    mostRecentPostId &&
+    mostRecentPostId !== firstReadPost?.apId &&
+    mostRecentPostId !== firstUnreadPost?.apId;
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focused, setFocused] = useState(false);
@@ -259,12 +267,12 @@ export default function HomeFeed() {
       </IonHeader>
       <IonContent scrollY={false} fullscreen={media.maxMd}>
         <PostReportProvider>
-          <FlashList
+          <FlashList<Item>
             key={postSort + listingType}
             onFocusChange={setFocused}
             ref={scrollRef}
             estimatedItemSize={450}
-            data={data}
+            data={data.length === 0 && !isFetching ? [NO_ITEMS] : data}
             placeholder={
               <ContentGutters className="px-0">
                 <PostCardSkeleton />
@@ -272,6 +280,16 @@ export default function HomeFeed() {
               </ContentGutters>
             }
             renderItem={({ item }) => {
+              if (item === NO_ITEMS) {
+                return (
+                  <ContentGutters>
+                    <div className="flex-1 italic text-muted-foreground p-6 text-center">
+                      <span>Nothing to see here</span>
+                    </div>
+                    <></>
+                  </ContentGutters>
+                );
+              }
               return (
                 <Post
                   key={item.apId}

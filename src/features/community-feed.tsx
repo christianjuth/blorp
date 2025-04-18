@@ -46,7 +46,8 @@ import { useAuth } from "../stores/auth";
 
 const EMPTY_ARR = [];
 
-type Item = PostProps;
+const NO_ITEMS = "NO_ITEMS";
+type Item = typeof NO_ITEMS | PostProps;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
@@ -89,6 +90,7 @@ export default function CommunityFeed() {
     isFetchingNextPage,
     refetch,
     isRefetching,
+    isFetching,
   } = posts;
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -105,11 +107,15 @@ export default function CommunityFeed() {
       .filter(isNotNull);
 
     return postViews;
-  }, [posts.data?.pages, postCache, getCachePrefixer]);
+  }, [posts.data?.pages, postCache, getCachePrefixer, isFetching]);
 
-  const firstPost = data.find((p) => !p.pinned);
+  const firstReadPost = data.find((p) => !p.pinned);
+  const firstUnreadPost = data.find((p) => !p.pinned && !p.read);
+  const mostRecentPostId = mostRecentPost?.data?.post.ap_id;
   const hasNewPost =
-    firstPost && mostRecentPost?.data?.post.ap_id !== firstPost?.apId;
+    mostRecentPostId &&
+    mostRecentPostId !== firstReadPost?.apId &&
+    mostRecentPostId !== firstUnreadPost?.apId;
 
   return (
     <IonPage>
@@ -179,7 +185,7 @@ export default function CommunityFeed() {
           <FlashList<Item>
             key={postSort}
             className="h-full ion-content-scroll-host"
-            data={data}
+            data={data.length === 0 && !isFetching ? [NO_ITEMS] : data}
             header={
               <>
                 {communityName && (
@@ -200,7 +206,19 @@ export default function CommunityFeed() {
                 </ContentGutters>
               </>
             }
-            renderItem={({ item }) => <Post {...item} />}
+            renderItem={({ item }) => {
+              if (item === NO_ITEMS) {
+                return (
+                  <ContentGutters>
+                    <div className="flex-1 italic text-muted-foreground p-6 text-center">
+                      <span>Nothing to see here</span>
+                    </div>
+                    <></>
+                  </ContentGutters>
+                );
+              }
+              return <Post {...item} />;
+            }}
             onEndReached={() => {
               if (hasNextPage && !isFetchingNextPage) {
                 fetchNextPage();
