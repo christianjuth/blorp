@@ -35,6 +35,7 @@ import { LuLoaderCircle } from "react-icons/lu";
 import { dispatchScrollEvent } from "../lib/scroll-events";
 import { PostReportProvider } from "../components/posts/post-report";
 import { DownloadButton } from "./download";
+import { useAuth } from "../stores/auth";
 
 export const scrollToTop = {
   current: { scrollToOffset: () => {} },
@@ -170,6 +171,7 @@ export default function HomeFeed() {
     isRefetching,
   } = posts;
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const postCache = usePostsStore((s) => s.posts);
 
   const data = useMemo(() => {
@@ -177,13 +179,13 @@ export default function HomeFeed() {
 
     const postViews = postIds
       .map((apId) => {
-        const postView = postCache[apId]?.data;
+        const postView = postCache[getCachePrefixer()(apId)]?.data;
         return postView ? getPostProps(postView, "home") : null;
       })
       .filter(isNotNull);
 
     return postViews;
-  }, [posts.data?.pages, postCache]);
+  }, [posts.data?.pages, postCache, getCachePrefixer]);
 
   const firstPost = data.find((p) => !p.pinned);
   const hasNewPost =

@@ -119,7 +119,17 @@
 
 ion-toolbar.ios.ios::part(container),
 ion-toolbar.md.md {
-  @apply max-w-[1050px] mx-auto px-2.5 md:px-6;
+  @apply max-w-[1050px] mx-auto px-2.5;
+}
+/**
+* Tailwind apply doesn't seem to work with media queries
+* so we have to do this nonsense
+**/
+@media screen and (width >= 48rem) {
+  ion-toolbar.ios.ios::part(container),
+  ion-toolbar.md.md {
+    @apply px-6;
+  }
 }
 
 ion-toolbar::part(.toolbar-container) {

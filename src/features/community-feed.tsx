@@ -42,6 +42,7 @@ import { Button } from "../components/ui/button";
 import { dispatchScrollEvent } from "../lib/scroll-events";
 import { LuLoaderCircle } from "react-icons/lu";
 import { FaArrowUp } from "react-icons/fa6";
+import { useAuth } from "../stores/auth";
 
 const EMPTY_ARR = [];
 
@@ -90,6 +91,7 @@ export default function CommunityFeed() {
     isRefetching,
   } = posts;
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const postCache = usePostsStore((s) => s.posts);
 
   const data = useMemo(() => {
@@ -97,13 +99,13 @@ export default function CommunityFeed() {
 
     const postViews = postIds
       .map((apId) => {
-        const postView = postCache[apId]?.data;
+        const postView = postCache[getCachePrefixer()(apId)]?.data;
         return postView ? getPostProps(postView, "community") : null;
       })
       .filter(isNotNull);
 
     return postViews;
-  }, [posts.data?.pages, postCache]);
+  }, [posts.data?.pages, postCache, getCachePrefixer]);
 
   const firstPost = data.find((p) => !p.pinned);
   const hasNewPost =

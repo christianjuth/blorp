@@ -44,6 +44,7 @@ import { useMedia } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";
 import { Skeleton } from "../components/ui/skeleton";
 import { useFiltersStore } from "../stores/filters";
+import { useAuth } from "../stores/auth";
 
 type Item = PostProps | CommentView;
 
@@ -59,7 +60,10 @@ const Post = memo((props: PostProps) => (
 ));
 
 const Comment = memo(function Comment({ path }: { path: string }) {
-  const commentView = useCommentsStore((s) => s.comments[path]?.data);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const commentView = useCommentsStore(
+    (s) => s.comments[getCachePrefixer()(path)]?.data,
+  );
   const linkCtx = useLinkContext();
 
   if (!commentView) {
@@ -113,8 +117,9 @@ export default function User() {
     data,
   } = usePersonFeed({ actorId });
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const personView = useProfilesStore((s) =>
-    actorId ? s.profiles[actorId]?.data : undefined,
+    actorId ? s.profiles[getCachePrefixer()(actorId)]?.data : undefined,
   );
 
   const person = personView?.person;
@@ -130,7 +135,7 @@ export default function User() {
 
     const postViews = postIds
       .map((apId) => {
-        const postView = postCache[apId]?.data;
+        const postView = postCache[getCachePrefixer()(apId)]?.data;
         return postView ? getPostProps(postView) : null;
       })
       .filter(isNotNull);
@@ -151,7 +156,7 @@ export default function User() {
           return bPublished.localeCompare(aPublished);
         });
     }
-  }, [data?.pages, postCache, type]);
+  }, [data?.pages, postCache, type, getCachePrefixer]);
 
   if (!personView) {
     return null;

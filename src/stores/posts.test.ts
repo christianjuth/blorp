@@ -4,6 +4,9 @@ import * as lemmy from "@/test-utils/lemmy";
 import { usePostsStore } from "./posts";
 import { FlattenedPost, flattenPost } from "../lib/lemmy/utils";
 import _ from "lodash";
+import { getCachePrefixer } from "./auth";
+
+const prefix = getCachePrefixer({ instance: "123" });
 
 describe("usePostsStore", () => {
   describe("cachePost", () => {
@@ -13,10 +16,10 @@ describe("usePostsStore", () => {
       const { result } = renderHook(() => usePostsStore());
 
       act(() => {
-        result.current.cachePost(flatPost);
+        result.current.cachePost(prefix, flatPost);
       });
 
-      expect(result.current.posts[post.post.ap_id].data).toMatchObject(
+      expect(result.current.posts[prefix(post.post.ap_id)].data).toMatchObject(
         flatPost,
       );
     });
@@ -42,26 +45,30 @@ describe("usePostsStore", () => {
       const { result } = renderHook(() => usePostsStore());
 
       act(() => {
-        result.current.cachePost(flatPostOptimistic);
+        result.current.cachePost(prefix, flatPostOptimistic);
       });
 
-      expect(result.current.posts[post1.post.ap_id].data).toMatchObject({
-        optimisticRead: read,
-        optimisticDeleted: deleted,
-        optimisticSaved: saved,
-        optimisticMyVote: vote,
-      });
+      expect(result.current.posts[prefix(post1.post.ap_id)].data).toMatchObject(
+        {
+          optimisticRead: read,
+          optimisticDeleted: deleted,
+          optimisticSaved: saved,
+          optimisticMyVote: vote,
+        },
+      );
 
       act(() => {
-        result.current.cachePost(flatPost);
+        result.current.cachePost(prefix, flatPost);
       });
 
-      expect(result.current.posts[post1.post.ap_id].data).toMatchObject({
-        optimisticRead: read,
-        optimisticDeleted: deleted,
-        optimisticSaved: saved,
-        optimisticMyVote: vote,
-      });
+      expect(result.current.posts[prefix(post1.post.ap_id)].data).toMatchObject(
+        {
+          optimisticRead: read,
+          optimisticDeleted: deleted,
+          optimisticSaved: saved,
+          optimisticMyVote: vote,
+        },
+      );
     });
   });
 
@@ -75,13 +82,13 @@ describe("usePostsStore", () => {
       const { result } = renderHook(() => usePostsStore());
 
       act(() => {
-        result.current.cachePosts([flatPost1, flatPost2]);
+        result.current.cachePosts(prefix, [flatPost1, flatPost2]);
       });
 
-      expect(result.current.posts[post1.post.ap_id].data).toMatchObject(
+      expect(result.current.posts[prefix(post1.post.ap_id)].data).toMatchObject(
         flatPost1,
       );
-      expect(result.current.posts[post2.post.ap_id].data).toMatchObject(
+      expect(result.current.posts[prefix(post2.post.ap_id)].data).toMatchObject(
         flatPost2,
       );
     });
@@ -107,26 +114,30 @@ describe("usePostsStore", () => {
       const { result } = renderHook(() => usePostsStore());
 
       act(() => {
-        result.current.cachePosts([flatPostOptimistic]);
+        result.current.cachePosts(prefix, [flatPostOptimistic]);
       });
 
-      expect(result.current.posts[post1.post.ap_id].data).toMatchObject({
-        optimisticRead: read,
-        optimisticDeleted: deleted,
-        optimisticSaved: saved,
-        optimisticMyVote: vote,
-      });
+      expect(result.current.posts[prefix(post1.post.ap_id)].data).toMatchObject(
+        {
+          optimisticRead: read,
+          optimisticDeleted: deleted,
+          optimisticSaved: saved,
+          optimisticMyVote: vote,
+        },
+      );
 
       act(() => {
-        result.current.cachePosts([flatPost]);
+        result.current.cachePosts(prefix, [flatPost]);
       });
 
-      expect(result.current.posts[post1.post.ap_id].data).toMatchObject({
-        optimisticRead: read,
-        optimisticDeleted: deleted,
-        optimisticSaved: saved,
-        optimisticMyVote: vote,
-      });
+      expect(result.current.posts[prefix(post1.post.ap_id)].data).toMatchObject(
+        {
+          optimisticRead: read,
+          optimisticDeleted: deleted,
+          optimisticSaved: saved,
+          optimisticMyVote: vote,
+        },
+      );
     });
   });
 
@@ -136,10 +147,12 @@ describe("usePostsStore", () => {
     const { result } = renderHook(() => usePostsStore());
 
     act(() => {
-      result.current.patchPost(flatPost.post.ap_id, flatPost);
+      result.current.patchPost(flatPost.post.ap_id, prefix, flatPost);
     });
 
-    expect(result.current.posts[post.post.ap_id].data).toMatchObject(flatPost);
+    expect(result.current.posts[prefix(post.post.ap_id)].data).toMatchObject(
+      flatPost,
+    );
 
     const vote = _.random(-1, 1);
     const saved = _.sample([true, false]);
@@ -147,7 +160,7 @@ describe("usePostsStore", () => {
     const read = _.sample([true, false]);
 
     act(() => {
-      result.current.patchPost(flatPost.post.ap_id, {
+      result.current.patchPost(flatPost.post.ap_id, prefix, {
         optimisticMyVote: vote,
         optimisticSaved: saved,
         optimisticDeleted: deleted,
@@ -155,7 +168,7 @@ describe("usePostsStore", () => {
       });
     });
 
-    expect(result.current.posts[post.post.ap_id].data).toMatchObject({
+    expect(result.current.posts[prefix(post.post.ap_id)].data).toMatchObject({
       ...flatPost,
       optimisticMyVote: vote,
       optimisticSaved: saved,

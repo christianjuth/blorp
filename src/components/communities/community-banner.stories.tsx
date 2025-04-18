@@ -5,13 +5,15 @@ import { useCommunitiesStore } from "@/src/stores/communities";
 import { useEffect } from "react";
 import * as lemmy from "@/test-utils/lemmy";
 import { createCommunitySlug } from "@/src/lib/lemmy/utils";
+import { useAuth } from "@/src/stores/auth";
 
 function LoadCommunity() {
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
 
   useEffect(() => {
     const communityView = lemmy.getCommunity();
-    cacheCommunity({
+    cacheCommunity(getCachePrefixer(), {
       communityView,
     });
   }, []);

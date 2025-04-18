@@ -4,13 +4,17 @@ import { createSlug } from "@/src/lib/lemmy/utils";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import { Skeleton } from "../ui/skeleton";
 import { useState } from "react";
+import { useAuth } from "@/src/stores/auth";
 
 export function CommunityBanner({ communityName }: { communityName?: string }) {
   const [bannerReady, setBannerReady] = useState(false);
   const [iconReady, setIconReady] = useState(false);
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const data = useCommunitiesStore((s) =>
-    communityName ? s.communities[communityName]?.data : null,
+    communityName
+      ? s.communities[getCachePrefixer()(communityName)]?.data
+      : null,
   );
 
   const slug = data ? createSlug(data.communityView.community) : null;
