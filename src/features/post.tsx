@@ -73,7 +73,7 @@ export default function Post() {
     (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
   );
 
-  useCommunity({
+  const community = useCommunity({
     name: communityName,
   });
   const postQuery = usePost({
@@ -253,7 +253,12 @@ export default function Post() {
 
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
           <div className="flex-1" />
-          {communityName && <CommunitySidebar communityName={communityName} />}
+          {communityName && (
+            <CommunitySidebar
+              communityName={communityName}
+              actorId={community.data?.community_view.community.actor_id}
+            />
+          )}
         </ContentGutters>
       </IonContent>
     </IonPage>
