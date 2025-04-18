@@ -133,7 +133,7 @@ export default function User() {
 
     const postIds = data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
-    const postViews = postIds
+    const postViews = _.uniq(postIds)
       .map((apId) => {
         const postView = postCache[getCachePrefixer()(apId)]?.data;
         return postView ? getPostProps(postView) : null;
