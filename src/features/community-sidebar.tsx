@@ -46,7 +46,11 @@ export default function CommunityFeed() {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <CommunitySidebar communityName={communityName} asPage />
+        <CommunitySidebar
+          communityName={communityName}
+          actorId={community.data?.community_view.community.actor_id}
+          asPage
+        />
       </IonContent>
     </IonPage>
   );

@@ -28,7 +28,7 @@ export function CommunitySidebar({
   asPage,
 }: {
   communityName: string;
-  actorId?: string;
+  actorId: string | undefined;
   hideDescription?: boolean;
   asPage?: boolean;
 }) {
