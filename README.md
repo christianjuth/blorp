@@ -1,43 +1,18 @@
-![github banner](https://github.com/user-attachments/assets/3e0142ab-eee8-4a18-be95-50c5f31ba171)
+![blorp-promo](https://github.com/user-attachments/assets/88a3bd32-f8a1-4ecb-99fc-5e00286fee55)
 
-<p align="center"/>A cross platform web, iOS and Android client for Lemmy</p>
+## Try it!
+* [Web](https://blorpblorp.xyz/)
 
-## 🚀 Features/Todo
-Blorp is a work in progress, and the goal is to check off everything below for v1
-- [ ] Posts
-  - [X] Markdown editor - _working but needs improvement_
-  - [X] Create post - _working but needs improvement_
-  - [X] Comment on post
-  - [X] Report
-  - [ ] Moderate
-- [ ] Communities
-  - [X] Join/Leave
-  - [X] Sidebar on large and small screens
-  - [ ] Create
-  - [ ] Report
-  - [ ] Moderate
-- [ ] Users
-  - [ ] User page
-    - [X] Feed of user's posts
-    - [ ] Feed of users comments
-  - [X] Multi acount login
-- [ ] Settings
-  - [X] Offline image caching for native
-  - [X] Clear cache
-  - [X] Post filtering
-  - [X] Link to GitHub for issue reporting
-- [ ] Internal
-  - [X] Anonymously catch runtime errors using Sentry
-  - [ ] End-to-end tests
-    - [X] Initial setup
-    - [ ] Test critical user flows
-  - [ ] Unit tests
-    - [ ] Tests Zustand stores - _mostly done_
-    - [X] Tests lib folder
-  - [X] Storybook
-    - [X] Visial testing via Cromatic
+## 🚀 Download
+* [iOS TestFlight Beta](https://testflight.apple.com/join/T2pYyShr)
+* [macOS](https://github.com/christianjuth/blorp/releases/latest)
+* Android Beta
+  * Google requires me to do some closed beta testing before I can open it to the public
+  * DM moseschrute@lemmy.ml with the email associalted with your Google account for access (this is temporrary)
+
 
 ## 📚 Stack
-
+* [Ionic/Capacitor](https://ionicframework.com/docs/) - An open source UI toolkit for building performant, high-quality mobile apps using web technologies
+* [Tauri](https://tauri.app/) - Create small, fast, secure, cross-platform applications
 * [Vite](https://vite.dev/) - Next Generation Frontend Tooling
 * [Zustand](https://github.com/pmndrs/zustand) - Bear necessities for state management in React
