@@ -36,6 +36,7 @@ import { useParams } from "react-router";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
 import { useMedia } from "../lib/hooks";
+import { NotFound } from "./not-found";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -154,8 +155,8 @@ export default function Post() {
   const mobleReply = useInlineCommentReplyState();
   const reply = useInlineCommentReplyState();
 
-  if (!decodedApId) {
-    return null;
+  if (!decodedApId || (postQuery.isError && !post)) {
+    return <NotFound />;
   }
 
   const opId = post?.creator.id;
@@ -191,7 +192,10 @@ export default function Post() {
                 return post ? (
                   <MemoedPostCard {...getPostProps(post)} />
                 ) : (
-                  <PostCardSkeleton hideImage={false} />
+                  <ContentGutters className="px-0">
+                    <PostCardSkeleton hideImage={false} />
+                    <></>
+                  </ContentGutters>
                 );
               }
 

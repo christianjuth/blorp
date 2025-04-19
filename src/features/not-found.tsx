@@ -7,7 +7,7 @@ import {
 } from "@ionic/react";
 import { ContentGutters } from "../components/gutters";
 
-export default function NotFound() {
+export function NotFound() {
   return (
     <IonPage>
       <IonHeader>
@@ -24,3 +24,5 @@ export default function NotFound() {
     </IonPage>
   );
 }
+
+export default NotFound;

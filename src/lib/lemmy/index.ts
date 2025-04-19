@@ -51,6 +51,10 @@ import { useProfilesStore } from "@/src/stores/profiles";
 import { useIonRouter } from "@ionic/react";
 import { toast } from "sonner";
 
+enum Errors {
+  OBJECT_NOT_FOUND = "couldnt_find_object",
+}
+
 function useLemmyClient(config?: { instance?: string }) {
   let jwt = useAuth((s) => s.getSelectedAccount().jwt);
   const myUserId = useAuth(
@@ -357,6 +361,13 @@ export function usePost({
       }
 
       return post;
+    },
+    retry: (count, err) => {
+      const notFound = err.message === Errors.OBJECT_NOT_FOUND;
+      if (notFound) {
+        return false;
+      }
+      return count <= 3;
     },
     enabled: !!ap_id && enabled,
     initialData,
