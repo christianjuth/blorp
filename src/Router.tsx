@@ -23,7 +23,6 @@ import { Logo } from "@/src/components/logo";
 import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
 import { useAuth } from "@/src/stores/auth";
 import { useListCommunities, useNotificationCount } from "@/src/lib/lemmy";
-import { SentryAddCtx } from "./components/sentry";
 
 import { lazy } from "react";
 import * as routes from "@/src/lib/routes";
@@ -414,7 +413,6 @@ const TABS: {
 export default function Router() {
   return (
     <IonReactRouter>
-      <SentryAddCtx />
       <Tabs />
     </IonReactRouter>
   );

@@ -176,9 +176,6 @@ function CacheSection() {
 }
 
 function PrivacySection() {
-  const [alrt] = useIonAlert();
-  const shareAnalyticsData = useSettingsStore((s) => s.shareAnalyticsData);
-  const setShareAnayticsData = useSettingsStore((s) => s.setShareAnayticsData);
   const shareCrashData = useSettingsStore((s) => s.shareCrashData);
   const setShareCrashData = useSettingsStore((s) => s.setShareCrashData);
   return (
@@ -201,19 +198,6 @@ function PrivacySection() {
               You can verify exactly what data is collected here.
             </a>
           </div>
-        </IonItem>
-        <IonItem>
-          <IonToggle
-            checked={shareAnalyticsData}
-            onIonChange={(e) => {
-              setShareAnayticsData(e.detail.checked);
-              if (!e.detail.checked) {
-                alrt("You must restart the app for this change to take effect");
-              }
-            }}
-          >
-            Share analytics data
-          </IonToggle>
         </IonItem>
 
         <IonItem className="text-sm text-muted-foreground">

@@ -90,8 +90,6 @@ jobs:
           yarn install --immutable
 
       - name: Build Blorp React app
-        env: 
-          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
         run: yarn build
 
       - name: Hash the output of yarn why playwright
