@@ -175,61 +175,6 @@ function CacheSection() {
   );
 }
 
-function PrivacySection() {
-  const shareCrashData = useSettingsStore((s) => s.shareCrashData);
-  const setShareCrashData = useSettingsStore((s) => s.setShareCrashData);
-  return (
-    <>
-      <SectionLabel>PRIVACY</SectionLabel>
-
-      <IonList inset>
-        <IonItem className="text-sm text-muted-foreground">
-          <div className="py-3">
-            <p>
-              We collect minimal analytics data using the EU-based,
-              privacy-conscious service Plausible.
-            </p>
-            <a
-              className="text-brand"
-              href="https://plausible.io/blorpblorp.xyz"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              You can verify exactly what data is collected here.
-            </a>
-          </div>
-        </IonItem>
-
-        <IonItem className="text-sm text-muted-foreground">
-          <div className="py-3">
-            <p className="max-w-xl">
-              We collect very minimal crash data that DOES NOT include any
-              information about your Lemmy account except the server you are
-              connected to.
-            </p>
-            <a
-              className="text-brand"
-              href="https://github.com/christianjuth/blorp/blob/main/src/components/sentry.tsx"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              You can view the code we use to collect crash data
-            </a>
-          </div>
-        </IonItem>
-        <IonItem>
-          <IonToggle
-            checked={shareCrashData}
-            onIonChange={(e) => setShareCrashData(e.detail.checked)}
-          >
-            Share crash data
-          </IonToggle>
-        </IonItem>
-      </IonList>
-    </>
-  );
-}
-
 function Divider() {
   return <div />;
 }
@@ -317,8 +262,6 @@ export default function SettingsPage() {
             </IonList>
 
             <CacheSection />
-
-            <PrivacySection />
 
             <SectionLabel>OTHER</SectionLabel>
 
