@@ -348,7 +348,7 @@ ion-toolbar.sc-ion-searchbar-ios-h, ion-toolbar .sc-ion-searchbar-ios-h {
   min-height: 45px !important;
 }
 
-ion-modal {
+ion-modal.ios {
   max-height: calc(100svh - var(--keyboard-height));
 }
 
