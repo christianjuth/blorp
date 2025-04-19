@@ -131,7 +131,7 @@ function AuthModal({
 
   const defaultSort = useMemo(
     () =>
-      _.sortBy(instances.data, (i) => i.counts.users_active_month).toReversed(),
+      _.reverse(_.sortBy(instances.data, (i) => i.counts.users_active_month)),
     [instances.data],
   );
 

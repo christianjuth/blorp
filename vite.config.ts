@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import vitePluginChecker from "vite-plugin-checker";
 import circleDependency from "vite-plugin-circular-dependency";
 import path from "path";
+import legacy from "@vitejs/plugin-legacy";
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -14,6 +15,9 @@ export default defineConfig(({ mode }) => ({
     }),
     tailwindcss(),
     react(),
+    legacy({
+      targets: ["defaults", "not IE 11"],
+    }),
   ],
   esbuild: {
     drop: mode === "production" ? ["console"] : [],
