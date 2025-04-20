@@ -75,6 +75,7 @@ export default function CommunityFeed() {
   const community = useCommunity({
     name: communityName,
   });
+  const modApIds = community.data?.moderators.map((m) => m.moderator.actor_id);
 
   const updateRecent = useRecentCommunitiesStore((s) => s.update);
 
@@ -102,7 +103,12 @@ export default function CommunityFeed() {
     const postViews = _.uniq(postIds)
       .map((apId) => {
         const postView = postCache[getCachePrefixer()(apId)]?.data;
-        return postView ? getPostProps(postView, "community") : null;
+        return postView
+          ? getPostProps(postView, {
+              featuredContext: "community",
+              modApIds,
+            })
+          : null;
       })
       .filter(isNotNull);
 

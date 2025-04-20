@@ -78,6 +78,7 @@ export default function Post() {
   const community = useCommunity({
     name: communityName,
   });
+  const modApIds = community.data?.moderators.map((m) => m.moderator.actor_id);
   const postQuery = usePost({
     ap_id: decodedApId,
   });
@@ -190,7 +191,12 @@ export default function Post() {
             renderItem={({ item }) => {
               if (item === "post") {
                 return post ? (
-                  <MemoedPostCard {...getPostProps(post)} />
+                  <MemoedPostCard
+                    {...getPostProps(post, {
+                      featuredContext: "community",
+                      modApIds,
+                    })}
+                  />
                 ) : (
                   <ContentGutters className="px-0">
                     <PostCardSkeleton hideImage={false} />
@@ -253,6 +259,7 @@ export default function Post() {
                     myUserId={myUserId}
                     noBorder={item[0] === lastComment?.[0]}
                     communityName={communityName}
+                    modApIds={modApIds}
                   />
                   <></>
                 </ContentGutters>

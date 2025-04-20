@@ -33,8 +33,13 @@ function Notice({ children }: { children: React.ReactNode }) {
 
 export function getPostProps(
   postView: FlattenedPost,
-  featuredContext?: "community" | "home",
+  config?: {
+    featuredContext?: "community" | "home";
+    modApIds?: string[];
+  },
 ) {
+  const { featuredContext, modApIds } = config ?? {};
+
   const embed = getPostEmbed(postView.post);
 
   const imageDetails = postView.imageDetails;
@@ -51,7 +56,8 @@ export function getPostProps(
 
   let pinned = false;
   if (featuredContext === "community") {
-    pinned = postView.post.featured_community;
+    pinned =
+      postView.optimisticFeaturedCommunity ?? postView.post.featured_community;
   }
   if (featuredContext === "home") {
     pinned = postView.post.featured_local;
@@ -74,6 +80,7 @@ export function getPostProps(
 
   return {
     ...embed,
+    isMod: modApIds?.includes(postView.creator.actor_id),
     id: postView.post.id,
     apId: postView.post.ap_id,
     encodedApId: encodeApId(postView.post.ap_id),
@@ -86,6 +93,8 @@ export function getPostProps(
     myVote,
     score,
     pinned,
+    featuredCommunity:
+      postView.optimisticFeaturedCommunity ?? postView.post.featured_community,
     saved: postView.optimisticSaved ?? postView.saved,
     creatorId: postView.creator.id,
     creatorApId: postView.creator.actor_id,

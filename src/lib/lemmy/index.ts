@@ -20,6 +20,9 @@ import {
   BlockPerson,
   SavePost,
   DeletePost,
+  PostId,
+  PostFeatureType,
+  FeaturePost,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -37,7 +40,7 @@ import { useFiltersStore } from "@/src/stores/filters";
 import { getCachePrefixer, useAuth } from "../../stores/auth";
 import { useEffect, useMemo, useRef } from "react";
 import { prefetch as prefetchImage } from "@/src/components/image";
-import _ from "lodash";
+import _, { flatten } from "lodash";
 import { usePostsStore } from "../../stores/posts";
 import { useSettingsStore } from "../../stores/settings";
 import { z } from "zod";
@@ -1655,6 +1658,32 @@ export function useMarkPostRead() {
     onError: (_, { apId }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticRead: undefined,
+      });
+    },
+  });
+}
+
+export function useFeaturePost(apId: string) {
+  const { client } = useLemmyClient();
+  const patchPost = usePostsStore((s) => s.patchPost);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+
+  return useMutation({
+    mutationFn: (form: FeaturePost) => client.featurePost(form),
+    onMutate: ({ featured }) => {
+      patchPost(apId, getCachePrefixer(), {
+        optimisticFeaturedCommunity: featured,
+      });
+    },
+    onSuccess: (post) => {
+      patchPost(apId, getCachePrefixer(), {
+        optimisticFeaturedCommunity: undefined,
+        ...flattenPost(post),
+      });
+    },
+    onError: (_) => {
+      patchPost(apId, getCachePrefixer(), {
+        optimisticFeaturedCommunity: undefined,
       });
     },
   });

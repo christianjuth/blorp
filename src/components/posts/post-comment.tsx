@@ -28,6 +28,7 @@ import { Deferred } from "@/src/lib/deferred";
 import { PersonHoverCard } from "../person/person-hover-card";
 import { Share } from "@capacitor/share";
 import { useAuth } from "@/src/stores/auth";
+import { Badge } from "@/src/components/ui/badge";
 
 function Byline({
   creator,
@@ -36,12 +37,12 @@ function Byline({
 }: {
   creator: Pick<Person, "actor_id" | "avatar" | "name">;
   publishedDate: string;
-  authorType?: "OP" | "Me";
+  authorType?: "OP" | "ME" | "MOD";
 }) {
   const linkCtx = useLinkContext();
   const slug = createSlug(creator);
   return (
-    <summary className="flex flex-row gap-1.5 items-center py-px">
+    <summary className="flex flex-row gap-1 items-center py-px">
       <Avatar className="w-5 h-5">
         <AvatarImage src={creator.avatar} />
         <AvatarFallback className="text-xs">
@@ -51,14 +52,20 @@ function Byline({
       <PersonHoverCard actorId={creator.actor_id}>
         <Link
           to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}
-          className="text-sm overflow-ellipsis overflow-x-hidden"
+          className="text-xs overflow-ellipsis flex flex-row overflow-x-hidden items-center"
         >
           {slug?.name}
           <span className="italic text-muted-foreground">@{slug?.host}</span>
-          {authorType && <span> ({authorType})</span>}
+          {authorType === "OP" && <Badge className="ml-1.5">OP</Badge>}
+          {authorType === "MOD" && <Badge className="ml-1.5">Mod</Badge>}
+          {authorType === "ME" && <Badge className="ml-1.5">Me</Badge>}
         </Link>
       </PersonHoverCard>
-      <RelativeTime prefix=" • " time={publishedDate} className="text-sm" />
+      <span className="text-muted-foreground text-xs">•</span>
+      <RelativeTime
+        time={publishedDate}
+        className="text-xs text-muted-foreground"
+      />
     </summary>
   );
 }
@@ -72,6 +79,7 @@ export function PostComment({
   myUserId,
   noBorder = false,
   communityName,
+  modApIds,
 }: {
   postApId: string;
   queryKeyParentId?: number;
@@ -81,6 +89,7 @@ export function PostComment({
   myUserId: number | undefined;
   noBorder?: boolean;
   communityName?: string;
+  modApIds?: string[];
 }) {
   const [alrt] = useIonAlert();
 
@@ -97,6 +106,8 @@ export function PostComment({
       ? s.comments[getCachePrefixer()(commentPath.path)]?.data
       : undefined,
   );
+  const isMod =
+    commentView && modApIds?.includes(commentView?.creator.actor_id);
 
   const edit = useInlineCommentReplyState(
     commentView?.comment.ap_id,
@@ -145,6 +156,8 @@ export function PostComment({
 
   const hideContent = comment.removed || comment.deleted;
 
+  console.log(creator.id, myUserId);
+
   return (
     <details
       open
@@ -159,11 +172,13 @@ export function PostComment({
         creator={creator}
         publishedDate={comment.published}
         authorType={
-          creator.id === opId
-            ? "OP"
-            : creator.id === myUserId
-              ? "Me"
-              : undefined
+          isMod
+            ? "MOD"
+            : creator.id === opId
+              ? "OP"
+              : creator.id === myUserId
+                ? "ME"
+                : undefined
         }
       />
 

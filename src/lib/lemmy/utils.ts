@@ -69,6 +69,8 @@ export type FlattenedPost = {
   read: boolean;
   optimisticRead?: boolean;
   post: Post;
+  optimisticFeaturedCommunity?: boolean;
+  optimisticFeaturedLocal?: boolean;
   community: {
     name: string;
     title: string;

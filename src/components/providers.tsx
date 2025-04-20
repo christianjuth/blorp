@@ -11,7 +11,6 @@ import { AuthProvider } from "./auth-context";
 import { createDb } from "../lib/create-storage";
 import pRetry from "p-retry";
 import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
-import * as Sentry from "@sentry/react";
 import { Toaster } from "@/src/components/ui/sonner";
 
 const REACT_QUERY_CACHE_VERSON = 4;
@@ -25,13 +24,9 @@ const persister: Persister = {
     try {
       const cache = await pRetry(() => db.getItem("react-query-cache"), {
         retries: 5,
-        onFailedAttempt: (err) => {
-          Sentry.captureException(err);
-        },
       });
       return cache ? JSON.parse(cache) : undefined;
     } catch (err) {
-      Sentry.captureException(err);
       window.location.reload();
     }
   },

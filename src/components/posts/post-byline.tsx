@@ -1,6 +1,7 @@
 import {
   useBlockPerson,
   useDeletePost,
+  useFeaturePost,
   useSavePost,
 } from "@/src/lib/lemmy/index";
 import { useLinkContext } from "../nav/link-context";
@@ -24,15 +25,16 @@ import { Deferred } from "@/src/lib/deferred";
 import { Slug } from "@/src/lib/lemmy/utils";
 import { CommunityHoverCard } from "../communities/community-hover-card";
 import { PersonHoverCard } from "../person/person-hover-card";
-import { toast } from "sonner";
 import { Share } from "@capacitor/share";
 import { FaBookmark } from "react-icons/fa";
+import { Badge } from "@/src/components/ui/badge";
 
 export function PostByline({
   id,
   apId,
   encodedApId,
   pinned,
+  featuredCommunity,
   saved,
   deleted,
   creatorId,
@@ -44,11 +46,13 @@ export function PostByline({
   communitySlug,
   published,
   onNavigate,
+  isMod,
 }: {
   id: number;
   apId: string;
   encodedApId: string;
   pinned: boolean;
+  featuredCommunity: boolean;
   saved: boolean;
   deleted: boolean;
   creatorId: number;
@@ -60,6 +64,7 @@ export function PostByline({
   communitySlug: string;
   published: string;
   onNavigate?: () => any;
+  isMod?: boolean;
 }) {
   const [alrt] = useIonAlert();
 
@@ -67,6 +72,7 @@ export function PostByline({
   const requireAuth = useRequireAuth();
   const blockPerson = useBlockPerson();
   const deletePost = useDeletePost(apId);
+  const featurePost = useFeaturePost(apId);
   const savePost = useSavePost(apId);
 
   const linkCtx = useLinkContext();
@@ -91,16 +97,27 @@ export function PostByline({
         text: saved ? "Unsave" : "Save",
         onClick: () =>
           requireAuth().then(() => {
-            savePost
-              .mutateAsync({
-                post_id: id,
-                save: !saved,
-              })
-              .then(() => {
-                toast.success(saved ? "Unsaved post" : "Saved post");
-              });
+            savePost.mutateAsync({
+              post_id: id,
+              save: !saved,
+            });
           }),
       },
+      ...(isMyPost && isMod
+        ? [
+            {
+              text: featuredCommunity
+                ? "Unpin in community"
+                : "Pin in community",
+              onClick: () =>
+                featurePost.mutate({
+                  feature_type: "Community",
+                  post_id: id,
+                  featured: !featuredCommunity,
+                }),
+            },
+          ]
+        : []),
       {
         text: "View source",
         onClick: async () => {
@@ -191,7 +208,7 @@ export function PostByline({
             </span>
           </Link>
         </CommunityHoverCard>
-        <div className="flex flex-row text-xs text-muted-foreground gap-1">
+        <div className="flex flex-row text-xs text-muted-foreground gap-1 items-center h-5">
           <PersonHoverCard actorId={creatorApId}>
             <Link
               to={`${linkCtx.root}u/${encodedCreatorApId}`}
@@ -201,6 +218,7 @@ export function PostByline({
               <span className="italic">@{creatorSlug?.host}</span>
             </Link>
           </PersonHoverCard>
+          {isMod && <Badge>Mod</Badge>}
           <RelativeTime prefix=" • " time={published} />
         </div>
       </div>

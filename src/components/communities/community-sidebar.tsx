@@ -83,8 +83,8 @@ export function CommunitySidebar({
       )}
     >
       <div className="gap-3 flex flex-col">
-        <div className="flex flex-row items-center justify-between flex-1 -mb-1">
-          <span className="font-bold">{community.title}</span>
+        <div className="flex flex-row items-center justify-between flex-1 -mb-1 gap-2">
+          <span className="font-bold line-clamp-1">{community.title}</span>
 
           <ActionMenu
             align="end"

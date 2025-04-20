@@ -1,2 +1,3 @@
-yarn vitest
+yarn tsc --noEmit
 yarn lint-staged
+yarn vitest

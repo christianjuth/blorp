@@ -184,7 +184,11 @@ export default function HomeFeed() {
     const postViews = _.uniq(postIds)
       .map((apId) => {
         const postView = postCache[getCachePrefixer()(apId)]?.data;
-        return postView ? getPostProps(postView, "home") : null;
+        return postView
+          ? getPostProps(postView, {
+              featuredContext: "home",
+            })
+          : null;
       })
       .filter(isNotNull);
 
