@@ -49,12 +49,15 @@ const options: (
   replace: (domNode) => {
     // Check if the node is an anchor element
     if (domNode.type === "tag" && domNode.name === "a" && domNode.attribs) {
-      if (
-        domNode.children.length === 1 &&
-        "data" in domNode.children[0] &&
-        COMMUNITY_BANG.test(domNode.children[0].data)
-      ) {
-        const href = `${root}c/${domNode.children[0].data.substring(1)}`;
+      const href = domNode.attribs.href ?? "";
+      const textContent =
+        domNode.children.length === 1 && "data" in domNode.children[0]
+          ? domNode.children[0].data
+          : null;
+
+      // Replace "!community@server" with "/selected-tab/c/community"
+      if (textContent && COMMUNITY_BANG.test(textContent)) {
+        const href = `${root}c/${textContent.substring(1)}`;
         return (
           <Link to={href}>
             {domToReact(domNode.children as DOMNode[], options(root))}
@@ -62,7 +65,24 @@ const options: (
         );
       }
 
-      const href = domNode.attribs.href ?? "";
+      // Replace "/c/community" with "/selected-tab/c/community"
+      if (/^\/c\/[^\/]+$/i.test(href)) {
+        return (
+          <Link to={root + href.substring(1)}>
+            {domToReact(domNode.children as DOMNode[], options(root))}
+          </Link>
+        );
+      }
+
+      // Replace "/u/community" with "/selected-tab/u/community"
+      if (/^\/u\/[^\/]+$/i.test(href)) {
+        return (
+          <Link to={root + href.substring(1)}>
+            {domToReact(domNode.children as DOMNode[], options(root))}
+          </Link>
+        );
+      }
+
       if (href.startsWith("/")) {
         return (
           <Link to={domNode.attribs.href}>

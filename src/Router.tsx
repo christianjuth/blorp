@@ -333,6 +333,19 @@ function Tabs() {
             {...CREATE_POST_STACK}
             {...INBOX_STACK}
             {...SETTINGS}
+            <Redirect
+              key="/c/:communityName"
+              exact
+              path="/c/:communityName"
+              to="/home/c/:communityName"
+            />
+            <Redirect
+              key="/u/:userId"
+              exact
+              path="/u/:userId"
+              to="/home/u/:userId"
+            />
+
             <Route exact path="/download" component={Download} />
             <Route exact path="/support" component={Support} />
             <Route exact path="/privacy" component={Privacy} />
