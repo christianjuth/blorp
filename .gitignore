@@ -50,5 +50,4 @@ storybook-static/
 # Tauri
 *.provisionprofile
 Entitlements.plist
-Blorp.pkg
-latest.json
+release/
