@@ -10,6 +10,8 @@ export type CommunityPartial = Pick<
 
 type CreatePostStore = {
   key: number;
+  type: "text" | "media" | "link";
+  setType: (type: "text" | "media" | "link") => any;
   title: string;
   setTitle: (title: string) => any;
   url?: string;
@@ -27,6 +29,8 @@ export const useCreatePostStore = create<CreatePostStore>()(
   persist(
     (set, get) => ({
       key: 0,
+      type: "text",
+      setType: (type) => set({ type }),
       title: "",
       setUrl: (url) => set({ url }),
       setTitle: (title) => set({ title }),
@@ -41,6 +45,7 @@ export const useCreatePostStore = create<CreatePostStore>()(
           community: undefined,
           key: get().key + 1,
           url: undefined,
+          thumbnailUrl: undefined,
         }),
     }),
     {

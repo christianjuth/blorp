@@ -179,8 +179,6 @@ export function getPost(config?: {
       score: 8,
       published: POST_PUBLISHED,
       newest_comment_time: absoluteTime(),
-      report_count: 0,
-      unresolved_report_count: 0,
       ...config?.postView?.counts,
       post_id: id,
     },

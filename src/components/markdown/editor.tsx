@@ -231,6 +231,7 @@ function MarkdownEditorInner({
   placeholder,
   onFocus,
   onBlur,
+  id,
 }: {
   autoFocus?: boolean;
   content: string;
@@ -239,6 +240,7 @@ function MarkdownEditorInner({
   placeholder?: string;
   onFocus?: () => void;
   onBlur?: () => void;
+  id?: string;
 }) {
   const editor = useEditor({
     autofocus: autoFocus,
@@ -291,6 +293,7 @@ function MarkdownEditorInner({
         </Button>
       </div>
       <EditorContent
+        id={id}
         className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3 overflow-auto"
         editor={editor}
       />
@@ -306,6 +309,7 @@ function PlainTextEditorInner({
   placeholder,
   onFocus,
   onBlur,
+  id,
 }: {
   content: string;
   onChange: (content: string) => void;
@@ -314,6 +318,7 @@ function PlainTextEditorInner({
   placeholder?: string;
   onFocus?: () => void;
   onBlur?: () => void;
+  id?: string;
 }) {
   return (
     <>
@@ -328,6 +333,7 @@ function PlainTextEditorInner({
         </Button>
       </div>
       <TextareaAutosize
+        id={id}
         autoFocus={autoFocus}
         defaultValue={content}
         onChange={(e) => onChange(e.target.value)}
@@ -350,6 +356,7 @@ export function MarkdownEditor({
   onBlur,
   onChageEditorType,
   footer,
+  id,
 }: {
   content: string;
   onChange: (content: string) => void;
@@ -360,6 +367,7 @@ export function MarkdownEditor({
   onBlur?: () => void;
   onChageEditorType?: () => void;
   footer?: React.ReactNode;
+  id?: string;
 }) {
   const skipBlurRef = useRef(-1);
 
@@ -393,6 +401,7 @@ export function MarkdownEditor({
             }
             onBlur?.();
           }}
+          id={id}
         />
       ) : (
         <MarkdownEditorInner
@@ -413,6 +422,7 @@ export function MarkdownEditor({
             }
             onBlur?.();
           }}
+          id={id}
         />
       )}
       {footer}

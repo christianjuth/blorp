@@ -20,9 +20,9 @@ import {
   BlockPerson,
   SavePost,
   DeletePost,
-  PostId,
-  PostFeatureType,
   FeaturePost,
+  UploadImage,
+  MarkPostAsRead,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -37,10 +37,10 @@ import {
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "@/src/stores/filters";
-import { getCachePrefixer, useAuth } from "../../stores/auth";
+import { useAuth } from "../../stores/auth";
 import { useEffect, useMemo, useRef } from "react";
 import { prefetch as prefetchImage } from "@/src/components/image";
-import _, { flatten } from "lodash";
+import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
 import { useSettingsStore } from "../../stores/settings";
 import { z } from "zod";
@@ -71,7 +71,7 @@ function useLemmyClient(config?: { instance?: string }) {
   }
 
   return useMemo(() => {
-    const client = new LemmyHttp(instance, {
+    const client = new LemmyHttp(instance.replace(/\/$/, ""), {
       headers: {
         // lemmy.ml will reject requests if
         // User-Agent header is not present
@@ -1635,27 +1635,27 @@ export function useDeletePost(apId: string) {
   });
 }
 
-export function useMarkPostRead() {
+export function useMarkPostRead(apId: string) {
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useMutation({
-    mutationFn: (form: { post_id: number; read: boolean; apId: string }) => {
+    mutationFn: (form: MarkPostAsRead) => {
       return client.markPostAsRead(form);
     },
-    onMutate: ({ read, apId }) => {
+    onMutate: ({ read }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticRead: read,
       });
     },
-    onSuccess: (_, { read, apId }) => {
+    onSuccess: (_, { read }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticRead: undefined,
         read,
       });
     },
-    onError: (_, { apId }) => {
+    onError: () => {
       patchPost(apId, getCachePrefixer(), {
         optimisticRead: undefined,
       });
@@ -1686,5 +1686,12 @@ export function useFeaturePost(apId: string) {
         optimisticFeaturedCommunity: undefined,
       });
     },
+  });
+}
+
+export function useUploadImage() {
+  const { client } = useLemmyClient();
+  return useMutation({
+    mutationFn: (form: UploadImage) => client.uploadImage(form),
   });
 }

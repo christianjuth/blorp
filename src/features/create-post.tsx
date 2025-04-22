@@ -1,10 +1,15 @@
 import { ContentGutters } from "../components/gutters";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
-import { useCallback, useState } from "react";
+import { useCallback, useId, useState } from "react";
 import { useCreatePostStore } from "../stores/create-post";
 import { FlashList } from "@/src/components/flashlist";
 import { CommunityCard } from "../components/communities/community-card";
-import { useCreatePost, useListCommunities, useSearch } from "../lib/lemmy";
+import {
+  useCreatePost,
+  useListCommunities,
+  useSearch,
+  useUploadImage,
+} from "../lib/lemmy";
 import _ from "lodash";
 import { Community } from "lemmy-js-client";
 import { parseOgData } from "../lib/html-parsing";
@@ -26,10 +31,33 @@ import { close } from "ionicons/icons";
 import { FaCheck, FaChevronDown } from "react-icons/fa6";
 import { LuLoaderCircle } from "react-icons/lu";
 import { Input } from "../components/ui/input";
+import { ToggleGroup, ToggleGroupItem } from "@/src/components/ui/toggle-group";
+import { useDropzone } from "react-dropzone";
+import { UserDropdown } from "../components/nav";
+import { Skeleton } from "../components/ui/skeleton";
+import { FaRegImage } from "react-icons/fa6";
+import { Label } from "@/src/components/ui/label";
 
 const EMPTY_ARR = [];
 
 export default function CreatePost() {
+  const id = useId();
+
+  const uploadImage = useUploadImage();
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: (files) => {
+      if (files.length > 0) {
+        uploadImage
+          .mutateAsync({ image: files[0] })
+          .then((res) => {
+            console.log(res);
+            setThumbnailUrl(res.url);
+          })
+          .catch((err) => console.log(err));
+      }
+    },
+  });
+
   const [chooseCommunity, setChooseCommunity] = useState(false);
 
   const community = useCreatePostStore((s) => s.community);
@@ -37,6 +65,9 @@ export default function CreatePost() {
   // const editorKey = useCreatePostStore((s) => s.key);
 
   const reset = useCreatePostStore((s) => s.reset);
+
+  const type = useCreatePostStore((s) => s.type);
+  const setType = useCreatePostStore((s) => s.setType);
 
   const title = useCreatePostStore((s) => s.title);
   const setTitle = useCreatePostStore((s) => s.setTitle);
@@ -78,7 +109,7 @@ export default function CreatePost() {
         <IonToolbar>
           <IonTitle>Create post</IonTitle>
 
-          <IonButtons slot="end">
+          <IonButtons slot="end" className="md:gap-4 gap-3.5">
             <Button
               size="sm"
               onClick={() => {
@@ -90,18 +121,20 @@ export default function CreatePost() {
                       name: title,
                       community_id: community.id,
                       body: content,
-                      url: url || undefined,
+                      url: type === "media" ? thumbnailUrl : url || undefined,
                       custom_thumbnail: thumbnailUrl,
                     })
                     .then(() => reset());
                 }
               }}
+              disabled={!community}
             >
-              {community ? "Post" : "Next"}
+              Post
               {createPost.isPending && (
                 <LuLoaderCircle className="animate-spin" />
               )}
             </Button>
+            <UserDropdown />
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -112,7 +145,7 @@ export default function CreatePost() {
         />
 
         <ContentGutters className="h-full">
-          <div className="flex flex-col py-4 gap-4">
+          <div className="flex flex-col py-4 gap-5">
             {
               <button
                 onClick={() => setChooseCommunity(true)}
@@ -127,28 +160,84 @@ export default function CreatePost() {
               </button>
             }
 
-            <Input
-              placeholder="Link (optional)"
-              className="border-b border-border"
-              value={url ?? ""}
-              onChange={(e) => setUrl(e.target.value)}
-              onBlur={() => url && parseUrl(url)}
-            />
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              size="sm"
+              value={type}
+              onValueChange={(val) =>
+                val && setType(val as "text" | "media" | "link")
+              }
+            >
+              <ToggleGroupItem value="text">Text</ToggleGroupItem>
+              <ToggleGroupItem value="media">Image</ToggleGroupItem>
+              <ToggleGroupItem value="link">Link</ToggleGroupItem>
+            </ToggleGroup>
 
-            <input
-              placeholder="Title"
-              value={title}
-              onInput={(e) => setTitle(e.currentTarget.value ?? "")}
-              className="font-bold text-lg"
-            />
+            {type === "link" && (
+              <div className="gap-2 flex flex-col">
+                <Label htmlFor={`${id}-link`}>Link</Label>
+                <Input
+                  id={`${id}-link`}
+                  placeholder="Link"
+                  className="border-b border-border"
+                  value={url ?? ""}
+                  onChange={(e) => setUrl(e.target.value)}
+                  onBlur={() => url && parseUrl(url)}
+                />
+              </div>
+            )}
 
-            <MarkdownEditor
-              content={content}
-              onChange={setContent}
-              className="-mx-3"
-              placeholder="Write something..."
-            />
+            {type === "media" && (
+              <div className="gap-2 flex flex-col">
+                <Label htmlFor={`${id}-media`}>Image</Label>
+                <div
+                  {...getRootProps()}
+                  className="border-2 border-dashed flex flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-md min-h-32"
+                >
+                  <input id={`${id}-media`} {...getInputProps()} />
+                  {thumbnailUrl && !uploadImage.isPending && (
+                    <img src={thumbnailUrl} className="h-40 rounded-md" />
+                  )}
+                  {uploadImage.isPending && (
+                    <Skeleton className="h-40 aspect-square flex items-center justify-center">
+                      <FaRegImage className="text-muted-foreground text-4xl" />
+                    </Skeleton>
+                  )}
+                  {isDragActive ? (
+                    <p>Drop the files here ...</p>
+                  ) : (
+                    <p className="text-muted-foreground">
+                      Drop or upload image here
+                      {thumbnailUrl && " to replace"}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="gap-2 flex flex-col">
+              <Label htmlFor={`${id}-title`}>Title</Label>
+              <Input
+                id={`${id}-title`}
+                placeholder="Title"
+                value={title}
+                onInput={(e) => setTitle(e.currentTarget.value ?? "")}
+              />
+            </div>
+
+            <div className="gap-2 flex flex-col">
+              <Label htmlFor={`${id}-body`}>Body</Label>
+              <MarkdownEditor
+                id={`${id}-body`}
+                content={content}
+                onChange={setContent}
+                className="border rounded-lg shadow-xs"
+                placeholder="Write something..."
+              />
+            </div>
           </div>
+          <></>
         </ContentGutters>
       </IonContent>
     </IonPage>

@@ -328,6 +328,13 @@ details summary {
   @apply cursor-pointer;
 }
 
+details > summary::-webkit-details-marker {
+  display: none;
+}
+.prose details > summary::-webkit-details-marker {
+  display: revert; 
+}
+
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
 }
