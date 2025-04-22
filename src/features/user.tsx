@@ -40,11 +40,12 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { LuCakeSlice } from "react-icons/lu";
-import { useMedia } from "../lib/hooks";
+import { useMedia, useUrlSearchState } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";
 import { Skeleton } from "../components/ui/skeleton";
 import { useFiltersStore } from "../stores/filters";
 import { useAuth } from "../stores/auth";
+import z from "zod";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item = typeof NO_ITEMS | PostProps | CommentView;
@@ -105,7 +106,11 @@ export default function User() {
 
   const actorId = userId ? decodeApId(userId) : undefined;
 
-  const [type, setType] = useState<"posts" | "comments" | "all">("all");
+  const [type, setType] = useUrlSearchState(
+    "type",
+    "all",
+    z.enum(["posts", "comments", "all"]),
+  );
 
   const postSort = useFiltersStore((s) => s.postSort);
   usePersonDetails({ actorId });

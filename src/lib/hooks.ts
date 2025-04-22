@@ -1,8 +1,17 @@
-import { ToastOptions } from "@ionic/react";
-import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Dispatch,
+  RefObject,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useMediaQuery } from "react-responsive";
 import { InAppBrowser } from "@capacitor/inappbrowser";
 import { toast } from "sonner";
+import { useHistory, useLocation } from "react-router-dom";
+import type z from "zod";
 
 /**
  * @deprecated
@@ -110,4 +119,50 @@ export function useIsInAppBrowserOpen() {
     };
   }, []);
   return isOpen;
+}
+
+type SetUrlSearchParam<V> = (
+  next: V | ((prev: V) => V),
+  opts?: { replace?: boolean },
+) => void;
+
+export function useUrlSearchState<S extends z.ZodEnum<[string, ...string[]]>>(
+  key: string,
+  defaultValue: z.infer<S>,
+  schema: S,
+): [z.infer<S>, SetUrlSearchParam<z.infer<S>>] {
+  const history = useHistory();
+  const location = useLocation();
+
+  // parse & validate the raw URL param, fallback to default
+  const value = useMemo<z.infer<S>>(() => {
+    const params = new URLSearchParams(location.search);
+    const raw = params.get(key);
+    if (raw == null) return defaultValue;
+
+    const parsed = schema.safeParse(raw);
+    return parsed.success ? parsed.data : defaultValue;
+  }, [location.search, key, defaultValue, schema]);
+
+  // setter that validates and pushes/replaces the URL
+  const setValue = useCallback<SetUrlSearchParam<z.infer<S>>>(
+    (next, { replace = false } = {}) => {
+      const newVal =
+        typeof next === "function"
+          ? (next as (p: z.infer<S>) => z.infer<S>)(value)
+          : next;
+
+      // ensure it’s valid
+      schema.parse(newVal);
+
+      const params = new URLSearchParams(location.search);
+      params.set(key, newVal);
+      const newSearch = params.toString();
+      const to = { ...location, search: newSearch ? `?${newSearch}` : "" };
+      replace ? history.replace(to) : history.push(to);
+    },
+    [history, location, key, schema, value],
+  );
+
+  return [value, setValue];
 }
