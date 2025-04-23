@@ -33,7 +33,7 @@ dayjs.updateLocale("en", {
 
 interface Props
   extends DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement> {
-  time: string;
+  time: string | number;
   prefix?: string;
 }
 

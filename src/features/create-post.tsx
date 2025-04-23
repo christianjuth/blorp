@@ -1,7 +1,7 @@
 import { ContentGutters } from "../components/gutters";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
-import { useCallback, useId, useState } from "react";
-import { useCreatePostStore } from "../stores/create-post";
+import { useCallback, useEffect, useId, useState } from "react";
+import { Draft, NEW_DRAFT, useCreatePostStore } from "../stores/create-post";
 import { FlashList } from "@/src/components/flashlist";
 import { CommunityCard } from "../components/communities/community-card";
 import {
@@ -19,7 +19,6 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonInput,
   IonModal,
   IonPage,
   IonTitle,
@@ -37,11 +36,86 @@ import { UserDropdown } from "../components/nav";
 import { Skeleton } from "../components/ui/skeleton";
 import { FaRegImage } from "react-icons/fa6";
 import { Label } from "@/src/components/ui/label";
+import { cn } from "../lib/utils";
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import { Link } from "react-router-dom";
+import { v4 as uuid } from "uuid";
+import { MdDelete } from "react-icons/md";
+import { useMedia, useUrlSearchState } from "../lib/hooks";
+import { createSlug } from "../lib/lemmy/utils";
+import { RelativeTime } from "../components/relative-time";
+
+dayjs.extend(localizedFormat);
 
 const EMPTY_ARR = [];
 
-export default function CreatePost() {
+function DraftsSidebar({
+  createPostId,
+  onClickDraft,
+}: {
+  createPostId: string;
+  onClickDraft: () => void;
+}) {
+  const drafts = useCreatePostStore((s) => s.drafts);
+  const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
+  return (
+    <div className="flex flex-col gap-3">
+      <h2 className="font-bold">Other Drafts</h2>
+      {_.entries(drafts)
+        .filter(([key]) => key !== createPostId)
+        .map(([key, draft]) => {
+          const slug = draft.community
+            ? createSlug(draft.community)?.slug
+            : undefined;
+          return (
+            <div key={key} className="relative">
+              <Link
+                to={`/create?id=${key}`}
+                className="bg-muted border px-3 py-2 gap-1 rounded-lg flex flex-col"
+                onClickCapture={onClickDraft}
+              >
+                <div className="text-muted-foreground flex flex-row items-center text-sm gap-1.5">
+                  <RelativeTime time={draft.createdAt} />
+                  {slug && (
+                    <>
+                      <span>|</span>
+                      <span>{slug}</span>
+                    </>
+                  )}
+                </div>
+                <span className={cn("font-medium", !draft.name && "italic")}>
+                  {draft.name || "Untitiled"}
+                </span>
+              </Link>
+              <button
+                className="absolute top-2 right-2 text-destructive text-xl"
+                onClick={() => deleteDraft(key)}
+              >
+                <MdDelete />
+              </button>
+            </div>
+          );
+        })}
+    </div>
+  );
+}
+
+export function CreatePost() {
+  const [showDrafts, setShowDrafts] = useState(false);
+  const media = useMedia();
+  const [createPostId] = useUrlSearchState("id", uuid());
   const id = useId();
+
+  useEffect(() => {
+    if (media.md) {
+      setShowDrafts(false);
+    }
+  }, [media.md]);
+
+  const post = useCreatePostStore((s) => s.drafts[createPostId]) ?? NEW_DRAFT;
+  const patchPost = useCreatePostStore((s) => s.updateDraft);
+  const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
 
   const uploadImage = useUploadImage();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -51,7 +125,9 @@ export default function CreatePost() {
           .mutateAsync({ image: files[0] })
           .then((res) => {
             console.log(res);
-            setThumbnailUrl(res.url);
+            patchPost(createPostId, {
+              url: res.url,
+            });
           })
           .catch((err) => console.log(err));
       }
@@ -59,27 +135,6 @@ export default function CreatePost() {
   });
 
   const [chooseCommunity, setChooseCommunity] = useState(false);
-
-  const community = useCreatePostStore((s) => s.community);
-
-  // const editorKey = useCreatePostStore((s) => s.key);
-
-  const reset = useCreatePostStore((s) => s.reset);
-
-  const type = useCreatePostStore((s) => s.type);
-  const setType = useCreatePostStore((s) => s.setType);
-
-  const title = useCreatePostStore((s) => s.title);
-  const setTitle = useCreatePostStore((s) => s.setTitle);
-
-  const url = useCreatePostStore((s) => s.url);
-  const setUrl = useCreatePostStore((s) => s.setUrl);
-
-  const content = useCreatePostStore((s) => s.content);
-  const setContent = useCreatePostStore((s) => s.setContent);
-
-  const thumbnailUrl = useCreatePostStore((s) => s.thumbnailUrl);
-  const setThumbnailUrl = useCreatePostStore((s) => s.setThumbnailUrl);
 
   const createPost = useCreatePost();
 
@@ -90,14 +145,14 @@ export default function CreatePost() {
           .then((res) => res.text())
           .then((body) => {
             const ogData = parseOgData(body);
-
-            if (!title && ogData.title) {
-              setTitle(ogData.title);
+            const patch: Partial<Draft> = {};
+            if (!post.name && ogData.title) {
+              patch.name = ogData.title;
             }
-
             if (ogData.image) {
-              setThumbnailUrl(ogData.image);
+              patch.custom_thumbnail = ogData.image;
             }
+            patchPost(createPostId, patch);
           });
       } catch {}
     }
@@ -107,27 +162,40 @@ export default function CreatePost() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          <IonButtons slot="start" className="md:gap-4 gap-3.5">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setShowDrafts((s) => !s)}
+              className="md:hidden"
+            >
+              {showDrafts ? "Back" : "Other Drafts"}
+            </Button>
+          </IonButtons>
+
           <IonTitle>Create post</IonTitle>
 
           <IonButtons slot="end" className="md:gap-4 gap-3.5">
             <Button
               size="sm"
+              className={cn(showDrafts && "max-md:hidden")}
               onClick={() => {
-                if (!community) {
-                  setChooseCommunity(true);
-                } else {
+                if (post.community) {
                   createPost
                     .mutateAsync({
-                      name: title,
-                      community_id: community.id,
-                      body: content,
-                      url: type === "media" ? thumbnailUrl : url || undefined,
-                      custom_thumbnail: thumbnailUrl,
+                      name: post.name,
+                      community_id: post.community.id,
+                      body: post.body,
+                      url:
+                        post.type === "media"
+                          ? post.custom_thumbnail
+                          : post.url || undefined,
+                      custom_thumbnail: post.custom_thumbnail,
                     })
-                    .then(() => reset());
+                    .then(() => deleteDraft(createPostId));
                 }
               }}
-              disabled={!community}
+              disabled={!post.community}
             >
               Post
               {createPost.isPending && (
@@ -140,104 +208,131 @@ export default function CreatePost() {
       </IonHeader>
       <IonContent>
         <ChooseCommunity
+          createPostId={createPostId}
           isOpen={chooseCommunity}
           closeModal={() => setChooseCommunity(false)}
         />
 
-        <ContentGutters className="h-full">
-          <div className="flex flex-col py-4 gap-5">
-            {
+        <ContentGutters className="h-full py-4">
+          {media.maxMd && showDrafts ? (
+            <DraftsSidebar
+              createPostId={createPostId}
+              onClickDraft={() => setShowDrafts(false)}
+            />
+          ) : (
+            <div className="flex flex-col gap-5">
               <button
                 onClick={() => setChooseCommunity(true)}
                 className="flex flex-row items-center gap-2 h-9 self-start"
               >
-                {community ? (
-                  <CommunityCard communityView={community} disableLink />
+                {post.community ? (
+                  <CommunityCard communityView={post.community} disableLink />
                 ) : (
                   <span className="font-bold">Select a community</span>
                 )}
                 <FaChevronDown className="text-brand" />
               </button>
-            }
 
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              size="sm"
-              value={type}
-              onValueChange={(val) =>
-                val && setType(val as "text" | "media" | "link")
-              }
-            >
-              <ToggleGroupItem value="text">Text</ToggleGroupItem>
-              <ToggleGroupItem value="media">Image</ToggleGroupItem>
-              <ToggleGroupItem value="link">Link</ToggleGroupItem>
-            </ToggleGroup>
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                size="sm"
+                value={post.type}
+                onValueChange={(val) => {
+                  if (val) {
+                    patchPost(createPostId, {
+                      type: val as "text" | "media" | "link",
+                    });
+                  }
+                }}
+              >
+                <ToggleGroupItem value="text">Text</ToggleGroupItem>
+                <ToggleGroupItem value="media">Image</ToggleGroupItem>
+                <ToggleGroupItem value="link">Link</ToggleGroupItem>
+              </ToggleGroup>
 
-            {type === "link" && (
+              {post.type === "link" && (
+                <div className="gap-2 flex flex-col">
+                  <Label htmlFor={`${id}-link`}>Link</Label>
+                  <Input
+                    id={`${id}-link`}
+                    placeholder="Link"
+                    className="border-b border-border"
+                    value={post.url ?? ""}
+                    onChange={(e) =>
+                      patchPost(createPostId, { url: e.target.value })
+                    }
+                    onBlur={() => post.url && parseUrl(post.url)}
+                  />
+                </div>
+              )}
+
+              {post.type === "media" && (
+                <div className="gap-2 flex flex-col">
+                  <Label htmlFor={`${id}-media`}>Image</Label>
+                  <div
+                    {...getRootProps()}
+                    className="border-2 border-dashed flex flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-md min-h-32"
+                  >
+                    <input id={`${id}-media`} {...getInputProps()} />
+                    {post.custom_thumbnail && !uploadImage.isPending && (
+                      <img
+                        src={post.custom_thumbnail}
+                        className="h-40 rounded-md"
+                      />
+                    )}
+                    {uploadImage.isPending && (
+                      <Skeleton className="h-40 aspect-square flex items-center justify-center">
+                        <FaRegImage className="text-muted-foreground text-4xl" />
+                      </Skeleton>
+                    )}
+                    {isDragActive ? (
+                      <p>Drop the files here ...</p>
+                    ) : (
+                      <p className="text-muted-foreground">
+                        Drop or upload image here
+                        {post.custom_thumbnail && " to replace"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="gap-2 flex flex-col">
-                <Label htmlFor={`${id}-link`}>Link</Label>
+                <Label htmlFor={`${id}-title`}>Title</Label>
                 <Input
-                  id={`${id}-link`}
-                  placeholder="Link"
-                  className="border-b border-border"
-                  value={url ?? ""}
-                  onChange={(e) => setUrl(e.target.value)}
-                  onBlur={() => url && parseUrl(url)}
+                  id={`${id}-title`}
+                  placeholder="Title"
+                  value={post.name ?? ""}
+                  onInput={(e) =>
+                    patchPost(createPostId, {
+                      name: e.currentTarget.value ?? "",
+                    })
+                  }
                 />
               </div>
-            )}
 
-            {type === "media" && (
               <div className="gap-2 flex flex-col">
-                <Label htmlFor={`${id}-media`}>Image</Label>
-                <div
-                  {...getRootProps()}
-                  className="border-2 border-dashed flex flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-md min-h-32"
-                >
-                  <input id={`${id}-media`} {...getInputProps()} />
-                  {thumbnailUrl && !uploadImage.isPending && (
-                    <img src={thumbnailUrl} className="h-40 rounded-md" />
-                  )}
-                  {uploadImage.isPending && (
-                    <Skeleton className="h-40 aspect-square flex items-center justify-center">
-                      <FaRegImage className="text-muted-foreground text-4xl" />
-                    </Skeleton>
-                  )}
-                  {isDragActive ? (
-                    <p>Drop the files here ...</p>
-                  ) : (
-                    <p className="text-muted-foreground">
-                      Drop or upload image here
-                      {thumbnailUrl && " to replace"}
-                    </p>
-                  )}
-                </div>
+                <Label htmlFor={`${id}-body`}>Body</Label>
+                <MarkdownEditor
+                  id={`${id}-body`}
+                  content={post.body ?? ""}
+                  onChange={(body) =>
+                    patchPost(createPostId, {
+                      body,
+                    })
+                  }
+                  className="border rounded-lg shadow-xs"
+                  placeholder="Write something..."
+                />
               </div>
-            )}
-
-            <div className="gap-2 flex flex-col">
-              <Label htmlFor={`${id}-title`}>Title</Label>
-              <Input
-                id={`${id}-title`}
-                placeholder="Title"
-                value={title}
-                onInput={(e) => setTitle(e.currentTarget.value ?? "")}
-              />
             </div>
+          )}
 
-            <div className="gap-2 flex flex-col">
-              <Label htmlFor={`${id}-body`}>Body</Label>
-              <MarkdownEditor
-                id={`${id}-body`}
-                content={content}
-                onChange={setContent}
-                className="border rounded-lg shadow-xs"
-                placeholder="Write something..."
-              />
-            </div>
-          </div>
-          <></>
+          <DraftsSidebar
+            createPostId={createPostId}
+            onClickDraft={() => setShowDrafts(false)}
+          />
         </ContentGutters>
       </IonContent>
     </IonPage>
@@ -245,9 +340,11 @@ export default function CreatePost() {
 }
 
 function ChooseCommunity({
+  createPostId,
   isOpen,
   closeModal,
 }: {
+  createPostId: string;
   isOpen: boolean;
   closeModal: () => void;
 }) {
@@ -256,9 +353,8 @@ function ChooseCommunity({
   const [search, setSearch] = useState("");
   const debouncedSetSearch = useCallback(_.debounce(setSearch, 500), []);
 
-  const selectedCommunity = useCreatePostStore((s) => s.community);
-
-  const setCommunity = useCreatePostStore((s) => s.setCommunity);
+  const post = useCreatePostStore((s) => s.drafts[createPostId]) ?? NEW_DRAFT;
+  const patchPost = useCreatePostStore((s) => s.updateDraft);
 
   const subscribedCommunitiesRes = useListCommunities({
     type_: "Subscribed",
@@ -297,8 +393,8 @@ function ChooseCommunity({
   if (search) {
     data = ["Search results", ...searchResultsCommunities];
   }
-  if (selectedCommunity) {
-    data = ["Selected", selectedCommunity, ...data];
+  if (post.community) {
+    data = ["Selected", post.community, ...data];
   }
 
   data = _.uniqBy(data, (item) => {
@@ -350,14 +446,16 @@ function ChooseCommunity({
               <ContentGutters className="cursor-pointer">
                 <button
                   onClick={() => {
-                    setCommunity(item);
+                    patchPost(createPostId, {
+                      community: item,
+                    });
                     closeModal();
                   }}
                   className="flex flex-row items-center gap-2"
                 >
                   <CommunityCard communityView={item} disableLink />
-                  {selectedCommunity &&
-                    item.actor_id === selectedCommunity?.actor_id && (
+                  {post.community &&
+                    item.actor_id === post.community?.actor_id && (
                       <FaCheck className="text-brand" />
                     )}
                 </button>

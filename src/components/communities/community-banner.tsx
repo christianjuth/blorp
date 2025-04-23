@@ -5,8 +5,22 @@ import { useCommunitiesStore } from "@/src/stores/communities";
 import { Skeleton } from "../ui/skeleton";
 import { useState } from "react";
 import { useAuth } from "@/src/stores/auth";
+import { useCreatePostStore } from "@/src/stores/create-post";
+import { Button } from "../ui/button";
+import _ from "lodash";
+import { useIonRouter } from "@ionic/react";
+import { v4 as uuid } from "uuid";
+import { useCommunity } from "@/src/lib/lemmy";
 
 export function CommunityBanner({ communityName }: { communityName?: string }) {
+  const router = useIonRouter();
+  const drafts = useCreatePostStore((s) => s.drafts);
+  const updateDraft = useCreatePostStore((s) => s.updateDraft);
+
+  const community = useCommunity({
+    name: communityName,
+  });
+
   const [bannerReady, setBannerReady] = useState(false);
   const [iconReady, setIconReady] = useState(false);
 
@@ -56,7 +70,7 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
 
       <div
         className={twMerge(
-          "my-1.5 flex flex-row justify-between",
+          "my-1.5 flex flex-row gap-2",
           !hideBanner && icon && "pl-28",
           !hideBanner && "pb-3",
         )}
@@ -65,6 +79,32 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
           {slug?.name}
           <span className="italic">@{slug?.host}</span>
         </span>
+        <div className="flex-1" />
+        {community.data && (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              const createPostId =
+                _.entries(drafts).find(
+                  ([_id, { community }]) =>
+                    community && createSlug(community)?.slug === communityName,
+                )?.[0] ?? uuid();
+              updateDraft(createPostId, {
+                community: _.pick(community.data.community_view.community, [
+                  "name",
+                  "id",
+                  "title",
+                  "icon",
+                  "actor_id",
+                ]),
+              });
+              router.push(`/create?id=${createPostId ?? uuid()}`);
+            }}
+          >
+            Create post
+          </Button>
+        )}
         <CommunityJoinButton communityName={communityName} />
       </div>
     </div>

@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useMediaQuery } from "react-responsive";
@@ -126,23 +127,38 @@ type SetUrlSearchParam<V> = (
   opts?: { replace?: boolean },
 ) => void;
 
+export function useUrlSearchState(
+  key: string,
+  defaultValue: string,
+): [string, SetUrlSearchParam<string>];
 export function useUrlSearchState<S extends z.ZodEnum<[string, ...string[]]>>(
   key: string,
   defaultValue: z.infer<S>,
   schema: S,
+): [z.infer<S>, SetUrlSearchParam<z.infer<S>>];
+export function useUrlSearchState<S extends z.ZodEnum<[string, ...string[]]>>(
+  key: string,
+  defaultValue: z.infer<S>,
+  schema?: S,
 ): [z.infer<S>, SetUrlSearchParam<z.infer<S>>] {
   const history = useHistory();
   const location = useLocation();
+
+  const frozenDefaultValue = useRef(defaultValue);
 
   // parse & validate the raw URL param, fallback to default
   const value = useMemo<z.infer<S>>(() => {
     const params = new URLSearchParams(location.search);
     const raw = params.get(key);
-    if (raw == null) return defaultValue;
+    if (raw == null) return frozenDefaultValue.current;
+
+    if (!schema) {
+      return raw ?? defaultValue;
+    }
 
     const parsed = schema.safeParse(raw);
-    return parsed.success ? parsed.data : defaultValue;
-  }, [location.search, key, defaultValue, schema]);
+    return parsed.success ? parsed.data : frozenDefaultValue.current;
+  }, [location.search, key, frozenDefaultValue.current, schema]);
 
   // setter that validates and pushes/replaces the URL
   const setValue = useCallback<SetUrlSearchParam<z.infer<S>>>(
@@ -153,15 +169,19 @@ export function useUrlSearchState<S extends z.ZodEnum<[string, ...string[]]>>(
           : next;
 
       // ensure it’s valid
-      schema.parse(newVal);
+      if (schema) {
+        schema.parse(newVal);
+      }
 
       const params = new URLSearchParams(location.search);
       params.set(key, newVal);
       const newSearch = params.toString();
       const to = { ...location, search: newSearch ? `?${newSearch}` : "" };
       replace ? history.replace(to) : history.push(to);
+
+      frozenDefaultValue.current = defaultValue;
     },
-    [history, location, key, schema, value],
+    [history, location, key, schema, value, defaultValue],
   );
 
   return [value, setValue];

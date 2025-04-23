@@ -1,4 +1,4 @@
-import { Community } from "lemmy-js-client";
+import { Community, CreatePost } from "lemmy-js-client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
@@ -8,50 +8,56 @@ export type CommunityPartial = Pick<
   "name" | "id" | "title" | "icon" | "actor_id"
 >;
 
-type CreatePostStore = {
-  key: number;
+export interface Draft extends CreatePost {
   type: "text" | "media" | "link";
-  setType: (type: "text" | "media" | "link") => any;
-  title: string;
-  setTitle: (title: string) => any;
-  url?: string;
-  setUrl: (url: string) => any;
-  content: string;
-  thumbnailUrl?: string;
-  setThumbnailUrl: (url: string | undefined) => any;
-  setContent: (content: string) => any;
+  createdAt: number;
   community?: CommunityPartial;
-  setCommunity: (community: CommunityPartial) => any;
-  reset: () => any;
+}
+
+type CreatePostStore = {
+  drafts: Record<string, Draft>;
+  updateDraft: (key: string, patch: Partial<Draft>) => void;
+  deleteDraft: (key: string) => any;
+};
+
+export const NEW_DRAFT = {
+  type: "text",
+  createdAt: Date.now(),
 };
 
 export const useCreatePostStore = create<CreatePostStore>()(
   persist(
-    (set, get) => ({
-      key: 0,
-      type: "text",
-      setType: (type) => set({ type }),
-      title: "",
-      setUrl: (url) => set({ url }),
-      setTitle: (title) => set({ title }),
-      content: "",
-      setContent: (content) => set({ content }),
-      setThumbnailUrl: (thumbnailUrl) => set({ thumbnailUrl }),
-      setCommunity: (community) => set({ community }),
-      reset: () =>
-        set({
-          title: "",
-          content: "",
-          community: undefined,
-          key: get().key + 1,
-          url: undefined,
-          thumbnailUrl: undefined,
-        }),
+    (set) => ({
+      drafts: {},
+      updateDraft: (key, patch) => {
+        set((prev) => {
+          const drafts = { ...prev.drafts };
+          const prevDraft = drafts[key] ?? NEW_DRAFT;
+          drafts[key] = {
+            ...prevDraft,
+            ...patch,
+          };
+          return {
+            ...prev,
+            drafts,
+          };
+        });
+      },
+      deleteDraft: (key: string) => {
+        set((prev) => {
+          const drafts = { ...prev.drafts };
+          delete drafts[key];
+          return {
+            ...prev,
+            drafts,
+          };
+        });
+      },
     }),
     {
       name: "create-post",
       storage: createStorage<CreatePostStore>(),
-      version: 0,
+      version: 2,
     },
   ),
 );
