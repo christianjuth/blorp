@@ -29,6 +29,7 @@ import { PersonHoverCard } from "../person/person-hover-card";
 import { Share } from "@capacitor/share";
 import { useAuth } from "@/src/stores/auth";
 import { Badge } from "@/src/components/ui/badge";
+import { Button } from "../ui/button";
 
 function Byline({
   creator,
@@ -42,8 +43,8 @@ function Byline({
   const linkCtx = useLinkContext();
   const slug = createSlug(creator);
   return (
-    <summary className="flex flex-row gap-1 items-center py-px">
-      <Avatar className="w-5 h-5">
+    <summary className="flex flex-row gap-1.5 items-center py-px">
+      <Avatar className="w-6 h-6">
         <AvatarImage src={creator.avatar} />
         <AvatarFallback className="text-xs">
           {creator.name?.substring(0, 1).toUpperCase()}{" "}
@@ -54,7 +55,7 @@ function Byline({
           to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}
           className="text-xs overflow-ellipsis flex flex-row overflow-x-hidden items-center"
         >
-          {slug?.name}
+          <span className="font-medium">{slug?.name}</span>
           <span className="italic text-muted-foreground">@{slug?.host}</span>
           {authorType === "OP" && <Badge className="ml-1.5">OP</Badge>}
           {authorType === "MOD" && <Badge className="ml-1.5">Mod</Badge>}
@@ -161,8 +162,10 @@ export function PostComment({
       open
       className={cn(
         "flex-1 pt-2",
-        level === 0 && "mt-2",
-        level === 0 && !noBorder && "border-b-[0.5px] pb-5",
+        level === 0 && "max-md:px-2.5 py-3",
+        level === 0 &&
+          !noBorder &&
+          "border-t-7 max-md:border-border/40 md:border-t-[0.5px]",
         comment.id < 0 && "opacity-50",
       )}
     >
@@ -180,7 +183,7 @@ export function PostComment({
         }
       />
 
-      <div className="pt-3">
+      <div className="pt-1.5">
         {comment.deleted && <span className="italic text-sm">deleted</span>}
         {comment.removed && <span className="italic text-sm">removed</span>}
 
@@ -197,7 +200,7 @@ export function PostComment({
           />
         )}
 
-        <div className="flex flex-row items-center gap-5 text-sm text-muted-foreground justify-end pt-2.5">
+        <div className="flex flex-row items-center text-sm text-muted-foreground justify-end">
           <ActionMenu
             actions={[
               {
@@ -270,7 +273,12 @@ export function PostComment({
                     } as const,
                   ]),
             ]}
-            trigger={<IoEllipsisHorizontal size={16} />}
+            trigger={
+              <Button size="icon" variant="ghost">
+                <IoEllipsisHorizontal size={16} />
+              </Button>
+            }
+            triggerAsChild
           />
 
           <CommentReplyButton onClick={() => reply.setIsEditing(true)} />
@@ -278,7 +286,10 @@ export function PostComment({
         </div>
 
         {(sorted.length > 0 || reply.isEditing) && (
-          <div className="border-l pl-3 md:pl-4" style={{ borderColor: color }}>
+          <div
+            className="border-l border-b pl-3 md:pl-3.5 rounded-bl-xl mb-2"
+            style={{ borderColor: color }}
+          >
             {reply.isEditing && (
               <InlineCommentReply
                 state={reply}
@@ -301,6 +312,8 @@ export function PostComment({
                 communityName={communityName}
               />
             ))}
+
+            <div className="h-1 -mt-1 w-full bg-black translate-y-1" />
           </div>
         )}
       </div>

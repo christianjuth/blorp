@@ -1557,7 +1557,7 @@ export function useCreateCommentReport() {
   return useMutation({
     mutationFn: (form: CreateCommentReport) => client.createCommentReport(form),
     onError: () => {
-      toast.error("Couldn't block person");
+      toast.error("Couldn't create comment report");
     },
   });
 }

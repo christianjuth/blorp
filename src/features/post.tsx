@@ -203,7 +203,7 @@ export default function Post() {
                 }
                 return (
                   <>
-                    <ContentGutters className="max-md:border-b-[.5px]">
+                    <ContentGutters>
                       <PostBottomBar
                         apId={decodedApId}
                         commentsCount={post.counts.comments}
@@ -227,21 +227,29 @@ export default function Post() {
                   return null;
                 }
                 return (
-                  <ContentGutters className="md:pt-4">
-                    <InlineCommentReply
-                      state={reply}
-                      postId={post.post.id}
-                      queryKeyParentId={parentId}
-                      autoFocus={reply.isEditing}
-                      mode="desktop-only"
-                    />
+                  <ContentGutters className="md:py-3">
+                    <div className="flex-1">
+                      <InlineCommentReply
+                        state={reply}
+                        postId={post.post.id}
+                        queryKeyParentId={parentId}
+                        autoFocus={reply.isEditing}
+                        mode="desktop-only"
+                      />
+                      <button
+                        className="md:hidden py-2 px-3 my-3 border rounded-2xl w-full text-left shadow-sm text-muted-foreground text-sm"
+                        onClick={() => mobleReply.setIsEditing(true)}
+                      >
+                        Add a comment
+                      </button>
+                    </div>
                     <></>
                   </ContentGutters>
                 );
               }
 
               return (
-                <ContentGutters>
+                <ContentGutters className="px-0">
                   <MemoedPostComment
                     postApId={decodedApId}
                     queryKeyParentId={parentId}

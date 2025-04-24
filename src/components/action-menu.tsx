@@ -45,6 +45,7 @@ export interface ActionMenuProps<V = string>
   )[];
   selectedValue?: V;
   trigger: React.ReactNode;
+  triggerAsChild?: boolean;
   onOpen?: () => any;
   align?: "start" | "end";
   showCancel?: boolean;
@@ -52,6 +53,7 @@ export interface ActionMenuProps<V = string>
 
 export function ActionMenu<V extends string>({
   trigger,
+  triggerAsChild,
   actions,
   onOpen,
   align,
@@ -126,7 +128,9 @@ export function ActionMenu<V extends string>({
   if (media.md) {
     return (
       <DropdownMenu onOpenChange={(open) => open && onOpen?.()}>
-        <DropdownMenuTrigger>{trigger}</DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild={triggerAsChild}>
+          {trigger}
+        </DropdownMenuTrigger>
         <DropdownMenuContent align={align}>
           {props.header && (
             <>

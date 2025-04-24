@@ -73,26 +73,6 @@ export function Voting({
   );
 }
 
-export function PostReplyButton(
-  props: DetailedHTMLProps<
-    ButtonHTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
-  >,
-) {
-  return (
-    <button
-      {...props}
-      className={cn(
-        "flex flex-row items-center gap-1 text-muted-foreground text-sm",
-        props.className,
-      )}
-    >
-      <PiArrowBendUpLeftBold />
-      <span>Reply</span>
-    </button>
-  );
-}
-
 export function PostCommentsButton({
   commentsCount,
   href,

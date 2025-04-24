@@ -165,6 +165,7 @@ export function InlineCommentReply({
     >
       <div className="flex-1 border rounded-xl focus-within:shadow-xs focus-within:border-ring">
         <MarkdownEditor
+          hideMenu={!state.isEditing}
           className="block"
           key={submitSignal}
           content={state.content}
@@ -172,7 +173,6 @@ export function InlineCommentReply({
           autoFocus={autoFocus}
           placeholder="Add a comment..."
           onFocus={() => state.setIsEditing(true)}
-          onBlur={() => state.setIsEditing(false)}
           footer={
             state.isEditing && (
               <div className="flex flex-row justify-end p-1.5 pt-0 gap-2">

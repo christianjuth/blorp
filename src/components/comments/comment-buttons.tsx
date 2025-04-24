@@ -10,6 +10,7 @@ import {
   PiArrowFatDownFill,
   PiArrowFatUpFill,
 } from "react-icons/pi";
+import { Button } from "../ui/button";
 
 export function CommentVoting({
   commentView,
@@ -34,7 +35,9 @@ export function CommentVoting({
 
   return (
     <div className="flex flex-row items-center">
-      <button
+      <Button
+        size="icon"
+        variant="ghost"
         onClick={async () => {
           const newVote = isUpvoted ? 0 : 1;
           voteHaptics(newVote);
@@ -48,28 +51,14 @@ export function CommentVoting({
           });
         }}
         disabled={vote.isPending}
-        className={cn(
-          "pr-1.5 flex items-center space-x-2 text-left",
-          isUpvoted && "text-brand",
-        )}
+        className={cn("hover:text-brand", isUpvoted && "text-brand")}
       >
-        <>
-          {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
-
-          {/* <ArrowBigUp */}
-          {/*   // Not sure why this is nessesary, but */}
-          {/*   // it wasn't clearning the color without */}
-          {/*   // this when you undo your vote */}
-          {/*   key={isUpvoted ? 1 : 0} */}
-          {/*   size="$1" */}
-          {/*   fill={isUpvoted ? theme.accentBackground.val : theme.background.val} */}
-          {/*   color={isUpvoted ? "$accentBackground" : "$color11"} */}
-          {/*   mr={5} */}
-          {/* /> */}
-          <span>{score}</span>
-        </>
-      </button>
-      <button
+        {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
+      </Button>
+      <span className="-mx-0.5">{score}</span>
+      <Button
+        size="icon"
+        variant="ghost"
         onClick={async () => {
           const newVote = isDownvoted ? 0 : -1;
           voteHaptics(newVote);
@@ -84,12 +73,12 @@ export function CommentVoting({
         }}
         disabled={vote.isPending}
         className={cn(
-          "pl-0.5 flex items-center",
+          "pl-0.5 flex items-center hover:text-destructive",
           isDownvoted && "text-destructive",
         )}
       >
         {isDownvoted ? <PiArrowFatDownFill /> : <PiArrowFatDownBold />}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -101,12 +90,14 @@ export function CommentReplyButton(
   >,
 ) {
   return (
-    <button
+    <Button
       {...props}
+      size="sm"
+      variant="ghost"
       className={cn("flex flex-row items-center gap-1", props.className)}
     >
       <PiArrowBendUpLeftBold />
       <span>Reply</span>
-    </button>
+    </Button>
   );
 }

@@ -23,6 +23,7 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
+  useIonAlert,
 } from "@ionic/react";
 import { MarkdownEditor } from "../components/markdown/editor";
 import { Button } from "../components/ui/button";
@@ -45,6 +46,7 @@ import { MdDelete } from "react-icons/md";
 import { useMedia, useUrlSearchState } from "../lib/hooks";
 import { createSlug } from "../lib/lemmy/utils";
 import { RelativeTime } from "../components/relative-time";
+import { Deferred } from "../lib/deferred";
 
 dayjs.extend(localizedFormat);
 
@@ -57,6 +59,7 @@ function DraftsSidebar({
   createPostId: string;
   onClickDraft: () => void;
 }) {
+  const [alrt] = useIonAlert();
   const drafts = useCreatePostStore((s) => s.drafts);
   const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
   return (
@@ -98,7 +101,28 @@ function DraftsSidebar({
               </Link>
               <button
                 className="absolute top-2 right-2 text-destructive text-xl"
-                onClick={() => deleteDraft(key)}
+                onClick={async () => {
+                  try {
+                    const deferred = new Deferred();
+                    alrt({
+                      message: "Delete draft",
+                      buttons: [
+                        {
+                          text: "Cancel",
+                          role: "cancel",
+                          handler: () => deferred.reject(),
+                        },
+                        {
+                          text: "OK",
+                          role: "confirm",
+                          handler: () => deferred.resolve(),
+                        },
+                      ],
+                    });
+                    await deferred.promise;
+                    deleteDraft(key);
+                  } catch {}
+                }}
               >
                 <MdDelete />
               </button>

@@ -67,7 +67,7 @@ const MenuBar = ({
     return null;
   }
   return (
-    <div className="flex flex-row items-center">
+    <div className="flex flex-row items-center gap-1">
       <Toggle
         size="icon"
         data-state={editor.isActive("bold") ? "on" : "off"}
@@ -273,6 +273,7 @@ function MarkdownEditorInner({
   onFocus,
   onBlur,
   id,
+  hideMenu,
 }: {
   autoFocus?: boolean;
   content: string;
@@ -282,6 +283,7 @@ function MarkdownEditorInner({
   onFocus?: () => void;
   onBlur?: () => void;
   id?: string;
+  hideMenu?: boolean;
 }) {
   const uploadImage = useUploadImage();
 
@@ -364,7 +366,12 @@ function MarkdownEditorInner({
 
   return (
     <>
-      <div className="flex flex-row justify-between p-1.5 pb-0">
+      <div
+        className={cn(
+          "flex flex-row justify-between py-1.5 px-2 pb-0",
+          hideMenu && "hidden",
+        )}
+      >
         <MenuBar
           editor={editor}
           onFile={(file) =>
@@ -398,7 +405,7 @@ function MarkdownEditorInner({
       </div>
       <EditorContent
         id={id}
-        className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3 overflow-auto"
+        className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3.5 overflow-auto"
         editor={editor}
       />
     </>
@@ -414,6 +421,7 @@ function PlainTextEditorInner({
   onFocus,
   onBlur,
   id,
+  hideMenu,
 }: {
   content: string;
   onChange: (content: string) => void;
@@ -423,10 +431,16 @@ function PlainTextEditorInner({
   onFocus?: () => void;
   onBlur?: () => void;
   id?: string;
+  hideMenu?: boolean;
 }) {
   return (
     <>
-      <div className="flex flex-row justify-end p-1.5 pb-0">
+      <div
+        className={cn(
+          "flex flex-row justify-end py-1.5 px-2 pb-0",
+          hideMenu && "hidden",
+        )}
+      >
         <Button
           size="sm"
           variant="ghost"
@@ -451,7 +465,7 @@ function PlainTextEditorInner({
         autoFocus={autoFocus}
         defaultValue={content}
         onChange={(e) => onChange(e.target.value)}
-        className="prose dark:prose-invert prose-sm resize-none w-full font-mono outline-none pt-2 px-3 flex-1"
+        className="prose dark:prose-invert prose-sm resize-none w-full font-mono outline-none pt-2 px-3.5 flex-1"
         placeholder={placeholder}
         onFocus={onFocus}
         onBlur={onBlur}
@@ -467,10 +481,10 @@ export function MarkdownEditor({
   autoFocus: autoFocusDefault,
   placeholder,
   onFocus,
-  onBlur,
   onChageEditorType,
   footer,
   id,
+  hideMenu,
 }: {
   content: string;
   onChange: (content: string) => void;
@@ -478,24 +492,17 @@ export function MarkdownEditor({
   autoFocus?: boolean;
   placeholder?: string;
   onFocus?: () => void;
-  onBlur?: () => void;
   onChageEditorType?: () => void;
   footer?: React.ReactNode;
   id?: string;
+  hideMenu?: boolean;
 }) {
-  const skipBlurRef = useRef(-1);
-
   const [autoFocus, setAutoFocus] = useState(autoFocusDefault ?? false);
   const showMarkdown = useSettingsStore((s) => s.showMarkdown);
   const setShowMarkdown = useSettingsStore((s) => s.setShowMarkdown);
 
   return (
-    <div
-      className={cn("flex flex-col flex-1", className)}
-      onMouseDown={() => {
-        skipBlurRef.current = Date.now();
-      }}
-    >
+    <div className={cn("flex flex-col flex-1", className)}>
       {showMarkdown ? (
         <PlainTextEditorInner
           content={content}
@@ -508,14 +515,8 @@ export function MarkdownEditor({
           autoFocus={autoFocus}
           placeholder={placeholder}
           onFocus={onFocus}
-          onBlur={() => {
-            if (Date.now() - skipBlurRef.current < 50) {
-              skipBlurRef.current = -1;
-              return;
-            }
-            onBlur?.();
-          }}
           id={id}
+          hideMenu={hideMenu}
         />
       ) : (
         <MarkdownEditorInner
@@ -529,14 +530,8 @@ export function MarkdownEditor({
           autoFocus={autoFocus}
           placeholder={placeholder}
           onFocus={onFocus}
-          onBlur={() => {
-            if (Date.now() - skipBlurRef.current < 50) {
-              skipBlurRef.current = -1;
-              return;
-            }
-            onBlur?.();
-          }}
           id={id}
+          hideMenu={hideMenu}
         />
       )}
       {footer}

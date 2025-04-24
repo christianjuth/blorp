@@ -7,7 +7,7 @@ import { createSlug, encodeApId, FlattenedPost } from "@/src/lib/lemmy/utils";
 import { Link } from "react-router-dom";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
-import { PostCommentsButton, PostReplyButton, Voting } from "./post-buttons";
+import { PostCommentsButton, Voting } from "./post-buttons";
 import { MarkdownRenderer } from "../markdown/renderer";
 import { twMerge } from "tailwind-merge";
 import { PostLoopsEmbed } from "./post-loops-embed";
@@ -321,7 +321,6 @@ export function PostBottomBar({
     <div className="pb-1.5 md:py-2 flex flex-row gap-2 bg-background">
       <CommentSortSelect />
       <div className="flex-1" />
-      <PostReplyButton onClick={onReply} className="mr-1 md:hidden" />
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
       <Voting apId={apId} score={score} myVote={myVote} />
     </div>
