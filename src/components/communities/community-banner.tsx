@@ -5,19 +5,12 @@ import { useCommunitiesStore } from "@/src/stores/communities";
 import { Skeleton } from "../ui/skeleton";
 import { useState } from "react";
 import { useAuth } from "@/src/stores/auth";
-import { useCreatePostStore } from "@/src/stores/create-post";
 import { Button } from "../ui/button";
 import _ from "lodash";
-import { useIonRouter } from "@ionic/react";
-import { v4 as uuid } from "uuid";
 import { useCommunity } from "@/src/lib/lemmy";
+import { CommunityCreatePost } from "./create-post";
 
 export function CommunityBanner({ communityName }: { communityName?: string }) {
-  const router = useIonRouter();
-  const drafts = useCreatePostStore((s) => s.drafts);
-  const updateDraft = useCreatePostStore((s) => s.updateDraft);
-  const isLoggedIn = useAuth((s) => s.isLoggedIn());
-
   const community = useCommunity({
     name: communityName,
   });
@@ -81,30 +74,15 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
           <span className="italic">@{slug?.host}</span>
         </span>
         <div className="flex-1" />
-        {isLoggedIn && community.data && (
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => {
-              const createPostId =
-                _.entries(drafts).find(
-                  ([_id, { community }]) =>
-                    community && createSlug(community)?.slug === communityName,
-                )?.[0] ?? uuid();
-              updateDraft(createPostId, {
-                community: _.pick(community.data.community_view.community, [
-                  "name",
-                  "id",
-                  "title",
-                  "icon",
-                  "actor_id",
-                ]),
-              });
-              router.push(`/create?id=${createPostId ?? uuid()}`);
-            }}
-          >
-            Create post
-          </Button>
+        {community.data && (
+          <CommunityCreatePost
+            community={community.data.community_view.community}
+            renderButton={(props) => (
+              <Button size="sm" variant="secondary" {...props}>
+                Create post
+              </Button>
+            )}
+          />
         )}
         <CommunityJoinButton communityName={communityName} />
       </div>

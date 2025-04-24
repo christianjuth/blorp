@@ -4846,7 +4846,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tailwindcss/typography@npm:^0.5.16":
+"@tailwindcss/typography@npm:0.5.16":
   version: 0.5.16
   resolution: "@tailwindcss/typography@npm:0.5.16"
   dependencies:
@@ -4857,6 +4857,20 @@ __metadata:
   peerDependencies:
     tailwindcss: "*"
   checksum: 10c0/35a7387876810c23c270a23848b920517229b707c8ead6a63c8bb7d6720a62f23728c3117f0a93b422a66d1e5ee9c7ad8a6c3f0fbf5255b535c0e4971ffa0158
+  languageName: node
+  linkType: hard
+
+"@tailwindcss/typography@patch:@tailwindcss/typography@npm%3A0.5.16#~/.yarn/patches/@tailwindcss-typography-npm-0.5.16-675125d30f.patch":
+  version: 0.5.16
+  resolution: "@tailwindcss/typography@patch:@tailwindcss/typography@npm%3A0.5.16#~/.yarn/patches/@tailwindcss-typography-npm-0.5.16-675125d30f.patch::version=0.5.16&hash=713b0b"
+  dependencies:
+    lodash.castarray: "npm:^4.4.0"
+    lodash.isplainobject: "npm:^4.0.6"
+    lodash.merge: "npm:^4.6.2"
+    postcss-selector-parser: "npm:6.0.10"
+  peerDependencies:
+    tailwindcss: "*"
+  checksum: 10c0/e477e982fdf665319a546a6373cb60da787eacb45dbf07b4eff859bf5c15d1ff7ad04f75d15c953ed7041aabe69aad60a7ea95eaa60ea5624a4a338835cf03d7
   languageName: node
   linkType: hard
 
@@ -5245,6 +5259,18 @@ __metadata:
   peerDependencies:
     "@tiptap/core": ^2.7.0
   checksum: 10c0/235b7c6409b7a7b7c282beace925ba51e1af814a6c9140b4a9c09ae5fd7cd7666daaed1b7387af898f00836f765b7216f77de889d3213c88e012994c32f5dc30
+  languageName: node
+  linkType: hard
+
+"@tiptap/extension-link@npm:^2.11.7":
+  version: 2.11.7
+  resolution: "@tiptap/extension-link@npm:2.11.7"
+  dependencies:
+    linkifyjs: "npm:^4.2.0"
+  peerDependencies:
+    "@tiptap/core": ^2.7.0
+    "@tiptap/pm": ^2.7.0
+  checksum: 10c0/2541c1511b57932519a6885c3b0d996c270ba13495fa7edfbcb0aca5019b6cdaf75d2763a43c83982ba0de071bf0e66d92d5af9d5a19ac27e35b35ee950fb0c5
   languageName: node
   linkType: hard
 
@@ -10106,7 +10132,7 @@ __metadata:
     "@storybook/react": "npm:^8.6.12"
     "@storybook/react-vite": "npm:^8.6.12"
     "@storybook/test": "npm:^8.6.12"
-    "@tailwindcss/typography": "npm:^0.5.16"
+    "@tailwindcss/typography": "patch:@tailwindcss/typography@npm%3A0.5.16#~/.yarn/patches/@tailwindcss-typography-npm-0.5.16-675125d30f.patch"
     "@tailwindcss/vite": "npm:^4.1.4"
     "@tanstack/query-broadcast-client-experimental": "npm:5.69.0"
     "@tanstack/react-query": "npm:5.69.0"
@@ -10123,6 +10149,7 @@ __metadata:
     "@tiptap/core": "npm:^2.11.7"
     "@tiptap/extension-code-block-lowlight": "npm:^2.11.7"
     "@tiptap/extension-image": "npm:^2.11.7"
+    "@tiptap/extension-link": "npm:^2.11.7"
     "@tiptap/extension-placeholder": "npm:^2.11.7"
     "@tiptap/react": "npm:^2.11.7"
     "@tiptap/starter-kit": "npm:^2.11.7"
@@ -10347,6 +10374,13 @@ __metadata:
   dependencies:
     uc.micro: "npm:^2.0.0"
   checksum: 10c0/ff4abbcdfa2003472fc3eb4b8e60905ec97718e11e33cca52059919a4c80cc0e0c2a14d23e23d8c00e5402bc5a885cdba8ca053a11483ab3cc8b3c7a52f88e2d
+  languageName: node
+  linkType: hard
+
+"linkifyjs@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "linkifyjs@npm:4.2.0"
+  checksum: 10c0/fda4fe3e98df94400fbc70ba38798094c6852e7f41e8cc9b8a2fcd3cb122daa20502aedfd1ecb996cf9d829f6fdddd9813858ca070f9cb246389a5b161c6ac8d
   languageName: node
   linkType: hard
 

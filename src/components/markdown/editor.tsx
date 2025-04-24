@@ -9,6 +9,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "tiptap-markdown";
 import Spoiler from "./spoiler-plugin";
 import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
 import { useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Button } from "../ui/button";
@@ -23,10 +24,24 @@ import { cn } from "@/src/lib/utils";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { CodeBlockEditor, lowlight } from "./code-block";
 import { useSettingsStore } from "@/src/stores/settings";
-import { IoLogoMarkdown, IoDocumentText } from "react-icons/io5";
+import {
+  IoLogoMarkdown,
+  IoDocumentText,
+  IoLink,
+  IoEllipsisHorizontal,
+} from "react-icons/io5";
 import { useUploadImage } from "@/src/lib/lemmy";
 import { LuImageUp } from "react-icons/lu";
 import _ from "lodash";
+import { useIonAlert } from "@ionic/react";
+import { Deferred } from "@/src/lib/deferred";
+import z from "zod";
+import { ActionMenu } from "../action-menu";
+
+const linkSchema = z.object({
+  description: z.string(),
+  url: z.string(),
+});
 
 function IconFileInput({ onFile }: { onFile: (file: File) => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -63,11 +78,101 @@ const MenuBar = ({
   editor: Editor | null;
   onFile: (file: File) => void;
 }) => {
+  const [alrt] = useIonAlert();
+
   if (!editor) {
     return null;
   }
   return (
-    <div className="flex flex-row items-center gap-1">
+    <div className="flex flex-row items-center gap-1.5">
+      <IconFileInput onFile={onFile} />
+
+      <Toggle
+        size="icon"
+        data-state={editor.isActive("link") ? "on" : "off"}
+        type="button"
+        onClick={async () => {
+          const isLinkActive = editor.isActive("link");
+
+          let prevDescription = "";
+          const { from, to } = editor.state.selection;
+          if (isLinkActive) {
+            editor.chain().focus().extendMarkRange("link").run();
+            prevDescription = editor.state.doc.textBetween(from, to, " ");
+          } else if (to > from) {
+            prevDescription = editor.state.doc.textBetween(from, to, " ");
+          }
+
+          const previousUrl = editor.getAttributes("link").href;
+
+          try {
+            const deferred = new Deferred<z.infer<typeof linkSchema>>();
+            alrt({
+              header: "Insert link",
+              inputs: [
+                {
+                  name: "description",
+                  placeholder: "Desscription",
+                  value: prevDescription,
+                },
+                {
+                  name: "url",
+                  placeholder: "https://join-lemmy.org",
+                  value: previousUrl,
+                },
+              ],
+              buttons: [
+                {
+                  text: "Cancel",
+                  role: "cancel",
+                  handler: () => deferred.reject(),
+                },
+                {
+                  text: "OK",
+                  role: "confirm",
+                  handler: (v) => {
+                    console.log(v, "v");
+                    try {
+                      const link = linkSchema.parse(v);
+                      deferred.resolve(link);
+                    } catch {
+                      deferred.reject();
+                    }
+                  },
+                },
+              ],
+            });
+            let { url, description } = await deferred.promise;
+            description = description.trim() || url;
+
+            if (url.trim() === "") {
+              editor.chain().focus().unsetLink().run();
+            } else if (isLinkActive) {
+              editor
+                .chain()
+                .focus()
+                .extendMarkRange("link")
+                .insertContent(description)
+                .setLink({ href: url })
+                .run();
+            } else {
+              const { from } = editor.state.selection;
+              const to = from + description.length;
+              editor
+                .chain()
+                .focus()
+                .insertContent(description)
+                .setTextSelection({ from, to })
+                .setLink({ href: url })
+                .setTextSelection({ from: to, to })
+                .run();
+            }
+          } catch {}
+        }}
+      >
+        <IoLink />
+      </Toggle>
+
       <Toggle
         size="icon"
         data-state={editor.isActive("bold") ? "on" : "off"}
@@ -98,13 +203,6 @@ const MenuBar = ({
         <AiOutlineStrikethrough />
       </Toggle>
 
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => editor.chain().focus().toggleCode().run()} */}
-      {/*   disabled={!editor.can().chain().focus().toggleCode().run()} */}
-      {/*   className={editor.isActive("code") ? "is-active" : ""} */}
-      {/* > */}
-      {/*   Code */}
       {/* </button> */}
       {/* <button */}
       {/*   type="button" */}
@@ -118,100 +216,7 @@ const MenuBar = ({
       {/* > */}
       {/*   Clear nodes */}
       {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => editor.chain().focus().setParagraph().run()} */}
-      {/*   className={editor.isActive("paragraph") ? "is-active" : ""} */}
-      {/* > */}
-      {/*   Paragraph */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => */}
-      {/*     editor.chain().focus().toggleHeading({ level: 1 }).run() */}
-      {/*   } */}
-      {/*   className={ */}
-      {/*     editor.isActive("heading", { level: 1 }) ? "is-active" : "" */}
-      {/*   } */}
-      {/* > */}
-      {/*   H1 */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => */}
-      {/*     editor.chain().focus().toggleHeading({ level: 2 }).run() */}
-      {/*   } */}
-      {/*   className={ */}
-      {/*     editor.isActive("heading", { level: 2 }) ? "is-active" : "" */}
-      {/*   } */}
-      {/* > */}
-      {/*   H2 */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => */}
-      {/*     editor.chain().focus().toggleHeading({ level: 3 }).run() */}
-      {/*   } */}
-      {/*   className={ */}
-      {/*     editor.isActive("heading", { level: 3 }) ? "is-active" : "" */}
-      {/*   } */}
-      {/* > */}
-      {/*   H3 */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => */}
-      {/*     editor.chain().focus().toggleHeading({ level: 4 }).run() */}
-      {/*   } */}
-      {/*   className={ */}
-      {/*     editor.isActive("heading", { level: 4 }) ? "is-active" : "" */}
-      {/*   } */}
-      {/* > */}
-      {/*   H4 */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => */}
-      {/*     editor.chain().focus().toggleHeading({ level: 5 }).run() */}
-      {/*   } */}
-      {/*   className={ */}
-      {/*     editor.isActive("heading", { level: 5 }) ? "is-active" : "" */}
-      {/*   } */}
-      {/* > */}
-      {/*   H5 */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => */}
-      {/*     editor.chain().focus().toggleHeading({ level: 6 }).run() */}
-      {/*   } */}
-      {/*   className={ */}
-      {/*     editor.isActive("heading", { level: 6 }) ? "is-active" : "" */}
-      {/*   } */}
-      {/* > */}
-      {/*   H6 */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => editor.chain().focus().toggleBulletList().run()} */}
-      {/*   className={editor.isActive("bulletList") ? "is-active" : ""} */}
-      {/* > */}
-      {/*   Bullet list */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => editor.chain().focus().toggleOrderedList().run()} */}
-      {/*   className={editor.isActive("orderedList") ? "is-active" : ""} */}
-      {/* > */}
-      {/*   Ordered list */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => editor.chain().focus().toggleCodeBlock().run()} */}
-      {/*   className={editor.isActive("codeBlock") ? "is-active" : ""} */}
-      {/* > */}
-      {/*   Code block */}
-      {/* </button> */}
+
       <Toggle
         size="icon"
         data-state={editor.isActive("blockquote") ? "on" : "off"}
@@ -223,43 +228,39 @@ const MenuBar = ({
       </Toggle>
       {/* <button */}
       {/*   type="button" */}
-      {/*   onClick={() => editor.chain().focus().setHorizontalRule().run()} */}
-      {/* > */}
-      {/*   Horizontal rule */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
       {/*   onClick={() => editor.chain().focus().setHardBreak().run()} */}
       {/* > */}
       {/*   Hard break */}
       {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => editor.chain().focus().undo().run()} */}
-      {/*   disabled={!editor.can().chain().focus().undo().run()} */}
-      {/* > */}
-      {/*   Undo */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => editor.chain().focus().redo().run()} */}
-      {/*   disabled={!editor.can().chain().focus().redo().run()} */}
-      {/* > */}
-      {/*   Redo */}
-      {/* </button> */}
 
-      <IconFileInput onFile={onFile} />
-
-      <Toggle
-        type="button"
-        onClick={() =>
-          // @ts-expect-error
-          editor.commands.insertSpoiler()
-        }
-        size="sm"
-      >
-        Spoiler
-      </Toggle>
+      <ActionMenu
+        actions={[
+          {
+            text: "Horizontal Line",
+            onClick: () => editor.chain().focus().setHorizontalRule().run(),
+          },
+          {
+            text: "Code",
+            onClick: () => editor.chain().focus().toggleCodeBlock().run(),
+          },
+          {
+            text: "Spoiler",
+            onClick: () => {
+              // @ts-expect-error
+              editor.commands.insertSpoiler();
+            },
+          },
+          {
+            text: "Unordered List",
+            onClick: () => editor.chain().focus().toggleBulletList().run(),
+          },
+          {
+            text: "Ordered List",
+            onClick: () => editor.chain().focus().toggleOrderedList().run(),
+          },
+        ]}
+        trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
+      />
     </div>
   );
 };
@@ -313,6 +314,10 @@ function MarkdownEditorInner({
         },
       }).configure({
         lowlight,
+      }),
+      Link.configure({
+        autolink: true,
+        defaultProtocol: "https",
       }),
     ],
     onUpdate: ({ editor }) => {
@@ -465,7 +470,7 @@ function PlainTextEditorInner({
         autoFocus={autoFocus}
         defaultValue={content}
         onChange={(e) => onChange(e.target.value)}
-        className="prose dark:prose-invert prose-sm resize-none w-full font-mono outline-none pt-2 px-3.5 flex-1"
+        className="prose dark:prose-invert prose-sm resize-none w-full font-mono outline-none pt-2 px-3.5"
         placeholder={placeholder}
         onFocus={onFocus}
         onBlur={onBlur}

@@ -1,0 +1,13 @@
+diff --git a/src/styles.js b/src/styles.js
+index a4d6967391ee1b747a173193cab7bfe31c3014f3..42eb43d1c75f10ec24d065de57cd33f14e209377 100644
+--- a/src/styles.js
++++ b/src/styles.js
+@@ -1470,7 +1470,7 @@ module.exports = {
+         },
+         hr: {
+           borderColor: 'var(--tw-prose-hr)',
+-          borderTopWidth: 1,
++          borderTopWidth: '1px',
+         },
+         blockquote: {
+           fontWeight: '500',

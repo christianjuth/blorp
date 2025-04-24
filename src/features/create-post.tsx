@@ -64,9 +64,8 @@ function DraftsSidebar({
   const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="font-bold">Other Drafts</h2>
+      <h2 className="font-bold">Drafts</h2>
       {_.entries(drafts)
-        .filter(([key]) => key !== createPostId)
         .sort(([_a, a], [_b, b]) => b.createdAt - a.createdAt)
         .map(([key, draft]) => {
           const slug = draft.community
@@ -76,7 +75,11 @@ function DraftsSidebar({
             <div key={key} className="relative">
               <Link
                 to={`/create?id=${key}`}
-                className="bg-muted border px-3 py-2 gap-1 rounded-lg flex flex-col"
+                className={cn(
+                  "bg-muted border px-3 py-2 gap-1 rounded-lg flex flex-col",
+                  createPostId === key &&
+                    "border-brand border-dashed bg-brand/20",
+                )}
                 onClickCapture={onClickDraft}
               >
                 <div className="text-muted-foreground flex flex-row items-center text-sm gap-1 pr-3.5">
@@ -84,7 +87,7 @@ function DraftsSidebar({
                   {slug && (
                     <>
                       <span>•</span>
-                      <span className="flex-1 overflow-hidden text-ellipsis">
+                      <span className="flex-1 overflow-hidden text-ellipsis break-words">
                         {slug}
                       </span>
                     </>
@@ -92,7 +95,7 @@ function DraftsSidebar({
                 </div>
                 <span
                   className={cn(
-                    "font-medium line-clamp-1",
+                    "font-medium line-clamp-1 break-words",
                     !draft.name && "italic",
                   )}
                 >
@@ -205,7 +208,7 @@ export function CreatePost() {
               onClick={() => setShowDrafts((s) => !s)}
               className="md:hidden"
             >
-              {showDrafts ? "Back" : "Other Drafts"}
+              {showDrafts ? "Back" : "Drafts"}
             </Button>
           </IonButtons>
 

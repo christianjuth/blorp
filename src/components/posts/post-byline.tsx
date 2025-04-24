@@ -229,6 +229,7 @@ export function PostByline({
       {pinned && <BsFillPinAngleFill className="text-xl text-[#17B169]" />}
 
       <ActionMenu
+        header="Post"
         align="end"
         actions={actions}
         trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}

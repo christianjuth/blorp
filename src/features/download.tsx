@@ -47,8 +47,7 @@ function Card({
       <div
         className={cn(
           "p-6 rounded-xl border flex flex-col gap-5 items-center",
-          highlight &&
-            "bg-brand/15 border-brand border-2 shadow-brand/20 shadow-lg",
+          highlight && "bg-brand/15 border-brand border-2",
         )}
       >
         {icon}
