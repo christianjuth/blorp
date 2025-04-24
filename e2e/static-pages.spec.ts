@@ -17,5 +17,5 @@ test("privacy policy page", async ({ page }) => {
 
 test("download page", async ({ page }) => {
   await page.goto("/download");
-  await expect(page.getByText("Blorp for any platform")).toBeVisible();
+  await expect(page.getByText("Blorp works best when installed")).toBeVisible();
 });

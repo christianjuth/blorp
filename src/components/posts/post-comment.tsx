@@ -313,7 +313,7 @@ export function PostComment({
               />
             ))}
 
-            <div className="h-1 -mt-1 w-full bg-black translate-y-1" />
+            <div className="h-1 -mt-1 w-full bg-background translate-y-0.5" />
           </div>
         )}
       </div>
