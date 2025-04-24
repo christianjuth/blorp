@@ -102,15 +102,7 @@ export default function Post() {
   const allComments = useMemo(
     () =>
       comments.data?.pages && isReady
-        ? comments.data.pages
-            .map((p) => p.comments)
-            .flat()
-            .sort((a, b) => {
-              if (b.creatorId === myUserId) {
-                return -1;
-              }
-              return 0;
-            })
+        ? comments.data.pages.map((p) => p.comments).flat()
         : EMPTY_ARR,
     [comments.data?.pages, isReady],
   );

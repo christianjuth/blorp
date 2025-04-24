@@ -8,6 +8,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "tiptap-markdown";
 import Spoiler from "./spoiler-plugin";
+import Image from "@tiptap/extension-image";
 import { useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Button } from "../ui/button";
@@ -22,8 +23,46 @@ import { cn } from "@/src/lib/utils";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { CodeBlockEditor, lowlight } from "./code-block";
 import { useSettingsStore } from "@/src/stores/settings";
+import { IoLogoMarkdown, IoDocumentText } from "react-icons/io5";
+import { useUploadImage } from "@/src/lib/lemmy";
+import { LuImageUp } from "react-icons/lu";
+import _ from "lodash";
 
-const MenuBar = ({ editor }: { editor: Editor | null }) => {
+function IconFileInput({ onFile }: { onFile: (file: File) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <>
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) {
+            onFile(file);
+          }
+        }}
+      />
+      <Toggle
+        data-state="off"
+        size="icon"
+        onClick={() => fileInputRef.current?.click()}
+        aria-label="Upload File"
+      >
+        <LuImageUp />
+      </Toggle>
+    </>
+  );
+}
+
+const MenuBar = ({
+  editor,
+  onFile,
+}: {
+  editor: Editor | null;
+  onFile: (file: File) => void;
+}) => {
   if (!editor) {
     return null;
   }
@@ -209,6 +248,8 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       {/*   Redo */}
       {/* </button> */}
 
+      <IconFileInput onFile={onFile} />
+
       <Toggle
         type="button"
         onClick={() =>
@@ -242,6 +283,17 @@ function MarkdownEditorInner({
   onBlur?: () => void;
   id?: string;
 }) {
+  const uploadImage = useUploadImage();
+
+  const handleFile = async (file: File) => {
+    if (file.type === "image/jpeg" || file.type === "image/png") {
+      throw new Error("only images can be uploaded");
+    }
+    return uploadImage.mutateAsync({
+      image: file,
+    });
+  };
+
   const editor = useEditor({
     autofocus: autoFocus,
     content,
@@ -250,6 +302,7 @@ function MarkdownEditorInner({
         placeholder,
       }),
       StarterKit,
+      Image,
       Markdown,
       Spoiler,
       CodeBlockLowlight.extend({
@@ -270,6 +323,36 @@ function MarkdownEditorInner({
       attributes: {
         class: "flex-1 h-full",
       },
+      handleDrop: (view, event, slice, moved) => {
+        if (
+          !moved &&
+          event.dataTransfer &&
+          event.dataTransfer.files &&
+          event.dataTransfer.files[0]
+        ) {
+          event.preventDefault();
+          const file = event.dataTransfer.files[0];
+          if (file.type === "image/jpeg" || file.type === "image/png") {
+            handleFile(file)
+              .then(({ url }) => {
+                const { schema } = view.state;
+                const coordinates = view.posAtCoords({
+                  left: event.clientX,
+                  top: event.clientY,
+                });
+                const node = schema.nodes.image.create({ src: url }); // creates the image element
+                const transaction = view.state.tr.insert(
+                  coordinates?.pos ?? 0,
+                  node,
+                ); // places it in the correct position
+                return view.dispatch(transaction);
+              })
+              .catch(console.error);
+          }
+          return true; // handled
+        }
+        return false;
+      },
     },
   });
 
@@ -282,14 +365,35 @@ function MarkdownEditorInner({
   return (
     <>
       <div className="flex flex-row justify-between p-1.5 pb-0">
-        <MenuBar editor={editor} />
+        <MenuBar
+          editor={editor}
+          onFile={(file) =>
+            handleFile(file)
+              .then(({ url }) => {
+                if (url) {
+                  editor?.chain().focus().setImage({ src: url }).run();
+                }
+              })
+              .catch(console.error)
+          }
+        />
         <Button
           size="sm"
           variant="ghost"
           type="button"
+          className="max-md:hidden"
           onClick={onChangeEditorType}
         >
           Show markdown editor
+        </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          type="button"
+          className="md:hidden"
+          onClick={onChangeEditorType}
+        >
+          <IoLogoMarkdown />
         </Button>
       </div>
       <EditorContent
@@ -327,9 +431,19 @@ function PlainTextEditorInner({
           size="sm"
           variant="ghost"
           type="button"
+          className="max-md:hidden"
           onClick={onChangeEditorType}
         >
           Show rich text editor
+        </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          type="button"
+          className="md:hidden"
+          onClick={onChangeEditorType}
+        >
+          <IoDocumentText />
         </Button>
       </div>
       <TextareaAutosize

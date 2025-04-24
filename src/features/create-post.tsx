@@ -1,6 +1,6 @@
 import { ContentGutters } from "../components/gutters";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { Draft, NEW_DRAFT, useCreatePostStore } from "../stores/create-post";
 import { FlashList } from "@/src/components/flashlist";
 import { CommunityCard } from "../components/communities/community-card";
@@ -40,7 +40,7 @@ import { cn } from "../lib/utils";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { Link } from "react-router-dom";
-import { v4 as uuid } from "uuid";
+import { v4 as uuid, validate as validateUuid } from "uuid";
 import { MdDelete } from "react-icons/md";
 import { useMedia, useUrlSearchState } from "../lib/hooks";
 import { createSlug } from "../lib/lemmy/utils";
@@ -64,6 +64,7 @@ function DraftsSidebar({
       <h2 className="font-bold">Other Drafts</h2>
       {_.entries(drafts)
         .filter(([key]) => key !== createPostId)
+        .sort(([_a, a], [_b, b]) => b.createdAt - a.createdAt)
         .map(([key, draft]) => {
           const slug = draft.community
             ? createSlug(draft.community)?.slug
@@ -75,16 +76,23 @@ function DraftsSidebar({
                 className="bg-muted border px-3 py-2 gap-1 rounded-lg flex flex-col"
                 onClickCapture={onClickDraft}
               >
-                <div className="text-muted-foreground flex flex-row items-center text-sm gap-1.5">
+                <div className="text-muted-foreground flex flex-row items-center text-sm gap-1 pr-3.5">
                   <RelativeTime time={draft.createdAt} />
                   {slug && (
                     <>
-                      <span>|</span>
-                      <span>{slug}</span>
+                      <span>•</span>
+                      <span className="flex-1 overflow-hidden text-ellipsis">
+                        {slug}
+                      </span>
                     </>
                   )}
                 </div>
-                <span className={cn("font-medium", !draft.name && "italic")}>
+                <span
+                  className={cn(
+                    "font-medium line-clamp-1",
+                    !draft.name && "italic",
+                  )}
+                >
                   {draft.name || "Untitiled"}
                 </span>
               </Link>
@@ -157,6 +165,10 @@ export function CreatePost() {
       } catch {}
     }
   };
+
+  if (!validateUuid(createPostId)) {
+    return null;
+  }
 
   return (
     <IonPage>

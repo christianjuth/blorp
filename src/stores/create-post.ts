@@ -8,7 +8,7 @@ export type CommunityPartial = Pick<
   "name" | "id" | "title" | "icon" | "actor_id"
 >;
 
-export interface Draft extends CreatePost {
+export interface Draft extends Omit<CreatePost, "community_id"> {
   type: "text" | "media" | "link";
   createdAt: number;
   community?: CommunityPartial;
@@ -24,6 +24,23 @@ export const NEW_DRAFT = {
   type: "text",
   createdAt: Date.now(),
 };
+
+export function draftToCreatePostData(draft: Draft) {
+  const post: Omit<CreatePost, "community_id"> = {
+    name: draft.name,
+    //community_id: draft.community?.id,
+    body: draft.body,
+  };
+
+  switch (draft.type) {
+    case "text":
+
+    case "link":
+
+    case "media":
+      post.url = draft.url;
+  }
+}
 
 export const useCreatePostStore = create<CreatePostStore>()(
   persist(

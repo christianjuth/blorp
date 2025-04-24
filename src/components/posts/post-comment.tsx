@@ -156,8 +156,6 @@ export function PostComment({
 
   const hideContent = comment.removed || comment.deleted;
 
-  console.log(creator.id, myUserId);
-
   return (
     <details
       open
@@ -182,10 +180,7 @@ export function PostComment({
         }
       />
 
-      <div
-        className="border-l-2 pl-1.5 ml-2 pt-1"
-        style={{ borderColor: color }}
-      >
+      <div className="pt-3">
         {comment.deleted && <span className="italic text-sm">deleted</span>}
         {comment.removed && <span className="italic text-sm">removed</span>}
 
@@ -199,8 +194,6 @@ export function PostComment({
             postId={comment.post_id}
             comment={comment}
             autoFocus
-            // onCancel={() => edit.setIsEditing(false)}
-            // onSubmit={() => edit.setIsEditing(false)}
           />
         )}
 
@@ -284,28 +277,32 @@ export function PostComment({
           <CommentVoting commentView={commentView} />
         </div>
 
-        {reply.isEditing && (
-          <InlineCommentReply
-            state={reply}
-            postId={comment.post_id}
-            queryKeyParentId={queryKeyParentId}
-            parent={commentView}
-            autoFocus
-          />
-        )}
+        {(sorted.length > 0 || reply.isEditing) && (
+          <div className="border-l pl-3 md:pl-4" style={{ borderColor: color }}>
+            {reply.isEditing && (
+              <InlineCommentReply
+                state={reply}
+                postId={comment.post_id}
+                queryKeyParentId={queryKeyParentId}
+                parent={commentView}
+                autoFocus
+              />
+            )}
 
-        {sorted.map(([id, map]) => (
-          <PostComment
-            postApId={postApId}
-            queryKeyParentId={queryKeyParentId}
-            key={id}
-            commentMap={map}
-            level={level + 1}
-            opId={opId}
-            myUserId={myUserId}
-            communityName={communityName}
-          />
-        ))}
+            {sorted.map(([id, map]) => (
+              <PostComment
+                postApId={postApId}
+                queryKeyParentId={queryKeyParentId}
+                key={id}
+                commentMap={map}
+                level={level + 1}
+                opId={opId}
+                myUserId={myUserId}
+                communityName={communityName}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </details>
   );

@@ -16,6 +16,7 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
   const router = useIonRouter();
   const drafts = useCreatePostStore((s) => s.drafts);
   const updateDraft = useCreatePostStore((s) => s.updateDraft);
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   const community = useCommunity({
     name: communityName,
@@ -80,7 +81,7 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
           <span className="italic">@{slug?.host}</span>
         </span>
         <div className="flex-1" />
-        {community.data && (
+        {isLoggedIn && community.data && (
           <Button
             size="sm"
             variant="secondary"
