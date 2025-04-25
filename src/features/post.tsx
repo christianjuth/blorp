@@ -154,8 +154,6 @@ export default function Post() {
 
   const opId = post?.creator.id;
 
-  const lastComment = structured?.topLevelItems.at(-1);
-
   return (
     <IonPage>
       <Title>{post?.post.name ?? "Post"}</Title>
@@ -237,7 +235,7 @@ export default function Post() {
                         mode="desktop-only"
                       />
                       <button
-                        className="md:hidden py-2 px-3 my-3 border rounded-2xl w-full text-left shadow-sm text-muted-foreground text-sm"
+                        className="md:hidden py-2 px-3 my-4 border rounded-2xl w-full text-left shadow-sm text-muted-foreground text-sm"
                         onClick={() => mobleReply.setIsEditing(true)}
                       >
                         Add a comment
@@ -257,7 +255,6 @@ export default function Post() {
                     level={0}
                     opId={opId}
                     myUserId={myUserId}
-                    noBorder={item[0] === lastComment?.[0]}
                     communityName={communityName}
                     modApIds={modApIds}
                   />

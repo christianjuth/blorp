@@ -1,7 +1,7 @@
 import { FlattenedComment, useLikeComment } from "@/src/lib/lemmy/index";
 import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
-import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
+import { ButtonHTMLAttributes, DetailedHTMLProps, useId, useRef } from "react";
 import { cn } from "@/src/lib/utils";
 import {
   PiArrowBendUpLeftBold,
@@ -17,6 +17,8 @@ export function CommentVoting({
 }: {
   commentView: FlattenedComment;
 }) {
+  const id = useId();
+
   const requireAuth = useRequireAuth();
 
   const vote = useLikeComment();
@@ -36,6 +38,7 @@ export function CommentVoting({
   return (
     <div className="flex flex-row items-center">
       <Button
+        id={id}
         size="icon"
         variant="ghost"
         onClick={async () => {
@@ -50,12 +53,18 @@ export function CommentVoting({
             });
           });
         }}
-        disabled={vote.isPending}
-        className={cn("hover:text-brand", isUpvoted && "text-brand")}
+        //disabled={vote.isPending}
+        className={cn(
+          "hover:text-brand",
+          isUpvoted && "text-brand",
+          isDownvoted && "text-destructive",
+        )}
       >
         {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
       </Button>
-      <span className="-mx-0.5">{score}</span>
+      <label htmlFor={id} className={cn("-mx-0.5", isUpvoted && "text-brand")}>
+        {score}
+      </label>
       <Button
         size="icon"
         variant="ghost"
@@ -71,7 +80,7 @@ export function CommentVoting({
             });
           });
         }}
-        disabled={vote.isPending}
+        //disabled={vote.isPending}
         className={cn(
           "pl-0.5 flex items-center hover:text-destructive",
           isDownvoted && "text-destructive",
