@@ -347,12 +347,16 @@ function MarkdownEditorInner({
                   left: event.clientX,
                   top: event.clientY,
                 });
-                const node = schema.nodes.image.create({ src: url }); // creates the image element
-                const transaction = view.state.tr.insert(
-                  coordinates?.pos ?? 0,
-                  node,
-                ); // places it in the correct position
-                return view.dispatch(transaction);
+                if (schema.nodes.image) {
+                  const node = schema.nodes.image.create({ src: url }); // creates the image element
+                  const transaction = view.state.tr.insert(
+                    coordinates?.pos ?? 0,
+                    node,
+                  ); // places it in the correct position
+                  return view.dispatch(transaction);
+                } else {
+                  console.error("Failed to handle dropped image");
+                }
               })
               .catch(console.error);
           }

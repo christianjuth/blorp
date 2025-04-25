@@ -217,7 +217,7 @@ export function ActionMenu<V extends string>({
         buttons={buttons}
         onWillDismiss={({ detail }) => {
           const index = _.isNumber(detail.data) ? detail.data : null;
-          if (index !== null) {
+          if (index !== null && actions[index]) {
             const action = actions[index];
             if (action.onClick) {
               action.onClick();

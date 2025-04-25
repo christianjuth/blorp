@@ -76,7 +76,7 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
         <div className="flex-1" />
         {community.data && (
           <CommunityCreatePost
-            community={community.data.community_view.community}
+            communityName={communityName}
             renderButton={(props) => (
               <Button size="sm" variant="secondary" {...props}>
                 Create post

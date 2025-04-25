@@ -51,7 +51,7 @@ const options: (
     if (domNode.type === "tag" && domNode.name === "a" && domNode.attribs) {
       const href = domNode.attribs.href ?? "";
       const textContent =
-        domNode.children.length === 1 && "data" in domNode.children[0]
+        domNode.children[0] && "data" in domNode.children[0]
           ? domNode.children[0].data
           : null;
 
@@ -85,7 +85,7 @@ const options: (
 
       if (href.startsWith("/")) {
         return (
-          <Link to={domNode.attribs.href}>
+          <Link to={href}>
             {domToReact(domNode.children as DOMNode[], options(root))}
           </Link>
         );
@@ -102,7 +102,7 @@ const options: (
       // Extract language from class, e.g., "language-js".
       const classAttr = domNode.attribs?.class || "";
       const match = classAttr.match(/language-(\w+)/);
-      const language = match ? match[1] : "plaintext";
+      const language = match && match[1] ? match[1] : "plaintext";
       // Assume the code is stored as text in the first child.
       const code =
         domNode.children[0] && "data" in domNode.children[0]

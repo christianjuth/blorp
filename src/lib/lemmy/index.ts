@@ -999,7 +999,7 @@ export function useLikePost(apId: string) {
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore((s) => s.posts[getCachePrefixer()(apId)]?.data);
-  const cachePost = usePostsStore((s) => s.cachePost);
+  const patchPost = usePostsStore((s) => s.patchPost);
 
   return useMutation({
     mutationKey: ["likePost", apId],
@@ -1013,18 +1013,16 @@ export function useLikePost(apId: string) {
       });
     },
     onMutate: (myVote) =>
-      cachePost(getCachePrefixer(), {
-        ...post,
+      patchPost(apId, getCachePrefixer(), {
         optimisticMyVote: myVote,
       }),
     onSuccess: (data) =>
-      cachePost(getCachePrefixer(), {
-        ..._.omit(post, ["optimisticMyVote"]),
+      patchPost(apId, getCachePrefixer(), {
+        optimisticMyVote: undefined,
         ...flattenPost(data),
       }),
     onError: () =>
-      cachePost(getCachePrefixer(), {
-        ...post,
+      patchPost(apId, getCachePrefixer(), {
         optimisticMyVote: undefined,
       }),
   });

@@ -24,7 +24,8 @@
       "dom",
       "esnext"
     ],
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "noUncheckedIndexedAccess": true
   },
   "exclude": [
     "node_modules",

@@ -41,7 +41,7 @@ export function CommunitySidebar({
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   const createPost = useCommunityCreatePost({
-    community: data?.communityView.community,
+    communityName,
   });
 
   const [openSignal, setOpenSignal] = useState(0);
@@ -180,7 +180,7 @@ export function SmallScreenSidebar({
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   const createPost = useCommunityCreatePost({
-    community: data.communityView.community,
+    communityName,
   });
 
   const [openSignal, setOpenSignal] = useState(0);

@@ -19,7 +19,7 @@ describe("usePostsStore", () => {
         result.current.cachePost(prefix, flatPost);
       });
 
-      expect(result.current.posts[prefix(post.post.ap_id)].data).toMatchObject(
+      expect(result.current.posts[prefix(post.post.ap_id)]?.data).toMatchObject(
         flatPost,
       );
     });
@@ -48,27 +48,27 @@ describe("usePostsStore", () => {
         result.current.cachePost(prefix, flatPostOptimistic);
       });
 
-      expect(result.current.posts[prefix(post1.post.ap_id)].data).toMatchObject(
-        {
-          optimisticRead: read,
-          optimisticDeleted: deleted,
-          optimisticSaved: saved,
-          optimisticMyVote: vote,
-        },
-      );
+      expect(
+        result.current.posts[prefix(post1.post.ap_id)]?.data,
+      ).toMatchObject({
+        optimisticRead: read,
+        optimisticDeleted: deleted,
+        optimisticSaved: saved,
+        optimisticMyVote: vote,
+      });
 
       act(() => {
         result.current.cachePost(prefix, flatPost);
       });
 
-      expect(result.current.posts[prefix(post1.post.ap_id)].data).toMatchObject(
-        {
-          optimisticRead: read,
-          optimisticDeleted: deleted,
-          optimisticSaved: saved,
-          optimisticMyVote: vote,
-        },
-      );
+      expect(
+        result.current.posts[prefix(post1.post.ap_id)]?.data,
+      ).toMatchObject({
+        optimisticRead: read,
+        optimisticDeleted: deleted,
+        optimisticSaved: saved,
+        optimisticMyVote: vote,
+      });
     });
   });
 
@@ -85,12 +85,12 @@ describe("usePostsStore", () => {
         result.current.cachePosts(prefix, [flatPost1, flatPost2]);
       });
 
-      expect(result.current.posts[prefix(post1.post.ap_id)].data).toMatchObject(
-        flatPost1,
-      );
-      expect(result.current.posts[prefix(post2.post.ap_id)].data).toMatchObject(
-        flatPost2,
-      );
+      expect(
+        result.current.posts[prefix(post1.post.ap_id)]?.data,
+      ).toMatchObject(flatPost1);
+      expect(
+        result.current.posts[prefix(post2.post.ap_id)]?.data,
+      ).toMatchObject(flatPost2);
     });
 
     test("does not overwrite optimistic updates", () => {
@@ -117,27 +117,27 @@ describe("usePostsStore", () => {
         result.current.cachePosts(prefix, [flatPostOptimistic]);
       });
 
-      expect(result.current.posts[prefix(post1.post.ap_id)].data).toMatchObject(
-        {
-          optimisticRead: read,
-          optimisticDeleted: deleted,
-          optimisticSaved: saved,
-          optimisticMyVote: vote,
-        },
-      );
+      expect(
+        result.current.posts[prefix(post1.post.ap_id)]?.data,
+      ).toMatchObject({
+        optimisticRead: read,
+        optimisticDeleted: deleted,
+        optimisticSaved: saved,
+        optimisticMyVote: vote,
+      });
 
       act(() => {
         result.current.cachePosts(prefix, [flatPost]);
       });
 
-      expect(result.current.posts[prefix(post1.post.ap_id)].data).toMatchObject(
-        {
-          optimisticRead: read,
-          optimisticDeleted: deleted,
-          optimisticSaved: saved,
-          optimisticMyVote: vote,
-        },
-      );
+      expect(
+        result.current.posts[prefix(post1.post.ap_id)]?.data,
+      ).toMatchObject({
+        optimisticRead: read,
+        optimisticDeleted: deleted,
+        optimisticSaved: saved,
+        optimisticMyVote: vote,
+      });
     });
   });
 
@@ -150,7 +150,7 @@ describe("usePostsStore", () => {
       result.current.patchPost(flatPost.post.ap_id, prefix, flatPost);
     });
 
-    expect(result.current.posts[prefix(post.post.ap_id)].data).toMatchObject(
+    expect(result.current.posts[prefix(post.post.ap_id)]?.data).toMatchObject(
       flatPost,
     );
 
@@ -168,7 +168,7 @@ describe("usePostsStore", () => {
       });
     });
 
-    expect(result.current.posts[prefix(post.post.ap_id)].data).toMatchObject({
+    expect(result.current.posts[prefix(post.post.ap_id)]?.data).toMatchObject({
       ...flatPost,
       optimisticMyVote: vote,
       optimisticSaved: saved,

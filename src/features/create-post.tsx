@@ -1,7 +1,12 @@
 import { ContentGutters } from "../components/gutters";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 import { useCallback, useEffect, useId, useState } from "react";
-import { Draft, NEW_DRAFT, useCreatePostStore } from "../stores/create-post";
+import {
+  Draft,
+  draftToCreatePostData,
+  NEW_DRAFT,
+  useCreatePostStore,
+} from "../stores/create-post";
 import { FlashList } from "@/src/components/flashlist";
 import { CommunityCard } from "../components/communities/community-card";
 import {
@@ -169,7 +174,7 @@ export function CreatePost() {
   const uploadImage = useUploadImage();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (files) => {
-      if (files.length > 0) {
+      if (files[0]) {
         uploadImage
           .mutateAsync({ image: files[0] })
           .then((res) => {
@@ -230,18 +235,14 @@ export function CreatePost() {
               className={cn(showDrafts && "max-md:hidden")}
               onClick={() => {
                 if (post.community) {
-                  createPost
-                    .mutateAsync({
-                      name: post.name,
-                      community_id: post.community.id,
-                      body: post.body,
-                      url:
-                        post.type === "media"
-                          ? post.custom_thumbnail
-                          : post.url || undefined,
-                      custom_thumbnail: post.custom_thumbnail,
-                    })
-                    .then(() => deleteDraft(createPostId));
+                  try {
+                    const createPostData = draftToCreatePostData(post);
+                    createPost
+                      .mutateAsync(createPostData)
+                      .then(() => deleteDraft(createPostId));
+                  } catch {
+                    // TODO: handle incomplete post data
+                  }
                 }
               }}
               disabled={!post.community}

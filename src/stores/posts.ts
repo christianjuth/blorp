@@ -17,7 +17,7 @@ type SortsStore = {
     id: FlattenedPost["post"]["ap_id"],
     prefix: CachePrefixer,
     post: Partial<FlattenedPost>,
-  ) => FlattenedPost;
+  ) => void;
   cachePost: (prefix: CachePrefixer, post: FlattenedPost) => FlattenedPost;
   cachePosts: (
     prefix: CachePrefixer,
@@ -34,6 +34,10 @@ export const usePostsStore = create<SortsStore>()(
         const prev = get().posts;
         const cacheKey = prefix(apId);
         const prevPost = prev[cacheKey];
+        if (!prevPost) {
+          console.error("failed to patch post that isn't in cache");
+          return;
+        }
         const updatedPostData = {
           ...prevPost.data,
           ...patch,
@@ -54,12 +58,12 @@ export const usePostsStore = create<SortsStore>()(
       cachePost: (prefix, view) => {
         const prev = get().posts;
         const cacheKey = prefix(view.post.ap_id);
-        const prevPostData = prev[cacheKey]?.data ?? {};
+        const prevPostData = prev[cacheKey]?.data;
         const updatedPostData = {
           ...prevPostData,
           ...view,
-          imageDetails: view.imageDetails ?? prevPostData.imageDetails,
-          crossPosts: view.crossPosts ?? prevPostData.crossPosts,
+          imageDetails: view.imageDetails ?? prevPostData?.imageDetails,
+          crossPosts: view.crossPosts ?? prevPostData?.crossPosts,
         };
         set({
           posts: {
@@ -79,13 +83,13 @@ export const usePostsStore = create<SortsStore>()(
 
         for (const view of views) {
           const cacheKey = prefix(view.post.ap_id);
-          const prevPostData = prev[cacheKey]?.data ?? {};
+          const prevPostData = prev[cacheKey]?.data;
           newPosts[cacheKey] = {
             data: {
               ...prevPostData,
               ...view,
-              imageDetails: view.imageDetails ?? prevPostData.imageDetails,
-              crossPosts: view.crossPosts ?? prevPostData.crossPosts,
+              imageDetails: view.imageDetails ?? prevPostData?.imageDetails,
+              crossPosts: view.crossPosts ?? prevPostData?.crossPosts,
             },
             lastUsed: Date.now(),
           };

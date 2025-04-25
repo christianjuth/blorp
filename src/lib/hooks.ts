@@ -91,7 +91,7 @@ export function useElementHadFocus<T extends HTMLElement | null>(
     if (!element) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
+      ([entry]) => entry && setIsVisible(entry.isIntersecting),
       options,
     );
 
