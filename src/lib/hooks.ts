@@ -131,12 +131,12 @@ export function useUrlSearchState(
   key: string,
   defaultValue: string,
 ): [string, SetUrlSearchParam<string>];
-export function useUrlSearchState<S extends z.ZodEnum<[string, ...string[]]>>(
+export function useUrlSearchState<S extends z.ZodSchema>(
   key: string,
   defaultValue: z.infer<S>,
   schema: S,
 ): [z.infer<S>, SetUrlSearchParam<z.infer<S>>];
-export function useUrlSearchState<S extends z.ZodEnum<[string, ...string[]]>>(
+export function useUrlSearchState<S extends z.ZodSchema>(
   key: string,
   defaultValue: z.infer<S>,
   schema?: S,

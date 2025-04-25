@@ -41,7 +41,7 @@ export function CommunitySidebar({
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   const createPost = useCommunityCreatePost({
-    community: data.communityView.community,
+    community: data?.communityView.community,
   });
 
   const [openSignal, setOpenSignal] = useState(0);

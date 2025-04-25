@@ -1,6 +1,6 @@
 import { ContentGutters } from "../components/gutters";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { Draft, NEW_DRAFT, useCreatePostStore } from "../stores/create-post";
 import { FlashList } from "@/src/components/flashlist";
 import { CommunityCard } from "../components/communities/community-card";
@@ -47,6 +47,7 @@ import { useMedia, useUrlSearchState } from "../lib/hooks";
 import { createSlug } from "../lib/lemmy/utils";
 import { RelativeTime } from "../components/relative-time";
 import { Deferred } from "../lib/deferred";
+import z from "zod";
 
 dayjs.extend(localizedFormat);
 
@@ -64,7 +65,14 @@ function DraftsSidebar({
   const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="font-bold">Drafts</h2>
+      <div className="flex flex-row justify-between items-center">
+        <h2 className="font-bold">Drafts</h2>
+        <Button size="sm" variant="ghost" asChild>
+          <Link to={`/create?${uuid()}`} onClick={onClickDraft}>
+            New
+          </Link>
+        </Button>
+      </div>
       {_.entries(drafts)
         .sort(([_a, a], [_b, b]) => b.createdAt - a.createdAt)
         .map(([key, draft]) => {
@@ -139,7 +147,13 @@ function DraftsSidebar({
 export function CreatePost() {
   const [showDrafts, setShowDrafts] = useState(false);
   const media = useMedia();
-  const [createPostId] = useUrlSearchState("id", uuid());
+  const [createPostId] = useUrlSearchState(
+    "id",
+    uuid(),
+    z.string().refine(validateUuid, {
+      message: "Post draft id must be a valid uuid",
+    }),
+  );
   const id = useId();
 
   useEffect(() => {
@@ -192,10 +206,6 @@ export function CreatePost() {
       } catch {}
     }
   };
-
-  if (!validateUuid(createPostId)) {
-    return null;
-  }
 
   return (
     <IonPage>
