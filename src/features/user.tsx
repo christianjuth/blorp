@@ -10,7 +10,7 @@ import {
 import { MarkdownRenderer } from "../components/markdown/renderer";
 import { FlashList } from "../components/flashlist";
 import { PostSortBar } from "../components/lemmy-sort";
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { createPersonSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
@@ -98,7 +98,7 @@ const Comment = memo(function Comment({ path }: { path: string }) {
 
 dayjs.extend(localizedFormat);
 
-const EMPTY_ARR = [];
+const EMPTY_ARR: never[] = [];
 
 export default function User() {
   const media = useMedia();

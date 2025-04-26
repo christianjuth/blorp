@@ -56,7 +56,7 @@ import z from "zod";
 
 dayjs.extend(localizedFormat);
 
-const EMPTY_ARR = [];
+const EMPTY_ARR: never[] = [];
 
 function DraftsSidebar({
   createPostId,
@@ -100,7 +100,7 @@ function DraftsSidebar({
                   {slug && (
                     <>
                       <span>•</span>
-                      <span className="flex-1 overflow-hidden text-ellipsis break-words">
+                      <span className="flex-1 overflow-hidden text-ellipsis break-words line-clamp-1">
                         {slug}
                       </span>
                     </>
@@ -178,9 +178,8 @@ export function CreatePost() {
         uploadImage
           .mutateAsync({ image: files[0] })
           .then((res) => {
-            console.log(res);
             patchPost(createPostId, {
-              url: res.url,
+              custom_thumbnail: res.url,
             });
           })
           .catch((err) => console.log(err));
@@ -301,7 +300,7 @@ export function CreatePost() {
                 <ToggleGroupItem value="link">Link</ToggleGroupItem>
               </ToggleGroup>
 
-              {post.type === "link" && (
+              {(post.type === "link" || post.url) && (
                 <div className="gap-2 flex flex-col">
                   <Label htmlFor={`${id}-link`}>Link</Label>
                   <Input
@@ -317,7 +316,7 @@ export function CreatePost() {
                 </div>
               )}
 
-              {post.type === "media" && (
+              {(post.type === "media" || post.custom_thumbnail) && (
                 <div className="gap-2 flex flex-col">
                   <Label htmlFor={`${id}-media`}>Image</Label>
                   <div

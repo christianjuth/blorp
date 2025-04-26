@@ -103,7 +103,7 @@ const MenuBar = ({
             prevDescription = editor.state.doc.textBetween(from, to, " ");
           }
 
-          const previousUrl = editor.getAttributes("link").href;
+          const previousUrl = editor.getAttributes("link")["href"];
 
           try {
             const deferred = new Deferred<z.infer<typeof linkSchema>>();
@@ -321,7 +321,7 @@ function MarkdownEditorInner({
       }),
     ],
     onUpdate: ({ editor }) => {
-      const markdown = editor?.storage.markdown.getMarkdown();
+      const markdown = editor?.storage["markdown"].getMarkdown();
       onChange(markdown);
     },
     onFocus: () => onFocus?.(),
@@ -347,8 +347,8 @@ function MarkdownEditorInner({
                   left: event.clientX,
                   top: event.clientY,
                 });
-                if (schema.nodes.image) {
-                  const node = schema.nodes.image.create({ src: url }); // creates the image element
+                if (schema.nodes["image"]) {
+                  const node = schema.nodes["image"].create({ src: url }); // creates the image element
                   const transaction = view.state.tr.insert(
                     coordinates?.pos ?? 0,
                     node,
@@ -368,7 +368,7 @@ function MarkdownEditorInner({
   });
 
   useEffect(() => {
-    if (editor?.storage.markdown.getMarkdown() !== content) {
+    if (editor?.storage["markdown"].getMarkdown() !== content) {
       editor?.commands.setContent(content);
     }
   }, [content]);

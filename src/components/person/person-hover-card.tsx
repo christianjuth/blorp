@@ -1,8 +1,7 @@
-import { useCommunity, usePersonDetails } from "@/src/lib/lemmy/index";
+import { usePersonDetails } from "@/src/lib/lemmy/index";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { abbriviateNumber } from "@/src/lib/format";
-import { useCommunitiesStore } from "@/src/stores/communities";
 import { LuCakeSlice } from "react-icons/lu";
 import { Skeleton } from "../ui/skeleton";
 
@@ -12,7 +11,6 @@ import {
   HoverCardTrigger,
 } from "@/src/components/ui/hover-card";
 import { useState } from "react";
-import { PersonView } from "lemmy-js-client";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useAuth } from "@/src/stores/auth";
 

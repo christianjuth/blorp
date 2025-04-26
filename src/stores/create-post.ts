@@ -40,6 +40,13 @@ export function draftToCreatePostData(draft: Draft): CreatePost {
     body: draft.body,
   };
 
+  if (!post.url) {
+    delete post.url;
+  }
+  if (!post.custom_thumbnail) {
+    delete post.custom_thumbnail;
+  }
+
   return post;
 }
 

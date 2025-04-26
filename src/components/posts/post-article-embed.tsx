@@ -6,6 +6,8 @@ import {
 import { isTauri } from "@/src/lib/tauri";
 import { cn } from "@/src/lib/utils";
 import { Capacitor } from "@capacitor/core";
+import { Skeleton } from "../ui/skeleton";
+import { useState } from "react";
 
 export function PostArticleEmbed({
   url,
@@ -16,6 +18,8 @@ export function PostArticleEmbed({
   displayUrl?: string;
   thumbnail?: string;
 }) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   return (
     <a
       href={url}
@@ -48,12 +52,18 @@ export function PostArticleEmbed({
       }}
       className="flex flex-col"
     >
-      {thumbnail && (
-        <img
-          src={thumbnail}
-          className="object-cover aspect-video rounded-t-xl"
-        />
-      )}
+      <div className="relative aspect-video">
+        {!imageLoaded && (
+          <Skeleton className="absolute inset-0 rounded-b-none rounded-t-xl" />
+        )}
+        {thumbnail && (
+          <img
+            src={thumbnail}
+            className="relative object-cover h-full w-full rounded-t-xl"
+            onLoad={() => setImageLoaded(true)}
+          />
+        )}
+      </div>
       {url && (
         <div
           className={cn(

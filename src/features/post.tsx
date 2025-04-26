@@ -40,7 +40,7 @@ import { NotFound } from "./not-found";
 
 const MemoedPostComment = memo(PostComment);
 
-const EMPTY_ARR = [];
+const EMPTY_ARR: never[] = [];
 
 function useDelayedReady(delay: number) {
   const [isReady, setIsReady] = useState(false);
@@ -235,7 +235,7 @@ export default function Post() {
                         mode="desktop-only"
                       />
                       <button
-                        className="md:hidden py-2 px-3 my-4 border rounded-2xl w-full text-left shadow-sm text-muted-foreground text-sm"
+                        className="md:hidden py-2 px-3 my-4 border rounded-2xl w-full text-left shadow-xs text-muted-foreground text-sm"
                         onClick={() => mobleReply.setIsEditing(true)}
                       >
                         Add a comment

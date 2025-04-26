@@ -78,7 +78,6 @@ export function PostComment({
   level,
   opId,
   myUserId,
-  noBorder = false,
   communityName,
   modApIds,
 }: {
@@ -88,7 +87,6 @@ export function PostComment({
   level: number;
   opId: number | undefined;
   myUserId: number | undefined;
-  noBorder?: boolean;
   communityName?: string;
   modApIds?: string[];
 }) {
@@ -163,9 +161,7 @@ export function PostComment({
       className={cn(
         "flex-1 pt-2",
         level === 0 && "max-md:px-2.5 py-3",
-        level === 0 &&
-          !noBorder &&
-          "border-t-7 max-md:border-border/40 md:border-t-[0.5px]",
+        level === 0 && "border-t-7 max-md:border-border/40 md:border-t-[0.5px]",
         comment.id < 0 && "opacity-50",
       )}
     >
@@ -287,7 +283,7 @@ export function PostComment({
 
         {(sorted.length > 0 || reply.isEditing) && (
           <div
-            className="border-l border-b pl-3 md:pl-3.5 rounded-bl-xl mb-2"
+            className="border-l-[1.5px] border-b-[1.5px] pl-3 md:pl-3.5 rounded-bl-xl mb-2"
             style={{ borderColor: color }}
           >
             {reply.isEditing && (

@@ -163,7 +163,7 @@ export function InlineCommentReply({
       }}
       className="max-md:hidden w-full flex-1 py-2"
     >
-      <div className="flex-1 border rounded-xl focus-within:shadow-xs focus-within:border-ring">
+      <div className="flex-1 border rounded-xl shadow-xs focus-within:border-ring">
         <MarkdownEditor
           hideMenu={!state.isEditing}
           className="block"

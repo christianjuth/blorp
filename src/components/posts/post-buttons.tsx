@@ -9,11 +9,9 @@ import {
   PiArrowFatDownBold,
   PiArrowFatDownFill,
   PiArrowFatUpFill,
-  PiArrowBendUpLeftBold,
 } from "react-icons/pi";
 import { TbMessageCircle } from "react-icons/tb";
 import { cn } from "@/src/lib/utils";
-import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
 
 export function Voting({
   apId,

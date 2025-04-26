@@ -92,12 +92,14 @@ export const useProfilesStore = create<ProfilesStore>()(
 
         const profiles = _.clone(get().profiles);
 
-        for (const key in profiles) {
+        for (const k in profiles) {
+          const key = k as keyof typeof profiles;
           const community = profiles[key];
-          const shouldEvict = now - community.lastUsed > MAX_CACHE_MS;
-
-          if (shouldEvict) {
-            delete profiles[key];
+          if (community) {
+            const shouldEvict = now - community.lastUsed > MAX_CACHE_MS;
+            if (shouldEvict) {
+              delete profiles[key];
+            }
           }
         }
 

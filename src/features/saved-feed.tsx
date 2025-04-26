@@ -5,7 +5,7 @@ import {
   PostProps,
 } from "@/src/components/posts/post";
 import { ContentGutters } from "../components/gutters";
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import { FlashList } from "../components/flashlist";
 import { useComments, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
@@ -34,7 +34,7 @@ import { useAuth } from "../stores/auth";
 import { useUrlSearchState } from "../lib/hooks";
 import z from "zod";
 
-const EMPTY_ARR = [];
+const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
 type Item =

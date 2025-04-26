@@ -11,7 +11,6 @@ import type {
 import { createCommunitySlug } from "../lib/lemmy/utils";
 import { MAX_CACHE_MS } from "./config";
 import { CachePrefixer } from "./auth";
-import { PartialDeep } from "type-fest";
 
 type Data = {
   communityView:

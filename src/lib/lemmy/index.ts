@@ -95,7 +95,7 @@ function useLemmyClient(config?: { instance?: string }) {
       queryKeyPrefix.push(`user-${myUserId}`);
     }
 
-    return { client, queryKeyPrefix, setJwt };
+    return { client, queryKeyPrefix, setJwt, instance };
   }, [jwt, instance, myUserId]);
 }
 
@@ -1688,8 +1688,22 @@ export function useFeaturePost(apId: string) {
 }
 
 export function useUploadImage() {
-  const { client } = useLemmyClient();
+  const { client, instance } = useLemmyClient();
   return useMutation({
-    mutationFn: (form: UploadImage) => client.uploadImage(form),
+    mutationFn: async (form: UploadImage) => {
+      const res = await client.uploadImage(form);
+      const fileId = res.files?.[0]?.file;
+      console.log(res);
+      if (!res.url && fileId) {
+        res.url = `${instance}/pictrs/image/${fileId}`;
+      }
+      console.log(res);
+      return res;
+    },
+    onError: () => {
+      // TOOD: find a way to determin if the request
+      // failed because the image was too large
+      toast.error("Failed to upload image");
+    },
   });
 }

@@ -20,7 +20,6 @@ import {
   IonTitle,
   IonToggle,
   IonToolbar,
-  useIonAlert,
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";

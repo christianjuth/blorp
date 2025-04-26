@@ -17,7 +17,6 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
-  IonInput,
   IonModal,
   IonTitle,
   IonToolbar,

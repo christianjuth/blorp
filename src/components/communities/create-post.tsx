@@ -3,7 +3,6 @@ import { useCreatePostStore } from "@/src/stores/create-post";
 import { useIonAlert, useIonRouter } from "@ionic/react";
 import { v4 as uuid } from "uuid";
 import _ from "lodash";
-import { Community } from "lemmy-js-client";
 import { Deferred } from "@/src/lib/deferred";
 import { useAuth } from "@/src/stores/auth";
 import { useCommunity } from "@/src/lib/lemmy";
@@ -56,8 +55,9 @@ export function useCommunityCreatePost({
         createPostId = uuid();
       }
     }
+    createPostId ??= uuid();
 
-    updateDraft(createPostId ?? uuid(), {
+    updateDraft(createPostId, {
       community: _.pick(communityData, [
         "name",
         "id",
@@ -66,7 +66,7 @@ export function useCommunityCreatePost({
         "actor_id",
       ]),
     });
-    router.push(`/create?id=${createPostId ?? uuid()}`);
+    router.push(`/create?id=${createPostId}`);
   };
 }
 

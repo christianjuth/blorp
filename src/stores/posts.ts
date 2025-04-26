@@ -111,12 +111,14 @@ export const usePostsStore = create<SortsStore>()(
 
         const posts = _.clone(get().posts);
 
-        for (const key in posts) {
+        for (const k in posts) {
+          const key = k as keyof typeof posts;
           const post = posts[key];
-          const shouldEvict = now - post.lastUsed > MAX_CACHE_MS;
-
-          if (shouldEvict) {
-            delete posts[key];
+          if (post) {
+            const shouldEvict = now - post.lastUsed > MAX_CACHE_MS;
+            if (shouldEvict) {
+              delete posts[key];
+            }
           }
         }
 

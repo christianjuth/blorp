@@ -15,7 +15,7 @@ import { YouTubeVideoEmbed } from "../youtube";
 import { PostVideoEmbed } from "./post-video-embed";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { CommentSortSelect } from "../lemmy-sort";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useLongPress } from "use-long-press";
@@ -170,6 +170,8 @@ export function FeedPostCard(props: PostProps) {
     onNavigate,
   } = props;
 
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   const linkCtx = useLinkContext();
 
   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
@@ -236,11 +238,13 @@ export function FeedPostCard(props: PostProps) {
           {deleted ? "deleted" : name}
         </span>
         {showImage && (
-          <div className="max-md:-mx-3 flex flex-col">
+          <div className="max-md:-mx-3 flex flex-col relative">
+            <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
             <img
               src={thumbnail}
-              className="md:rounded-lg object-cover"
+              className="md:rounded-lg object-cover relative"
               onLoad={(e) => {
+                setImageLoaded(true);
                 if (!aspectRatio) {
                   patchPost(apId, getCachePrefixer(), {
                     imageDetails: {
