@@ -72,11 +72,11 @@ function DraftsSidebar({
   const drafts = useCreatePostStore((s) => s.drafts);
   const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 py-6">
       <div className="flex flex-row justify-between items-center">
         <h2 className="font-bold">Drafts</h2>
         <Button size="sm" variant="ghost" asChild>
-          <Link to={`/create?${uuid()}`} onClick={onClickDraft}>
+          <Link to={`/create?id=${uuid()}`} onClick={onClickDraft}>
             New
           </Link>
         </Button>
@@ -280,14 +280,14 @@ export function CreatePost() {
           closeModal={() => setChooseCommunity(false)}
         />
 
-        <ContentGutters className="h-full py-4">
+        <ContentGutters className="h-full">
           {media.maxMd && showDrafts ? (
             <DraftsSidebar
               createPostId={draftId}
               onClickDraft={() => setShowDrafts(false)}
             />
           ) : (
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-5 py-6">
               {isEdit && !canEdit && (
                 <span className="bg-amber-500/30 text-amber-500 py-2 px-3 rounded-lg">
                   {postOwner
@@ -405,10 +405,12 @@ export function CreatePost() {
             </div>
           )}
 
-          <DraftsSidebar
-            createPostId={draftId}
-            onClickDraft={() => setShowDrafts(false)}
-          />
+          <div className="h-[calc(100vh-60px)] overflow-auto">
+            <DraftsSidebar
+              createPostId={draftId}
+              onClickDraft={() => setShowDrafts(false)}
+            />
+          </div>
         </ContentGutters>
       </IonContent>
     </IonPage>
