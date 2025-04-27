@@ -33,11 +33,12 @@ import {
 } from "@ionic/react";
 import { Title } from "../components/title";
 import { UserDropdown } from "../components/nav";
-import { useMedia } from "../lib/hooks";
+import { useMedia, useUrlSearchState } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";
 import { useAuth } from "../stores/auth";
+import z from "zod";
 
-const EMPTY_ARR = [];
+const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
 type Item = typeof NO_ITEMS | PostProps | CommunityView;
@@ -81,7 +82,11 @@ export function SearchFeed({
     [history.replace],
   );
 
-  const [type, setType] = useState(defaultType);
+  const [type, setType] = useUrlSearchState(
+    "type",
+    defaultType,
+    z.enum(["posts", "communities", "all"]),
+  );
 
   const postSort = useFiltersStore((s) => s.postSort);
 

@@ -16,6 +16,7 @@ import { ActionMenu, ActionMenuProps } from "../action-menu";
 import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
 import { Share } from "@capacitor/share";
+import { useCommunityCreatePost } from "./create-post";
 
 dayjs.extend(localizedFormat);
 
@@ -37,9 +38,23 @@ export function CommunitySidebar({
     (s) => s.communities[getCachePrefixer()(communityName)]?.data,
   );
 
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+
+  const createPost = useCommunityCreatePost({
+    communityName,
+  });
+
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
     () => [
+      ...(isLoggedIn
+        ? [
+            {
+              text: "Create post",
+              onClick: createPost,
+            },
+          ]
+        : []),
       {
         text: "Share",
         onClick: () =>
@@ -87,6 +102,7 @@ export function CommunitySidebar({
           <span className="font-bold line-clamp-1">{community.title}</span>
 
           <ActionMenu
+            header="Community"
             align="end"
             actions={actions}
             trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
@@ -161,9 +177,23 @@ export function SmallScreenSidebar({
     (s) => s.communities[getCachePrefixer()(communityName)]?.data,
   );
 
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+
+  const createPost = useCommunityCreatePost({
+    communityName,
+  });
+
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
     () => [
+      ...(isLoggedIn
+        ? [
+            {
+              text: "Create post",
+              onClick: createPost,
+            },
+          ]
+        : []),
       {
         text: "Share",
         onClick: () =>
@@ -205,6 +235,7 @@ export function SmallScreenSidebar({
         <div className="flex-1" />
 
         <ActionMenu
+          header="Community"
           align="end"
           actions={actions}
           trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}

@@ -19,7 +19,7 @@ type SortsStore = {
     path: FlattenedComment["comment"]["path"],
     prefix: CachePrefixer,
     comment: (prev: FlattenedComment) => Partial<FlattenedComment>,
-  ) => FlattenedComment;
+  ) => void;
   cacheComment: (
     prefix: CachePrefixer,
     comment: FlattenedComment,
@@ -40,6 +40,10 @@ export const useCommentsStore = create<SortsStore>()(
         const prev = get().comments;
         const cacheKey = prefix(path);
         const prevComment = prev[cacheKey];
+        if (!prevComment) {
+          console.log("attempted to patch a comment that is not in the cache");
+          return;
+        }
         const updatedCommentData = {
           ...prevComment.data,
           ...patchFn(prevComment.data),
@@ -120,10 +124,11 @@ export const useCommentsStore = create<SortsStore>()(
 
         for (const key in comments) {
           const comment = comments[key];
-          const shouldEvict = now - comment.lastUsed > MAX_CACHE_MS;
-
-          if (shouldEvict) {
-            delete comments[key];
+          if (comment) {
+            const shouldEvict = now - comment.lastUsed > MAX_CACHE_MS;
+            if (shouldEvict) {
+              delete comments[key];
+            }
           }
         }
 

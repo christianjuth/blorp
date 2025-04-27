@@ -46,8 +46,8 @@ function Card({
     <>
       <div
         className={cn(
-          "p-5 rounded-xl border flex flex-col gap-4 items-center",
-          highlight && "bg-brand/10 border-brand border-2",
+          "p-6 rounded-xl border flex flex-col gap-5 items-center",
+          highlight && "bg-brand/15 border-brand border-2",
         )}
       >
         {icon}
@@ -167,7 +167,9 @@ export default function Download() {
       <IonContent>
         <ContentGutters>
           <div className="flex-1 py-8">
-            <h2 className="font-bold text-2xl">Blorp for any platform</h2>
+            <h2 className="font-bold text-2xl">
+              Blorp works best when installed
+            </h2>
             <div className="grid md:grid-cols-3 pt-6 gap-5">
               {CARDS.map(({ os, card }) => (
                 <Fragment key={os}>{card}</Fragment>

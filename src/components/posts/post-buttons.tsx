@@ -9,11 +9,9 @@ import {
   PiArrowFatDownBold,
   PiArrowFatDownFill,
   PiArrowFatUpFill,
-  PiArrowBendUpLeftBold,
 } from "react-icons/pi";
 import { TbMessageCircle } from "react-icons/tb";
 import { cn } from "@/src/lib/utils";
-import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
 
 export function Voting({
   apId,
@@ -70,26 +68,6 @@ export function Voting({
         {isDownvoted ? <PiArrowFatDownFill /> : <PiArrowFatDownBold />}
       </button>
     </div>
-  );
-}
-
-export function PostReplyButton(
-  props: DetailedHTMLProps<
-    ButtonHTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
-  >,
-) {
-  return (
-    <button
-      {...props}
-      className={cn(
-        "flex flex-row items-center gap-1 text-muted-foreground text-sm",
-        props.className,
-      )}
-    >
-      <PiArrowBendUpLeftBold />
-      <span>Reply</span>
-    </button>
   );
 }
 

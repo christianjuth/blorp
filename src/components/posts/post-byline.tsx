@@ -7,7 +7,7 @@ import {
 import { useLinkContext } from "../nav/link-context";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
-import { useAuth } from "@/src/stores/auth";
+import { useAuth, getAccountActorId } from "@/src/stores/auth";
 import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -20,7 +20,7 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { BsFillPinAngleFill } from "react-icons/bs";
-import { useIonAlert } from "@ionic/react";
+import { useIonAlert, useIonRouter } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
 import { Slug } from "@/src/lib/lemmy/utils";
 import { CommunityHoverCard } from "../communities/community-hover-card";
@@ -28,6 +28,8 @@ import { PersonHoverCard } from "../person/person-hover-card";
 import { Share } from "@capacitor/share";
 import { FaBookmark } from "react-icons/fa";
 import { Badge } from "@/src/components/ui/badge";
+import { postToDraft, useCreatePostStore } from "@/src/stores/create-post";
+import { usePostsStore } from "@/src/stores/posts";
 
 export function PostByline({
   id,
@@ -75,12 +77,14 @@ export function PostByline({
   const featurePost = useFeaturePost(apId);
   const savePost = useSavePost(apId);
 
+  const router = useIonRouter();
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const post = usePostsStore((s) => s.posts[getCachePrefixer()(apId)]?.data);
+  const updateDraft = useCreatePostStore((s) => s.updateDraft);
+
   const linkCtx = useLinkContext();
 
-  const myUserId = useAuth(
-    (s) =>
-      s.getSelectedAccount().site?.my_user?.local_user_view.person.actor_id,
-  );
+  const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
   const isMyPost = creatorApId === myUserId;
 
   const [openSignal, setOpenSignal] = useState(0);
@@ -130,6 +134,15 @@ export function PostByline({
       },
       ...(isMyPost
         ? [
+            {
+              text: "Edit",
+              onClick: () => {
+                if (post && communityName) {
+                  updateDraft(apId, postToDraft(post));
+                  router.push(`/create?id=${encodedApId}`);
+                }
+              },
+            },
             {
               text: deleted ? "Restore" : "Delete",
               onClick: () =>
@@ -229,6 +242,7 @@ export function PostByline({
       {pinned && <BsFillPinAngleFill className="text-xl text-[#17B169]" />}
 
       <ActionMenu
+        header="Post"
         align="end"
         actions={actions}
         trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}

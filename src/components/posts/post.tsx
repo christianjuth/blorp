@@ -7,7 +7,7 @@ import { createSlug, encodeApId, FlattenedPost } from "@/src/lib/lemmy/utils";
 import { Link } from "react-router-dom";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
-import { PostCommentsButton, PostReplyButton, Voting } from "./post-buttons";
+import { PostCommentsButton, Voting } from "./post-buttons";
 import { MarkdownRenderer } from "../markdown/renderer";
 import { twMerge } from "tailwind-merge";
 import { PostLoopsEmbed } from "./post-loops-embed";
@@ -15,7 +15,7 @@ import { YouTubeVideoEmbed } from "../youtube";
 import { PostVideoEmbed } from "./post-video-embed";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { CommentSortSelect } from "../lemmy-sort";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useLongPress } from "use-long-press";
@@ -170,6 +170,8 @@ export function FeedPostCard(props: PostProps) {
     onNavigate,
   } = props;
 
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   const linkCtx = useLinkContext();
 
   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
@@ -236,11 +238,13 @@ export function FeedPostCard(props: PostProps) {
           {deleted ? "deleted" : name}
         </span>
         {showImage && (
-          <div className="max-md:-mx-3 flex flex-col">
+          <div className="max-md:-mx-3 flex flex-col relative">
+            <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
             <img
               src={thumbnail}
-              className="md:rounded-lg object-cover"
+              className="md:rounded-lg object-cover relative"
               onLoad={(e) => {
+                setImageLoaded(true);
                 if (!aspectRatio) {
                   patchPost(apId, getCachePrefixer(), {
                     imageDetails: {
@@ -321,7 +325,6 @@ export function PostBottomBar({
     <div className="pb-1.5 md:py-2 flex flex-row gap-2 bg-background">
       <CommentSortSelect />
       <div className="flex-1" />
-      <PostReplyButton onClick={onReply} className="mr-1 md:hidden" />
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
       <Voting apId={apId} score={score} myVote={myVote} />
     </div>

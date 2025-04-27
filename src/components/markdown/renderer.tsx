@@ -1,6 +1,6 @@
 import MarkdownIt from "markdown-it";
 import markdownit from "markdown-it";
-import markdownitContainer from "markdown-it-container";
+import markdownitContainer, { ContainerOpts } from "markdown-it-container";
 import { useLinkContext } from "../nav/link-context";
 import parse, {
   DOMNode,
@@ -49,9 +49,9 @@ const options: (
   replace: (domNode) => {
     // Check if the node is an anchor element
     if (domNode.type === "tag" && domNode.name === "a" && domNode.attribs) {
-      const href = domNode.attribs.href ?? "";
+      const href = domNode.attribs["href"] ?? "";
       const textContent =
-        domNode.children.length === 1 && "data" in domNode.children[0]
+        domNode.children[0] && "data" in domNode.children[0]
           ? domNode.children[0].data
           : null;
 
@@ -85,7 +85,7 @@ const options: (
 
       if (href.startsWith("/")) {
         return (
-          <Link to={domNode.attribs.href}>
+          <Link to={href}>
             {domToReact(domNode.children as DOMNode[], options(root))}
           </Link>
         );
@@ -100,9 +100,9 @@ const options: (
 
     if (domNode.type === "tag" && domNode.name === "code") {
       // Extract language from class, e.g., "language-js".
-      const classAttr = domNode.attribs?.class || "";
+      const classAttr = domNode.attribs?.["class"] || "";
       const match = classAttr.match(/language-(\w+)/);
-      const language = match ? match[1] : "plaintext";
+      const language = match && match[1] ? match[1] : "plaintext";
       // Assume the code is stored as text in the first child.
       const code =
         domNode.children[0] && "data" in domNode.children[0]
@@ -146,23 +146,22 @@ function createMd(root: ReturnType<typeof useLinkContext>["root"]) {
 
   md.use(markdownitContainer, "spoiler", {
     validate: function (params) {
-      return params.trim().match(/^spoiler\s+(.*)$/);
+      return /^spoiler\s+(.*)$/.test(params.trim());
     },
 
     render: function (tokens, idx) {
-      var m = tokens[idx].info.trim().match(/^spoiler\s+(.*)$/);
+      const m = tokens[idx]!.info.trim().match(/^spoiler\s+(.*)$/);
+      const summary = m?.[0] ? md.utils.escapeHtml(m[0]) : "";
 
-      if (tokens[idx].nesting === 1) {
+      if (tokens[idx]!.nesting === 1) {
         // opening tag
-        return (
-          "<details><summary>" + md.utils.escapeHtml(m[1]) + "</summary>\n"
-        );
+        return `<details><summary>${summary}</summary>\n`;
       } else {
         // closing tag
         return "</details>\n";
       }
     },
-  });
+  } satisfies ContainerOpts);
 
   return md;
 }

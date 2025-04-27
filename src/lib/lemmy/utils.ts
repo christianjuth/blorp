@@ -46,18 +46,22 @@ export type Slug = {
 };
 
 export function createSlug(object: { actor_id: string }) {
-  const url = new URL(object.actor_id);
-  const path = url.pathname.split("/");
-  if (!path[2]) {
+  try {
+    const url = new URL(object.actor_id);
+    const path = url.pathname.split("/");
+    if (!path[2]) {
+      return null;
+    }
+    const name = path[2];
+    const host = url.host;
+    return {
+      name,
+      host,
+      slug: `${name}@${host}`,
+    } satisfies Slug;
+  } catch {
     return null;
   }
-  const name = path[2];
-  const host = url.host;
-  return {
-    name,
-    host,
-    slug: `${name}@${host}`,
-  } satisfies Slug;
 }
 
 export type FlattenedPost = {
@@ -76,6 +80,7 @@ export type FlattenedPost = {
     title: string;
     icon?: string;
     slug: string;
+    actorId: string;
   };
   creator: Pick<Person, "id" | "name" | "avatar" | "actor_id">;
   counts: Pick<PostAggregates, "score" | "comments">;
@@ -108,6 +113,7 @@ export function flattenPost({
       title: community.title,
       icon: community.icon,
       slug: createCommunitySlug(postView.community),
+      actorId: postView.community.actor_id,
     },
     creator: _.pick(postView.creator, ["id", "name", "avatar", "actor_id"]),
     counts: _.pick(postView.counts, ["score", "comments"]),

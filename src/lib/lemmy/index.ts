@@ -20,9 +20,10 @@ import {
   BlockPerson,
   SavePost,
   DeletePost,
-  PostId,
-  PostFeatureType,
   FeaturePost,
+  UploadImage,
+  MarkPostAsRead,
+  EditPost,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -37,10 +38,10 @@ import {
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "@/src/stores/filters";
-import { getCachePrefixer, useAuth } from "../../stores/auth";
+import { useAuth } from "../../stores/auth";
 import { useEffect, useMemo, useRef } from "react";
 import { prefetch as prefetchImage } from "@/src/components/image";
-import _, { flatten } from "lodash";
+import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
 import { useSettingsStore } from "../../stores/settings";
 import { z } from "zod";
@@ -53,6 +54,11 @@ import { getPostEmbed } from "../post";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useIonRouter } from "@ionic/react";
 import { toast } from "sonner";
+import {
+  Draft,
+  draftToCreatePostData,
+  draftToEditPostData,
+} from "@/src/stores/create-post";
 
 enum Errors {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -71,7 +77,7 @@ function useLemmyClient(config?: { instance?: string }) {
   }
 
   return useMemo(() => {
-    const client = new LemmyHttp(instance, {
+    const client = new LemmyHttp(instance.replace(/\/$/, ""), {
       headers: {
         // lemmy.ml will reject requests if
         // User-Agent header is not present
@@ -95,7 +101,7 @@ function useLemmyClient(config?: { instance?: string }) {
       queryKeyPrefix.push(`user-${myUserId}`);
     }
 
-    return { client, queryKeyPrefix, setJwt };
+    return { client, queryKeyPrefix, setJwt, instance };
   }, [jwt, instance, myUserId]);
 }
 
@@ -999,7 +1005,7 @@ export function useLikePost(apId: string) {
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore((s) => s.posts[getCachePrefixer()(apId)]?.data);
-  const cachePost = usePostsStore((s) => s.cachePost);
+  const patchPost = usePostsStore((s) => s.patchPost);
 
   return useMutation({
     mutationKey: ["likePost", apId],
@@ -1013,18 +1019,16 @@ export function useLikePost(apId: string) {
       });
     },
     onMutate: (myVote) =>
-      cachePost(getCachePrefixer(), {
-        ...post,
+      patchPost(apId, getCachePrefixer(), {
         optimisticMyVote: myVote,
       }),
     onSuccess: (data) =>
-      cachePost(getCachePrefixer(), {
-        ..._.omit(post, ["optimisticMyVote"]),
+      patchPost(apId, getCachePrefixer(), {
+        optimisticMyVote: undefined,
         ...flattenPost(data),
       }),
     onError: () =>
-      cachePost(getCachePrefixer(), {
-        ...post,
+      patchPost(apId, getCachePrefixer(), {
         optimisticMyVote: undefined,
       }),
   });
@@ -1530,7 +1534,20 @@ export function useCreatePost() {
   const router = useIonRouter();
   const { client } = useLemmyClient();
   return useMutation({
-    mutationFn: (form: CreatePost) => client.createPost(form),
+    mutationFn: async (draft: Draft) => {
+      const communityName = draft.community?.name;
+
+      if (!communityName) {
+        throw new Error("could not find community to create post under");
+      }
+
+      const { community_view } = await client.getCommunity({
+        name: communityName,
+      });
+      return await client.createPost(
+        draftToCreatePostData(draft, community_view.community.id),
+      );
+    },
     onSuccess: (res) => {
       const apId = res.post_view.post.ap_id;
       const slug = createCommunitySlug(res.post_view.community);
@@ -1538,6 +1555,34 @@ export function useCreatePost() {
     },
     onError: () => {
       toast.error("Couldn't create post");
+    },
+  });
+}
+
+export function useEditPost(apId: string) {
+  const router = useIonRouter();
+  const { client } = useLemmyClient();
+  const patchPost = usePostsStore((s) => s.patchPost);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  return useMutation({
+    mutationFn: async (draft: Draft) => {
+      const { post } = await client.resolveObject({
+        q: apId,
+      });
+
+      if (!post) {
+        throw new Error("Could not find post to update");
+      }
+
+      return await client.editPost(draftToEditPostData(draft, post.post.id));
+    },
+    onSuccess: ({ post_view }) => {
+      patchPost(apId, getCachePrefixer(), flattenPost({ post_view }));
+      const slug = createCommunitySlug(post_view.community);
+      router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
+    },
+    onError: () => {
+      toast.error("Couldn't update post");
     },
   });
 }
@@ -1557,7 +1602,7 @@ export function useCreateCommentReport() {
   return useMutation({
     mutationFn: (form: CreateCommentReport) => client.createCommentReport(form),
     onError: () => {
-      toast.error("Couldn't block person");
+      toast.error("Couldn't create comment report");
     },
   });
 }
@@ -1635,27 +1680,27 @@ export function useDeletePost(apId: string) {
   });
 }
 
-export function useMarkPostRead() {
+export function useMarkPostRead(apId: string) {
   const { client } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useMutation({
-    mutationFn: (form: { post_id: number; read: boolean; apId: string }) => {
+    mutationFn: (form: MarkPostAsRead) => {
       return client.markPostAsRead(form);
     },
-    onMutate: ({ read, apId }) => {
+    onMutate: ({ read }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticRead: read,
       });
     },
-    onSuccess: (_, { read, apId }) => {
+    onSuccess: (_, { read }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticRead: undefined,
         read,
       });
     },
-    onError: (_, { apId }) => {
+    onError: () => {
       patchPost(apId, getCachePrefixer(), {
         optimisticRead: undefined,
       });
@@ -1685,6 +1730,25 @@ export function useFeaturePost(apId: string) {
       patchPost(apId, getCachePrefixer(), {
         optimisticFeaturedCommunity: undefined,
       });
+    },
+  });
+}
+
+export function useUploadImage() {
+  const { client, instance } = useLemmyClient();
+  return useMutation({
+    mutationFn: async (form: UploadImage) => {
+      const res = await client.uploadImage(form);
+      const fileId = res.files?.[0]?.file;
+      if (!res.url && fileId) {
+        res.url = `${instance}/pictrs/image/${fileId}`;
+      }
+      return res;
+    },
+    onError: () => {
+      // TOOD: find a way to determin if the request
+      // failed because the image was too large
+      toast.error("Failed to upload image");
     },
   });
 }

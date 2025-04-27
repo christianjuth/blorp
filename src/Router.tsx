@@ -45,7 +45,7 @@ const CommunitiesFeed = lazy(() => import("@/src/features/communities-feed"));
 const User = lazy(() => import("@/src/features/user"));
 const SavedFeed = lazy(() => import("@/src/features/saved-feed"));
 const Search = lazy(() => import("@/src/features/search"));
-const CreatePost = lazy(() => import("@/src/features/create-post"));
+import { CreatePost } from "@/src/features/create-post";
 
 const HOME_STACK = [
   <Route path="/home/*" component={NotFound} />,

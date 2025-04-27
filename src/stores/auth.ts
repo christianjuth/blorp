@@ -9,9 +9,12 @@ export const DEFAULT_INSTANCES = ["https://lemm.ee"] as const;
 export type CacheKey = `cache_${string}`;
 export type CachePrefixer = (cacheKey: string) => CacheKey;
 
-export function getCachePrefixer(account: Account): CachePrefixer {
-  let prefix = `${account.instance}_`;
-  if (account.jwt) {
+export function getCachePrefixer(account?: Account): CachePrefixer {
+  let prefix = "";
+  if (account?.instance) {
+    prefix += `${account.instance}_`;
+  }
+  if (account?.jwt) {
     prefix += "authed_";
   }
   return (cacheKey) => {
@@ -37,6 +40,10 @@ type AuthStore = {
   getCachePrefixer: () => CachePrefixer;
 };
 
+export function getAccountActorId(account: Account) {
+  return account?.site?.my_user?.local_user_view.person.actor_id;
+}
+
 export function parseAccountInfo(account: Account) {
   const url = new URL(account.instance);
   return {
@@ -45,22 +52,40 @@ export function parseAccountInfo(account: Account) {
   };
 }
 
+function getNewAccount() {
+  return {
+    instance: _.sample(DEFAULT_INSTANCES),
+  };
+}
+
 export const useAuth = create<AuthStore>()(
   persist(
     (set, get) => ({
-      accounts: [
-        {
-          instance: _.sample(DEFAULT_INSTANCES),
-        },
-      ],
+      accounts: [getNewAccount()],
       getSelectedAccount: () => {
         const state = get();
-        return state.accounts[state.accountIndex];
+        const account = state.accounts[state.accountIndex];
+        // We shouldn't ever hit this case,
+        // but just to be save, this function can
+        // recover from an account that isn't found
+        if (!account) {
+          const newAccount = getNewAccount();
+          set((prev) => {
+            const newAccounts = prev.accounts;
+            newAccounts[state.accountIndex] = newAccount;
+            return {
+              ...prev,
+              accounts: newAccounts,
+            };
+          });
+          return newAccount;
+        }
+        return account;
       },
       isLoggedIn: () => {
         const state = get();
         const account = state.accounts[state.accountIndex];
-        return account && !!account.jwt;
+        return !!account && !!account.jwt;
       },
       accountIndex: 0,
       addAccount: (patch) => {

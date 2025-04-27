@@ -22,7 +22,7 @@ type ProfilesStore = {
     id: string,
     prefixer: CachePrefixer,
     post: Partial<Data>,
-  ) => Data;
+  ) => void;
   cacheProfiles: (
     prefixer: CachePrefixer,
     data: Data[],
@@ -37,7 +37,13 @@ export const useProfilesStore = create<ProfilesStore>()(
       patchProfile: (apId, prefix, patch) => {
         const profiles = get().profiles;
         const cacheKey = prefix(apId);
-        const prevProfileData = profiles[cacheKey]?.data ?? {};
+        const prevProfileData = profiles[cacheKey]?.data;
+        // TODO: techincailly we could allow this
+        // so long as patch contains person
+        if (!prevProfileData) {
+          console.error("failed to patch person that is not in cache");
+          return;
+        }
         const updatedProfileData: Data = {
           ...prevProfileData,
           ...patch,
@@ -86,12 +92,14 @@ export const useProfilesStore = create<ProfilesStore>()(
 
         const profiles = _.clone(get().profiles);
 
-        for (const key in profiles) {
+        for (const k in profiles) {
+          const key = k as keyof typeof profiles;
           const community = profiles[key];
-          const shouldEvict = now - community.lastUsed > MAX_CACHE_MS;
-
-          if (shouldEvict) {
-            delete profiles[key];
+          if (community) {
+            const shouldEvict = now - community.lastUsed > MAX_CACHE_MS;
+            if (shouldEvict) {
+              delete profiles[key];
+            }
           }
         }
 

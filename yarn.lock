@@ -3356,6 +3356,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-label@npm:^2.1.4":
+  version: 2.1.4
+  resolution: "@radix-ui/react-label@npm:2.1.4"
+  dependencies:
+    "@radix-ui/react-primitive": "npm:2.1.0"
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: 10c0/700f5907492c16718e8bd8cf7d05fb9b5797f0d6b6a3fe9783d63e1d0e50320263f9107af415ca105b165d4245b6489f965902b53f8cc82288fa19c18f8b23c6
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-menu@npm:2.1.6":
   version: 2.1.6
   resolution: "@radix-ui/react-menu@npm:2.1.6"
@@ -3596,6 +3615,25 @@ __metadata:
     "@types/react-dom":
       optional: true
   checksum: 10c0/064c849dcf23a7dcb12f1983fcd89cd64cbe5eb1bafed4136ead0b5faa91a1b3da85972f74cba070d97a8845f172055e9e75782811c8693ed594e31fd732f4e7
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-primitive@npm:2.1.0":
+  version: 2.1.0
+  resolution: "@radix-ui/react-primitive@npm:2.1.0"
+  dependencies:
+    "@radix-ui/react-slot": "npm:1.2.0"
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: 10c0/b436280dbd705b8b32f66b2a36a6432d90db579191fd283697d5d6a4b661ac4ee86b0f6a05e223806ce0802b2652dd8d95c6f7e0ce3c0a5567b2b1e2c3a3fcfe
   languageName: node
   linkType: hard
 
@@ -4808,7 +4846,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tailwindcss/typography@npm:^0.5.16":
+"@tailwindcss/typography@npm:0.5.16":
   version: 0.5.16
   resolution: "@tailwindcss/typography@npm:0.5.16"
   dependencies:
@@ -4819,6 +4857,20 @@ __metadata:
   peerDependencies:
     tailwindcss: "*"
   checksum: 10c0/35a7387876810c23c270a23848b920517229b707c8ead6a63c8bb7d6720a62f23728c3117f0a93b422a66d1e5ee9c7ad8a6c3f0fbf5255b535c0e4971ffa0158
+  languageName: node
+  linkType: hard
+
+"@tailwindcss/typography@patch:@tailwindcss/typography@npm%3A0.5.16#~/.yarn/patches/@tailwindcss-typography-npm-0.5.16-675125d30f.patch":
+  version: 0.5.16
+  resolution: "@tailwindcss/typography@patch:@tailwindcss/typography@npm%3A0.5.16#~/.yarn/patches/@tailwindcss-typography-npm-0.5.16-675125d30f.patch::version=0.5.16&hash=713b0b"
+  dependencies:
+    lodash.castarray: "npm:^4.4.0"
+    lodash.isplainobject: "npm:^4.0.6"
+    lodash.merge: "npm:^4.6.2"
+    postcss-selector-parser: "npm:6.0.10"
+  peerDependencies:
+    tailwindcss: "*"
+  checksum: 10c0/e477e982fdf665319a546a6373cb60da787eacb45dbf07b4eff859bf5c15d1ff7ad04f75d15c953ed7041aabe69aad60a7ea95eaa60ea5624a4a338835cf03d7
   languageName: node
   linkType: hard
 
@@ -5192,12 +5244,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/extension-image@npm:^2.11.7":
+  version: 2.11.7
+  resolution: "@tiptap/extension-image@npm:2.11.7"
+  peerDependencies:
+    "@tiptap/core": ^2.7.0
+  checksum: 10c0/cc06768ae7387bdb9289cec2fda825568c5e9fb14bda814162a0c6e7e361848ccec5f503727e857bbb677a581827fb3e53c2aeed806f9a6464303f296b328880
+  languageName: node
+  linkType: hard
+
 "@tiptap/extension-italic@npm:^2.11.7":
   version: 2.11.7
   resolution: "@tiptap/extension-italic@npm:2.11.7"
   peerDependencies:
     "@tiptap/core": ^2.7.0
   checksum: 10c0/235b7c6409b7a7b7c282beace925ba51e1af814a6c9140b4a9c09ae5fd7cd7666daaed1b7387af898f00836f765b7216f77de889d3213c88e012994c32f5dc30
+  languageName: node
+  linkType: hard
+
+"@tiptap/extension-link@npm:^2.11.7":
+  version: 2.11.7
+  resolution: "@tiptap/extension-link@npm:2.11.7"
+  dependencies:
+    linkifyjs: "npm:^4.2.0"
+  peerDependencies:
+    "@tiptap/core": ^2.7.0
+    "@tiptap/pm": ^2.7.0
+  checksum: 10c0/2541c1511b57932519a6885c3b0d996c270ba13495fa7edfbcb0aca5019b6cdaf75d2763a43c83982ba0de071bf0e66d92d5af9d5a19ac27e35b35ee950fb0c5
   languageName: node
   linkType: hard
 
@@ -6322,6 +6395,13 @@ __metadata:
   version: 1.0.0
   resolution: "at-least-node@npm:1.0.0"
   checksum: 10c0/4c058baf6df1bc5a1697cf182e2029c58cd99975288a13f9e70068ef5d6f4e1f1fd7c4d2c3c4912eae44797d1725be9700995736deca441b39f3e66d8dee97ef
+  languageName: node
+  linkType: hard
+
+"attr-accept@npm:^2.2.4":
+  version: 2.2.5
+  resolution: "attr-accept@npm:2.2.5"
+  checksum: 10c0/9b4cb82213925cab2d568f71b3f1c7a7778f9192829aac39a281e5418cd00c04a88f873eb89f187e0bf786fa34f8d52936f178e62cbefb9254d57ecd88ada99b
   languageName: node
   linkType: hard
 
@@ -8532,6 +8612,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"file-selector@npm:^2.1.0":
+  version: 2.1.2
+  resolution: "file-selector@npm:2.1.2"
+  dependencies:
+    tslib: "npm:^2.7.0"
+  checksum: 10c0/fe827e0e95410aacfcc3eabc38c29cc36055257f03c1c06b631a2b5af9730c142ad2c52f5d64724d02231709617bda984701f52bd1f4b7aca50fb6585a27c1d2
+  languageName: node
+  linkType: hard
+
 "filesize@npm:^10.0.12":
   version: 10.1.6
   resolution: "filesize@npm:10.1.6"
@@ -9992,10 +10081,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lemmy-js-client@npm:0.20.0-pkce.1":
-  version: 0.20.0-pkce.1
-  resolution: "lemmy-js-client@npm:0.20.0-pkce.1"
-  checksum: 10c0/4a9f987a9d6368ad1f2b8376310e600e261b8568d884999cfe86d4e3e74d1bc764da9ecbec91620a4ef0ec04c9fb11abfe6b4dbbab07082c55cc61d4e01aa24e
+"lemmy-js-client@npm:0.20.0-alpha.18":
+  version: 0.20.0-alpha.18
+  resolution: "lemmy-js-client@npm:0.20.0-alpha.18"
+  checksum: 10c0/35cb1358e92f7095ee84850bd294362557cac039daacf7006d3855baea9f2c28b4e6e4125e04c5a333959bbe743de511aae46878bb4c1615d962bd5c168a0396
   languageName: node
   linkType: hard
 
@@ -10030,6 +10119,7 @@ __metadata:
     "@radix-ui/react-dialog": "npm:^1.1.6"
     "@radix-ui/react-dropdown-menu": "npm:^2.1.6"
     "@radix-ui/react-hover-card": "npm:^1.1.7"
+    "@radix-ui/react-label": "npm:^2.1.4"
     "@radix-ui/react-popover": "npm:^1.1.6"
     "@radix-ui/react-slot": "npm:^1.2.0"
     "@radix-ui/react-toggle": "npm:^1.1.2"
@@ -10042,7 +10132,7 @@ __metadata:
     "@storybook/react": "npm:^8.6.12"
     "@storybook/react-vite": "npm:^8.6.12"
     "@storybook/test": "npm:^8.6.12"
-    "@tailwindcss/typography": "npm:^0.5.16"
+    "@tailwindcss/typography": "patch:@tailwindcss/typography@npm%3A0.5.16#~/.yarn/patches/@tailwindcss-typography-npm-0.5.16-675125d30f.patch"
     "@tailwindcss/vite": "npm:^4.1.4"
     "@tanstack/query-broadcast-client-experimental": "npm:5.69.0"
     "@tanstack/react-query": "npm:5.69.0"
@@ -10058,6 +10148,8 @@ __metadata:
     "@testing-library/react": "npm:^16.2.0"
     "@tiptap/core": "npm:^2.11.7"
     "@tiptap/extension-code-block-lowlight": "npm:^2.11.7"
+    "@tiptap/extension-image": "npm:^2.11.7"
+    "@tiptap/extension-link": "npm:^2.11.7"
     "@tiptap/extension-placeholder": "npm:^2.11.7"
     "@tiptap/react": "npm:^2.11.7"
     "@tiptap/starter-kit": "npm:^2.11.7"
@@ -10090,7 +10182,7 @@ __metadata:
     idb: "npm:^8.0.0"
     input-otp: "npm:^1.4.2"
     jsdom: "npm:^26.0.0"
-    lemmy-js-client: "npm:0.20.0-pkce.1"
+    lemmy-js-client: "npm:0.20.0-alpha.18"
     lint-staged: "npm:^15.3.0"
     lite-youtube-embed: "npm:^0.3.3"
     lodash: "npm:^4.17.21"
@@ -10104,6 +10196,7 @@ __metadata:
     prosemirror-model: "npm:^1.25.0"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
+    react-dropzone: "npm:^14.3.8"
     react-icons: "npm:^5.5.0"
     react-qr-code: "npm:^2.0.15"
     react-responsive: "npm:^10.0.1"
@@ -10123,6 +10216,7 @@ __metadata:
     typescript: "npm:^5.8.3"
     use-deep-compare-effect: "npm:^1.8.1"
     use-long-press: "npm:^3.3.0"
+    uuid: "npm:*"
     vite: "npm:6.2.6"
     vite-plugin-checker: "npm:^0.8.0"
     vite-plugin-circular-dependency: "npm:^0.5.0"
@@ -10280,6 +10374,13 @@ __metadata:
   dependencies:
     uc.micro: "npm:^2.0.0"
   checksum: 10c0/ff4abbcdfa2003472fc3eb4b8e60905ec97718e11e33cca52059919a4c80cc0e0c2a14d23e23d8c00e5402bc5a885cdba8ca053a11483ab3cc8b3c7a52f88e2d
+  languageName: node
+  linkType: hard
+
+"linkifyjs@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "linkifyjs@npm:4.2.0"
+  checksum: 10c0/fda4fe3e98df94400fbc70ba38798094c6852e7f41e8cc9b8a2fcd3cb122daa20502aedfd1ecb996cf9d829f6fdddd9813858ca070f9cb246389a5b161c6ac8d
   languageName: node
   linkType: hard
 
@@ -12356,6 +12457,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-dropzone@npm:^14.3.8":
+  version: 14.3.8
+  resolution: "react-dropzone@npm:14.3.8"
+  dependencies:
+    attr-accept: "npm:^2.2.4"
+    file-selector: "npm:^2.1.0"
+    prop-types: "npm:^15.8.1"
+  peerDependencies:
+    react: ">= 16.8 || 18.0.0"
+  checksum: 10c0/e17b1832783cda7b8824fe9370e99185d1abbdd5e4980b2985d6321c5768c8de18ff7b9ad550c809ee9743269dea608ff74d5208062754ce8377ad022897b278
+  languageName: node
+  linkType: hard
+
 "react-icons@npm:^5.5.0":
   version: 5.5.0
   resolution: "react-icons@npm:5.5.0"
@@ -14281,7 +14395,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:*, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.6.2, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
+"tslib@npm:*, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.6.2, tslib@npm:^2.7.0, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
@@ -14686,6 +14800,15 @@ __metadata:
   version: 1.0.1
   resolution: "utils-merge@npm:1.0.1"
   checksum: 10c0/02ba649de1b7ca8854bfe20a82f1dfbdda3fb57a22ab4a8972a63a34553cf7aa51bc9081cf7e001b035b88186d23689d69e71b510e610a09a4c66f68aa95b672
+  languageName: node
+  linkType: hard
+
+"uuid@npm:*":
+  version: 11.1.0
+  resolution: "uuid@npm:11.1.0"
+  bin:
+    uuid: dist/esm/bin/uuid
+  checksum: 10c0/34aa51b9874ae398c2b799c88a127701408cd581ee89ec3baa53509dd8728cbb25826f2a038f9465f8b7be446f0fbf11558862965b18d21c993684297628d4d3
   languageName: node
   linkType: hard
 

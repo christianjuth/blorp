@@ -23,7 +23,7 @@ const absoluteTime = () =>
 const relativeTime = () =>
   dayjs().utc().subtract(1, "hour").format("YYYY-MM-DDTHH:mm:ss.SSS[000]Z");
 
-const API_ROOT = "https://lemmy.world";
+const API_ROOT = "https://blorpblorp.xyz";
 
 const POST_ID = uuid();
 const POST_PUBLISHED = relativeTime();
@@ -179,8 +179,6 @@ export function getPost(config?: {
       score: 8,
       published: POST_PUBLISHED,
       newest_comment_time: absoluteTime(),
-      report_count: 0,
-      unresolved_report_count: 0,
       ...config?.postView?.counts,
       post_id: id,
     },

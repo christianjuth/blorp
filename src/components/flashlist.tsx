@@ -18,6 +18,7 @@ import _ from "lodash";
 import { useElementHadFocus, useIsInAppBrowserOpen } from "../lib/hooks";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useAuth } from "../stores/auth";
+import { cn } from "../lib/utils";
 
 function useRouterSafe() {
   try {
@@ -153,19 +154,20 @@ export function FlashListInternal<T>({
 
         const showHeader = !item && !!header && virtualItem.index === 0;
 
+        const isStuck = isActiveSticky(virtualItem.index);
+
         return (
           <div
             key={virtualItem.key}
             data-index={virtualItem.index}
             ref={rowVirtualizer.measureElement}
+            className={cn(isStuck && "max-md:bg-background")}
             style={
-              isActiveSticky(virtualItem.index)
+              isStuck
                 ? {
                     position: "sticky",
                     zIndex: 1,
-                    // Without this, there was a small gap.
-                    // I'm sure there's a better way to fix this
-                    top: -0.5,
+                    top: 0,
                   }
                 : {
                     position: "absolute",

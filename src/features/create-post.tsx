@@ -1,10 +1,21 @@
 import { ContentGutters } from "../components/gutters";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
-import { useCallback, useState } from "react";
-import { useCreatePostStore } from "../stores/create-post";
+import { useCallback, useEffect, useId, useState } from "react";
+import {
+  Draft,
+  draftToCreatePostData,
+  NEW_DRAFT,
+  useCreatePostStore,
+} from "../stores/create-post";
 import { FlashList } from "@/src/components/flashlist";
 import { CommunityCard } from "../components/communities/community-card";
-import { useCreatePost, useListCommunities, useSearch } from "../lib/lemmy";
+import {
+  useCreatePost,
+  useEditPost,
+  useListCommunities,
+  useSearch,
+  useUploadImage,
+} from "../lib/lemmy";
 import _ from "lodash";
 import { Community } from "lemmy-js-client";
 import { parseOgData } from "../lib/html-parsing";
@@ -14,11 +25,11 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonInput,
   IonModal,
   IonPage,
   IonTitle,
   IonToolbar,
+  useIonAlert,
 } from "@ionic/react";
 import { MarkdownEditor } from "../components/markdown/editor";
 import { Button } from "../components/ui/button";
@@ -26,31 +37,172 @@ import { close } from "ionicons/icons";
 import { FaCheck, FaChevronDown } from "react-icons/fa6";
 import { LuLoaderCircle } from "react-icons/lu";
 import { Input } from "../components/ui/input";
+import { ToggleGroup, ToggleGroupItem } from "@/src/components/ui/toggle-group";
+import { useDropzone } from "react-dropzone";
+import { UserDropdown } from "../components/nav";
+import { Skeleton } from "../components/ui/skeleton";
+import { FaRegImage } from "react-icons/fa6";
+import { Label } from "@/src/components/ui/label";
+import { cn } from "../lib/utils";
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import { Link } from "react-router-dom";
+import { v4 as uuid } from "uuid";
+import { MdDelete } from "react-icons/md";
+import { useMedia, useUrlSearchState } from "../lib/hooks";
+import { createSlug } from "../lib/lemmy/utils";
+import { RelativeTime } from "../components/relative-time";
+import { Deferred } from "../lib/deferred";
+import z from "zod";
+import { usePostsStore } from "../stores/posts";
+import { getAccountActorId, useAuth } from "../stores/auth";
 
-const EMPTY_ARR = [];
+dayjs.extend(localizedFormat);
 
-export default function CreatePost() {
+const EMPTY_ARR: never[] = [];
+
+function DraftsSidebar({
+  createPostId,
+  onClickDraft,
+}: {
+  createPostId: string;
+  onClickDraft: () => void;
+}) {
+  const [alrt] = useIonAlert();
+  const drafts = useCreatePostStore((s) => s.drafts);
+  const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
+  return (
+    <div className="flex flex-col gap-3 py-6">
+      <div className="flex flex-row justify-between items-center">
+        <h2 className="font-bold">Drafts</h2>
+        <Button size="sm" variant="ghost" asChild>
+          <Link to={`/create?id=${uuid()}`} onClick={onClickDraft}>
+            New
+          </Link>
+        </Button>
+      </div>
+      {_.entries(drafts)
+        .sort(([_a, a], [_b, b]) => b.createdAt - a.createdAt)
+        .map(([key, draft]) => {
+          const slug = draft.community
+            ? createSlug(draft.community)?.slug
+            : undefined;
+          return (
+            <div key={key} className="relative">
+              <Link
+                to={`/create?id=${key}`}
+                className={cn(
+                  "bg-muted border px-3 py-2 gap-1 rounded-lg flex flex-col",
+                  createPostId === key &&
+                    "border-brand border-dashed bg-brand/20",
+                )}
+                onClickCapture={onClickDraft}
+              >
+                <div className="text-muted-foreground flex flex-row items-center text-sm gap-1 pr-3.5">
+                  <RelativeTime time={draft.createdAt} />
+                  {slug && (
+                    <>
+                      <span>•</span>
+                      <span className="flex-1 overflow-hidden text-ellipsis break-words line-clamp-1">
+                        {slug}
+                      </span>
+                    </>
+                  )}
+                </div>
+                <span
+                  className={cn(
+                    "font-medium line-clamp-1 break-words",
+                    !draft.name && "italic",
+                  )}
+                >
+                  {draft.name || "Untitiled"}
+                </span>
+              </Link>
+              <button
+                className="absolute top-2 right-2 text-destructive text-xl"
+                onClick={async () => {
+                  try {
+                    const deferred = new Deferred();
+                    alrt({
+                      message: "Delete draft",
+                      buttons: [
+                        {
+                          text: "Cancel",
+                          role: "cancel",
+                          handler: () => deferred.reject(),
+                        },
+                        {
+                          text: "OK",
+                          role: "confirm",
+                          handler: () => deferred.resolve(),
+                        },
+                      ],
+                    });
+                    await deferred.promise;
+                    deleteDraft(key);
+                  } catch {}
+                }}
+              >
+                <MdDelete />
+              </button>
+            </div>
+          );
+        })}
+    </div>
+  );
+}
+
+export function CreatePost() {
+  const [showDrafts, setShowDrafts] = useState(false);
+  const media = useMedia();
+  const [draftIdEncoded] = useUrlSearchState("id", uuid(), z.string());
+  const draftId = decodeURIComponent(draftIdEncoded);
+  const id = useId();
+
+  useEffect(() => {
+    if (media.md) {
+      setShowDrafts(false);
+    }
+  }, [media.md]);
+
+  const draft = useCreatePostStore((s) => s.drafts[draftId]) ?? NEW_DRAFT;
+  const isEdit = !!draft.apId;
+  const patchDraft = useCreatePostStore((s) => s.updateDraft);
+  const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
+
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const post = usePostsStore((s) =>
+    draft.apId ? s.posts[getCachePrefixer()(draft.apId)] : undefined,
+  );
+  const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
+  const canEdit =
+    isEdit &&
+    post?.data.creator.actor_id &&
+    myUserId === post.data.creator.actor_id;
+  const postOwner = post?.data.creator
+    ? createSlug(post.data.creator)?.slug
+    : undefined;
+
+  const uploadImage = useUploadImage();
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: (files) => {
+      if (files[0]) {
+        uploadImage
+          .mutateAsync({ image: files[0] })
+          .then((res) => {
+            patchDraft(draftId, {
+              custom_thumbnail: res.url,
+            });
+          })
+          .catch((err) => console.log(err));
+      }
+    },
+  });
+
   const [chooseCommunity, setChooseCommunity] = useState(false);
 
-  const community = useCreatePostStore((s) => s.community);
-
-  // const editorKey = useCreatePostStore((s) => s.key);
-
-  const reset = useCreatePostStore((s) => s.reset);
-
-  const title = useCreatePostStore((s) => s.title);
-  const setTitle = useCreatePostStore((s) => s.setTitle);
-
-  const url = useCreatePostStore((s) => s.url);
-  const setUrl = useCreatePostStore((s) => s.setUrl);
-
-  const content = useCreatePostStore((s) => s.content);
-  const setContent = useCreatePostStore((s) => s.setContent);
-
-  const thumbnailUrl = useCreatePostStore((s) => s.thumbnailUrl);
-  const setThumbnailUrl = useCreatePostStore((s) => s.setThumbnailUrl);
-
   const createPost = useCreatePost();
+  const editPost = useEditPost(draftId);
 
   const parseUrl = (url: string) => {
     if (url) {
@@ -59,14 +211,14 @@ export default function CreatePost() {
           .then((res) => res.text())
           .then((body) => {
             const ogData = parseOgData(body);
-
-            if (!title && ogData.title) {
-              setTitle(ogData.title);
+            const patch: Partial<Draft> = {};
+            if (!draft.name && ogData.title) {
+              patch.name = ogData.title;
             }
-
             if (ogData.image) {
-              setThumbnailUrl(ogData.image);
+              patch.custom_thumbnail = ogData.image;
             }
+            patchDraft(draftId, patch);
           });
       } catch {}
     }
@@ -76,77 +228,187 @@ export default function CreatePost() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Create post</IonTitle>
-
-          <IonButtons slot="end">
+          <IonButtons slot="start" className="md:gap-4 gap-3.5">
             <Button
               size="sm"
+              variant="secondary"
+              onClick={() => setShowDrafts((s) => !s)}
+              className="md:hidden"
+            >
+              {showDrafts ? "Back" : "Drafts"}
+            </Button>
+          </IonButtons>
+
+          <IonTitle>{isEdit ? "Edit" : "Create"} post</IonTitle>
+
+          <IonButtons slot="end" className="md:gap-4 gap-3.5">
+            <Button
+              size="sm"
+              className={cn(showDrafts && "max-md:hidden")}
               onClick={() => {
-                if (!community) {
-                  setChooseCommunity(true);
-                } else {
-                  createPost
-                    .mutateAsync({
-                      name: title,
-                      community_id: community.id,
-                      body: content,
-                      url: url || undefined,
-                      custom_thumbnail: thumbnailUrl,
-                    })
-                    .then(() => reset());
+                try {
+                  if (draft.community) {
+                    if (isEdit) {
+                      editPost
+                        .mutateAsync(draft)
+                        .then(() => deleteDraft(draftId));
+                    } else {
+                      createPost
+                        .mutateAsync(draft)
+                        .then(() => deleteDraft(draftId));
+                    }
+                  }
+                } catch {
+                  // TODO: handle incomplete post data
                 }
               }}
+              disabled={!draft.community || (isEdit && !canEdit)}
             >
-              {community ? "Post" : "Next"}
+              {isEdit ? "Update" : "Post"}
               {createPost.isPending && (
                 <LuLoaderCircle className="animate-spin" />
               )}
             </Button>
+            <UserDropdown />
           </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>
         <ChooseCommunity
-          isOpen={chooseCommunity}
+          createPostId={draftId}
+          isOpen={chooseCommunity && !isEdit}
           closeModal={() => setChooseCommunity(false)}
         />
 
         <ContentGutters className="h-full">
-          <div className="flex flex-col py-4 gap-4">
-            {
+          {media.maxMd && showDrafts ? (
+            <DraftsSidebar
+              createPostId={draftId}
+              onClickDraft={() => setShowDrafts(false)}
+            />
+          ) : (
+            <div className="flex flex-col gap-5 py-6">
+              {isEdit && !canEdit && (
+                <span className="bg-amber-500/30 text-amber-500 py-2 px-3 rounded-lg">
+                  {postOwner
+                    ? `Switch to ${postOwner} to make edits.`
+                    : "You cannot edit this post because it doesn't belong to the selected account."}
+                </span>
+              )}
+
               <button
                 onClick={() => setChooseCommunity(true)}
                 className="flex flex-row items-center gap-2 h-9 self-start"
+                disabled={isEdit}
               >
-                {community ? (
-                  <CommunityCard communityView={community} disableLink />
+                {draft.community ? (
+                  <CommunityCard communityView={draft.community} disableLink />
                 ) : (
                   <span className="font-bold">Select a community</span>
                 )}
-                <FaChevronDown className="text-brand" />
+                {!isEdit && <FaChevronDown className="text-brand" />}
               </button>
-            }
 
-            <Input
-              placeholder="Link (optional)"
-              className="border-b border-border"
-              value={url ?? ""}
-              onChange={(e) => setUrl(e.target.value)}
-              onBlur={() => url && parseUrl(url)}
-            />
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                size="sm"
+                value={draft.type}
+                onValueChange={(val) => {
+                  if (val) {
+                    patchDraft(draftId, {
+                      type: val as "text" | "media" | "link",
+                    });
+                  }
+                }}
+              >
+                <ToggleGroupItem value="text">Text</ToggleGroupItem>
+                <ToggleGroupItem value="media">Image</ToggleGroupItem>
+                <ToggleGroupItem value="link">Link</ToggleGroupItem>
+              </ToggleGroup>
 
-            <input
-              placeholder="Title"
-              value={title}
-              onInput={(e) => setTitle(e.currentTarget.value ?? "")}
-              className="font-bold text-lg"
-            />
+              {(draft.type === "link" || draft.url) && (
+                <div className="gap-2 flex flex-col">
+                  <Label htmlFor={`${id}-link`}>Link</Label>
+                  <Input
+                    id={`${id}-link`}
+                    placeholder="Link"
+                    className="border-b border-border"
+                    value={draft.url ?? ""}
+                    onChange={(e) =>
+                      patchDraft(draftId, { url: e.target.value })
+                    }
+                    onBlur={() => draft.url && parseUrl(draft.url)}
+                  />
+                </div>
+              )}
 
-            <MarkdownEditor
-              content={content}
-              onChange={setContent}
-              className="-mx-3"
-              placeholder="Write something..."
+              {(draft.type === "media" || draft.custom_thumbnail) && (
+                <div className="gap-2 flex flex-col">
+                  <Label htmlFor={`${id}-media`}>Image</Label>
+                  <div
+                    {...getRootProps()}
+                    className="border-2 border-dashed flex flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-md min-h-32"
+                  >
+                    <input id={`${id}-media`} {...getInputProps()} />
+                    {draft.custom_thumbnail && !uploadImage.isPending && (
+                      <img
+                        src={draft.custom_thumbnail}
+                        className="h-40 rounded-md"
+                      />
+                    )}
+                    {uploadImage.isPending && (
+                      <Skeleton className="h-40 aspect-square flex items-center justify-center">
+                        <FaRegImage className="text-muted-foreground text-4xl" />
+                      </Skeleton>
+                    )}
+                    {isDragActive ? (
+                      <p>Drop the files here ...</p>
+                    ) : (
+                      <p className="text-muted-foreground">
+                        Drop or upload image here
+                        {draft.custom_thumbnail && " to replace"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="gap-2 flex flex-col">
+                <Label htmlFor={`${id}-title`}>Title</Label>
+                <Input
+                  id={`${id}-title`}
+                  placeholder="Title"
+                  value={draft.name ?? ""}
+                  onInput={(e) =>
+                    patchDraft(draftId, {
+                      name: e.currentTarget.value ?? "",
+                    })
+                  }
+                />
+              </div>
+
+              <div className="gap-2 flex flex-col">
+                <Label htmlFor={`${id}-body`}>Body</Label>
+                <MarkdownEditor
+                  id={`${id}-body`}
+                  content={draft.body ?? ""}
+                  onChange={(body) =>
+                    patchDraft(draftId, {
+                      body,
+                    })
+                  }
+                  className="border rounded-lg shadow-xs"
+                  placeholder="Write something..."
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="h-[calc(100vh-60px)] overflow-auto">
+            <DraftsSidebar
+              createPostId={draftId}
+              onClickDraft={() => setShowDrafts(false)}
             />
           </div>
         </ContentGutters>
@@ -156,9 +418,11 @@ export default function CreatePost() {
 }
 
 function ChooseCommunity({
+  createPostId,
   isOpen,
   closeModal,
 }: {
+  createPostId: string;
   isOpen: boolean;
   closeModal: () => void;
 }) {
@@ -167,9 +431,8 @@ function ChooseCommunity({
   const [search, setSearch] = useState("");
   const debouncedSetSearch = useCallback(_.debounce(setSearch, 500), []);
 
-  const selectedCommunity = useCreatePostStore((s) => s.community);
-
-  const setCommunity = useCreatePostStore((s) => s.setCommunity);
+  const draft = useCreatePostStore((s) => s.drafts[createPostId]) ?? NEW_DRAFT;
+  const patchDraft = useCreatePostStore((s) => s.updateDraft);
 
   const subscribedCommunitiesRes = useListCommunities({
     type_: "Subscribed",
@@ -193,7 +456,7 @@ function ChooseCommunity({
     ) ?? EMPTY_ARR;
 
   let data: (
-    | Pick<Community, "name" | "id" | "title" | "icon" | "actor_id">
+    | Pick<Community, "name" | "title" | "icon" | "actor_id">
     | "Selected"
     | "Recent"
     | "Subscribed"
@@ -208,8 +471,8 @@ function ChooseCommunity({
   if (search) {
     data = ["Search results", ...searchResultsCommunities];
   }
-  if (selectedCommunity) {
-    data = ["Selected", selectedCommunity, ...data];
+  if (draft.community) {
+    data = ["Selected", draft.community, ...data];
   }
 
   data = _.uniqBy(data, (item) => {
@@ -261,14 +524,17 @@ function ChooseCommunity({
               <ContentGutters className="cursor-pointer">
                 <button
                   onClick={() => {
-                    setCommunity(item);
+                    patchDraft(createPostId, {
+                      community: item,
+                    });
                     closeModal();
                   }}
                   className="flex flex-row items-center gap-2"
+                  disabled={!!draft.apId}
                 >
                   <CommunityCard communityView={item} disableLink />
-                  {selectedCommunity &&
-                    item.actor_id === selectedCommunity?.actor_id && (
+                  {draft.community &&
+                    item.actor_id === draft.community?.actor_id && (
                       <FaCheck className="text-brand" />
                     )}
                 </button>

@@ -1,7 +1,7 @@
 import { FlattenedComment, useLikeComment } from "@/src/lib/lemmy/index";
 import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
-import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
+import { ButtonHTMLAttributes, DetailedHTMLProps, useId } from "react";
 import { cn } from "@/src/lib/utils";
 import {
   PiArrowBendUpLeftBold,
@@ -10,12 +10,15 @@ import {
   PiArrowFatDownFill,
   PiArrowFatUpFill,
 } from "react-icons/pi";
+import { Button } from "../ui/button";
 
 export function CommentVoting({
   commentView,
 }: {
   commentView: FlattenedComment;
 }) {
+  const id = useId();
+
   const requireAuth = useRequireAuth();
 
   const vote = useLikeComment();
@@ -34,7 +37,10 @@ export function CommentVoting({
 
   return (
     <div className="flex flex-row items-center">
-      <button
+      <Button
+        id={id}
+        size="icon"
+        variant="ghost"
         onClick={async () => {
           const newVote = isUpvoted ? 0 : 1;
           voteHaptics(newVote);
@@ -47,29 +53,21 @@ export function CommentVoting({
             });
           });
         }}
-        disabled={vote.isPending}
+        //disabled={vote.isPending}
         className={cn(
-          "pr-1.5 flex items-center space-x-2 text-left",
+          "hover:text-brand",
           isUpvoted && "text-brand",
+          isDownvoted && "text-destructive",
         )}
       >
-        <>
-          {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
-
-          {/* <ArrowBigUp */}
-          {/*   // Not sure why this is nessesary, but */}
-          {/*   // it wasn't clearning the color without */}
-          {/*   // this when you undo your vote */}
-          {/*   key={isUpvoted ? 1 : 0} */}
-          {/*   size="$1" */}
-          {/*   fill={isUpvoted ? theme.accentBackground.val : theme.background.val} */}
-          {/*   color={isUpvoted ? "$accentBackground" : "$color11"} */}
-          {/*   mr={5} */}
-          {/* /> */}
-          <span>{score}</span>
-        </>
-      </button>
-      <button
+        {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
+      </Button>
+      <label htmlFor={id} className={cn("-mx-0.5", isUpvoted && "text-brand")}>
+        {score}
+      </label>
+      <Button
+        size="icon"
+        variant="ghost"
         onClick={async () => {
           const newVote = isDownvoted ? 0 : -1;
           voteHaptics(newVote);
@@ -82,14 +80,14 @@ export function CommentVoting({
             });
           });
         }}
-        disabled={vote.isPending}
+        //disabled={vote.isPending}
         className={cn(
-          "pl-0.5 flex items-center",
+          "pl-0.5 flex items-center hover:text-destructive",
           isDownvoted && "text-destructive",
         )}
       >
         {isDownvoted ? <PiArrowFatDownFill /> : <PiArrowFatDownBold />}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -101,12 +99,14 @@ export function CommentReplyButton(
   >,
 ) {
   return (
-    <button
+    <Button
       {...props}
+      size="sm"
+      variant="ghost"
       className={cn("flex flex-row items-center gap-1", props.className)}
     >
       <PiArrowBendUpLeftBold />
       <span>Reply</span>
-    </button>
+    </Button>
   );
 }

@@ -40,7 +40,7 @@ import { NotFound } from "./not-found";
 
 const MemoedPostComment = memo(PostComment);
 
-const EMPTY_ARR = [];
+const EMPTY_ARR: never[] = [];
 
 function useDelayedReady(delay: number) {
   const [isReady, setIsReady] = useState(false);
@@ -102,15 +102,7 @@ export default function Post() {
   const allComments = useMemo(
     () =>
       comments.data?.pages && isReady
-        ? comments.data.pages
-            .map((p) => p.comments)
-            .flat()
-            .sort((a, b) => {
-              if (b.creatorId === myUserId) {
-                return -1;
-              }
-              return 0;
-            })
+        ? comments.data.pages.map((p) => p.comments).flat()
         : EMPTY_ARR,
     [comments.data?.pages, isReady],
   );
@@ -162,8 +154,6 @@ export default function Post() {
 
   const opId = post?.creator.id;
 
-  const lastComment = structured?.topLevelItems.at(-1);
-
   return (
     <IonPage>
       <Title>{post?.post.name ?? "Post"}</Title>
@@ -211,7 +201,7 @@ export default function Post() {
                 }
                 return (
                   <>
-                    <ContentGutters className="max-md:border-b-[.5px]">
+                    <ContentGutters>
                       <PostBottomBar
                         apId={decodedApId}
                         commentsCount={post.counts.comments}
@@ -235,21 +225,29 @@ export default function Post() {
                   return null;
                 }
                 return (
-                  <ContentGutters className="md:pt-4">
-                    <InlineCommentReply
-                      state={reply}
-                      postId={post.post.id}
-                      queryKeyParentId={parentId}
-                      autoFocus={reply.isEditing}
-                      mode="desktop-only"
-                    />
+                  <ContentGutters className="md:py-3">
+                    <div className="flex-1">
+                      <InlineCommentReply
+                        state={reply}
+                        postId={post.post.id}
+                        queryKeyParentId={parentId}
+                        autoFocus={reply.isEditing}
+                        mode="desktop-only"
+                      />
+                      <button
+                        className="md:hidden py-2 px-3 my-4 border rounded-2xl w-full text-left shadow-xs text-muted-foreground text-sm"
+                        onClick={() => mobleReply.setIsEditing(true)}
+                      >
+                        Add a comment
+                      </button>
+                    </div>
                     <></>
                   </ContentGutters>
                 );
               }
 
               return (
-                <ContentGutters>
+                <ContentGutters className="px-0">
                   <MemoedPostComment
                     postApId={decodedApId}
                     queryKeyParentId={parentId}
@@ -257,7 +255,6 @@ export default function Post() {
                     level={0}
                     opId={opId}
                     myUserId={myUserId}
-                    noBorder={item[0] === lastComment?.[0]}
                     communityName={communityName}
                     modApIds={modApIds}
                   />

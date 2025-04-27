@@ -31,7 +31,7 @@ type SortsStore = {
     id: string,
     prefix: CachePrefixer,
     post: Partial<Data>,
-  ) => Data;
+  ) => void;
   cacheCommunity: (prefix: CachePrefixer, data: Data) => Data;
   cacheCommunities: (
     prefix: CachePrefixer,
@@ -47,7 +47,13 @@ export const useCommunitiesStore = create<SortsStore>()(
       patchCommunity: (slug, prefix, patch) => {
         const communities = get().communities;
         const cacheKey = prefix(slug);
-        const prevCommunityData = communities[cacheKey]?.data ?? {};
+        const prevCommunityData = communities[cacheKey]?.data;
+        if (!prevCommunityData) {
+          console.error(
+            "attempted to patch a community that does not exist in the cache",
+          );
+          return;
+        }
         const updatedCommunityData: Data = {
           ...prevCommunityData,
           ...patch,
@@ -65,18 +71,17 @@ export const useCommunitiesStore = create<SortsStore>()(
             },
           },
         });
-        return updatedCommunityData;
       },
       cacheCommunity: (prefix, view) => {
         const prev = get();
         const slug = createCommunitySlug(view.communityView.community);
         const cacheKey = prefix(slug);
-        const prevCommunityData = prev.communities[cacheKey]?.data ?? {};
+        const prevCommunityData = prev.communities[cacheKey]?.data;
         const updatedCommunityData: Data = {
           ...prevCommunityData,
           ...view,
           communityView: {
-            ...prevCommunityData.communityView,
+            ...prevCommunityData?.communityView,
             ...view.communityView,
           },
         };
@@ -99,13 +104,13 @@ export const useCommunitiesStore = create<SortsStore>()(
         for (const view of views) {
           const slug = createCommunitySlug(view.communityView.community);
           const cacheKey = prefix(slug);
-          const prevCommunityData = prev[cacheKey]?.data ?? {};
+          const prevCommunityData = prev[cacheKey]?.data;
           newCommunities[cacheKey] = {
             data: {
               ...prevCommunityData,
               ...view,
               communityView: {
-                ...prevCommunityData.communityView,
+                ...prevCommunityData?.communityView,
                 ...view.communityView,
               },
             },
@@ -131,10 +136,11 @@ export const useCommunitiesStore = create<SortsStore>()(
 
         for (const key in communities) {
           const community = communities[key];
-          const shouldEvict = now - community.lastUsed > MAX_CACHE_MS;
-
-          if (shouldEvict) {
-            delete communities[key];
+          if (community) {
+            const shouldEvict = now - community.lastUsed > MAX_CACHE_MS;
+            if (shouldEvict) {
+              delete communities[key];
+            }
           }
         }
 

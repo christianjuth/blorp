@@ -44,7 +44,7 @@ import { LuLoaderCircle } from "react-icons/lu";
 import { FaArrowUp } from "react-icons/fa6";
 import { useAuth } from "../stores/auth";
 
-const EMPTY_ARR = [];
+const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
 type Item = typeof NO_ITEMS | PostProps;

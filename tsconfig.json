@@ -6,15 +6,14 @@
         "./*"
       ]
     },
-    "strict": true,
     "rootDir": ".",
     "noEmit": true,
     "module": "Preserve",
     "moduleResolution": "Bundler",
+    "downlevelIteration": true,
     "preserveSymlinks": true,
     "skipLibCheck": true,
     "jsx": "react-jsx",
-    "noImplicitAny": false,
     "types": [
       "node",
       "react",
@@ -24,7 +23,19 @@
       "dom",
       "esnext"
     ],
-    "downlevelIteration": true
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": false,
+    "useUnknownInCatchVariables": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true
   },
   "exclude": [
     "node_modules",

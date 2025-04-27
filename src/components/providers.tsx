@@ -13,7 +13,7 @@ import pRetry from "p-retry";
 import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
 import { Toaster } from "@/src/components/ui/sonner";
 
-const REACT_QUERY_CACHE_VERSON = 4;
+const REACT_QUERY_CACHE_VERSON = 5;
 
 const db = createDb("react-query");
 const persister: Persister = {

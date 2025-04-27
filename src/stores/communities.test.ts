@@ -23,7 +23,7 @@ describe("useCommunitiesStore", () => {
         });
       });
 
-      expect(result.current.communities[prefix(slug)].data).toMatchObject({
+      expect(result.current.communities[prefix(slug)]?.data).toMatchObject({
         communityView,
       });
     });
@@ -50,7 +50,7 @@ describe("useCommunitiesStore", () => {
         });
       });
 
-      expect(result.current.communities[prefix(slug)].data).toMatchObject({
+      expect(result.current.communities[prefix(slug)]?.data).toMatchObject({
         optimisticSubscribed,
       });
     });
@@ -71,7 +71,7 @@ describe("useCommunitiesStore", () => {
         });
       });
 
-      expect(result.current.communities[prefix(slug)].data).toMatchObject({
+      expect(result.current.communities[prefix(slug)]?.data).toMatchObject({
         communityView,
       });
     });
@@ -98,7 +98,7 @@ describe("useCommunitiesStore", () => {
         });
       });
 
-      expect(result.current.communities[prefix(slug)].data).toMatchObject({
+      expect(result.current.communities[prefix(slug)]?.data).toMatchObject({
         optimisticSubscribed,
       });
     });
@@ -122,10 +122,10 @@ describe("useCommunitiesStore", () => {
         ]);
       });
 
-      expect(result.current.communities[prefix(slug1)].data).toMatchObject({
+      expect(result.current.communities[prefix(slug1)]?.data).toMatchObject({
         communityView: communityView1,
       });
-      expect(result.current.communities[prefix(slug2)].data).toMatchObject({
+      expect(result.current.communities[prefix(slug2)]?.data).toMatchObject({
         communityView: communityView2,
       });
     });
@@ -154,10 +154,10 @@ describe("useCommunitiesStore", () => {
         ]);
       });
 
-      expect(result.current.communities[prefix(slug1)].data).toMatchObject({
+      expect(result.current.communities[prefix(slug1)]?.data).toMatchObject({
         optimisticSubscribed,
       });
-      expect(result.current.communities[prefix(slug2)].data).toMatchObject({
+      expect(result.current.communities[prefix(slug2)]?.data).toMatchObject({
         optimisticSubscribed,
       });
     });

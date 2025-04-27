@@ -6,7 +6,7 @@ interface BearState {
   replies: Record<CommentKey, string>;
   editing: Record<CommentKey, boolean>;
   setComment: (key: CommentKey, value: string) => void;
-  getComment: (key: CommentKey) => string;
+  getComment: (key: CommentKey) => string | undefined;
   isEditing: (key: CommentKey) => boolean;
   setIsEditing: (key: CommentKey, isEditing: boolean) => void;
 }

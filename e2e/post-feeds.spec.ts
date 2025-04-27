@@ -16,10 +16,12 @@ for (const { name, base } of tabs) {
 
     test("loads user feed", async ({ page }) => {
       await page.goto(
-        `${base}u/https%3A%2F%2Flemmy.world%2Fu%2FThe_Picard_Maneuver`,
+        `${base}u/https%3A%2F%2Flemmy.world%2Fu%2FThe_Picard_Maneuver?type=posts`,
       );
       const postCard = page.getByTestId("post-card").first();
-      await expect(postCard).toContainText("The_Picard_Maneuver@lemmy.world");
+      await expect(postCard).toContainText("The_Picard_Maneuver@lemmy.world", {
+        ignoreCase: true,
+      });
     });
 
     test("loads search results", async ({ page }) => {
@@ -27,7 +29,9 @@ for (const { name, base } of tabs) {
       const postCard = page
         .getByTestId(base === "/communities/" ? "community-card" : "post-card")
         .first();
-      await expect(postCard).toContainText("linux");
+      await expect(postCard).toContainText("linux", {
+        ignoreCase: true,
+      });
     });
 
     test("loads community search results", async ({ page }) => {

@@ -41,7 +41,7 @@ export const scrollToTop = {
   current: { scrollToOffset: () => {} },
 };
 
-const EMPTY_ARR = [];
+const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
 type Item = typeof NO_ITEMS | PostProps;
