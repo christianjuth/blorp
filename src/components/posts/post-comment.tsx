@@ -30,6 +30,8 @@ import { Share } from "@capacitor/share";
 import { useAuth } from "@/src/stores/auth";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "../ui/button";
+import path from "path";
+import { useMemo } from "react";
 
 function Byline({
   creator,
@@ -80,6 +82,7 @@ export function PostComment({
   myUserId,
   communityName,
   modApIds,
+  singleCommentThread,
 }: {
   postApId: string;
   queryKeyParentId?: number;
@@ -89,7 +92,9 @@ export function PostComment({
   myUserId: number | undefined;
   communityName?: string;
   modApIds?: string[];
+  singleCommentThread?: boolean;
 }) {
+  const linkCtx = useLinkContext();
   const [alrt] = useIonAlert();
 
   const showReportModal = useShowCommentReportModal();
@@ -155,164 +160,213 @@ export function PostComment({
 
   const hideContent = comment.removed || comment.deleted;
 
+  const parentLink = useMemo(() => {
+    if (level > 0 || !commentPath || !singleCommentThread) {
+      return undefined;
+    }
+    const parent = commentPath.path.split(".").slice(-2);
+    if (parent.length < 1 || parent?.includes("0")) {
+      return undefined;
+    }
+    return parent.join(".");
+  }, [level, commentPath, singleCommentThread]);
+
   return (
-    <details
-      open
+    <div
       className={cn(
         "flex-1 pt-2",
         level === 0 && "max-md:px-2.5 py-3",
-        level === 0 && "border-t-7 max-md:border-border/40 md:border-t-[0.5px]",
-        comment.id < 0 && "opacity-50",
+        level === 0 &&
+          !singleCommentThread &&
+          "border-t-7 max-md:border-border/40 md:border-t-[0.5px]",
       )}
     >
-      <Byline
-        creator={creator}
-        publishedDate={comment.published}
-        authorType={
-          isMod
-            ? "MOD"
-            : creator.id === opId
-              ? "OP"
-              : creator.id === myUserId
-                ? "ME"
-                : undefined
-        }
-      />
-
-      <div className="pt-1.5">
-        {comment.deleted && <span className="italic text-sm">deleted</span>}
-        {comment.removed && <span className="italic text-sm">removed</span>}
-
-        {!hideContent && !edit.isEditing && (
-          <MarkdownRenderer markdown={comment.content} />
-        )}
-
-        {edit.isEditing && (
-          <InlineCommentReply
-            state={edit}
-            postId={comment.post_id}
-            comment={comment}
-            autoFocus
-          />
-        )}
-
-        <div className="flex flex-row items-center text-sm text-muted-foreground justify-end">
-          <ActionMenu
-            actions={[
-              {
-                text: "Share",
-                onClick: () =>
-                  Share.share({
-                    url: `https://blorpblorp.xyz/c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
-                  }),
-              } as const,
-              ...(isMyComment && !comment.deleted
-                ? [
-                    {
-                      text: "Edit",
-                      onClick: () => {
-                        edit.setIsEditing(!edit.isEditing);
-                      },
-                    } as const,
-                  ]
-                : []),
-              ...(isMyComment
-                ? [
-                    {
-                      text: comment.deleted ? "Restore" : "Delete",
-                      onClick: () => {
-                        deleteComment.mutate({
-                          comment_id: comment.id,
-                          path: comment.path,
-                          deleted: !comment.deleted,
-                        });
-                      },
-                      danger: true,
-                    } as const,
-                  ]
-                : [
-                    {
-                      text: "Report",
-                      onClick: () =>
-                        requireAuth().then(() => showReportModal(comment.path)),
-                      danger: true,
-                    } as const,
-                    {
-                      text: "Block person",
-                      onClick: async () => {
-                        try {
-                          await requireAuth();
-                          const deferred = new Deferred();
-                          alrt({
-                            message: `Block ${commentView.creator.name}`,
-                            buttons: [
-                              {
-                                text: "Cancel",
-                                role: "cancel",
-                                handler: () => deferred.reject(),
-                              },
-                              {
-                                text: "OK",
-                                role: "confirm",
-                                handler: () => deferred.resolve(),
-                              },
-                            ],
-                          });
-                          await deferred.promise;
-                          blockPerson.mutate({
-                            person_id: commentView.creator.id,
-                            block: true,
-                          });
-                        } catch {}
-                      },
-                      danger: true,
-                    } as const,
-                  ]),
-            ]}
-            trigger={
-              <Button size="icon" variant="ghost">
-                <IoEllipsisHorizontal size={16} />
-              </Button>
-            }
-            triggerAsChild
-          />
-
-          <CommentReplyButton onClick={() => reply.setIsEditing(true)} />
-          <CommentVoting commentView={commentView} />
-        </div>
-
-        {(sorted.length > 0 || reply.isEditing) && (
-          <div
-            className="border-l-[1.5px] border-b-[1.5px] pl-3 md:pl-3.5 rounded-bl-xl mb-2"
-            style={{ borderColor: color }}
+      {singleCommentThread && level === 0 && (
+        <div className="flex flex-row gap-2 items-center mb-6">
+          {parentLink && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="-ml-2.5 text-muted-foreground font-normal"
+              asChild
+            >
+              <Link
+                to={`${linkCtx.root}c/${communityName}/posts/${encodeApId(postApId)}/comments/${parentLink}`}
+                replace
+              >
+                View parent comment
+              </Link>
+            </Button>
+          )}
+          <div className="h-px flex-1 bg-border" />
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-muted-foreground font-normal"
+            asChild
           >
-            {reply.isEditing && (
-              <InlineCommentReply
-                state={reply}
-                postId={comment.post_id}
-                queryKeyParentId={queryKeyParentId}
-                parent={commentView}
-                autoFocus
-              />
-            )}
+            <Link
+              to={`${linkCtx.root}c/${communityName}/posts/${encodeApId(postApId)}`}
+              replace
+            >
+              View all comments
+            </Link>
+          </Button>
+          {!parentLink && <div className="h-px flex-1 bg-border" />}
+        </div>
+      )}
+      <details open className={cn(comment.id < 0 && "opacity-50")}>
+        <Byline
+          creator={creator}
+          publishedDate={comment.published}
+          authorType={
+            isMod
+              ? "MOD"
+              : creator.id === opId
+                ? "OP"
+                : creator.id === myUserId
+                  ? "ME"
+                  : undefined
+          }
+        />
 
-            {sorted.map(([id, map]) => (
-              <PostComment
-                postApId={postApId}
-                queryKeyParentId={queryKeyParentId}
-                key={id}
-                commentMap={map}
-                level={level + 1}
-                opId={opId}
-                myUserId={myUserId}
-                communityName={communityName}
-              />
-            ))}
+        <div className="pt-1.5">
+          {comment.deleted && <span className="italic text-sm">deleted</span>}
+          {comment.removed && <span className="italic text-sm">removed</span>}
 
-            <div className="h-1 -mt-1 w-full bg-background translate-y-0.5" />
+          {!hideContent && !edit.isEditing && (
+            <MarkdownRenderer markdown={comment.content} />
+          )}
+
+          {edit.isEditing && (
+            <InlineCommentReply
+              state={edit}
+              postId={comment.post_id}
+              comment={comment}
+              autoFocus
+            />
+          )}
+
+          <div className="flex flex-row items-center text-sm text-muted-foreground justify-end">
+            <ActionMenu
+              actions={[
+                {
+                  text: "Share",
+                  onClick: () =>
+                    Share.share({
+                      url: `https://blorpblorp.xyz/c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
+                    }),
+                } as const,
+                ...(isMyComment && !comment.deleted
+                  ? [
+                      {
+                        text: "Edit",
+                        onClick: () => {
+                          edit.setIsEditing(!edit.isEditing);
+                        },
+                      } as const,
+                    ]
+                  : []),
+                ...(isMyComment
+                  ? [
+                      {
+                        text: comment.deleted ? "Restore" : "Delete",
+                        onClick: () => {
+                          deleteComment.mutate({
+                            comment_id: comment.id,
+                            path: comment.path,
+                            deleted: !comment.deleted,
+                          });
+                        },
+                        danger: true,
+                      } as const,
+                    ]
+                  : [
+                      {
+                        text: "Report",
+                        onClick: () =>
+                          requireAuth().then(() =>
+                            showReportModal(comment.path),
+                          ),
+                        danger: true,
+                      } as const,
+                      {
+                        text: "Block person",
+                        onClick: async () => {
+                          try {
+                            await requireAuth();
+                            const deferred = new Deferred();
+                            alrt({
+                              message: `Block ${commentView.creator.name}`,
+                              buttons: [
+                                {
+                                  text: "Cancel",
+                                  role: "cancel",
+                                  handler: () => deferred.reject(),
+                                },
+                                {
+                                  text: "OK",
+                                  role: "confirm",
+                                  handler: () => deferred.resolve(),
+                                },
+                              ],
+                            });
+                            await deferred.promise;
+                            blockPerson.mutate({
+                              person_id: commentView.creator.id,
+                              block: true,
+                            });
+                          } catch {}
+                        },
+                        danger: true,
+                      } as const,
+                    ]),
+              ]}
+              trigger={
+                <Button size="icon" variant="ghost">
+                  <IoEllipsisHorizontal size={16} />
+                </Button>
+              }
+              triggerAsChild
+            />
+
+            <CommentReplyButton onClick={() => reply.setIsEditing(true)} />
+            <CommentVoting commentView={commentView} />
           </div>
-        )}
-      </div>
-    </details>
+
+          {(sorted.length > 0 || reply.isEditing) && (
+            <div
+              className="border-l-[1.5px] border-b-[1.5px] pl-3 md:pl-3.5 rounded-bl-xl mb-2"
+              style={{ borderColor: color }}
+            >
+              {reply.isEditing && (
+                <InlineCommentReply
+                  state={reply}
+                  postId={comment.post_id}
+                  queryKeyParentId={queryKeyParentId}
+                  parent={commentView}
+                  autoFocus
+                />
+              )}
+
+              {sorted.map(([id, map]) => (
+                <PostComment
+                  postApId={postApId}
+                  queryKeyParentId={queryKeyParentId}
+                  key={id}
+                  commentMap={map}
+                  level={level + 1}
+                  opId={opId}
+                  myUserId={myUserId}
+                  communityName={communityName}
+                />
+              ))}
+
+              <div className="h-1 -mt-1 w-full bg-background translate-y-0.5" />
+            </div>
+          )}
+        </div>
+      </details>
+    </div>
   );
 }

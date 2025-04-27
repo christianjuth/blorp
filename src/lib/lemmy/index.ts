@@ -458,7 +458,8 @@ export function useComments(form: GetComments) {
         },
       );
 
-      const page = comments.map((c) => c.comment.ap_id).join();
+      const page =
+        queryKey.join() + comments.map((c) => c.comment.ap_id).join();
 
       if (page === prevPage.current && pageParam !== prevPageParam.current) {
         return {

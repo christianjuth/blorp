@@ -270,7 +270,7 @@ export default function User() {
             key={type === "comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={listData.length === 0 && !isFetching ? [NO_ITEMS] : listData}
-            header={
+            header={[
               <ContentGutters className="max-md:hidden">
                 <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
                   <div>
@@ -299,8 +299,8 @@ export default function User() {
                   )}
                 </div>
                 <></>
-              </ContentGutters>
-            }
+              </ContentGutters>,
+            ]}
             renderItem={({ item }) => {
               if (item === NO_ITEMS) {
                 return (

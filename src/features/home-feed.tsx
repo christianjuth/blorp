@@ -278,10 +278,12 @@ export default function HomeFeed() {
             estimatedItemSize={450}
             data={data.length === 0 && !isFetching ? [NO_ITEMS] : data}
             placeholder={
-              <ContentGutters className="px-0">
-                <PostCardSkeleton />
-                <></>
-              </ContentGutters>
+              posts.isPending ? (
+                <ContentGutters className="px-0">
+                  <PostCardSkeleton />
+                  <></>
+                </ContentGutters>
+              ) : undefined
             }
             renderItem={({ item }) => {
               if (item === NO_ITEMS) {

@@ -280,7 +280,9 @@ export function FeedPostCard(props: PostProps) {
       )}
       {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
 
-      {detailView && body && !deleted && <MarkdownRenderer markdown={body} />}
+      {detailView && body && !deleted && (
+        <MarkdownRenderer markdown={body} className="pt-2" />
+      )}
 
       {!detailView && (
         <div className="flex flex-row justify-end gap-2">

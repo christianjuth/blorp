@@ -51,7 +51,7 @@ export function FlashListInternal<T>({
   numColumns?: number;
   onFocusChange?: (focused: boolean) => any;
   placeholder?: ReactNode;
-  header?: ReactNode;
+  header?: ReactNode[];
 }) {
   const index = useRef(0);
   const offset = useRef(0);
@@ -79,7 +79,7 @@ export function FlashListInternal<T>({
 
   let count = dataLen || (placeholder ? 25 : 0);
   if (header) {
-    count++;
+    count += header.length;
   }
 
   const rowVirtualizer = useVirtualizer({
@@ -148,11 +148,11 @@ export function FlashListInternal<T>({
       {rowVirtualizer.getVirtualItems().map((virtualItem) => {
         let index = virtualItem.index;
         if (header) {
-          index--;
+          index -= header.length;
         }
         const item = data?.[index];
 
-        const showHeader = !item && !!header && virtualItem.index === 0;
+        const showHeader = header && virtualItem.index <= header?.length;
 
         const isStuck = isActiveSticky(virtualItem.index);
 
@@ -184,7 +184,7 @@ export function FlashListInternal<T>({
                   index,
                 })
               : showHeader
-                ? header
+                ? header[virtualItem.index]
                 : placeholder}
           </div>
         );
@@ -214,7 +214,7 @@ export function FlashList<T>({
   onFocusChange?: (focused: boolean) => any;
   refresh?: () => Promise<any>;
   placeholder?: ReactNode;
-  header?: ReactNode;
+  header?: ReactNode[];
 }) {
   const [key, setKey] = useState(0);
 

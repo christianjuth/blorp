@@ -500,7 +500,7 @@ function ChooseCommunity({
           className="h-full"
           data={data}
           stickyHeaderIndices={[0]}
-          header={
+          header={[
             <ContentGutters className="bg-background">
               <div className="border-b-[.5px] py-2">
                 <Input
@@ -509,8 +509,8 @@ function ChooseCommunity({
                   onChange={(e) => debouncedSetSearch(e.target.value)}
                 />
               </div>
-            </ContentGutters>
-          }
+            </ContentGutters>,
+          ]}
           renderItem={({ item }) => {
             if (typeof item === "string") {
               return (

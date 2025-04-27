@@ -30,7 +30,7 @@ export function Voting({
   const isDownvoted = myVote < 0;
 
   return (
-    <div className="flex flex-row border-[0.5px] rounded-full items-center h-7">
+    <div className="flex flex-row border rounded-full items-center h-7">
       <button
         onClick={async () => {
           const newVote = isUpvoted ? 0 : 1;
@@ -84,7 +84,7 @@ export function PostCommentsButton({
     return (
       <Link
         to={href}
-        className="h-7 flex items-center gap-1 border-[0.5px] px-2.5 rounded-full"
+        className="h-7 flex items-center gap-1 border px-2.5 rounded-full"
       >
         <TbMessageCircle className="text-lg" />
         <span>{commentsCount}</span>
