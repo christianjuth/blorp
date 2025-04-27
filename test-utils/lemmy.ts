@@ -23,7 +23,7 @@ const absoluteTime = () =>
 const relativeTime = () =>
   dayjs().utc().subtract(1, "hour").format("YYYY-MM-DDTHH:mm:ss.SSS[000]Z");
 
-const API_ROOT = "https://lemmy.world";
+const API_ROOT = "https://blorpblorp.xyz";
 
 const POST_ID = uuid();
 const POST_PUBLISHED = relativeTime();
