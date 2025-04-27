@@ -12,7 +12,7 @@ export function YouTubeVideoEmbed({ url }: { url?: string }) {
   return (
     <div className="aspect-video rounded-xl overflow-hidden">
       {/* @ts-expect-error*/}
-      <lite-youtube videoid={videoId} />
+      <lite-youtube videoid={videoId} className="max-w-full! w-full" />
     </div>
   );
 }

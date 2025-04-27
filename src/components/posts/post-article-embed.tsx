@@ -59,7 +59,7 @@ export function PostArticleEmbed({
         {thumbnail && (
           <img
             src={thumbnail}
-            className="relative object-cover aspect-video rounded-t-xl"
+            className="relative object-cover aspect-video w-full rounded-t-xl"
             onLoad={() => setImageLoaded(true)}
           />
         )}
