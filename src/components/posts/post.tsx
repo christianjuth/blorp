@@ -24,11 +24,7 @@ import { shareImage } from "@/src/lib/share";
 import { useAuth } from "@/src/stores/auth";
 
 function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="italic text-muted-foreground text-sm pt-3">
-      {children}
-    </span>
-  );
+  return <i className="text-muted-foreground text-sm pt-3">{children}</i>;
 }
 
 export function getPostProps(
@@ -166,7 +162,6 @@ export function FeedPostCard(props: PostProps) {
     commentsCount,
     displayUrl,
     body,
-    detailView,
     onNavigate,
   } = props;
 
@@ -203,12 +198,12 @@ export function FeedPostCard(props: PostProps) {
   );
 
   if (nsfw && !showNsfw) {
-    return detailView ? <Notice>Hidden due to NSFW</Notice> : null;
+    return props.detailView ? <Notice>Hidden due to NSFW</Notice> : null;
   }
 
   for (const keyword of filterKeywords) {
     if (name.toLowerCase().includes(keyword.toLowerCase())) {
-      return detailView ? (
+      return props.detailView ? (
         <Notice>Hidden due to keyword filter "{keyword}"</Notice>
       ) : null;
     }
@@ -218,8 +213,8 @@ export function FeedPostCard(props: PostProps) {
     <div
       data-testid="post-card"
       className={cn(
-        "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-2.5",
-        detailView ? "pb-2" : "border-b-[0.5px] pb-4",
+        "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 max-md:px-2.5",
+        props.detailView ? "pb-2" : "border-b-[0.5px] pb-4",
       )}
     >
       <PostByline {...props} />
@@ -232,7 +227,7 @@ export function FeedPostCard(props: PostProps) {
         <span
           className={twMerge(
             "text-xl font-medium",
-            !detailView && read && "text-muted-foreground",
+            !props.detailView && read && "text-muted-foreground",
           )}
         >
           {deleted ? "deleted" : name}
@@ -273,19 +268,23 @@ export function FeedPostCard(props: PostProps) {
       )}
 
       {type === "video" && !deleted && url && (
-        <PostVideoEmbed url={url} autoPlay={detailView} />
+        <PostVideoEmbed url={url} autoPlay={props.detailView} />
       )}
       {type === "loops" && !deleted && url && (
-        <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={detailView} />
+        <PostLoopsEmbed
+          url={url}
+          thumbnail={thumbnail}
+          autoPlay={props.detailView}
+        />
       )}
       {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
 
-      {detailView && body && !deleted && (
+      {props.detailView && body && !deleted && (
         <MarkdownRenderer markdown={body} className="pt-2" />
       )}
 
-      {!detailView && (
-        <div className="flex flex-row justify-end gap-2">
+      {!props.detailView && (
+        <div className="flex flex-row items-center justify-end gap-1">
           <PostCommentsButton
             commentsCount={commentsCount}
             href={postDetailsLink}
@@ -324,7 +323,7 @@ export function PostBottomBar({
   const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
 
   return (
-    <div className="pb-1.5 md:py-2 flex flex-row gap-2 bg-background">
+    <div className="pb-1.5 md:py-2 flex flex-row items-center gap-1 bg-background">
       <CommentSortSelect />
       <div className="flex-1" />
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />

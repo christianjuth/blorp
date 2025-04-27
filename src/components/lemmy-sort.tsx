@@ -21,6 +21,7 @@ import { IoSkullOutline } from "react-icons/io5";
 import { TbMessageCircleUp } from "react-icons/tb";
 import { PiFireSimpleBold } from "react-icons/pi";
 import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
+import { Button } from "./ui/button";
 
 function getIconCommunitySort(sort: CommunitySortType) {
   if (sort.startsWith("Top")) {
@@ -258,11 +259,16 @@ export function CommentSortSelect() {
       actions={COMMENT_SORT_OPTIONS}
       selectedValue={commentSort}
       trigger={
-        <span className="text-brand flex flex-row items-center gap-1.5">
+        <Button
+          size="sm"
+          variant="ghost"
+          className="-mx-2.5 text-md font-normal text-brand hover:text-brand"
+        >
           Sort
           {getIconCommentSort(commentSort)}
-        </span>
+        </Button>
       }
+      triggerAsChild
     />
   );
 }

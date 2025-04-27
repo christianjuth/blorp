@@ -258,7 +258,7 @@ export default function Post() {
           />
         </PostReportProvider>
 
-        <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
+        <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0 z-10">
           <div className="flex-1" />
           {communityName && (
             <CommunitySidebar

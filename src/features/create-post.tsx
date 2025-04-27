@@ -165,6 +165,7 @@ export function CreatePost() {
     }
   }, [media.md]);
 
+  const numDrafts = useCreatePostStore((s) => Object.keys(s.drafts).length);
   const draft = useCreatePostStore((s) => s.drafts[draftId]) ?? NEW_DRAFT;
   const isEdit = !!draft.apId;
   const patchDraft = useCreatePostStore((s) => s.updateDraft);
@@ -235,7 +236,9 @@ export function CreatePost() {
               onClick={() => setShowDrafts((s) => !s)}
               className="md:hidden"
             >
-              {showDrafts ? "Back" : "Drafts"}
+              {showDrafts
+                ? "Back"
+                : `Drafts${numDrafts > 0 ? ` (${numDrafts})` : ""}`}
             </Button>
           </IonButtons>
 

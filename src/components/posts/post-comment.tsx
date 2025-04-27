@@ -30,7 +30,6 @@ import { Share } from "@capacitor/share";
 import { useAuth } from "@/src/stores/auth";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "../ui/button";
-import path from "path";
 import { useMemo } from "react";
 
 function Byline({
@@ -247,7 +246,7 @@ export function PostComment({
             />
           )}
 
-          <div className="flex flex-row items-center text-sm text-muted-foreground justify-end">
+          <div className="flex flex-row items-center text-sm text-muted-foreground justify-end gap-1">
             <ActionMenu
               actions={[
                 {
