@@ -239,7 +239,7 @@ export function CreatePost() {
             </Button>
           </IonButtons>
 
-          <IonTitle>Create post</IonTitle>
+          <IonTitle>{isEdit ? "Edit" : "Create"} post</IonTitle>
 
           <IonButtons slot="end" className="md:gap-4 gap-3.5">
             <Button
