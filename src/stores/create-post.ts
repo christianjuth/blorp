@@ -15,7 +15,7 @@ export interface Draft extends Partial<Omit<CreatePost, "community_id">> {
   type: "text" | "media" | "link";
   createdAt: number;
   community?: CommunityPartial;
-  isEdit: boolean;
+  apId?: string;
 }
 
 type CreatePostStore = {
@@ -27,7 +27,6 @@ type CreatePostStore = {
 export const NEW_DRAFT: Draft = {
   type: "text",
   createdAt: Date.now(),
-  isEdit: false,
 };
 
 export function postToDraft(post: FlattenedPost): Draft {
@@ -40,7 +39,7 @@ export function postToDraft(post: FlattenedPost): Draft {
     },
     createdAt: dayjs(post.post.published).toDate().valueOf(),
     type: "text",
-    isEdit: true,
+    apId: post.post.ap_id,
   };
 }
 

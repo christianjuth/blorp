@@ -40,6 +40,10 @@ type AuthStore = {
   getCachePrefixer: () => CachePrefixer;
 };
 
+export function getAccountActorId(account: Account) {
+  return account?.site?.my_user?.local_user_view.person.actor_id;
+}
+
 export function parseAccountInfo(account: Account) {
   const url = new URL(account.instance);
   return {

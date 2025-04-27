@@ -7,7 +7,7 @@ import {
 import { useLinkContext } from "../nav/link-context";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
-import { useAuth } from "@/src/stores/auth";
+import { useAuth, getAccountActorId } from "@/src/stores/auth";
 import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -22,7 +22,7 @@ import {
 import { BsFillPinAngleFill } from "react-icons/bs";
 import { useIonAlert, useIonRouter } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
-import { encodeApId, Slug } from "@/src/lib/lemmy/utils";
+import { Slug } from "@/src/lib/lemmy/utils";
 import { CommunityHoverCard } from "../communities/community-hover-card";
 import { PersonHoverCard } from "../person/person-hover-card";
 import { Share } from "@capacitor/share";
@@ -84,10 +84,7 @@ export function PostByline({
 
   const linkCtx = useLinkContext();
 
-  const myUserId = useAuth(
-    (s) =>
-      s.getSelectedAccount().site?.my_user?.local_user_view.person.actor_id,
-  );
+  const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
   const isMyPost = creatorApId === myUserId;
 
   const [openSignal, setOpenSignal] = useState(0);

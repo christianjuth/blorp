@@ -54,6 +54,8 @@ import { createSlug } from "../lib/lemmy/utils";
 import { RelativeTime } from "../components/relative-time";
 import { Deferred } from "../lib/deferred";
 import z from "zod";
+import { usePostsStore } from "../stores/posts";
+import { getAccountActorId, useAuth } from "../stores/auth";
 
 dayjs.extend(localizedFormat);
 
@@ -153,8 +155,8 @@ function DraftsSidebar({
 export function CreatePost() {
   const [showDrafts, setShowDrafts] = useState(false);
   const media = useMedia();
-  const [createPostIdEncoded] = useUrlSearchState("id", uuid(), z.string());
-  const createPostId = decodeURIComponent(createPostIdEncoded);
+  const [draftIdEncoded] = useUrlSearchState("id", uuid(), z.string());
+  const draftId = decodeURIComponent(draftIdEncoded);
   const id = useId();
 
   useEffect(() => {
@@ -163,9 +165,23 @@ export function CreatePost() {
     }
   }, [media.md]);
 
-  const post = useCreatePostStore((s) => s.drafts[createPostId]) ?? NEW_DRAFT;
+  const draft = useCreatePostStore((s) => s.drafts[draftId]) ?? NEW_DRAFT;
+  const isEdit = !!draft.apId;
   const patchPost = useCreatePostStore((s) => s.updateDraft);
   const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
+
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const post = usePostsStore((s) =>
+    draft.apId ? s.posts[getCachePrefixer()(draft.apId)] : undefined,
+  );
+  const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
+  const canEdit =
+    isEdit &&
+    post?.data.creator.actor_id &&
+    myUserId === post.data.creator.actor_id;
+  const postOwner = post?.data.creator
+    ? createSlug(post.data.creator)?.slug
+    : undefined;
 
   const uploadImage = useUploadImage();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -174,7 +190,7 @@ export function CreatePost() {
         uploadImage
           .mutateAsync({ image: files[0] })
           .then((res) => {
-            patchPost(createPostId, {
+            patchPost(draftId, {
               custom_thumbnail: res.url,
             });
           })
@@ -186,7 +202,7 @@ export function CreatePost() {
   const [chooseCommunity, setChooseCommunity] = useState(false);
 
   const createPost = useCreatePost();
-  const editPost = useEditPost(createPostId);
+  const editPost = useEditPost(draftId);
 
   const parseUrl = (url: string) => {
     if (url) {
@@ -196,13 +212,13 @@ export function CreatePost() {
           .then((body) => {
             const ogData = parseOgData(body);
             const patch: Partial<Draft> = {};
-            if (!post.name && ogData.title) {
+            if (!draft.name && ogData.title) {
               patch.name = ogData.title;
             }
             if (ogData.image) {
               patch.custom_thumbnail = ogData.image;
             }
-            patchPost(createPostId, patch);
+            patchPost(draftId, patch);
           });
       } catch {}
     }
@@ -231,24 +247,24 @@ export function CreatePost() {
               className={cn(showDrafts && "max-md:hidden")}
               onClick={() => {
                 try {
-                  if (post.community) {
-                    if (post.isEdit) {
+                  if (draft.community) {
+                    if (isEdit) {
                       editPost
-                        .mutateAsync(post)
-                        .then(() => deleteDraft(createPostId));
+                        .mutateAsync(draft)
+                        .then(() => deleteDraft(draftId));
                     } else {
                       createPost
-                        .mutateAsync(post)
-                        .then(() => deleteDraft(createPostId));
+                        .mutateAsync(draft)
+                        .then(() => deleteDraft(draftId));
                     }
                   }
                 } catch {
                   // TODO: handle incomplete post data
                 }
               }}
-              disabled={!post.community}
+              disabled={!draft.community || (isEdit && !canEdit)}
             >
-              {post.isEdit ? "Update" : "Post"}
+              {isEdit ? "Update" : "Post"}
               {createPost.isPending && (
                 <LuLoaderCircle className="animate-spin" />
               )}
@@ -259,7 +275,7 @@ export function CreatePost() {
       </IonHeader>
       <IonContent>
         <ChooseCommunity
-          createPostId={createPostId}
+          createPostId={draftId}
           isOpen={chooseCommunity}
           closeModal={() => setChooseCommunity(false)}
         />
@@ -267,17 +283,25 @@ export function CreatePost() {
         <ContentGutters className="h-full py-4">
           {media.maxMd && showDrafts ? (
             <DraftsSidebar
-              createPostId={createPostId}
+              createPostId={draftId}
               onClickDraft={() => setShowDrafts(false)}
             />
           ) : (
             <div className="flex flex-col gap-5">
+              {isEdit && !canEdit && (
+                <span className="bg-amber-500/30 text-amber-500 py-2 px-3 rounded-lg">
+                  {postOwner
+                    ? `Switch to ${postOwner} to make edits.`
+                    : "You cannot edit this post because it doesn't belong to the selected account."}
+                </span>
+              )}
+
               <button
                 onClick={() => setChooseCommunity(true)}
                 className="flex flex-row items-center gap-2 h-9 self-start"
               >
-                {post.community ? (
-                  <CommunityCard communityView={post.community} disableLink />
+                {draft.community ? (
+                  <CommunityCard communityView={draft.community} disableLink />
                 ) : (
                   <span className="font-bold">Select a community</span>
                 )}
@@ -288,10 +312,10 @@ export function CreatePost() {
                 type="single"
                 variant="outline"
                 size="sm"
-                value={post.type}
+                value={draft.type}
                 onValueChange={(val) => {
                   if (val) {
-                    patchPost(createPostId, {
+                    patchPost(draftId, {
                       type: val as "text" | "media" | "link",
                     });
                   }
@@ -302,23 +326,23 @@ export function CreatePost() {
                 <ToggleGroupItem value="link">Link</ToggleGroupItem>
               </ToggleGroup>
 
-              {(post.type === "link" || post.url) && (
+              {(draft.type === "link" || draft.url) && (
                 <div className="gap-2 flex flex-col">
                   <Label htmlFor={`${id}-link`}>Link</Label>
                   <Input
                     id={`${id}-link`}
                     placeholder="Link"
                     className="border-b border-border"
-                    value={post.url ?? ""}
+                    value={draft.url ?? ""}
                     onChange={(e) =>
-                      patchPost(createPostId, { url: e.target.value })
+                      patchPost(draftId, { url: e.target.value })
                     }
-                    onBlur={() => post.url && parseUrl(post.url)}
+                    onBlur={() => draft.url && parseUrl(draft.url)}
                   />
                 </div>
               )}
 
-              {(post.type === "media" || post.custom_thumbnail) && (
+              {(draft.type === "media" || draft.custom_thumbnail) && (
                 <div className="gap-2 flex flex-col">
                   <Label htmlFor={`${id}-media`}>Image</Label>
                   <div
@@ -326,9 +350,9 @@ export function CreatePost() {
                     className="border-2 border-dashed flex flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-md min-h-32"
                   >
                     <input id={`${id}-media`} {...getInputProps()} />
-                    {post.custom_thumbnail && !uploadImage.isPending && (
+                    {draft.custom_thumbnail && !uploadImage.isPending && (
                       <img
-                        src={post.custom_thumbnail}
+                        src={draft.custom_thumbnail}
                         className="h-40 rounded-md"
                       />
                     )}
@@ -342,7 +366,7 @@ export function CreatePost() {
                     ) : (
                       <p className="text-muted-foreground">
                         Drop or upload image here
-                        {post.custom_thumbnail && " to replace"}
+                        {draft.custom_thumbnail && " to replace"}
                       </p>
                     )}
                   </div>
@@ -354,9 +378,9 @@ export function CreatePost() {
                 <Input
                   id={`${id}-title`}
                   placeholder="Title"
-                  value={post.name ?? ""}
+                  value={draft.name ?? ""}
                   onInput={(e) =>
-                    patchPost(createPostId, {
+                    patchPost(draftId, {
                       name: e.currentTarget.value ?? "",
                     })
                   }
@@ -367,9 +391,9 @@ export function CreatePost() {
                 <Label htmlFor={`${id}-body`}>Body</Label>
                 <MarkdownEditor
                   id={`${id}-body`}
-                  content={post.body ?? ""}
+                  content={draft.body ?? ""}
                   onChange={(body) =>
-                    patchPost(createPostId, {
+                    patchPost(draftId, {
                       body,
                     })
                   }
@@ -381,7 +405,7 @@ export function CreatePost() {
           )}
 
           <DraftsSidebar
-            createPostId={createPostId}
+            createPostId={draftId}
             onClickDraft={() => setShowDrafts(false)}
           />
         </ContentGutters>
