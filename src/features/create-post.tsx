@@ -11,6 +11,7 @@ import { FlashList } from "@/src/components/flashlist";
 import { CommunityCard } from "../components/communities/community-card";
 import {
   useCreatePost,
+  useEditPost,
   useListCommunities,
   useSearch,
   useUploadImage,
@@ -46,7 +47,7 @@ import { cn } from "../lib/utils";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { Link } from "react-router-dom";
-import { v4 as uuid, validate as validateUuid } from "uuid";
+import { v4 as uuid } from "uuid";
 import { MdDelete } from "react-icons/md";
 import { useMedia, useUrlSearchState } from "../lib/hooks";
 import { createSlug } from "../lib/lemmy/utils";
@@ -152,13 +153,8 @@ function DraftsSidebar({
 export function CreatePost() {
   const [showDrafts, setShowDrafts] = useState(false);
   const media = useMedia();
-  const [createPostId] = useUrlSearchState(
-    "id",
-    uuid(),
-    z.string().refine(validateUuid, {
-      message: "Post draft id must be a valid uuid",
-    }),
-  );
+  const [createPostIdEncoded] = useUrlSearchState("id", uuid(), z.string());
+  const createPostId = decodeURIComponent(createPostIdEncoded);
   const id = useId();
 
   useEffect(() => {
@@ -190,6 +186,7 @@ export function CreatePost() {
   const [chooseCommunity, setChooseCommunity] = useState(false);
 
   const createPost = useCreatePost();
+  const editPost = useEditPost(createPostId);
 
   const parseUrl = (url: string) => {
     if (url) {
@@ -233,20 +230,25 @@ export function CreatePost() {
               size="sm"
               className={cn(showDrafts && "max-md:hidden")}
               onClick={() => {
-                if (post.community) {
-                  try {
-                    const createPostData = draftToCreatePostData(post);
-                    createPost
-                      .mutateAsync(createPostData)
-                      .then(() => deleteDraft(createPostId));
-                  } catch {
-                    // TODO: handle incomplete post data
+                try {
+                  if (post.community) {
+                    if (post.isEdit) {
+                      editPost
+                        .mutateAsync(post)
+                        .then(() => deleteDraft(createPostId));
+                    } else {
+                      createPost
+                        .mutateAsync(post)
+                        .then(() => deleteDraft(createPostId));
+                    }
                   }
+                } catch {
+                  // TODO: handle incomplete post data
                 }
               }}
               disabled={!post.community}
             >
-              Post
+              {post.isEdit ? "Update" : "Post"}
               {createPost.isPending && (
                 <LuLoaderCircle className="animate-spin" />
               )}
@@ -427,7 +429,7 @@ function ChooseCommunity({
     ) ?? EMPTY_ARR;
 
   let data: (
-    | Pick<Community, "name" | "id" | "title" | "icon" | "actor_id">
+    | Pick<Community, "name" | "title" | "icon" | "actor_id">
     | "Selected"
     | "Recent"
     | "Subscribed"

@@ -20,14 +20,16 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { BsFillPinAngleFill } from "react-icons/bs";
-import { useIonAlert } from "@ionic/react";
+import { useIonAlert, useIonRouter } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
-import { Slug } from "@/src/lib/lemmy/utils";
+import { encodeApId, Slug } from "@/src/lib/lemmy/utils";
 import { CommunityHoverCard } from "../communities/community-hover-card";
 import { PersonHoverCard } from "../person/person-hover-card";
 import { Share } from "@capacitor/share";
 import { FaBookmark } from "react-icons/fa";
 import { Badge } from "@/src/components/ui/badge";
+import { postToDraft, useCreatePostStore } from "@/src/stores/create-post";
+import { usePostsStore } from "@/src/stores/posts";
 
 export function PostByline({
   id,
@@ -74,6 +76,11 @@ export function PostByline({
   const deletePost = useDeletePost(apId);
   const featurePost = useFeaturePost(apId);
   const savePost = useSavePost(apId);
+
+  const router = useIonRouter();
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const post = usePostsStore((s) => s.posts[getCachePrefixer()(apId)]?.data);
+  const updateDraft = useCreatePostStore((s) => s.updateDraft);
 
   const linkCtx = useLinkContext();
 
@@ -130,6 +137,15 @@ export function PostByline({
       },
       ...(isMyPost
         ? [
+            {
+              text: "Edit",
+              onClick: () => {
+                if (post && communityName) {
+                  updateDraft(apId, postToDraft(post));
+                  router.push(`/create?id=${encodedApId}`);
+                }
+              },
+            },
             {
               text: deleted ? "Restore" : "Delete",
               onClick: () =>

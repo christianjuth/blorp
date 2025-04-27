@@ -23,6 +23,7 @@ import {
   FeaturePost,
   UploadImage,
   MarkPostAsRead,
+  EditPost,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -53,6 +54,11 @@ import { getPostEmbed } from "../post";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useIonRouter } from "@ionic/react";
 import { toast } from "sonner";
+import {
+  Draft,
+  draftToCreatePostData,
+  draftToEditPostData,
+} from "@/src/stores/create-post";
 
 enum Errors {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -1528,7 +1534,20 @@ export function useCreatePost() {
   const router = useIonRouter();
   const { client } = useLemmyClient();
   return useMutation({
-    mutationFn: (form: CreatePost) => client.createPost(form),
+    mutationFn: async (draft: Draft) => {
+      const communityName = draft.community?.name;
+
+      if (!communityName) {
+        throw new Error("could not find community to create post under");
+      }
+
+      const { community_view } = await client.getCommunity({
+        name: communityName,
+      });
+      return await client.createPost(
+        draftToCreatePostData(draft, community_view.community.id),
+      );
+    },
     onSuccess: (res) => {
       const apId = res.post_view.post.ap_id;
       const slug = createCommunitySlug(res.post_view.community);
@@ -1536,6 +1555,34 @@ export function useCreatePost() {
     },
     onError: () => {
       toast.error("Couldn't create post");
+    },
+  });
+}
+
+export function useEditPost(apId: string) {
+  const router = useIonRouter();
+  const { client } = useLemmyClient();
+  const patchPost = usePostsStore((s) => s.patchPost);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  return useMutation({
+    mutationFn: async (draft: Draft) => {
+      const { post } = await client.resolveObject({
+        q: apId,
+      });
+
+      if (!post) {
+        throw new Error("Could not find post to update");
+      }
+
+      return await client.editPost(draftToEditPostData(draft, post.post.id));
+    },
+    onSuccess: ({ post_view }) => {
+      patchPost(apId, getCachePrefixer(), flattenPost({ post_view }));
+      const slug = createCommunitySlug(post_view.community);
+      router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
+    },
+    onError: () => {
+      toast.error("Couldn't update post");
     },
   });
 }
@@ -1693,11 +1740,9 @@ export function useUploadImage() {
     mutationFn: async (form: UploadImage) => {
       const res = await client.uploadImage(form);
       const fileId = res.files?.[0]?.file;
-      console.log(res);
       if (!res.url && fileId) {
         res.url = `${instance}/pictrs/image/${fileId}`;
       }
-      console.log(res);
       return res;
     },
     onError: () => {

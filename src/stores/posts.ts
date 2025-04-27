@@ -128,7 +128,7 @@ export const usePostsStore = create<SortsStore>()(
     {
       name: "posts",
       storage: createStorage<SortsStore>(),
-      version: 3,
+      version: 4,
     },
   ),
 );

@@ -1,17 +1,21 @@
-import { Community, CreatePost } from "lemmy-js-client";
+import { Community, CreatePost, EditPost } from "lemmy-js-client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
+import _ from "lodash";
+import { FlattenedPost } from "../lib/lemmy/utils";
+import dayjs from "dayjs";
 
 export type CommunityPartial = Pick<
   Community,
-  "name" | "id" | "title" | "icon" | "actor_id"
+  "name" | "title" | "icon" | "actor_id"
 >;
 
 export interface Draft extends Partial<Omit<CreatePost, "community_id">> {
   type: "text" | "media" | "link";
   createdAt: number;
   community?: CommunityPartial;
+  isEdit: boolean;
 }
 
 type CreatePostStore = {
@@ -23,20 +27,55 @@ type CreatePostStore = {
 export const NEW_DRAFT: Draft = {
   type: "text",
   createdAt: Date.now(),
+  isEdit: false,
 };
 
-export function draftToCreatePostData(draft: Draft): CreatePost {
+export function postToDraft(post: FlattenedPost): Draft {
+  return {
+    name: post.post.name,
+    body: post.post.body,
+    community: {
+      ...post.community,
+      actor_id: post.community.actorId,
+    },
+    createdAt: dayjs(post.post.published).toDate().valueOf(),
+    type: "text",
+    isEdit: true,
+  };
+}
+
+export function draftToEditPostData(draft: Draft, post_id: number): EditPost {
   if (!draft.name) {
     throw new Error("post name is required");
   }
-  if (!draft.community) {
-    throw new Error("community is required");
+  const post: EditPost = {
+    ...draft,
+    post_id,
+    name: draft.name,
+    body: draft.body,
+  };
+
+  if (!post.url) {
+    delete post.url;
+  }
+  if (!post.custom_thumbnail) {
+    delete post.custom_thumbnail;
   }
 
+  return post;
+}
+
+export function draftToCreatePostData(
+  draft: Draft,
+  community_id: number,
+): CreatePost {
+  if (!draft.name) {
+    throw new Error("post name is required");
+  }
   const post: CreatePost = {
     ...draft,
     name: draft.name,
-    community_id: draft.community?.id,
+    community_id,
     body: draft.body,
   };
 
@@ -82,7 +121,7 @@ export const useCreatePostStore = create<CreatePostStore>()(
     {
       name: "create-post",
       storage: createStorage<CreatePostStore>(),
-      version: 2,
+      version: 4,
     },
   ),
 );
