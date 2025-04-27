@@ -167,7 +167,7 @@ export function CreatePost() {
 
   const draft = useCreatePostStore((s) => s.drafts[draftId]) ?? NEW_DRAFT;
   const isEdit = !!draft.apId;
-  const patchPost = useCreatePostStore((s) => s.updateDraft);
+  const patchDraft = useCreatePostStore((s) => s.updateDraft);
   const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -190,7 +190,7 @@ export function CreatePost() {
         uploadImage
           .mutateAsync({ image: files[0] })
           .then((res) => {
-            patchPost(draftId, {
+            patchDraft(draftId, {
               custom_thumbnail: res.url,
             });
           })
@@ -218,7 +218,7 @@ export function CreatePost() {
             if (ogData.image) {
               patch.custom_thumbnail = ogData.image;
             }
-            patchPost(draftId, patch);
+            patchDraft(draftId, patch);
           });
       } catch {}
     }
@@ -276,7 +276,7 @@ export function CreatePost() {
       <IonContent>
         <ChooseCommunity
           createPostId={draftId}
-          isOpen={chooseCommunity}
+          isOpen={chooseCommunity && !isEdit}
           closeModal={() => setChooseCommunity(false)}
         />
 
@@ -299,13 +299,14 @@ export function CreatePost() {
               <button
                 onClick={() => setChooseCommunity(true)}
                 className="flex flex-row items-center gap-2 h-9 self-start"
+                disabled={isEdit}
               >
                 {draft.community ? (
                   <CommunityCard communityView={draft.community} disableLink />
                 ) : (
                   <span className="font-bold">Select a community</span>
                 )}
-                <FaChevronDown className="text-brand" />
+                {!isEdit && <FaChevronDown className="text-brand" />}
               </button>
 
               <ToggleGroup
@@ -315,7 +316,7 @@ export function CreatePost() {
                 value={draft.type}
                 onValueChange={(val) => {
                   if (val) {
-                    patchPost(draftId, {
+                    patchDraft(draftId, {
                       type: val as "text" | "media" | "link",
                     });
                   }
@@ -335,7 +336,7 @@ export function CreatePost() {
                     className="border-b border-border"
                     value={draft.url ?? ""}
                     onChange={(e) =>
-                      patchPost(draftId, { url: e.target.value })
+                      patchDraft(draftId, { url: e.target.value })
                     }
                     onBlur={() => draft.url && parseUrl(draft.url)}
                   />
@@ -380,7 +381,7 @@ export function CreatePost() {
                   placeholder="Title"
                   value={draft.name ?? ""}
                   onInput={(e) =>
-                    patchPost(draftId, {
+                    patchDraft(draftId, {
                       name: e.currentTarget.value ?? "",
                     })
                   }
@@ -393,7 +394,7 @@ export function CreatePost() {
                   id={`${id}-body`}
                   content={draft.body ?? ""}
                   onChange={(body) =>
-                    patchPost(draftId, {
+                    patchDraft(draftId, {
                       body,
                     })
                   }
@@ -428,8 +429,8 @@ function ChooseCommunity({
   const [search, setSearch] = useState("");
   const debouncedSetSearch = useCallback(_.debounce(setSearch, 500), []);
 
-  const post = useCreatePostStore((s) => s.drafts[createPostId]) ?? NEW_DRAFT;
-  const patchPost = useCreatePostStore((s) => s.updateDraft);
+  const draft = useCreatePostStore((s) => s.drafts[createPostId]) ?? NEW_DRAFT;
+  const patchDraft = useCreatePostStore((s) => s.updateDraft);
 
   const subscribedCommunitiesRes = useListCommunities({
     type_: "Subscribed",
@@ -468,8 +469,8 @@ function ChooseCommunity({
   if (search) {
     data = ["Search results", ...searchResultsCommunities];
   }
-  if (post.community) {
-    data = ["Selected", post.community, ...data];
+  if (draft.community) {
+    data = ["Selected", draft.community, ...data];
   }
 
   data = _.uniqBy(data, (item) => {
@@ -521,16 +522,17 @@ function ChooseCommunity({
               <ContentGutters className="cursor-pointer">
                 <button
                   onClick={() => {
-                    patchPost(createPostId, {
+                    patchDraft(createPostId, {
                       community: item,
                     });
                     closeModal();
                   }}
                   className="flex flex-row items-center gap-2"
+                  disabled={!!draft.apId}
                 >
                   <CommunityCard communityView={item} disableLink />
-                  {post.community &&
-                    item.actor_id === post.community?.actor_id && (
+                  {draft.community &&
+                    item.actor_id === draft.community?.actor_id && (
                       <FaCheck className="text-brand" />
                     )}
                 </button>
