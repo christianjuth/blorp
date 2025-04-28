@@ -165,6 +165,7 @@ export function CreatePost() {
     }
   }, [media.md]);
 
+  const numDrafts = useCreatePostStore((s) => Object.keys(s.drafts).length);
   const draft = useCreatePostStore((s) => s.drafts[draftId]) ?? NEW_DRAFT;
   const isEdit = !!draft.apId;
   const patchDraft = useCreatePostStore((s) => s.updateDraft);
@@ -235,7 +236,9 @@ export function CreatePost() {
               onClick={() => setShowDrafts((s) => !s)}
               className="md:hidden"
             >
-              {showDrafts ? "Back" : "Drafts"}
+              {showDrafts
+                ? "Back"
+                : `Drafts${numDrafts > 0 ? ` (${numDrafts})` : ""}`}
             </Button>
           </IonButtons>
 
@@ -500,17 +503,17 @@ function ChooseCommunity({
           className="h-full"
           data={data}
           stickyHeaderIndices={[0]}
-          header={
+          header={[
             <ContentGutters className="bg-background">
               <div className="border-b-[.5px] py-2">
                 <Input
                   placeholder="Search communities"
-                  value={search}
+                  defaultValue={search}
                   onChange={(e) => debouncedSetSearch(e.target.value)}
                 />
               </div>
-            </ContentGutters>
-          }
+            </ContentGutters>,
+          ]}
           renderItem={({ item }) => {
             if (typeof item === "string") {
               return (

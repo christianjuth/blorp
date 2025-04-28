@@ -11,6 +11,7 @@ import {
   PiArrowFatUpFill,
 } from "react-icons/pi";
 import { Button } from "../ui/button";
+import { abbriviateNumber } from "@/src/lib/format";
 
 export function CommentVoting({
   commentView,
@@ -62,8 +63,11 @@ export function CommentVoting({
       >
         {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
       </Button>
-      <label htmlFor={id} className={cn("-mx-0.5", isUpvoted && "text-brand")}>
-        {score}
+      <label
+        htmlFor={id}
+        className={cn("-mx-0.5 cursor-pointer", isUpvoted && "text-brand")}
+      >
+        {abbriviateNumber(score)}
       </label>
       <Button
         size="icon"
@@ -82,7 +86,7 @@ export function CommentVoting({
         }}
         //disabled={vote.isPending}
         className={cn(
-          "pl-0.5 flex items-center hover:text-destructive",
+          "hover:text-destructive",
           isDownvoted && "text-destructive",
         )}
       >
@@ -99,14 +103,24 @@ export function CommentReplyButton(
   >,
 ) {
   return (
-    <Button
-      {...props}
-      size="sm"
-      variant="ghost"
-      className={cn("flex flex-row items-center gap-1", props.className)}
-    >
-      <PiArrowBendUpLeftBold />
-      <span>Reply</span>
-    </Button>
+    <>
+      <Button
+        {...props}
+        size="icon"
+        variant="ghost"
+        className={cn("md:hidden", props.className)}
+      >
+        <PiArrowBendUpLeftBold />
+      </Button>
+      <Button
+        {...props}
+        size="sm"
+        variant="ghost"
+        className={cn("max-md:hidden", props.className)}
+      >
+        <PiArrowBendUpLeftBold />
+        <span>Reply</span>
+      </Button>
+    </>
   );
 }

@@ -17,7 +17,7 @@ type Data = {
     | CommunityView
     | ({ community: Community } & Partial<CommunityView>);
   optimisticSubscribed?: SubscribedType;
-  mods?: CommunityModeratorView;
+  mods?: CommunityModeratorView[];
 };
 
 type CachedCommunity = {

@@ -180,7 +180,7 @@ export function SearchFeed({
             data={
               data.length === 0 && !searchResults.isFetching ? [NO_ITEMS] : data
             }
-            header={
+            header={[
               <ContentGutters className="max-md:hidden">
                 <div className="flex flex-row h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
                   <div>
@@ -209,8 +209,8 @@ export function SearchFeed({
                   )}
                 </div>
                 <></>
-              </ContentGutters>
-            }
+              </ContentGutters>,
+            ]}
             renderItem={({ item }) => {
               if (item === NO_ITEMS) {
                 return (

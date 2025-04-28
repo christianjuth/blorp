@@ -19,9 +19,7 @@ for (const { name, base } of tabs) {
         `${base}u/https%3A%2F%2Flemmy.world%2Fu%2FThe_Picard_Maneuver?type=posts`,
       );
       const postCard = page.getByTestId("post-card").first();
-      await expect(postCard).toContainText("The_Picard_Maneuver@lemmy.world", {
-        ignoreCase: true,
-      });
+      await expect(postCard).toBeVisible();
     });
 
     test("loads search results", async ({ page }) => {

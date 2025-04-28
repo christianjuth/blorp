@@ -204,7 +204,7 @@ function AuthModal({
               estimatedItemSize={50}
               stickyHeaderIndices={[0]}
               data={sortedInstances ?? defaultSort}
-              header={
+              header={[
                 <div className="bg-background py-3 border-b-[.5px]">
                   <IonHeader className="mb-2">
                     Pick the server you created your account on
@@ -215,8 +215,8 @@ function AuthModal({
                     autoCapitalize="none"
                     autoCorrect="off"
                   />
-                </div>
-              }
+                </div>,
+              ]}
               renderItem={({ item: i }) => (
                 <button
                   key={i.url}

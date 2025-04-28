@@ -12,6 +12,9 @@ import {
 } from "react-icons/pi";
 import { TbMessageCircle } from "react-icons/tb";
 import { cn } from "@/src/lib/utils";
+import { Button } from "../ui/button";
+import { useId } from "react";
+import { abbriviateNumber } from "@/src/lib/format";
 
 export function Voting({
   apId,
@@ -22,6 +25,7 @@ export function Voting({
   myVote: number;
   score: number;
 }) {
+  const id = useId();
   const requireAuth = useRequireAuth();
 
   const vote = useLikePost(apId);
@@ -30,8 +34,11 @@ export function Voting({
   const isDownvoted = myVote < 0;
 
   return (
-    <div className="flex flex-row border-[0.5px] rounded-full items-center h-7">
-      <button
+    <div className="flex flex-row items-center h-7">
+      <Button
+        id={id}
+        size="icon"
+        variant="ghost"
         onClick={async () => {
           const newVote = isUpvoted ? 0 : 1;
           voteHaptics(newVote);
@@ -39,19 +46,28 @@ export function Voting({
             vote.mutate(newVote);
           });
         }}
-        disabled={vote.isPending}
+        //disabled={vote.isPending}
         className={cn(
+          "hover:text-brand",
           "pl-2 pr-1.5 flex items-center space-x-1 text-left",
           isUpvoted && "text-brand",
         )}
       >
-        <>
-          {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
-          <span>{score}</span>
-        </>
-      </button>
-      <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-700 mr-1" />
-      <button
+        {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
+      </Button>
+      <label
+        htmlFor={id}
+        className={cn(
+          "-mx-0.5 cursor-pointer text-md",
+          isUpvoted && "text-brand",
+          isDownvoted && "text-destructive",
+        )}
+      >
+        {abbriviateNumber(score)}
+      </label>
+      <Button
+        size="icon"
+        variant="ghost"
         onClick={async () => {
           const newVote = isDownvoted ? 0 : -1;
           voteHaptics(newVote);
@@ -59,14 +75,14 @@ export function Voting({
             vote.mutate(newVote);
           });
         }}
-        disabled={vote.isPending}
+        //disabled={vote.isPending}
         className={cn(
-          "pr-2 flex items-center",
+          "hover:text-destructive",
           isDownvoted && "text-destructive",
         )}
       >
         {isDownvoted ? <PiArrowFatDownFill /> : <PiArrowFatDownBold />}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -82,24 +98,25 @@ export function PostCommentsButton({
 }) {
   if (href) {
     return (
-      <Link
-        to={href}
-        className="h-7 flex items-center gap-1 border-[0.5px] px-2.5 rounded-full"
-      >
-        <TbMessageCircle className="text-lg" />
-        <span>{commentsCount}</span>
-      </Link>
+      <Button size="sm" variant="ghost" className="text-md font-normal" asChild>
+        <Link to={href}>
+          <TbMessageCircle className="scale-115" />
+          <span>{abbriviateNumber(commentsCount)}</span>
+        </Link>
+      </Button>
     );
   }
   if (onClick) {
     return (
-      <button
+      <Button
+        size="sm"
+        variant="ghost"
         onClick={onClick}
-        className="h-7 flex items-center gap-1 border-[0.5px] px-2.5 rounded-full"
+        className="text-md font-normal"
       >
-        <TbMessageCircle className="text-lg" />
-        <span>{commentsCount}</span>
-      </button>
+        <TbMessageCircle className="scale-115" />
+        {commentsCount}
+      </Button>
     );
   }
   return null;

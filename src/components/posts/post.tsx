@@ -24,11 +24,7 @@ import { shareImage } from "@/src/lib/share";
 import { useAuth } from "@/src/stores/auth";
 
 function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="italic text-muted-foreground text-sm pt-3">
-      {children}
-    </span>
-  );
+  return <i className="text-muted-foreground text-sm pt-3">{children}</i>;
 }
 
 export function getPostProps(
@@ -66,7 +62,6 @@ export function getPostProps(
   const crossPost = postView.crossPosts?.find(
     ({ post }) => post.published.localeCompare(postView.post.published) < 0,
   );
-
   let url = postView.post.url;
   if (url && url.startsWith("https://i.imgur.com/") && url.endsWith(".gifv")) {
     url = url.replace(/gifv$/, "mp4");
@@ -101,8 +96,8 @@ export function getPostProps(
     creatorSlug: createSlug(postView.creator),
     encodedCreatorApId: encodeApId(postView.creator.actor_id),
     creatorName: postView.creator.name,
-    creatorAvatar: postView.creator.avatar,
     communitySlug: postView.community.slug,
+    communityIcon: postView.community.icon,
     published: postView.post.published,
     body: postView.post.body,
     nsfw: postView.post.nsfw,
@@ -119,18 +114,28 @@ export interface PostProps extends ReturnType<typeof getPostProps> {
   onNavigate?: () => any;
 }
 
-export function PostCardSkeleton(props: { hideImage?: boolean }) {
+export function PostCardSkeleton(props: {
+  hideImage?: boolean;
+  detailView?: boolean;
+}) {
   const hideImage = useRef(Math.random()).current < 0.4;
   return (
     <div className="flex-1 pt-4 gap-2 flex flex-col max-md:px-2.5 pb-4">
-      <div className="flex flex-row items-center gap-2 h-9">
-        <Skeleton className="h-8 w-8 rounded-full" />
+      {props.detailView ? (
+        <div className="flex flex-row items-center gap-2 h-9">
+          <Skeleton className="h-8 w-8 rounded-full" />
 
-        <div className="flex flex-col gap-1">
-          <Skeleton className="h-2.5 w-32" />
-          <Skeleton className="h-2.5 w-44" />
+          <div className="flex flex-col gap-1">
+            <Skeleton className="h-2.5 w-32" />
+            <Skeleton className="h-2.5 w-44" />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-row items-center gap-2 h-6">
+          <Skeleton className="h-6 w-6 rounded-full" />
+          <Skeleton className="h-3 w-32" />
+        </div>
+      )}
 
       <Skeleton className="h-7" />
 
@@ -166,7 +171,6 @@ export function FeedPostCard(props: PostProps) {
     commentsCount,
     displayUrl,
     body,
-    detailView,
     onNavigate,
   } = props;
 
@@ -203,12 +207,12 @@ export function FeedPostCard(props: PostProps) {
   );
 
   if (nsfw && !showNsfw) {
-    return detailView ? <Notice>Hidden due to NSFW</Notice> : null;
+    return props.detailView ? <Notice>Hidden due to NSFW</Notice> : null;
   }
 
   for (const keyword of filterKeywords) {
     if (name.toLowerCase().includes(keyword.toLowerCase())) {
-      return detailView ? (
+      return props.detailView ? (
         <Notice>Hidden due to keyword filter "{keyword}"</Notice>
       ) : null;
     }
@@ -218,8 +222,8 @@ export function FeedPostCard(props: PostProps) {
     <div
       data-testid="post-card"
       className={cn(
-        "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 overflow-hidden max-md:px-2.5",
-        detailView ? "pb-2" : "border-b-[0.5px] pb-4",
+        "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 max-md:px-2.5 overflow-x-hidden",
+        props.detailView ? "pb-2" : "border-b-[0.5px] pb-4",
       )}
     >
       <PostByline {...props} />
@@ -232,14 +236,16 @@ export function FeedPostCard(props: PostProps) {
         <span
           className={twMerge(
             "text-xl font-medium",
-            !detailView && read && "text-muted-foreground",
+            !props.detailView && read && "text-muted-foreground",
           )}
         >
           {deleted ? "deleted" : name}
         </span>
         {showImage && (
-          <div className="max-md:-mx-3 flex flex-col relative">
-            <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
+          <div className="max-md:-mx-2.5 flex flex-col relative">
+            {!imageLoaded && (
+              <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
+            )}
             <img
               src={thumbnail}
               className="md:rounded-lg object-cover relative"
@@ -273,17 +279,23 @@ export function FeedPostCard(props: PostProps) {
       )}
 
       {type === "video" && !deleted && url && (
-        <PostVideoEmbed url={url} autoPlay={detailView} />
+        <PostVideoEmbed url={url} autoPlay={props.detailView} />
       )}
       {type === "loops" && !deleted && url && (
-        <PostLoopsEmbed url={url} thumbnail={thumbnail} autoPlay={detailView} />
+        <PostLoopsEmbed
+          url={url}
+          thumbnail={thumbnail}
+          autoPlay={props.detailView}
+        />
       )}
       {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
 
-      {detailView && body && !deleted && <MarkdownRenderer markdown={body} />}
+      {props.detailView && body && !deleted && (
+        <MarkdownRenderer markdown={body} className="pt-2" />
+      )}
 
-      {!detailView && (
-        <div className="flex flex-row justify-end gap-2">
+      {!props.detailView && (
+        <div className="flex flex-row items-center justify-end gap-1">
           <PostCommentsButton
             commentsCount={commentsCount}
             href={postDetailsLink}
@@ -322,7 +334,7 @@ export function PostBottomBar({
   const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
 
   return (
-    <div className="pb-1.5 md:py-2 flex flex-row gap-2 bg-background">
+    <div className="pb-1.5 md:py-2 flex flex-row items-center gap-1 bg-background">
       <CommentSortSelect />
       <div className="flex-1" />
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />

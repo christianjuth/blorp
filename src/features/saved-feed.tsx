@@ -172,7 +172,7 @@ export default function SavedFeed() {
             key={type === "comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={data.length === 0 && !isFetching ? [NO_ITEMS] : data}
-            header={
+            header={[
               <ContentGutters className="bg-background py-2">
                 <div className="flex-1">
                   <ToggleGroup
@@ -190,8 +190,8 @@ export default function SavedFeed() {
                   </ToggleGroup>
                 </div>
                 <></>
-              </ContentGutters>
-            }
+              </ContentGutters>,
+            ]}
             renderItem={({ item }) => {
               if (item === NO_ITEMS) {
                 return (
@@ -224,10 +224,12 @@ export default function SavedFeed() {
             stickyHeaderIndices={[0]}
             refresh={refetch}
             placeholder={
-              <ContentGutters className="px-0">
-                <PostCardSkeleton />
-                <></>
-              </ContentGutters>
+              posts.isPending ? (
+                <ContentGutters className="px-0">
+                  <PostCardSkeleton />
+                  <></>
+                </ContentGutters>
+              ) : undefined
             }
           />
         </PostReportProvider>

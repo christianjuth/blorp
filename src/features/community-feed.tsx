@@ -192,7 +192,7 @@ export default function CommunityFeed() {
             key={postSort}
             className="h-full ion-content-scroll-host"
             data={data.length === 0 && !isFetching ? [NO_ITEMS] : data}
-            header={
+            header={[
               <>
                 {communityName && (
                   <ContentGutters className="px-0">
@@ -210,8 +210,8 @@ export default function CommunityFeed() {
                   <CommunityBanner communityName={communityName} />
                   <></>
                 </ContentGutters>
-              </>
-            }
+              </>,
+            ]}
             renderItem={({ item }) => {
               if (item === NO_ITEMS) {
                 return (
@@ -233,10 +233,12 @@ export default function CommunityFeed() {
             estimatedItemSize={475}
             refresh={() => Promise.all([refetch(), mostRecentPost.refetch()])}
             placeholder={
-              <ContentGutters className="px-0">
-                <PostCardSkeleton />
-                <></>
-              </ContentGutters>
+              posts.isPending ? (
+                <ContentGutters className="px-0">
+                  <PostCardSkeleton />
+                  <></>
+                </ContentGutters>
+              ) : undefined
             }
           />
         </PostReportProvider>

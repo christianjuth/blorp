@@ -30,6 +30,7 @@ import { FaBookmark } from "react-icons/fa";
 import { Badge } from "@/src/components/ui/badge";
 import { postToDraft, useCreatePostStore } from "@/src/stores/create-post";
 import { usePostsStore } from "@/src/stores/posts";
+import { cn } from "@/src/lib/utils";
 
 export function PostByline({
   id,
@@ -44,11 +45,12 @@ export function PostByline({
   creatorSlug,
   encodedCreatorApId,
   creatorName,
-  creatorAvatar,
   communitySlug,
+  communityIcon,
   published,
   onNavigate,
   isMod,
+  detailView,
 }: {
   id: number;
   apId: string;
@@ -60,13 +62,14 @@ export function PostByline({
   creatorId: number;
   creatorApId: string;
   creatorSlug: Slug | null;
-  creatorAvatar?: string;
   encodedCreatorApId: string;
   creatorName: string;
   communitySlug: string;
+  communityIcon?: string;
   published: string;
   onNavigate?: () => any;
   isMod?: boolean;
+  detailView?: boolean;
 }) {
   const [alrt] = useIonAlert();
 
@@ -94,7 +97,7 @@ export function PostByline({
         text: "Share",
         onClick: () =>
           Share.share({
-            url: `https://blorpblorp.xyz/c/${communitySlug}/posts/${encodedApId}`,
+            url: `https://blorpblorp.xyz${linkCtx.root}${communitySlug}/posts/${encodedApId}`,
           }),
       },
       {
@@ -200,40 +203,49 @@ export function PostByline({
   const [communityName, communityHost] = communitySlug.split("@");
 
   return (
-    <div className="flex flex-row items-center gap-2 h-9">
-      <Avatar className="h-8 w-8">
-        <AvatarImage src={creatorAvatar} />
+    <div
+      className={cn(
+        "flex flex-row items-center gap-2 h-6",
+        detailView && "h-9",
+      )}
+    >
+      <Avatar
+        className={cn("h-6 w-6 text-xs", detailView && "text-md h-8 w-8")}
+      >
+        <AvatarImage src={communityIcon} className="object-cover" />
         <AvatarFallback>
-          {creatorName?.substring(0, 1).toUpperCase()}
+          {communityName?.substring(0, 1).toUpperCase()}
         </AvatarFallback>
       </Avatar>
 
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col text-muted-foreground">
         <CommunityHoverCard communityName={communitySlug}>
           <Link
             to={`${linkCtx.root}c/${communitySlug}`}
             className="text-xs"
             onClickCapture={onNavigate}
           >
-            {communityName}
-            <span className="text-muted-foreground italic">
-              @{communityHost}
+            <span className="font-medium text-foreground">
+              c/{communityName}
             </span>
+            <i>@{communityHost}</i>
+            <RelativeTime prefix=" • " time={published} />
           </Link>
         </CommunityHoverCard>
-        <div className="flex flex-row text-xs text-muted-foreground gap-1 items-center h-5">
-          <PersonHoverCard actorId={creatorApId}>
-            <Link
-              to={`${linkCtx.root}u/${encodedCreatorApId}`}
-              onClickCapture={onNavigate}
-            >
-              {creatorSlug?.name}
-              <span className="italic">@{creatorSlug?.host}</span>
-            </Link>
-          </PersonHoverCard>
-          {isMod && <Badge>Mod</Badge>}
-          <RelativeTime prefix=" • " time={published} />
-        </div>
+        {detailView && (
+          <div className="flex flex-row text-xs text-muted-foreground gap-1 items-center h-5">
+            <PersonHoverCard actorId={creatorApId}>
+              <Link
+                to={`${linkCtx.root}u/${encodedCreatorApId}`}
+                onClickCapture={onNavigate}
+              >
+                {creatorSlug?.name}
+                <i>@{creatorSlug?.host}</i>
+              </Link>
+            </PersonHoverCard>
+            {isMod && <Badge>Mod</Badge>}
+          </div>
+        )}
       </div>
 
       <div className="flex-1" />
