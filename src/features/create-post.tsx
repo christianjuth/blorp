@@ -508,7 +508,7 @@ function ChooseCommunity({
               <div className="border-b-[.5px] py-2">
                 <Input
                   placeholder="Search communities"
-                  value={search}
+                  defaultValue={search}
                   onChange={(e) => debouncedSetSearch(e.target.value)}
                 />
               </div>

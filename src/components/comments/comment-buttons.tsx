@@ -12,7 +12,6 @@ import {
 } from "react-icons/pi";
 import { Button } from "../ui/button";
 import { abbriviateNumber } from "@/src/lib/format";
-import { useMedia } from "@/src/lib/hooks";
 
 export function CommentVoting({
   commentView,
@@ -38,7 +37,7 @@ export function CommentVoting({
   const score = commentView?.counts.score + diff;
 
   return (
-    <div className="flex flex-row items-center -mr-2.5">
+    <div className="flex flex-row items-center">
       <Button
         id={id}
         size="icon"

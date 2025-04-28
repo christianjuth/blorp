@@ -187,7 +187,7 @@ export function PostComment({
             <Button
               size="sm"
               variant="ghost"
-              className="-ml-2.5 text-muted-foreground font-normal"
+              className="text-muted-foreground font-normal"
               asChild
             >
               <Link
@@ -254,7 +254,7 @@ export function PostComment({
                   text: "Share",
                   onClick: () =>
                     Share.share({
-                      url: `https://blorpblorp.xyz/c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
+                      url: `https://blorpblorp.xyz${linkCtx.root}c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
                     }),
                 } as const,
                 ...(isMyComment && !comment.deleted

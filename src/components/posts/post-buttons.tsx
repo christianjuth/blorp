@@ -34,7 +34,7 @@ export function Voting({
   const isDownvoted = myVote < 0;
 
   return (
-    <div className="flex flex-row items-center h-7 -mr-2.5">
+    <div className="flex flex-row items-center h-7">
       <Button
         id={id}
         size="icon"

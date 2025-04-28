@@ -262,7 +262,7 @@ export function CommentSortSelect() {
         <Button
           size="sm"
           variant="ghost"
-          className="-mx-2.5 text-md font-normal text-brand hover:text-brand"
+          className="text-md font-normal text-brand hover:text-brand"
         >
           Sort
           {getIconCommentSort(commentSort)}

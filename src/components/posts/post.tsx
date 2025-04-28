@@ -62,7 +62,6 @@ export function getPostProps(
   const crossPost = postView.crossPosts?.find(
     ({ post }) => post.published.localeCompare(postView.post.published) < 0,
   );
-
   let url = postView.post.url;
   if (url && url.startsWith("https://i.imgur.com/") && url.endsWith(".gifv")) {
     url = url.replace(/gifv$/, "mp4");
@@ -97,8 +96,8 @@ export function getPostProps(
     creatorSlug: createSlug(postView.creator),
     encodedCreatorApId: encodeApId(postView.creator.actor_id),
     creatorName: postView.creator.name,
-    creatorAvatar: postView.creator.avatar,
     communitySlug: postView.community.slug,
+    communityIcon: postView.community.icon,
     published: postView.post.published,
     body: postView.post.body,
     nsfw: postView.post.nsfw,
@@ -223,7 +222,7 @@ export function FeedPostCard(props: PostProps) {
     <div
       data-testid="post-card"
       className={cn(
-        "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 max-md:px-2.5",
+        "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 max-md:px-2.5 overflow-x-hidden",
         props.detailView ? "pb-2" : "border-b-[0.5px] pb-4",
       )}
     >
@@ -243,8 +242,10 @@ export function FeedPostCard(props: PostProps) {
           {deleted ? "deleted" : name}
         </span>
         {showImage && (
-          <div className="max-md:-mx-3 flex flex-col relative">
-            <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
+          <div className="max-md:-mx-2.5 flex flex-col relative">
+            {!imageLoaded && (
+              <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
+            )}
             <img
               src={thumbnail}
               className="md:rounded-lg object-cover relative"

@@ -45,8 +45,8 @@ export function PostByline({
   creatorSlug,
   encodedCreatorApId,
   creatorName,
-  creatorAvatar,
   communitySlug,
+  communityIcon,
   published,
   onNavigate,
   isMod,
@@ -62,10 +62,10 @@ export function PostByline({
   creatorId: number;
   creatorApId: string;
   creatorSlug: Slug | null;
-  creatorAvatar?: string;
   encodedCreatorApId: string;
   creatorName: string;
   communitySlug: string;
+  communityIcon?: string;
   published: string;
   onNavigate?: () => any;
   isMod?: boolean;
@@ -97,7 +97,7 @@ export function PostByline({
         text: "Share",
         onClick: () =>
           Share.share({
-            url: `https://blorpblorp.xyz/c/${communitySlug}/posts/${encodedApId}`,
+            url: `https://blorpblorp.xyz${linkCtx.root}${communitySlug}/posts/${encodedApId}`,
           }),
       },
       {
@@ -212,9 +212,9 @@ export function PostByline({
       <Avatar
         className={cn("h-6 w-6 text-xs", detailView && "text-md h-8 w-8")}
       >
-        <AvatarImage src={creatorAvatar} />
+        <AvatarImage src={communityIcon} className="object-cover" />
         <AvatarFallback>
-          {creatorName?.substring(0, 1).toUpperCase()}
+          {communityName?.substring(0, 1).toUpperCase()}
         </AvatarFallback>
       </Avatar>
 

@@ -14,7 +14,6 @@ import {
   GetReplies,
   Search,
   MarkCommentReplyAsRead,
-  CreatePost,
   CreatePostReport,
   CreateCommentReport,
   BlockPerson,
@@ -23,7 +22,6 @@ import {
   FeaturePost,
   UploadImage,
   MarkPostAsRead,
-  EditPost,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -175,8 +173,6 @@ export function usePersonDetails({
         throw new Error("person not found");
       }
 
-      cacheProfiles(getCachePrefixer(), [_.omit(person, "is_admin")]);
-
       const res = await client.getPersonDetails(
         {
           person_id: person?.person.id,
@@ -186,6 +182,8 @@ export function usePersonDetails({
           signal,
         },
       );
+      cacheProfiles(getCachePrefixer(), [_.omit(res.person_view, "is_admin")]);
+
       return _.omit(res, ["posts", "comments"]);
     },
     enabled: !!actorId && enabled,
@@ -228,8 +226,6 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
         throw new Error("person not found");
       }
 
-      cacheProfiles(getCachePrefixer(), [person]);
-
       const res = await client.getPersonDetails(
         {
           person_id: person.person.id,
@@ -241,6 +237,7 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
           signal,
         },
       );
+      cacheProfiles(getCachePrefixer(), [_.omit(res.person_view, "is_admin")]);
 
       const posts = res.posts.map((post_view) => flattenPost({ post_view }));
       const cachedPosts = cachePosts(getCachePrefixer(), posts);
@@ -878,6 +875,7 @@ export function useCommunity({
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
   const queryKey = [
     ...queryKeyPrefix,
@@ -899,8 +897,13 @@ export function useCommunity({
       cacheCommunities(getCachePrefixer(), [
         {
           communityView: res.community_view,
+          mods: res.moderators,
         },
       ]);
+      cacheProfiles(
+        getCachePrefixer(),
+        res.moderators.map((m) => ({ person: m.moderator })),
+      );
       return res;
     },
     enabled: !!form.name && enabled,

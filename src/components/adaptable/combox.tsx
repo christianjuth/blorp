@@ -56,7 +56,7 @@ export function Combobox<V extends string>({
         >
           {value
             ? options.find((framework) => framework.value === value)?.label
-            : "Select framework..."}
+            : "Select language..."}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>

@@ -17,6 +17,12 @@ import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
 import { Share } from "@capacitor/share";
 import { useCommunityCreatePost } from "./create-post";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
+import { PersonCard } from "../person/person-card";
 
 dayjs.extend(localizedFormat);
 
@@ -33,6 +39,11 @@ export function CommunitySidebar({
   hideDescription?: boolean;
   asPage?: boolean;
 }) {
+  useCommunity({
+    name: communityName,
+  });
+
+  const linkCtx = useLinkContext();
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const data = useCommunitiesStore(
     (s) => s.communities[getCachePrefixer()(communityName)]?.data,
@@ -59,7 +70,7 @@ export function CommunitySidebar({
         text: "Share",
         onClick: () =>
           Share.share({
-            url: `https://blorpblorp.xyz/home/c/${communityName}`,
+            url: `https://blorpblorp.xyz${linkCtx.root}c/${communityName}`,
           }),
       },
       ...(actorId
@@ -91,24 +102,33 @@ export function CommunitySidebar({
   return (
     <div
       className={cn(
-        "gap-3 flex flex-col py-4",
+        "gap-3 flex flex-col py-4 pr-4",
         asPage
           ? "px-2.5"
           : "absolute inset-x-0 h-[calc(100vh-60px)] overflow-auto",
       )}
     >
       <div className="gap-3 flex flex-col">
-        <div className="flex flex-row items-center justify-between flex-1 -mb-1 gap-2">
-          <span className="font-bold line-clamp-1">{community.title}</span>
+        <div className="flex flex-row items-start justify-between flex-1">
+          <Avatar className="h-13 w-13">
+            <AvatarImage src={community.icon} className="object-cover" />
+            <AvatarFallback className="text-xl">
+              {communityName.substring(0, 1).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
 
           <ActionMenu
             header="Community"
             align="end"
             actions={actions}
-            trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
+            trigger={
+              <IoEllipsisHorizontal className="text-muted-foreground mt-0.5" />
+            }
             onOpen={() => setOpenSignal((s) => s + 1)}
           />
         </div>
+
+        <span className="font-bold line-clamp-1">{community.title}</span>
 
         <div className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
           <LuCakeSlice />
@@ -151,10 +171,23 @@ export function CommunitySidebar({
         </div>
 
         {community.description && !hideDescription && (
-          <div className="pt-3">
-            <MarkdownRenderer markdown={community.description} />
-          </div>
+          <MarkdownRenderer
+            markdown={community.description}
+            className="text-muted-foreground pt-3"
+          />
         )}
+
+        <span className="font-bold">Mods</span>
+
+        <div className="flex flex-col gap-2">
+          {data.mods?.map((m) => (
+            <PersonCard
+              key={m.moderator.actor_id}
+              actorId={m.moderator.actor_id}
+              size="sm"
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -198,7 +231,7 @@ export function SmallScreenSidebar({
         text: "Share",
         onClick: () =>
           Share.share({
-            url: `https://blorpblorp.xyz/home/c/${communityName}`,
+            url: `https://blorpblorp.xyz${linkCtx.root}c/${communityName}`,
           }),
       },
       ...(actorId
