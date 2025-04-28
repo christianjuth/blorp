@@ -115,18 +115,28 @@ export interface PostProps extends ReturnType<typeof getPostProps> {
   onNavigate?: () => any;
 }
 
-export function PostCardSkeleton(props: { hideImage?: boolean }) {
+export function PostCardSkeleton(props: {
+  hideImage?: boolean;
+  detailView?: boolean;
+}) {
   const hideImage = useRef(Math.random()).current < 0.4;
   return (
     <div className="flex-1 pt-4 gap-2 flex flex-col max-md:px-2.5 pb-4">
-      <div className="flex flex-row items-center gap-2 h-9">
-        <Skeleton className="h-8 w-8 rounded-full" />
+      {props.detailView ? (
+        <div className="flex flex-row items-center gap-2 h-9">
+          <Skeleton className="h-8 w-8 rounded-full" />
 
-        <div className="flex flex-col gap-1">
-          <Skeleton className="h-2.5 w-32" />
-          <Skeleton className="h-2.5 w-44" />
+          <div className="flex flex-col gap-1">
+            <Skeleton className="h-2.5 w-32" />
+            <Skeleton className="h-2.5 w-44" />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-row items-center gap-2 h-6">
+          <Skeleton className="h-6 w-6 rounded-full" />
+          <Skeleton className="h-3 w-32" />
+        </div>
+      )}
 
       <Skeleton className="h-7" />
 

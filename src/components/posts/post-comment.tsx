@@ -31,6 +31,7 @@ import { useAuth } from "@/src/stores/auth";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "../ui/button";
 import { useMemo } from "react";
+import { ContentGutters } from "../gutters";
 
 function Byline({
   creator,
@@ -170,7 +171,7 @@ export function PostComment({
     return parent.join(".");
   }, [level, commentPath, singleCommentThread]);
 
-  return (
+  const content = (
     <div
       className={cn(
         "flex-1 pt-2",
@@ -368,4 +369,15 @@ export function PostComment({
       </details>
     </div>
   );
+
+  if (level === 0) {
+    return (
+      <ContentGutters className="px-0">
+        {content}
+        <></>
+      </ContentGutters>
+    );
+  }
+
+  return content;
 }

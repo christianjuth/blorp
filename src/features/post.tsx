@@ -183,7 +183,7 @@ export default function Post() {
                 />
               ) : (
                 <ContentGutters className="px-0">
-                  <PostCardSkeleton hideImage={false} />
+                  <PostCardSkeleton hideImage={false} detailView />
                   <></>
                 </ContentGutters>
               ),
@@ -228,20 +228,17 @@ export default function Post() {
               ),
             ]}
             renderItem={({ item }) => (
-              <ContentGutters className="px-0">
-                <MemoedPostComment
-                  postApId={decodedApId}
-                  queryKeyParentId={parentId}
-                  commentMap={item[1]}
-                  level={0}
-                  opId={opId}
-                  myUserId={myUserId}
-                  communityName={communityName}
-                  modApIds={modApIds}
-                  singleCommentThread={!!commentPath}
-                />
-                <></>
-              </ContentGutters>
+              <MemoedPostComment
+                postApId={decodedApId}
+                queryKeyParentId={parentId}
+                commentMap={item[1]}
+                level={0}
+                opId={opId}
+                myUserId={myUserId}
+                communityName={communityName}
+                modApIds={modApIds}
+                singleCommentThread={!!commentPath}
+              />
             )}
             placeholder={
               comments.isPending ? (
