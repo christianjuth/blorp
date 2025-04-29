@@ -1,12 +1,7 @@
 import { ContentGutters } from "../components/gutters";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 import { useCallback, useEffect, useId, useState } from "react";
-import {
-  Draft,
-  draftToCreatePostData,
-  NEW_DRAFT,
-  useCreatePostStore,
-} from "../stores/create-post";
+import { Draft, NEW_DRAFT, useCreatePostStore } from "../stores/create-post";
 import { FlashList } from "@/src/components/flashlist";
 import { CommunityCard } from "../components/communities/community-card";
 import {

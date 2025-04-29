@@ -1551,17 +1551,20 @@ export function useCreatePost() {
   const { client } = useLemmyClient();
   return useMutation({
     mutationFn: async (draft: Draft) => {
-      const communityName = draft.community?.name;
-
-      if (!communityName) {
+      if (!draft.community?.actor_id) {
         throw new Error("could not find community to create post under");
       }
 
-      const { community_view } = await client.getCommunity({
-        name: communityName,
+      const { community } = await client.resolveObject({
+        q: draft.community?.actor_id,
       });
+
+      if (!community) {
+        throw new Error("could not find community to create post under");
+      }
+
       return await client.createPost(
-        draftToCreatePostData(draft, community_view.community.id),
+        draftToCreatePostData(draft, community.community.id),
       );
     },
     onSuccess: (res) => {

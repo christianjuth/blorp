@@ -37,6 +37,7 @@ import { useIonAlert } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
 import z from "zod";
 import { ActionMenu } from "../action-menu";
+import { toast } from "sonner";
 
 const linkSchema = z.object({
   description: z.string(),
@@ -289,7 +290,7 @@ function MarkdownEditorInner({
   const uploadImage = useUploadImage();
 
   const handleFile = async (file: File) => {
-    if (file.type === "image/jpeg" || file.type === "image/png") {
+    if (!file.type.startsWith("image/")) {
       throw new Error("only images can be uploaded");
     }
     return uploadImage.mutateAsync({
@@ -358,7 +359,13 @@ function MarkdownEditorInner({
                   console.error("Failed to handle dropped image");
                 }
               })
-              .catch(console.error);
+              .catch((err) => {
+                if (err instanceof Error) {
+                  toast.error(err.message);
+                } else {
+                  toast.error("Failed to upload image");
+                }
+              });
           }
           return true; // handled
         }
@@ -390,7 +397,13 @@ function MarkdownEditorInner({
                   editor?.chain().focus().setImage({ src: url }).run();
                 }
               })
-              .catch(console.error)
+              .catch((err) => {
+                if (err instanceof Error) {
+                  toast.error(err.message);
+                } else {
+                  toast.error("Failed to upload image");
+                }
+              })
           }
         />
         <Button

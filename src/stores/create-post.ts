@@ -54,6 +54,9 @@ export function draftToEditPostData(draft: Draft, post_id: number): EditPost {
     body: draft.body,
   };
 
+  if (draft.type === "media") {
+    post.url = post.custom_thumbnail;
+  }
   if (!post.url) {
     delete post.url;
   }
