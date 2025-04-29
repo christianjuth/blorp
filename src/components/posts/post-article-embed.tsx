@@ -53,13 +53,13 @@ export function PostArticleEmbed({
       className="flex flex-col"
     >
       {thumbnail && (
-        <div className="relative aspect-video">
+        <div className="relative aspect-video overflow-hidden">
           {!imageLoaded && (
             <Skeleton className="absolute inset-0 rounded-b-none rounded-t-xl" />
           )}
           <img
             src={thumbnail}
-            className="relative object-cover aspect-video w-full rounded-t-xl"
+            className="absolute inset-0 object-cover aspect-video rounded-t-xl"
             onLoad={() => setImageLoaded(true)}
           />
         </div>
