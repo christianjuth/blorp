@@ -48,7 +48,7 @@ export function Combobox<V extends string>({
           variant="outline"
           {...triggerProps}
           className={cn(
-            "w-[200px] justify-between text-background",
+            "w-[200px] justify-between text-white",
             triggerProps?.className,
           )}
           role="combobox"

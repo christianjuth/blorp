@@ -272,6 +272,21 @@ ion-toolbar ion-searchbar {
   text-overflow: ellipsis;
 }
 
+/* Remove default margins from paragraphs */
+.prose p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Add margin only between consecutive paragraphs */
+.prose p + p {
+  margin-top: 1rem; /* Adjust the value as needed */
+}
+
+.prose pre, .prose code {
+  @apply dark:bg-gray-800;
+}
+
 .tiptap {
   outline: none;
 }
