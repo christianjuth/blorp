@@ -33,7 +33,8 @@
 @import "tw-animate-css";
 
 :root {
-  --brand: #ce46e6;
+  --brand: #d40091;
+  --brand-secondary: #4123D0;
 
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -77,6 +78,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:root {
+    --brand: #FF1FBB;
 
     --background: oklch(0.141 0.005 285.823);
     --foreground: oklch(0.985 0 0);
@@ -172,7 +174,7 @@ ion-list.list-inset {
 
 *::selection {
   color: white !important;
-  background-color: var(--brand) !important;
+  background-color: var(--color-brand-secondary) !important;
 }
 
 [data-tauri-drag-region] {
@@ -222,6 +224,7 @@ ion-toolbar ion-searchbar {
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --color-brand: var(--brand);
+  --color-brand-secondary: var(--brand-secondary);
   --color-brand-foreground: white;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -261,6 +264,11 @@ ion-toolbar ion-searchbar {
  /*    @apply bg-background text-foreground; */
  /*  } */
  /*} */
+
+body {
+  overflow: hidden;
+  min-height: 100vh;
+}
 
 .prose hr {
   margin-top: 0.8em;

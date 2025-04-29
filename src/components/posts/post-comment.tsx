@@ -323,11 +323,12 @@ export function PostComment({
                     ]),
               ]}
               trigger={
-                <Button size="icon" variant="ghost">
-                  <IoEllipsisHorizontal size={16} />
+                <Button size="icon" variant="ghost" asChild>
+                  <div>
+                    <IoEllipsisHorizontal size={16} />
+                  </div>
                 </Button>
               }
-              triggerAsChild
             />
 
             <CommentReplyButton onClick={() => reply.setIsEditing(true)} />

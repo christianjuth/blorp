@@ -1414,9 +1414,9 @@ export function useSearch(form: Search) {
 
   const limit = form.limit ?? 50;
 
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  // const patchPost = usePostsStore((s) => s.patchPost);
 
   return useThrottledInfiniteQuery({
     queryKey,
@@ -1433,32 +1433,18 @@ export function useSearch(form: Search) {
       );
 
       const posts = res.posts.map((post_view) => flattenPost({ post_view }));
-      const cachedPosts = cachePosts(getCachePrefixer(), posts);
-
-      let i = 0;
-      for (const { post } of res.posts) {
-        const thumbnail = post.thumbnail_url;
-        if (thumbnail) {
-          setTimeout(() => {
-            if (!cachedPosts[post.ap_id]?.data.imageDetails) {
-              // measureImage(thumbnail).then((data) => {
-              //   patchPost(post.ap_id, {
-              //     imageDetails: data,
-              //   });
-              // });
-            }
-          }, i);
-          i += 50;
-        }
-      }
+      cacheProfiles(getCachePrefixer(), res.users);
+      cachePosts(getCachePrefixer(), posts);
 
       const {
         communities,
+        users,
         // comments, users
       } = res;
       return {
         communities,
         posts: posts.map((p) => p.post.ap_id),
+        users: users.map((u) => u.person.actor_id),
         next_page: posts.length < limit ? null : pageParam + 1,
       };
     },

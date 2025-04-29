@@ -28,6 +28,11 @@ export function useWindowDimensions() {
   };
 }
 
+export function useTheme() {
+  const prefersDark = useMediaQuery({ query: "(prefers-color-scheme: dark)" });
+  return prefersDark ? "dark" : "light";
+}
+
 export function useMedia() {
   const sm = useMediaQuery({
     minWidth: "40rem",
@@ -151,7 +156,7 @@ export function useUrlSearchState<S extends z.ZodSchema>(
 
   // setter that validates and pushes/replaces the URL
   const setValue = useCallback<SetUrlSearchParam<z.infer<S>>>(
-    (next, { replace = false } = {}) => {
+    (next, { replace = true } = {}) => {
       const newVal =
         typeof next === "function"
           ? (next as (p: z.infer<S>) => z.infer<S>)(value)

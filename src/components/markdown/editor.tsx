@@ -38,6 +38,7 @@ import { Deferred } from "@/src/lib/deferred";
 import z from "zod";
 import { ActionMenu } from "../action-menu";
 import { toast } from "sonner";
+import { MdOutlineFormatClear } from "react-icons/md";
 
 const linkSchema = z.object({
   description: z.string(),
@@ -204,20 +205,6 @@ const MenuBar = ({
         <AiOutlineStrikethrough />
       </Toggle>
 
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => editor.chain().focus().unsetAllMarks().run()} */}
-      {/* > */}
-      {/*   Clear marks */}
-      {/* </button> */}
-      {/* <button */}
-      {/*   type="button" */}
-      {/*   onClick={() => editor.chain().focus().clearNodes().run()} */}
-      {/* > */}
-      {/*   Clear nodes */}
-      {/* </button> */}
-
       <Toggle
         size="icon"
         data-state={editor.isActive("blockquote") ? "on" : "off"}
@@ -227,6 +214,23 @@ const MenuBar = ({
       >
         <FaQuoteRight />
       </Toggle>
+
+      <Toggle
+        size="icon"
+        data-state="off"
+        type="button"
+        onClick={() => editor.chain().focus().unsetAllMarks().run()}
+      >
+        <MdOutlineFormatClear />
+      </Toggle>
+
+      {/* <button */}
+      {/*   type="button" */}
+      {/*   onClick={() => editor.chain().focus().clearNodes().run()} */}
+      {/* > */}
+      {/*   Clear nodes */}
+      {/* </button> */}
+
       {/* <button */}
       {/*   type="button" */}
       {/*   onClick={() => editor.chain().focus().setHardBreak().run()} */}

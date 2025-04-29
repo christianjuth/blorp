@@ -43,6 +43,7 @@ import { dispatchScrollEvent } from "../lib/scroll-events";
 import { LuLoaderCircle } from "react-icons/lu";
 import { FaArrowUp } from "react-icons/fa6";
 import { useAuth } from "../stores/auth";
+import { useMedia, useTheme } from "../lib/hooks";
 
 const EMPTY_ARR: never[] = [];
 
@@ -57,6 +58,9 @@ const Post = memo((props: PostProps) => (
 ));
 
 export default function CommunityFeed() {
+  const theme = useTheme();
+  const media = useMedia();
+
   const linkCtx = useLinkContext();
   const router = useIonRouter();
   const [search, setSearch] = useState("");
@@ -127,10 +131,20 @@ export default function CommunityFeed() {
     <IonPage>
       <Title>{communityName}</Title>
       <IonHeader>
-        <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start">
+        <IonToolbar
+          data-tauri-drag-region
+          style={
+            media.maxMd && theme === "light"
+              ? {
+                  "--background": "var(--color-brand-secondary)",
+                  "--border-color": "var(--color-brand-secondary)",
+                }
+              : undefined
+          }
+        >
+          <IonButtons slot="start" className="gap-2">
             <IonBackButton text="" />
-            <span className="font-bold max-w-[calc(100vw-180px)] overflow-hidden overflow-ellipsis md:hidden">
+            <span className="font-bold max-w-[calc(100vw-180px)] overflow-hidden overflow-ellipsis md:hidden max-md:text-white">
               {communityName}
             </span>
           </IonButtons>

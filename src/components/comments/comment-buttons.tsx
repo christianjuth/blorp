@@ -56,16 +56,20 @@ export function CommentVoting({
         }}
         //disabled={vote.isPending}
         className={cn(
-          "hover:text-brand",
+          "hover:text-brand hover:bg-brand/10",
           isUpvoted && "text-brand",
-          isDownvoted && "text-destructive",
+          isDownvoted && "text-brand-secondary",
         )}
       >
         {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
       </Button>
       <label
         htmlFor={id}
-        className={cn("-mx-0.5 cursor-pointer", isUpvoted && "text-brand")}
+        className={cn(
+          "-mx-0.5 cursor-pointer",
+          isUpvoted && "text-brand",
+          isDownvoted && "text-brand-secondary",
+        )}
       >
         {abbriviateNumber(score)}
       </label>
@@ -86,8 +90,8 @@ export function CommentVoting({
         }}
         //disabled={vote.isPending}
         className={cn(
-          "hover:text-destructive",
-          isDownvoted && "text-destructive",
+          "hover:text-brand-secondary hover:bg-brand-secondary/10",
+          isDownvoted && "text-brand-secondary",
         )}
       >
         {isDownvoted ? <PiArrowFatDownFill /> : <PiArrowFatDownBold />}

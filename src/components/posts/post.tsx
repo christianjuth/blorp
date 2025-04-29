@@ -334,7 +334,7 @@ export function PostBottomBar({
   const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
 
   return (
-    <div className="pb-1.5 md:py-2 flex flex-row items-center gap-1 bg-background">
+    <div className="py-1 md:py-2 flex flex-row items-center gap-1 bg-background border-b-[.5px] max-md:px-2.5">
       <CommentSortSelect />
       <div className="flex-1" />
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />

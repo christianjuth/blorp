@@ -35,7 +35,7 @@ import {
 import { useParams } from "react-router";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
-import { useMedia } from "../lib/hooks";
+import { useMedia, useTheme } from "../lib/hooks";
 import { NotFound } from "./not-found";
 import { CommentSkeleton } from "../components/comments/comment-skeleton";
 
@@ -60,6 +60,7 @@ const MemoedPostCard = memo((props: PostProps) => (
 ));
 
 export default function Post() {
+  const theme = useTheme();
   const media = useMedia();
   const { communityName } = useParams<{ communityName: string }>();
 
@@ -155,14 +156,22 @@ export default function Post() {
       <IonHeader>
         <IonToolbar
           data-tauri-drag-region
+          className="max-md:text-white"
           style={
-            media.maxMd ? { "--border-color": "var(--background)" } : undefined
+            media.maxMd && theme === "light"
+              ? {
+                  "--background": "var(--color-brand-secondary)",
+                  "--border-color": "var(--color-brand-secondary)",
+                }
+              : undefined
           }
         >
-          <IonButtons slot="start">
+          <IonButtons slot="start" className="gap-2">
             <IonBackButton text="" />
+            <span className="font-bold max-w-[calc(100vw-180px)] overflow-hidden overflow-ellipsis md:hidden max-md:text-white">
+              {communityName}
+            </span>
           </IonButtons>
-          <IonTitle data-tauri-drag-region>{communityTitle}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>
@@ -189,7 +198,7 @@ export default function Post() {
               ),
               post && (
                 <>
-                  <ContentGutters>
+                  <ContentGutters className="px-0">
                     <PostBottomBar
                       apId={decodedApId}
                       commentsCount={post.counts.comments}
@@ -207,7 +216,7 @@ export default function Post() {
                 </>
               ),
               post && !commentPath && (
-                <ContentGutters className="md:py-3">
+                <ContentGutters className="md:py-3 max-md:border-t-7 border-border/40">
                   <div className="flex-1">
                     <InlineCommentReply
                       state={reply}

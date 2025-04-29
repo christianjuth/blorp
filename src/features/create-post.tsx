@@ -325,7 +325,7 @@ export function CreatePost() {
                 <ToggleGroupItem value="link">Link</ToggleGroupItem>
               </ToggleGroup>
 
-              {(draft.type === "link" || draft.url) && (
+              {draft.type === "link" && (
                 <div className="gap-2 flex flex-col">
                   <Label htmlFor={`${id}-link`}>Link</Label>
                   <Input
@@ -341,7 +341,7 @@ export function CreatePost() {
                 </div>
               )}
 
-              {(draft.type === "media" || draft.custom_thumbnail) && (
+              {draft.type === "media" && (
                 <div className="gap-2 flex flex-col">
                   <Label htmlFor={`${id}-media`}>Image</Label>
                   <div

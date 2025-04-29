@@ -18,7 +18,10 @@ export function CommunityCard({
   className,
   size = "md",
 }: {
-  communityView: CommunityView | CommunityPartial;
+  communityView:
+    | Pick<CommunityView, "community">
+    | Pick<CommunityView, "community" | "counts">
+    | CommunityPartial;
   disableLink?: boolean;
   className?: string;
   size?: "sm" | "md";
@@ -34,7 +37,9 @@ export function CommunityCard({
     slug = createSlug(communityView);
   } else {
     const { community } = communityView;
-    counts = communityView.counts;
+    if ("counts" in communityView) {
+      counts = communityView.counts;
+    }
     icon = community.icon;
     title = community.title;
     slug = createSlug(community);

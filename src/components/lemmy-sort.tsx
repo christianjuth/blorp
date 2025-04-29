@@ -263,12 +263,14 @@ export function CommentSortSelect() {
           size="sm"
           variant="ghost"
           className="text-md font-normal text-brand hover:text-brand"
+          asChild
         >
-          Sort
-          {getIconCommentSort(commentSort)}
+          <div>
+            Sort
+            {getIconCommentSort(commentSort)}
+          </div>
         </Button>
       }
-      triggerAsChild
     />
   );
 }

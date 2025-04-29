@@ -7,7 +7,7 @@ import {
 } from "@/src/components/posts/post";
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
 import {
@@ -36,11 +36,12 @@ import { useMedia, useUrlSearchState } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";
 import { useAuth } from "../stores/auth";
 import z from "zod";
+import { PersonCard } from "../components/person/person-card";
 
 const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = typeof NO_ITEMS | PostProps | CommunityView;
+type Item = typeof NO_ITEMS | string | PostProps | CommunityView;
 
 function isPost(item: Item): item is PostProps {
   return _.isObject(item) && "apId" in item;
@@ -56,7 +57,7 @@ const Post = memo((props: PostProps) => (
 export function SearchFeed({
   defaultType = "posts",
 }: {
-  defaultType?: "posts" | "communities" | "all";
+  defaultType?: "posts" | "communities" | "users";
 }) {
   const media = useMedia();
 
@@ -64,7 +65,8 @@ export function SearchFeed({
     communityName?: string;
   }>();
 
-  const [search, setSearch] = useUrlSearchState("q", "", z.string());
+  const [searchInput, setSearchInput] = useUrlSearchState("q", "", z.string());
+  const [search, setSearch] = useState(searchInput);
 
   const setDebouncedSearch = useMemo(
     () =>
@@ -77,7 +79,7 @@ export function SearchFeed({
   const [type, setType] = useUrlSearchState(
     "type",
     defaultType,
-    z.enum(["posts", "communities", "all"]),
+    z.enum(["posts", "communities", "users"]),
   );
 
   const postSort = useFiltersStore((s) => s.postSort);
@@ -99,6 +101,12 @@ export function SearchFeed({
   const postCache = usePostsStore((s) => s.posts);
 
   const data = useMemo(() => {
+    if (type === "users") {
+      const users =
+        searchResults.data?.pages.map((res) => res.users).flat() ?? EMPTY_ARR;
+      return users;
+    }
+
     if (type === "communities") {
       const communities =
         searchResults.data?.pages.map((res) => res.communities).flat() ??
@@ -130,8 +138,9 @@ export function SearchFeed({
           <IonSearchbar
             mode="ios"
             className="max-w-md mx-auto h-3"
-            defaultValue={search}
+            value={searchInput}
             onIonInput={(e) => {
+              setSearchInput(e.detail.value ?? "");
               setDebouncedSearch(e.detail.value ?? "");
             }}
             placeholder={
@@ -153,12 +162,12 @@ export function SearchFeed({
               size="sm"
               value={type}
               onValueChange={(val) =>
-                val && setType(val as "posts" | "communities" | "all")
+                val && setType(val as "posts" | "communities" | "users")
               }
             >
-              <ToggleGroupItem value="all">All</ToggleGroupItem>
               <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
               <ToggleGroupItem value="communities">Communities</ToggleGroupItem>
+              <ToggleGroupItem value="users">Users</ToggleGroupItem>
             </ToggleGroup>
           </IonToolbar>
         )}
@@ -181,14 +190,14 @@ export function SearchFeed({
                       size="sm"
                       value={type}
                       onValueChange={(val) =>
-                        val && setType(val as "posts" | "communities" | "all")
+                        val && setType(val as "posts" | "communities" | "users")
                       }
                     >
-                      <ToggleGroupItem value="all">All</ToggleGroupItem>
                       <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
                       <ToggleGroupItem value="communities">
                         Communities
                       </ToggleGroupItem>
+                      <ToggleGroupItem value="users">Users</ToggleGroupItem>
                     </ToggleGroup>
                   </div>
 
@@ -216,6 +225,14 @@ export function SearchFeed({
 
               if (isPost(item)) {
                 return <Post {...item} />;
+              }
+
+              if (_.isString(item)) {
+                return (
+                  <ContentGutters>
+                    <PersonCard actorId={item} />
+                  </ContentGutters>
+                );
               }
 
               return (

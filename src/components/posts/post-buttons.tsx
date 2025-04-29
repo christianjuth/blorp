@@ -48,7 +48,7 @@ export function Voting({
         }}
         //disabled={vote.isPending}
         className={cn(
-          "hover:text-brand",
+          "hover:text-brand hover:bg-brand/10",
           "pl-2 pr-1.5 flex items-center space-x-1 text-left",
           isUpvoted && "text-brand",
         )}
@@ -60,7 +60,7 @@ export function Voting({
         className={cn(
           "-mx-0.5 cursor-pointer text-md",
           isUpvoted && "text-brand",
-          isDownvoted && "text-destructive",
+          isDownvoted && "text-brand-secondary",
         )}
       >
         {abbriviateNumber(score)}
@@ -77,8 +77,8 @@ export function Voting({
         }}
         //disabled={vote.isPending}
         className={cn(
-          "hover:text-destructive",
-          isDownvoted && "text-destructive",
+          "hover:text-brand-secondary hover:bg-brand-secondary/10",
+          isDownvoted && "text-brand-secondary",
         )}
       >
         {isDownvoted ? <PiArrowFatDownFill /> : <PiArrowFatDownBold />}

@@ -186,7 +186,7 @@ export function DownloadButton() {
   if (isTauri() || Capacitor.isNativePlatform()) {
     return null;
   }
-  if (osName !== "macos" && osName !== "ios") {
+  if (osName !== "macos") {
     return null;
   }
   return (

@@ -7,7 +7,7 @@ import { memo, useMemo, useState } from "react";
 import { useFiltersStore } from "@/src/stores/filters";
 import { ContentGutters } from "@/src/components/gutters";
 import { FlashList } from "@/src/components/flashlist";
-import { CommunityView } from "lemmy-js-client";
+import { Community } from "lemmy-js-client";
 import { useMedia } from "../lib/hooks";
 import {
   IonButtons,
@@ -24,9 +24,10 @@ import { CommunityFilter, CommunitySortSelect } from "../components/lemmy-sort";
 import { Title } from "../components/title";
 import { Link } from "react-router-dom";
 import { searchOutline } from "ionicons/icons";
+import { useAuth } from "../stores/auth";
 
 const MemoedListItem = memo(
-  function ListItem(props: CommunityView) {
+  function ListItem(props: { community: Community }) {
     return (
       <ContentGutters className="md:contents">
         <CommunityCard communityView={props} className="mt-1" />
@@ -46,6 +47,13 @@ export default function Communities() {
   const listingType = useFiltersStore((s) => s.communitiesListingType);
 
   const media = useMedia();
+
+  const moderates = useAuth(
+    (s) => s.getSelectedAccount().site?.my_user?.moderates,
+  );
+  const moderatesCommunities = moderates?.map(({ community }) => ({
+    community,
+  }));
 
   const {
     data,
@@ -110,14 +118,22 @@ export default function Communities() {
       </IonHeader>
       <IonContent scrollY={false}>
         <ContentGutters className="h-full max-md:contents">
-          <FlashList<CommunityView>
+          <FlashList<{ community: Community }>
             key={communitySort + listingType}
             className="h-full ion-content-scroll-host"
             numColumns={numCols}
-            data={communities}
+            data={
+              listingType === "ModeratorView"
+                ? moderatesCommunities
+                : communities
+            }
             renderItem={({ item }) => <MemoedListItem {...item} />}
             onEndReached={() => {
-              if (hasNextPage && !isFetchingNextPage) {
+              if (
+                listingType !== "ModeratorView" &&
+                hasNextPage &&
+                !isFetchingNextPage
+              ) {
                 fetchNextPage();
               }
             }}

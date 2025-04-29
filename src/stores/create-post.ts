@@ -54,9 +54,17 @@ export function draftToEditPostData(draft: Draft, post_id: number): EditPost {
     body: draft.body,
   };
 
-  if (draft.type === "media") {
-    post.url = post.custom_thumbnail;
+  switch (draft.type) {
+    case "text":
+      delete post.url;
+      delete post.custom_thumbnail;
+      break;
+    case "media":
+      post.url = post.custom_thumbnail;
+      break;
+    case "link":
   }
+
   if (!post.url) {
     delete post.url;
   }
@@ -80,6 +88,17 @@ export function draftToCreatePostData(
     community_id,
     body: draft.body,
   };
+
+  switch (draft.type) {
+    case "text":
+      delete post.url;
+      delete post.custom_thumbnail;
+      break;
+    case "media":
+      post.url = post.custom_thumbnail;
+      break;
+    case "link":
+  }
 
   if (!post.url) {
     delete post.url;

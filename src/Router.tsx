@@ -29,6 +29,7 @@ import * as routes from "@/src/lib/routes";
 import { dispatchScrollEvent } from "./lib/scroll-events";
 import { isTauri } from "./lib/tauri";
 import { CommunityCard } from "./components/communities/community-card";
+import { AppUrlListener } from "@/src/components/universal-links";
 
 const CSAE = lazy(() => import("@/src/features/csae"));
 const NotFound = lazy(() => import("@/src/features/not-found"));
@@ -443,6 +444,7 @@ export default function Router() {
   return (
     <IonReactRouter>
       <Tabs />
+      <AppUrlListener />
     </IonReactRouter>
   );
 }
