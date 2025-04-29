@@ -15,7 +15,11 @@ import { twMerge } from "tailwind-merge";
 
 import { subscribeToScrollEvent } from "../lib/scroll-events";
 import _ from "lodash";
-import { useElementHadFocus, useIsInAppBrowserOpen } from "../lib/hooks";
+import {
+  useElementHadFocus,
+  useIsInAppBrowserOpen,
+  useMedia,
+} from "../lib/hooks";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useAuth } from "../stores/auth";
 import { cn } from "../lib/utils";
@@ -216,6 +220,7 @@ export function FlashList<T>({
   placeholder?: ReactNode;
   header?: ReactNode[];
 }) {
+  const media = useMedia();
   const [key, setKey] = useState(0);
 
   const accountIndex = useAuth((s) => s.accountIndex);
@@ -261,7 +266,13 @@ export function FlashList<T>({
 
       <div
         ref={scrollRef}
-        className={twMerge("overflow-auto overscroll-auto flex-1", className)}
+        className={twMerge(
+          "overflow-y-scroll overscroll-auto flex-1",
+          className,
+        )}
+        style={{
+          scrollbarGutter: media.md ? "stable both-edges" : undefined,
+        }}
         onScroll={onScroll}
       >
         <FlashListInternal

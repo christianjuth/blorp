@@ -12,6 +12,7 @@ export function PostVideoEmbed({
         src={url}
         controls
         autoPlay={autoPlay}
+        playsInline
       />
     </div>
   );

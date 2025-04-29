@@ -183,21 +183,16 @@ ion-list.list-inset {
   scrollbar-color: var(--secondary) transparent;
 }
 
-/* ::-webkit-scrollbar { */
-/*   width: 8px; */
-/*   border-left: 1px solid transparent; */
-/*   border-right: 1px solid transparent; */
-/*   background: transparent; */
-/* } */
-/* ::-webkit-scrollbar-thumb { */
-/*   background-color: var(--color7); */
-/*   border-radius: 12px; */
-/* } */
-
-.prose hr {
-  margin-top: 0.8em;
-  margin-bottom: 0.8em;
-}
+::-webkit-scrollbar { 
+  width: 8px; 
+  border-left: 1px solid transparent; 
+  border-right: 1px solid transparent; 
+  @apply bg-background!;
+} 
+::-webkit-scrollbar-thumb { 
+  @apply bg-secondary;
+  border-radius: 12px; 
+} 
 
 html.plt-mobileweb ion-header ion-toolbar:first-of-type,
 html.plt-desktop ion-header ion-toolbar:first-of-type {
@@ -261,11 +256,16 @@ ion-toolbar ion-searchbar {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* @layer base { */
-/*   body { */
-/*     @apply bg-background text-foreground; */
-/*   } */
-/* } */
+ /*@layer base { */
+ /*  body { */
+ /*    @apply bg-background text-foreground; */
+ /*  } */
+ /*} */
+
+.prose hr {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
 
 .prose *:not(li) {
   overflow: hidden;

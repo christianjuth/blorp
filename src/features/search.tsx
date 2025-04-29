@@ -7,7 +7,7 @@ import {
 } from "@/src/components/posts/post";
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
-import { memo, useMemo, useRef, useState } from "react";
+import { memo, useMemo } from "react";
 import { PostSortBar } from "../components/lemmy-sort";
 import { FlashList } from "../components/flashlist";
 import {
@@ -20,7 +20,7 @@ import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
 import { CommunityView } from "lemmy-js-client";
-import { useHistory, useParams } from "react-router";
+import { useParams } from "react-router";
 import {
   IonBackButton,
   IonButtons,
@@ -29,7 +29,6 @@ import {
   IonPage,
   IonSearchbar,
   IonToolbar,
-  useIonRouter,
 } from "@ionic/react";
 import { Title } from "../components/title";
 import { UserDropdown } from "../components/nav";
@@ -61,25 +60,18 @@ export function SearchFeed({
 }) {
   const media = useMedia();
 
-  const router = useIonRouter();
-  const history = useHistory();
-  const initSearch = useRef(new URLSearchParams(location.search)).current.get(
-    "q",
-  );
-
   const { communityName } = useParams<{
     communityName?: string;
   }>();
 
-  const [search, setSearch] = useState(initSearch);
-  const [debouncedSearch, _setDebouncedSearch] = useState(initSearch);
+  const [search, setSearch] = useUrlSearchState("q", "", z.string());
+
   const setDebouncedSearch = useMemo(
     () =>
       _.debounce((newSearch: string) => {
-        _setDebouncedSearch(newSearch);
-        history.replace(router.routeInfo.pathname + `?q=${newSearch}`);
+        setSearch(newSearch);
       }, 500),
-    [history.replace],
+    [],
   );
 
   const [type, setType] = useUrlSearchState(
@@ -95,7 +87,7 @@ export function SearchFeed({
   });
 
   const searchResults = useSearch({
-    q: debouncedSearch ?? "",
+    q: search ?? "",
     sort: type === "communities" ? "TopAll" : postSort,
     community_name: type === "posts" ? communityName : undefined,
   });
@@ -138,9 +130,8 @@ export function SearchFeed({
           <IonSearchbar
             mode="ios"
             className="max-w-md mx-auto h-3"
-            value={search}
+            defaultValue={search}
             onIonInput={(e) => {
-              setSearch(e.detail.value ?? "");
               setDebouncedSearch(e.detail.value ?? "");
             }}
             placeholder={
@@ -178,7 +169,7 @@ export function SearchFeed({
             key={type === "communities" ? "communities" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={
-              data.length === 0 && !searchResults.isFetching ? [NO_ITEMS] : data
+              data.length === 0 && !searchResults.isLoading ? [NO_ITEMS] : data
             }
             header={[
               <ContentGutters className="max-md:hidden">

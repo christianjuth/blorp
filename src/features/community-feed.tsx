@@ -91,7 +91,7 @@ export default function CommunityFeed() {
     isFetchingNextPage,
     refetch,
     isRefetching,
-    isFetching,
+    isLoading,
   } = posts;
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -113,7 +113,7 @@ export default function CommunityFeed() {
       .filter(isNotNull);
 
     return postViews;
-  }, [posts.data?.pages, postCache, getCachePrefixer, isFetching]);
+  }, [posts.data?.pages, postCache, getCachePrefixer]);
 
   const firstReadPost = data.find((p) => !p.pinned);
   const firstUnreadPost = data.find((p) => !p.pinned && !p.read);
@@ -191,7 +191,7 @@ export default function CommunityFeed() {
           <FlashList<Item>
             key={postSort}
             className="h-full ion-content-scroll-host"
-            data={data.length === 0 && !isFetching ? [NO_ITEMS] : data}
+            data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}
             header={[
               <>
                 {communityName && (

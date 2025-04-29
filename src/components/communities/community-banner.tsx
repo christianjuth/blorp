@@ -69,10 +69,14 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
           !hideBanner && "pb-3",
         )}
       >
-        <span className="font-bold text-lg">
-          {slug?.name}
-          <span className="italic">@{slug?.host}</span>
-        </span>
+        {slug ? (
+          <span className="font-bold text-lg h-7">
+            {slug.name}
+            <span className="italic">@{slug.host}</span>
+          </span>
+        ) : (
+          <Skeleton className="h-7 w-52" />
+        )}
         <div className="flex-1" />
         {community.data && (
           <CommunityCreatePost

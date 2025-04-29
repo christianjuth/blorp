@@ -172,7 +172,7 @@ export default function HomeFeed() {
     isFetchingNextPage,
     refetch,
     isRefetching,
-    isFetching,
+    isLoading,
   } = posts;
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -276,7 +276,7 @@ export default function HomeFeed() {
             onFocusChange={setFocused}
             ref={scrollRef}
             estimatedItemSize={450}
-            data={data.length === 0 && !isFetching ? [NO_ITEMS] : data}
+            data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}
             placeholder={
               posts.isPending ? (
                 <ContentGutters className="px-0">

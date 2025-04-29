@@ -110,7 +110,7 @@ export function PersonSidebar({
   );
 
   return (
-    <div className="absolute py-4 flex flex-col gap-3 w-full">
+    <div className="absolute py-4 flex flex-col gap-3 w-full md:pr-4">
       <div className="flex flex-row items-start justify-between flex-1">
         <Avatar className="h-13 w-13">
           <AvatarImage src={person?.avatar} className="object-cover" />

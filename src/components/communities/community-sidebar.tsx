@@ -102,7 +102,7 @@ export function CommunitySidebar({
   return (
     <div
       className={cn(
-        "gap-3 flex flex-col py-4 pr-4",
+        "gap-3 flex flex-col py-4 md:pr-4",
         asPage
           ? "px-2.5"
           : "absolute inset-x-0 h-[calc(100vh-60px)] overflow-auto",

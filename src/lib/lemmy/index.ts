@@ -165,9 +165,12 @@ export function usePersonDetails({
         throw new Error("person_id undefined");
       }
 
-      const { person } = await client.resolveObject({
-        q: actorId,
-      });
+      const { person } = await client.resolveObject(
+        {
+          q: actorId,
+        },
+        { signal },
+      );
 
       if (!person) {
         throw new Error("person not found");
@@ -564,7 +567,7 @@ export function useMostRecentPost(
 
   const query = useQuery({
     queryKey: ["mostRecentPost", ...queryKey],
-    queryFn: () => client.getPosts(form),
+    queryFn: ({ signal }) => client.getPosts(form, { signal }),
     refetchInterval: 1000 * 60,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
@@ -1339,11 +1342,14 @@ export function useNotificationCount() {
 
   return useQuery({
     queryKey,
-    queryFn: async () => {
-      const { replies } = await client.getReplies({
-        unread_only: true,
-        limit: 50,
-      });
+    queryFn: async ({ signal }) => {
+      const { replies } = await client.getReplies(
+        {
+          unread_only: true,
+          limit: 50,
+        },
+        { signal },
+      );
       return replies.length;
     },
     enabled: isLoggedIn,
@@ -1385,12 +1391,17 @@ export function useSearch(form: Search) {
 
   return useThrottledInfiniteQuery({
     queryKey,
-    queryFn: async ({ pageParam }) => {
-      const res = await client.search({
-        ...form,
-        page: pageParam,
-        limit,
-      });
+    queryFn: async ({ pageParam, signal }) => {
+      const res = await client.search(
+        {
+          ...form,
+          page: pageParam,
+          limit,
+        },
+        {
+          signal,
+        },
+      );
 
       const posts = res.posts.map((post_view) => flattenPost({ post_view }));
       const cachedPosts = cachePosts(getCachePrefixer(), posts);
@@ -1435,9 +1446,10 @@ export function useSearch(form: Search) {
 export function useInstances() {
   return useQuery({
     queryKey: ["getInstances"],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const res = await fetch(
         "https://data.lemmyverse.net/data/instance.full.json",
+        { signal },
       );
       const data = await res.json();
 

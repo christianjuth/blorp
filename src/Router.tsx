@@ -300,27 +300,31 @@ function Tabs() {
       >
         <div className="h-[var(--ion-safe-area-top)]" />
 
-        <IonContent>
-          {isTauri() && (
-            <div
-              className="h-12 -mb-6 w-full top-0 sticky bg-gradient-to-b from-background to-transparent from-30% z-10"
-              data-tauri-drag-region
-            />
-          )}
-          <button
-            className="h-[60px] mt-3 md:mt-1 px-4 md:px-6 flex items-center"
-            onClick={() => {
-              const tab = document.querySelector(`ion-tab-button[tab="home"]`);
-              if (tab && "click" in tab && _.isFunction(tab.click)) {
-                tab.click();
-              }
-            }}
-          >
-            <Logo />
-          </button>
+        <IonContent scrollY={false}>
+          <div className="overflow-y-auto h-full">
+            {isTauri() && (
+              <div
+                className="h-12 -mb-6 w-full top-0 sticky bg-gradient-to-b from-background to-transparent from-30% z-10"
+                data-tauri-drag-region
+              />
+            )}
+            <button
+              className="h-[60px] mt-3 md:mt-1 px-4 md:px-6 flex items-center"
+              onClick={() => {
+                const tab = document.querySelector(
+                  `ion-tab-button[tab="home"]`,
+                );
+                if (tab && "click" in tab && _.isFunction(tab.click)) {
+                  tab.click();
+                }
+              }}
+            >
+              <Logo />
+            </button>
 
-          <div className="md:px-3 pt-2 pb-4 gap-0.5 flex flex-col">
-            <Sidebar />
+            <div className="md:px-3 pt-2 pb-4 gap-0.5 flex flex-col">
+              <Sidebar />
+            </div>
           </div>
         </IonContent>
       </IonMenu>

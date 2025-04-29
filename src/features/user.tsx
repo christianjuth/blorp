@@ -109,7 +109,7 @@ export default function User() {
     isFetchingNextPage,
     refetch,
     data,
-    isFetching,
+    isLoading,
   } = usePersonFeed({ actorId });
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -205,7 +205,7 @@ export default function User() {
           <FlashList<Item>
             key={type === "comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
-            data={listData.length === 0 && !isFetching ? [NO_ITEMS] : listData}
+            data={listData.length === 0 && !isLoading ? [NO_ITEMS] : listData}
             header={[
               <ContentGutters className="max-md:hidden">
                 <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
