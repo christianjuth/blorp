@@ -1034,10 +1034,25 @@ export function useLikePost(apId: string) {
         optimisticMyVote: undefined,
         ...flattenPost(data),
       }),
-    onError: () =>
+    onError: (err, vote) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticMyVote: undefined,
-      }),
+      });
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        let verb = "";
+        switch (vote) {
+          case 0:
+            verb = "upvote";
+          case 1:
+            verb = "unvote";
+          case -1:
+            verb = "downvote";
+        }
+        toast.error(`Couldn't ${verb} post`);
+      }
+    },
   });
 }
 
@@ -1063,10 +1078,24 @@ export function useLikeComment() {
     onSuccess: (data) => {
       cacheComment(getCachePrefixer(), flattenComment(data.comment_view));
     },
-    onError: (err, { path }) => {
+    onError: (err, { path, score }) => {
       patchComment(path, getCachePrefixer(), () => ({
         optimisticMyVote: undefined,
       }));
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        let verb = "";
+        switch (score) {
+          case 0:
+            verb = "upvote";
+          case 1:
+            verb = "unvote";
+          case -1:
+            verb = "downvote";
+        }
+        toast.error(`Couldn't ${verb} post`);
+      }
     },
   });
 }
@@ -1512,7 +1541,11 @@ export function useFollowCommunity() {
       patchCommunity(slug, getCachePrefixer(), {
         optimisticSubscribed: undefined,
       });
-      toast.error("Couldn't follow community");
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error("Couldn't follow community");
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -1540,8 +1573,12 @@ export function useMarkReplyRead() {
         queryKey: [...queryKeyPrefix, "getReplies"],
       });
     },
-    onError: (_, { read }) => {
-      toast.error(`Couldn't mark post ${read ? "read" : "unread"}`);
+    onError: (err, { read }) => {
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error(`Couldn't mark post ${read ? "read" : "unread"}`);
+      }
     },
   });
 }
@@ -1572,8 +1609,12 @@ export function useCreatePost() {
       const slug = createCommunitySlug(res.post_view.community);
       router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
     },
-    onError: () => {
-      toast.error("Couldn't create post");
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error("Couldn't create post");
+      }
     },
   });
 }
@@ -1600,8 +1641,12 @@ export function useEditPost(apId: string) {
       const slug = createCommunitySlug(post_view.community);
       router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
     },
-    onError: () => {
-      toast.error("Couldn't update post");
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error("Couldn't update post");
+      }
     },
   });
 }
@@ -1610,8 +1655,12 @@ export function useCreatePostReport() {
   const { client } = useLemmyClient();
   return useMutation({
     mutationFn: (form: CreatePostReport) => client.createPostReport(form),
-    onError: () => {
-      toast.error("Couldn't create post report");
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error("Couldn't create post report");
+      }
     },
   });
 }
@@ -1620,8 +1669,12 @@ export function useCreateCommentReport() {
   const { client } = useLemmyClient();
   return useMutation({
     mutationFn: (form: CreateCommentReport) => client.createCommentReport(form),
-    onError: () => {
-      toast.error("Couldn't create comment report");
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error("Couldn't create comment report");
+      }
     },
   });
 }
@@ -1631,8 +1684,12 @@ export function useBlockPerson() {
 
   return useMutation({
     mutationFn: (form: BlockPerson) => client.blockPerson(form),
-    onError: () => {
-      toast.error("Couldn't block person");
+    onError: (err, { block }) => {
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error(`Couldn't ${block ? "block" : "unblock"} person`);
+      }
     },
   });
 }
@@ -1663,11 +1720,15 @@ export function useSavePost(apId: string) {
         queryKey: postsQueryKey,
       });
     },
-    onError: (_, { save }) => {
+    onError: (err, { save }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticSaved: undefined,
       });
-      toast.error(`Couldn't ${save ? "save" : "unsave"} post`);
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error(`Couldn't ${save ? "save" : "unsave"} post`);
+      }
     },
   });
 }
@@ -1690,11 +1751,15 @@ export function useDeletePost(apId: string) {
         optimisticDeleted: undefined,
       });
     },
-    onError: (_, { deleted }) => {
+    onError: (err, { deleted }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticDeleted: undefined,
       });
-      toast.error(`Couldn't ${deleted ? "delete" : "restore"} post`);
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error(`Couldn't ${deleted ? "delete" : "restore"} post`);
+      }
     },
   });
 }
@@ -1719,10 +1784,15 @@ export function useMarkPostRead(apId: string) {
         read,
       });
     },
-    onError: () => {
+    onError: (err, { read }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticRead: undefined,
       });
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error(`Couldn't mark post ${read ? "read" : "unread"}`);
+      }
     },
   });
 }
@@ -1745,10 +1815,15 @@ export function useFeaturePost(apId: string) {
         ...flattenPost(post),
       });
     },
-    onError: (_) => {
+    onError: (err, { featured }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticFeaturedCommunity: undefined,
       });
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error(`Couldn't ${featured ? "pin" : "unpin"} post`);
+      }
     },
   });
 }
@@ -1764,10 +1839,14 @@ export function useUploadImage() {
       }
       return res;
     },
-    onError: () => {
+    onError: (err) => {
       // TOOD: find a way to determin if the request
       // failed because the image was too large
-      toast.error("Failed to upload image");
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error("Failed to upload image");
+      }
     },
   });
 }
