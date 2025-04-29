@@ -31,6 +31,8 @@ import {
   InputOTPSlot,
 } from "./ui/input-otp";
 import { LuLoaderCircle } from "react-icons/lu";
+import { Link } from "react-router-dom";
+import * as routes from "@/src/lib/routes";
 
 const Context = createContext<{
   authenticate: (config?: { addAccount?: boolean }) => Promise<void>;
@@ -307,6 +309,18 @@ function AuthModal({
               >
                 Continue as Guest
               </Button>
+
+              <span className="mx-auto text-muted-foreground text-sm">
+                By logging in you agree to{" "}
+                <a
+                  className="underline"
+                  href="https://blorpblorp.xyz/terms"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  these terms
+                </a>
+              </span>
             </form>
           </>
         )}

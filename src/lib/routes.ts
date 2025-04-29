@@ -11,3 +11,5 @@ export const inbox = "/inbox";
 export const settings = "/settings";
 
 export const privacy = "/privacy";
+
+export const terms = "/terms";

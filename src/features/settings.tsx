@@ -188,8 +188,8 @@ export default function SettingsPage() {
     }
   }, [logoClicks]);
 
-  const showNsfw = useSettingsStore((s) => s.showNsfw);
-  const setShowNsfw = useSettingsStore((s) => s.setShowNsfw);
+  //const showNsfw = useSettingsStore((s) => s.showNsfw);
+  //const setShowNsfw = useSettingsStore((s) => s.setShowNsfw);
 
   const hideRead = useSettingsStore((s) => s.hideRead);
   const setHideRead = useSettingsStore((s) => s.setHideRead);
@@ -227,6 +227,9 @@ export default function SettingsPage() {
                   Hide read posts from feeds
                 </IonToggle>
               </IonItem>
+              {/* 
+                This should be set at the account level,
+                and iOS requores that this is done outside of the app.
               <IonItem>
                 <IonToggle
                   checked={showNsfw}
@@ -234,7 +237,7 @@ export default function SettingsPage() {
                 >
                   Show NSFW
                 </IonToggle>
-              </IonItem>
+              </IonItem>*/}
             </IonList>
 
             <SectionLabel>FILTER KEYWORDS</SectionLabel>

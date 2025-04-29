@@ -35,6 +35,7 @@ const NotFound = lazy(() => import("@/src/features/not-found"));
 const Download = lazy(() => import("@/src/features/download"));
 const Inbox = lazy(() => import("@/src/features/inbox"));
 const Privacy = lazy(() => import("@/src/features/privacy"));
+const Terms = lazy(() => import("@/src/features/terms"));
 const Support = lazy(() => import("@/src/features/support"));
 const HomeFeed = lazy(() => import("@/src/features/home-feed"));
 const Post = lazy(() => import("@/src/features/post"));
@@ -275,8 +276,18 @@ function Sidebar() {
         </>
       )}
 
-      <Link to={routes.privacy} className="px-4 text-muted-foreground">
+      <Link
+        to={routes.privacy}
+        className="px-4 text-sm mt-2 text-muted-foreground"
+      >
         Privacy Policy
+      </Link>
+
+      <Link
+        to={routes.terms}
+        className="px-4 text-sm mt-3 text-muted-foreground"
+      >
+        Terms of Use
       </Link>
     </>
   );
@@ -353,6 +364,7 @@ function Tabs() {
             <Route exact path="/download" component={Download} />
             <Route exact path="/support" component={Support} />
             <Route exact path="/privacy" component={Privacy} />
+            <Route exact path="/terms" component={Terms} />
             <Route exact path="/csae" component={CSAE} />
             <Redirect exact from="/" to="/home" />
           </IonRouterOutlet>
