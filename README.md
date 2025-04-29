@@ -1,4 +1,5 @@
-![blorp-promo](https://github.com/user-attachments/assets/88a3bd32-f8a1-4ecb-99fc-5e00286fee55)
+![github banner](https://github.com/user-attachments/assets/26157df5-7307-43d7-9895-dd9bb3d8296b)
+
 
 ## Try it!
 * [Web](https://blorpblorp.xyz/)
