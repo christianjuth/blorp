@@ -59,7 +59,7 @@ export function PostArticleEmbed({
           )}
           <img
             src={thumbnail}
-            className="absolute inset-0 object-cover aspect-video rounded-t-xl"
+            className="absolute inset-0 object-cover w-full h-full aspect-video rounded-t-xl"
             onLoad={() => setImageLoaded(true)}
           />
         </div>
