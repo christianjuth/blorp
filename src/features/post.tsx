@@ -29,7 +29,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
 } from "@ionic/react";
 import { useParams } from "react-router";
@@ -96,8 +95,6 @@ export default function Post() {
     post_id: post?.post.id,
     parent_id: parentId,
   });
-
-  const communityTitle = post?.community?.slug;
 
   const isReady = useDelayedReady(500);
 
@@ -216,7 +213,7 @@ export default function Post() {
                 </>
               ),
               post && !commentPath && (
-                <ContentGutters className="md:py-3 max-md:border-t-7 border-border/40">
+                <ContentGutters className="md:py-3">
                   <div className="flex-1">
                     <InlineCommentReply
                       state={reply}
@@ -250,12 +247,17 @@ export default function Post() {
               />
             )}
             placeholder={
-              comments.isPending ? (
-                <ContentGutters>
+              comments.isPending || !isReady ? (
+                <ContentGutters className="px-0">
                   <CommentSkeleton />
                   <></>
                 </ContentGutters>
               ) : undefined
+            }
+            numPlaceholders={
+              _.isNumber(post?.counts.comments)
+                ? Math.max(1, post.counts.comments)
+                : undefined
             }
             onEndReached={loadMore}
             estimatedItemSize={450}

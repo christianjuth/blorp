@@ -43,6 +43,7 @@ export function FlashListInternal<T>({
   numColumns,
   onFocusChange,
   placeholder,
+  numPlaceholders = 25,
   header,
 }: {
   data?: T[] | readonly T[];
@@ -55,6 +56,7 @@ export function FlashListInternal<T>({
   numColumns?: number;
   onFocusChange?: (focused: boolean) => any;
   placeholder?: ReactNode;
+  numPlaceholders?: number;
   header?: ReactNode[];
 }) {
   const index = useRef(0);
@@ -81,11 +83,10 @@ export function FlashListInternal<T>({
 
   useEffect(() => onFocusChange?.(focused), [focused]);
 
-  let count = dataLen || (placeholder ? 25 : 0);
+  let count = dataLen || (placeholder ? numPlaceholders : 0);
   if (header) {
     count += header.length;
   }
-
   const rowVirtualizer = useVirtualizer({
     count,
     overscan,
@@ -156,7 +157,7 @@ export function FlashListInternal<T>({
         }
         const item = data?.[index];
 
-        const showHeader = header && virtualItem.index <= header?.length;
+        const showHeader = header && virtualItem.index < header?.length;
 
         const isStuck = isActiveSticky(virtualItem.index);
 
@@ -218,6 +219,7 @@ export function FlashList<T>({
   onFocusChange?: (focused: boolean) => any;
   refresh?: () => Promise<any>;
   placeholder?: ReactNode;
+  numPlaceholders?: number;
   header?: ReactNode[];
 }) {
   const media = useMedia();

@@ -181,6 +181,9 @@ export function CreatePost() {
 
   const uploadImage = useUploadImage();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: {
+      "image/*": [],
+    },
     onDrop: (files) => {
       if (files[0]) {
         uploadImage

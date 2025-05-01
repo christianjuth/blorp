@@ -53,6 +53,7 @@ function IconFileInput({ onFile }: { onFile: (file: File) => void }) {
       <input
         type="file"
         ref={fileInputRef}
+        accept="image/*"
         className="hidden"
         onChange={(event) => {
           const file = event.target.files?.[0];
@@ -309,7 +310,9 @@ function MarkdownEditorInner({
       Placeholder.configure({
         placeholder,
       }),
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false,
+      }),
       Image,
       Markdown,
       Spoiler,

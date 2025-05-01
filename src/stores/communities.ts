@@ -151,6 +151,11 @@ export const useCommunitiesStore = create<SortsStore>()(
       name: "communities",
       storage: createStorage<SortsStore>(),
       version: 1,
+      onRehydrateStorage: () => {
+        return (state) => {
+          state?.cleanup();
+        };
+      },
     },
   ),
 );

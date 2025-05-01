@@ -22,12 +22,23 @@ type CreatePostStore = {
   drafts: Record<string, Draft>;
   updateDraft: (key: string, patch: Partial<Draft>) => void;
   deleteDraft: (key: string) => any;
+  cleanup: () => void;
 };
 
 export const NEW_DRAFT: Draft = {
   type: "text",
   createdAt: Date.now(),
 };
+
+function isEmptyDraft(draft: Draft) {
+  const fields = _.omit(draft, ["type", "apId", "createdAt"]);
+  for (const id in fields) {
+    if (!!fields[id as keyof typeof fields]) {
+      return false;
+    }
+  }
+  return true;
+}
 
 export function postToDraft(post: FlattenedPost): Draft {
   return {
@@ -138,11 +149,30 @@ export const useCreatePostStore = create<CreatePostStore>()(
           };
         });
       },
+      cleanup: () => {
+        set((prev) => {
+          const drafts = { ...prev.drafts };
+          for (const key in drafts) {
+            if (drafts[key] && isEmptyDraft(drafts[key])) {
+              delete drafts[key];
+            }
+          }
+          return {
+            ...prev,
+            drafts,
+          };
+        });
+      },
     }),
     {
       name: "create-post",
       storage: createStorage<CreatePostStore>(),
       version: 4,
+      onRehydrateStorage: () => {
+        return (state) => {
+          state?.cleanup();
+        };
+      },
     },
   ),
 );

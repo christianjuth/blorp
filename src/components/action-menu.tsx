@@ -1,6 +1,7 @@
 import { IonActionSheet } from "@ionic/react";
 import { useId, useMemo, useState } from "react";
 import _ from "lodash";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 import {
   DropdownMenu,
@@ -183,7 +184,12 @@ export function ActionMenu<V extends string>({
 
   return (
     <>
-      <button id={id}>{trigger}</button>
+      <button
+        id={id}
+        onClick={() => Haptics.impact({ style: ImpactStyle.Medium })}
+      >
+        {trigger}
+      </button>
       {subActionButtons && (
         <IonActionSheet
           {...props}
@@ -222,6 +228,7 @@ export function ActionMenu<V extends string>({
             if (action.onClick) {
               action.onClick();
             } else {
+              Haptics.impact({ style: ImpactStyle.Medium });
               setSubActions(action.actions);
               setSubActionsTitle(action.text);
             }
