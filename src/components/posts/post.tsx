@@ -32,11 +32,15 @@ export function getPostProps(
   config?: {
     featuredContext?: "community" | "home";
     modApIds?: string[];
+    detailView?: boolean;
   },
 ) {
   const { featuredContext, modApIds } = config ?? {};
 
-  const embed = getPostEmbed(postView.post);
+  const embed = getPostEmbed(
+    postView.post,
+    config?.detailView ? "full-resolution" : "optimized",
+  );
 
   const imageDetails = postView.imageDetails;
   const aspectRatio = imageDetails

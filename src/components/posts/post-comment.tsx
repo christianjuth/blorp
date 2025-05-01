@@ -37,15 +37,19 @@ function Byline({
   creator,
   publishedDate,
   authorType,
+  className,
 }: {
   creator: Pick<Person, "actor_id" | "avatar" | "name">;
   publishedDate: string;
   authorType?: "OP" | "ME" | "MOD";
+  className?: string;
 }) {
   const linkCtx = useLinkContext();
   const slug = createSlug(creator);
   return (
-    <summary className="flex flex-row gap-1.5 items-center py-px">
+    <summary
+      className={cn("flex flex-row gap-1.5 items-center py-px", className)}
+    >
       <Avatar className="w-6 h-6">
         <AvatarImage src={creator.avatar} />
         <AvatarFallback className="text-xs">
@@ -83,6 +87,7 @@ export function PostComment({
   communityName,
   modApIds,
   singleCommentThread,
+  highlightCommentId,
 }: {
   postApId: string;
   queryKeyParentId?: number;
@@ -93,6 +98,7 @@ export function PostComment({
   communityName?: string;
   modApIds?: string[];
   singleCommentThread?: boolean;
+  highlightCommentId?: string;
 }) {
   const linkCtx = useLinkContext();
   const [alrt] = useIonAlert();
@@ -171,6 +177,9 @@ export function PostComment({
     return parent.join(".");
   }, [level, commentPath, singleCommentThread]);
 
+  const highlightComment =
+    highlightCommentId && highlightCommentId === String(comment.id);
+
   const content = (
     <div
       className={cn(
@@ -217,6 +226,7 @@ export function PostComment({
       )}
       <details open className={cn(comment.id < 0 && "opacity-50")}>
         <Byline
+          className={cn("pb-2", highlightComment && "bg-brand/10")}
           creator={creator}
           publishedDate={comment.published}
           authorType={
@@ -230,12 +240,15 @@ export function PostComment({
           }
         />
 
-        <div className="pt-1.5">
+        <div>
           {comment.deleted && <span className="italic text-sm">deleted</span>}
           {comment.removed && <span className="italic text-sm">removed</span>}
 
           {!hideContent && !edit.isEditing && (
-            <MarkdownRenderer markdown={comment.content} />
+            <MarkdownRenderer
+              markdown={comment.content}
+              className={cn(highlightComment && "bg-brand/10")}
+            />
           )}
 
           {edit.isEditing && (
@@ -360,6 +373,7 @@ export function PostComment({
                   opId={opId}
                   myUserId={myUserId}
                   communityName={communityName}
+                  highlightCommentId={highlightCommentId}
                 />
               ))}
 

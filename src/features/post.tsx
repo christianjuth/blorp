@@ -70,7 +70,9 @@ export default function Post() {
 
   const decodedApId = apId ? decodeURIComponent(apId) : undefined;
 
-  const [commentId] = commentPath?.split(".") ?? [];
+  const commentPathArr = commentPath?.split(".") ?? [];
+  const [commentId] = commentPathArr;
+  const highlightCommentId = commentPathArr.at(-1);
 
   const myUserId = useAuth(
     (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
@@ -185,6 +187,7 @@ export default function Post() {
                   {...getPostProps(post, {
                     featuredContext: "community",
                     modApIds,
+                    detailView: true,
                   })}
                 />
               ) : (
@@ -235,6 +238,7 @@ export default function Post() {
             ]}
             renderItem={({ item }) => (
               <MemoedPostComment
+                highlightCommentId={highlightCommentId}
                 postApId={decodedApId}
                 queryKeyParentId={parentId}
                 commentMap={item[1]}

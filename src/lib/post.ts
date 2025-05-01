@@ -1,7 +1,10 @@
 import { Post } from "lemmy-js-client";
 import { isYouTubeVideoUrl } from "./youtube";
 
-export function getPostEmbed(post: Post) {
+export function getPostEmbed(
+  post: Post,
+  imageMode: "optimized" | "full-resolution",
+) {
   const urlContentType = post.url_content_type;
 
   let embedType: "image" | "video" | "article" | "youtube" | "loops" =
@@ -29,7 +32,11 @@ export function getPostEmbed(post: Post) {
   }
 
   let thumbnail = post.thumbnail_url;
-  if (!thumbnail && post.url && embedType === "image") {
+  if (
+    (!thumbnail || imageMode === "full-resolution") &&
+    post.url &&
+    embedType === "image"
+  ) {
     thumbnail = post.url;
   }
 

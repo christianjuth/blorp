@@ -22,6 +22,7 @@ import {
   FeaturePost,
   UploadImage,
   MarkPostAsRead,
+  GetPersonMentions,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -94,7 +95,7 @@ function useLemmyClient(config?: { instance?: string }) {
       setJwt(jwt);
     }
 
-    const queryKeyPrefix = [`instance-${instance}`];
+    const queryKeyPrefix: unknown[] = [`instance-${instance}`];
     if (myUserId) {
       queryKeyPrefix.push(`user-${myUserId}`);
     }
@@ -243,30 +244,7 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
       cacheProfiles(getCachePrefixer(), [_.omit(res.person_view, "is_admin")]);
 
       const posts = res.posts.map((post_view) => flattenPost({ post_view }));
-      const cachedPosts = cachePosts(getCachePrefixer(), posts);
-
-      prefetchImage(
-        res.posts
-          .map(({ post }) => getPostEmbed(post).thumbnail)
-          .filter(Boolean) as string[],
-      );
-
-      let i = 0;
-      for (const { post } of res.posts) {
-        const thumbnail = post.thumbnail_url;
-        if (thumbnail) {
-          setTimeout(() => {
-            if (!cachedPosts[post.ap_id]?.data.imageDetails) {
-              // measureImage(thumbnail).then((data) => {
-              //   patchPost(post.ap_id, {
-              //     imageDetails: data,
-              //   });
-              // });
-            }
-          }, i);
-          i += 50;
-        }
-      }
+      cachePosts(getCachePrefixer(), posts);
 
       const comments = res.comments.map(flattenComment);
       cacheComments(getCachePrefixer(), comments);
@@ -338,7 +316,7 @@ export function usePost({
         cross_posts: res2.cross_posts,
       });
 
-      const cachedPost = cachePost(getCachePrefixer(), {
+      cachePost(getCachePrefixer(), {
         ...post,
         // Fetching an individual post marks it
         // as read, but not until the next request
@@ -354,20 +332,6 @@ export function usePost({
       ]);
 
       cacheProfiles(getCachePrefixer(), [{ person: resPost.creator }]);
-
-      const { thumbnail, type: embedType } = getPostEmbed(post.post);
-      if (thumbnail) {
-        if (!cachedPost.imageDetails && embedType === "image") {
-          // measureImage(thumbnail).then((data) => {
-          //   if (data) {
-          //     patchPost(ap_id, {
-          //       imageDetails: data,
-          //     });
-          //   }
-          // });
-        }
-        prefetchImage([thumbnail]);
-      }
 
       return post;
     },
@@ -496,8 +460,6 @@ export function useComments(form: GetComments) {
   });
 }
 
-const warmedFeeds = new Map<string, boolean>();
-
 interface UsePostsConfig extends GetPosts {
   enabled?: boolean;
 }
@@ -607,7 +569,6 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   };
 
   const queryKey = usePostsKey(form);
-  const queryKeyStr = queryKey.join("-");
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
   // const patchPost = usePostsStore((s) => s.patchPost);
@@ -623,8 +584,6 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
     pageParam: string;
     signal: AbortSignal;
   }) => {
-    warmedFeeds.set(queryKeyStr, true);
-
     const res = await client.getPosts(
       {
         ...form,
@@ -636,7 +595,7 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
     );
 
     const posts = res.posts.map((post_view) => flattenPost({ post_view }));
-    const cachedPosts = cachePosts(getCachePrefixer(), posts);
+    cachePosts(getCachePrefixer(), posts);
 
     cacheCommunities(
       getCachePrefixer(),
@@ -648,40 +607,11 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
       res.posts.map((p) => ({ person: p.creator })),
     );
 
-    prefetchImage(
-      res.posts
-        .map(({ post }) => getPostEmbed(post).thumbnail)
-        .filter(Boolean) as string[],
-    );
-
-    let i = 0;
-    for (const { post } of res.posts) {
-      const { thumbnail, type: embedType } = getPostEmbed(post);
-
-      if (thumbnail) {
-        setTimeout(() => {
-          if (
-            !cachedPosts[post.ap_id]?.data.imageDetails &&
-            embedType === "image"
-          ) {
-            // measureImage(thumbnail).then((data) => {
-            //   patchPost(post.ap_id, {
-            //     imageDetails: data,
-            //   });
-            // });
-          }
-        }, i);
-        i += 50;
-      }
-    }
-
     return {
       posts: posts.map((p) => p.post.ap_id),
       next_page: res.next_page,
     };
   };
-
-  const isWarmed = warmedFeeds.get(queryKeyStr) ?? false;
 
   const query = useThrottledInfiniteQuery({
     queryKey,
@@ -692,15 +622,8 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
     staleTime: form.saved_only ? 0 : Infinity,
     refetchOnWindowFocus: false,
     refetchInterval: false,
-    refetchOnMount: isWarmed ? false : "always",
     enabled: enabled && (form.type_ === "Subscribed" ? isLoggedIn : true),
   });
-
-  useEffect(() => {
-    if (!isWarmed) {
-      query.truncatePages();
-    }
-  }, []);
 
   const queryClient = useQueryClient();
   const prefetch = () =>
@@ -727,6 +650,8 @@ function isInfiniteQueryData(data: any): data is InfiniteData<any> {
   );
 }
 
+const warmedInfiniteQueryKeys = new Map<string, boolean>();
+
 function useThrottledInfiniteQuery<
   TQueryFnData,
   TError = DefaultError,
@@ -747,25 +672,32 @@ function useThrottledInfiniteQuery<
   const throttleQueue = useThrottleQueue(options.queryKey);
   const queryFn = options.queryFn;
 
-  // const focused = useIsFocused();
+  // Used to check if we are in an active route
+  // but now we do this from within the list virtualizer.
+  // Leaving this here for now as we may want to add it back
   const focused = true;
 
-  useEffect(() => {
-    if (focused) {
-      throttleQueue.play();
-    } else {
-      throttleQueue.pause();
-    }
-  }, [throttleQueue, focused]);
+  //useEffect(() => {
+  //  if (focused) {
+  //    throttleQueue.play();
+  //  } else {
+  //    throttleQueue.pause();
+  //  }
+  //}, [throttleQueue, focused]);
+
+  const queryKeyStr = options.queryKey.join("-");
+  const isWarmed = warmedInfiniteQueryKeys.get(queryKeyStr) ?? false;
 
   const query = useInfiniteQuery({
+    refetchOnMount: isWarmed ? false : "always",
     ...options,
     ...(_.isFunction(queryFn)
       ? {
           queryFn: (ctx: any) => {
-            return throttleQueue.enqueue<TQueryFnData>(
-              async () => await queryFn(ctx),
-            );
+            return throttleQueue.enqueue<TQueryFnData>(async () => {
+              warmedInfiniteQueryKeys.set(queryKeyStr, true);
+              return await queryFn(ctx);
+            });
           },
         }
       : {}),
@@ -795,7 +727,7 @@ function useThrottledInfiniteQuery<
     },
   };
 
-  return {
+  const queryWithTruncate = {
     ...extendedQuery,
     truncatePages: () => {
       queryClient.setQueryData<InfiniteData<any>>(options.queryKey, (data) => {
@@ -809,6 +741,14 @@ function useThrottledInfiniteQuery<
       });
     },
   };
+
+  useEffect(() => {
+    if (!isWarmed) {
+      queryWithTruncate.truncatePages();
+    }
+  }, []);
+
+  return queryWithTruncate;
 }
 
 export function useListCommunities(form: ListCommunities) {
@@ -1337,15 +1277,49 @@ export function useReplies(form: GetReplies) {
 
   return useThrottledInfiniteQuery({
     queryKey,
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       const limit = form.limit ?? 50;
-      const { replies } = await client.getReplies({
-        ...form,
-        limit,
-      });
+      const { replies } = await client.getReplies(
+        {
+          ...form,
+          limit,
+        },
+        {
+          signal,
+        },
+      );
       return {
         replies,
         nextPage: replies.length < limit ? null : pageParam + 1,
+      };
+    },
+    initialPageParam: 1,
+    getNextPageParam: (prev) => prev.nextPage,
+    enabled: isLoggedIn,
+    refetchOnWindowFocus: "always",
+  });
+}
+
+export function usePersonMentions(form: GetPersonMentions) {
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+  const { client, queryKeyPrefix } = useLemmyClient();
+  const queryKey = [...queryKeyPrefix, "getPersonMentions", form];
+  return useThrottledInfiniteQuery({
+    queryKey,
+    queryFn: async ({ pageParam, signal }) => {
+      const limit = form.limit ?? 50;
+      const { mentions } = await client.getPersonMentions(
+        {
+          ...form,
+          limit,
+        },
+        {
+          signal,
+        },
+      );
+      return {
+        mentions,
+        nextPage: mentions.length < limit ? null : pageParam + 1,
       };
     },
     initialPageParam: 1,
