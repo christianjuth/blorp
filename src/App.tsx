@@ -11,10 +11,12 @@ import { SplashScreen } from "@capacitor/splash-screen";
 import { useEffect } from "react";
 import Bowser from "bowser";
 import { registerSafeArea } from "./lib/android";
+import * as notifications from "@/src/lib/notifications";
 
 import "remove-focus-outline";
 
 registerSafeArea();
+notifications.getPermission();
 
 const browser = Bowser.getParser(window.navigator.userAgent);
 

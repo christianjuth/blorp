@@ -19,13 +19,27 @@ export default defineConfig(({ mode }) => ({
       targets: ["defaults", "not IE 11"],
     }),
   ],
-  esbuild: {
-    drop: mode === "production" ? ["console"] : [],
-  },
+  //esbuild: {
+  //  drop: mode === "production" ? ["console"] : [],
+  //},
   resolve: {
     alias: {
       "@": path.resolve(__dirname),
     },
   },
   publicDir: "public",
+  //build: {
+  //  rollupOptions: {
+  //    input: {
+  //      main: path.resolve(__dirname, "index.html"),
+  //      background: path.resolve(__dirname, "src/background-runner.ts"),
+  //    },
+  //    output: {
+  //      entryFileNames: (chunk) =>
+  //        chunk.name === "background"
+  //          ? "background-runner.js"
+  //          : "[name]-[hash].js",
+  //    },
+  //  },
+  //},
 }));

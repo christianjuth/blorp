@@ -1,6 +1,7 @@
 /// <reference types="@capacitor/splash-screen" />
 /// <reference types="@capacitor-community/safe-area" />
 /// <reference types="@capacitor-community/sqlite" />
+/// <reference types="@capacitor/background-runner" />
 
 import type { CapacitorConfig } from "@capacitor/cli";
 import { KeyboardResize, KeyboardStyle } from "@capacitor/keyboard";
@@ -33,6 +34,14 @@ const config: CapacitorConfig = {
       resize: KeyboardResize.Ionic,
       style: KeyboardStyle.Dark,
       resizeOnFullScreen: true,
+    },
+    BackgroundRunner: {
+      label: "xyz.blorpblorp.background.task",
+      src: "background-runner.js",
+      event: "checkLemmyNotifications",
+      repeat: true,
+      interval: 15,
+      autoStart: true,
     },
   },
 };

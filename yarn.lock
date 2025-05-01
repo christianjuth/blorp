@@ -1488,6 +1488,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/background-runner@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@capacitor/background-runner@npm:2.1.0"
+  peerDependencies:
+    "@capacitor/core": ^6.0.0 || ^7.0.0
+  checksum: 10c0/e116d675c764747adbea6c5945a41e7b4fbc845d5a8ed6db9691d27f4f6678c31d604034a31649672e561e4cb7731f5ac16283fea6c065eaa3ffb19e4fd2ed82
+  languageName: node
+  linkType: hard
+
 "@capacitor/cli@npm:^5.3.0":
   version: 5.7.8
   resolution: "@capacitor/cli@npm:5.7.8"
@@ -1595,6 +1604,15 @@ __metadata:
   peerDependencies:
     "@capacitor/core": ">=7.0.0"
   checksum: 10c0/0c10d79d46386dc0a672fcc148a7ad411193d94a424494ee775cf642e0f66776d3625bc0ad05e92ecd75c2a2a6317a4ebe4decee55b10d0dfadf974515ca7372
+  languageName: node
+  linkType: hard
+
+"@capacitor/local-notifications@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "@capacitor/local-notifications@npm:7.0.1"
+  peerDependencies:
+    "@capacitor/core": ">=7.0.0"
+  checksum: 10c0/38ffeb7219582ad55318b95f9c402ef2fb42cdb8e41bfd6a075f5dbd2e7bfbc11929af7880751a1215c68033421b9c4ae9ad8f4a8a13b05c7f25c32621727614
   languageName: node
   linkType: hard
 
@@ -10097,6 +10115,7 @@ __metadata:
     "@capacitor/android": "npm:^7.1.0"
     "@capacitor/app": "npm:^7.0.0"
     "@capacitor/assets": "npm:^3.0.5"
+    "@capacitor/background-runner": "npm:^2.1.0"
     "@capacitor/cli": "npm:^7.1.0"
     "@capacitor/core": "npm:^7.1.0"
     "@capacitor/filesystem": "npm:^7.0.1"
@@ -10104,6 +10123,7 @@ __metadata:
     "@capacitor/inappbrowser": "npm:^2.0.1"
     "@capacitor/ios": "npm:^7.1.0"
     "@capacitor/keyboard": "npm:^7.0.1"
+    "@capacitor/local-notifications": "npm:^7.0.1"
     "@capacitor/share": "npm:^7.0.1"
     "@capacitor/splash-screen": "npm:^7.0.0"
     "@capacitor/status-bar": "npm:^7.0.0"
