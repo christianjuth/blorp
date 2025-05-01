@@ -8,17 +8,38 @@ import { cn } from "@/src/lib/utils";
 import { Capacitor } from "@capacitor/core";
 import { Skeleton } from "../ui/skeleton";
 import { useState } from "react";
+import { useLongPress } from "use-long-press";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { shareImage } from "@/src/lib/share";
 
 export function PostArticleEmbed({
+  name,
   url,
   displayUrl,
   thumbnail,
 }: {
+  name: string;
   url?: string;
   displayUrl?: string;
   thumbnail?: string;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
+
+  const handlers = useLongPress(
+    async () => {
+      if (thumbnail) {
+        Haptics.impact({ style: ImpactStyle.Heavy });
+        shareImage(name, thumbnail);
+      }
+    },
+    {
+      cancelOnMovement: 15,
+      onStart: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      },
+    },
+  );
 
   return (
     <a
@@ -51,6 +72,7 @@ export function PostArticleEmbed({
         display: !url ? "none" : undefined,
       }}
       className="flex flex-col"
+      {...handlers()}
     >
       {thumbnail && (
         <div className="relative aspect-video overflow-hidden">

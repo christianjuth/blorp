@@ -276,6 +276,7 @@ export function FeedPostCard(props: PostProps) {
 
       {showArticle && (
         <PostArticleEmbed
+          name={name}
           url={showArticle ? url : undefined}
           displayUrl={showArticle ? displayUrl : undefined}
           thumbnail={showArticle ? thumbnail : undefined}
