@@ -41,7 +41,7 @@ import { Label } from "@/src/components/ui/label";
 import { cn } from "../lib/utils";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { Link } from "react-router-dom";
+import { Link } from "@/src/components/nav/index";
 import { v4 as uuid } from "uuid";
 import { MdDelete } from "react-icons/md";
 import { useMedia, useUrlSearchState } from "../lib/hooks";
@@ -71,7 +71,11 @@ function DraftsSidebar({
       <div className="flex flex-row justify-between items-center">
         <h2 className="font-bold">Drafts</h2>
         <Button size="sm" variant="ghost" asChild>
-          <Link to={`/create?id=${uuid()}`} onClick={onClickDraft}>
+          <Link
+            to="/create"
+            searchParams={`?id=${uuid()}`}
+            onClick={onClickDraft}
+          >
             New
           </Link>
         </Button>
@@ -85,7 +89,8 @@ function DraftsSidebar({
           return (
             <div key={key} className="relative">
               <Link
-                to={`/create?id=${key}`}
+                to="/create"
+                searchParams={`?id=${key}`}
                 className={cn(
                   "bg-muted border px-3 py-2 gap-1 rounded-lg flex flex-col",
                   createPostId === key &&

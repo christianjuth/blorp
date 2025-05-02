@@ -7,7 +7,7 @@ import { CommunityJoinButton } from "./community-join-button";
 import { useLinkContext } from "../nav/link-context";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import { LuCakeSlice } from "react-icons/lu";
-import { Link } from "react-router-dom";
+import { Link } from "@/src/components/nav/index";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/src/stores/auth";
@@ -23,6 +23,7 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { PersonCard } from "../person/person-card";
+import { shareRoute } from "@/src/lib/share";
 
 dayjs.extend(localizedFormat);
 
@@ -69,8 +70,8 @@ export function CommunitySidebar({
       {
         text: "Share",
         onClick: () =>
-          Share.share({
-            url: `https://blorpblorp.xyz${linkCtx.root}c/${communityName}`,
+          shareRoute({
+            route: `${linkCtx.root}c/${communityName}`,
           }),
       },
       ...(actorId
@@ -230,8 +231,8 @@ export function SmallScreenSidebar({
       {
         text: "Share",
         onClick: () =>
-          Share.share({
-            url: `https://blorpblorp.xyz${linkCtx.root}c/${communityName}`,
+          shareRoute({
+            route: `${linkCtx.root}c/${communityName}`,
           }),
       },
       ...(actorId

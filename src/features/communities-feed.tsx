@@ -22,7 +22,7 @@ import {
 import { MenuButton, UserDropdown } from "../components/nav";
 import { CommunityFilter, CommunitySortSelect } from "../components/lemmy-sort";
 import { Title } from "../components/title";
-import { Link } from "react-router-dom";
+import { Link } from "@/src/components/nav/index";
 import { searchOutline } from "ionicons/icons";
 import { useAuth } from "../stores/auth";
 

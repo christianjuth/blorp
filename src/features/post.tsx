@@ -31,7 +31,8 @@ import {
   IonPage,
   IonToolbar,
 } from "@ionic/react";
-import { useParams } from "react-router";
+import { useParams } from "@/src/components/nav/index";
+import z from "zod";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
 import { useMedia, useTheme } from "../lib/hooks";
@@ -61,12 +62,17 @@ const MemoedPostCard = memo((props: PostProps) => (
 export default function Post() {
   const theme = useTheme();
   const media = useMedia();
-  const { communityName } = useParams<{ communityName: string }>();
-
-  const { post: apId, comment: commentPath } = useParams<{
-    post: string;
-    comment?: string;
-  }>();
+  const {
+    communityName,
+    post: apId,
+    comment: commentPath,
+  } = useParams(
+    z.object({
+      communityName: z.string(),
+      post: z.string(),
+      comment: z.string().optional(),
+    }),
+  );
 
   const decodedApId = apId ? decodeURIComponent(apId) : undefined;
 

@@ -10,7 +10,7 @@ import { useShowPostReportModal } from "./post-report";
 import { useAuth, getAccountActorId } from "@/src/stores/auth";
 import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "@/src/components/nav/index";
 import { RelativeTime } from "../relative-time";
 import { ActionMenu, ActionMenuProps } from "../action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
@@ -31,6 +31,7 @@ import { Badge } from "@/src/components/ui/badge";
 import { postToDraft, useCreatePostStore } from "@/src/stores/create-post";
 import { usePostsStore } from "@/src/stores/posts";
 import { cn } from "@/src/lib/utils";
+import { shareRoute } from "@/src/lib/share";
 
 export function PostByline({
   id,
@@ -96,8 +97,8 @@ export function PostByline({
       {
         text: "Share",
         onClick: () =>
-          Share.share({
-            url: `https://blorpblorp.xyz${linkCtx.root}${communitySlug}/posts/${encodedApId}`,
+          shareRoute({
+            route: `${linkCtx.root}c/${communitySlug}/posts/${encodedApId}`,
           }),
       },
       {

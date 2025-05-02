@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory } from "@/src/components/nav/index";
 import { App, URLOpenListenerEvent } from "@capacitor/app";
 
 export const AppUrlListener: React.FC<any> = () => {
@@ -8,7 +8,7 @@ export const AppUrlListener: React.FC<any> = () => {
     App.addListener("appUrlOpen", (event: URLOpenListenerEvent) => {
       try {
         const url = new URL(event.url);
-        history.push(url.pathname);
+        history.push(url.pathname as never);
       } catch {}
     });
   }, []);

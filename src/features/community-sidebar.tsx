@@ -11,13 +11,14 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { useParams } from "react-router";
+import { useParams } from "@/src/components/nav/index";
+import z from "zod";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
 export default function CommunityFeed() {
-  const { communityName } = useParams<{ communityName: string }>();
+  const { communityName } = useParams(z.object({ communityName: z.string() }));
 
   const community = useCommunity({
     name: communityName,

@@ -17,7 +17,7 @@ import { useLinkContext } from "../components/nav/link-context";
 import { encodeApId } from "../lib/lemmy/utils";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
-import { Link } from "react-router-dom";
+import { Link } from "@/src/components/nav/index";
 import {
   IonBackButton,
   IonButtons,

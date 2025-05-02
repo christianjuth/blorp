@@ -27,7 +27,8 @@ import {
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
-import { useParams } from "react-router";
+import { useParams } from "@/src/components/nav/index";
+import z from "zod";
 import { CommunityBanner } from "../components/communities/community-banner";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
@@ -35,7 +36,7 @@ import { UserDropdown } from "../components/nav";
 import { PostSortBar } from "../components/lemmy-sort";
 import { Title } from "../components/title";
 import { useLinkContext } from "../components/nav/link-context";
-import { Link } from "react-router-dom";
+import { Link } from "@/src/components/nav/index";
 import { searchOutline } from "ionicons/icons";
 import { useFiltersStore } from "../stores/filters";
 import { Button } from "../components/ui/button";
@@ -65,7 +66,7 @@ export default function CommunityFeed() {
   const router = useIonRouter();
   const [search, setSearch] = useState("");
 
-  const { communityName } = useParams<{ communityName: string }>();
+  const { communityName } = useParams(z.object({ communityName: z.string() }));
 
   const postSort = useFiltersStore((s) => s.postSort);
   const posts = usePosts({

@@ -4,6 +4,7 @@
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
+import type { Route } from "../components/nav/routes.d";
 
 function blobToString(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -60,4 +61,10 @@ export async function shareImage(name: string, imageUrl: string) {
     link.click();
     URL.revokeObjectURL(link.href);
   }
+}
+
+export function shareRoute({ route }: { route: Route }) {
+  return Share.share({
+    url: `https://blorpblorp.xyz${route}`,
+  });
 }
