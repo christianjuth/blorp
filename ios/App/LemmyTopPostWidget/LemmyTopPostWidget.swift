@@ -174,7 +174,7 @@ struct LemmyTopPostWidgetEntryView: View {
         ZStack {
             VStack(alignment: .leading, spacing: 7) {
                 HStack(alignment: .top) {
-                    Text("Top post")
+                    Text("Top post today")
                         .font(.subheadline)
                         .foregroundColor(.white)
                     Spacer()
