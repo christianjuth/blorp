@@ -19,7 +19,7 @@ import { useProfilesStore } from "../stores/profiles";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
 import { CommentView } from "lemmy-js-client";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "@/src/components/nav/index";
 import {
   IonBackButton,
   IonButtons,
@@ -91,7 +91,11 @@ const EMPTY_ARR: never[] = [];
 
 export default function User() {
   const media = useMedia();
-  const { userId } = useParams<{ userId: string }>();
+  const { userId } = useParams(
+    z.object({
+      userId: z.string(),
+    }),
+  );
 
   const actorId = userId ? decodeApId(userId) : undefined;
 

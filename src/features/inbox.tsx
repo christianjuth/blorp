@@ -1,5 +1,5 @@
 import { CommentReplyView, PersonMentionView } from "lemmy-js-client";
-import { Link } from "react-router-dom";
+import { Link } from "@/src/components/nav/index";
 import { FlashList } from "@/src/components/flashlist";
 import { ContentGutters } from "@/src/components/gutters";
 import { MarkdownRenderer } from "../components/markdown/renderer";

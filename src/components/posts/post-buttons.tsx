@@ -2,7 +2,7 @@ import { useLikePost } from "@/src/lib/lemmy/index";
 import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 
-import { Link } from "react-router-dom";
+import { Link, LinkProps } from "@/src/components/nav/index";
 
 import {
   PiArrowFatUpBold,
@@ -93,7 +93,7 @@ export function PostCommentsButton({
   onClick,
 }: {
   commentsCount: number;
-  href?: string;
+  href?: LinkProps["to"];
   onClick?: () => void;
 }) {
   if (href) {

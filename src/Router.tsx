@@ -14,7 +14,7 @@ import {
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import { pencil, cog, notifications, people, home } from "ionicons/icons";
-import { Route, Redirect, Link } from "react-router-dom";
+import { Route, Link, Redirect } from "@/src/components/nav/index";
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 import { useMedia } from "@/src/lib/hooks";
@@ -95,9 +95,9 @@ const CREATE_POST_STACK = [
 const COMMUNITIES_STACK = [
   <Route path="/communities/*" component={NotFound} />,
   <Route
-    key="/communities/"
+    key="/communities"
     exact
-    path="/communities/"
+    path="/communities"
     component={CommunitiesFeed}
   />,
   <Route key="/communities/s" exact path="/communities/s">

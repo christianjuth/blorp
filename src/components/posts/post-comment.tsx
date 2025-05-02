@@ -14,7 +14,7 @@ import { useRequireAuth } from "../auth-context";
 import { useLinkContext } from "../nav/link-context";
 import { Person } from "lemmy-js-client";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
-import { Link } from "react-router-dom";
+import { Link } from "../nav/index";
 import {
   Avatar,
   AvatarFallback,
@@ -32,6 +32,7 @@ import { Badge } from "@/src/components/ui/badge";
 import { Button } from "../ui/button";
 import { useMemo } from "react";
 import { ContentGutters } from "../gutters";
+import { shareRoute } from "@/src/lib/share";
 
 function Byline({
   creator,
@@ -266,8 +267,8 @@ export function PostComment({
                 {
                   text: "Share",
                   onClick: () =>
-                    Share.share({
-                      url: `https://blorpblorp.xyz${linkCtx.root}c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
+                    shareRoute({
+                      route: `${linkCtx.root}c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
                     }),
                 } as const,
                 ...(isMyComment && !comment.deleted

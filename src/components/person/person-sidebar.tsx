@@ -22,6 +22,7 @@ import { useIonAlert } from "@ionic/react";
 import { useRequireAuth } from "../auth-context";
 import { useBlockPerson } from "@/src/lib/lemmy";
 import { getAccountActorId, useAuth } from "@/src/stores/auth";
+import { shareRoute } from "@/src/lib/share";
 
 dayjs.extend(localizedFormat);
 
@@ -55,8 +56,8 @@ export function PersonSidebar({
             {
               text: "Share",
               onClick: () =>
-                Share.share({
-                  url: `https://blorpblorp.xyz${linkCtx.root}u/${encodeApId(person?.actor_id)}`,
+                shareRoute({
+                  route: `${linkCtx.root}u/${encodeApId(person?.actor_id)}`,
                 }),
             },
             {

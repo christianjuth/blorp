@@ -31,8 +31,6 @@ import {
   InputOTPSlot,
 } from "./ui/input-otp";
 import { LuLoaderCircle } from "react-icons/lu";
-import { Link } from "react-router-dom";
-import * as routes from "@/src/lib/routes";
 
 const Context = createContext<{
   authenticate: (config?: { addAccount?: boolean }) => Promise<void>;
