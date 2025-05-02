@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useSettingsStore } from "@/src/stores/settings";
-import { useLogout } from "@/src/lib/lemmy/index";
-import { parseAccountInfo, useAuth } from "@/src/stores/auth";
+import { useDeleteAccount, useLogout } from "@/src/lib/lemmy/index";
+import { Account, parseAccountInfo, useAuth } from "@/src/stores/auth";
 import { useRequireAuth } from "@/src/components/auth-context";
 import { ContentGutters } from "@/src/components/gutters";
 import _ from "lodash";
@@ -16,61 +16,249 @@ import {
   IonInput,
   IonItem,
   IonList,
+  IonModal,
   IonPage,
   IonTitle,
   IonToggle,
   IonToolbar,
+  useIonAlert,
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
+import { PersonCard } from "../components/person/person-card";
+import { Deferred } from "../lib/deferred";
+import { createSlug } from "../lib/lemmy/utils";
+import { cn } from "../lib/utils";
+import z from "zod";
+
+const deleteAccountFormSchema = z.object({
+  password: z.string(),
+});
 
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
 
-function SectionLabel({ children }: { children: string }) {
-  return <span className="text-sm text-muted-foreground mt-4">{children}</span>;
+function SectionLabel({
+  children,
+  className,
+}: {
+  children: string;
+  className?: string;
+}) {
+  return (
+    <span className={cn("text-sm text-muted-foreground mt-4", className)}>
+      {children}
+    </span>
+  );
+}
+
+function AccountCard({
+  account,
+  accountIndex,
+}: {
+  account: Account;
+  accountIndex: number;
+}) {
+  const modalTriggerId = useId();
+  const modal = useRef<HTMLIonModalElement>(null);
+
+  const [alrt] = useIonAlert();
+  const requireAuth = useRequireAuth();
+  const logout = useLogout();
+  const { person, instance } = parseAccountInfo(account);
+  const isLoggedIn = Boolean(account.jwt);
+  const deleteAccount = useDeleteAccount();
+
+  return (
+    <>
+      <SectionLabel>{`ACCOUNT ${accountIndex + 1}`}</SectionLabel>
+      <IonList inset>
+        {person && (
+          <IonItem>
+            <PersonCard actorId={person.actor_id} className="my-2" />
+          </IonItem>
+        )}
+
+        {isLoggedIn && (
+          <IonItem
+            button
+            id={modalTriggerId}
+            detail={false}
+            className="text-brand"
+          >
+            Manage account
+          </IonItem>
+        )}
+        <IonItem
+          button
+          detail={false}
+          className="text-brand"
+          onClick={() => {
+            if (isLoggedIn && person) {
+              const deferred = new Deferred();
+              alrt({
+                message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
+                buttons: [
+                  {
+                    text: "Cancel",
+                    role: "cancel",
+                    handler: () => deferred.reject(),
+                  },
+                  {
+                    text: "OK",
+                    role: "confirm",
+                    handler: () => deferred.resolve(),
+                  },
+                ],
+              });
+              deferred.promise.then(() => logout(accountIndex));
+            } else {
+              requireAuth();
+            }
+          }}
+        >
+          {[
+            isLoggedIn ? "Logout" : accountIndex > 0 ? "Remove" : "Login",
+            person
+              ? `${person.display_name ?? person.name}@${instance}`
+              : accountIndex > 0
+                ? instance
+                : null,
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        </IonItem>
+      </IonList>
+
+      {person && (
+        <IonModal ref={modal} trigger={modalTriggerId}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>{createSlug(person)?.slug ?? person.name}</IonTitle>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            <div className="flex-1 gap-2 flex flex-col">
+              <SectionLabel className="text-destructive">
+                DANGER ZONE
+              </SectionLabel>
+              <IonList inset>
+                <IonItem
+                  button
+                  onClick={() => {
+                    alrt({
+                      header: "Delete account",
+                      subHeader: "This can not be undone!",
+                      inputs: [
+                        {
+                          name: "password",
+                          placeholder: "Password",
+                          type: "password",
+                        },
+                      ],
+                      buttons: [
+                        {
+                          text: "Cancel",
+                          role: "cancel",
+                        },
+                        {
+                          text: "Delete",
+                          role: "destructive",
+                          handler: (form) => {
+                            const { data } =
+                              deleteAccountFormSchema.safeParse(form);
+                            if (data) {
+                              deleteAccount
+                                .mutateAsync({
+                                  account,
+                                  form: {
+                                    password: data.password,
+                                    delete_content: false,
+                                  },
+                                })
+                                .then(() => modal.current?.dismiss());
+                            }
+                          },
+                        },
+                      ],
+                    });
+                  }}
+                >
+                  Delete account
+                </IonItem>
+                <IonItem
+                  button
+                  onClick={() => {
+                    alrt({
+                      header: "Delete account and content",
+                      subHeader: "This can not be undone!",
+                      inputs: [
+                        {
+                          name: "password",
+                          placeholder: "Password",
+                          type: "password",
+                        },
+                      ],
+                      buttons: [
+                        {
+                          text: "Cancel",
+                          role: "cancel",
+                        },
+                        {
+                          text: "Delete",
+                          role: "destructive",
+                          handler: (form) => {
+                            const { data } =
+                              deleteAccountFormSchema.safeParse(form);
+                            if (data) {
+                              deleteAccount
+                                .mutateAsync({
+                                  account,
+                                  form: {
+                                    password: data.password,
+                                    delete_content: true,
+                                  },
+                                })
+                                .then(() => modal.current?.dismiss());
+                            }
+                          },
+                        },
+                      ],
+                    });
+                  }}
+                >
+                  Delete account and content
+                </IonItem>
+              </IonList>
+            </div>
+          </IonContent>
+        </IonModal>
+      )}
+    </>
+  );
 }
 
 function AccountSection() {
-  const requireAuth = useRequireAuth();
-  const logout = useLogout();
   const accounts = useAuth((s) => s.accounts);
   return (
     <>
-      <SectionLabel>ACCOUNTS</SectionLabel>
-
-      <IonList inset>
-        {accounts.map((a, index) => {
-          const { person, instance } = parseAccountInfo(a);
-          const isLoggedIn = Boolean(a.jwt);
-          return (
-            <IonItem
-              key={instance + index}
-              button
-              detail={false}
-              className="text-brand"
-              onClick={() => {
-                if (isLoggedIn || index > 0) {
-                  logout(index);
-                } else {
-                  requireAuth();
-                }
-              }}
-            >
-              {[
-                isLoggedIn ? "Logout" : index === 0 ? "Login" : "Remove",
-                person
-                  ? `${person.display_name ?? person.name}@${instance}`
-                  : index > 0
-                    ? instance
-                    : null,
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            </IonItem>
-          );
-        })}
-      </IonList>
+      {accounts.map((a, index) => {
+        const { instance } = parseAccountInfo(a);
+        return (
+          <AccountCard
+            key={instance + index}
+            accountIndex={index}
+            account={a}
+            //onClick={() => {
+            //  if (isLoggedIn || index > 0) {
+            //    logout(index);
+            //  } else {
+            //    requireAuth();
+            //  }
+            //}}
+          />
+        );
+      })}
     </>
   );
 }
@@ -216,7 +404,7 @@ export default function SettingsPage() {
           <div className="flex-1 gap-2 flex flex-col">
             <AccountSection />
 
-            <SectionLabel>FILTERS</SectionLabel>
+            <SectionLabel>GLOBAL FILTERS</SectionLabel>
 
             <IonList inset>
               <IonItem>
@@ -240,7 +428,7 @@ export default function SettingsPage() {
               </IonItem>*/}
             </IonList>
 
-            <SectionLabel>FILTER KEYWORDS</SectionLabel>
+            <SectionLabel>GLOBAL KEYWORD FILTERS</SectionLabel>
 
             <IonList inset>
               {keywords.map((keyword, index) => (

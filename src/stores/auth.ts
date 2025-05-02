@@ -22,7 +22,7 @@ export function getCachePrefixer(account?: Account): CachePrefixer {
   };
 }
 
-type Account = {
+export type Account = {
   instance: string;
   jwt?: string;
   site?: GetSiteResponse;

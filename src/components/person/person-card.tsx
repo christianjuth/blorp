@@ -10,6 +10,7 @@ import { useAuth } from "@/src/stores/auth";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
 import { useLinkContext } from "../nav/link-context";
+import { usePersonDetails } from "@/src/lib/lemmy";
 
 export function PersonCard({
   actorId,
@@ -25,10 +26,14 @@ export function PersonCard({
   const personView = useProfilesStore((s) =>
     actorId ? s.profiles[getCachePrefixer()(actorId)]?.data : undefined,
   );
+  usePersonDetails({
+    actorId,
+    enabled: !personView,
+  });
   const slug = personView ? createSlug(personView.person) : null;
 
   if (!personView) {
-    return null;
+    return <PersonSkeletonCard size={size} className={className} />;
   }
 
   const content = (
@@ -67,7 +72,7 @@ export function PersonCard({
   );
 }
 
-export function CommunityCardSkeleton({
+export function PersonSkeletonCard({
   className,
   size = "md",
 }: {
@@ -87,7 +92,6 @@ export function CommunityCardSkeleton({
 
       <div className="flex flex-col gap-1">
         <Skeleton className="h-3 w-32" />
-        <Skeleton className="h-3 w-44" />
       </div>
     </div>
   );

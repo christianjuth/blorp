@@ -23,6 +23,7 @@ import {
   UploadImage,
   MarkPostAsRead,
   GetPersonMentions,
+  DeleteAccount,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -37,7 +38,12 @@ import {
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "@/src/stores/filters";
-import { useAuth } from "../../stores/auth";
+import {
+  Account,
+  getAccountActorId,
+  parseAccountInfo,
+  useAuth,
+} from "../../stores/auth";
 import { useEffect, useMemo, useRef } from "react";
 import { prefetch as prefetchImage } from "@/src/components/image";
 import _ from "lodash";
@@ -47,7 +53,12 @@ import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
 import { useThrottleQueue } from "../throttle-queue";
 import { useCommunitiesStore } from "../../stores/communities";
-import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
+import {
+  createCommunitySlug,
+  createSlug,
+  FlattenedPost,
+  flattenPost,
+} from "./utils";
 // import { measureImage } from "../image";
 import { getPostEmbed } from "../post";
 import { useProfilesStore } from "@/src/stores/profiles";
@@ -63,6 +74,12 @@ enum Errors {
   OBJECT_NOT_FOUND = "couldnt_find_object",
 }
 
+const DEFAULT_HEADERS = {
+  // lemmy.ml will reject requests if
+  // User-Agent header is not present
+  "User-Agent": "blorp",
+};
+
 function useLemmyClient(config?: { instance?: string }) {
   let jwt = useAuth((s) => s.getSelectedAccount().jwt);
   const myUserId = useAuth(
@@ -77,16 +94,12 @@ function useLemmyClient(config?: { instance?: string }) {
 
   return useMemo(() => {
     const client = new LemmyHttp(instance.replace(/\/$/, ""), {
-      headers: {
-        // lemmy.ml will reject requests if
-        // User-Agent header is not present
-        "User-Agent": "blorp",
-      },
+      headers: DEFAULT_HEADERS,
     });
 
     const setJwt = (jwt: string) => {
       client.setHeaders({
-        "User-Agent": "blorp",
+        ...DEFAULT_HEADERS,
         Authorization: `Bearer ${jwt}`,
       });
     };
@@ -861,6 +874,8 @@ function is2faError(err?: Error | null) {
 export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
   const { client, setJwt } = useLemmyClient(config);
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   const updateAccount = useAuth((s) => s.updateAccount);
   const addAccount = useAuth((s) => s.addAccount);
 
@@ -870,6 +885,7 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
       if (res.jwt) {
         setJwt(res.jwt);
         const site = await client.getSite();
+        const person = site.my_user?.local_user_view.person;
         const payload = {
           site,
           jwt: res.jwt,
@@ -881,6 +897,9 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
           });
         } else {
           updateAccount(payload);
+        }
+        if (person) {
+          cacheProfiles(getCachePrefixer(), [{ person }]);
         }
       }
       return res;
@@ -1806,6 +1825,46 @@ export function useUploadImage() {
         toast.error(_.capitalize(err.message.replaceAll("_", " ")));
       } else {
         toast.error("Failed to upload image");
+      }
+    },
+  });
+}
+
+interface DeleteAccountWithCtx {
+  account: Account;
+  form: DeleteAccount;
+}
+export function useDeleteAccount() {
+  const accounts = useAuth((s) => s.accounts);
+  const logout = useAuth((s) => s.logout);
+  return useMutation({
+    mutationFn: ({ account, form }: DeleteAccountWithCtx) => {
+      if (!account.jwt) {
+        throw new Error("Can't delete logged out account");
+      }
+      const client = new LemmyHttp(account.instance);
+      client.setHeaders({
+        ...DEFAULT_HEADERS,
+        Authorization: `Bearer ${account.jwt}`,
+      });
+      return client.deleteAccount(form);
+    },
+    onError: (err) => {
+      // TOOD: find a way to determin if the request
+      // failed because the image was too large
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error("Failed to delete account");
+      }
+    },
+    onSuccess: (_res, { account }) => {
+      const { person } = parseAccountInfo(account);
+      const slug = person ? createSlug(person)?.slug : "";
+      toast.success(`Deleted your account ${slug}`);
+      const accountIndex = accounts.findIndex(({ jwt }) => jwt === account.jwt);
+      if (accountIndex > -1) {
+        logout(accountIndex);
       }
     },
   });
