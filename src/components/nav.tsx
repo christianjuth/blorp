@@ -16,11 +16,12 @@ import {
 } from "@/src/components/ui/avatar";
 import { useState } from "react";
 import { useRequireAuth } from "./auth-context";
-import { IonButton, IonMenuButton } from "@ionic/react";
+import { IonMenuButton } from "@ionic/react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { IoPerson } from "react-icons/io5";
 import { useLogout } from "../lib/lemmy";
 import { LuMenu } from "react-icons/lu";
+import { Button } from "./ui/button";
 
 export function UserDropdown() {
   const linkCtx = useLinkContext();
@@ -36,7 +37,11 @@ export function UserDropdown() {
   const [accountSwitcher, setAccountSwitcher] = useState(false);
 
   if (!person && accounts.length <= 1) {
-    return <IonButton onClick={() => requireAuth()}>Login</IonButton>;
+    return (
+      <Button size="sm" onClick={() => requireAuth()}>
+        Login
+      </Button>
+    );
   }
 
   return (

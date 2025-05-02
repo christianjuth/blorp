@@ -85,23 +85,23 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
 
 SPEC CHECKSUMS:
-  Capacitor: 68ff8eabbcce387e69767c13b5fbcc1c5399eabc
-  CapacitorApp: 45cb7cbef4aa380b9236fd6980033eb5cde6fcd2
-  CapacitorCommunitySafeArea: cc370b4f8d4aa340e4616acef9b73eda41ba0914
-  CapacitorCommunitySqlite: 6501e7349acf998346acf24ef757861bb3f6fc2b
+  Capacitor: bceb785fb78f5e81e4a9e37843bc1c24bd9c7194
+  CapacitorApp: 9cb31064a6c6bb2b1438583733a7bf45557fc1da
+  CapacitorCommunitySafeArea: 3f049619072ab5d0da2529bcb05b358ff6c13dc1
+  CapacitorCommunitySqlite: b11e556cf5d149f9e0b6fbbb47959a6cd718c3d0
   CapacitorCordova: 866217f32c1d25b326c568a10ea3ed0c36b13e29
-  CapacitorFilesystem: 307f97c27a265edf8396a1c9c235592fd8572fe3
-  CapacitorHaptics: 1fba3e460e7614349c6d5f868b1fccdc5c87b66d
-  CapacitorInappbrowser: 9a0a64218b81188dd55f64704c5c4541c63c4e6e
-  CapacitorKeyboard: 969647d0ca2e5c737d7300088e2517aa832434e2
-  CapacitorPluginSafeArea: af80830df43015a915e504a56318a3027d3fc806
-  CapacitorShare: 58d6c2da63b093e8693287b2d36db92435538435
-  CapacitorSplashScreen: f4e58cc02aafd91c7cbaf32a3d1b44d02a115125
-  CapacitorStatusBar: 438e90beeeefa8276b24e6c5991cb02dd13e51bf
+  CapacitorFilesystem: e6261c410436f54908c11f94336c5b58286b1db0
+  CapacitorHaptics: 7be406a91e4eb87287f321c6c68e1709d6837b3a
+  CapacitorInappbrowser: c8915884dd9f8d8cfb8a51da02fc7c4f2e320b9a
+  CapacitorKeyboard: 09fd91dcde4f8a37313e7f11bde553ad1ed52036
+  CapacitorPluginSafeArea: 22031c3436269ca80fac90ec2c94bc7c1e59a81d
+  CapacitorShare: e573823f511f260f598d0423c33b1e3d7bbe5fd1
+  CapacitorSplashScreen: 7e7a0a1113833032f196b3af6fa437baccacf5bc
+  CapacitorStatusBar: a8c4c83ed2e973bdafb979e80e4b00d027832cb7
   OSInAppBrowserLib: c3d0b21a0c8b6d81e69117ad08bb6b8a4849c4e1
   SQLCipher: 77fbe633cd84db04b07876dd50766b4924b57d61
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
 PODFILE CHECKSUM: ba30730c4e5fbbb7862b016316e33a3ca2e35714
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
