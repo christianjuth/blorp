@@ -26,7 +26,6 @@ import { IoEllipsisHorizontal } from "react-icons/io5";
 import { useIonAlert } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
 import { PersonHoverCard } from "../person/person-hover-card";
-import { Share } from "@capacitor/share";
 import { useAuth } from "@/src/stores/auth";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "../ui/button";
@@ -132,10 +131,6 @@ export function PostComment({
 
   const isMyComment = commentView?.comment.creator_id === myUserId;
 
-  if (!commentView) {
-    return null;
-  }
-
   const sorted = _.entries(_.omit(rest, "sort")).sort(
     ([_id1, a], [_id2, b]) => a.sort - b.sort,
   );
@@ -162,11 +157,6 @@ export function PostComment({
       break;
   }
 
-  const comment = commentView.comment;
-  const creator = commentView.creator;
-
-  const hideContent = comment.removed || comment.deleted;
-
   const parentLink = useMemo(() => {
     if (level > 0 || !commentPath || !singleCommentThread) {
       return undefined;
@@ -177,6 +167,15 @@ export function PostComment({
     }
     return parent.join(".");
   }, [level, commentPath, singleCommentThread]);
+
+  if (!commentView) {
+    return null;
+  }
+
+  const comment = commentView.comment;
+  const creator = commentView.creator;
+
+  const hideContent = comment.removed || comment.deleted;
 
   const highlightComment =
     highlightCommentId && highlightCommentId === String(comment.id);
