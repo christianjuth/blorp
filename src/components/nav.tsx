@@ -134,7 +134,12 @@ export function UserDropdown() {
               </Link>
             )}
             {person && (
-              <Link to={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}>
+              <Link
+                to={`${linkCtx.root}u/:userId`}
+                params={{
+                  userId: encodeApId(person.actor_id),
+                }}
+              >
                 <DropdownMenuItem>Profile</DropdownMenuItem>
               </Link>
             )}

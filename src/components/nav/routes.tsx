@@ -1,0 +1,88 @@
+import { z } from "zod";
+import { buildRoute } from "./utils";
+
+const communityNameSchema = z.object({
+  communityName: z.string(),
+});
+
+const postCommentSchema = z.object({
+  communityName: z.string(),
+  post: z.string(),
+  comment: z.string().optional(),
+});
+
+const userSchema = z.object({
+  userId: z.string(),
+});
+
+const searchSchema = z.object({
+  communityName: z.string().optional(),
+});
+
+export const routeDefs = {
+  // Home
+  ...buildRoute("/home"),
+  ...buildRoute("/home/*"),
+  ...buildRoute("/home/s"),
+  ...buildRoute("/home/c/:communityName", communityNameSchema),
+  ...buildRoute("/home/c/:communityName/s", searchSchema),
+  ...buildRoute("/home/c/:communityName/sidebar", communityNameSchema),
+  ...buildRoute("/home/c/:communityName/posts/:post", postCommentSchema),
+  ...buildRoute(
+    "/home/c/:communityName/posts/:post/comments/:comment",
+    postCommentSchema,
+  ),
+  ...buildRoute("/home/u/:userId", userSchema),
+  ...buildRoute("/home/saved"),
+  // Communities
+  ...buildRoute("/communities"),
+  ...buildRoute("/communities/*"),
+  ...buildRoute("/communities/s"),
+  ...buildRoute("/communities/c/:communityName", communityNameSchema),
+  ...buildRoute("/communities/c/:communityName/s", searchSchema),
+  ...buildRoute("/communities/c/:communityName/sidebar", communityNameSchema),
+  ...buildRoute("/communities/c/:communityName/posts/:post", postCommentSchema),
+  ...buildRoute(
+    "/communities/c/:communityName/posts/:post/comments/:comment",
+    postCommentSchema,
+  ),
+  ...buildRoute("/communities/u/:userId", userSchema),
+  ...buildRoute("/communities/saved"),
+  // Inbox
+  ...buildRoute("/inbox"),
+  ...buildRoute("/inbox/*"),
+  ...buildRoute("/inbox/s"),
+  ...buildRoute("/inbox/c/:communityName", communityNameSchema),
+  ...buildRoute("/inbox/c/:communityName/s", searchSchema),
+  ...buildRoute("/inbox/c/:communityName/sidebar", communityNameSchema),
+  ...buildRoute("/inbox/c/:communityName/posts/:post", postCommentSchema),
+  ...buildRoute(
+    "/inbox/c/:communityName/posts/:post/comments/:comment",
+    postCommentSchema,
+  ),
+  ...buildRoute("/inbox/u/:userId", userSchema),
+  ...buildRoute("/inbox/saved"),
+  // Create
+  ...buildRoute("/create"),
+  ...buildRoute("/create/*"),
+  // Settings
+  ...buildRoute("/settings"),
+  ...buildRoute("/settings/*"),
+  // Other
+  ...buildRoute("/download"),
+  ...buildRoute("/support"),
+  ...buildRoute("/privacy"),
+  ...buildRoute("/terms"),
+  ...buildRoute("/csae"),
+} as const;
+
+type RouteDefs = typeof routeDefs;
+export type RoutePath = RouteDefs[keyof RouteDefs]["path"];
+
+// lookup schema by path
+export type DefByPath = {
+  [K in keyof typeof routeDefs as (typeof routeDefs)[K]["path"]]: (typeof routeDefs)[K]["schema"];
+};
+
+// infer the params for each path
+export type ParamsFor<Path extends RoutePath> = z.infer<DefByPath[Path]>;

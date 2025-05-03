@@ -10,7 +10,7 @@ import { useShowPostReportModal } from "./post-report";
 import { useAuth, getAccountActorId } from "@/src/stores/auth";
 import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
-import { Link } from "@/src/components/nav/index";
+import { Link, resolveRoute } from "@/src/components/nav/index";
 import { RelativeTime } from "../relative-time";
 import { ActionMenu, ActionMenuProps } from "../action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
@@ -97,9 +97,12 @@ export function PostByline({
       {
         text: "Share",
         onClick: () =>
-          shareRoute({
-            route: `${linkCtx.root}c/${communitySlug}/posts/${encodedApId}`,
-          }),
+          shareRoute(
+            resolveRoute(`${linkCtx.root}c/:communityName/posts/:post`, {
+              communityName: communitySlug,
+              post: encodedApId,
+            }),
+          ),
       },
       {
         text: saved ? "Unsave" : "Save",
@@ -203,6 +206,14 @@ export function PostByline({
 
   const [communityName, communityHost] = communitySlug.split("@");
 
+  const community = (
+    <>
+      <span className="font-medium text-foreground">c/{communityName}</span>
+      <i>@{communityHost}</i>
+      <RelativeTime prefix=" • " time={published} />
+    </>
+  );
+
   return (
     <div
       className={cn(
@@ -221,23 +232,29 @@ export function PostByline({
 
       <div className="flex flex-col text-muted-foreground">
         <CommunityHoverCard communityName={communitySlug}>
-          <Link
-            to={`${linkCtx.root}c/${communitySlug}`}
-            className="text-xs"
-            onClickCapture={onNavigate}
-          >
-            <span className="font-medium text-foreground">
-              c/{communityName}
-            </span>
-            <i>@{communityHost}</i>
-            <RelativeTime prefix=" • " time={published} />
-          </Link>
+          {communityName ? (
+            <Link
+              to={`${linkCtx.root}c/:communityName`}
+              params={{
+                communityName: communitySlug,
+              }}
+              className="text-xs"
+              onClickCapture={onNavigate}
+            >
+              {community}
+            </Link>
+          ) : (
+            <div className="text-xs">{community}</div>
+          )}
         </CommunityHoverCard>
         {detailView && (
           <div className="flex flex-row text-xs text-muted-foreground gap-1 items-center h-5">
             <PersonHoverCard actorId={creatorApId}>
               <Link
-                to={`${linkCtx.root}u/${encodedCreatorApId}`}
+                to={`${linkCtx.root}u/:userId`}
+                params={{
+                  userId: encodedCreatorApId,
+                }}
                 onClickCapture={onNavigate}
               >
                 {creatorSlug?.name}

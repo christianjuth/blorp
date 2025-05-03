@@ -78,7 +78,12 @@ function Comment({ path }: { path: string }) {
   return (
     <Link
       className="border-b pb-4 mt-4"
-      to={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
+      to={`${linkCtx.root}c/:communityName/posts/:post/comments/:comment`}
+      params={{
+        communityName: community.slug,
+        post: encodeApId(post.ap_id),
+        comment: newPath,
+      }}
     >
       <MarkdownRenderer markdown={comment.content} />
     </Link>

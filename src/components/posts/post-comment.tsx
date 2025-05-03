@@ -14,7 +14,7 @@ import { useRequireAuth } from "../auth-context";
 import { useLinkContext } from "../nav/link-context";
 import { Person } from "lemmy-js-client";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
-import { Link } from "../nav/index";
+import { Link, resolveRoute } from "../nav/index";
 import {
   Avatar,
   AvatarFallback,
@@ -58,7 +58,10 @@ function Byline({
       </Avatar>
       <PersonHoverCard actorId={creator.actor_id}>
         <Link
-          to={`${linkCtx.root}u/${encodeApId(creator.actor_id)}`}
+          to={`${linkCtx.root}u/:userId`}
+          params={{
+            userId: encodeApId(creator.actor_id),
+          }}
           className="text-xs overflow-ellipsis flex flex-row overflow-x-hidden items-center"
         >
           <span className="font-medium">{slug?.name}</span>
@@ -95,7 +98,7 @@ export function PostComment({
   level: number;
   opId: number | undefined;
   myUserId: number | undefined;
-  communityName?: string;
+  communityName: string;
   modApIds?: string[];
   singleCommentThread?: boolean;
   highlightCommentId?: string;
@@ -200,7 +203,12 @@ export function PostComment({
               asChild
             >
               <Link
-                to={`${linkCtx.root}c/${communityName}/posts/${encodeApId(postApId)}/comments/${parentLink}`}
+                to={`${linkCtx.root}c/:communityName/posts/:post/comments/:comment`}
+                params={{
+                  communityName,
+                  post: encodeApId(postApId),
+                  comment: parentLink,
+                }}
                 replace
               >
                 View parent comment
@@ -215,7 +223,11 @@ export function PostComment({
             asChild
           >
             <Link
-              to={`${linkCtx.root}c/${communityName}/posts/${encodeApId(postApId)}`}
+              to={`${linkCtx.root}c/:communityName/posts/:post`}
+              params={{
+                communityName,
+                post: encodeApId(postApId),
+              }}
               replace
             >
               View all comments
@@ -266,9 +278,16 @@ export function PostComment({
                 {
                   text: "Share",
                   onClick: () =>
-                    shareRoute({
-                      route: `${linkCtx.root}c/${communityName}/posts/${encodeURIComponent(postApId)}/comments/${comment.id}`,
-                    }),
+                    shareRoute(
+                      resolveRoute(
+                        `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
+                        {
+                          communityName,
+                          post: encodeURIComponent(postApId),
+                          comment: String(comment.id),
+                        },
+                      ),
+                    ),
                 } as const,
                 ...(isMyComment && !comment.deleted
                   ? [

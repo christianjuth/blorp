@@ -23,6 +23,7 @@ import { useRequireAuth } from "../auth-context";
 import { useBlockPerson } from "@/src/lib/lemmy";
 import { getAccountActorId, useAuth } from "@/src/stores/auth";
 import { shareRoute } from "@/src/lib/share";
+import { resolveRoute } from "../nav/index";
 
 dayjs.extend(localizedFormat);
 
@@ -56,9 +57,11 @@ export function PersonSidebar({
             {
               text: "Share",
               onClick: () =>
-                shareRoute({
-                  route: `${linkCtx.root}u/${encodeApId(person?.actor_id)}`,
-                }),
+                shareRoute(
+                  resolveRoute(`${linkCtx.root}u/:userId`, {
+                    userId: encodeApId(person?.actor_id),
+                  }),
+                ),
             },
             {
               text: "View source",

@@ -66,7 +66,7 @@ export default function CommunityFeed() {
   const router = useIonRouter();
   const [search, setSearch] = useState("");
 
-  const { communityName } = useParams(z.object({ communityName: z.string() }));
+  const { communityName } = useParams(`${linkCtx.root}c/:communityName`);
 
   const postSort = useFiltersStore((s) => s.postSort);
   const posts = usePosts({
@@ -167,7 +167,10 @@ export default function CommunityFeed() {
           </form>
           <IonButtons slot="end" className="gap-3.5 md:gap-4">
             <Link
-              to={`${linkCtx.root}c/${communityName}/s`}
+              to={`${linkCtx.root}c/:communityName/s`}
+              params={{
+                communityName,
+              }}
               className="text-2xl contents text-brand md:hidden"
             >
               <IonIcon icon={searchOutline} />

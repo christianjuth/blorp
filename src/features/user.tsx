@@ -73,7 +73,12 @@ const Comment = memo(function Comment({ path }: { path: string }) {
   return (
     <ContentGutters>
       <Link
-        to={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
+        to={`${linkCtx.root}c/:communityName/posts/:post/comments/:comment`}
+        params={{
+          communityName: community.slug,
+          post: encodeApId(post.ap_id),
+          comment: newPath,
+        }}
         className="py-2 border-b flex-1 overflow-hidden"
       >
         {comment.deleted ? (
@@ -91,11 +96,8 @@ const EMPTY_ARR: never[] = [];
 
 export default function User() {
   const media = useMedia();
-  const { userId } = useParams(
-    z.object({
-      userId: z.string(),
-    }),
-  );
+  const linkCtx = useLinkContext();
+  const { userId } = useParams(`${linkCtx.root}u/:userId`);
 
   const actorId = userId ? decodeApId(userId) : undefined;
 

@@ -8,7 +8,7 @@ export const AppUrlListener: React.FC<any> = () => {
     App.addListener("appUrlOpen", (event: URLOpenListenerEvent) => {
       try {
         const url = new URL(event.url);
-        history.push(url.pathname as never);
+        history.push(url.pathname as never, {} as never);
       } catch {}
     });
   }, []);

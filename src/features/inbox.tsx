@@ -48,7 +48,12 @@ function Mention({
         className={cn("flex-1 max-md:px-2.5", !noBorder && "border-b-[0.5px]")}
       >
         <Link
-          to={`/inbox/c/${communitySlug}/posts/${encodeURIComponent(mention.post.ap_id)}/comments/${newPath}`}
+          to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
+          params={{
+            communityName: communitySlug,
+            post: encodeURIComponent(mention.post.ap_id),
+            comment: newPath,
+          }}
           onClickCapture={() => {
             //markRead.mutate({
             //  comment_reply_id: mention.comment_reply.id,
@@ -100,7 +105,12 @@ function Reply({
         className={cn("flex-1 max-md:px-2.5", !noBorder && "border-b-[0.5px]")}
       >
         <Link
-          to={`/inbox/c/${communitySlug}/posts/${encodeURIComponent(replyView.post.ap_id)}/comments/${newPath}`}
+          to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
+          params={{
+            communityName: communitySlug,
+            post: encodeURIComponent(replyView.post.ap_id),
+            comment: newPath,
+          }}
           onClickCapture={() => {
             markRead.mutate({
               comment_reply_id: replyView.comment_reply.id,

@@ -128,9 +128,9 @@ const COMMUNITIES_STACK = [
     component={Post}
   />,
   <Route
-    key="/communities/c/:communityName/posts/:post/comment/:comment"
+    key="/communities/c/:communityName/posts/:post/comments/:comment"
     exact
-    path="/communities/c/:communityName/posts/:post/comment/:comment"
+    path="/communities/c/:communityName/posts/:post/comments/:comment"
     component={Post}
   />,
   <Route
@@ -277,17 +277,11 @@ function Sidebar() {
         </>
       )}
 
-      <Link
-        to={routes.privacy}
-        className="px-4 text-sm mt-2 text-muted-foreground"
-      >
+      <Link to="/privacy" className="px-4 text-sm mt-2 text-muted-foreground">
         Privacy Policy
       </Link>
 
-      <Link
-        to={routes.terms}
-        className="px-4 text-sm mt-3 text-muted-foreground"
-      >
+      <Link to="/terms" className="px-4 text-sm mt-3 text-muted-foreground">
         Terms of Use
       </Link>
     </>

@@ -233,7 +233,11 @@ export function FeedPostCard(props: PostProps) {
       <PostByline {...props} />
 
       <Link
-        to={postDetailsLink}
+        to={`${linkCtx.root}c/:communityName/posts/:post`}
+        params={{
+          communityName: communitySlug,
+          post: encodedApId,
+        }}
         onClickCapture={onNavigate}
         className="gap-2 flex flex-col"
       >
@@ -303,7 +307,8 @@ export function FeedPostCard(props: PostProps) {
         <div className="flex flex-row items-center justify-end gap-1">
           <PostCommentsButton
             commentsCount={commentsCount}
-            href={postDetailsLink}
+            communityName={communitySlug}
+            postApId={encodedApId}
           />
           <Voting apId={apId} score={score} myVote={myVote} />
         </div>

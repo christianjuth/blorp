@@ -60,7 +60,10 @@ export function PersonCard({
   return (
     <Link
       data-testid="person-card"
-      to={`${linkCtx.root}u/${encodeApId(personView?.person.actor_id)}`}
+      to={`${linkCtx.root}u/:userId`}
+      params={{
+        userId: encodeApId(personView?.person.actor_id),
+      }}
       className={cn(
         "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full",
         size === "sm" && "h-9",

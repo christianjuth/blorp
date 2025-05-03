@@ -37,6 +37,7 @@ import { PostReportProvider } from "../components/posts/post-report";
 import { useAuth } from "../stores/auth";
 import z from "zod";
 import { PersonCard } from "../components/person/person-card";
+import { useLinkContext } from "../components/nav/link-context";
 
 const EMPTY_ARR: never[] = [];
 
@@ -61,11 +62,8 @@ export function SearchFeed({
 }) {
   const media = useMedia();
 
-  const { communityName } = useParams(
-    z.object({
-      communityName: z.string().optional(),
-    }),
-  );
+  const linkCtx = useLinkContext();
+  const { communityName } = useParams(`${linkCtx.root}c/:communityName/s`);
 
   const [searchInput, setSearchInput] = useUrlSearchState("q", "", z.string());
   const [search, setSearch] = useState(searchInput);
