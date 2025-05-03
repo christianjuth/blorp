@@ -2,7 +2,7 @@ import { useLikePost } from "@/src/lib/lemmy/index";
 import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 
-import { Link, LinkProps } from "@/src/components/nav/index";
+import { Link, LinkProps } from "@/src/routing/index";
 
 import {
   PiArrowFatUpBold,
@@ -15,7 +15,7 @@ import { cn } from "@/src/lib/utils";
 import { Button } from "../ui/button";
 import { useId } from "react";
 import { abbriviateNumber } from "@/src/lib/format";
-import { useLinkContext } from "../nav/link-context";
+import { useLinkContext } from "../../routing/link-context";
 
 export function Voting({
   apId,

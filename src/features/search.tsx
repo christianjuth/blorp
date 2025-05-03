@@ -20,7 +20,7 @@ import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
 import { CommunityView } from "lemmy-js-client";
-import { useParams } from "@/src/components/nav/index";
+import { useParams } from "@/src/routing/index";
 import {
   IonBackButton,
   IonButtons,
@@ -37,7 +37,7 @@ import { PostReportProvider } from "../components/posts/post-report";
 import { useAuth } from "../stores/auth";
 import z from "zod";
 import { PersonCard } from "../components/person/person-card";
-import { useLinkContext } from "../components/nav/link-context";
+import { useLinkContext } from "../routing/link-context";
 
 const EMPTY_ARR: never[] = [];
 

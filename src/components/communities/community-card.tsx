@@ -1,8 +1,8 @@
 import { CommunityAggregates, CommunityView } from "lemmy-js-client";
 import { abbriviateNumber } from "@/src/lib/format";
 import { createSlug, Slug } from "@/src/lib/lemmy/utils";
-import { useLinkContext } from "@/src/components/nav/link-context";
-import { Link } from "@/src/components/nav/index";
+import { useLinkContext } from "@/src/routing/link-context";
+import { Link } from "@/src/routing/index";
 import {
   Avatar,
   AvatarFallback,

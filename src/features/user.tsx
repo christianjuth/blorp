@@ -14,12 +14,12 @@ import { createPersonSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
-import { useLinkContext } from "../components/nav/link-context";
+import { useLinkContext } from "../routing/link-context";
 import { useProfilesStore } from "../stores/profiles";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
 import { CommentView } from "lemmy-js-client";
-import { Link, useParams } from "@/src/components/nav/index";
+import { Link, useParams } from "@/src/routing/index";
 import {
   IonBackButton,
   IonButtons,

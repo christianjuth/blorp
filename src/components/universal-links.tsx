@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useHistory } from "@/src/components/nav/index";
+import { useHistory } from "@/src/routing/index";
 import { App, URLOpenListenerEvent } from "@capacitor/app";
 
 export const AppUrlListener: React.FC<any> = () => {

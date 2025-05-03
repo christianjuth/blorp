@@ -14,7 +14,7 @@ import {
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import { pencil, cog, notifications, people, home } from "ionicons/icons";
-import { Route, Link, Redirect } from "@/src/components/nav/index";
+import { Route, Link, Redirect } from "@/src/routing/index";
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 import { useMedia } from "@/src/lib/hooks";
@@ -25,10 +25,9 @@ import { useAuth } from "@/src/stores/auth";
 import { useListCommunities, useNotificationCount } from "@/src/lib/lemmy";
 
 import { lazy } from "react";
-import * as routes from "@/src/lib/routes";
-import { dispatchScrollEvent } from "./lib/scroll-events";
-import { isTauri } from "./lib/tauri";
-import { CommunityCard } from "./components/communities/community-card";
+import { dispatchScrollEvent } from "@/src/lib/scroll-events";
+import { isTauri } from "@/src/lib/tauri";
+import { CommunityCard } from "@/src/components/communities/community-card";
 import { AppUrlListener } from "@/src/components/universal-links";
 
 const CSAE = lazy(() => import("@/src/features/csae"));

@@ -4,13 +4,13 @@ import {
   useFeaturePost,
   useSavePost,
 } from "@/src/lib/lemmy/index";
-import { useLinkContext } from "../nav/link-context";
+import { useLinkContext } from "../../routing/link-context";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
 import { useAuth, getAccountActorId } from "@/src/stores/auth";
 import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
-import { Link, resolveRoute } from "@/src/components/nav/index";
+import { Link, resolveRoute } from "@/src/routing/index";
 import { RelativeTime } from "../relative-time";
 import { ActionMenu, ActionMenuProps } from "../action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";

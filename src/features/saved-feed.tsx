@@ -13,11 +13,11 @@ import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
 import { MarkdownRenderer } from "../components/markdown/renderer";
-import { useLinkContext } from "../components/nav/link-context";
+import { useLinkContext } from "../routing/link-context";
 import { encodeApId } from "../lib/lemmy/utils";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
-import { Link } from "@/src/components/nav/index";
+import { Link } from "@/src/routing/index";
 import {
   IonBackButton,
   IonButtons,

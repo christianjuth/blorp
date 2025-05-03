@@ -76,13 +76,5 @@ export const routeDefs = {
   ...buildRoute("/csae"),
 } as const;
 
-type RouteDefs = typeof routeDefs;
+export type RouteDefs = typeof routeDefs;
 export type RoutePath = RouteDefs[keyof RouteDefs]["path"];
-
-// lookup schema by path
-export type DefByPath = {
-  [K in keyof typeof routeDefs as (typeof routeDefs)[K]["path"]]: (typeof routeDefs)[K]["schema"];
-};
-
-// infer the params for each path
-export type ParamsFor<Path extends RoutePath> = z.infer<DefByPath[Path]>;

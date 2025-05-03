@@ -1,13 +1,13 @@
 import MarkdownIt from "markdown-it";
 import markdownit from "markdown-it";
 import markdownitContainer, { ContainerOpts } from "markdown-it-container";
-import { useLinkContext } from "../nav/link-context";
+import { useLinkContext } from "../../routing/link-context";
 import parse, {
   DOMNode,
   domToReact,
   HTMLReactParserOptions,
 } from "html-react-parser";
-import { Link } from "@/src/components/nav/index";
+import { Link } from "@/src/routing/index";
 import { CodeBlock } from "./code-block";
 import { DetailedHTMLProps, ImgHTMLAttributes } from "react";
 import { useLongPress } from "use-long-press";

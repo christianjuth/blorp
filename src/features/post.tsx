@@ -32,13 +32,13 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { useParams } from "@/src/components/nav/index";
+import { useParams } from "@/src/routing/index";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
 import { useMedia, useTheme } from "../lib/hooks";
 import { NotFound } from "./not-found";
 import { CommentSkeleton } from "../components/comments/comment-skeleton";
-import { useLinkContext } from "../components/nav/link-context";
+import { useLinkContext } from "../routing/link-context";
 
 const MemoedPostComment = memo(PostComment);
 

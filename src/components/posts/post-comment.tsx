@@ -11,10 +11,10 @@ import { useBlockPerson, useDeleteComment } from "@/src/lib/lemmy/index";
 import { CommentMap } from "@/src/lib/comment-map";
 import { useShowCommentReportModal } from "./post-report";
 import { useRequireAuth } from "../auth-context";
-import { useLinkContext } from "../nav/link-context";
+import { useLinkContext } from "../../routing/link-context";
 import { Person } from "lemmy-js-client";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
-import { Link, resolveRoute } from "../nav/index";
+import { Link, resolveRoute } from "../../routing/index";
 import {
   Avatar,
   AvatarFallback,

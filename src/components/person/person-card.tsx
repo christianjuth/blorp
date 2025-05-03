@@ -1,4 +1,4 @@
-import { Link } from "@/src/components/nav/index";
+import { Link } from "@/src/routing/index";
 import {
   Avatar,
   AvatarFallback,
@@ -9,7 +9,7 @@ import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/src/stores/auth";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
-import { useLinkContext } from "../nav/link-context";
+import { useLinkContext } from "../../routing/link-context";
 import { usePersonDetails } from "@/src/lib/lemmy";
 
 export function PersonCard({

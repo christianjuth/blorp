@@ -4,7 +4,7 @@ import { setupIonicReact } from "@ionic/react";
 import type { IonicConfig } from "@ionic/core";
 
 import _ from "lodash";
-import Router from "./Router";
+import Router from "./routing/Router";
 
 import { Providers } from "@/src/components/providers";
 import { SplashScreen } from "@capacitor/splash-screen";

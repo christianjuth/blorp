@@ -27,7 +27,7 @@ import { FlashList } from "../components/flashlist";
 import { MenuButton, UserDropdown } from "../components/nav";
 import { HomeFilter, PostSortBar } from "../components/lemmy-sort";
 import { useMedia } from "../lib/hooks";
-import { Link } from "@/src/components/nav/index";
+import { Link } from "@/src/routing/index";
 import { searchOutline } from "ionicons/icons";
 import { Button } from "../components/ui/button";
 import { FaArrowUp } from "react-icons/fa6";

@@ -7,12 +7,18 @@ import {
   Redirect as RRRedirect,
   RedirectProps as RRRedirectProps,
 } from "react-router-dom";
-import { DefByPath, ParamsFor, routeDefs, RoutePath } from "./routes";
+import { RouteDefs, routeDefs, RoutePath } from "./routes";
 import z from "zod";
 
-type HasParams<P extends RoutePath> = keyof ParamsFor<P> extends never
-  ? false
-  : true;
+// lookup schema by path
+export type DefByPath = {
+  [K in keyof RouteDefs as (typeof routeDefs)[K]["path"]]: (typeof routeDefs)[K]["schema"];
+};
+
+// infer the params for each path
+export type ParamsFor<Path extends RoutePath> = z.infer<DefByPath[Path]>;
+
+type HasParams<P extends RoutePath> = ParamsFor<P> extends never ? false : true;
 
 export function useHistory() {
   const history = useHistoryDefault();
@@ -64,7 +70,7 @@ interface LinkWithParams<P extends RoutePath>
 }
 
 export type LinkProps<P extends RoutePath> =
-  ParamsFor<P> extends never ? LinkWithoutParams<P> : LinkWithParams<P>;
+  HasParams<P> extends true ? LinkWithParams<P> : LinkWithoutParams<P>;
 
 export function Link<Path extends RoutePath>({
   searchParams,
@@ -72,7 +78,7 @@ export function Link<Path extends RoutePath>({
   ...rest
 }: LinkProps<Path>) {
   const params = "params" in rest ? rest.params : {};
-  const toString = compile(to, { encode: false })(params as any);
+  const toString = compile(to, { encode: false })(params);
   return <RRLink to={toString + (searchParams ?? "")} {...rest} />;
 }
 
