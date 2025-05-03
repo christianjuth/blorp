@@ -42,13 +42,17 @@ interface CodeBlockProps {
 }
 
 export const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
-  // lowlight.highlight returns an object with children as AST nodes.
-  const highlighted = lowlight.highlight(language, code);
-  return (
-    <code className="font-mono text-[.75rem]">
-      {renderLowlightNodes(highlighted.children as LowlightNode[])}
-    </code>
-  );
+  try {
+    // lowlight.highlight returns an object with children as AST nodes.
+    const highlighted = lowlight.highlight(language, code);
+    return (
+      <code className="font-mono text-[.75rem]">
+        {renderLowlightNodes(highlighted.children as LowlightNode[])}
+      </code>
+    );
+  } catch {
+    return <code className="font-mono text-[.75rem]">{code}</code>;
+  }
 };
 
 export function CodeBlockEditor({

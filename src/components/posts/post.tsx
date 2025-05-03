@@ -1,10 +1,10 @@
 import { usePostsStore } from "@/src/stores/posts";
-import { useLinkContext } from "../nav/link-context";
+import { useLinkContext } from "../../routing/link-context";
 import { useSettingsStore } from "@/src/stores/settings";
 import { getPostEmbed } from "@/src/lib/post";
 import { createSlug, encodeApId, FlattenedPost } from "@/src/lib/lemmy/utils";
 
-import { Link } from "@/src/components/nav/index";
+import { Link } from "@/src/routing/index";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
 import { PostCommentsButton, Voting } from "./post-buttons";
@@ -233,7 +233,11 @@ export function FeedPostCard(props: PostProps) {
       <PostByline {...props} />
 
       <Link
-        to={postDetailsLink}
+        to={`${linkCtx.root}c/:communityName/posts/:post`}
+        params={{
+          communityName: communitySlug,
+          post: encodedApId,
+        }}
         onClickCapture={onNavigate}
         className="gap-2 flex flex-col"
       >
@@ -303,7 +307,8 @@ export function FeedPostCard(props: PostProps) {
         <div className="flex flex-row items-center justify-end gap-1">
           <PostCommentsButton
             commentsCount={commentsCount}
-            href={postDetailsLink}
+            communityName={communitySlug}
+            postApId={encodedApId}
           />
           <Voting apId={apId} score={score} myVote={myVote} />
         </div>

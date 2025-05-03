@@ -1,4 +1,4 @@
-import { Link } from "@/src/components/nav/index";
+import { Link } from "@/src/routing/index";
 import {
   Avatar,
   AvatarFallback,
@@ -9,7 +9,7 @@ import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/src/stores/auth";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
-import { useLinkContext } from "../nav/link-context";
+import { useLinkContext } from "../../routing/link-context";
 import { usePersonDetails } from "@/src/lib/lemmy";
 
 export function PersonCard({
@@ -60,7 +60,10 @@ export function PersonCard({
   return (
     <Link
       data-testid="person-card"
-      to={`${linkCtx.root}u/${encodeApId(personView?.person.actor_id)}`}
+      to={`${linkCtx.root}u/:userId`}
+      params={{
+        userId: encodeApId(personView?.person.actor_id),
+      }}
       className={cn(
         "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full",
         size === "sm" && "h-9",

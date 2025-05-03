@@ -13,7 +13,7 @@ import { MarkdownRenderer } from "../markdown/renderer";
 import { ActionMenu, ActionMenuProps } from "../action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import { useMemo, useState } from "react";
-import { useLinkContext } from "../nav/link-context";
+import { useLinkContext } from "../../routing/link-context";
 import { Share } from "@capacitor/share";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
 import { openUrl } from "@/src/lib/linking";
@@ -23,6 +23,7 @@ import { useRequireAuth } from "../auth-context";
 import { useBlockPerson } from "@/src/lib/lemmy";
 import { getAccountActorId, useAuth } from "@/src/stores/auth";
 import { shareRoute } from "@/src/lib/share";
+import { resolveRoute } from "../../routing/index";
 
 dayjs.extend(localizedFormat);
 
@@ -56,9 +57,11 @@ export function PersonSidebar({
             {
               text: "Share",
               onClick: () =>
-                shareRoute({
-                  route: `${linkCtx.root}u/${encodeApId(person?.actor_id)}`,
-                }),
+                shareRoute(
+                  resolveRoute(`${linkCtx.root}u/:userId`, {
+                    userId: encodeApId(person?.actor_id),
+                  }),
+                ),
             },
             {
               text: "View source",

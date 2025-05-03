@@ -1,8 +1,8 @@
 import { CommunityAggregates, CommunityView } from "lemmy-js-client";
 import { abbriviateNumber } from "@/src/lib/format";
 import { createSlug, Slug } from "@/src/lib/lemmy/utils";
-import { useLinkContext } from "@/src/components/nav/link-context";
-import { Link } from "@/src/components/nav/index";
+import { useLinkContext } from "@/src/routing/link-context";
+import { Link } from "@/src/routing/index";
 import {
   Avatar,
   AvatarFallback,
@@ -73,7 +73,7 @@ export function CommunityCard({
     </>
   );
 
-  if (disableLink) {
+  if (disableLink || !slug) {
     return (
       <div
         data-testid="community-card"
@@ -91,7 +91,10 @@ export function CommunityCard({
   return (
     <Link
       data-testid="community-card"
-      to={`${linkCtx.root}c/${slug?.slug}`}
+      to={`${linkCtx.root}c/:communityName`}
+      params={{
+        communityName: slug?.slug,
+      }}
       className={cn(
         "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full",
         size === "sm" && "h-9",

@@ -27,7 +27,7 @@ import {
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
-import { useParams } from "@/src/components/nav/index";
+import { useParams } from "@/src/routing/index";
 import z from "zod";
 import { CommunityBanner } from "../components/communities/community-banner";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
@@ -35,8 +35,8 @@ import { useRecentCommunitiesStore } from "../stores/recent-communities";
 import { UserDropdown } from "../components/nav";
 import { PostSortBar } from "../components/lemmy-sort";
 import { Title } from "../components/title";
-import { useLinkContext } from "../components/nav/link-context";
-import { Link } from "@/src/components/nav/index";
+import { useLinkContext } from "../routing/link-context";
+import { Link } from "@/src/routing/index";
 import { searchOutline } from "ionicons/icons";
 import { useFiltersStore } from "../stores/filters";
 import { Button } from "../components/ui/button";
@@ -66,7 +66,7 @@ export default function CommunityFeed() {
   const router = useIonRouter();
   const [search, setSearch] = useState("");
 
-  const { communityName } = useParams(z.object({ communityName: z.string() }));
+  const { communityName } = useParams(`${linkCtx.root}c/:communityName`);
 
   const postSort = useFiltersStore((s) => s.postSort);
   const posts = usePosts({
@@ -167,7 +167,10 @@ export default function CommunityFeed() {
           </form>
           <IonButtons slot="end" className="gap-3.5 md:gap-4">
             <Link
-              to={`${linkCtx.root}c/${communityName}/s`}
+              to={`${linkCtx.root}c/:communityName/s`}
+              params={{
+                communityName,
+              }}
               className="text-2xl contents text-brand md:hidden"
             >
               <IonIcon icon={searchOutline} />

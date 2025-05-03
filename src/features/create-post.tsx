@@ -41,7 +41,7 @@ import { Label } from "@/src/components/ui/label";
 import { cn } from "../lib/utils";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { Link } from "@/src/components/nav/index";
+import { Link } from "@/src/routing/index";
 import { v4 as uuid } from "uuid";
 import { MdDelete } from "react-icons/md";
 import { useMedia, useUrlSearchState } from "../lib/hooks";

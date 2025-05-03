@@ -92,6 +92,7 @@
     "markdown-it": "^14.1.0",
     "markdown-it-container": "^4.0.0",
     "p-retry": "^6.2.1",
+    "path-to-regexp": "^8.2.0",
     "prosemirror-model": "^1.25.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

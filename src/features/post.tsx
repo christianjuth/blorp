@@ -29,15 +29,16 @@ import {
   IonContent,
   IonHeader,
   IonPage,
+  IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { useParams } from "@/src/components/nav/index";
-import z from "zod";
+import { useParams } from "@/src/routing/index";
 import { UserDropdown } from "../components/nav";
 import { Title } from "../components/title";
 import { useMedia, useTheme } from "../lib/hooks";
 import { NotFound } from "./not-found";
 import { CommentSkeleton } from "../components/comments/comment-skeleton";
+import { useLinkContext } from "../routing/link-context";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -62,16 +63,13 @@ const MemoedPostCard = memo((props: PostProps) => (
 export default function Post() {
   const theme = useTheme();
   const media = useMedia();
+  const linkCtx = useLinkContext();
   const {
     communityName,
     post: apId,
     comment: commentPath,
   } = useParams(
-    z.object({
-      communityName: z.string(),
-      post: z.string(),
-      comment: z.string().optional(),
-    }),
+    `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
   );
 
   const decodedApId = apId ? decodeURIComponent(apId) : undefined;
@@ -177,6 +175,7 @@ export default function Post() {
               {communityName}
             </span>
           </IonButtons>
+          <IonTitle className="max-md:hidden">{communityName}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

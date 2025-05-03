@@ -14,12 +14,12 @@ import { createPersonSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
-import { useLinkContext } from "../components/nav/link-context";
+import { useLinkContext } from "../routing/link-context";
 import { useProfilesStore } from "../stores/profiles";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
 import { CommentView } from "lemmy-js-client";
-import { Link, useParams } from "@/src/components/nav/index";
+import { Link, useParams } from "@/src/routing/index";
 import {
   IonBackButton,
   IonButtons,
@@ -73,7 +73,12 @@ const Comment = memo(function Comment({ path }: { path: string }) {
   return (
     <ContentGutters>
       <Link
-        to={`${linkCtx.root}c/${community.slug}/posts/${encodeApId(post.ap_id)}/comments/${newPath}`}
+        to={`${linkCtx.root}c/:communityName/posts/:post/comments/:comment`}
+        params={{
+          communityName: community.slug,
+          post: encodeApId(post.ap_id),
+          comment: newPath,
+        }}
         className="py-2 border-b flex-1 overflow-hidden"
       >
         {comment.deleted ? (
@@ -91,11 +96,8 @@ const EMPTY_ARR: never[] = [];
 
 export default function User() {
   const media = useMedia();
-  const { userId } = useParams(
-    z.object({
-      userId: z.string(),
-    }),
-  );
+  const linkCtx = useLinkContext();
+  const { userId } = useParams(`${linkCtx.root}u/:userId`);
 
   const actorId = userId ? decodeApId(userId) : undefined;
 

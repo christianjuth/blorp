@@ -1,13 +1,13 @@
 import MarkdownIt from "markdown-it";
 import markdownit from "markdown-it";
 import markdownitContainer, { ContainerOpts } from "markdown-it-container";
-import { useLinkContext } from "../nav/link-context";
+import { useLinkContext } from "../../routing/link-context";
 import parse, {
   DOMNode,
   domToReact,
   HTMLReactParserOptions,
 } from "html-react-parser";
-import { Link } from "@/src/components/nav/index";
+import { Link } from "@/src/routing/index";
 import { CodeBlock } from "./code-block";
 import { DetailedHTMLProps, ImgHTMLAttributes } from "react";
 import { useLongPress } from "use-long-press";
@@ -59,7 +59,7 @@ const options: (
       if (textContent && COMMUNITY_BANG.test(textContent)) {
         const href = `${root}c/${textContent.substring(1)}`;
         return (
-          <Link to={href as never}>
+          <Link to={href as never} params={{} as never}>
             {domToReact(domNode.children as DOMNode[], options(root))}
           </Link>
         );
@@ -68,7 +68,7 @@ const options: (
       // Replace "/c/community" with "/selected-tab/c/community"
       if (/^\/c\/[^\/]+$/i.test(href)) {
         return (
-          <Link to={(root + href.substring(1)) as never}>
+          <Link to={(root + href.substring(1)) as never} params={{} as never}>
             {domToReact(domNode.children as DOMNode[], options(root))}
           </Link>
         );
@@ -77,7 +77,7 @@ const options: (
       // Replace "/u/community" with "/selected-tab/u/community"
       if (/^\/u\/[^\/]+$/i.test(href)) {
         return (
-          <Link to={(root + href.substring(1)) as never}>
+          <Link to={(root + href.substring(1)) as never} params={{} as never}>
             {domToReact(domNode.children as DOMNode[], options(root))}
           </Link>
         );
@@ -85,7 +85,7 @@ const options: (
 
       if (href.startsWith("/")) {
         return (
-          <Link to={href as never}>
+          <Link to={href as never} params={{} as never}>
             {domToReact(domNode.children as DOMNode[], options(root))}
           </Link>
         );

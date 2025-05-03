@@ -1,4 +1,4 @@
-import { Link } from "@/src/components/nav/index";
+import { Link } from "@/src/routing/index";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
 } from "@/src/components/ui/dropdown-menu";
 import { parseAccountInfo, useAuth } from "../stores/auth";
-import { useLinkContext } from "./nav/link-context";
+import { useLinkContext } from "../routing/link-context";
 import { encodeApId } from "../lib/lemmy/utils";
 import {
   Avatar,
@@ -134,7 +134,12 @@ export function UserDropdown() {
               </Link>
             )}
             {person && (
-              <Link to={`${linkCtx.root}u/${encodeApId(person.actor_id)}`}>
+              <Link
+                to={`${linkCtx.root}u/:userId`}
+                params={{
+                  userId: encodeApId(person.actor_id),
+                }}
+              >
                 <DropdownMenuItem>Profile</DropdownMenuItem>
               </Link>
             )}

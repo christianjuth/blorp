@@ -20,7 +20,7 @@ import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
 import { CommunityView } from "lemmy-js-client";
-import { useParams } from "@/src/components/nav/index";
+import { useParams } from "@/src/routing/index";
 import {
   IonBackButton,
   IonButtons,
@@ -37,6 +37,7 @@ import { PostReportProvider } from "../components/posts/post-report";
 import { useAuth } from "../stores/auth";
 import z from "zod";
 import { PersonCard } from "../components/person/person-card";
+import { useLinkContext } from "../routing/link-context";
 
 const EMPTY_ARR: never[] = [];
 
@@ -61,11 +62,8 @@ export function SearchFeed({
 }) {
   const media = useMedia();
 
-  const { communityName } = useParams(
-    z.object({
-      communityName: z.string().optional(),
-    }),
-  );
+  const linkCtx = useLinkContext();
+  const { communityName } = useParams(`${linkCtx.root}c/:communityName/s`);
 
   const [searchInput, setSearchInput] = useUrlSearchState("q", "", z.string());
   const [search, setSearch] = useState(searchInput);

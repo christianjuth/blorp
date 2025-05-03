@@ -2,7 +2,7 @@ import { useLikePost } from "@/src/lib/lemmy/index";
 import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 
-import { Link, LinkProps } from "@/src/components/nav/index";
+import { Link, LinkProps } from "@/src/routing/index";
 
 import {
   PiArrowFatUpBold,
@@ -15,6 +15,7 @@ import { cn } from "@/src/lib/utils";
 import { Button } from "../ui/button";
 import { useId } from "react";
 import { abbriviateNumber } from "@/src/lib/format";
+import { useLinkContext } from "../../routing/link-context";
 
 export function Voting({
   apId,
@@ -88,18 +89,43 @@ export function Voting({
 }
 
 export function PostCommentsButton({
+  communityName,
+  postApId,
   commentsCount,
-  href,
+}: {
+  communityName: string;
+  postApId: string;
+  commentsCount: number;
+}): React.ReactNode;
+export function PostCommentsButton({
+  onClick,
+  commentsCount,
+}: {
+  onClick?: () => void;
+  commentsCount: number;
+}): React.ReactNode;
+export function PostCommentsButton({
+  communityName,
+  postApId,
+  commentsCount,
   onClick,
 }: {
+  communityName?: string;
+  postApId?: string;
   commentsCount: number;
-  href?: LinkProps["to"];
   onClick?: () => void;
-}) {
-  if (href) {
+}): React.ReactNode {
+  const linkCtx = useLinkContext();
+  if (!onClick && communityName && postApId) {
     return (
       <Button size="sm" variant="ghost" className="text-md font-normal" asChild>
-        <Link to={href}>
+        <Link
+          to={`${linkCtx.root}c/:communityName/posts/:post`}
+          params={{
+            communityName,
+            post: postApId,
+          }}
+        >
           <TbMessageCircle className="scale-115" />
           <span>{abbriviateNumber(commentsCount)}</span>
         </Link>

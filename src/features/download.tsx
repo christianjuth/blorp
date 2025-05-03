@@ -21,7 +21,7 @@ import Bowser from "bowser";
 import { Fragment, ReactNode, useId, useRef } from "react";
 import { cn } from "../lib/utils";
 import { Title } from "../components/title";
-import { Link } from "@/src/components/nav/index";
+import { Link } from "@/src/routing/index";
 import { isTauri } from "../lib/tauri";
 import { Capacitor } from "@capacitor/core";
 

@@ -4,10 +4,10 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import { MarkdownRenderer } from "../markdown/renderer";
 import { abbriviateNumber } from "@/src/lib/format";
 import { CommunityJoinButton } from "./community-join-button";
-import { useLinkContext } from "../nav/link-context";
+import { useLinkContext } from "../../routing/link-context";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import { LuCakeSlice } from "react-icons/lu";
-import { Link } from "@/src/components/nav/index";
+import { Link, resolveRoute } from "@/src/routing/index";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/src/stores/auth";
@@ -70,9 +70,11 @@ export function CommunitySidebar({
       {
         text: "Share",
         onClick: () =>
-          shareRoute({
-            route: `${linkCtx.root}c/${communityName}`,
-          }),
+          shareRoute(
+            resolveRoute(`${linkCtx.root}c/:communityName`, {
+              communityName,
+            }),
+          ),
       },
       ...(actorId
         ? [
@@ -231,9 +233,11 @@ export function SmallScreenSidebar({
       {
         text: "Share",
         onClick: () =>
-          shareRoute({
-            route: `${linkCtx.root}c/${communityName}`,
-          }),
+          shareRoute(
+            resolveRoute(`${linkCtx.root}c/:communityName`, {
+              communityName,
+            }),
+          ),
       },
       ...(actorId
         ? [
@@ -320,7 +324,10 @@ export function SmallScreenSidebar({
       </div>
 
       <Link
-        to={`${linkCtx.root}c/${communityName}/sidebar`}
+        to={`${linkCtx.root}c/:communityName/sidebar`}
+        params={{
+          communityName,
+        }}
         className="text-brand"
       >
         Show more
