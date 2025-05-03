@@ -1,15 +1,8 @@
 import { PersistStorage } from "zustand/middleware";
 import { createDb } from "@/src/lib/create-storage";
 import pRetry from "p-retry";
-import { BroadcastChannel } from "broadcast-channel";
 import { UseBoundStore } from "zustand";
-import z from "zod";
-
-const rehydrateMsg = z.object({
-  rehydrate: z.literal("zustand"),
-});
-
-const channel = new BroadcastChannel("zustand");
+import _ from "lodash";
 
 export function createStorage<S>(): PersistStorage<S> {
   const db = createDb("zustand");
@@ -26,9 +19,6 @@ export function createStorage<S>(): PersistStorage<S> {
     },
     setItem: async (key, value) => {
       await db.setItem(key, JSON.stringify(value));
-      channel.postMessage({
-        rehydrate: "zustand",
-      });
     },
     removeItem: async (key) => {
       await db.removeItem(key);
@@ -37,10 +27,11 @@ export function createStorage<S>(): PersistStorage<S> {
 }
 
 export function sync(store: UseBoundStore<any>) {
-  channel.addEventListener("message", (msg) => {
-    const { success } = rehydrateMsg.safeParse(msg);
-    if (success) {
-      store.persist.rehydrate();
+  const debouncedRehydrate = _.debounce(store.persist.rehydrate, 50);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      debouncedRehydrate();
     }
   });
+  window.addEventListener("focus", debouncedRehydrate);
 }

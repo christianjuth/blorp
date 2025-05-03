@@ -8,6 +8,7 @@ import legacy from "@vitejs/plugin-legacy";
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
+  envPrefix: "REACT_APP_",
   plugins: [
     circleDependency(),
     vitePluginChecker({

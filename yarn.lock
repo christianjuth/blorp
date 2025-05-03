@@ -1278,15 +1278,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:7.27.0, @babel/runtime@npm:^7.20.13, @babel/runtime@npm:^7.8.4":
-  version: 7.27.0
-  resolution: "@babel/runtime@npm:7.27.0"
-  dependencies:
-    regenerator-runtime: "npm:^0.14.0"
-  checksum: 10c0/35091ea9de48bd7fd26fb177693d64f4d195eb58ab2b142b893b7f3fa0f1d7c677604d36499ae0621a3703f35ba0c6a8f6c572cc8f7dc0317213841e493cf663
-  languageName: node
-  linkType: hard
-
 "@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.12.13":
   version: 7.26.10
   resolution: "@babel/runtime@npm:7.26.10"
@@ -1311,6 +1302,15 @@ __metadata:
   dependencies:
     regenerator-runtime: "npm:^0.14.0"
   checksum: 10c0/60199c049f90e5e41c687687430052a370aca60bac7859ff4ee761c5c1739b8ba1604d391d01588c22dc0e93828cbadb8ada742578ad1b1df240746bce98729a
+  languageName: node
+  linkType: hard
+
+"@babel/runtime@npm:^7.20.13, @babel/runtime@npm:^7.8.4":
+  version: 7.27.0
+  resolution: "@babel/runtime@npm:7.27.0"
+  dependencies:
+    regenerator-runtime: "npm:^0.14.0"
+  checksum: 10c0/35091ea9de48bd7fd26fb177693d64f4d195eb58ab2b142b893b7f3fa0f1d7c677604d36499ae0621a3703f35ba0c6a8f6c572cc8f7dc0317213841e493cf663
   languageName: node
   linkType: hard
 
@@ -4887,52 +4887,52 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-broadcast-client-experimental@npm:5.69.0":
-  version: 5.69.0
-  resolution: "@tanstack/query-broadcast-client-experimental@npm:5.69.0"
+"@tanstack/query-broadcast-client-experimental@npm:5.75.0":
+  version: 5.75.0
+  resolution: "@tanstack/query-broadcast-client-experimental@npm:5.75.0"
   dependencies:
-    "@tanstack/query-core": "npm:5.69.0"
+    "@tanstack/query-core": "npm:5.75.0"
     broadcast-channel: "npm:^7.0.0"
-  checksum: 10c0/b0157d9de337927f6b9ffe1880d757f963a2047d1fa9cabc600345009be2aed000d1e7b115545ee874577cfbe79e421f1b3d1bd9f6b8de62e66bdde8dd43047d
+  checksum: 10c0/ffbd6a5755738a4cac38b3d49b1d94b81702e38e59e8d5482d3d6c05117c2294942bafd1c98247db480bc7e677aba66cbb10718ee65d7be8012600ef32acbfca
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.69.0":
-  version: 5.69.0
-  resolution: "@tanstack/query-core@npm:5.69.0"
-  checksum: 10c0/8ad87046d1a8c18773de10e74d7fef2093cdbe9734e76460945048c00a219ae3d2421eab2b4d54340f3f491813f99ceef7d2849827d95490c8b67de1b87934ae
+"@tanstack/query-core@npm:5.75.0":
+  version: 5.75.0
+  resolution: "@tanstack/query-core@npm:5.75.0"
+  checksum: 10c0/1c90d5f463fe5b4dac4525279300cd950acaef670b8589ba406df833bee3bdb4dcb58fba78c9a5424e7d19a317590eecad838fb389f37a91edb781f9c90af358
   languageName: node
   linkType: hard
 
-"@tanstack/query-persist-client-core@npm:5.69.0":
-  version: 5.69.0
-  resolution: "@tanstack/query-persist-client-core@npm:5.69.0"
+"@tanstack/query-persist-client-core@npm:5.75.0":
+  version: 5.75.0
+  resolution: "@tanstack/query-persist-client-core@npm:5.75.0"
   dependencies:
-    "@tanstack/query-core": "npm:5.69.0"
-  checksum: 10c0/8f736fec9de4660c0edef8930bd9fae0e3ca295a31743ca777809e3538927ef9b4da9ea51dc610df59b0a6d45ad35048ac4ce59e71686bbb9e9865ce3b7861e1
+    "@tanstack/query-core": "npm:5.75.0"
+  checksum: 10c0/47063f39d784897c8372bc94acbf686114616a113e29467a390963f04f7f690fe33b73d1d3257e3d8e024a3f476690a37390e80941306fd5259a25e4ea09844f
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-persist-client@npm:5.69.0":
-  version: 5.69.0
-  resolution: "@tanstack/react-query-persist-client@npm:5.69.0"
+"@tanstack/react-query-persist-client@npm:5.75.0":
+  version: 5.75.0
+  resolution: "@tanstack/react-query-persist-client@npm:5.75.0"
   dependencies:
-    "@tanstack/query-persist-client-core": "npm:5.69.0"
+    "@tanstack/query-persist-client-core": "npm:5.75.0"
   peerDependencies:
-    "@tanstack/react-query": ^5.69.0
+    "@tanstack/react-query": ^5.75.0
     react: ^18 || ^19
-  checksum: 10c0/3cfd710b0dd8a7c8a5f8fa0a0ae37e82cab340e8f905fd028437af73dacf918bd397e49ca5a0a477fd919a0ff27eb027ca1466aeaaa3c4a8efcc00fd2a2fab8f
+  checksum: 10c0/971fe451d841d5e7d25301f0beb60e72a2228204e1cb37f4744fb128f1233e27a9e621a87acf520d1b916319d2a6976ec33ce4c84df2c82f112b1cd2ba3deff2
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:5.69.0":
-  version: 5.69.0
-  resolution: "@tanstack/react-query@npm:5.69.0"
+"@tanstack/react-query@npm:5.75.0":
+  version: 5.75.0
+  resolution: "@tanstack/react-query@npm:5.75.0"
   dependencies:
-    "@tanstack/query-core": "npm:5.69.0"
+    "@tanstack/query-core": "npm:5.75.0"
   peerDependencies:
     react: ^18 || ^19
-  checksum: 10c0/3481218d0dd1623af8148037011415ca6f57f2f918e859f6856b7d6cec191ca79029f6fd9e5b1139b1ec252198bda645ce8c1b44ac8dd28adf3c5f978a4126ec
+  checksum: 10c0/beebb9470337eb2c2ce0a1166cbdad6522e4386f9db1057f81fd0d642afee5fb7bd2857f0b2fa85fc61b12054a23c53b472b5d8241e8e7daf033721b38eb7a2d
   languageName: node
   linkType: hard
 
@@ -6663,18 +6663,6 @@ __metadata:
     p-queue: "npm:6.6.2"
     unload: "npm:2.4.1"
   checksum: 10c0/5cf04d2e4d2920f955d39b382efc32be0cf2f265bf07e0770d50c4d0691c7bf02613cc9b334132b874dc092b0db6b9fc463c4c7883be1ce3d2588c9388cae54f
-  languageName: node
-  linkType: hard
-
-"broadcast-channel@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "broadcast-channel@npm:7.1.0"
-  dependencies:
-    "@babel/runtime": "npm:7.27.0"
-    oblivious-set: "npm:1.4.0"
-    p-queue: "npm:6.6.2"
-    unload: "npm:2.4.1"
-  checksum: 10c0/202e48f2322cb5a6796eb18c530010e3a80ef4f06321962a64393bbd27acf6b9443106530b28f666ecb98e48a4938dd6c6ac0981b29e47def2fe1188555d7b53
   languageName: node
   linkType: hard
 
@@ -10134,9 +10122,9 @@ __metadata:
     "@storybook/test": "npm:^8.6.12"
     "@tailwindcss/typography": "patch:@tailwindcss/typography@npm%3A0.5.16#~/.yarn/patches/@tailwindcss-typography-npm-0.5.16-675125d30f.patch"
     "@tailwindcss/vite": "npm:^4.1.4"
-    "@tanstack/query-broadcast-client-experimental": "npm:5.69.0"
-    "@tanstack/react-query": "npm:5.69.0"
-    "@tanstack/react-query-persist-client": "npm:5.69.0"
+    "@tanstack/query-broadcast-client-experimental": "npm:5.75.0"
+    "@tanstack/react-query": "npm:5.75.0"
+    "@tanstack/react-query-persist-client": "npm:5.75.0"
     "@tanstack/react-virtual": "npm:^3.13.5"
     "@tauri-apps/plugin-deep-link": "npm:~2"
     "@tauri-apps/plugin-dialog": "npm:~2"
@@ -10167,7 +10155,6 @@ __metadata:
     "@vitest/coverage-v8": "npm:3.1.1"
     "@vitest/ui": "npm:3.1.1"
     bowser: "npm:^2.11.0"
-    broadcast-channel: "npm:^7.1.0"
     capacitor-plugin-safe-area: "npm:^4.0.0"
     chromatic: "npm:^11.25.1"
     class-variance-authority: "npm:^0.7.1"
