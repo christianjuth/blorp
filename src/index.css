@@ -6,7 +6,7 @@
 @plugin "@tailwindcss/typography";
 
 /* Core CSS required for Ionic components to work properly */
-@import '@ionic/react/css/core.css';
+@import "@ionic/react/css/core.css";
 
 /* Basic CSS for apps built with Ionic */
 /* @import '@ionic/react/css/normalize.css'; */
@@ -14,7 +14,7 @@
 /* @import '@ionic/react/css/typography.css'; */
 
 /* Optional CSS utils that can be commented out */
-@import '@ionic/react/css/padding.css';
+@import "@ionic/react/css/padding.css";
 /* @import '@ionic/react/css/float-elements.css'; */
 /* @import '@ionic/react/css/text-alignment.css'; */
 /* @import '@ionic/react/css/text-transformation.css'; */
@@ -28,13 +28,13 @@
  * https://ionicframework.com/docs/theming/dark-mode
  */
 
-@import '@ionic/react/css/palettes/dark.system.css';
+@import "@ionic/react/css/palettes/dark.system.css";
 
 @import "tw-animate-css";
 
 :root {
   --brand: #d40091;
-  --brand-secondary: #4123D0;
+  --brand-secondary: #4123d0;
 
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -78,7 +78,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:root {
-    --brand: #FF1FBB;
+    --brand: #ff1fbb;
 
     --background: oklch(0.141 0.005 285.823);
     --foreground: oklch(0.985 0 0);
@@ -111,7 +111,6 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.552 0.016 285.938);
-
 
     --ion-background-color: black;
     --ion-toolbar-background: black;
@@ -185,16 +184,18 @@ ion-list.list-inset {
   scrollbar-color: var(--secondary) transparent;
 }
 
-::-webkit-scrollbar { 
-  width: 8px; 
-  border-left: 1px solid transparent; 
-  border-right: 1px solid transparent; 
-  @apply bg-background!;
-} 
-::-webkit-scrollbar-thumb { 
-  @apply bg-secondary;
-  border-radius: 12px; 
-} 
+@media screen and (width >= 48rem) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+    @apply bg-background!;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-secondary;
+    border-radius: 12px;
+  }
+}
 
 html.plt-mobileweb ion-header ion-toolbar:first-of-type,
 html.plt-desktop ion-header ion-toolbar:first-of-type {
@@ -259,11 +260,11 @@ ion-toolbar ion-searchbar {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
- /*@layer base { */
- /*  body { */
- /*    @apply bg-background text-foreground; */
- /*  } */
- /*} */
+/*@layer base { */
+/*  body { */
+/*    @apply bg-background text-foreground; */
+/*  } */
+/*} */
 
 body {
   overflow: hidden;
@@ -291,7 +292,8 @@ body {
   margin-top: 1rem; /* Adjust the value as needed */
 }
 
-.prose pre, .prose code {
+.prose pre,
+.prose code {
   @apply dark:bg-gray-800;
 }
 
@@ -320,7 +322,6 @@ ion-action-sheet .action-sheet-selected .action-sheet-button-inner:after {
   height: 24px;
 }
 
-
 /* Material Design 3 */
 .header-md.header-md {
   box-shadow: none;
@@ -344,7 +345,7 @@ details > summary::-webkit-details-marker {
   display: none;
 }
 .prose details > summary::-webkit-details-marker {
-  display: revert; 
+  display: revert;
 }
 
 input[type="search"]::-webkit-search-cancel-button {
@@ -363,12 +364,15 @@ input[type="search"]::-webkit-search-cancel-button {
   min-height: unset !important;
 }
 
-ion-toolbar.sc-ion-searchbar-ios-h, ion-toolbar .sc-ion-searchbar-ios-h {
+ion-toolbar.sc-ion-searchbar-ios-h,
+ion-toolbar .sc-ion-searchbar-ios-h {
   min-height: 45px !important;
 }
 
-ion-modal.ios {
-  max-height: calc(100svh - var(--keyboard-height));
+ion-modal .ion-delegate-host,
+ion-alert {
+  padding-bottom: var(--keyboard-height) !important;
+  transition: padding-bottom 200ms;
 }
 
 img {

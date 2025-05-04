@@ -1,7 +1,6 @@
 import { IonApp } from "@ionic/react";
 
 import { setupIonicReact } from "@ionic/react";
-import type { IonicConfig } from "@ionic/core";
 
 import _ from "lodash";
 import Router from "./routing/Router";
@@ -9,28 +8,14 @@ import Router from "./routing/Router";
 import { Providers } from "@/src/components/providers";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { useEffect } from "react";
-import Bowser from "bowser";
 import { registerSafeArea } from "./lib/android";
 
 import "remove-focus-outline";
 
 registerSafeArea();
 
-const browser = Bowser.getParser(window.navigator.userAgent);
-
-let mode: IonicConfig["mode"] = undefined;
-
-switch (browser.getOS().name?.toLowerCase()) {
-  case "macos":
-    mode = "ios";
-    break;
-  case "windows":
-    mode = "md";
-    break;
-}
-
 setupIonicReact({
-  mode,
+  mode: "ios",
   statusTap: false,
   swipeBackEnabled: true,
 });

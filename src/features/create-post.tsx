@@ -51,6 +51,7 @@ import { Deferred } from "../lib/deferred";
 import z from "zod";
 import { usePostsStore } from "../stores/posts";
 import { getAccountActorId, useAuth } from "../stores/auth";
+import { KeyboardAvoidingView } from "../components/keyboard-avoiding-view";
 
 dayjs.extend(localizedFormat);
 
@@ -279,145 +280,150 @@ export function CreatePost() {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
-        <ChooseCommunity
-          createPostId={draftId}
-          isOpen={chooseCommunity && !isEdit}
-          closeModal={() => setChooseCommunity(false)}
-        />
+      <IonContent scrollY={false}>
+        <KeyboardAvoidingView>
+          <ChooseCommunity
+            createPostId={draftId}
+            isOpen={chooseCommunity && !isEdit}
+            closeModal={() => setChooseCommunity(false)}
+          />
 
-        <ContentGutters className="h-full">
-          {media.maxMd && showDrafts ? (
-            <DraftsSidebar
-              createPostId={draftId}
-              onClickDraft={() => setShowDrafts(false)}
-            />
-          ) : (
-            <div className="flex flex-col gap-5 py-6">
-              {isEdit && !canEdit && (
-                <span className="bg-amber-500/30 text-amber-500 py-2 px-3 rounded-lg">
-                  {postOwner
-                    ? `Switch to ${postOwner} to make edits.`
-                    : "You cannot edit this post because it doesn't belong to the selected account."}
-                </span>
-              )}
-
-              <button
-                onClick={() => setChooseCommunity(true)}
-                className="flex flex-row items-center gap-2 h-9 self-start"
-                disabled={isEdit}
-              >
-                {draft.community ? (
-                  <CommunityCard communityView={draft.community} disableLink />
-                ) : (
-                  <span className="font-bold">Select a community</span>
+          <ContentGutters>
+            {media.maxMd && showDrafts ? (
+              <DraftsSidebar
+                createPostId={draftId}
+                onClickDraft={() => setShowDrafts(false)}
+              />
+            ) : (
+              <div className="flex flex-col gap-5 py-6">
+                {isEdit && !canEdit && (
+                  <span className="bg-amber-500/30 text-amber-500 py-2 px-3 rounded-lg">
+                    {postOwner
+                      ? `Switch to ${postOwner} to make edits.`
+                      : "You cannot edit this post because it doesn't belong to the selected account."}
+                  </span>
                 )}
-                {!isEdit && <FaChevronDown className="text-brand" />}
-              </button>
 
-              <ToggleGroup
-                type="single"
-                variant="outline"
-                size="sm"
-                value={draft.type}
-                onValueChange={(val) => {
-                  if (val) {
-                    patchDraft(draftId, {
-                      type: val as "text" | "media" | "link",
-                    });
-                  }
-                }}
-              >
-                <ToggleGroupItem value="text">Text</ToggleGroupItem>
-                <ToggleGroupItem value="media">Image</ToggleGroupItem>
-                <ToggleGroupItem value="link">Link</ToggleGroupItem>
-              </ToggleGroup>
+                <button
+                  onClick={() => setChooseCommunity(true)}
+                  className="flex flex-row items-center gap-2 h-9 self-start"
+                  disabled={isEdit}
+                >
+                  {draft.community ? (
+                    <CommunityCard
+                      communityView={draft.community}
+                      disableLink
+                    />
+                  ) : (
+                    <span className="font-bold">Select a community</span>
+                  )}
+                  {!isEdit && <FaChevronDown className="text-brand" />}
+                </button>
 
-              {draft.type === "link" && (
-                <div className="gap-2 flex flex-col">
-                  <Label htmlFor={`${id}-link`}>Link</Label>
-                  <Input
-                    id={`${id}-link`}
-                    placeholder="Link"
-                    className="border-b border-border"
-                    value={draft.url ?? ""}
-                    onChange={(e) =>
-                      patchDraft(draftId, { url: e.target.value })
+                <ToggleGroup
+                  type="single"
+                  variant="outline"
+                  size="sm"
+                  value={draft.type}
+                  onValueChange={(val) => {
+                    if (val) {
+                      patchDraft(draftId, {
+                        type: val as "text" | "media" | "link",
+                      });
                     }
-                    onBlur={() => draft.url && parseUrl(draft.url)}
+                  }}
+                >
+                  <ToggleGroupItem value="text">Text</ToggleGroupItem>
+                  <ToggleGroupItem value="media">Image</ToggleGroupItem>
+                  <ToggleGroupItem value="link">Link</ToggleGroupItem>
+                </ToggleGroup>
+
+                {draft.type === "link" && (
+                  <div className="gap-2 flex flex-col">
+                    <Label htmlFor={`${id}-link`}>Link</Label>
+                    <Input
+                      id={`${id}-link`}
+                      placeholder="Link"
+                      className="border-b border-border"
+                      value={draft.url ?? ""}
+                      onChange={(e) =>
+                        patchDraft(draftId, { url: e.target.value })
+                      }
+                      onBlur={() => draft.url && parseUrl(draft.url)}
+                    />
+                  </div>
+                )}
+
+                {draft.type === "media" && (
+                  <div className="gap-2 flex flex-col">
+                    <Label htmlFor={`${id}-media`}>Image</Label>
+                    <div
+                      {...getRootProps()}
+                      className="border-2 border-dashed flex flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-md min-h-32"
+                    >
+                      <input id={`${id}-media`} {...getInputProps()} />
+                      {draft.custom_thumbnail && !uploadImage.isPending && (
+                        <img
+                          src={draft.custom_thumbnail}
+                          className="h-40 rounded-md"
+                        />
+                      )}
+                      {uploadImage.isPending && (
+                        <Skeleton className="h-40 aspect-square flex items-center justify-center">
+                          <FaRegImage className="text-muted-foreground text-4xl" />
+                        </Skeleton>
+                      )}
+                      {isDragActive ? (
+                        <p>Drop the files here ...</p>
+                      ) : (
+                        <p className="text-muted-foreground">
+                          Drop or upload image here
+                          {draft.custom_thumbnail && " to replace"}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="gap-2 flex flex-col">
+                  <Label htmlFor={`${id}-title`}>Title</Label>
+                  <Input
+                    id={`${id}-title`}
+                    placeholder="Title"
+                    value={draft.name ?? ""}
+                    onInput={(e) =>
+                      patchDraft(draftId, {
+                        name: e.currentTarget.value ?? "",
+                      })
+                    }
                   />
                 </div>
-              )}
 
-              {draft.type === "media" && (
                 <div className="gap-2 flex flex-col">
-                  <Label htmlFor={`${id}-media`}>Image</Label>
-                  <div
-                    {...getRootProps()}
-                    className="border-2 border-dashed flex flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-md min-h-32"
-                  >
-                    <input id={`${id}-media`} {...getInputProps()} />
-                    {draft.custom_thumbnail && !uploadImage.isPending && (
-                      <img
-                        src={draft.custom_thumbnail}
-                        className="h-40 rounded-md"
-                      />
-                    )}
-                    {uploadImage.isPending && (
-                      <Skeleton className="h-40 aspect-square flex items-center justify-center">
-                        <FaRegImage className="text-muted-foreground text-4xl" />
-                      </Skeleton>
-                    )}
-                    {isDragActive ? (
-                      <p>Drop the files here ...</p>
-                    ) : (
-                      <p className="text-muted-foreground">
-                        Drop or upload image here
-                        {draft.custom_thumbnail && " to replace"}
-                      </p>
-                    )}
-                  </div>
+                  <Label htmlFor={`${id}-body`}>Body</Label>
+                  <MarkdownEditor
+                    id={`${id}-body`}
+                    content={draft.body ?? ""}
+                    onChange={(body) =>
+                      patchDraft(draftId, {
+                        body,
+                      })
+                    }
+                    className="border rounded-lg shadow-xs"
+                    placeholder="Write something..."
+                  />
                 </div>
-              )}
-
-              <div className="gap-2 flex flex-col">
-                <Label htmlFor={`${id}-title`}>Title</Label>
-                <Input
-                  id={`${id}-title`}
-                  placeholder="Title"
-                  value={draft.name ?? ""}
-                  onInput={(e) =>
-                    patchDraft(draftId, {
-                      name: e.currentTarget.value ?? "",
-                    })
-                  }
-                />
               </div>
+            )}
 
-              <div className="gap-2 flex flex-col">
-                <Label htmlFor={`${id}-body`}>Body</Label>
-                <MarkdownEditor
-                  id={`${id}-body`}
-                  content={draft.body ?? ""}
-                  onChange={(body) =>
-                    patchDraft(draftId, {
-                      body,
-                    })
-                  }
-                  className="border rounded-lg shadow-xs"
-                  placeholder="Write something..."
-                />
-              </div>
+            <div className="h-[calc(100vh-60px)] overflow-auto">
+              <DraftsSidebar
+                createPostId={draftId}
+                onClickDraft={() => setShowDrafts(false)}
+              />
             </div>
-          )}
-
-          <div className="h-[calc(100vh-60px)] overflow-auto">
-            <DraftsSidebar
-              createPostId={draftId}
-              onClickDraft={() => setShowDrafts(false)}
-            />
-          </div>
-        </ContentGutters>
+          </ContentGutters>
+        </KeyboardAvoidingView>
       </IonContent>
     </IonPage>
   );

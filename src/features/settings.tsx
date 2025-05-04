@@ -8,11 +8,13 @@ import _ from "lodash";
 import { Logo } from "@/src/components/logo";
 import pkgJson from "@/package.json";
 import { getDbSizes } from "@/src/lib/create-storage";
-
+import { close } from "ionicons/icons";
 import {
+  IonButton,
   IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
   IonInput,
   IonItem,
   IonList,
@@ -30,6 +32,7 @@ import { Deferred } from "../lib/deferred";
 import { createSlug } from "../lib/lemmy/utils";
 import { cn } from "../lib/utils";
 import z from "zod";
+import { KeyboardAvoidingView } from "../components/keyboard-avoiding-view";
 
 const deleteAccountFormSchema = z.object({
   password: z.string(),
@@ -134,6 +137,11 @@ function AccountCard({
         <IonModal ref={modal} trigger={modalTriggerId}>
           <IonHeader>
             <IonToolbar>
+              <IonButtons slot="start">
+                <IonButton onClick={() => modal.current?.dismiss()}>
+                  Close
+                </IonButton>
+              </IonButtons>
               <IonTitle>{createSlug(person)?.slug ?? person.name}</IonTitle>
             </IonToolbar>
           </IonHeader>
@@ -148,7 +156,8 @@ function AccountCard({
                   onClick={() => {
                     alrt({
                       header: "Delete account",
-                      subHeader: "This can not be undone!",
+                      subHeader:
+                        "Enter your account password to confirm deletion.",
                       inputs: [
                         {
                           name: "password",
@@ -191,7 +200,8 @@ function AccountCard({
                   onClick={() => {
                     alrt({
                       header: "Delete account and content",
-                      subHeader: "This can not be undone!",
+                      subHeader:
+                        "Enter your account password to confirm deletion.",
                       inputs: [
                         {
                           name: "password",
@@ -399,23 +409,24 @@ export default function SettingsPage() {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen={true}>
-        <ContentGutters className="pt-4 pb-8 max-md:px-2.5">
-          <div className="flex-1 gap-2 flex flex-col">
-            <AccountSection />
+      <IonContent fullscreen={true} scrollY={false}>
+        <KeyboardAvoidingView>
+          <ContentGutters className="pt-4 pb-8 max-md:px-2.5">
+            <div className="flex-1 gap-2 flex flex-col">
+              <AccountSection />
 
-            <SectionLabel>GLOBAL FILTERS</SectionLabel>
+              <SectionLabel>GLOBAL FILTERS</SectionLabel>
 
-            <IonList inset>
-              <IonItem>
-                <IonToggle
-                  checked={hideRead}
-                  onIonChange={(e) => setHideRead(e.detail.checked)}
-                >
-                  Hide read posts from feeds
-                </IonToggle>
-              </IonItem>
-              {/* 
+              <IonList inset>
+                <IonItem>
+                  <IonToggle
+                    checked={hideRead}
+                    onIonChange={(e) => setHideRead(e.detail.checked)}
+                  >
+                    Hide read posts from feeds
+                  </IonToggle>
+                </IonItem>
+                {/* 
                 This should be set at the account level,
                 and iOS requores that this is done outside of the app.
               <IonItem>
@@ -426,70 +437,71 @@ export default function SettingsPage() {
                   Show NSFW
                 </IonToggle>
               </IonItem>*/}
-            </IonList>
+              </IonList>
 
-            <SectionLabel>GLOBAL KEYWORD FILTERS</SectionLabel>
+              <SectionLabel>GLOBAL KEYWORD FILTERS</SectionLabel>
 
-            <IonList inset>
-              {keywords.map((keyword, index) => (
-                <IonItem key={index}>
-                  {index > 0 && <Divider />}
-                  <IonInput
-                    value={keyword}
-                    onIonChange={(e) =>
-                      setFilterKeywords({
-                        index,
-                        keyword: e.detail.value ?? "",
-                      })
-                    }
-                    onIonBlur={() => {
-                      pruneFiltersKeywords();
-                    }}
-                    placeholder="Keyword to filter..."
-                  />
+              <IonList inset>
+                {keywords.map((keyword, index) => (
+                  <IonItem key={index}>
+                    {index > 0 && <Divider />}
+                    <IonInput
+                      value={keyword}
+                      onIonChange={(e) =>
+                        setFilterKeywords({
+                          index,
+                          keyword: e.detail.value ?? "",
+                        })
+                      }
+                      onIonBlur={() => {
+                        pruneFiltersKeywords();
+                      }}
+                      placeholder="Keyword to filter..."
+                    />
+                  </IonItem>
+                ))}
+              </IonList>
+
+              <CacheSection />
+
+              <SectionLabel>OTHER</SectionLabel>
+
+              <IonList inset>
+                <IonItem
+                  href="https://github.com/christianjuth/blorp/releases"
+                  target="_blank"
+                  detail={false}
+                  className="text-brand"
+                >
+                  What's new
                 </IonItem>
-              ))}
-            </IonList>
+                <IonItem
+                  href="https://github.com/christianjuth/blorp/issues/new"
+                  target="_blank"
+                  detail={false}
+                  className="text-brand"
+                >
+                  Report issue
+                </IonItem>
+                <IonItem
+                  routerLink="/privacy"
+                  detail={false}
+                  className="text-brand"
+                >
+                  Privacy Policy
+                </IonItem>
+              </IonList>
 
-            <CacheSection />
-
-            <SectionLabel>OTHER</SectionLabel>
-
-            <IonList inset>
-              <IonItem
-                href="https://github.com/christianjuth/blorp/releases"
-                target="_blank"
-                detail={false}
-                className="text-brand"
+              <div
+                className="flex flex-col items-center pt-6"
+                onClick={() => setLogoClicks((c) => c + 1)}
               >
-                What's new
-              </IonItem>
-              <IonItem
-                href="https://github.com/christianjuth/blorp/issues/new"
-                target="_blank"
-                detail={false}
-                className="text-brand"
-              >
-                Report issue
-              </IonItem>
-              <IonItem
-                routerLink="/privacy"
-                detail={false}
-                className="text-brand"
-              >
-                Privacy Policy
-              </IonItem>
-            </IonList>
-
-            <div
-              className="flex flex-col items-center pt-6"
-              onClick={() => setLogoClicks((c) => c + 1)}
-            >
-              <Logo />
-              <span className="text-muted-foreground">v{version}</span>
+                <Logo />
+                <span className="text-muted-foreground">v{version}</span>
+              </div>
             </div>
-          </div>
-        </ContentGutters>
+          </ContentGutters>
+        </KeyboardAvoidingView>
       </IonContent>
     </IonPage>
   );

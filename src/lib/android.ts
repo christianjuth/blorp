@@ -2,6 +2,7 @@ import { Keyboard } from "@capacitor/keyboard";
 import { StatusBar } from "@capacitor/status-bar";
 import { SafeArea, SafeAreaInsets } from "capacitor-plugin-safe-area";
 import { Capacitor } from "@capacitor/core";
+import { isAndroid } from "../components/device";
 
 export function registerSafeArea() {
   let keyboardShowing = false;
@@ -25,33 +26,35 @@ export function registerSafeArea() {
   SafeArea.addListener("safeAreaChanged", updateInsets);
   StatusBar.setOverlaysWebView({ overlay: true });
 
-  Keyboard.addListener("keyboardWillShow", (info) => {
-    keyboardShowing = true;
-    document.body.style.setProperty(
-      "--keyboard-height",
-      `${info.keyboardHeight}px`,
-    );
-    SafeArea.getSafeAreaInsets().then(updateInsets);
-  });
+  if (!isAndroid()) {
+    Keyboard.addListener("keyboardWillShow", (info) => {
+      keyboardShowing = true;
+      document.body.style.setProperty(
+        "--keyboard-height",
+        `${info.keyboardHeight}px`,
+      );
+      SafeArea.getSafeAreaInsets().then(updateInsets);
+    });
 
-  Keyboard.addListener("keyboardDidShow", (info) => {
-    keyboardShowing = true;
-    document.body.style.setProperty(
-      "--keyboard-height",
-      `${info.keyboardHeight}px`,
-    );
-    SafeArea.getSafeAreaInsets().then(updateInsets);
-  });
+    Keyboard.addListener("keyboardDidShow", (info) => {
+      keyboardShowing = true;
+      document.body.style.setProperty(
+        "--keyboard-height",
+        `${info.keyboardHeight}px`,
+      );
+      SafeArea.getSafeAreaInsets().then(updateInsets);
+    });
 
-  Keyboard.addListener("keyboardDidHide", () => {
-    keyboardShowing = false;
-    document.body.style.setProperty("--keyboard-height", "0");
-    SafeArea.getSafeAreaInsets().then(updateInsets);
-  });
+    Keyboard.addListener("keyboardDidHide", () => {
+      keyboardShowing = false;
+      document.body.style.setProperty("--keyboard-height", "0");
+      SafeArea.getSafeAreaInsets().then(updateInsets);
+    });
 
-  Keyboard.addListener("keyboardDidHide", () => {
-    keyboardShowing = false;
-    document.body.style.setProperty("--keyboard-height", "0");
-    SafeArea.getSafeAreaInsets().then(updateInsets);
-  });
+    Keyboard.addListener("keyboardWillHide", () => {
+      keyboardShowing = false;
+      document.body.style.setProperty("--keyboard-height", "0");
+      SafeArea.getSafeAreaInsets().then(updateInsets);
+    });
+  }
 }
