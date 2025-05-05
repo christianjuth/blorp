@@ -11,13 +11,16 @@ import { useProfilesStore } from "@/src/stores/profiles";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
 import { useLinkContext } from "../../routing/link-context";
 import { usePersonDetails } from "@/src/lib/lemmy";
+import { Person } from "lemmy-js-client";
 
 export function PersonCard({
   actorId,
   size = "md",
   className,
+  person: override,
 }: {
   actorId: string;
+  person?: Person;
   size?: "sm" | "md";
   className?: string;
 }) {
@@ -30,7 +33,8 @@ export function PersonCard({
     actorId,
     enabled: !personView,
   });
-  const slug = personView ? createSlug(personView.person) : null;
+  const p = override ?? personView?.person;
+  const slug = p ? createSlug(p) : null;
 
   if (!personView) {
     return <PersonSkeletonCard size={size} className={className} />;
@@ -39,9 +43,12 @@ export function PersonCard({
   const content = (
     <>
       <Avatar className={cn("h-9 w-9", size === "sm" && "h-8 w-8")}>
-        <AvatarImage src={personView?.person.avatar} className="object-cover" />
+        <AvatarImage
+          src={override ? override.avatar : personView?.person.avatar}
+          className="object-cover"
+        />
         <AvatarFallback>
-          {personView?.person.name.substring(0, 1)}
+          {(override?.name ?? personView?.person.name).substring(0, 1)}
         </AvatarFallback>
       </Avatar>
 
@@ -51,7 +58,7 @@ export function PersonCard({
           size === "sm" && "text-xs",
         )}
       >
-        {personView?.person?.name}
+        {override?.name ?? personView?.person?.name}
         <span className="text-muted-foreground italic">@{slug?.host}</span>
       </span>
     </>
@@ -62,7 +69,9 @@ export function PersonCard({
       data-testid="person-card"
       to={`${linkCtx.root}u/:userId`}
       params={{
-        userId: encodeApId(personView?.person.actor_id),
+        userId: encodeApId(
+          override ? override.actor_id : personView?.person.actor_id,
+        ),
       }}
       className={cn(
         "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full",

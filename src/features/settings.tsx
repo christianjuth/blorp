@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useSettingsStore } from "@/src/stores/settings";
-import { useDeleteAccount, useLogout } from "@/src/lib/lemmy/index";
+import { useLogout } from "@/src/lib/lemmy/index";
 import { Account, parseAccountInfo, useAuth } from "@/src/stores/auth";
 import { useRequireAuth } from "@/src/components/auth-context";
 import { ContentGutters } from "@/src/components/gutters";
@@ -8,17 +8,13 @@ import _ from "lodash";
 import { Logo } from "@/src/components/logo";
 import pkgJson from "@/package.json";
 import { getDbSizes } from "@/src/lib/create-storage";
-import { close } from "ionicons/icons";
 import {
-  IonButton,
   IonButtons,
   IonContent,
   IonHeader,
-  IonIcon,
   IonInput,
   IonItem,
   IonList,
-  IonModal,
   IonPage,
   IonTitle,
   IonToggle,
@@ -31,12 +27,10 @@ import { PersonCard } from "../components/person/person-card";
 import { Deferred } from "../lib/deferred";
 import { createSlug } from "../lib/lemmy/utils";
 import { cn } from "../lib/utils";
-import z from "zod";
 import { KeyboardAvoidingView } from "../components/keyboard-avoiding-view";
-
-const deleteAccountFormSchema = z.object({
-  password: z.string(),
-});
+import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
+import { openUrl } from "../lib/linking";
 
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
@@ -63,14 +57,12 @@ function AccountCard({
   accountIndex: number;
 }) {
   const modalTriggerId = useId();
-  const modal = useRef<HTMLIonModalElement>(null);
 
   const [alrt] = useIonAlert();
   const requireAuth = useRequireAuth();
   const logout = useLogout();
   const { person, instance } = parseAccountInfo(account);
   const isLoggedIn = Boolean(account.jwt);
-  const deleteAccount = useDeleteAccount();
 
   return (
     <>
@@ -78,18 +70,49 @@ function AccountCard({
       <IonList inset>
         {person && (
           <IonItem>
-            <PersonCard actorId={person.actor_id} className="my-2" />
+            <PersonCard
+              actorId={person.actor_id}
+              person={person}
+              className="my-2"
+            />
           </IonItem>
         )}
 
         {isLoggedIn && (
           <IonItem
             button
+            onClick={() => {
+              alrt({
+                header: `Delete Account?`,
+                message:
+                  "You’ll be taken to Lemmy’s website to confirm deletion. Continue?",
+                buttons: [
+                  {
+                    text: "Cancel",
+                    role: "cancel",
+                  },
+                  {
+                    text: "Continue",
+                    role: "destructive",
+                    handler: () => {
+                      if (Capacitor.isNativePlatform()) {
+                        Browser.open({
+                          url: `${account.instance}settings`,
+                        });
+                      } else {
+                        openUrl(`${account.instance}settings`);
+                      }
+                    },
+                  },
+                ],
+              });
+            }}
+            rel="noopener noreferrer"
             id={modalTriggerId}
             detail={false}
-            className="text-brand"
+            className="text-destructive"
           >
-            Manage account
+            Delete account
           </IonItem>
         )}
         <IonItem
@@ -123,7 +146,7 @@ function AccountCard({
           {[
             isLoggedIn ? "Logout" : accountIndex > 0 ? "Remove" : "Login",
             person
-              ? `${person.display_name ?? person.name}@${instance}`
+              ? `${person.name}@${instance}`
               : accountIndex > 0
                 ? instance
                 : null,
@@ -132,118 +155,6 @@ function AccountCard({
             .join(" ")}
         </IonItem>
       </IonList>
-
-      {person && (
-        <IonModal ref={modal} trigger={modalTriggerId}>
-          <IonHeader>
-            <IonToolbar>
-              <IonButtons slot="start">
-                <IonButton onClick={() => modal.current?.dismiss()}>
-                  Close
-                </IonButton>
-              </IonButtons>
-              <IonTitle>{createSlug(person)?.slug ?? person.name}</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent className="ion-padding">
-            <div className="flex-1 gap-2 flex flex-col">
-              <SectionLabel className="text-destructive">
-                DANGER ZONE
-              </SectionLabel>
-              <IonList inset>
-                <IonItem
-                  button
-                  onClick={() => {
-                    alrt({
-                      header: "Delete account",
-                      subHeader:
-                        "Enter your account password to confirm deletion.",
-                      inputs: [
-                        {
-                          name: "password",
-                          placeholder: "Password",
-                          type: "password",
-                        },
-                      ],
-                      buttons: [
-                        {
-                          text: "Cancel",
-                          role: "cancel",
-                        },
-                        {
-                          text: "Delete",
-                          role: "destructive",
-                          handler: (form) => {
-                            const { data } =
-                              deleteAccountFormSchema.safeParse(form);
-                            if (data) {
-                              deleteAccount
-                                .mutateAsync({
-                                  account,
-                                  form: {
-                                    password: data.password,
-                                    delete_content: false,
-                                  },
-                                })
-                                .then(() => modal.current?.dismiss());
-                            }
-                          },
-                        },
-                      ],
-                    });
-                  }}
-                >
-                  Delete account
-                </IonItem>
-                <IonItem
-                  button
-                  onClick={() => {
-                    alrt({
-                      header: "Delete account and content",
-                      subHeader:
-                        "Enter your account password to confirm deletion.",
-                      inputs: [
-                        {
-                          name: "password",
-                          placeholder: "Password",
-                          type: "password",
-                        },
-                      ],
-                      buttons: [
-                        {
-                          text: "Cancel",
-                          role: "cancel",
-                        },
-                        {
-                          text: "Delete",
-                          role: "destructive",
-                          handler: (form) => {
-                            const { data } =
-                              deleteAccountFormSchema.safeParse(form);
-                            if (data) {
-                              deleteAccount
-                                .mutateAsync({
-                                  account,
-                                  form: {
-                                    password: data.password,
-                                    delete_content: true,
-                                  },
-                                })
-                                .then(() => modal.current?.dismiss());
-                            }
-                          },
-                        },
-                      ],
-                    });
-                  }}
-                >
-                  Delete account and content
-                </IonItem>
-              </IonList>
-            </div>
-          </IonContent>
-        </IonModal>
-      )}
     </>
   );
 }
@@ -259,13 +170,6 @@ function AccountSection() {
             key={instance + index}
             accountIndex={index}
             account={a}
-            //onClick={() => {
-            //  if (isLoggedIn || index > 0) {
-            //    logout(index);
-            //  } else {
-            //    requireAuth();
-            //  }
-            //}}
           />
         );
       })}
@@ -470,6 +374,7 @@ export default function SettingsPage() {
                 <IonItem
                   href="https://github.com/christianjuth/blorp/releases"
                   target="_blank"
+                  rel="noopener noreferrer"
                   detail={false}
                   className="text-brand"
                 >
@@ -478,6 +383,7 @@ export default function SettingsPage() {
                 <IonItem
                   href="https://github.com/christianjuth/blorp/issues/new"
                   target="_blank"
+                  rel="noopener noreferrer"
                   detail={false}
                   className="text-brand"
                 >

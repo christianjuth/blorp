@@ -33,10 +33,11 @@ type AuthStore = {
   getSelectedAccount: () => Account;
   isLoggedIn: () => boolean;
   accountIndex: number;
-  updateAccount: (patch: Partial<Account>) => any;
+  updateSelectedAccount: (patch: Partial<Account>) => any;
+  updateAccount: (index: number | Account, patch: Partial<Account>) => any;
   addAccount: (patch?: Partial<Account>) => any;
   setAccountIndex: (index: number) => Account | null;
-  logout: (index?: number) => any;
+  logout: (index?: number | Account) => any;
   getCachePrefixer: () => CachePrefixer;
 };
 
@@ -101,8 +102,11 @@ export const useAuth = create<AuthStore>()(
           accountIndex: accounts.length - 1,
         });
       },
-      logout: (index) => {
+      logout: (accountSelector) => {
         const { accounts, accountIndex } = get();
+        const index = _.isObject(accountSelector)
+          ? accounts.findIndex(({ jwt }) => jwt && jwt === accountSelector.jwt)
+          : accountSelector;
         const account = accounts[index ?? accountIndex];
         if (account) {
           delete accounts[index ?? accountIndex];
@@ -134,7 +138,24 @@ export const useAuth = create<AuthStore>()(
         });
         return account;
       },
-      updateAccount: (patch) => {
+      updateAccount: (accountSelector, patch) => {
+        let { accounts } = get();
+        const index = _.isObject(accountSelector)
+          ? accounts.findIndex(({ jwt }) => jwt && jwt === accountSelector.jwt)
+          : accountSelector;
+        accounts = accounts.map((a, i) =>
+          i === index
+            ? {
+                ...a,
+                ...patch,
+              }
+            : a,
+        );
+        set({
+          accounts,
+        });
+      },
+      updateSelectedAccount: (patch) => {
         let { accounts, accountIndex } = get();
         accounts = accounts.map((a, i) =>
           i === accountIndex

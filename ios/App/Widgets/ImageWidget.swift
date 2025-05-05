@@ -47,7 +47,7 @@ struct ImageConfigurationAppIntent: WidgetConfigurationIntent {
 
     @Parameter(
         title: "Community",
-        default: ImageCommunityOption.aww_lemmy_world
+        default: ImageCommunityOption.pics_lemmy_world
     )
     var community: ImageCommunityOption?
 }
@@ -86,12 +86,31 @@ struct ImageProvider: AppIntentTimelineProvider {
         let topPost = await fetchImage(for: configuration.community?.rawValue ?? "aww@lemmy.world")
         
         let thumbData: Data?
-            if let urlString = topPost?.post.url,
-               let url = URL(string: urlString) {
-                thumbData = try? await URLSession.shared.data(from: url).0
-            } else {
-                thumbData = nil
+        let primaryURLString = topPost?.post.url
+        let fallbackURLString = topPost?.post.thumbnail_url
+
+        func data(from urlString: String?) async -> Data? {
+            guard
+                let s = urlString,
+                let url = URL(string: s)
+            else { return nil }
+
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                return data
+            } catch {
+                print("Failed to load image at \(url): \(error)")
+                return nil
             }
+        }
+
+        if let data = await data(from: primaryURLString) {
+            thumbData = data
+        } else if let data = await data(from: fallbackURLString) {
+            thumbData = data
+        } else {
+            thumbData = nil
+        }
         
         let entry = ImageEntry(
             date: date,
@@ -107,19 +126,33 @@ struct ImageProvider: AppIntentTimelineProvider {
     }
 
     private func fetchImage(for community: String) async -> LemmyPost? {
-        guard let url = URL(string: "https://lemm.ee/api/v3/post/list?community_name=" + community + "&sort=TopDay&type=All&limit=10") else {
-            return nil
-        }
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let wrapper = try JSONDecoder().decode(LemmyPostsResponse.self, from: data)
-            return wrapper.posts.first { postWrapper in
-                return isImageURL(postWrapper.post.url)
+        // Try TopDay first, then fallback to TopWeek
+        let sortOptions = ["TopDay", "TopWeek"]
+        for sort in sortOptions {
+            // Build URL
+            let query = [
+                "community_name": community,
+                "sort": sort,
+                "type": "All",
+                "limit": "10"
+            ]
+            var components = URLComponents(string: "https://lemm.ee/api/v3/post/list")
+            components?.queryItems = query.map { URLQueryItem(name: $0.key, value: $0.value) }
+            guard let url = components?.url else { continue }
+
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                let wrapper = try JSONDecoder().decode(LemmyPostsResponse.self, from: data)
+                for postWrapper in wrapper.posts {
+                    if isImageURL(postWrapper.post.url) {
+                        return postWrapper
+                    }
+                }
+            } catch {
+                print("Error fetching posts sorted by \(sort): \(error)")
             }
-        } catch {
-            print("Error fetching top post: \(error)")
-            return nil
         }
+        return nil
     }
 }
 

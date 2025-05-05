@@ -3,6 +3,8 @@ PODS:
     - CapacitorCordova
   - CapacitorApp (7.0.0):
     - Capacitor
+  - CapacitorBrowser (7.0.1):
+    - Capacitor
   - CapacitorCommunitySafeArea (7.0.0-alpha.1):
     - Capacitor
   - CapacitorCommunitySqlite (7.0.0):
@@ -38,6 +40,7 @@ PODS:
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
+  - "CapacitorBrowser (from `../../node_modules/@capacitor/browser`)"
   - "CapacitorCommunitySafeArea (from `../../node_modules/@capacitor-community/safe-area`)"
   - "CapacitorCommunitySqlite (from `../../node_modules/@capacitor-community/sqlite`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
@@ -61,6 +64,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorApp:
     :path: "../../node_modules/@capacitor/app"
+  CapacitorBrowser:
+    :path: "../../node_modules/@capacitor/browser"
   CapacitorCommunitySafeArea:
     :path: "../../node_modules/@capacitor-community/safe-area"
   CapacitorCommunitySqlite:
@@ -87,6 +92,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Capacitor: bceb785fb78f5e81e4a9e37843bc1c24bd9c7194
   CapacitorApp: 9cb31064a6c6bb2b1438583733a7bf45557fc1da
+  CapacitorBrowser: 6299776d496e968505464884d565992faa20444a
   CapacitorCommunitySafeArea: 3f049619072ab5d0da2529bcb05b358ff6c13dc1
   CapacitorCommunitySqlite: b11e556cf5d149f9e0b6fbbb47959a6cd718c3d0
   CapacitorCordova: 866217f32c1d25b326c568a10ea3ed0c36b13e29
@@ -102,6 +108,6 @@ SPEC CHECKSUMS:
   SQLCipher: 77fbe633cd84db04b07876dd50766b4924b57d61
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
-PODFILE CHECKSUM: ba30730c4e5fbbb7862b016316e33a3ca2e35714
+PODFILE CHECKSUM: 6834b1acf874c0d81f3ec626ca392b915017f9e1
 
 COCOAPODS: 1.16.2

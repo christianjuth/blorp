@@ -8,10 +8,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { useAuth } from "@/src/stores/auth";
+import { Account, useAuth } from "@/src/stores/auth";
 import { useInstances, useLogin, useRefreshAuth } from "../lib/lemmy";
 import fuzzysort from "fuzzysort";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import {
   IonButton,
   IonButtons,
@@ -31,6 +31,7 @@ import {
   InputOTPSlot,
 } from "./ui/input-otp";
 import { LuLoaderCircle } from "react-icons/lu";
+import { Browser } from "@capacitor/browser";
 
 const Context = createContext<{
   authenticate: (config?: { addAccount?: boolean }) => Promise<void>;
@@ -38,16 +39,53 @@ const Context = createContext<{
   authenticate: () => Promise.reject(),
 });
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const refreshAuth = useRefreshAuth();
-  const isLoggedIn = useAuth((s) => s.isLoggedIn());
-  const jwt = useAuth((s) => s.getSelectedAccount().jwt);
-
+function RefreshAccount({
+  account,
+  signal,
+}: {
+  account: Account;
+  signal: number;
+}) {
+  const refresh = useRefreshAuth(account);
   useEffect(() => {
-    if (jwt) {
-      refreshAuth.mutate();
+    if (!account.jwt) {
+      return;
     }
-  }, [jwt]);
+    refresh.mutate();
+  }, [account.jwt, signal]);
+  return null;
+}
+
+export function RefreshAccounts() {
+  const accounts = useAuth((s) => s.accounts);
+  const [signal, setSignal] = useState(0);
+  useEffect(() => {
+    const debouncedSignal = _.debounce(() => setSignal((s) => s + 1), 50);
+    const visibilityHanlder = () => {
+      if (!document.hidden) {
+        debouncedSignal();
+      }
+    };
+    document.addEventListener("visibilitychange", visibilityHanlder);
+    window.addEventListener("focus", debouncedSignal);
+    Browser.addListener("browserFinished", debouncedSignal);
+    return () => {
+      debouncedSignal.cancel();
+      document.removeEventListener("visibilitychange", debouncedSignal);
+      window.removeEventListener("focus", debouncedSignal);
+    };
+  }, []);
+  return (
+    <>
+      {accounts.map((a, i) => (
+        <RefreshAccount key={i + a.instance} account={a} signal={signal} />
+      ))}
+    </>
+  );
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   const [promise, setPromise] = useState<{
     resolve: (value: void) => any;
@@ -93,6 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         onSuccess={() => promise?.resolve()}
         addAccount={promise?.addAccount === true}
       />
+      <RefreshAccounts />
     </Context.Provider>
   );
 }
@@ -144,7 +183,7 @@ function AuthModal({
           .map((r) => r.obj)
       : undefined;
 
-  const updateAccount = useAuth((a) => a.updateAccount);
+  const updateSelectedAccount = useAuth((a) => a.updateSelectedAccount);
   const addAccountFn = useAuth((a) => a.addAccount);
 
   // const insets = useSafeAreaInsets();
@@ -223,7 +262,7 @@ function AuthModal({
                   onClick={() => {
                     setInstanceLocal(i);
                     if (!addAccount) {
-                      updateAccount({
+                      updateSelectedAccount({
                         instance: i.url,
                       });
                     }

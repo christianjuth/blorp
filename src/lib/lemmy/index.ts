@@ -23,7 +23,6 @@ import {
   UploadImage,
   MarkPostAsRead,
   GetPersonMentions,
-  DeleteAccount,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -41,6 +40,7 @@ import { useFiltersStore } from "@/src/stores/filters";
 import {
   Account,
   getAccountActorId,
+  getCachePrefixer,
   parseAccountInfo,
   useAuth,
 } from "../../stores/auth";
@@ -876,7 +876,7 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
-  const updateAccount = useAuth((s) => s.updateAccount);
+  const updateSelectedAccount = useAuth((s) => s.updateSelectedAccount);
   const addAccount = useAuth((s) => s.addAccount);
 
   const mutation = useMutation({
@@ -896,7 +896,7 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
             instance: config.instance,
           });
         } else {
-          updateAccount(payload);
+          updateSelectedAccount(payload);
         }
         if (person) {
           cacheProfiles(getCachePrefixer(), [{ person }]);
@@ -923,14 +923,30 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
   };
 }
 
-export function useRefreshAuth() {
-  const { client } = useLemmyClient();
+export function useRefreshAuth(account: Account) {
   const updateAccount = useAuth((s) => s.updateAccount);
+  const logout = useAuth((s) => s.logout);
+
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
   return useMutation({
     mutationFn: async () => {
+      const client = new LemmyHttp(account.instance);
+      client.setHeaders({
+        ...DEFAULT_HEADERS,
+        Authorization: `Bearer ${account.jwt}`,
+      });
       const site = await client.getSite();
-      updateAccount({
+      if (account.jwt && !site.my_user) {
+        logout(account);
+        throw new Error("User not found");
+      }
+      if (site.my_user) {
+        cacheProfiles(getCachePrefixer(account), [
+          _.pick(site.my_user.local_user_view, ["person", "counts"]),
+        ]);
+      }
+      updateAccount(account, {
         site,
       });
     },
@@ -1825,46 +1841,6 @@ export function useUploadImage() {
         toast.error(_.capitalize(err.message.replaceAll("_", " ")));
       } else {
         toast.error("Failed to upload image");
-      }
-    },
-  });
-}
-
-interface DeleteAccountWithCtx {
-  account: Account;
-  form: DeleteAccount;
-}
-export function useDeleteAccount() {
-  const accounts = useAuth((s) => s.accounts);
-  const logout = useAuth((s) => s.logout);
-  return useMutation({
-    mutationFn: ({ account, form }: DeleteAccountWithCtx) => {
-      if (!account.jwt) {
-        throw new Error("Can't delete logged out account");
-      }
-      const client = new LemmyHttp(account.instance);
-      client.setHeaders({
-        ...DEFAULT_HEADERS,
-        Authorization: `Bearer ${account.jwt}`,
-      });
-      return client.deleteAccount(form);
-    },
-    onError: (err) => {
-      // TOOD: find a way to determin if the request
-      // failed because the image was too large
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
-      } else {
-        toast.error("Failed to delete account");
-      }
-    },
-    onSuccess: (_res, { account }) => {
-      const { person } = parseAccountInfo(account);
-      const slug = person ? createSlug(person)?.slug : "";
-      toast.success(`Deleted your account ${slug}`);
-      const accountIndex = accounts.findIndex(({ jwt }) => jwt === account.jwt);
-      if (accountIndex > -1) {
-        logout(accountIndex);
       }
     },
   });

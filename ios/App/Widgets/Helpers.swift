@@ -15,6 +15,7 @@ struct LemmyPost: Decodable {
         let name: String    // post title
         let ap_id: String
         let url: String?
+        let thumbnail_url: String?
     }
 
     struct CommunityData: Decodable {

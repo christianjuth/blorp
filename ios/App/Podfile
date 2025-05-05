@@ -14,6 +14,7 @@ def capacitor_pods
   pod 'CapacitorCommunitySafeArea', :path => '../../node_modules/@capacitor-community/safe-area'
   pod 'CapacitorCommunitySqlite', :path => '../../node_modules/@capacitor-community/sqlite'
   pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
+  pod 'CapacitorBrowser', :path => '../../node_modules/@capacitor/browser'
   pod 'CapacitorFilesystem', :path => '../../node_modules/@capacitor/filesystem'
   pod 'CapacitorHaptics', :path => '../../node_modules/@capacitor/haptics'
   pod 'CapacitorInappbrowser', :path => '../../node_modules/@capacitor/inappbrowser'

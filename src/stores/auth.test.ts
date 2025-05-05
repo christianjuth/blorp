@@ -34,7 +34,7 @@ describe("useAuthStore", () => {
 
   test("login first account", () => {
     act(() => {
-      result.current.updateAccount(account1);
+      result.current.updateSelectedAccount(account1);
     });
     expect(result.current.getSelectedAccount()).toEqual(account1);
   });
@@ -49,7 +49,7 @@ describe("useAuthStore", () => {
   test("add account two steps", () => {
     act(() => {
       result.current.addAccount();
-      result.current.updateAccount(account3);
+      result.current.updateSelectedAccount(account3);
     });
     expect(result.current.getSelectedAccount()).toEqual(account3);
   });
