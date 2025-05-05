@@ -3,13 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 48;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		2249D6C22DC46CA300CEE4AB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2249D6C12DC46CA300CEE4AB /* WidgetKit.framework */; };
 		2249D6C42DC46CA300CEE4AB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2249D6C32DC46CA300CEE4AB /* SwiftUI.framework */; };
-		2249D6D52DC46CA400CEE4AB /* LemmyTopPostWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2249D6C02DC46CA200CEE4AB /* LemmyTopPostWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2249D6D52DC46CA400CEE4AB /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2249D6C02DC46CA200CEE4AB /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
@@ -26,7 +26,7 @@
 			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 2249D6BF2DC46CA200CEE4AB;
-			remoteInfo = LemmyTopPostWidgetExtension;
+			remoteInfo = WidgetsExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -37,7 +37,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				2249D6D52DC46CA400CEE4AB /* LemmyTopPostWidgetExtension.appex in Embed Foundation Extensions */,
+				2249D6D52DC46CA400CEE4AB /* WidgetsExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -46,7 +46,7 @@
 
 /* Begin PBXFileReference section */
 		221801122DC1040B0070862B /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
-		2249D6C02DC46CA200CEE4AB /* LemmyTopPostWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LemmyTopPostWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2249D6C02DC46CA200CEE4AB /* WidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2249D6C12DC46CA300CEE4AB /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		2249D6C32DC46CA300CEE4AB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
@@ -64,17 +64,17 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		2249D6D92DC46CA400CEE4AB /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		2249DA2E2DC7FD3E00CEE4AB /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 2249D6BF2DC46CA200CEE4AB /* LemmyTopPostWidgetExtension */;
+			target = 2249D6BF2DC46CA200CEE4AB /* WidgetsExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		2249D6C52DC46CA300CEE4AB /* LemmyTopPostWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (2249D6D92DC46CA400CEE4AB /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = LemmyTopPostWidget; sourceTree = "<group>"; };
+		2249D6C52DC46CA300CEE4AB /* Widgets */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (2249DA2E2DC7FD3E00CEE4AB /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Widgets; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,7 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				504EC3061FED79650016851F /* App */,
-				2249D6C52DC46CA300CEE4AB /* LemmyTopPostWidget */,
+				2249D6C52DC46CA300CEE4AB /* Widgets */,
 				504EC3051FED79650016851F /* Products */,
 				7F8756D8B27F46E3366F6CEA /* Pods */,
 				27E2DDA53C4D2A4D1A88CE4A /* Frameworks */,
@@ -123,7 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				504EC3041FED79650016851F /* App.app */,
-				2249D6C02DC46CA200CEE4AB /* LemmyTopPostWidgetExtension.appex */,
+				2249D6C02DC46CA200CEE4AB /* WidgetsExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -156,9 +156,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2249D6BF2DC46CA200CEE4AB /* LemmyTopPostWidgetExtension */ = {
+		2249D6BF2DC46CA200CEE4AB /* WidgetsExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2249D6DA2DC46CA400CEE4AB /* Build configuration list for PBXNativeTarget "LemmyTopPostWidgetExtension" */;
+			buildConfigurationList = 2249D6DA2DC46CA400CEE4AB /* Build configuration list for PBXNativeTarget "WidgetsExtension" */;
 			buildPhases = (
 				2249D6BC2DC46CA200CEE4AB /* Sources */,
 				2249D6BD2DC46CA200CEE4AB /* Frameworks */,
@@ -169,13 +169,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				2249D6C52DC46CA300CEE4AB /* LemmyTopPostWidget */,
+				2249D6C52DC46CA300CEE4AB /* Widgets */,
 			);
-			name = LemmyTopPostWidgetExtension;
+			name = WidgetsExtension;
 			packageProductDependencies = (
 			);
-			productName = LemmyTopPostWidgetExtension;
-			productReference = 2249D6C02DC46CA200CEE4AB /* LemmyTopPostWidgetExtension.appex */;
+			productName = WidgetsExtension;
+			productReference = 2249D6C02DC46CA200CEE4AB /* WidgetsExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		504EC3031FED79650016851F /* App */ = {
@@ -234,7 +234,7 @@
 			projectRoot = "";
 			targets = (
 				504EC3031FED79650016851F /* App */,
-				2249D6BF2DC46CA200CEE4AB /* LemmyTopPostWidgetExtension */,
+				2249D6BF2DC46CA200CEE4AB /* WidgetsExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -319,7 +319,7 @@
 /* Begin PBXTargetDependency section */
 		2249D6D42DC46CA400CEE4AB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2249D6BF2DC46CA200CEE4AB /* LemmyTopPostWidgetExtension */;
+			target = 2249D6BF2DC46CA200CEE4AB /* WidgetsExtension */;
 			targetProxy = 2249D6D32DC46CA400CEE4AB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -361,8 +361,8 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = LemmyTopPostWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = LemmyTopPostWidget;
+				INFOPLIST_FILE = Widgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BlorpWidgets;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -374,7 +374,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = xyz.blorpblorp.app.LemmyTopPostWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.blorpblorp.app.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -401,8 +401,8 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = LemmyTopPostWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = LemmyTopPostWidget;
+				INFOPLIST_FILE = Widgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BlorpWidgets;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -413,7 +413,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = xyz.blorpblorp.app.LemmyTopPostWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.blorpblorp.app.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -586,7 +586,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2249D6DA2DC46CA400CEE4AB /* Build configuration list for PBXNativeTarget "LemmyTopPostWidgetExtension" */ = {
+		2249D6DA2DC46CA400CEE4AB /* Build configuration list for PBXNativeTarget "WidgetsExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2249D6D72DC46CA400CEE4AB /* Debug */,
