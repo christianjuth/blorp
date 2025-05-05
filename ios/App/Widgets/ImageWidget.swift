@@ -86,32 +86,26 @@ struct ImageProvider: AppIntentTimelineProvider {
         let topPost = await fetchImage(for: configuration.community?.rawValue ?? "aww@lemmy.world")
         
         let thumbData: Data?
-        let primaryURLString = topPost?.post.url
-        let fallbackURLString = topPost?.post.thumbnail_url
-
-        func data(from urlString: String?) async -> Data? {
-            guard
-                let s = urlString,
-                let url = URL(string: s)
-            else { return nil }
-
+        if let urlString = topPost?.post.url,
+           let url = URL(string: urlString) {
             do {
+                // 1) Fetch raw bytes
                 let (data, _) = try await URLSession.shared.data(from: url)
-                return data
+                // 2) Downsample to, say, 300×300 points (→ 600×600px @2×)
+                if let smallImage = downsampledImage(from: data, to: CGSize(width: 300, height: 300)) {
+                    // 3) Convert back to Data for storage/baking into widget
+                    thumbData = smallImage.pngData()
+                } else {
+                    thumbData = nil
+                }
             } catch {
-                print("Failed to load image at \(url): \(error)")
-                return nil
+                print("Error fetching image: \(error)")
+                thumbData = nil
             }
-        }
-
-        if let data = await data(from: primaryURLString) {
-            thumbData = data
-        } else if let data = await data(from: fallbackURLString) {
-            thumbData = data
         } else {
             thumbData = nil
         }
-        
+
         let entry = ImageEntry(
             date: date,
             title: topPost?.post.name ?? "No posts",
@@ -127,14 +121,14 @@ struct ImageProvider: AppIntentTimelineProvider {
 
     private func fetchImage(for community: String) async -> LemmyPost? {
         // Try TopDay first, then fallback to TopWeek
-        let sortOptions = ["TopDay", "TopWeek"]
+        let sortOptions = ["TopDay", "TopWeek", "Hot"]
         for sort in sortOptions {
             // Build URL
             let query = [
                 "community_name": community,
                 "sort": sort,
                 "type": "All",
-                "limit": "10"
+                "limit": "50"
             ]
             var components = URLComponents(string: "https://lemm.ee/api/v3/post/list")
             components?.queryItems = query.map { URLQueryItem(name: $0.key, value: $0.value) }
@@ -144,7 +138,8 @@ struct ImageProvider: AppIntentTimelineProvider {
                 let (data, _) = try await URLSession.shared.data(from: url)
                 let wrapper = try JSONDecoder().decode(LemmyPostsResponse.self, from: data)
                 for postWrapper in wrapper.posts {
-                    if isImageURL(postWrapper.post.url) {
+                    let thumbnail = postWrapper.post.thumbnail_url;
+                    if thumbnail != nil {
                         return postWrapper
                     }
                 }
