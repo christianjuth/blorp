@@ -21,7 +21,7 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { cn } from "@/src/lib/utils";
-import { ActionMenu } from "../action-menu";
+import { ActionMenu } from "../adaptable/action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import { useIonAlert } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";

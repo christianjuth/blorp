@@ -6,7 +6,7 @@ import {
 import { memo, useMemo, useState } from "react";
 import { useFiltersStore } from "@/src/stores/filters";
 import { ContentGutters } from "@/src/components/gutters";
-import { FlashList } from "@/src/components/flashlist";
+import { VirtualList } from "@/src/components/virtual-list";
 import { Community } from "lemmy-js-client";
 import { useMedia } from "../lib/hooks";
 import {
@@ -21,7 +21,7 @@ import {
 } from "@ionic/react";
 import { MenuButton, UserDropdown } from "../components/nav";
 import { CommunityFilter, CommunitySortSelect } from "../components/lemmy-sort";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 import { Link } from "@/src/routing/index";
 import { searchOutline } from "ionicons/icons";
 import { useAuth } from "../stores/auth";
@@ -82,7 +82,7 @@ export default function Communities() {
 
   return (
     <IonPage>
-      <Title>Communities</Title>
+      <PageTitle>Communities</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start" className="gap-2">
@@ -118,7 +118,7 @@ export default function Communities() {
       </IonHeader>
       <IonContent scrollY={false}>
         <ContentGutters className="h-full max-md:contents">
-          <FlashList<{ community: Community }>
+          <VirtualList<{ community: Community }>
             key={communitySort + listingType}
             className="h-full ion-content-scroll-host"
             numColumns={numCols}

@@ -25,7 +25,7 @@ type Option<V extends string> = {
 };
 
 interface ComboboxProps<V extends string> {
-  triggerProps?: React.ComponentProps<typeof Button>;
+  trigger: (props: { isOpen: boolean }) => React.ReactNode;
   value: V;
   options: Option<V>[];
   onChange: (opt: Option<V>) => void;
@@ -35,7 +35,7 @@ interface ComboboxProps<V extends string> {
 export function Combobox<V extends string>({
   options,
   value,
-  triggerProps,
+  trigger,
   onChange,
   align,
 }: ComboboxProps<V>) {
@@ -43,23 +43,7 @@ export function Combobox<V extends string>({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          {...triggerProps}
-          className={cn(
-            "w-[200px] justify-between text-white",
-            triggerProps?.className,
-          )}
-          role="combobox"
-          aria-expanded={open}
-        >
-          {value
-            ? options.find((framework) => framework.value === value)?.label
-            : "Select language..."}
-          <ChevronsUpDown className="opacity-50" />
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger asChild>{trigger({ isOpen: open })}</PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align={align}>
         <Command>
           <CommandInput placeholder="Search framework..." className="h-9" />

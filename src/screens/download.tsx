@@ -20,7 +20,7 @@ import { Button } from "../components/ui/button";
 import Bowser from "bowser";
 import { Fragment, ReactNode, useId, useRef } from "react";
 import { cn } from "../lib/utils";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 import { Link } from "@/src/routing/index";
 import { isTauri } from "../lib/tauri";
 import { Capacitor } from "@capacitor/core";
@@ -157,7 +157,7 @@ const CARDS: { os: string; card: ReactNode }[] = [
 export default function Download() {
   return (
     <IonPage>
-      <Title>Download</Title>
+      <PageTitle>Download</PageTitle>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Download</IonTitle>

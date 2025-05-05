@@ -7,7 +7,7 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 
 const POLICY = `
 **Updated:** April 19, 2025
@@ -64,7 +64,7 @@ We may update this Privacy Policy from time to time. Any changes will be posted 
 export default function Privacy() {
   return (
     <IonPage>
-      <Title>Privacy</Title>
+      <PageTitle>Privacy</PageTitle>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Privacy Policy</IonTitle>

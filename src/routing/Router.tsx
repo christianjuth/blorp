@@ -30,23 +30,23 @@ import { isTauri } from "@/src/lib/tauri";
 import { CommunityCard } from "@/src/components/communities/community-card";
 import { AppUrlListener } from "@/src/components/universal-links";
 
-const CSAE = lazy(() => import("@/src/features/csae"));
-const NotFound = lazy(() => import("@/src/features/not-found"));
-const Download = lazy(() => import("@/src/features/download"));
-const Inbox = lazy(() => import("@/src/features/inbox"));
-const Privacy = lazy(() => import("@/src/features/privacy"));
-const Terms = lazy(() => import("@/src/features/terms"));
-const Support = lazy(() => import("@/src/features/support"));
-const HomeFeed = lazy(() => import("@/src/features/home-feed"));
-const Post = lazy(() => import("@/src/features/post"));
-const SettingsPage = lazy(() => import("@/src/features/settings"));
-const CommunityFeed = lazy(() => import("@/src/features/community-feed"));
-const CommunitySidebar = lazy(() => import("@/src/features/community-sidebar"));
-const CommunitiesFeed = lazy(() => import("@/src/features/communities-feed"));
-const User = lazy(() => import("@/src/features/user"));
-const SavedFeed = lazy(() => import("@/src/features/saved-feed"));
-const Search = lazy(() => import("@/src/features/search"));
-import { CreatePost } from "@/src/features/create-post";
+const CSAE = lazy(() => import("@/src/screens/csae"));
+const NotFound = lazy(() => import("@/src/screens/not-found"));
+const Download = lazy(() => import("@/src/screens/download"));
+const Inbox = lazy(() => import("@/src/screens/inbox"));
+const Privacy = lazy(() => import("@/src/screens/privacy"));
+const Terms = lazy(() => import("@/src/screens/terms"));
+const Support = lazy(() => import("@/src/screens/support"));
+const HomeFeed = lazy(() => import("@/src/screens/home-feed"));
+const Post = lazy(() => import("@/src/screens/post"));
+const SettingsPage = lazy(() => import("@/src/screens/settings"));
+const CommunityFeed = lazy(() => import("@/src/screens/community-feed"));
+const CommunitySidebar = lazy(() => import("@/src/screens/community-sidebar"));
+const CommunitiesFeed = lazy(() => import("@/src/screens/communities-feed"));
+const User = lazy(() => import("@/src/screens/user"));
+const SavedFeed = lazy(() => import("@/src/screens/saved-feed"));
+const Search = lazy(() => import("@/src/screens/search"));
+import { CreatePost } from "@/src/screens/create-post";
 
 const HOME_STACK = [
   <Route path="/home/*" component={NotFound} />,

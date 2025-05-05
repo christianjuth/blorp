@@ -15,8 +15,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@/src/components/ui/dropdown-menu";
-import { useMedia } from "../lib/hooks";
-import { cn } from "../lib/utils";
+import { useMedia } from "../../lib/hooks";
+import { cn } from "../../lib/utils";
 
 export interface ActionMenuProps<V = string>
   extends Omit<

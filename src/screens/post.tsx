@@ -20,7 +20,7 @@ import {
   useInlineCommentReplyState,
 } from "../components/comments/comment-reply-modal";
 import { useAuth } from "../stores/auth";
-import { FlashList } from "../components/flashlist";
+import { VirtualList } from "../components/virtual-list";
 import { PostReportProvider } from "../components/posts/post-report";
 import { usePostsStore } from "../stores/posts";
 import {
@@ -34,7 +34,7 @@ import {
 } from "@ionic/react";
 import { useParams } from "@/src/routing/index";
 import { UserDropdown } from "../components/nav";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 import { useMedia, useTheme } from "../lib/hooks";
 import { NotFound } from "./not-found";
 import { CommentSkeleton } from "../components/comments/comment-skeleton";
@@ -155,7 +155,7 @@ export default function Post() {
 
   return (
     <IonPage>
-      <Title>{post?.post.name ?? "Post"}</Title>
+      <PageTitle>{post?.post.name ?? "Post"}</PageTitle>
       <IonHeader>
         <IonToolbar
           data-tauri-drag-region
@@ -183,7 +183,7 @@ export default function Post() {
       </IonHeader>
       <IonContent scrollY={false}>
         <PostReportProvider>
-          <FlashList
+          <VirtualList
             className="h-full ion-content-scroll-host pb-4"
             data={data}
             header={[

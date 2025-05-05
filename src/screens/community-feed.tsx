@@ -10,7 +10,7 @@ import {
 } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 import { memo, useEffect, useMemo, useState } from "react";
-import { FlashList } from "../components/flashlist";
+import { VirtualList } from "../components/virtual-list";
 import { useCommunity, useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
 import { isNotNull } from "../lib/utils";
@@ -34,7 +34,7 @@ import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
 import { UserDropdown } from "../components/nav";
 import { PostSortBar } from "../components/lemmy-sort";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 import { useLinkContext } from "../routing/link-context";
 import { Link } from "@/src/routing/index";
 import { searchOutline } from "ionicons/icons";
@@ -130,7 +130,7 @@ export default function CommunityFeed() {
 
   return (
     <IonPage>
-      <Title>{communityName}</Title>
+      <PageTitle>{communityName}</PageTitle>
       <IonHeader>
         <IonToolbar
           data-tauri-drag-region
@@ -206,7 +206,7 @@ export default function CommunityFeed() {
       </IonHeader>
       <IonContent scrollY={false}>
         <PostReportProvider>
-          <FlashList<Item>
+          <VirtualList<Item>
             key={postSort}
             className="h-full ion-content-scroll-host"
             data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}

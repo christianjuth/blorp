@@ -32,7 +32,7 @@ function useRouterSafe() {
   }
 }
 
-export function FlashListInternal<T>({
+export function VirtualListInternal<T>({
   data,
   estimatedItemSize,
   onEndReached,
@@ -198,7 +198,7 @@ export function FlashListInternal<T>({
   );
 }
 
-export function FlashList<T>({
+export function VirtualList<T>({
   ref,
   onFocusChange,
   className,
@@ -277,7 +277,7 @@ export function FlashList<T>({
         }}
         onScroll={onScroll}
       >
-        <FlashListInternal
+        <VirtualListInternal
           key={`${key}-${props.numColumns}-${accountIndex}`}
           {...props}
           ref={scrollRef}

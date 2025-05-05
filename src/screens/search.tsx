@@ -9,7 +9,7 @@ import { CommunitySidebar } from "@/src/components/communities/community-sidebar
 import { ContentGutters } from "../components/gutters";
 import { memo, useMemo, useState } from "react";
 import { PostSortBar } from "../components/lemmy-sort";
-import { FlashList } from "../components/flashlist";
+import { VirtualList } from "../components/virtual-list";
 import {
   CommunityCard,
   CommunityCardSkeleton,
@@ -30,7 +30,7 @@ import {
   IonSearchbar,
   IonToolbar,
 } from "@ionic/react";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 import { UserDropdown } from "../components/nav";
 import { useMedia, useUrlSearchState } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";
@@ -129,7 +129,9 @@ export function SearchFeed({
 
   return (
     <IonPage>
-      <Title>{communityName ? `Search ${communityName}` : "Search"}</Title>
+      <PageTitle>
+        {communityName ? `Search ${communityName}` : "Search"}
+      </PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
@@ -174,7 +176,7 @@ export function SearchFeed({
       </IonHeader>
       <IonContent scrollY={false}>
         <PostReportProvider>
-          <FlashList<Item>
+          <VirtualList<Item>
             key={type === "communities" ? "communities" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={

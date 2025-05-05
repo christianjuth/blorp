@@ -12,7 +12,7 @@ import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/src/stores/auth";
 import { IoEllipsisHorizontal } from "react-icons/io5";
-import { ActionMenu, ActionMenuProps } from "../action-menu";
+import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
 import { Share } from "@capacitor/share";

@@ -7,7 +7,7 @@ import {
   PostProps,
 } from "../components/posts/post";
 import { MarkdownRenderer } from "../components/markdown/renderer";
-import { FlashList } from "../components/flashlist";
+import { VirtualList } from "../components/virtual-list";
 import { PostSortBar } from "../components/lemmy-sort";
 import { memo, useMemo } from "react";
 import { createPersonSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
@@ -30,7 +30,7 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 import { useMedia, useUrlSearchState } from "../lib/hooks";
 import { PostReportProvider } from "../components/posts/post-report";
 import { useFiltersStore } from "../stores/filters";
@@ -160,7 +160,7 @@ export default function User() {
 
   return (
     <IonPage>
-      <Title>{person ? createPersonSlug(person) : "Person"}</Title>
+      <PageTitle>{person ? createPersonSlug(person) : "Person"}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
@@ -208,7 +208,7 @@ export default function User() {
       </IonHeader>
       <IonContent scrollY={false}>
         <PostReportProvider>
-          <FlashList<Item>
+          <VirtualList<Item>
             key={type === "comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={listData.length === 0 && !isLoading ? [NO_ITEMS] : listData}

@@ -45,7 +45,6 @@ import {
   useAuth,
 } from "../../stores/auth";
 import { useEffect, useMemo, useRef } from "react";
-import { prefetch as prefetchImage } from "@/src/components/image";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
 import { useSettingsStore } from "../../stores/settings";
