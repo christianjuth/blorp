@@ -3,7 +3,7 @@ import {
   InAppBrowser,
   DefaultSystemBrowserOptions,
 } from "@capacitor/inappbrowser";
-import { isTauri } from "@/src/lib/tauri";
+import { isTauri } from "@/src/lib/device";
 import { cn } from "@/src/lib/utils";
 import { Capacitor } from "@capacitor/core";
 import { Skeleton } from "../ui/skeleton";

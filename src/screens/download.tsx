@@ -22,7 +22,7 @@ import { Fragment, ReactNode, useId, useRef } from "react";
 import { cn } from "../lib/utils";
 import { PageTitle } from "../components/page-title";
 import { Link } from "@/src/routing/index";
-import { isTauri } from "../lib/tauri";
+import { isTauri } from "../lib/device";
 import { Capacitor } from "@capacitor/core";
 
 const browser = Bowser.getParser(window.navigator.userAgent);

@@ -1,13 +1,13 @@
 import { openDB } from "idb";
 import { load } from "@tauri-apps/plugin-store";
-import { isTauri } from "./tauri";
+import { isTauri } from "./device";
 
 import {
   CapacitorSQLite,
   SQLiteConnection,
   SQLiteDBConnection,
 } from "@capacitor-community/sqlite";
-import { isCapacitor } from "./capacitor";
+import { Capacitor } from "@capacitor/core";
 
 const DB_VERSION = 1;
 const DB_NAME = "lemmy-db";
@@ -204,7 +204,7 @@ export function createIdb(rowName: string) {
 }
 
 export function createDb(rowName: string) {
-  if (isCapacitor()) {
+  if (Capacitor.isNativePlatform()) {
     return createSqliteStore(rowName);
   } else if (isTauri()) {
     return createTauriStore(rowName);
@@ -217,7 +217,7 @@ export async function getDbSizes() {
   const sizes: [string, number][] = [];
   let totalSize = 0;
 
-  if (isCapacitor()) {
+  if (Capacitor.isNativePlatform()) {
     const db = createSqliteStore();
     return db.getDbSize();
   } else if (isTauri()) {

@@ -8,7 +8,7 @@ import {
 import { useCommentsStore } from "@/src/stores/comments";
 import { RelativeTime } from "../relative-time";
 import { useBlockPerson, useDeleteComment } from "@/src/lib/lemmy/index";
-import { CommentMap } from "@/src/lib/comment-map";
+import { CommentTree } from "@/src/lib/comment-tree";
 import { useShowCommentReportModal } from "./post-report";
 import { useRequireAuth } from "../auth-context";
 import { useLinkContext } from "../../routing/link-context";
@@ -83,7 +83,7 @@ function Byline({
 export function PostComment({
   postApId,
   queryKeyParentId,
-  commentMap,
+  commentTree,
   level,
   opId,
   myUserId,
@@ -94,7 +94,7 @@ export function PostComment({
 }: {
   postApId: string;
   queryKeyParentId?: number;
-  commentMap: CommentMap;
+  commentTree: CommentTree;
   level: number;
   opId: number | undefined;
   myUserId: number | undefined;
@@ -111,7 +111,7 @@ export function PostComment({
 
   const blockPerson = useBlockPerson();
 
-  const { comment: commentPath, ...rest } = commentMap;
+  const { comment: commentPath, ...rest } = commentTree;
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const commentView = useCommentsStore((s) =>
@@ -387,7 +387,7 @@ export function PostComment({
                   postApId={postApId}
                   queryKeyParentId={queryKeyParentId}
                   key={id}
-                  commentMap={map}
+                  commentTree={map}
                   level={level + 1}
                   opId={opId}
                   myUserId={myUserId}

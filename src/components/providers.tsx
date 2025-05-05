@@ -6,7 +6,8 @@ import {
 import _ from "lodash";
 import { useNotificationCount } from "../lib/lemmy";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { isTauri, updateTauri } from "../lib/tauri";
+import { updateTauri } from "../lib/tauri";
+import { isTauri } from "../lib/device";
 import { AuthProvider } from "./auth-context";
 import { createDb } from "../lib/create-storage";
 import pRetry from "p-retry";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { extractLoopsVideoSrc } from "@/src/lib/html-parsing";
-import { isTauri } from "@/src/lib/tauri";
+import { isTauri } from "@/src/lib/device";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { FiPlay } from "react-icons/fi";

@@ -26,7 +26,7 @@ import { useListCommunities, useNotificationCount } from "@/src/lib/lemmy";
 
 import { lazy } from "react";
 import { dispatchScrollEvent } from "@/src/lib/scroll-events";
-import { isTauri } from "@/src/lib/tauri";
+import { isTauri } from "@/src/lib/device";
 import { CommunityCard } from "@/src/components/communities/community-card";
 import { AppUrlListener } from "@/src/components/universal-links";
 

@@ -1,3 +1,18 @@
+/**
+ * Lets you turn a non promise callback into a promise.
+ *
+ * @example
+ *   try {
+ *     const deferred = new Deferred();
+ *
+ *     getConfirmation({
+ *        onSuccess: deferred.resolve,
+ *        onFailure: deferred.reject,
+ *      });
+ *
+ *     await deferred.promise;
+ *   } catch {}
+ */
 export class Deferred<T = void> {
   private _resolve!: (value: T) => void;
   private _reject!: (reason?: any) => void;

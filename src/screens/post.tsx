@@ -1,5 +1,5 @@
 import { PostComment } from "@/src/components/posts/post-comment";
-import { buildCommentMap } from "../lib/comment-map";
+import { buildCommentTree } from "../lib/comment-tree";
 import { useEffect } from "react";
 import { usePost, useComments, useCommunity } from "@/src/lib/lemmy/index";
 import {
@@ -116,7 +116,7 @@ export default function Post() {
     if (!isReady) {
       return null;
     }
-    const map = buildCommentMap(allComments, commentId);
+    const map = buildCommentTree(allComments, commentId);
     const topLevelItems = _.entries(map).sort(
       ([_id1, a], [_id2, b]) => a.sort - b.sort,
     );
@@ -246,7 +246,7 @@ export default function Post() {
                 highlightCommentId={highlightCommentId}
                 postApId={decodedApId}
                 queryKeyParentId={parentId}
-                commentMap={item[1]}
+                commentTree={item[1]}
                 level={0}
                 opId={opId}
                 myUserId={myUserId}
