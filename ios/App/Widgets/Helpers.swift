@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 enum APIDError: Error {
     case invalidURL
@@ -92,4 +93,21 @@ func communityApId(from urlString: String) throws -> String {
 
     // 4. Return AP ID
     return "\(community)@\(host)"
+}
+
+func downsampledImage(from data: Data, to pointSize: CGSize, scale: CGFloat = UIScreen.main.scale) -> UIImage? {
+    let maxDimensionInPixels = max(pointSize.width, pointSize.height) * scale
+    let options: [CFString: Any] = [
+        kCGImageSourceShouldCache: false,
+        kCGImageSourceCreateThumbnailFromImageAlways: true,
+        kCGImageSourceThumbnailMaxPixelSize: maxDimensionInPixels
+    ]
+
+    guard let src = CGImageSourceCreateWithData(data as CFData, nil),
+          let cgImg = CGImageSourceCreateThumbnailAtIndex(src, 0, options as CFDictionary)
+    else {
+        return nil
+    }
+
+    return UIImage(cgImage: cgImg, scale: scale, orientation: .up)
 }
