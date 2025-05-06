@@ -377,7 +377,7 @@ function useCommentsKey() {
     }
 
     if (form.parent_id) {
-      queryKey.push(`parent-${form.post_id}`);
+      queryKey.push(`parent-${form.parent_id}`);
     }
 
     if (form.type_) {

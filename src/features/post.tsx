@@ -121,7 +121,7 @@ export default function Post() {
       ([_id1, a], [_id2, b]) => a.sort - b.sort,
     );
     return { map, topLevelItems };
-  }, [allComments, isReady]);
+  }, [allComments, isReady, commentId]);
 
   const [refreshing, setRefreshing] = useState(false);
   const refresh = async () => {

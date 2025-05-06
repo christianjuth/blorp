@@ -72,9 +72,7 @@ export function UserDropdown() {
           </Avatar>
           <div className="flex flex-row gap-2 items-center">
             <div className="flex flex-col">
-              <span className="text-md">
-                {person?.display_name ?? person?.name}
-              </span>
+              <span className="text-md">{person?.name}</span>
               <span className="text-xs text-muted-foreground">@{instance}</span>
             </div>
 
