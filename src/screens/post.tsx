@@ -1,5 +1,5 @@
 import { PostComment } from "@/src/components/posts/post-comment";
-import { buildCommentMap } from "../lib/comment-map";
+import { buildCommentTree } from "../lib/comment-tree";
 import { useEffect } from "react";
 import { usePost, useComments, useCommunity } from "@/src/lib/lemmy/index";
 import {
@@ -20,7 +20,7 @@ import {
   useInlineCommentReplyState,
 } from "../components/comments/comment-reply-modal";
 import { useAuth } from "../stores/auth";
-import { FlashList } from "../components/flashlist";
+import { VirtualList } from "../components/virtual-list";
 import { PostReportProvider } from "../components/posts/post-report";
 import { usePostsStore } from "../stores/posts";
 import {
@@ -34,7 +34,7 @@ import {
 } from "@ionic/react";
 import { useParams } from "@/src/routing/index";
 import { UserDropdown } from "../components/nav";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 import { useMedia, useTheme } from "../lib/hooks";
 import { NotFound } from "./not-found";
 import { CommentSkeleton } from "../components/comments/comment-skeleton";
@@ -116,7 +116,7 @@ export default function Post() {
     if (!isReady) {
       return null;
     }
-    const map = buildCommentMap(allComments, commentId);
+    const map = buildCommentTree(allComments, commentId);
     const topLevelItems = _.entries(map).sort(
       ([_id1, a], [_id2, b]) => a.sort - b.sort,
     );
@@ -155,7 +155,7 @@ export default function Post() {
 
   return (
     <IonPage>
-      <Title>{post?.post.name ?? "Post"}</Title>
+      <PageTitle>{post?.post.name ?? "Post"}</PageTitle>
       <IonHeader>
         <IonToolbar
           data-tauri-drag-region
@@ -183,7 +183,7 @@ export default function Post() {
       </IonHeader>
       <IonContent scrollY={false}>
         <PostReportProvider>
-          <FlashList
+          <VirtualList
             className="h-full ion-content-scroll-host pb-4"
             data={data}
             header={[
@@ -246,7 +246,7 @@ export default function Post() {
                 highlightCommentId={highlightCommentId}
                 postApId={decodedApId}
                 queryKeyParentId={parentId}
-                commentMap={item[1]}
+                commentTree={item[1]}
                 level={0}
                 opId={opId}
                 myUserId={myUserId}

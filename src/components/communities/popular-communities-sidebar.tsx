@@ -1,7 +1,7 @@
 import { useListCommunities } from "@/src/lib/lemmy/index";
-import { useFiltersStore } from "../stores/filters";
+import { useFiltersStore } from "@/src/stores/filters";
 import _ from "lodash";
-import { CommunityCard } from "./communities/community-card";
+import { CommunityCard } from "./community-card";
 
 export function PopularCommunitiesSidebar() {
   const listingType = useFiltersStore((s) => s.listingType);

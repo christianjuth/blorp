@@ -2,7 +2,7 @@ import { Keyboard } from "@capacitor/keyboard";
 import { StatusBar } from "@capacitor/status-bar";
 import { SafeArea, SafeAreaInsets } from "capacitor-plugin-safe-area";
 import { Capacitor } from "@capacitor/core";
-import { isAndroid } from "../components/device";
+import { isAndroid } from "./device";
 
 export function registerSafeArea() {
   let keyboardShowing = false;

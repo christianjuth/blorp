@@ -7,7 +7,7 @@ import { useFiltersStore } from "@/src/stores/filters";
 import { useMemo } from "react";
 import { useAuth } from "../stores/auth";
 import { useMedia } from "../lib/hooks";
-import { ActionMenu, ActionMenuProps } from "./action-menu";
+import { ActionMenu, ActionMenuProps } from "./adaptable/action-menu";
 
 import { TbArrowsDownUp, TbMessageCircle } from "react-icons/tb";
 import { LuClock3, LuCalendarArrowUp } from "react-icons/lu";

@@ -6,12 +6,12 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 
 export default function Support() {
   return (
     <IonPage>
-      <Title>Privacy</Title>
+      <PageTitle>Privacy</PageTitle>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Support</IonTitle>

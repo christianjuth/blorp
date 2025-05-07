@@ -36,7 +36,7 @@ import _ from "lodash";
 import { useIonAlert } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
 import z from "zod";
-import { ActionMenu } from "../action-menu";
+import { ActionMenu } from "../adaptable/action-menu";
 import { toast } from "sonner";
 import { MdOutlineFormatClear } from "react-icons/md";
 

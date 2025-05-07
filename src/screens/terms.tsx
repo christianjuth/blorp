@@ -7,7 +7,7 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 
 const TERMS = `
 **Terms of Use for Blorp**  
@@ -108,7 +108,7 @@ _By using Blorp, you acknowledge that you have read, understood, and agree to th
 export default function Privacy() {
   return (
     <IonPage>
-      <Title>Terms of Use</Title>
+      <PageTitle>Terms of Use</PageTitle>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Terms of Use</IonTitle>

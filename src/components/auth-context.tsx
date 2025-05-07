@@ -21,7 +21,7 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { FlashList } from "./flashlist";
+import { VirtualList } from "./virtual-list";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import {
@@ -238,7 +238,7 @@ function AuthModal({
       <IonContent>
         {!instance.url ? (
           <div className="flex flex-col h-full">
-            <FlashList
+            <VirtualList
               className="px-4"
               estimatedItemSize={50}
               stickyHeaderIndices={[0]}

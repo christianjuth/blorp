@@ -2,7 +2,10 @@
 import React, { useState } from "react";
 import { common, createLowlight } from "lowlight";
 import { NodeViewContent, NodeViewProps, NodeViewWrapper } from "@tiptap/react";
-import { Combobox } from "../adaptable/combox";
+import { Combobox } from "../ui/combox";
+import { Button } from "../ui/button";
+import { cn } from "@/src/lib/utils";
+import { ChevronsUpDown } from "lucide-react";
 
 export const lowlight = createLowlight(common);
 
@@ -70,11 +73,29 @@ export function CodeBlockEditor({
         <NodeViewContent as="code" />
 
         <Combobox
-          triggerProps={{
-            size: "sm",
-            variant: "link",
-            className: "absolute top-0 right-0 w-auto text-xs",
-          }}
+          trigger={({ isOpen }) => (
+            <Button
+              size="sm"
+              variant="link"
+              className={cn(
+                "w-[200px] justify-between text-white",
+                "absolute top-0 right-0 w-auto text-xs",
+              )}
+              role="combobox"
+              aria-expanded={isOpen}
+            >
+              {lang
+                ? lowlight
+                    .listLanguages()
+                    .map((lang: string) => ({
+                      label: lang,
+                      value: lang,
+                    }))
+                    .find((framework) => framework.value === lang)?.label
+                : "Select language..."}
+              <ChevronsUpDown className="opacity-50" />
+            </Button>
+          )}
           value={lang}
           options={extension.options.lowlight
             .listLanguages()

@@ -1,6 +1,6 @@
 import { CommentReplyView, PersonMentionView } from "lemmy-js-client";
 import { Link } from "@/src/routing/index";
-import { FlashList } from "@/src/components/flashlist";
+import { VirtualList } from "@/src/components/virtual-list";
 import { ContentGutters } from "@/src/components/gutters";
 import { MarkdownRenderer } from "../components/markdown/renderer";
 import { RelativeTime } from "@/src/components/relative-time";
@@ -20,7 +20,7 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { MenuButton, UserDropdown } from "../components/nav";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 import { cn } from "../lib/utils";
 import { useMemo } from "react";
 import _ from "lodash";
@@ -205,7 +205,7 @@ export default function Inbox() {
 
   return (
     <IonPage>
-      <Title>Inbox</Title>
+      <PageTitle>Inbox</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
@@ -237,7 +237,7 @@ export default function Inbox() {
         )}
       </IonHeader>
       <IonContent scrollY={false}>
-        <FlashList
+        <VirtualList
           header={[
             <ContentGutters className="max-md:hidden">
               <div className="py-2 bg-background border-b-[.5px]">

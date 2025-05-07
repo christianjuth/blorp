@@ -12,7 +12,7 @@ import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
 import { isNotNull } from "../lib/utils";
 
-import { PopularCommunitiesSidebar } from "../components/populat-communities-sidebar";
+import { PopularCommunitiesSidebar } from "../components/communities/popular-communities-sidebar";
 import {
   IonButtons,
   IonContent,
@@ -23,7 +23,7 @@ import {
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
-import { FlashList } from "../components/flashlist";
+import { VirtualList } from "../components/virtual-list";
 import { MenuButton, UserDropdown } from "../components/nav";
 import { HomeFilter, PostSortBar } from "../components/lemmy-sort";
 import { useMedia } from "../lib/hooks";
@@ -271,7 +271,7 @@ export default function HomeFeed() {
       </IonHeader>
       <IonContent scrollY={false} fullscreen={media.maxMd}>
         <PostReportProvider>
-          <FlashList<Item>
+          <VirtualList<Item>
             key={postSort + listingType}
             onFocusChange={setFocused}
             ref={scrollRef}

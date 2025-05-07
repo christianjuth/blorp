@@ -1,5 +1,5 @@
 import { openUrl as tauriOpenUrl } from "@tauri-apps/plugin-opener";
-import { isTauri } from "./tauri";
+import { isTauri } from "./device";
 
 export function shouldOpenInNewTab(url: string) {
   try {

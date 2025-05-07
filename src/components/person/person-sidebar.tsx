@@ -10,7 +10,7 @@ import type { Person, PersonAggregates } from "lemmy-js-client";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { MarkdownRenderer } from "../markdown/renderer";
-import { ActionMenu, ActionMenuProps } from "../action-menu";
+import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import { useMemo, useState } from "react";
 import { useLinkContext } from "../../routing/link-context";

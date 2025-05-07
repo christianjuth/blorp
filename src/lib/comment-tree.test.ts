@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
-import { buildCommentMap, CommentMapTopLevel } from "./comment-map";
+import { buildCommentTree, CommentTreeTopLevel } from "./comment-tree";
 
-describe("buildCommentMap", () => {
+describe("buildCommentTree", () => {
   test.each([
     [
       "top level comments",
@@ -29,7 +29,7 @@ describe("buildCommentMap", () => {
             },
           },
         },
-      } satisfies CommentMapTopLevel,
+      } satisfies CommentTreeTopLevel,
       undefined,
     ],
     [
@@ -51,10 +51,10 @@ describe("buildCommentMap", () => {
           },
           sort: 0,
         },
-      } satisfies CommentMapTopLevel,
+      } satisfies CommentTreeTopLevel,
       "1234.5678",
     ],
-  ])("%s", (_, comments, commentMap, commentPath) => {
-    expect(buildCommentMap(comments, commentPath)).toEqual(commentMap);
+  ])("%s", (_, comments, commentTree, commentPath) => {
+    expect(buildCommentTree(comments, commentPath)).toEqual(commentTree);
   });
 });

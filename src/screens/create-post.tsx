@@ -2,7 +2,7 @@ import { ContentGutters } from "../components/gutters";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 import { useCallback, useEffect, useId, useState } from "react";
 import { Draft, NEW_DRAFT, useCreatePostStore } from "../stores/create-post";
-import { FlashList } from "@/src/components/flashlist";
+import { VirtualList } from "@/src/components/virtual-list";
 import { CommunityCard } from "../components/communities/community-card";
 import {
   useCreatePost,
@@ -508,7 +508,7 @@ function ChooseCommunity({
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
-        <FlashList
+        <VirtualList
           className="h-full"
           data={data}
           stickyHeaderIndices={[0]}

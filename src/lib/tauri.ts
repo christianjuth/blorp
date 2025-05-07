@@ -2,14 +2,7 @@ import _ from "lodash";
 import { check } from "@tauri-apps/plugin-updater";
 import { confirm } from "@tauri-apps/plugin-dialog";
 import { relaunch } from "@tauri-apps/plugin-process";
-
-export function isTauri(): boolean {
-  try {
-    return _.isObject(window) && "isTauri" in window && Boolean(window.isTauri);
-  } catch {
-    return false;
-  }
-}
+import { isTauri } from "./device";
 
 export async function tauriCheckUpdate() {
   if (isTauri()) {

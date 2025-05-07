@@ -22,7 +22,7 @@ import {
   useIonAlert,
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 import { PersonCard } from "../components/person/person-card";
 import { Deferred } from "../lib/deferred";
 import { createSlug } from "../lib/lemmy/utils";
@@ -304,7 +304,7 @@ export default function SettingsPage() {
 
   return (
     <IonPage>
-      <Title>Settings</Title>
+      <PageTitle>Settings</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonTitle data-tauri-drag-region>Settings</IonTitle>

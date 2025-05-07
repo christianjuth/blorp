@@ -15,7 +15,7 @@ import { useParams } from "@/src/routing/index";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
 import { UserDropdown } from "../components/nav";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 import { useLinkContext } from "../routing/link-context";
 export default function CommunityFeed() {
   const linkCtx = useLinkContext();
@@ -37,7 +37,7 @@ export default function CommunityFeed() {
 
   return (
     <IonPage>
-      <Title>{communityName}</Title>
+      <PageTitle>{communityName}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">

@@ -6,7 +6,7 @@ import {
 } from "@/src/components/posts/post";
 import { ContentGutters } from "../components/gutters";
 import { memo, useMemo } from "react";
-import { FlashList } from "../components/flashlist";
+import { VirtualList } from "../components/virtual-list";
 import { useComments, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
@@ -28,7 +28,7 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 import { useFiltersStore } from "../stores/filters";
 import { useAuth } from "../stores/auth";
 import { useUrlSearchState } from "../lib/hooks";
@@ -154,7 +154,7 @@ export default function SavedFeed() {
 
   return (
     <IonPage>
-      <Title>Saved</Title>
+      <PageTitle>Saved</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
@@ -168,7 +168,7 @@ export default function SavedFeed() {
       </IonHeader>
       <IonContent scrollY={false}>
         <PostReportProvider>
-          <FlashList<Item>
+          <VirtualList<Item>
             key={type === "comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}

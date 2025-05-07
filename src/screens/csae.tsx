@@ -7,7 +7,7 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { Title } from "../components/title";
+import { PageTitle } from "../components/page-title";
 
 const POLICY = `
 # Child Sexual Abuse & Exploitation (CSAE) Policy
@@ -62,7 +62,7 @@ I maintain a strict zero‑tolerance stance toward any form of child sexual abus
 export default function CSAE() {
   return (
     <IonPage>
-      <Title>Privacy</Title>
+      <PageTitle>Privacy</PageTitle>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Privacy Policy</IonTitle>

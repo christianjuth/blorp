@@ -1,3 +1,10 @@
+/**
+ * Abbriviate number counts
+ *
+ * @example
+ *   abbriviateNumber(1000) // "1k"
+ *   abbriviateNumber(1000000) // "1m"
+ */
 export function abbriviateNumber(number: number): string {
   if (number < 1000) {
     return String(number);

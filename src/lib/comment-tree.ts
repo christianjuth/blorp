@@ -1,22 +1,35 @@
-export interface CommentMap {
+export interface CommentTree {
   comment?: {
     path: string;
   };
   sort: number;
-  [key: number]: CommentMap;
+  [key: number]: CommentTree;
 }
 
-export interface CommentMapTopLevel {
-  [key: number]: CommentMap;
+export interface CommentTreeTopLevel {
+  [key: number]: CommentTree;
 }
 
-export function buildCommentMap(
+/**
+ * Lemmy returns us an array of comments, but what we really
+ * need is a tree where child comments are attached to their
+ * parent. We have all the information we need in the list to
+ * build this tree. This function transforms the array into a tree.
+ *
+ * @example
+ *   cosnt comments = useComments();
+ *
+ *   const tree = buildCommentTree(comments);
+ *
+ *   // Render tree recursivly
+ */
+export function buildCommentTree(
   commentViews: {
     path: string;
   }[],
   commentPath?: string,
 ) {
-  const map: CommentMapTopLevel = {};
+  const map: CommentTreeTopLevel = {};
 
   const firstCommentInPath = commentPath?.split(".")?.[0];
 

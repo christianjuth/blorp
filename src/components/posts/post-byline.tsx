@@ -12,7 +12,7 @@ import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
 import { Link, resolveRoute } from "@/src/routing/index";
 import { RelativeTime } from "../relative-time";
-import { ActionMenu, ActionMenuProps } from "../action-menu";
+import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import {
   Avatar,

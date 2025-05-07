@@ -8,25 +8,8 @@ import {
 } from "react";
 import { useMediaQuery } from "react-responsive";
 import { InAppBrowser } from "@capacitor/inappbrowser";
-import { toast } from "sonner";
 import { useHistory, useLocation } from "react-router-dom";
 import type z from "zod";
-
-/**
- * @deprecated
- */
-export function useWindowDimensions() {
-  return {
-    window: {
-      height: 0,
-      width: 0,
-    },
-    screen: {
-      height: 0,
-      width: 0,
-    },
-  };
-}
 
 export function useTheme() {
   const prefersDark = useMediaQuery({ query: "(prefers-color-scheme: dark)" });
@@ -69,12 +52,6 @@ export function useMedia() {
     }),
     [sm, md, lg, xl, xxl],
   );
-}
-
-export function useToast() {
-  return useCallback(async (options: { message: string }) => {
-    return toast(options.message);
-  }, []);
 }
 
 interface ObserverOptions {
@@ -130,6 +107,13 @@ type SetUrlSearchParam<V> = (
   opts?: { replace?: boolean },
 ) => void;
 
+/**
+ * Similar to useState but stores it's state in the url.
+ * Only works with strings for now.
+ *
+ * @example
+ *   const [search, setSearch] = useUrlSearchState("q", "default_search", z.string());
+ */
 export function useUrlSearchState<S extends z.ZodSchema>(
   key: string,
   defaultValue: z.infer<S>,
