@@ -117,8 +117,8 @@ const CARDS: { os: string; card: ReactNode }[] = [
     card: (
       <Card
         icon={<FaAppStoreIos className="text-5xl fill-blue-500" />}
-        description="Currently in beta installed via TestFlight"
-        downloadLink="https://testflight.apple.com/join/T2pYyShr"
+        description="Designed for phones and tablets"
+        downloadLink="https://apps.apple.com/us/app/blorp-for-lemmy/id6739925430"
         os="iOS"
       />
     ),

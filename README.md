@@ -5,11 +5,14 @@
 * [Web](https://blorpblorp.xyz/)
 
 ## 🚀 Download
-* [iOS TestFlight Beta](https://testflight.apple.com/join/T2pYyShr)
+* [iOS](https://apps.apple.com/us/app/blorp-for-lemmy/id6739925430)
 * [macOS](https://github.com/christianjuth/blorp/releases/latest)
 * Android Beta
   * Google requires me to do some closed beta testing before I can open it to the public
   * DM moseschrute@lemmy.ml with the email associalted with your Google account for access (this is temporrary)
+
+## Beta Testing
+* [Join iOS TestFlight Beta](https://testflight.apple.com/join/T2pYyShr)
 
 
 ## 📚 Stack
