@@ -119,9 +119,13 @@ const options: (
   },
 });
 
-function createMd(root: ReturnType<typeof useLinkContext>["root"]) {
+function createMd(
+  root: ReturnType<typeof useLinkContext>["root"],
+  allowUnsafeHtml: boolean,
+) {
   const md = markdownit({
     linkify: true,
+    html: allowUnsafeHtml,
   });
 
   // Extend linkify for lemmy links starting with "!"
@@ -166,19 +170,32 @@ function createMd(root: ReturnType<typeof useLinkContext>["root"]) {
   return md;
 }
 
-const RENDERERS: Record<ReturnType<typeof useLinkContext>["root"], MarkdownIt> =
-  {
-    "/home/": createMd("/home/"),
-    "/inbox/": createMd("/inbox/"),
-    "/communities/": createMd("/communities/"),
-  };
+const RENDERERS: Record<
+  ReturnType<typeof useLinkContext>["root"],
+  { html: MarkdownIt; noHtml: MarkdownIt }
+> = {
+  "/home/": {
+    html: createMd("/home/", true),
+    noHtml: createMd("/home/", false),
+  },
+  "/inbox/": {
+    html: createMd("/inbox/", true),
+    noHtml: createMd("/inbox/", false),
+  },
+  "/communities/": {
+    html: createMd("/communities/", true),
+    noHtml: createMd("/communities/", false),
+  },
+};
 
 export function MarkdownRenderer({
   markdown,
   className,
+  allowUnsafeHtml,
 }: {
   markdown: string;
   className?: string;
+  allowUnsafeHtml?: boolean;
 }) {
   const root = useLinkContext().root;
   return (
@@ -188,7 +205,10 @@ export function MarkdownRenderer({
         className,
       )}
     >
-      {parse(RENDERERS[root].render(markdown), options(root))}
+      {parse(
+        RENDERERS[root][allowUnsafeHtml ? "html" : "noHtml"].render(markdown),
+        options(root),
+      )}
     </div>
   );
 }

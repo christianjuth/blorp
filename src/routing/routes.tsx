@@ -14,7 +14,6 @@ const postCommentSchema = z.object({
 const userSchema = z.object({
   userId: z.string(),
 });
-
 const searchSchema = z.object({
   communityName: z.string().optional(),
 });
@@ -74,6 +73,7 @@ export const routeDefs = {
   ...buildRoute("/privacy"),
   ...buildRoute("/terms"),
   ...buildRoute("/csae"),
+  ...buildRoute("/licenses"),
 } as const;
 
 export type RouteDefs = typeof routeDefs;

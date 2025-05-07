@@ -1,11 +1,24 @@
 {
   "applinks": {
+    "apps": [],
     "details": [
       {
         "appIDs": [
           "LTS4T488BH.xyz.blorpblorp.app"
         ],
         "components": [
+          {
+            "/": "/privacy*",
+            "exclude": true
+          },
+          {
+            "/": "/terms*",
+            "exclude": true
+          },
+          {
+            "/": "/licenses*",
+            "exclude": true
+          },
           {
             "/": "*",
             "comment": "Matches all routes"

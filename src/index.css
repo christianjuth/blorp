@@ -292,6 +292,10 @@ body {
   margin-top: 1rem; /* Adjust the value as needed */
 }
 
+.prose details + details {
+  margin-top: 0.5rem; /* Adjust the value as needed */
+}
+
 .prose pre,
 .prose code {
   @apply dark:bg-gray-800;

@@ -35,6 +35,7 @@ const NotFound = lazy(() => import("@/src/screens/not-found"));
 const Download = lazy(() => import("@/src/screens/download"));
 const Inbox = lazy(() => import("@/src/screens/inbox"));
 const Privacy = lazy(() => import("@/src/screens/privacy"));
+const OSLicenses = lazy(() => import("@/src/screens/licenses"));
 const Terms = lazy(() => import("@/src/screens/terms"));
 const Support = lazy(() => import("@/src/screens/support"));
 const HomeFeed = lazy(() => import("@/src/screens/home-feed"));
@@ -283,6 +284,10 @@ function Sidebar() {
       <Link to="/terms" className="px-4 text-sm mt-3 text-muted-foreground">
         Terms of Use
       </Link>
+
+      <Link to="/licenses" className="px-4 text-sm mt-3 text-muted-foreground">
+        Open Source Licenses
+      </Link>
     </>
   );
 }
@@ -358,6 +363,7 @@ function Tabs() {
             <Route exact path="/download" component={Download} />
             <Route exact path="/support" component={Support} />
             <Route exact path="/privacy" component={Privacy} />
+            <Route exact path="/licenses" component={OSLicenses} />
             <Route exact path="/terms" component={Terms} />
             <Route exact path="/csae" component={CSAE} />
             <Redirect exact from="/" to="/home" />
