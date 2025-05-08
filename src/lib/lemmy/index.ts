@@ -79,6 +79,15 @@ const DEFAULT_HEADERS = {
   "User-Agent": "blorp",
 };
 
+const fetchFunction: typeof fetch = (...[url, config]) => {
+  const urlStr = url.toString();
+  if (urlStr.startsWith("https://preferred.social/api/v3")) {
+    const newUrl = url.toString().replace("/v3/", "/alpha/");
+    return fetch(newUrl, config);
+  }
+  return fetch(url, config);
+};
+
 function useLemmyClient(config?: { instance?: string }) {
   let jwt = useAuth((s) => s.getSelectedAccount().jwt);
   const myUserId = useAuth(
@@ -94,6 +103,7 @@ function useLemmyClient(config?: { instance?: string }) {
   return useMemo(() => {
     const client = new LemmyHttp(instance.replace(/\/$/, ""), {
       headers: DEFAULT_HEADERS,
+      fetchFunction,
     });
 
     const setJwt = (jwt: string) => {
@@ -930,7 +940,9 @@ export function useRefreshAuth(account: Account) {
 
   return useMutation({
     mutationFn: async () => {
-      const client = new LemmyHttp(account.instance);
+      const client = new LemmyHttp(account.instance, {
+        fetchFunction,
+      });
       client.setHeaders({
         ...DEFAULT_HEADERS,
         Authorization: `Bearer ${account.jwt}`,

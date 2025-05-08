@@ -198,6 +198,9 @@ export function MarkdownRenderer({
   allowUnsafeHtml?: boolean;
 }) {
   const root = useLinkContext().root;
+  if (!markdown) {
+    return null;
+  }
   return (
     <div
       className={cn(

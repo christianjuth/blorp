@@ -77,6 +77,11 @@ export function getPostProps(
     displayUrl = `${parsedUrl.host.replace(/^www\./, "")}${parsedUrl.pathname.replace(/\/$/, "")}`;
   }
 
+  const name =
+    "title" in postView.post && _.isString(postView.post.title)
+      ? postView.post.title
+      : postView.post.name;
+
   return {
     ...embed,
     isMod: modApIds?.includes(postView.creator.actor_id),
@@ -85,7 +90,7 @@ export function getPostProps(
     encodedApId: encodeApId(postView.post.ap_id),
     read: postView.optimisticRead ?? postView.read,
     deleted: postView.optimisticDeleted ?? postView.post.deleted,
-    name: postView.post.name,
+    name,
     url,
     displayUrl,
     aspectRatio,
