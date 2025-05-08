@@ -1844,3 +1844,22 @@ export function useUploadImage() {
     },
   });
 }
+
+export function useCaptcha({
+  instance,
+  enabled,
+}: {
+  instance: string;
+  enabled?: boolean;
+}) {
+  const { client } = useLemmyClient();
+  return useQuery({
+    queryKey: ["captcha"],
+    queryFn: ({ signal }) => client.getCaptcha({ signal }),
+    staleTime: 5 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 3 * 1000),
+    enabled,
+  });
+}
