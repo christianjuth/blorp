@@ -32,35 +32,41 @@ import { Button } from "../ui/button";
 import { useMemo } from "react";
 import { ContentGutters } from "../gutters";
 import { shareRoute } from "@/src/lib/share";
+import { useProfilesStore } from "@/src/stores/profiles";
 
 function Byline({
-  creator,
+  actorId,
   publishedDate,
   authorType,
   className,
 }: {
-  creator: Pick<Person, "actor_id" | "avatar" | "name">;
+  actorId: string;
   publishedDate: string;
   authorType?: "OP" | "ME" | "MOD";
   className?: string;
 }) {
   const linkCtx = useLinkContext();
-  const slug = createSlug(creator);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const profileView = useProfilesStore(
+    (s) => s.profiles[getCachePrefixer()(actorId)]?.data,
+  );
+  const creator = profileView?.person;
+  const slug = creator ? createSlug(creator) : null;
   return (
     <summary
       className={cn("flex flex-row gap-1.5 items-center py-px", className)}
     >
       <Avatar className="w-6 h-6">
-        <AvatarImage src={creator.avatar} />
+        <AvatarImage src={creator?.avatar} />
         <AvatarFallback className="text-xs">
-          {creator.name?.substring(0, 1).toUpperCase()}{" "}
+          {creator?.name?.substring(0, 1).toUpperCase()}{" "}
         </AvatarFallback>
       </Avatar>
-      <PersonHoverCard actorId={creator.actor_id}>
+      <PersonHoverCard actorId={actorId}>
         <Link
           to={`${linkCtx.root}u/:userId`}
           params={{
-            userId: encodeApId(creator.actor_id),
+            userId: encodeApId(actorId),
           }}
           className="text-xs overflow-ellipsis flex flex-row overflow-x-hidden items-center"
         >
@@ -239,7 +245,7 @@ export function PostComment({
       <details open className={cn(comment.id < 0 && "opacity-50")}>
         <Byline
           className={cn("pb-2", highlightComment && "bg-brand/10")}
-          creator={creator}
+          actorId={creator.actor_id}
           publishedDate={comment.published}
           authorType={
             isMod

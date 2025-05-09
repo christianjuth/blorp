@@ -415,6 +415,7 @@ export function useComments(form: GetComments) {
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheComments = useCommentsStore((s) => s.cacheComments);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
   const prevPageParam = useRef(-1);
   const prevPage = useRef("");
@@ -449,6 +450,10 @@ export function useComments(form: GetComments) {
       prevPageParam.current = pageParam;
 
       cacheComments(getCachePrefixer(), comments.map(flattenComment));
+      cacheProfiles(
+        getCachePrefixer(),
+        comments.map((c) => ({ person: c.creator })),
+      );
 
       return {
         comments: comments.map((c) => ({
