@@ -28,7 +28,6 @@ import {
   useIonRouter,
 } from "@ionic/react";
 import { useParams } from "@/src/routing/index";
-import z from "zod";
 import { CommunityBanner } from "../components/communities/community-banner";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
