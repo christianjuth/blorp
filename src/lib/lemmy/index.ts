@@ -23,6 +23,7 @@ import {
   UploadImage,
   MarkPostAsRead,
   GetPersonMentions,
+  Register,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -868,6 +869,77 @@ export function useCommunity({
 
 function is2faError(err?: Error | null) {
   return err && err.message.includes("missing_totp_token");
+}
+
+export function useRegister(config?: {
+  addAccount?: boolean;
+  instance?: string;
+}) {
+  const { client, setJwt } = useLemmyClient(config);
+
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
+  const updateSelectedAccount = useAuth((s) => s.updateSelectedAccount);
+  const addAccount = useAuth((s) => s.addAccount);
+
+  const mutation = useMutation({
+    mutationFn: async (form: Register) => {
+      const res = await client.register(form);
+      if (res.jwt) {
+        setJwt(res.jwt);
+        const site = await client.getSite();
+        const person = site.my_user?.local_user_view.person;
+        const payload = {
+          site,
+          jwt: res.jwt,
+        };
+        if (config?.addAccount && config.instance) {
+          addAccount({
+            ...payload,
+            instance: config.instance,
+          });
+        } else {
+          updateSelectedAccount(payload);
+        }
+        if (person) {
+          cacheProfiles(getCachePrefixer(), [{ person }]);
+        }
+      }
+      return res;
+    },
+    onSuccess: (res) => {
+      if (!res.jwt) {
+        toast.success(
+          [
+            res.verify_email_sent &&
+              "Check your email to confirm registration.",
+            res.registration_created &&
+              "Your account will be approved soon then you can login.",
+          ]
+            .filter(Boolean)
+            .join(" "),
+          {
+            duration: 20 * 1000,
+          },
+        );
+      }
+    },
+    onError: (err) => {
+      if (!is2faError(err)) {
+        let errorMsg = "Unkown error";
+        if (err.message) {
+          errorMsg = _.capitalize(err?.message?.replaceAll("_", " "));
+        }
+        toast.error(errorMsg);
+        console.error(errorMsg);
+      }
+    },
+  });
+
+  return {
+    ...mutation,
+    needs2FA: is2faError(mutation.error),
+  };
 }
 
 export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
@@ -1852,7 +1924,7 @@ export function useCaptcha({
   instance: string;
   enabled?: boolean;
 }) {
-  const { client } = useLemmyClient();
+  const { client } = useLemmyClient({ instance });
   return useQuery({
     queryKey: ["captcha"],
     queryFn: ({ signal }) => client.getCaptcha({ signal }),

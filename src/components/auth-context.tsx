@@ -14,6 +14,7 @@ import {
   useInstances,
   useLogin,
   useRefreshAuth,
+  useRegister,
 } from "../lib/lemmy";
 import fuzzysort from "fuzzysort";
 import _ from "lodash";
@@ -41,6 +42,8 @@ import { FaPlay, FaPause } from "react-icons/fa";
 import { MdOutlineRefresh } from "react-icons/md";
 import { Textarea } from "./ui/textarea";
 import { MarkdownRenderer } from "./markdown/renderer";
+
+const LEMM_EE = "https://lemm.ee";
 
 const AudioPlayButton = ({ src }: { src: string }) => {
   const [playing, setPlaying] = useState(false);
@@ -184,6 +187,154 @@ export function useRequireAuth() {
   return useContext(Context).authenticate;
 }
 
+function SignupForm({ onSuccess }: { onSuccess: () => void }) {
+  const captcha = useCaptcha({
+    instance: LEMM_EE,
+  });
+
+  const [email, setEmail] = useState("");
+  const [userName, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [verifyPassword, setVerifyPassword] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+
+  const register = useRegister({
+    addAccount: true,
+    instance: LEMM_EE,
+  });
+
+  const submitLogin = (e?: FormEvent) => {
+    e?.preventDefault();
+    register
+      .mutateAsync({
+        email,
+        username: userName,
+        password: password,
+        password_verify: verifyPassword,
+        captcha_uuid: captcha.data?.ok?.uuid,
+        captcha_answer: captchaAnswer,
+        answer,
+      })
+      .then(() => {
+        onSuccess();
+        setEmail("");
+        setUsername("");
+        setPassword("");
+        setVerifyPassword("");
+        setAnswer("");
+        setCaptchaAnswer("");
+      });
+  };
+
+  return (
+    <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
+      <Input
+        placeholder="Email"
+        id="email"
+        defaultValue={email}
+        onChange={(e) => setEmail(e.target.value)}
+        autoComplete="email"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
+        required
+      />
+
+      <Input
+        placeholder="Username"
+        id="username"
+        defaultValue={userName}
+        onChange={(e) => setUsername(e.target.value)}
+        autoComplete="username"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
+        required
+      />
+
+      <Input
+        placeholder="Enter password"
+        type="password"
+        id="password"
+        defaultValue={password}
+        onChange={(e) => setPassword(e.target.value)}
+        autoComplete="current-password"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
+        required
+      />
+
+      <Input
+        placeholder="Verify password"
+        type="password"
+        id="password"
+        defaultValue={verifyPassword}
+        onChange={(e) => setVerifyPassword(e.target.value)}
+        autoComplete="current-password"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
+        required
+      />
+
+      {captcha.isPending && <LuLoaderCircle className="animate-spin" />}
+
+      {captcha.data?.ok && (
+        <div className="flex flex-row gap-4">
+          <div className="flex flex-col justify-around items-center p-2">
+            <button onClick={() => captcha.refetch()}>
+              <MdOutlineRefresh size={24} />
+            </button>
+
+            <AudioPlayButton src={captcha.data.ok.wav} />
+          </div>
+
+          <img
+            src={`data:image/png;base64,${captcha.data?.ok?.png}`}
+            className="h-28 aspect-video object-contain"
+          />
+
+          <Input
+            className="self-center"
+            value={captchaAnswer}
+            onChange={(e) => setCaptchaAnswer(e.target.value)}
+          />
+        </div>
+      )}
+
+      <MarkdownRenderer
+        markdown={[
+          "Before you finish your registration, please read through the instance sidebar on our front page (https://lemm.ee). In the sidebar, please pay particular attention to the instance rules - they are important.",
+          "",
+          "Do you agree to follow lemm.ee instance rules?",
+          "Please write your answer in English.",
+        ].join("\n")}
+      />
+
+      <Textarea value={answer} onChange={(e) => setAnswer(e.target.value)} />
+
+      <Button type="submit" className="mx-auto">
+        Sign up
+        {register.isPending && <LuLoaderCircle className="animate-spin" />}
+      </Button>
+
+      <span className="mx-auto text-muted-foreground text-sm">
+        By logging in you agree to{" "}
+        <a
+          className="underline"
+          href="https://blorpblorp.xyz/terms"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          Blorp's terms
+        </a>
+      </span>
+    </form>
+  );
+}
+
 function AuthModal({
   open,
   onClose,
@@ -196,10 +347,6 @@ function AuthModal({
   addAccount: boolean;
 }) {
   const [signup, setSignup] = useState(false);
-  const captcha = useCaptcha({
-    enabled: signup,
-    instance: "https://lemm.ee",
-  });
 
   const [search, setSearch] = useState("");
   const [instance, setInstanceLocal] = useState<{
@@ -207,7 +354,6 @@ function AuthModal({
     baseurl?: string;
   }>({});
 
-  const [email, setEmail] = useState("");
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [mfaToken, setMfaToken] = useState<string>();
@@ -237,7 +383,13 @@ function AuthModal({
   const updateSelectedAccount = useAuth((a) => a.updateSelectedAccount);
   const addAccountFn = useAuth((a) => a.addAccount);
 
-  // const insets = useSafeAreaInsets();
+  const resetForm = () => {
+    setUsername("");
+    setPassword("");
+    setMfaToken(undefined);
+    setInstanceLocal({});
+    setSearch("");
+  };
 
   const submitLogin = (e?: FormEvent) => {
     e?.preventDefault();
@@ -249,12 +401,7 @@ function AuthModal({
       })
       .then(() => {
         onSuccess();
-        setEmail("");
-        setUsername("");
-        setPassword("");
-        setMfaToken(undefined);
-        setInstanceLocal({});
-        setSearch("");
+        resetForm();
       });
   };
 
@@ -274,6 +421,7 @@ function AuthModal({
             <IonButton
               onClick={() => {
                 if (instance.url) {
+                  setSignup(false);
                   setInstanceLocal({});
                 } else {
                   modal.current?.dismiss();
@@ -285,7 +433,17 @@ function AuthModal({
           </IonButtons>
           <IonTitle>{instance.baseurl ? instance.baseurl : "Login"}</IonTitle>
           <IonButtons slot="end">
-            <IonButton onClick={() => setSignup((b) => !b)}>
+            <IonButton
+              onClick={() => {
+                if (!signup) {
+                  setInstanceLocal({
+                    url: "https://lemm.ee",
+                    baseurl: "lemm.ee",
+                  });
+                }
+                setSignup((b) => !b);
+              }}
+            >
               {signup ? "Login" : "Sign up"}
             </IonButton>
           </IonButtons>
@@ -294,91 +452,12 @@ function AuthModal({
 
       <IonContent>
         {signup && (
-          <>
-            <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
-              <Input
-                placeholder="email"
-                id="email"
-                defaultValue={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                required
-              />
-
-              <Input
-                placeholder="username"
-                id="username"
-                defaultValue={userName}
-                onChange={(e) => setUsername(e.target.value)}
-                autoComplete="username"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                required
-              />
-
-              <Input
-                placeholder="Enter password"
-                type="password"
-                id="password"
-                defaultValue={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                required
-              />
-
-              {captcha.data?.ok && (
-                <div className="flex flex-row gap-4">
-                  <div className="flex flex-col justify-around items-center p-2">
-                    <MdOutlineRefresh size={24} />
-
-                    <AudioPlayButton src={captcha.data.ok.wav} />
-                  </div>
-
-                  <img
-                    src={`data:image/png;base64,${captcha.data?.ok?.png}`}
-                    className="h-28 aspect-video object-contain"
-                  />
-
-                  <Input className="self-center" />
-                </div>
-              )}
-
-              <MarkdownRenderer
-                markdown={`
-Before you finish your registration, please read through the instance sidebar on our front page (https://lemm.ee). In the sidebar, please pay particular attention to the instance rules - they are important.
-
-Do you agree to follow lemm.ee instance rules?
-Please write your answer in English.
-                `}
-              />
-
-              <Textarea />
-
-              <Button type="submit" className="mx-auto">
-                Sign up
-                {login.isPending && <LuLoaderCircle className="animate-spin" />}
-              </Button>
-
-              <span className="mx-auto text-muted-foreground text-sm">
-                By logging in you agree to{" "}
-                <a
-                  className="underline"
-                  href="https://blorpblorp.xyz/terms"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  Blorp's terms
-                </a>
-              </span>
-            </form>
-          </>
+          <SignupForm
+            onSuccess={() => {
+              onSuccess();
+              resetForm();
+            }}
+          />
         )}
 
         {!signup && !instance.url && (
