@@ -3,8 +3,9 @@ import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import { GetSiteResponse } from "lemmy-js-client";
 import _ from "lodash";
+import { env } from "../env";
 
-export const DEFAULT_INSTANCES = ["https://lemm.ee"] as const;
+export const DEFAULT_INSTANCES = [env.REACT_APP_DEFAULT_INSTANCE] as const;
 
 export type CacheKey = `cache_${string}`;
 export type CachePrefixer = (cacheKey: string) => CacheKey;

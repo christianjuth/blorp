@@ -53,14 +53,7 @@ import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
 import { useThrottleQueue } from "../throttle-queue";
 import { useCommunitiesStore } from "../../stores/communities";
-import {
-  createCommunitySlug,
-  createSlug,
-  FlattenedPost,
-  flattenPost,
-} from "./utils";
-// import { measureImage } from "../image";
-import { getPostEmbed } from "../post";
+import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useIonRouter } from "@ionic/react";
 import { toast } from "sonner";
@@ -69,6 +62,7 @@ import {
   draftToCreatePostData,
   draftToEditPostData,
 } from "@/src/stores/create-post";
+import { env } from "@/src/env";
 
 enum Errors {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -77,7 +71,7 @@ enum Errors {
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
   // User-Agent header is not present
-  "User-Agent": "blorp",
+  "User-Agent": env.REACT_APP_NAME.toLowerCase(),
 };
 
 function useLemmyClient(config?: { instance?: string }) {

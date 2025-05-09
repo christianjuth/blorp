@@ -3,6 +3,7 @@ import { check } from "@tauri-apps/plugin-updater";
 import { confirm } from "@tauri-apps/plugin-dialog";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { isTauri } from "./device";
+import { env } from "../env";
 
 export async function tauriCheckUpdate() {
   if (isTauri()) {
@@ -22,7 +23,7 @@ export async function updateTauri() {
       if (update) {
         await update.download();
         const shouldInstall = await confirm(
-          `Blorp version ${update.version} is available. You may be prompted for a password if you choose to update.`,
+          `${env.REACT_APP_NAME} version ${update.version} is available. You may be prompted for a password if you choose to update.`,
           {
             okLabel: "Update",
           },

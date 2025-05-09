@@ -42,6 +42,7 @@ import { FaPlay, FaPause } from "react-icons/fa";
 import { MdOutlineRefresh } from "react-icons/md";
 import { Textarea } from "./ui/textarea";
 import { MarkdownRenderer } from "./markdown/renderer";
+import { env } from "../env";
 
 const LEMM_EE = "https://lemm.ee";
 
@@ -328,7 +329,7 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
           target="_blank"
           rel="noreferrer noopener"
         >
-          Blorp's terms
+          {env.REACT_APP_NAME}'s terms
         </a>
       </span>
     </form>
@@ -581,7 +582,7 @@ function AuthModal({
                   target="_blank"
                   rel="noreferrer noopener"
                 >
-                  Blorp's terms
+                  {env.REACT_APP_NAME}'s terms
                 </a>
               </span>
             </form>

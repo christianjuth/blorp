@@ -8,11 +8,12 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { PageTitle } from "../components/page-title";
+import { env } from "../env";
 
 const POLICY = `
 # Child Sexual Abuse & Exploitation (CSAE) Policy
 
-**For:** Blorp
+**For:** ${env.REACT_APP_NAME}
 
 ---
 
