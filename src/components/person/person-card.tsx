@@ -48,7 +48,7 @@ export function PersonCard({
           className="object-cover"
         />
         <AvatarFallback>
-          {(override?.name ?? personView?.person.name).substring(0, 1)}
+          {(override?.name ?? personView?.person.name)?.substring(0, 1)}
         </AvatarFallback>
       </Avatar>
 

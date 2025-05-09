@@ -38,13 +38,7 @@ import {
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "@/src/stores/filters";
-import {
-  Account,
-  getAccountActorId,
-  getCachePrefixer,
-  parseAccountInfo,
-  useAuth,
-} from "../../stores/auth";
+import { Account, getCachePrefixer, useAuth } from "../../stores/auth";
 import { useEffect, useMemo, useRef } from "react";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
@@ -69,6 +63,7 @@ import {
   draftToCreatePostData,
   draftToEditPostData,
 } from "@/src/stores/create-post";
+import { instanceSchema, isPieFed, PIEFED_INSTANCES } from "./instances";
 
 enum Errors {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -78,6 +73,15 @@ const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
   // User-Agent header is not present
   "User-Agent": "blorp",
+};
+
+const fetchFunction: typeof fetch = (...[url, config]) => {
+  const urlStr = url.toString();
+  if (isPieFed(urlStr)) {
+    const newUrl = urlStr.replace("/v3/", "/alpha/");
+    return fetch(newUrl, config);
+  }
+  return fetch(url, config);
 };
 
 function useLemmyClient(config?: { instance?: string }) {
@@ -95,6 +99,7 @@ function useLemmyClient(config?: { instance?: string }) {
   return useMemo(() => {
     const client = new LemmyHttp(instance.replace(/\/$/, ""), {
       headers: DEFAULT_HEADERS,
+      fetchFunction,
     });
 
     const setJwt = (jwt: string) => {
@@ -415,6 +420,7 @@ export function useComments(form: GetComments) {
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheComments = useCommentsStore((s) => s.cacheComments);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
   const prevPageParam = useRef(-1);
   const prevPage = useRef("");
@@ -449,6 +455,10 @@ export function useComments(form: GetComments) {
       prevPageParam.current = pageParam;
 
       cacheComments(getCachePrefixer(), comments.map(flattenComment));
+      cacheProfiles(
+        getCachePrefixer(),
+        comments.map((c) => ({ person: c.creator })),
+      );
 
       return {
         comments: comments.map((c) => ({
@@ -1002,7 +1012,9 @@ export function useRefreshAuth(account: Account) {
 
   return useMutation({
     mutationFn: async () => {
-      const client = new LemmyHttp(account.instance);
+      const client = new LemmyHttp(account.instance, {
+        fetchFunction,
+      });
       client.setHeaders({
         ...DEFAULT_HEADERS,
         Authorization: `Bearer ${account.jwt}`,
@@ -1549,24 +1561,8 @@ export function useInstances() {
       const data = await res.json();
 
       try {
-        return z
-          .array(
-            z.object({
-              name: z.string(),
-              baseurl: z.string(),
-              url: z.string(),
-              score: z.number(),
-              open: z.boolean().optional(),
-              private: z.boolean().optional(),
-              counts: z.object({
-                users_active_month: z.number(),
-                posts: z.number(),
-              }),
-              tags: z.array(z.string()),
-              nsfw: z.boolean().optional(),
-            }),
-          )
-          .parse(data);
+        const lemmyInstances = z.array(instanceSchema).parse(data);
+        return [...lemmyInstances, ...PIEFED_INSTANCES];
       } catch {
         return undefined;
       }

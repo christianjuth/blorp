@@ -4,7 +4,7 @@ import { createStorage, sync } from "./storage";
 import { GetSiteResponse } from "lemmy-js-client";
 import _ from "lodash";
 
-export const DEFAULT_INSTANCES = ["https://lemm.ee"] as const;
+export const DEFAULT_INSTANCES = ["https://preferred.social/"] as const;
 
 export type CacheKey = `cache_${string}`;
 export type CachePrefixer = (cacheKey: string) => CacheKey;

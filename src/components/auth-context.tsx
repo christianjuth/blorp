@@ -474,6 +474,7 @@ function AuthModal({
                   </IonHeader>
                   <Input
                     placeholder="Enter URL or search for your server"
+                    defaultValue={search}
                     onChange={(e) => setSearch(e.target.value)}
                     autoCapitalize="none"
                     autoCorrect="off"
