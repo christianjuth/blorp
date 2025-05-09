@@ -11,6 +11,7 @@ import type {
 import { createCommunitySlug } from "../lib/lemmy/utils";
 import { MAX_CACHE_MS } from "./config";
 import { CachePrefixer } from "./auth";
+import { communityCompat } from "../lib/lemmy/compat";
 
 type Data = {
   communityView:
@@ -59,7 +60,7 @@ export const useCommunitiesStore = create<SortsStore>()(
           ...patch,
           communityView: {
             ...prevCommunityData.communityView,
-            ...patch.communityView,
+            ...communityCompat(patch.communityView),
           },
         };
         set({
@@ -82,7 +83,7 @@ export const useCommunitiesStore = create<SortsStore>()(
           ...view,
           communityView: {
             ...prevCommunityData?.communityView,
-            ...view.communityView,
+            ...communityCompat(view.communityView),
           },
         };
         set({
@@ -111,7 +112,7 @@ export const useCommunitiesStore = create<SortsStore>()(
               ...view,
               communityView: {
                 ...prevCommunityData?.communityView,
-                ...view.communityView,
+                ...communityCompat(view.communityView),
               },
             },
             lastUsed: Date.now(),

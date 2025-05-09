@@ -5,6 +5,7 @@ import { FlattenedComment } from "../lib/lemmy";
 import _ from "lodash";
 import { MAX_CACHE_MS } from "./config";
 import { CachePrefixer } from "./auth";
+import { commentViewCompat } from "../lib/lemmy/compat";
 
 type CachedComment = {
   data: FlattenedComment;
@@ -46,7 +47,7 @@ export const useCommentsStore = create<SortsStore>()(
         }
         const updatedCommentData = {
           ...prevComment.data,
-          ...patchFn(prevComment.data),
+          ...commentViewCompat(patchFn(prevComment.data)),
         };
         if (prevComment) {
           set({
@@ -76,7 +77,7 @@ export const useCommentsStore = create<SortsStore>()(
         const prevPostData = prev[cacheKey]?.data ?? {};
         const updatedPostData = {
           ..._.pick(prevPostData, ["optimisticMyVote"]),
-          ...view,
+          ...commentViewCompat(view),
         };
         set({
           comments: {
@@ -100,7 +101,7 @@ export const useCommentsStore = create<SortsStore>()(
           newComments[cacheKey] = {
             data: {
               ..._.pick(prevCommentData, ["optimisticMyVote"]),
-              ...view,
+              ...commentViewCompat(view),
             },
             lastUsed: Date.now(),
           };

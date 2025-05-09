@@ -5,6 +5,7 @@ import _ from "lodash";
 import type { Person, PersonAggregates } from "lemmy-js-client";
 import { MAX_CACHE_MS } from "./config";
 import { CacheKey, CachePrefixer } from "./auth";
+import { profileViewCompat } from "@/src/lib/lemmy/compat";
 
 type Data = {
   person: Person;
@@ -21,11 +22,11 @@ type ProfilesStore = {
   patchProfile: (
     id: string,
     prefixer: CachePrefixer,
-    post: Partial<Data>,
+    profile: Partial<Data>,
   ) => void;
   cacheProfiles: (
     prefixer: CachePrefixer,
-    data: Data[],
+    profiles: Data[],
   ) => Record<string, CachedProfile>;
   cleanup: () => any;
 };
@@ -46,7 +47,7 @@ export const useProfilesStore = create<ProfilesStore>()(
         }
         const updatedProfileData: Data = {
           ...prevProfileData,
-          ...patch,
+          ...profileViewCompat(patch),
         };
         set({
           profiles: {
@@ -70,7 +71,7 @@ export const useProfilesStore = create<ProfilesStore>()(
           newProfiles[cacheKey] = {
             data: {
               ...prevProfileData,
-              ...view,
+              ...profileViewCompat(view),
             },
             lastUsed: Date.now(),
           };
