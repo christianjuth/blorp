@@ -44,8 +44,6 @@ import { Textarea } from "./ui/textarea";
 import { MarkdownRenderer } from "./markdown/renderer";
 import { env } from "../env";
 
-const LEMM_EE = "https://lemm.ee";
-
 const AudioPlayButton = ({ src }: { src: string }) => {
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef(new Audio(`data:audio/wav;base64,${src}`));
@@ -190,7 +188,7 @@ export function useRequireAuth() {
 
 function SignupForm({ onSuccess }: { onSuccess: () => void }) {
   const captcha = useCaptcha({
-    instance: LEMM_EE,
+    instance: env.REACT_APP_DEFAULT_INSTANCE,
   });
 
   const [email, setEmail] = useState("");
@@ -202,7 +200,7 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
 
   const register = useRegister({
     addAccount: true,
-    instance: LEMM_EE,
+    instance: env.REACT_APP_DEFAULT_INSTANCE,
   });
 
   const submitLogin = (e?: FormEvent) => {
@@ -438,8 +436,11 @@ function AuthModal({
               onClick={() => {
                 if (!signup) {
                   setInstanceLocal({
-                    url: "https://lemm.ee",
-                    baseurl: "lemm.ee",
+                    url: env.REACT_APP_DEFAULT_INSTANCE,
+                    baseurl: env.REACT_APP_DEFAULT_INSTANCE.replace(
+                      /^https?:\/\//,
+                      "",
+                    ),
                   });
                 }
                 setSignup((b) => !b);

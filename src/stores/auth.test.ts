@@ -1,8 +1,9 @@
 import { describe, test, expect } from "vitest";
-import { useAuth, DEFAULT_INSTANCES } from "./auth";
+import { useAuth } from "./auth";
 import _ from "lodash";
 import { renderHook, act } from "@testing-library/react";
 import { faker } from "@faker-js/faker";
+import { env } from "../env";
 
 describe("useAuthStore", () => {
   const { result } = renderHook(() => useAuth());
@@ -23,8 +24,8 @@ describe("useAuthStore", () => {
   };
 
   test("default instance", () => {
-    expect(result.current.getSelectedAccount().instance).toBeOneOf(
-      DEFAULT_INSTANCES as any,
+    expect(result.current.getSelectedAccount().instance).toBe(
+      env.REACT_APP_DEFAULT_INSTANCE,
     );
   });
 
@@ -96,7 +97,7 @@ describe("useAuthStore", () => {
     });
     expect(result.current.accounts).toHaveLength(1);
     expect(result.current.getSelectedAccount()).toEqual({
-      instance: expect.toBeOneOf(DEFAULT_INSTANCES as any),
+      instance: env.REACT_APP_DEFAULT_INSTANCE,
     });
   });
 });

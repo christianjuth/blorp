@@ -5,8 +5,6 @@ import { GetSiteResponse } from "lemmy-js-client";
 import _ from "lodash";
 import { env } from "../env";
 
-export const DEFAULT_INSTANCES = [env.REACT_APP_DEFAULT_INSTANCE] as const;
-
 export type CacheKey = `cache_${string}`;
 export type CachePrefixer = (cacheKey: string) => CacheKey;
 
@@ -56,7 +54,7 @@ export function parseAccountInfo(account: Account) {
 
 function getNewAccount() {
   return {
-    instance: _.sample(DEFAULT_INSTANCES),
+    instance: env.REACT_APP_DEFAULT_INSTANCE,
   };
 }
 
@@ -94,7 +92,7 @@ export const useAuth = create<AuthStore>()(
         const accounts = [
           ...get().accounts,
           {
-            instance: _.sample(DEFAULT_INSTANCES),
+            instance: env.REACT_APP_DEFAULT_INSTANCE,
             ...patch,
           },
         ];
@@ -116,7 +114,7 @@ export const useAuth = create<AuthStore>()(
             set({
               accounts: [
                 {
-                  instance: _.sample(DEFAULT_INSTANCES),
+                  instance: env.REACT_APP_DEFAULT_INSTANCE,
                 },
               ],
               accountIndex: 0,
