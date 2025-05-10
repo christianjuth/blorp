@@ -38,6 +38,12 @@ function Image(
         e.preventDefault();
         e.stopPropagation();
       },
+      filterEvents: (event) => {
+        if ("button" in event) {
+          return event.button !== 2;
+        }
+        return true;
+      },
     },
   );
   return <img {...props} {...handlers()} />;

@@ -207,6 +207,12 @@ export function FeedPostCard(props: PostProps) {
         e.preventDefault();
         e.stopPropagation();
       },
+      filterEvents: (event) => {
+        if ("button" in event) {
+          return event.button !== 2;
+        }
+        return true;
+      },
     },
   );
 
@@ -271,7 +277,6 @@ export function FeedPostCard(props: PostProps) {
               style={{
                 aspectRatio,
               }}
-              onContextMenu={(e) => e.preventDefault()}
               {...handlers()}
             />
           </div>
