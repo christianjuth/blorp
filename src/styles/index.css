@@ -32,6 +32,8 @@
 
 @import "tw-animate-css";
 
+@import "./typography.css";
+
 :root {
   --brand: #d40091;
   --brand-secondary: #4123d0;
@@ -269,40 +271,6 @@ ion-toolbar ion-searchbar {
 body {
   overflow: hidden;
   min-height: 100vh;
-}
-
-.prose-sm {
-  font-size: 0.93rem;
-}
-
-.prose hr {
-  margin-top: 0.8em;
-  margin-bottom: 0.8em;
-}
-
-.prose *:not(li) {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Remove default margins from paragraphs */
-.prose p {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-/* Add margin only between consecutive paragraphs */
-.prose p + p {
-  margin-top: 1rem; /* Adjust the value as needed */
-}
-
-.prose details + details {
-  margin-top: 0.5rem; /* Adjust the value as needed */
-}
-
-.prose pre,
-.prose code {
-  @apply dark:bg-gray-800;
 }
 
 .tiptap {

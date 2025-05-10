@@ -161,10 +161,16 @@ export default function Post() {
           data-tauri-drag-region
           className="max-md:text-white"
           style={
-            media.maxMd && theme === "light"
+            media.maxMd
               ? {
-                  "--background": "var(--color-brand-secondary)",
-                  "--border-color": "var(--color-brand-secondary)",
+                  ...(theme === "light"
+                    ? {
+                        "--background": "var(--color-brand-secondary)",
+                        "--border-color": "var(--color-brand-secondary)",
+                      }
+                    : {
+                        "--border-color": "var(--color-background)",
+                      }),
                 }
               : undefined
           }
