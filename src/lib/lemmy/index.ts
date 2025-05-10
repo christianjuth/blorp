@@ -1035,6 +1035,24 @@ export function useLogout() {
   const setCommunitiesListingType = useFiltersStore(
     (s) => s.setCommunitiesListingType,
   );
+
+  const mut = useMutation({
+    mutationFn: async (account: Account) => {
+      const client = new LemmyHttp(account.instance);
+      client.setHeaders({
+        ...DEFAULT_HEADERS,
+        Authorization: `Bearer ${account.jwt}`,
+      });
+      return await client.logout();
+    },
+    onSuccess: ({ success }, account) => {
+      if (success) {
+        logout(account);
+        resetFilters();
+      }
+    },
+  });
+
   const logout = useAuth((s) => s.logout);
 
   const resetFilters = () => {
@@ -1046,10 +1064,7 @@ export function useLogout() {
     }
   };
 
-  return (index?: number) => {
-    logout(index);
-    resetFilters();
-  };
+  return mut;
 }
 
 export function useLikePost(apId: string) {

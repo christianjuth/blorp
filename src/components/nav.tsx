@@ -141,7 +141,9 @@ export function UserDropdown() {
                 <DropdownMenuItem>Profile</DropdownMenuItem>
               </Link>
             )}
-            <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => logout.mutate(selectedAccount)}>
+              Logout
+            </DropdownMenuItem>
           </>
         )}
       </DropdownMenuContent>

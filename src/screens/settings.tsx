@@ -61,6 +61,7 @@ function AccountCard({
   const [alrt] = useIonAlert();
   const requireAuth = useRequireAuth();
   const logout = useLogout();
+  const logoutZustand = useAuth((s) => s.logout);
   const { person, instance } = parseAccountInfo(account);
   const isLoggedIn = Boolean(account.jwt);
 
@@ -137,7 +138,9 @@ function AccountCard({
                   },
                 ],
               });
-              deferred.promise.then(() => logout(accountIndex));
+              deferred.promise.then(() => logout.mutate(account));
+            } else if (accountIndex > 0) {
+              logoutZustand(accountIndex);
             } else {
               requireAuth();
             }
