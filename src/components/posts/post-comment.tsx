@@ -195,7 +195,7 @@ export function PostComment({
         level === 0 && "max-md:px-2.5 py-3",
         level === 0 &&
           !singleCommentThread &&
-          "border-t-7 max-md:border-border/40 md:border-t-[0.5px]",
+          "border-t-8 max-md:border-border/40 md:border-t-[0.5px]",
       )}
     >
       {singleCommentThread && level === 0 && (
@@ -264,7 +264,10 @@ export function PostComment({
           {!hideContent && !edit.isEditing && (
             <MarkdownRenderer
               markdown={comment.content}
-              className={cn(highlightComment && "bg-brand/10")}
+              className={cn(
+                "text-foreground",
+                highlightComment && "bg-brand/10",
+              )}
             />
           )}
 

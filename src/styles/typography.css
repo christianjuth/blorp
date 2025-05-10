@@ -1,0 +1,26 @@
+:root {
+  --text-sm: 0.875rem;
+}
+
+.prose-sm {
+  font-size: var(--text-sm);
+}
+
+.prose hr {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+
+.prose *:not(li) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prose details + details {
+  margin-top: 0.5rem; /* Adjust the value as needed */
+}
+
+.prose pre,
+.prose code {
+  @apply dark:bg-gray-800;
+}
