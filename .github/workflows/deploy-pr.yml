@@ -1,4 +1,4 @@
-name: Deploy Blorp Brach Build
+name: PR - Deploy Blorp Brach Build
 
 on: 
   pull_request:

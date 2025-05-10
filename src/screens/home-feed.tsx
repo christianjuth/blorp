@@ -36,6 +36,7 @@ import { dispatchScrollEvent } from "../lib/scroll-events";
 import { PostReportProvider } from "../components/posts/post-report";
 import { DownloadButton } from "./download";
 import { useAuth } from "../stores/auth";
+import { PageTitle } from "../components/page-title";
 
 export const scrollToTop = {
   current: { scrollToOffset: () => {} },
@@ -214,6 +215,7 @@ export default function HomeFeed() {
 
   return (
     <IonPage>
+      <PageTitle />
       <IonHeader className="bg-background dismissable">
         <IonToolbar data-tauri-drag-region className="dismissable">
           <IonButtons slot="start" className="gap-2">

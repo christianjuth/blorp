@@ -42,8 +42,7 @@ import { FaPlay, FaPause } from "react-icons/fa";
 import { MdOutlineRefresh } from "react-icons/md";
 import { Textarea } from "./ui/textarea";
 import { MarkdownRenderer } from "./markdown/renderer";
-
-const LEMM_EE = "https://lemm.ee";
+import { env } from "../env";
 
 const AudioPlayButton = ({ src }: { src: string }) => {
   const [playing, setPlaying] = useState(false);
@@ -189,7 +188,7 @@ export function useRequireAuth() {
 
 function SignupForm({ onSuccess }: { onSuccess: () => void }) {
   const captcha = useCaptcha({
-    instance: LEMM_EE,
+    instance: env.REACT_APP_DEFAULT_INSTANCE,
   });
 
   const [email, setEmail] = useState("");
@@ -201,7 +200,7 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
 
   const register = useRegister({
     addAccount: true,
-    instance: LEMM_EE,
+    instance: env.REACT_APP_DEFAULT_INSTANCE,
   });
 
   const submitLogin = (e?: FormEvent) => {
@@ -328,7 +327,7 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
           target="_blank"
           rel="noreferrer noopener"
         >
-          Blorp's terms
+          {env.REACT_APP_NAME}'s terms
         </a>
       </span>
     </form>
@@ -437,8 +436,11 @@ function AuthModal({
               onClick={() => {
                 if (!signup) {
                   setInstanceLocal({
-                    url: "https://lemm.ee",
-                    baseurl: "lemm.ee",
+                    url: env.REACT_APP_DEFAULT_INSTANCE,
+                    baseurl: env.REACT_APP_DEFAULT_INSTANCE.replace(
+                      /^https?:\/\//,
+                      "",
+                    ),
                   });
                 }
                 setSignup((b) => !b);
@@ -581,7 +583,7 @@ function AuthModal({
                   target="_blank"
                   rel="noreferrer noopener"
                 >
-                  Blorp's terms
+                  {env.REACT_APP_NAME}'s terms
                 </a>
               </span>
             </form>

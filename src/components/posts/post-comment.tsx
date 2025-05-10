@@ -12,7 +12,6 @@ import { CommentTree } from "@/src/lib/comment-tree";
 import { useShowCommentReportModal } from "./post-report";
 import { useRequireAuth } from "../auth-context";
 import { useLinkContext } from "../../routing/link-context";
-import { Person } from "lemmy-js-client";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
 import { Link, resolveRoute } from "../../routing/index";
 import {

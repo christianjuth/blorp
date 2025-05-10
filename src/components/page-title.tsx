@@ -1,5 +1,6 @@
 import { useIonRouter } from "@ionic/react";
 import { useRouteMatch } from "react-router";
+import { env } from "../env";
 
 export function PageTitle({ children }: { children?: string }) {
   const router = useIonRouter();
@@ -10,7 +11,7 @@ export function PageTitle({ children }: { children?: string }) {
   }
 
   if (!children) {
-    <title>Blorp</title>;
+    return <title>{env.REACT_APP_NAME}</title>;
   }
-  return <title>{`Blorp | ${children}`}</title>;
+  return <title>{`${env.REACT_APP_NAME} | ${children}`}</title>;
 }

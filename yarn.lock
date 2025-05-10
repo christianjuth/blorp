@@ -4707,6 +4707,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@t3-oss/env-core@npm:^0.13.4":
+  version: 0.13.4
+  resolution: "@t3-oss/env-core@npm:0.13.4"
+  peerDependencies:
+    arktype: ^2.1.0
+    typescript: ">=5.0.0"
+    valibot: ^1.0.0-beta.7 || ^1.0.0
+    zod: ^3.24.0 || ^4.0.0-beta.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+    valibot:
+      optional: true
+    zod:
+      optional: true
+  checksum: 10c0/3598c1582b4cd0aead095a492d60cb7656ffa308c0362744fe32f04ec6563601c04d898c0da7b5efb4dc7ace1d3b18a77f268a15a9e940a6997d9dd84f86a749
+  languageName: node
+  linkType: hard
+
 "@tailwindcss/node@npm:4.1.4":
   version: 4.1.4
   resolution: "@tailwindcss/node@npm:4.1.4"
@@ -10167,6 +10186,7 @@ __metadata:
     "@storybook/react": "npm:^8.6.12"
     "@storybook/react-vite": "npm:^8.6.12"
     "@storybook/test": "npm:^8.6.12"
+    "@t3-oss/env-core": "npm:^0.13.4"
     "@tailwindcss/typography": "patch:@tailwindcss/typography@npm%3A0.5.16#~/.yarn/patches/@tailwindcss-typography-npm-0.5.16-675125d30f.patch"
     "@tailwindcss/vite": "npm:^4.1.4"
     "@tanstack/query-broadcast-client-experimental": "npm:5.75.0"

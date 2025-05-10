@@ -24,6 +24,7 @@ import { PageTitle } from "../components/page-title";
 import { Link } from "@/src/routing/index";
 import { isTauri } from "../lib/device";
 import { Capacitor } from "@capacitor/core";
+import { env } from "../env";
 
 const browser = Bowser.getParser(window.navigator.userAgent);
 const osName = browser.getOS().name?.toLowerCase();
@@ -168,7 +169,7 @@ export default function Download() {
         <ContentGutters>
           <div className="flex-1 py-8">
             <h2 className="font-bold text-2xl">
-              Blorp works best when installed
+              {env.REACT_APP_NAME} works best when installed
             </h2>
             <div className="grid md:grid-cols-3 pt-6 gap-5">
               {CARDS.map(({ os, card }) => (
