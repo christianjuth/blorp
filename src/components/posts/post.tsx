@@ -3,7 +3,6 @@ import { useLinkContext } from "../../routing/link-context";
 import { useSettingsStore } from "@/src/stores/settings";
 import { getPostEmbed } from "@/src/lib/post";
 import { createSlug, encodeApId, FlattenedPost } from "@/src/lib/lemmy/utils";
-
 import { Link } from "@/src/routing/index";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
@@ -22,6 +21,7 @@ import { useLongPress } from "use-long-press";
 import _ from "lodash";
 import { shareImage } from "@/src/lib/share";
 import { useAuth } from "@/src/stores/auth";
+import removeMd from "remove-markdown";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return <i className="text-muted-foreground text-sm pt-3">{children}</i>;
@@ -281,6 +281,17 @@ export function FeedPostCard(props: PostProps) {
             />
           </div>
         )}
+
+        {!props.detailView && body && !deleted && type === "text" && (
+          <p
+            className={cn(
+              "text-sm line-clamp-3 leading-relaxed",
+              read && "text-muted-foreground",
+            )}
+          >
+            {removeMd(body)}
+          </p>
+        )}
       </Link>
 
       {showArticle && (
@@ -307,7 +318,6 @@ export function FeedPostCard(props: PostProps) {
       {props.detailView && body && !deleted && (
         <MarkdownRenderer markdown={body} className="pt-2" />
       )}
-
       {!props.detailView && (
         <div className="flex flex-row items-center justify-end gap-1">
           <PostCommentsButton

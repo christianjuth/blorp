@@ -7,8 +7,8 @@ export function getPostEmbed(
 ) {
   const urlContentType = post.url_content_type;
 
-  let embedType: "image" | "video" | "article" | "youtube" | "loops" =
-    "article";
+  let embedType: "image" | "video" | "article" | "youtube" | "loops" | "text" =
+    "text";
 
   if (post.url?.startsWith("https://loops.video")) {
     embedType = "loops";
@@ -29,6 +29,8 @@ export function getPostEmbed(
     embedType = "video";
   } else if (post.url && isYouTubeVideoUrl(post.url)) {
     embedType = "youtube";
+  } else if (post.url) {
+    embedType = "article";
   }
 
   let thumbnail = post.thumbnail_url;

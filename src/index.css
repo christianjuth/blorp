@@ -271,6 +271,10 @@ body {
   min-height: 100vh;
 }
 
+.prose-sm {
+  font-size: 0.93rem;
+}
+
 .prose hr {
   margin-top: 0.8em;
   margin-bottom: 0.8em;
