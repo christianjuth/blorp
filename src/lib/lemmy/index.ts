@@ -351,6 +351,7 @@ export function usePost({
     },
     enabled: !!ap_id && enabled,
     initialData,
+    refetchOnMount: "always",
   });
 }
 
@@ -469,6 +470,7 @@ export function useComments(form: GetComments) {
       }
       return prev;
     },
+    refetchOnMount: "always",
   });
 }
 
