@@ -4,7 +4,7 @@ import { IonReactRouter } from "@ionic/react-router";
 import type { Preview } from "@storybook/react";
 import { Providers } from "../src/components/providers";
 import { setupIonicReact } from "@ionic/react";
-import "../src/index.css";
+import "../src/styles/index.css";
 
 setupIonicReact();
 

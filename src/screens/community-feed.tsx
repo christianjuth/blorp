@@ -164,15 +164,15 @@ export default function CommunityFeed() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3.5 md:gap-4">
+          <IonButtons slot="end" className="gap-3.5 md:gap-4.5">
             <Link
               to={`${linkCtx.root}c/:communityName/s`}
               params={{
                 communityName,
               }}
-              className="text-2xl contents text-brand md:hidden"
+              className="text-2xl contents md:hidden"
             >
-              <IonIcon icon={searchOutline} />
+              <IonIcon icon={searchOutline} className="text-muted-foreground" />
             </Link>
             <PostSortBar align="end" />
             <UserDropdown />

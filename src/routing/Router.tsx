@@ -13,7 +13,18 @@ import {
   IonMenuToggle,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { pencil, cog, notifications, people, home } from "ionicons/icons";
+import {
+  cog,
+  notifications,
+  people,
+  home,
+  homeOutline,
+  peopleOutline,
+  notificationsOutline,
+  cogOutline,
+  create,
+  createOutline,
+} from "ionicons/icons";
 import { Route, Link, Redirect } from "@/src/routing/index";
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
@@ -48,6 +59,7 @@ const User = lazy(() => import("@/src/screens/user"));
 const SavedFeed = lazy(() => import("@/src/screens/saved-feed"));
 const Search = lazy(() => import("@/src/screens/search"));
 import { CreatePost } from "@/src/screens/create-post";
+import { cn } from "../lib/utils";
 
 const HOME_STACK = [
   <Route path="/home/*" component={NotFound} />,
@@ -195,34 +207,35 @@ function SidebarTabs() {
 
   return (
     <>
-      {TABS.map((t) => (
-        <button
-          key={t.id}
-          onClick={() => {
-            const tab = document.querySelector(`ion-tab-button[tab=${t.id}]`);
-            if (tab && "click" in tab && _.isFunction(tab.click)) {
-              tab.click();
-            }
-          }}
-          className={twMerge(
-            "relative max-md:hidden text-md flex flex-row items-center py-2 px-3 rounded-xl",
-            pathname.startsWith(t.to)
-              ? "bg-secondary text-brand"
-              : "text-muted-foreground",
-          )}
-        >
-          <IonIcon icon={t.icon} className="text-2xl" />
-          <span className="text-sm ml-2">{t.label}</span>
-          {t.id === "inbox" && (
-            <IonBadge
-              className="bg-destructive px-1 -mt-3 py-0.5"
-              hidden={!count.data}
-            >
-              {count.data}
-            </IonBadge>
-          )}
-        </button>
-      ))}
+      {TABS.map((t) => {
+        const isActive = pathname.startsWith(t.to);
+        return (
+          <button
+            key={t.id}
+            onClick={() => {
+              const tab = document.querySelector(`ion-tab-button[tab=${t.id}]`);
+              if (tab && "click" in tab && _.isFunction(tab.click)) {
+                tab.click();
+              }
+            }}
+            className={twMerge(
+              "relative max-md:hidden text-md flex flex-row items-center py-2 px-3 rounded-xl",
+              isActive ? "bg-secondary" : "text-muted-foreground",
+            )}
+          >
+            <IonIcon icon={t.icon(isActive)} className="text-2xl" />
+            <span className="text-sm ml-2">{t.label}</span>
+            {t.id === "inbox" && (
+              <IonBadge
+                className="bg-destructive px-1 -mt-3 py-0.5"
+                hidden={!count.data}
+              >
+                {count.data}
+              </IonBadge>
+            )}
+          </button>
+        );
+      })}
 
       <div className="max-md:hidden h-[0.5px] w-full bg-border my-2" />
     </>
@@ -370,30 +383,34 @@ function Tabs() {
           </IonRouterOutlet>
 
           <IonTabBar slot="bottom" className="lg:hidden">
-            {TABS.map((t) => (
-              <IonTabButton
-                key={t.id}
-                tab={t.id}
-                href={t.to}
-                onClick={() => {
-                  const isRoot = pathname === t.to;
-                  if (isRoot) {
-                    dispatchScrollEvent(pathname);
-                  }
-                }}
-              >
-                <IonIcon icon={t.icon} />
-                <IonLabel>{t.label}</IonLabel>
-                {t.id === "inbox" && (
-                  <IonBadge
-                    className="bg-destructive px-1.5 -mt"
-                    hidden={!count.data}
-                  >
-                    {count.data}
-                  </IonBadge>
-                )}
-              </IonTabButton>
-            ))}
+            {TABS.map((t) => {
+              const isActive = pathname.startsWith(t.to);
+              return (
+                <IonTabButton
+                  key={t.id}
+                  tab={t.id}
+                  href={t.to}
+                  onClick={() => {
+                    const isRoot = pathname === t.to;
+                    if (isRoot) {
+                      dispatchScrollEvent(pathname);
+                    }
+                  }}
+                  className={cn(isActive && "text-foreground")}
+                >
+                  <IonIcon icon={t.icon(isActive)} />
+                  <IonLabel>{t.label}</IonLabel>
+                  {t.id === "inbox" && (
+                    <IonBadge
+                      className="bg-destructive px-1.5 -mt"
+                      hidden={!count.data}
+                    >
+                      {count.data}
+                    </IonBadge>
+                  )}
+                </IonTabButton>
+              );
+            })}
           </IonTabBar>
         </IonTabs>
       </IonContent>
@@ -402,37 +419,37 @@ function Tabs() {
 }
 
 const TABS: {
-  icon: string;
+  icon: (active?: boolean) => string;
   to: string;
   label: string;
   id: string;
 }[] = [
   {
-    icon: home,
+    icon: (isActive) => (isActive ? home : homeOutline),
     to: "/home",
     label: "Home",
     id: "home",
   },
   {
-    icon: people,
+    icon: (isActive) => (isActive ? people : peopleOutline),
     to: "/communities",
     label: "Communities",
     id: "communities",
   },
   {
-    icon: pencil,
+    icon: (isActive) => (isActive ? create : createOutline),
     to: "/create",
     label: "Post",
     id: "create",
   },
   {
-    icon: notifications,
+    icon: (isActive) => (isActive ? notifications : notificationsOutline),
     to: "/inbox",
     label: "Inbox",
     id: "inbox",
   },
   {
-    icon: cog,
+    icon: (isActive) => (isActive ? cog : cogOutline),
     to: "/settings",
     label: "Settings",
     id: "settings",

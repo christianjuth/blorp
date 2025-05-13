@@ -6,7 +6,7 @@ export function PostVideoEmbed({
   autoPlay?: boolean;
 }) {
   return (
-    <div className="max-md:-mx-2.5 md:contents">
+    <div className="max-md:-mx-3 md:contents">
       <video
         className="aspect-video w-full md:rounded-xl"
         src={url}

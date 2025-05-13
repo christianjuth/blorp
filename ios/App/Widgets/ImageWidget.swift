@@ -106,13 +106,20 @@ struct ImageProvider: AppIntentTimelineProvider {
             thumbData = nil
         }
 
-        let entry = ImageEntry(
+        var entry = ImageEntry(
             date: date,
             title: topPost?.post.name ?? "No posts",
             community: topPost?.community.name ?? "",
             apId: topPost?.post.ap_id ?? "",
             thumbnailData: thumbData
         )
+        
+        if let actorId = topPost?.community.actor_id {
+            do {
+                entry.community = try communityApId(from: actorId)
+            } catch {
+            }
+        }
         
         // Schedule next update in 1 hour
         let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: date)!

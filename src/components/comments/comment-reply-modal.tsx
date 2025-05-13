@@ -137,7 +137,7 @@ export function InlineCommentReply({
             </IonButtons>
           </IonToolbar>
         </IonHeader>
-        <IonContent scrollY={false}>
+        <IonContent>
           <MarkdownEditor
             content={state.content}
             onChange={(val) => state.setContent(val)}
