@@ -1,5 +1,28 @@
-![github banner](https://github.com/user-attachments/assets/26157df5-7307-43d7-9895-dd9bb3d8296b)
+<p align="center">
+  <a href="https://blorpblorp.xyz/" target="_blank" rel="noopener noreferrer">
+    <img width="185" height="120" src="https://github.com/user-attachments/assets/2aee1810-2d98-461a-989d-3282a2b93a2e" alt="Blorp logo">
+  </a>
+  <h1 align="center">Blorp</h1>
+</p>
 
+<p align="center">
+<a href="https://blorpblorp.xyz/" target="_blank" rel="noopener noreferrer">Web app</a> · <a href="https://github.com/christianjuth/blorp/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=">Report Bug</a> · <a href="https://github.com/christianjuth/blorp/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md&title=">Request Feature</a> · <a href="https://github.com/christianjuth/blorp/releases">Releases</a>
+</p>
+
+<p align="center">
+&nbsp;<a href="https://apps.apple.com/us/app/blorp-for-lemmy/id6739925430"><img src="public/badges/ios.svg" height="45"></a>&nbsp;
+</p>
+<p align="center">
+  <a href="https://matrix.to/#/#blorp:matrix.org"><img src="https://img.shields.io/badge/chat-matrix-blue?style=flat-square&logo=matrix" alt="matrix chat"></a>
+</p>
+<br/>
+
+<p align="center">
+&nbsp;<img src="https://github.com/user-attachments/assets/0bddca59-16a0-4a7b-a681-5d6273fa6913" width="250">&nbsp;
+ &nbsp;<img src="https://github.com/user-attachments/assets/2bc7fdaf-8679-4e6f-acec-5a1a29672796" width="250">&nbsp;
+ &nbsp;<img src="https://github.com/user-attachments/assets/75835957-cc6d-4971-9824-05562b08f8c7" width="250">&nbsp;
+</p>
+<br/>
 
 ## Try it!
 * [Web](https://blorpblorp.xyz/)
