@@ -173,7 +173,10 @@ export default function SavedFeed() {
             className="h-full ion-content-scroll-host"
             data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}
             header={[
-              <ContentGutters className="bg-background py-2">
+              <ContentGutters
+                className="bg-background py-2"
+                key="header-type-select"
+              >
                 <div className="flex-1">
                   <ToggleGroup
                     type="single"

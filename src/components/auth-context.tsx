@@ -228,55 +228,67 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
-      <Input
-        placeholder="Email"
-        id="email"
-        defaultValue={email}
-        onChange={(e) => setEmail(e.target.value)}
-        autoComplete="email"
-        autoCapitalize="none"
-        autoCorrect="off"
-        spellCheck={false}
-        required
-      />
+      <div className="flex flex-col gap-1">
+        <label className="text-muted-foreground text-sm">Email</label>
+        <Input
+          placeholder="Email"
+          id="email"
+          defaultValue={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          required
+        />
+      </div>
 
-      <Input
-        placeholder="Username"
-        id="username"
-        defaultValue={userName}
-        onChange={(e) => setUsername(e.target.value)}
-        autoComplete="username"
-        autoCapitalize="none"
-        autoCorrect="off"
-        spellCheck={false}
-        required
-      />
+      <div className="flex flex-col gap-1">
+        <label className="text-muted-foreground text-sm">Username</label>
+        <Input
+          placeholder="Username"
+          id="username"
+          defaultValue={userName}
+          onChange={(e) => setUsername(e.target.value)}
+          autoComplete="username"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          required
+        />
+      </div>
 
-      <Input
-        placeholder="Enter password"
-        type="password"
-        id="password"
-        defaultValue={password}
-        onChange={(e) => setPassword(e.target.value)}
-        autoComplete="current-password"
-        autoCapitalize="none"
-        autoCorrect="off"
-        spellCheck={false}
-        required
-      />
+      <div className="flex flex-col gap-1">
+        <label className="text-muted-foreground text-sm">Password</label>
+        <Input
+          placeholder="Enter password"
+          type="password"
+          id="password"
+          defaultValue={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          required
+        />
+      </div>
 
-      <Input
-        placeholder="Verify password"
-        type="password"
-        id="password"
-        defaultValue={verifyPassword}
-        onChange={(e) => setVerifyPassword(e.target.value)}
-        autoComplete="current-password"
-        autoCapitalize="none"
-        autoCorrect="off"
-        spellCheck={false}
-        required
-      />
+      <div className="flex flex-col gap-1">
+        <label className="text-muted-foreground text-sm">Verify Password</label>
+        <Input
+          placeholder="Verify password"
+          type="password"
+          id="password"
+          defaultValue={verifyPassword}
+          onChange={(e) => setVerifyPassword(e.target.value)}
+          autoComplete="current-password"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          required
+        />
+      </div>
 
       {captcha.isPending && <LuLoaderCircle className="animate-spin" />}
 
@@ -320,7 +332,7 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
       </Button>
 
       <span className="mx-auto text-muted-foreground text-sm">
-        By logging in you agree to{" "}
+        By signing up you agree to{" "}
         <a
           className="underline"
           href="https://blorpblorp.xyz/terms"
@@ -470,7 +482,10 @@ function AuthModal({
               stickyHeaderIndices={[0]}
               data={sortedInstances ?? defaultSort}
               header={[
-                <div className="bg-background py-3 border-b-[.5px]">
+                <div
+                  className="bg-background py-3 border-b-[.5px]"
+                  key="search-instance"
+                >
                   <IonHeader className="mb-2">
                     Pick the server you created your account on
                   </IonHeader>
@@ -505,30 +520,40 @@ function AuthModal({
         {!signup && !!instance.url && (
           <>
             <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
-              <Input
-                placeholder="username"
-                id="username"
-                defaultValue={userName}
-                onChange={(e) => setUsername(e.target.value)}
-                autoComplete="username"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                required
-              />
+              <div className="flex flex-col gap-1">
+                <label className="text-muted-foreground text-sm">
+                  Username
+                </label>
+                <Input
+                  placeholder="Username"
+                  id="username"
+                  defaultValue={userName}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  required
+                />
+              </div>
 
-              <Input
-                placeholder="Enter password"
-                type="password"
-                id="password"
-                defaultValue={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                required
-              />
+              <div className="flex flex-col gap-1">
+                <label className="text-muted-foreground text-sm">
+                  Password
+                </label>
+                <Input
+                  placeholder="Enter password"
+                  type="password"
+                  id="password"
+                  defaultValue={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  required
+                />
+              </div>
 
               {(login.needs2FA || _.isString(mfaToken)) && (
                 <InputOTP
@@ -559,6 +584,17 @@ function AuthModal({
                 Sign In
                 {login.isPending && <LuLoaderCircle className="animate-spin" />}
               </Button>
+
+              <span className="mx-auto">
+                Need an account?
+                <Button
+                  type="button"
+                  variant="link"
+                  onClick={() => setSignup(true)}
+                >
+                  Sign up
+                </Button>
+              </span>
 
               <Button
                 type="button"

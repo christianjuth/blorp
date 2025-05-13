@@ -213,7 +213,10 @@ export default function User() {
             className="h-full ion-content-scroll-host"
             data={listData.length === 0 && !isLoading ? [NO_ITEMS] : listData}
             header={[
-              <ContentGutters className="max-md:hidden">
+              <ContentGutters
+                className="max-md:hidden"
+                key="header-type-select"
+              >
                 <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
                   <div>
                     <ToggleGroup

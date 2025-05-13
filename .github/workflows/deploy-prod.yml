@@ -34,7 +34,7 @@ jobs:
           yarn install --immutable
 
       - name: Build Blorp React app
-        width:
+        with:
           REACT_APP_NAME: ${{ secrets.REACT_APP_NAME }}
           REACT_APP_LOGO_SRC: ${{ secrets.REACT_APP_LOGO_SRC }}
           REACT_APP_DEFAULT_INSTANCE: ${{ secrets.REACT_APP_DEFAULT_INSTANCE }}

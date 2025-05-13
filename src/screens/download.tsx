@@ -191,7 +191,7 @@ export function DownloadButton() {
     return null;
   }
   return (
-    <Link to="/download" className="text-brand">
+    <Link to="/download" className="text-brand max-md:hidden">
       <MdInstallDesktop className="text-xl max-md:hidden" />
       <MdInstallMobile className="text-xl md:hidden" />
     </Link>

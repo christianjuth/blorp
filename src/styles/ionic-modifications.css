@@ -14,6 +14,10 @@
   }
 }
 
+ion-back-button {
+  --color: var(--brand);
+}
+
 ion-toggle {
   --track-background-checked: var(--color-brand);
 }

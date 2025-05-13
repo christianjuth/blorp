@@ -1,6 +1,6 @@
 import { PostComment } from "@/src/components/posts/post-comment";
 import { buildCommentTree } from "../lib/comment-tree";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import { usePost, useComments, useCommunity } from "@/src/lib/lemmy/index";
 import {
   PostBottomBar,
@@ -162,16 +162,14 @@ export default function Post() {
           className="max-md:text-white"
           style={
             media.maxMd
-              ? {
-                  ...(theme === "light"
-                    ? {
-                        "--background": "var(--color-brand-secondary)",
-                        "--border-color": "var(--color-brand-secondary)",
-                      }
-                    : {
-                        "--border-color": "var(--color-background)",
-                      }),
-                }
+              ? theme === "light"
+                ? {
+                    "--background": "var(--color-brand-secondary)",
+                    "--border-color": "var(--color-brand-secondary)",
+                  }
+                : {
+                    "--border-color": "var(--color-background)",
+                  }
               : undefined
           }
         >
@@ -195,6 +193,7 @@ export default function Post() {
             header={[
               post ? (
                 <MemoedPostCard
+                  key="post-details"
                   {...getPostProps(post, {
                     featuredContext: "community",
                     modApIds,
@@ -202,13 +201,13 @@ export default function Post() {
                   })}
                 />
               ) : (
-                <ContentGutters className="px-0">
+                <ContentGutters className="px-0" key="post-skeleton">
                   <PostCardSkeleton hideImage={false} detailView />
                   <></>
                 </ContentGutters>
               ),
               post && (
-                <>
+                <Fragment key="post-bottom-bar">
                   <ContentGutters className="px-0">
                     <PostBottomBar
                       apId={decodedApId}
@@ -224,10 +223,10 @@ export default function Post() {
                     autoFocus={reply.isEditing}
                     mode="mobile-only"
                   />
-                </>
+                </Fragment>
               ),
               post && !commentPath && (
-                <ContentGutters className="md:py-3">
+                <ContentGutters className="md:py-3" key="post-reply">
                   <div className="flex-1">
                     <InlineCommentReply
                       state={reply}

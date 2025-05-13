@@ -2,7 +2,7 @@ import { useLikePost } from "@/src/lib/lemmy/index";
 import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 
-import { Link, LinkProps } from "@/src/routing/index";
+import { Link } from "@/src/routing/index";
 
 import {
   PiArrowFatUpBold,

@@ -14,3 +14,8 @@ export function isTauri(): boolean {
     return false;
   }
 }
+
+const MODE = import.meta.env.MODE;
+export function isDev() {
+  return MODE === "development";
+}

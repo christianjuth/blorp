@@ -60,9 +60,10 @@ const SavedFeed = lazy(() => import("@/src/screens/saved-feed"));
 const Search = lazy(() => import("@/src/screens/search"));
 import { CreatePost } from "@/src/screens/create-post";
 import { cn } from "../lib/utils";
+import { LEFT_SIDEBAR_MENU_ID } from "./utils";
 
 const HOME_STACK = [
-  <Route path="/home/*" component={NotFound} />,
+  <Route key="/home/*" path="/home/*" component={NotFound} />,
   <Route key="/home" exact path="/home" component={HomeFeed} />,
   <Route key="/home/s" exact path="/home/s" component={Search} />,
   <Route
@@ -100,12 +101,12 @@ const HOME_STACK = [
 ];
 
 const CREATE_POST_STACK = [
-  <Route path="/create/*" component={NotFound} />,
+  <Route key="/create/*" path="/create/*" component={NotFound} />,
   <Route key="/create" exact path="/create" component={CreatePost} />,
 ];
 
 const COMMUNITIES_STACK = [
-  <Route path="/communities/*" component={NotFound} />,
+  <Route key="/communities/*" path="/communities/*" component={NotFound} />,
   <Route
     key="/communities"
     exact
@@ -154,7 +155,7 @@ const COMMUNITIES_STACK = [
 ];
 
 const INBOX_STACK = [
-  <Route path="/inbox/*" component={NotFound} />,
+  <Route key="/inbox/*" path="/inbox/*" component={NotFound} />,
   <Route key="/inbox" exact path="/inbox" component={Inbox} />,
   <Route key="/inbox/s" exact path="/inbox/s" component={Search} />,
   <Route
@@ -196,7 +197,7 @@ const INBOX_STACK = [
 ];
 
 const SETTINGS = [
-  <Route path="/settings/*" component={NotFound} />,
+  <Route key="/settings/*" path="/settings/*" component={NotFound} />,
   <Route key="/settings" exact path="/settings" component={SettingsPage} />,
 ];
 
@@ -266,7 +267,12 @@ function Sidebar() {
             RECENT
           </span>
           {recentCommunities.slice(0, 5).map((c) => (
-            <IonMenuToggle key={c.id} className="px-4 py-0.75 flex flex-row">
+            <IonMenuToggle
+              key={c.id}
+              className="px-4 py-0.75 flex flex-row"
+              menu={LEFT_SIDEBAR_MENU_ID}
+              autoHide={false}
+            >
               <CommunityCard communityView={c} size="sm" />
             </IonMenuToggle>
           ))}
@@ -281,7 +287,12 @@ function Sidebar() {
             COMMUNITIES
           </span>
           {sortedCommunities.map(({ community: c }) => (
-            <IonMenuToggle key={c.id} className="px-4 py-0.75 flex flex-row">
+            <IonMenuToggle
+              key={c.id}
+              className="px-4 py-0.75 flex flex-row"
+              menu={LEFT_SIDEBAR_MENU_ID}
+              autoHide={false}
+            >
               <CommunityCard communityView={c} size="sm" />
             </IonMenuToggle>
           ))}
@@ -290,19 +301,31 @@ function Sidebar() {
         </>
       )}
 
-      <IonMenuToggle className="mt-2">
+      <IonMenuToggle
+        className="mt-2"
+        menu={LEFT_SIDEBAR_MENU_ID}
+        autoHide={false}
+      >
         <Link to="/privacy" className="px-4 text-sm text-muted-foreground">
           Privacy Policy
         </Link>
       </IonMenuToggle>
 
-      <IonMenuToggle className="mt-3">
+      <IonMenuToggle
+        className="mt-3"
+        menu={LEFT_SIDEBAR_MENU_ID}
+        autoHide={false}
+      >
         <Link to="/terms" className="px-4 text-sm text-muted-foreground">
           Terms of Use
         </Link>
       </IonMenuToggle>
 
-      <IonMenuToggle className="mt-3">
+      <IonMenuToggle
+        className="mt-3"
+        menu={LEFT_SIDEBAR_MENU_ID}
+        autoHide={false}
+      >
         <Link to="/licenses" className="px-4 text-sm text-muted-foreground">
           Open Source Licenses
         </Link>
@@ -318,10 +341,11 @@ function Tabs() {
   const pathname = router.routeInfo.pathname;
 
   return (
-    <IonSplitPane when="lg" contentId="main">
+    <IonSplitPane when="lg">
       <IonMenu
         type="push"
-        contentId="main"
+        contentId={LEFT_SIDEBAR_MENU_ID}
+        menuId={LEFT_SIDEBAR_MENU_ID}
         style={{
           "--side-max-width": "270px",
         }}
@@ -358,7 +382,7 @@ function Tabs() {
         </IonContent>
       </IonMenu>
 
-      <IonContent id="main" scrollY={false}>
+      <IonContent id={LEFT_SIDEBAR_MENU_ID} scrollY={false}>
         <IonTabs>
           <IonRouterOutlet animated={media.maxMd}>
             {...HOME_STACK}

@@ -183,7 +183,10 @@ export function SearchFeed({
               data.length === 0 && !searchResults.isLoading ? [NO_ITEMS] : data
             }
             header={[
-              <ContentGutters className="max-md:hidden">
+              <ContentGutters
+                className="max-md:hidden"
+                key="header-type-toggle"
+              >
                 <div className="flex flex-row h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
                   <div>
                     <ToggleGroup

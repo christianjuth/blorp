@@ -3,6 +3,7 @@ import { createDb } from "@/src/lib/create-storage";
 import pRetry from "p-retry";
 import { UseBoundStore } from "zustand";
 import _ from "lodash";
+import { isDev } from "../lib/device";
 
 export function createStorage<S>(): PersistStorage<S> {
   const db = createDb("zustand");
@@ -14,7 +15,10 @@ export function createStorage<S>(): PersistStorage<S> {
         });
         return value ? JSON.parse(value) : null;
       } catch (err) {
-        window.location.reload();
+        console.error(err);
+        if (!isDev()) {
+          window.location.reload();
+        }
       }
     },
     setItem: async (key, value) => {

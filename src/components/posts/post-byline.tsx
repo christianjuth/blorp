@@ -25,7 +25,6 @@ import { Deferred } from "@/src/lib/deferred";
 import { Slug } from "@/src/lib/lemmy/utils";
 import { CommunityHoverCard } from "../communities/community-hover-card";
 import { PersonHoverCard } from "../person/person-hover-card";
-import { Share } from "@capacitor/share";
 import { FaBookmark } from "react-icons/fa";
 import { Badge } from "@/src/components/ui/badge";
 import { postToDraft, useCreatePostStore } from "@/src/stores/create-post";

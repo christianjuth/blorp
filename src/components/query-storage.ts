@@ -2,6 +2,7 @@ import pRetry from "p-retry";
 
 import { Persister } from "@tanstack/react-query-persist-client";
 import { createDb } from "../lib/create-storage";
+import { isDev } from "../lib/device";
 
 const db = createDb("react-query");
 export const persister: Persister = {
@@ -14,8 +15,11 @@ export const persister: Persister = {
         retries: 5,
       });
       return cache ? JSON.parse(cache) : undefined;
-    } catch {
-      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      if (!isDev()) {
+        window.location.reload();
+      }
     }
   },
   removeClient: async () => {

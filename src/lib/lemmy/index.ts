@@ -38,13 +38,7 @@ import {
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "@/src/stores/filters";
-import {
-  Account,
-  getAccountActorId,
-  getCachePrefixer,
-  parseAccountInfo,
-  useAuth,
-} from "../../stores/auth";
+import { Account, getCachePrefixer, useAuth } from "../../stores/auth";
 import { useEffect, useMemo, useRef } from "react";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";

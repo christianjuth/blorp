@@ -185,9 +185,6 @@ export function FeedPostCard(props: PostProps) {
   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
 
-  const postDetailsLink =
-    `${linkCtx.root}c/${communitySlug}/posts/${encodedApId}` as const;
-
   const showImage = type === "image" && thumbnail && !deleted;
   const showArticle = type === "article" && !deleted;
 

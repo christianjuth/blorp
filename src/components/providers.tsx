@@ -29,7 +29,7 @@ const persister: Persister = {
         retries: 5,
       });
       return cache ? JSON.parse(cache) : undefined;
-    } catch (err) {
+    } catch {
       window.location.reload();
     }
   },

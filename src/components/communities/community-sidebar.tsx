@@ -15,7 +15,6 @@ import { IoEllipsisHorizontal } from "react-icons/io5";
 import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
-import { Share } from "@capacitor/share";
 import { useCommunityCreatePost } from "./create-post";
 import {
   Avatar,

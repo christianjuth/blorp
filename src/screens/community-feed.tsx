@@ -9,7 +9,7 @@ import {
   SmallScreenSidebar,
 } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
-import { memo, useEffect, useMemo, useState } from "react";
+import { Fragment, memo, useEffect, useMemo, useState } from "react";
 import { VirtualList } from "../components/virtual-list";
 import { useCommunity, useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
@@ -172,7 +172,10 @@ export default function CommunityFeed() {
               }}
               className="text-2xl contents md:hidden"
             >
-              <IonIcon icon={searchOutline} className="text-muted-foreground" />
+              <IonIcon
+                icon={searchOutline}
+                className="text-brand dark:text-muted-foreground"
+              />
             </Link>
             <PostSortBar align="end" />
             <UserDropdown />
@@ -210,7 +213,7 @@ export default function CommunityFeed() {
             className="h-full ion-content-scroll-host"
             data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}
             header={[
-              <>
+              <Fragment key="community-header">
                 {communityName && (
                   <ContentGutters className="px-0">
                     <SmallScreenSidebar
@@ -227,7 +230,7 @@ export default function CommunityFeed() {
                   <CommunityBanner communityName={communityName} />
                   <></>
                 </ContentGutters>
-              </>,
+              </Fragment>,
             ]}
             renderItem={({ item }) => {
               if (item === NO_ITEMS) {

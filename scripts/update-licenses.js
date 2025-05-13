@@ -12,7 +12,7 @@ This application bundles the following third-party software under their respecti
 ---
 `;
 
-await new Promise((resolve, reject) =>
+await new Promise((resolve) =>
   checker.init(
     {
       start: ROOT_PATH,

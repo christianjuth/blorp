@@ -14,7 +14,6 @@ import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import { useMemo, useState } from "react";
 import { useLinkContext } from "../../routing/link-context";
-import { Share } from "@capacitor/share";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
 import { openUrl } from "@/src/lib/linking";
 import { Deferred } from "@/src/lib/deferred";

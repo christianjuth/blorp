@@ -33,7 +33,7 @@ export const NEW_DRAFT: Draft = {
 function isEmptyDraft(draft: Draft) {
   const fields = _.omit(draft, ["type", "apId", "createdAt"]);
   for (const id in fields) {
-    if (!!fields[id as keyof typeof fields]) {
+    if (fields[id as keyof typeof fields]) {
       return false;
     }
   }

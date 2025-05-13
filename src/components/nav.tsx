@@ -22,6 +22,7 @@ import { IoPerson } from "react-icons/io5";
 import { useLogout } from "../lib/lemmy";
 import { LuMenu } from "react-icons/lu";
 import { Button } from "./ui/button";
+import { LEFT_SIDEBAR_MENU_ID } from "../routing/utils";
 
 export function UserDropdown() {
   const linkCtx = useLinkContext();
@@ -153,7 +154,11 @@ export function UserDropdown() {
 
 export function MenuButton() {
   return (
-    <IonMenuButton>
+    <IonMenuButton
+      menu={LEFT_SIDEBAR_MENU_ID}
+      autoHide={false}
+      className="lg:hidden"
+    >
       <LuMenu className="text-[1.4rem]" />
     </IonMenuButton>
   );

@@ -72,7 +72,7 @@ const options: (
       }
 
       // Replace "/c/community" with "/selected-tab/c/community"
-      if (/^\/c\/[^\/]+$/i.test(href)) {
+      if (/^\/c\/[^/]+$/i.test(href)) {
         return (
           <Link to={(root + href.substring(1)) as never} params={{} as never}>
             {domToReact(domNode.children as DOMNode[], options(root))}
@@ -81,7 +81,7 @@ const options: (
       }
 
       // Replace "/u/community" with "/selected-tab/u/community"
-      if (/^\/u\/[^\/]+$/i.test(href)) {
+      if (/^\/u\/[^/]+$/i.test(href)) {
         return (
           <Link to={(root + href.substring(1)) as never} params={{} as never}>
             {domToReact(domNode.children as DOMNode[], options(root))}

@@ -20,7 +20,7 @@ describe("useRecentCommunitiesStore", () => {
   });
 
   test("saves max 5 communities", () => {
-    const communities = new Array(MAX_VISITED * 2)
+    const communities = Array.from({ length: MAX_VISITED * 2 })
       .fill(0)
       .map(lemmy.getRandomCommunity);
 
@@ -36,7 +36,7 @@ describe("useRecentCommunitiesStore", () => {
   });
 
   test("placed most recently visited at beginning of array", () => {
-    const communities = new Array(MAX_VISITED * 2)
+    const communities = Array.from({ length: MAX_VISITED * 2 })
       .fill(0)
       .map(lemmy.getRandomCommunity);
 
