@@ -290,17 +290,23 @@ function Sidebar() {
         </>
       )}
 
-      <Link to="/privacy" className="px-4 text-sm mt-2 text-muted-foreground">
-        Privacy Policy
-      </Link>
+      <IonMenuToggle className="mt-2">
+        <Link to="/privacy" className="px-4 text-sm text-muted-foreground">
+          Privacy Policy
+        </Link>
+      </IonMenuToggle>
 
-      <Link to="/terms" className="px-4 text-sm mt-3 text-muted-foreground">
-        Terms of Use
-      </Link>
+      <IonMenuToggle className="mt-3">
+        <Link to="/terms" className="px-4 text-sm text-muted-foreground">
+          Terms of Use
+        </Link>
+      </IonMenuToggle>
 
-      <Link to="/licenses" className="px-4 text-sm mt-3 text-muted-foreground">
-        Open Source Licenses
-      </Link>
+      <IonMenuToggle className="mt-3">
+        <Link to="/licenses" className="px-4 text-sm text-muted-foreground">
+          Open Source Licenses
+        </Link>
+      </IonMenuToggle>
     </>
   );
 }
