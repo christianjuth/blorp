@@ -26,7 +26,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: 'yarn'
 
       - name: Install dependencies
         run: |
@@ -34,7 +33,7 @@ jobs:
           yarn install --immutable
 
       - name: Build Blorp React app
-        with:
+        env:
           REACT_APP_NAME: ${{ secrets.REACT_APP_NAME }}
           REACT_APP_LOGO_SRC: ${{ secrets.REACT_APP_LOGO_SRC }}
           REACT_APP_DEFAULT_INSTANCE: ${{ secrets.REACT_APP_DEFAULT_INSTANCE }}
