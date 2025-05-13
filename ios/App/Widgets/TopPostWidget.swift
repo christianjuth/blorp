@@ -82,7 +82,6 @@ struct TopPostProvider: AppIntentTimelineProvider {
         if let actorId = topPost?.community.actor_id {
             do {
                 entry.community = try communityApId(from: actorId)
-                
             } catch {
             }
         }

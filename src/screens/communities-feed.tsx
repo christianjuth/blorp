@@ -104,12 +104,9 @@ export default function Communities() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3.5 md:gap-4">
-            <Link
-              to="/communities/s"
-              className="text-2xl contents text-brand md:hidden"
-            >
-              <IonIcon icon={searchOutline} />
+          <IonButtons slot="end" className="gap-3.5 md:gap-4.t">
+            <Link to="/communities/s" className="text-2xl contents md:hidden">
+              <IonIcon icon={searchOutline} className="text-muted-foreground" />
             </Link>
             <CommunitySortSelect />
             <UserDropdown />

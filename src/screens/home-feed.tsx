@@ -236,11 +236,11 @@ export default function HomeFeed() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3.5 md:gap-4">
+          <IonButtons slot="end" className="gap-3.5 md:gap-4.5">
             <DownloadButton />
             <Link
               to="/home/s"
-              className="text-2xl contents text-brand md:hidden"
+              className="text-2xl contents text-muted-foreground md:hidden"
             >
               <IonIcon icon={searchOutline} />
             </Link>

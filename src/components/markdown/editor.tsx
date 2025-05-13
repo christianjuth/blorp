@@ -77,9 +77,11 @@ function IconFileInput({ onFile }: { onFile: (file: File) => void }) {
 const MenuBar = ({
   editor,
   onFile,
+  className,
 }: {
   editor: Editor | null;
   onFile: (file: File) => void;
+  className?: string;
 }) => {
   const [alrt] = useIonAlert();
 
@@ -87,7 +89,7 @@ const MenuBar = ({
     return null;
   }
   return (
-    <div className="flex flex-row items-center gap-1.5">
+    <div className={cn("flex flex-row items-center gap-1.5", className)}>
       <IconFileInput onFile={onFile} />
 
       <Toggle
@@ -335,8 +337,12 @@ function MarkdownEditorInner({
     onFocus: () => onFocus?.(),
     onBlur,
     editorProps: {
+      // start auto-scrolling when the cursor is within 80px of the top/bottom
+      scrollThreshold: 50,
+      // once scrolling, always leave an 80px buffer above/below the cursor
+      scrollMargin: 50,
       attributes: {
-        class: "flex-1 h-full",
+        //class: "flex-1 h-full",
       },
       handleDrop: (view, event, slice, moved) => {
         if (
@@ -391,7 +397,7 @@ function MarkdownEditorInner({
     <>
       <div
         className={cn(
-          "flex flex-row justify-between py-1.5 px-2 pb-0",
+          "flex flex-row justify-between py-1.5 px-2 pb-0 max-md:hidden",
           hideMenu && "hidden",
         )}
       >
@@ -434,9 +440,53 @@ function MarkdownEditorInner({
       </div>
       <EditorContent
         id={id}
-        className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3.5 overflow-auto"
+        className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3 md:px-3.5 overflow-auto"
         editor={editor}
       />
+      <div
+        className={cn(
+          "flex flex-row justify-between px-2 py-1 md:hidden sticky bottom-0 bg-background",
+          hideMenu && "hidden",
+        )}
+      >
+        <MenuBar
+          className="gap-2.5"
+          editor={editor}
+          onFile={(file) =>
+            handleFile(file)
+              .then(({ url }) => {
+                if (url) {
+                  editor?.chain().focus().setImage({ src: url }).run();
+                }
+              })
+              .catch((err) => {
+                if (err instanceof Error) {
+                  toast.error(err.message);
+                } else {
+                  toast.error("Failed to upload image");
+                }
+              })
+          }
+        />
+        <Button
+          size="sm"
+          variant="ghost"
+          type="button"
+          className="max-md:hidden"
+          onClick={onChangeEditorType}
+        >
+          Show markdown editor
+        </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          type="button"
+          className="md:hidden"
+          onClick={onChangeEditorType}
+        >
+          <IoLogoMarkdown />
+        </Button>
+      </div>
     </>
   );
 }
@@ -466,7 +516,7 @@ function PlainTextEditorInner({
     <>
       <div
         className={cn(
-          "flex flex-row justify-end py-1.5 px-2 pb-0",
+          "flex flex-row justify-end py-1.5 px-2 pb-0 max-md:hidden",
           hideMenu && "hidden",
         )}
       >
@@ -494,11 +544,36 @@ function PlainTextEditorInner({
         autoFocus={autoFocus}
         defaultValue={content}
         onChange={(e) => onChange(e.target.value)}
-        className="prose dark:prose-invert prose-sm resize-none w-full font-mono outline-none pt-2 px-3.5"
+        className="prose dark:prose-invert prose-sm resize-none w-full font-mono outline-none py-2 px-3 md:px-3.5 flex-1"
         placeholder={placeholder}
         onFocus={onFocus}
         onBlur={onBlur}
       />
+      <div
+        className={cn(
+          "flex flex-row justify-end px-2 py-1 sticky bottom-0 md:hidden",
+          hideMenu && "hidden",
+        )}
+      >
+        <Button
+          size="sm"
+          variant="ghost"
+          type="button"
+          className="max-md:hidden"
+          onClick={onChangeEditorType}
+        >
+          Show rich text editor
+        </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          type="button"
+          className="md:hidden"
+          onClick={onChangeEditorType}
+        >
+          <IoDocumentText />
+        </Button>
+      </div>
     </>
   );
 }
@@ -531,7 +606,7 @@ export function MarkdownEditor({
   const setShowMarkdown = useSettingsStore((s) => s.setShowMarkdown);
 
   return (
-    <div className={cn("flex flex-col flex-1", className)}>
+    <div className={cn("flex flex-col", className)}>
       {showMarkdown ? (
         <PlainTextEditorInner
           content={content}

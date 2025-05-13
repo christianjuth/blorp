@@ -37,6 +37,7 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
   return (
     <Button
       size="sm"
+      variant={subscribed === "NotSubscribed" ? "default" : "secondary"}
       {...props}
       onClick={() => {
         if (communityView) {

@@ -1,0 +1,16 @@
+* {
+  scrollbar-color: var(--secondary) transparent;
+}
+
+@media screen and (width >= 48rem) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+    @apply bg-background!;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-secondary;
+    border-radius: 12px;
+  }
+}

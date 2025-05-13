@@ -27,10 +27,10 @@ import { PersonCard } from "../components/person/person-card";
 import { Deferred } from "../lib/deferred";
 import { createSlug } from "../lib/lemmy/utils";
 import { cn } from "../lib/utils";
-import { KeyboardAvoidingView } from "../components/keyboard-avoiding-view";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { openUrl } from "../lib/linking";
+import { RoutePath } from "../routing/routes";
 
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
@@ -111,7 +111,7 @@ function AccountCard({
             rel="noopener noreferrer"
             id={modalTriggerId}
             detail={false}
-            className="text-destructive"
+            className="text-brand"
           >
             Delete account
           </IonItem>
@@ -316,24 +316,23 @@ export default function SettingsPage() {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen={true} scrollY={false}>
-        <KeyboardAvoidingView>
-          <ContentGutters className="pt-4 pb-8 max-md:px-2.5">
-            <div className="flex-1 gap-2 flex flex-col">
-              <AccountSection />
+      <IonContent fullscreen={true}>
+        <ContentGutters className="pt-4 pb-8 max-md:px-2.5">
+          <div className="flex-1 gap-2 flex flex-col">
+            <AccountSection />
 
-              <SectionLabel>GLOBAL FILTERS</SectionLabel>
+            <SectionLabel>GLOBAL FILTERS</SectionLabel>
 
-              <IonList inset>
-                <IonItem>
-                  <IonToggle
-                    checked={hideRead}
-                    onIonChange={(e) => setHideRead(e.detail.checked)}
-                  >
-                    Hide read posts from feeds
-                  </IonToggle>
-                </IonItem>
-                {/* 
+            <IonList inset>
+              <IonItem>
+                <IonToggle
+                  checked={hideRead}
+                  onIonChange={(e) => setHideRead(e.detail.checked)}
+                >
+                  Hide read posts from feeds
+                </IonToggle>
+              </IonItem>
+              {/* 
                 This should be set at the account level,
                 and iOS requores that this is done outside of the app.
               <IonItem>
@@ -344,73 +343,80 @@ export default function SettingsPage() {
                   Show NSFW
                 </IonToggle>
               </IonItem>*/}
-              </IonList>
+            </IonList>
 
-              <SectionLabel>GLOBAL KEYWORD FILTERS</SectionLabel>
+            <SectionLabel>GLOBAL KEYWORD FILTERS</SectionLabel>
 
-              <IonList inset>
-                {keywords.map((keyword, index) => (
-                  <IonItem key={index}>
-                    {index > 0 && <Divider />}
-                    <IonInput
-                      value={keyword}
-                      onIonChange={(e) =>
-                        setFilterKeywords({
-                          index,
-                          keyword: e.detail.value ?? "",
-                        })
-                      }
-                      onIonBlur={() => {
-                        pruneFiltersKeywords();
-                      }}
-                      placeholder="Keyword to filter..."
-                    />
-                  </IonItem>
-                ))}
-              </IonList>
-
-              <CacheSection />
-
-              <SectionLabel>OTHER</SectionLabel>
-
-              <IonList inset>
-                <IonItem
-                  href="https://github.com/christianjuth/blorp/releases"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  detail={false}
-                  className="text-brand"
-                >
-                  What's new
+            <IonList inset>
+              {keywords.map((keyword, index) => (
+                <IonItem key={index}>
+                  {index > 0 && <Divider />}
+                  <IonInput
+                    value={keyword}
+                    onIonChange={(e) =>
+                      setFilterKeywords({
+                        index,
+                        keyword: e.detail.value ?? "",
+                      })
+                    }
+                    onIonBlur={() => {
+                      pruneFiltersKeywords();
+                    }}
+                    placeholder="Keyword to filter..."
+                  />
                 </IonItem>
-                <IonItem
-                  href="https://github.com/christianjuth/blorp/issues/new"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  detail={false}
-                  className="text-brand"
-                >
-                  Report issue
-                </IonItem>
-                <IonItem
-                  routerLink="/privacy"
-                  detail={false}
-                  className="text-brand"
-                >
-                  Privacy Policy
-                </IonItem>
-              </IonList>
+              ))}
+            </IonList>
 
-              <div
-                className="flex flex-col items-center pt-6"
-                onClick={() => setLogoClicks((c) => c + 1)}
+            <CacheSection />
+
+            <SectionLabel>OTHER</SectionLabel>
+
+            <IonList inset>
+              <IonItem
+                href="https://github.com/christianjuth/blorp/releases"
+                target="_blank"
+                rel="noopener noreferrer"
+                detail={false}
+                className="text-brand"
               >
-                <Logo />
-                <span className="text-muted-foreground">v{version}</span>
-              </div>
+                What's new
+              </IonItem>
+              <IonItem
+                href="https://github.com/christianjuth/blorp/issues/new"
+                target="_blank"
+                rel="noopener noreferrer"
+                detail={false}
+                className="text-brand"
+              >
+                Report issue
+              </IonItem>
+              <IonItem
+                routerLink={"/privacy" satisfies RoutePath}
+                detail={false}
+                className="text-brand"
+              >
+                Privacy Policy
+              </IonItem>
+
+              <IonItem
+                routerLink={"/terms" satisfies RoutePath}
+                detail={false}
+                className="text-brand"
+              >
+                Terms of Use
+              </IonItem>
+            </IonList>
+
+            <div
+              className="flex flex-col items-center pt-6"
+              onClick={() => setLogoClicks((c) => c + 1)}
+            >
+              <Logo />
+              <span className="text-muted-foreground">v{version}</span>
             </div>
-          </ContentGutters>
-        </KeyboardAvoidingView>
+          </div>
+        </ContentGutters>
       </IonContent>
     </IonPage>
   );

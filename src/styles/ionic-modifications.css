@@ -1,0 +1,117 @@
+:root:root {
+  --ion-border-color: var(--tailwind-border);
+  --ion-color-primary: var(--muted-foreground);
+  --ion-tab-bar-color-selected: var(--brand);
+  --ion-toolbar-background: white;
+  --ion-tab-bar-background: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:root {
+    --ion-background-color: black;
+    --ion-toolbar-background: black;
+    --ion-tab-bar-background: black;
+  }
+}
+
+ion-toggle {
+  --track-background-checked: var(--color-brand);
+}
+
+.sc-ion-action-sheet-ios-h {
+  --button-color: var(--color-foreground);
+}
+
+/* Make action sheet show check mark for selected action */
+ion-action-sheet .action-sheet-selected .action-sheet-button-inner:after {
+  content: "";
+  z-index: 1;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="%23000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M416 128L192 384l-96-96"/></svg>');
+  width: 24px;
+  height: 24px;
+}
+@media (prefers-color-scheme: dark) {
+  ion-action-sheet .action-sheet-selected .action-sheet-button-inner:after {
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="%23ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M416 128L192 384l-96-96"/></svg>');
+  }
+}
+
+/* Inrease header toolbar min height on large screen sizes */
+html.plt-mobileweb ion-header ion-toolbar:first-of-type,
+html.plt-desktop ion-header ion-toolbar:first-of-type {
+  --min-height: 55px;
+}
+@media screen and (width >= 48rem) {
+  html.plt-mobileweb ion-header ion-toolbar:first-of-type,
+  html.plt-desktop ion-header ion-toolbar:first-of-type {
+    --min-height: 60px;
+  }
+}
+
+/* Fix toolbar content vertical centering after */
+/* messing with the height of the header/toolbar */
+ion-toolbar ion-buttons {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+/* Make header toolbar padding match content padding */
+ion-toolbar.ios.ios::part(container),
+ion-toolbar.md.md {
+  @apply max-w-[1050px] mx-auto px-3;
+}
+/**
+* Tailwind apply doesn't seem to work with media queries
+* so we have to do this nonsense
+**/
+@media screen and (width >= 48rem) {
+  ion-toolbar.ios.ios::part(container),
+  ion-toolbar.md.md {
+    @apply px-6;
+  }
+}
+
+/* Idk why but this fixes the search bar vertical centering */
+ion-toolbar ion-searchbar {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Reduce height of search bar slightly */
+.searchbar-input-container.sc-ion-searchbar-ios {
+  min-height: unset !important;
+}
+
+ion-list {
+  --ion-item-background: var(--secondary);
+}
+
+list-item {
+  --border-color: red;
+}
+
+ion-list.list-inset {
+  margin-inline-start: 0 !important;
+  margin-inline-end: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Keyboard avoidance */
+/* ion-alert { */
+/*   padding-bottom: var(--keyboard-height) !important; */
+/*   transition: padding-bottom 200ms; */
+/* } */
+
+.action-sheet-button-inner {
+  justify-content: flex-start !important;
+}
+
+.action-sheet-button.action-sheet-selected {
+  font-weight: unset;
+  --button-background-selected: transparent;
+}
