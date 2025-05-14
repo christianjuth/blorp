@@ -360,6 +360,7 @@ function Tabs() {
         <IonContent scrollY={false}>
           <div className="overflow-y-auto h-full p-4">
             <UserSidebar />
+            <div className="h-[var(--ion-safe-area-buttom)]" />
           </div>
         </IonContent>
       </IonMenu>
@@ -401,6 +402,8 @@ function Tabs() {
               <div className="md:px-3 pt-2 pb-4 gap-0.5 flex flex-col">
                 <Sidebar />
               </div>
+
+              <div className="h-[var(--ion-safe-area-buttom)]" />
             </div>
           </IonContent>
         </IonMenu>
