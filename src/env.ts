@@ -21,6 +21,10 @@ export const env = createEnv({
     REACT_APP_NAME: import.meta.env["REACT_APP_NAME"] || "Blorp",
     REACT_APP_LOGO_SRC: import.meta.env["REACT_APP_LOGO_SRC"],
     REACT_APP_DEFAULT_INSTANCE:
-      import.meta.env["REACT_APP_NAME"] || "https://lemm.ee",
+      import.meta.env["REACT_APP_DEFAULT_INSTANCE"] || "https://lemm.ee",
+  },
+  onValidationError: (issues) => {
+    console.error("❌ Invalid environment variables:", issues);
+    throw new Error("Invalid environment variables");
   },
 });
