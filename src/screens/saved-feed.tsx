@@ -51,7 +51,7 @@ function isPost(item: Item): item is PostProps {
 }
 
 const Post = memo((props: PostProps) => (
-  <ContentGutters>
+  <ContentGutters className="px-0">
     <FeedPostCard {...props} />
     <></>
   </ContentGutters>
