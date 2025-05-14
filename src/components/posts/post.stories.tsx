@@ -13,6 +13,18 @@ const meta: Meta<typeof FeedPostCard> = {
 export default meta;
 type Story = StoryObj<typeof FeedPostCard>;
 
+export const Text: Story = {
+  args: {
+    ...getPostProps(
+      flattenPost({
+        post_view: lemmy.getPost({
+          variant: "text",
+        }),
+      }),
+    ),
+  },
+};
+
 export const Image: Story = {
   args: {
     ...getPostProps(

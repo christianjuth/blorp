@@ -1,35 +1,33 @@
 PODS:
-  - Capacitor (7.1.0):
+  - Capacitor (7.2.0):
     - CapacitorCordova
-  - CapacitorApp (7.0.0):
+  - CapacitorApp (7.0.1):
     - Capacitor
   - CapacitorBrowser (7.0.1):
-    - Capacitor
-  - CapacitorCommunitySafeArea (7.0.0-alpha.1):
     - Capacitor
   - CapacitorCommunitySqlite (7.0.0):
     - Capacitor
     - SQLCipher
     - ZIPFoundation
-  - CapacitorCordova (7.1.0)
+  - CapacitorCordova (7.2.0)
   - CapacitorFilesystem (7.0.1):
     - Capacitor
-  - CapacitorHaptics (7.0.0):
+  - CapacitorHaptics (7.0.1):
     - Capacitor
-  - CapacitorInappbrowser (2.0.1):
+  - CapacitorInappbrowser (2.1.0):
     - Capacitor
-    - OSInAppBrowserLib (~> 1.0)
+    - OSInAppBrowserLib (~> 2.0)
   - CapacitorKeyboard (7.0.1):
     - Capacitor
   - CapacitorPluginSafeArea (4.0.0):
     - Capacitor
   - CapacitorShare (7.0.1):
     - Capacitor
-  - CapacitorSplashScreen (7.0.0):
+  - CapacitorSplashScreen (7.0.1):
     - Capacitor
-  - CapacitorStatusBar (7.0.0):
+  - CapacitorStatusBar (7.0.1):
     - Capacitor
-  - OSInAppBrowserLib (1.0.0)
+  - OSInAppBrowserLib (2.0.0)
   - SQLCipher (4.6.1):
     - SQLCipher/standard (= 4.6.1)
   - SQLCipher/common (4.6.1)
@@ -41,7 +39,6 @@ DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorBrowser (from `../../node_modules/@capacitor/browser`)"
-  - "CapacitorCommunitySafeArea (from `../../node_modules/@capacitor-community/safe-area`)"
   - "CapacitorCommunitySqlite (from `../../node_modules/@capacitor-community/sqlite`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
@@ -66,8 +63,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/app"
   CapacitorBrowser:
     :path: "../../node_modules/@capacitor/browser"
-  CapacitorCommunitySafeArea:
-    :path: "../../node_modules/@capacitor-community/safe-area"
   CapacitorCommunitySqlite:
     :path: "../../node_modules/@capacitor-community/sqlite"
   CapacitorCordova:
@@ -90,24 +85,23 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
 
 SPEC CHECKSUMS:
-  Capacitor: bceb785fb78f5e81e4a9e37843bc1c24bd9c7194
-  CapacitorApp: 9cb31064a6c6bb2b1438583733a7bf45557fc1da
+  Capacitor: 03bc7cbdde6a629a8b910a9d7d78c3cc7ed09ea7
+  CapacitorApp: febecbb9582cb353aed037e18ec765141f880fe9
   CapacitorBrowser: 6299776d496e968505464884d565992faa20444a
-  CapacitorCommunitySafeArea: 3f049619072ab5d0da2529bcb05b358ff6c13dc1
   CapacitorCommunitySqlite: b11e556cf5d149f9e0b6fbbb47959a6cd718c3d0
-  CapacitorCordova: 866217f32c1d25b326c568a10ea3ed0c36b13e29
+  CapacitorCordova: 5967b9ba03915ef1d585469d6e31f31dc49be96f
   CapacitorFilesystem: e6261c410436f54908c11f94336c5b58286b1db0
-  CapacitorHaptics: 7be406a91e4eb87287f321c6c68e1709d6837b3a
-  CapacitorInappbrowser: c8915884dd9f8d8cfb8a51da02fc7c4f2e320b9a
+  CapacitorHaptics: 1f1e17041f435d8ead9ff2a34edd592c6aa6a8d6
+  CapacitorInappbrowser: b9b366f37561bf92da226df6353631ac01cc5b92
   CapacitorKeyboard: 09fd91dcde4f8a37313e7f11bde553ad1ed52036
   CapacitorPluginSafeArea: 22031c3436269ca80fac90ec2c94bc7c1e59a81d
   CapacitorShare: e573823f511f260f598d0423c33b1e3d7bbe5fd1
-  CapacitorSplashScreen: 7e7a0a1113833032f196b3af6fa437baccacf5bc
-  CapacitorStatusBar: a8c4c83ed2e973bdafb979e80e4b00d027832cb7
-  OSInAppBrowserLib: c3d0b21a0c8b6d81e69117ad08bb6b8a4849c4e1
+  CapacitorSplashScreen: 1d67815a422a9b61539c94f283c08ed56667c0fc
+  CapacitorStatusBar: 6e7af040d8fc4dd655999819625cae9c2d74c36f
+  OSInAppBrowserLib: 232c74691cffb9959aa07b1d5ff57d96fca2af7f
   SQLCipher: 77fbe633cd84db04b07876dd50766b4924b57d61
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
-PODFILE CHECKSUM: 6834b1acf874c0d81f3ec626ca392b915017f9e1
+PODFILE CHECKSUM: 8fec59498ed66d823876bade10da32c3fcb9ce97
 
 COCOAPODS: 1.16.2

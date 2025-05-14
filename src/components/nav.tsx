@@ -78,9 +78,9 @@ export function UserDropdown() {
             setAccountSwitcher((s) => !s);
           }}
         >
-          <Avatar className="h-16 w-16">
+          <Avatar className="h-16 w-16" key={person?.id}>
             {person && <AvatarImage src={person.avatar} />}
-            <AvatarFallback>
+            <AvatarFallback className="text-xl">
               {person && person.name?.substring(0, 1).toUpperCase()}
               {!person && <IoPerson />}
             </AvatarFallback>
@@ -113,7 +113,7 @@ export function UserDropdown() {
                   }}
                   key={instance + index}
                 >
-                  <Avatar>
+                  <Avatar key={person?.id}>
                     {person && <AvatarImage src={person.avatar} />}
                     <AvatarFallback>
                       {person && person.name?.substring(0, 1).toUpperCase()}
@@ -181,56 +181,61 @@ export function UserSidebar() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Avatar className="h-16 w-16">
+      <Avatar className="h-24 w-24" key={person?.id}>
         {person && <AvatarImage src={person.avatar} />}
-        <AvatarFallback>
+        <AvatarFallback className="text-2xl">
           {person && person.name?.substring(0, 1).toUpperCase()}
           {!person && <IoPerson />}
         </AvatarFallback>
       </Avatar>
-      <div className="flex flex-row gap-2 items-center">
+
+      <button
+        onClick={() => setAccountSwitcher((b) => !b)}
+        className="flex flex-row gap-2 items-center text-left"
+      >
         <div className="flex flex-col">
-          <span className="text-md">{person?.name}</span>
-          <span className="text-xs text-muted-foreground">@{instance}</span>
+          <span className="text-lg leading-snug">{person?.name}</span>
+          <span className="text-sm text-muted-foreground">@{instance}</span>
         </div>
 
-        <button onClick={() => setAccountSwitcher((b) => !b)}>
-          {accountSwitcher ? (
-            <FaChevronUp className="text-brand" />
-          ) : (
-            <FaChevronDown className="text-brand" />
-          )}
-        </button>
-      </div>
+        {accountSwitcher ? (
+          <FaChevronUp className="text-brand" />
+        ) : (
+          <FaChevronDown className="text-brand" />
+        )}
+      </button>
+
+      <div className="h-px bg-border" />
 
       {accountSwitcher ? (
         <>
           {accounts.map((a, index) => {
             const { person, instance } = parseAccountInfo(a);
             return (
-              <button
-                onClick={() => {
-                  close();
-                  setAccountIndex(index);
-                  setAccountSwitcher(false);
-                }}
-                className="flex flex-row gap-2 items-center text-left"
-                key={instance + index}
-              >
-                <Avatar>
-                  {person && <AvatarImage src={person.avatar} />}
-                  <AvatarFallback>
-                    {person && person.name?.substring(0, 1).toUpperCase()}
-                    {!person && <IoPerson />}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <span>{person?.display_name ?? person?.name}</span>
-                  <span className="text-muted-foreground text-xs">
-                    @{instance}
-                  </span>
-                </div>
-              </button>
+              <IonMenuToggle key={instance + index}>
+                <button
+                  onClick={() => {
+                    close();
+                    setAccountIndex(index);
+                    setAccountSwitcher(false);
+                  }}
+                  className="flex flex-row gap-2 items-center text-left"
+                >
+                  <Avatar key={person?.id}>
+                    {person && <AvatarImage src={person.avatar} />}
+                    <AvatarFallback>
+                      {person && person.name?.substring(0, 1).toUpperCase()}
+                      {!person && <IoPerson />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span>{person?.display_name ?? person?.name}</span>
+                    <span className="text-muted-foreground text-xs">
+                      @{instance}
+                    </span>
+                  </div>
+                </button>
+              </IonMenuToggle>
             );
           })}
 
@@ -240,6 +245,7 @@ export function UserSidebar() {
                 close();
                 requireAuth({ addAccount: true });
               }}
+              className="text-lg"
             >
               Add account
             </button>
@@ -251,7 +257,7 @@ export function UserSidebar() {
             <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
               <Link
                 to="/home/saved"
-                className="flex flex-row items-center gap-2"
+                className="flex flex-row items-center gap-2 text-lg"
               >
                 <IoBookmarksOutline />
                 Saved
@@ -265,7 +271,7 @@ export function UserSidebar() {
                 params={{
                   userId: encodeApId(person.actor_id),
                 }}
-                className="flex flex-row items-center gap-2"
+                className="flex flex-row items-center gap-2 text-lg"
               >
                 <IoPersonOutline /> Profile
               </Link>
@@ -274,7 +280,7 @@ export function UserSidebar() {
           <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
             <button
               onClick={() => logout.mutate(selectedAccount)}
-              className="flex flex-row items-center gap-2"
+              className="flex flex-row items-center gap-2 text-lg"
             >
               <FiLogOut /> Logout
             </button>
@@ -286,13 +292,14 @@ export function UserSidebar() {
 }
 
 export function MenuButton() {
+  // Negative margin aligns icon left side with button left side
   return (
     <IonMenuButton
       menu={LEFT_SIDEBAR_MENU_ID}
       autoHide={false}
       className="lg:hidden"
     >
-      <LuMenu className="text-[1.4rem]" />
+      <LuMenu className="text-[1.4rem] -ml-[7px]" />
     </IonMenuButton>
   );
 }

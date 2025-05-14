@@ -1,7 +1,37 @@
 import * as React from "react";
-
 import { twMerge } from "tailwind-merge";
 
+/**
+ * Gutters that prevent the content from going full width on large screens.
+ *
+ * There are two ways to use this component
+ *
+ * @example
+ *    <ContentGutters>
+ *      <div className="flex-1">
+ *        I fill the entire content area
+ *      </div>
+ *    </ContentGutters>
+ *
+ * @example
+ *    <ContentGutters>
+ *      <div className="flex-1">
+ *        I am the main content
+ *      </div>
+ *      <div>
+ *        I function as a side bar
+ *      </div>
+ *    </ContentGutters>
+ *
+ *  You can also do this if you want to leave space for the sidebar
+ *  @example
+ *    <ContentGutters>
+ *      <div className="flex-1">
+ *        I am the main content
+ *      </div>
+ *      <></>
+ *    </ContentGutters>
+ */
 export function ContentGutters({
   children,
   ...props
