@@ -23,8 +23,6 @@ PODS:
     - Capacitor
   - CapacitorShare (7.0.1):
     - Capacitor
-  - CapacitorSplashScreen (7.0.1):
-    - Capacitor
   - CapacitorStatusBar (7.0.1):
     - Capacitor
   - OSInAppBrowserLib (2.0.0)
@@ -47,7 +45,6 @@ DEPENDENCIES:
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
   - CapacitorPluginSafeArea (from `../../node_modules/capacitor-plugin-safe-area`)
   - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
-  - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
 
 SPEC REPOS:
@@ -79,8 +76,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/capacitor-plugin-safe-area"
   CapacitorShare:
     :path: "../../node_modules/@capacitor/share"
-  CapacitorSplashScreen:
-    :path: "../../node_modules/@capacitor/splash-screen"
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
 
@@ -96,12 +91,11 @@ SPEC CHECKSUMS:
   CapacitorKeyboard: 09fd91dcde4f8a37313e7f11bde553ad1ed52036
   CapacitorPluginSafeArea: 22031c3436269ca80fac90ec2c94bc7c1e59a81d
   CapacitorShare: e573823f511f260f598d0423c33b1e3d7bbe5fd1
-  CapacitorSplashScreen: 1d67815a422a9b61539c94f283c08ed56667c0fc
   CapacitorStatusBar: 6e7af040d8fc4dd655999819625cae9c2d74c36f
   OSInAppBrowserLib: 232c74691cffb9959aa07b1d5ff57d96fca2af7f
   SQLCipher: 77fbe633cd84db04b07876dd50766b4924b57d61
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
-PODFILE CHECKSUM: 8fec59498ed66d823876bade10da32c3fcb9ce97
+PODFILE CHECKSUM: 63511ae8f1937730c17fec3d2922b1b921833642
 
 COCOAPODS: 1.16.2

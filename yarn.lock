@@ -1428,15 +1428,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor-community/safe-area@npm:^7.0.0-alpha.1":
-  version: 7.0.0-alpha.1
-  resolution: "@capacitor-community/safe-area@npm:7.0.0-alpha.1"
-  peerDependencies:
-    "@capacitor/core": ">=7.0.0"
-  checksum: 10c0/d744bf0043e0ff7534411cdf7215e36ca6f57d92e02f02e660042095f80ee54828695bf00471bf3f31467a4b6c10c940b041e910d3509c5f0c238f0f42e27574
-  languageName: node
-  linkType: hard
-
 "@capacitor-community/sqlite@npm:^7.0.0":
   version: 7.0.0
   resolution: "@capacitor-community/sqlite@npm:7.0.0"
@@ -1613,15 +1604,6 @@ __metadata:
   peerDependencies:
     "@capacitor/core": ">=7.0.0"
   checksum: 10c0/acbf5db14058c25f7d5f78105025fdf49d33e4d43d8807e0b1eee0d78eab76598cb6ccff26647824444f8c9fdceb94aad2388226ce81aa81e526e6ad6c66ff04
-  languageName: node
-  linkType: hard
-
-"@capacitor/splash-screen@npm:^7.0.1":
-  version: 7.0.1
-  resolution: "@capacitor/splash-screen@npm:7.0.1"
-  peerDependencies:
-    "@capacitor/core": ">=7.0.0"
-  checksum: 10c0/7a9ca451ada5ba3640f875c0928c1d57c6524c7ade24ad948cf9d4e5cd418907b5704de6cd745a413428e3152cee689ac4468b7ef7645f106ca0bbb55d1404f5
   languageName: node
   linkType: hard
 
@@ -10157,7 +10139,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "lemmy@workspace:."
   dependencies:
-    "@capacitor-community/safe-area": "npm:^7.0.0-alpha.1"
     "@capacitor-community/sqlite": "npm:^7.0.0"
     "@capacitor/android": "npm:^7.2.0"
     "@capacitor/app": "npm:^7.0.1"
@@ -10171,7 +10152,6 @@ __metadata:
     "@capacitor/ios": "npm:^7.2.0"
     "@capacitor/keyboard": "npm:^7.0.1"
     "@capacitor/share": "npm:^7.0.1"
-    "@capacitor/splash-screen": "npm:^7.0.1"
     "@capacitor/status-bar": "npm:^7.0.1"
     "@chromatic-com/storybook": "npm:^3.2.4"
     "@commitlint/cli": "npm:^19.7.1"

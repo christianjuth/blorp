@@ -6,8 +6,6 @@ import _ from "lodash";
 import Router from "./routing/Router";
 
 import { Providers } from "@/src/components/providers";
-import { SplashScreen } from "@capacitor/splash-screen";
-import { useEffect } from "react";
 import { registerSafeArea } from "./lib/android";
 
 import "remove-focus-outline";
@@ -21,9 +19,6 @@ setupIonicReact({
 });
 
 export default function App() {
-  useEffect(() => {
-    SplashScreen.hide();
-  }, []);
   return (
     <IonApp>
       <Providers>
