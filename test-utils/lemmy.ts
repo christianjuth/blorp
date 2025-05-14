@@ -23,6 +23,10 @@ const absoluteTime = () =>
 const relativeTime = () =>
   dayjs().utc().subtract(1, "hour").format("YYYY-MM-DDTHH:mm:ss.SSS[000]Z");
 
+const BODY_TEXT_PARAGRAPH =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+const BODY_TEXT = _.repeat(BODY_TEXT_PARAGRAPH + "\n\n", 3);
+
 const API_ROOT = "https://blorpblorp.xyz";
 
 const POST_ID = uuid();
@@ -126,7 +130,7 @@ export function getRandomCommunity() {
 }
 
 export function getPost(config?: {
-  variant: "youtube" | "image" | "article";
+  variant: "youtube" | "image" | "article" | "text";
   postView?: PartialDeep<Omit<PostView, "image_details">>;
   personView?: PartialDeep<PersonView>;
 }) {
@@ -185,6 +189,10 @@ export function getPost(config?: {
   };
 
   switch (config?.variant) {
+    case "text": {
+      view.post.body = BODY_TEXT;
+      break;
+    }
     case "image": {
       const imageDetails: ImageDetails = view.image_details ?? {
         height: 200,

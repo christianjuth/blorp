@@ -342,7 +342,7 @@ function MarkdownEditorInner({
       // once scrolling, always leave an 80px buffer above/below the cursor
       scrollMargin: 50,
       attributes: {
-        //class: "flex-1 h-full",
+        class: "flex-1 h-full",
       },
       handleDrop: (view, event, slice, moved) => {
         if (

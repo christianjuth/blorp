@@ -31,7 +31,7 @@ import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
 import { useFiltersStore } from "../stores/filters";
 import { useAuth } from "../stores/auth";
-import { useUrlSearchState } from "../lib/hooks";
+import { useMedia, useUrlSearchState } from "../lib/hooks";
 import z from "zod";
 
 const EMPTY_ARR: never[] = [];
@@ -51,7 +51,7 @@ function isPost(item: Item): item is PostProps {
 }
 
 const Post = memo((props: PostProps) => (
-  <ContentGutters>
+  <ContentGutters className="px-0">
     <FeedPostCard {...props} />
     <></>
   </ContentGutters>
@@ -91,6 +91,8 @@ function Comment({ path }: { path: string }) {
 }
 
 export default function SavedFeed() {
+  const media = useMedia();
+
   const [type, setType] = useUrlSearchState(
     "type",
     "all",
@@ -165,6 +167,25 @@ export default function SavedFeed() {
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
+        {media.maxMd && (
+          <IonToolbar>
+            <IonButtons slot="start">
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                size="sm"
+                value={type}
+                onValueChange={(val) =>
+                  val && setType(val as "posts" | "comments" | "all")
+                }
+              >
+                <ToggleGroupItem value="all">All</ToggleGroupItem>
+                <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                <ToggleGroupItem value="comments">comments</ToggleGroupItem>
+              </ToggleGroup>
+            </IonButtons>
+          </IonToolbar>
+        )}
       </IonHeader>
       <IonContent scrollY={false}>
         <PostReportProvider>
@@ -174,10 +195,10 @@ export default function SavedFeed() {
             data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}
             header={[
               <ContentGutters
-                className="bg-background py-2"
+                className="max-md:hidden"
                 key="header-type-select"
               >
-                <div className="flex-1">
+                <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
                   <ToggleGroup
                     type="single"
                     variant="outline"

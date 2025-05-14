@@ -1428,15 +1428,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor-community/safe-area@npm:^7.0.0-alpha.1":
-  version: 7.0.0-alpha.1
-  resolution: "@capacitor-community/safe-area@npm:7.0.0-alpha.1"
-  peerDependencies:
-    "@capacitor/core": ">=7.0.0"
-  checksum: 10c0/d744bf0043e0ff7534411cdf7215e36ca6f57d92e02f02e660042095f80ee54828695bf00471bf3f31467a4b6c10c940b041e910d3509c5f0c238f0f42e27574
-  languageName: node
-  linkType: hard
-
 "@capacitor-community/sqlite@npm:^7.0.0":
   version: 7.0.0
   resolution: "@capacitor-community/sqlite@npm:7.0.0"
@@ -1448,21 +1439,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/android@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "@capacitor/android@npm:7.1.0"
+"@capacitor/android@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@capacitor/android@npm:7.2.0"
   peerDependencies:
-    "@capacitor/core": ^7.1.0
-  checksum: 10c0/5588a930f3c2bcaf44059195775aa5015bf942f3ff5efc672a5b6ae6cff6ac30e816cad3d53d8069134306a2dd9f7a8a49adededf91fc6750896160330cca0e4
+    "@capacitor/core": ^7.2.0
+  checksum: 10c0/94f6084d63aff60d5dee338a369b51bd1175ef241cf53157179467c3bd1f598f5cea5b9d4054eab6a7557b5083f9047e2eff247e04ba316ad79e819d0268daf3
   languageName: node
   linkType: hard
 
-"@capacitor/app@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "@capacitor/app@npm:7.0.0"
+"@capacitor/app@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "@capacitor/app@npm:7.0.1"
   peerDependencies:
     "@capacitor/core": ">=7.0.0"
-  checksum: 10c0/d87e4f219dc082af0fa5c983a88b375ea1abeff72c069331d1905db4ec9b4da5cb4ac01f3feb6a3a6a8b6cbd30bb2be9be6851994da5bd1c79103575a801acc1
+  checksum: 10c0/dded2134a429b3c9fb377233ec6c7f73a6cc66941294c0b8d5ad8f53fa0511a168ed3679daaff111644c85d72f552e3006a809c7ab5550b293316a978a31806c
   languageName: node
   linkType: hard
 
@@ -1553,12 +1544,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/core@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "@capacitor/core@npm:7.1.0"
+"@capacitor/core@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@capacitor/core@npm:7.2.0"
   dependencies:
     tslib: "npm:^2.1.0"
-  checksum: 10c0/cfc664f5f33191777f177ba00786c8b077c458cf72f1f9423ccc512ae38368332005485767c9a30f2dfa521edaafcf660e3f37d5d63ad981f8371f68d7d22df0
+  checksum: 10c0/b8fc3e20f7a35ad67baa7b82f1d01c527bf3a09a7eac7a85fab1054897c97f69a228db4a30f505acaa16148e1806408f459d15f3dbd3f409a2b9f90f1ef86fd2
   languageName: node
   linkType: hard
 
@@ -1571,30 +1562,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/haptics@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "@capacitor/haptics@npm:7.0.0"
+"@capacitor/haptics@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "@capacitor/haptics@npm:7.0.1"
   peerDependencies:
     "@capacitor/core": ">=7.0.0"
-  checksum: 10c0/b3fc86267da3cddd03dded36ca042e9ed90da2432de2a70a90cb0be4c42ce82b4d623caab5d2def3dc21f6e7741acf8879e2c9b3a2b0e3888884a5833be2bf9d
+  checksum: 10c0/3e8145b80d29acfb26b6b615b13dda22bd9a1afb4c110b148efb27ccd4db26cc8e26246f83b1c11704a3bf159224db5247fdf91dd3c9cf652122fc76fed7aff7
   languageName: node
   linkType: hard
 
-"@capacitor/inappbrowser@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "@capacitor/inappbrowser@npm:2.0.1"
+"@capacitor/inappbrowser@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@capacitor/inappbrowser@npm:2.1.0"
   peerDependencies:
     "@capacitor/core": ">=7.0.0"
-  checksum: 10c0/128c23623e07826b42000aff498117159301cbf6f4ef06bca3ad06bd91ee426d1b041e2c0222eccd38a7f12f2044ad75aee10a87428f4d139c1745c7734ef713
+  checksum: 10c0/7b46bf971770ebd6a2dd36a63c010685a66baccfd4dad44380363834e35d35f40a657b11713831f9227e6f0b58c95dc27d43af1323457f343f3a01b75d3ab24d
   languageName: node
   linkType: hard
 
-"@capacitor/ios@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "@capacitor/ios@npm:7.1.0"
+"@capacitor/ios@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@capacitor/ios@npm:7.2.0"
   peerDependencies:
-    "@capacitor/core": ^7.1.0
-  checksum: 10c0/e468bef0323a18a9e8ba26426adce39669af0521e4eafd38668e7e1f013d2f4a07607aeb02152756a40192b182f9bddcca550c9834df12b248c6b849459d9614
+    "@capacitor/core": ^7.2.0
+  checksum: 10c0/125fe6d2100172b7e2d0a69f386b577253e24a7b03a125d898ea3a561a317b4a0b61034f8b293904e710c7106c2a6680e800d699f29520ccc70940f12e9780d3
   languageName: node
   linkType: hard
 
@@ -1616,21 +1607,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/splash-screen@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "@capacitor/splash-screen@npm:7.0.0"
+"@capacitor/status-bar@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "@capacitor/status-bar@npm:7.0.1"
   peerDependencies:
     "@capacitor/core": ">=7.0.0"
-  checksum: 10c0/a00b23c9bb8ffdf8546036f38792a97b88755bb446a4f581e49216e40681ecd3198896b43aca24bb2fe8839734f4b02074b73840e1c7bbfa85004e4f423cb0df
-  languageName: node
-  linkType: hard
-
-"@capacitor/status-bar@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "@capacitor/status-bar@npm:7.0.0"
-  peerDependencies:
-    "@capacitor/core": ">=7.0.0"
-  checksum: 10c0/a11d5cca36ce096bd917c7b49e6cd159f889bba9ad64cd926995e104ca97388e343977cb1976d8f50fb6261956331b330f718fe2213d87c94b82b51a1257d224
+  checksum: 10c0/bd1368030c0c051a32549b2dde6839e28328ec070896de202bb16b40af823772869687466569fa7a0186a4af8843597ced7933a5c04a2b88e924c858a4cf8675
   languageName: node
   linkType: hard
 
@@ -2532,43 +2514,43 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ionic/core@npm:8.5.3":
-  version: 8.5.3
-  resolution: "@ionic/core@npm:8.5.3"
+"@ionic/core@npm:8.5.7":
+  version: 8.5.7
+  resolution: "@ionic/core@npm:8.5.7"
   dependencies:
     "@stencil/core": "npm:4.20.0"
     ionicons: "npm:^7.2.2"
     tslib: "npm:^2.1.0"
-  checksum: 10c0/0c3b18de7172b9bef53986500c1d4ba34e4291d1c9d20e4f8932c3db3d11c374d7f39ad2df8cfe5425d6fda354db5915f047748d560c224a9306736995f79fd0
+  checksum: 10c0/1d9a125803c0da667abab7a0eef14988fba89e0db2d108c94e8043ce10b93dfa8771d8f25431472006a591624079fd0192ab10eb87734815b14189b46d93ea48
   languageName: node
   linkType: hard
 
-"@ionic/react-router@npm:^8.5.3":
-  version: 8.5.3
-  resolution: "@ionic/react-router@npm:8.5.3"
+"@ionic/react-router@npm:^8.5.7":
+  version: 8.5.7
+  resolution: "@ionic/react-router@npm:8.5.7"
   dependencies:
-    "@ionic/react": "npm:8.5.3"
+    "@ionic/react": "npm:8.5.7"
     tslib: "npm:*"
   peerDependencies:
     react: ">=16.8.6"
     react-dom: ">=16.8.6"
     react-router: ^5.0.1
     react-router-dom: ^5.0.1
-  checksum: 10c0/0a1c09e30ff01773118163a9ca54d00c0a1a4e79bd38d2fb3f452c7cdd92f1b08cc61ac7450c26299a919cbfd992f185458a5e13a2db1f68257ed73d555a93ea
+  checksum: 10c0/b0fde27e27f12fbb7c58bf7c2f5fd6b0a2428155237a5a29112e550c8da9a99ff2ab518b36f43e71f51a4cb14b2e49de2c21ab0c136f92e01b8b05b55d11514d
   languageName: node
   linkType: hard
 
-"@ionic/react@npm:8.5.3":
-  version: 8.5.3
-  resolution: "@ionic/react@npm:8.5.3"
+"@ionic/react@npm:8.5.7":
+  version: 8.5.7
+  resolution: "@ionic/react@npm:8.5.7"
   dependencies:
-    "@ionic/core": "npm:8.5.3"
+    "@ionic/core": "npm:8.5.7"
     ionicons: "npm:^7.0.0"
     tslib: "npm:*"
   peerDependencies:
     react: ">=16.8.6"
     react-dom: ">=16.8.6"
-  checksum: 10c0/612f77445890f9f74ddef124e634ea5bc07c0b875486f1d80c63889bced3f7c49bbf0ad22c4737104ae250b85bae3fd3c071bf165be4e0566063d01a81580c96
+  checksum: 10c0/0f303e06253e8cfc03356ba58619c72bb3d962a858648ec260c39987a33ab2ea74364df2399ba27d922249cb08cb4786ec5862845953a68b7c2287441ad0560a
   languageName: node
   linkType: hard
 
@@ -10157,29 +10139,27 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "lemmy@workspace:."
   dependencies:
-    "@capacitor-community/safe-area": "npm:^7.0.0-alpha.1"
     "@capacitor-community/sqlite": "npm:^7.0.0"
-    "@capacitor/android": "npm:^7.1.0"
-    "@capacitor/app": "npm:^7.0.0"
+    "@capacitor/android": "npm:^7.2.0"
+    "@capacitor/app": "npm:^7.0.1"
     "@capacitor/assets": "npm:^3.0.5"
     "@capacitor/browser": "npm:^7.0.1"
     "@capacitor/cli": "npm:^7.1.0"
-    "@capacitor/core": "npm:^7.1.0"
+    "@capacitor/core": "npm:^7.2.0"
     "@capacitor/filesystem": "npm:^7.0.1"
-    "@capacitor/haptics": "npm:^7.0.0"
-    "@capacitor/inappbrowser": "npm:^2.0.1"
-    "@capacitor/ios": "npm:^7.1.0"
+    "@capacitor/haptics": "npm:^7.0.1"
+    "@capacitor/inappbrowser": "npm:^2.1.0"
+    "@capacitor/ios": "npm:^7.2.0"
     "@capacitor/keyboard": "npm:^7.0.1"
     "@capacitor/share": "npm:^7.0.1"
-    "@capacitor/splash-screen": "npm:^7.0.0"
-    "@capacitor/status-bar": "npm:^7.0.0"
+    "@capacitor/status-bar": "npm:^7.0.1"
     "@chromatic-com/storybook": "npm:^3.2.4"
     "@commitlint/cli": "npm:^19.7.1"
     "@commitlint/config-conventional": "npm:^19.7.1"
     "@faker-js/faker": "npm:9.4.0"
-    "@ionic/core": "npm:8.5.3"
-    "@ionic/react": "npm:8.5.3"
-    "@ionic/react-router": "npm:^8.5.3"
+    "@ionic/core": "npm:8.5.7"
+    "@ionic/react": "npm:8.5.7"
+    "@ionic/react-router": "npm:^8.5.7"
     "@playwright/test": "npm:^1.50.1"
     "@radix-ui/react-avatar": "npm:^1.1.3"
     "@radix-ui/react-dialog": "npm:^1.1.6"

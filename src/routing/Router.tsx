@@ -60,7 +60,8 @@ const SavedFeed = lazy(() => import("@/src/screens/saved-feed"));
 const Search = lazy(() => import("@/src/screens/search"));
 import { CreatePost } from "@/src/screens/create-post";
 import { cn } from "../lib/utils";
-import { LEFT_SIDEBAR_MENU_ID } from "./utils";
+import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID } from "./utils";
+import { UserSidebar } from "../components/nav";
 
 const HOME_STACK = [
   <Route key="/home/*" path="/home/*" component={NotFound} />,
@@ -203,8 +204,7 @@ const SETTINGS = [
 
 function SidebarTabs() {
   const count = useNotificationCount();
-  const router = useIonRouter();
-  const pathname = router.routeInfo.pathname;
+  const pathname = useIonRouter().routeInfo.pathname;
 
   return (
     <>
@@ -224,7 +224,11 @@ function SidebarTabs() {
               isActive ? "bg-secondary" : "text-muted-foreground",
             )}
           >
-            <IonIcon icon={t.icon(isActive)} className="text-2xl" />
+            <IonIcon
+              icon={t.icon(isActive)}
+              key={isActive ? "active" : "inactive"}
+              className="text-2xl"
+            />
             <span className="text-sm ml-2">{t.label}</span>
             {t.id === "inbox" && (
               <IonBadge
@@ -337,114 +341,140 @@ function Sidebar() {
 function Tabs() {
   const count = useNotificationCount();
   const media = useMedia();
-  const router = useIonRouter();
-  const pathname = router.routeInfo.pathname;
+  const pathname = useIonRouter().routeInfo.pathname;
 
   return (
-    <IonSplitPane when="lg">
+    <>
       <IonMenu
+        menuId={RIGHT_SIDEBAR_MENU_ID}
+        contentId="main"
+        side="end"
         type="push"
-        contentId={LEFT_SIDEBAR_MENU_ID}
-        menuId={LEFT_SIDEBAR_MENU_ID}
         style={{
           "--side-max-width": "270px",
         }}
-        className="border-r-[0.5px] border-border"
+        className="border-l-[0.5px]"
       >
         <div className="h-[var(--ion-safe-area-top)]" />
 
         <IonContent scrollY={false}>
-          <div className="overflow-y-auto h-full">
-            {isTauri() && (
-              <div
-                className="h-12 -mb-6 w-full top-0 sticky bg-gradient-to-b from-background to-transparent from-30% z-10"
-                data-tauri-drag-region
-              />
-            )}
-            <button
-              className="h-[60px] mt-3 md:mt-1 px-4 md:px-6 flex items-center"
-              onClick={() => {
-                const tab = document.querySelector(
-                  `ion-tab-button[tab="home"]`,
-                );
-                if (tab && "click" in tab && _.isFunction(tab.click)) {
-                  tab.click();
-                }
-              }}
-            >
-              <Logo />
-            </button>
-
-            <div className="md:px-3 pt-2 pb-4 gap-0.5 flex flex-col">
-              <Sidebar />
-            </div>
+          <div className="overflow-y-auto h-full p-4">
+            <UserSidebar />
+            <div className="h-[var(--ion-safe-area-buttom)]" />
           </div>
         </IonContent>
       </IonMenu>
 
-      <IonContent id={LEFT_SIDEBAR_MENU_ID} scrollY={false}>
-        <IonTabs>
-          <IonRouterOutlet animated={media.maxMd}>
-            {...HOME_STACK}
-            {...COMMUNITIES_STACK}
-            {...CREATE_POST_STACK}
-            {...INBOX_STACK}
-            {...SETTINGS}
-            <Redirect
-              key="/c/:communityName"
-              exact
-              path="/c/:communityName"
-              to="/home/c/:communityName"
-            />
-            <Redirect
-              key="/u/:userId"
-              exact
-              path="/u/:userId"
-              to="/home/u/:userId"
-            />
+      <IonSplitPane when="lg">
+        <IonMenu
+          type="push"
+          contentId="main"
+          menuId={LEFT_SIDEBAR_MENU_ID}
+          style={{
+            "--side-max-width": "270px",
+          }}
+          className="border-r-[0.5px]"
+        >
+          <div className="h-[var(--ion-safe-area-top)]" />
 
-            <Route exact path="/download" component={Download} />
-            <Route exact path="/support" component={Support} />
-            <Route exact path="/privacy" component={Privacy} />
-            <Route exact path="/licenses" component={OSLicenses} />
-            <Route exact path="/terms" component={Terms} />
-            <Route exact path="/csae" component={CSAE} />
-            <Redirect exact from="/" to="/home" />
-          </IonRouterOutlet>
+          <IonContent scrollY={false}>
+            <div className="overflow-y-auto h-full">
+              {isTauri() && (
+                <div
+                  className="h-12 -mb-6 w-full top-0 sticky bg-gradient-to-b from-background to-transparent from-30% z-10"
+                  data-tauri-drag-region
+                />
+              )}
+              <button
+                className="h-[60px] mt-3 md:mt-1 px-4 md:px-6 flex items-center"
+                onClick={() => {
+                  const tab = document.querySelector(
+                    `ion-tab-button[tab="home"]`,
+                  );
+                  if (tab && "click" in tab && _.isFunction(tab.click)) {
+                    tab.click();
+                  }
+                }}
+              >
+                <Logo />
+              </button>
 
-          <IonTabBar slot="bottom" className="lg:hidden">
-            {TABS.map((t) => {
-              const isActive = pathname.startsWith(t.to);
-              return (
-                <IonTabButton
-                  key={t.id}
-                  tab={t.id}
-                  href={t.to}
-                  onClick={() => {
-                    const isRoot = pathname === t.to;
-                    if (isRoot) {
-                      dispatchScrollEvent(pathname);
-                    }
-                  }}
-                  className={cn(isActive && "text-foreground")}
-                >
-                  <IonIcon icon={t.icon(isActive)} />
-                  <IonLabel>{t.label}</IonLabel>
-                  {t.id === "inbox" && (
-                    <IonBadge
-                      className="bg-destructive px-1.5 -mt"
-                      hidden={!count.data}
-                    >
-                      {count.data}
-                    </IonBadge>
-                  )}
-                </IonTabButton>
-              );
-            })}
-          </IonTabBar>
-        </IonTabs>
-      </IonContent>
-    </IonSplitPane>
+              <div className="md:px-3 pt-2 pb-4 gap-0.5 flex flex-col">
+                <Sidebar />
+              </div>
+
+              <div className="h-[var(--ion-safe-area-buttom)]" />
+            </div>
+          </IonContent>
+        </IonMenu>
+
+        <IonContent id="main" scrollY={false}>
+          <IonTabs>
+            <IonRouterOutlet animated={media.maxMd}>
+              {...HOME_STACK}
+              {...COMMUNITIES_STACK}
+              {...CREATE_POST_STACK}
+              {...INBOX_STACK}
+              {...SETTINGS}
+              <Redirect
+                key="/c/:communityName"
+                exact
+                path="/c/:communityName"
+                to="/home/c/:communityName"
+              />
+              <Redirect
+                key="/u/:userId"
+                exact
+                path="/u/:userId"
+                to="/home/u/:userId"
+              />
+
+              <Route exact path="/download" component={Download} />
+              <Route exact path="/support" component={Support} />
+              <Route exact path="/privacy" component={Privacy} />
+              <Route exact path="/licenses" component={OSLicenses} />
+              <Route exact path="/terms" component={Terms} />
+              <Route exact path="/csae" component={CSAE} />
+              <Redirect exact from="/" to="/home" />
+            </IonRouterOutlet>
+
+            <IonTabBar slot="bottom" className="lg:hidden">
+              {TABS.map((t) => {
+                const isActive = pathname.startsWith(t.to);
+                return (
+                  <IonTabButton
+                    key={t.id}
+                    tab={t.id}
+                    href={t.to}
+                    onClick={() => {
+                      const isRoot = pathname === t.to;
+                      if (isRoot) {
+                        dispatchScrollEvent(pathname);
+                      }
+                    }}
+                    className={cn(isActive && "text-foreground")}
+                  >
+                    <IonIcon
+                      icon={t.icon(isActive)}
+                      key={isActive ? "active" : "inactive"}
+                    />
+                    <IonLabel>{t.label}</IonLabel>
+                    {t.id === "inbox" && (
+                      <IonBadge
+                        className="bg-destructive px-1.5 -mt"
+                        hidden={!count.data}
+                      >
+                        {count.data}
+                      </IonBadge>
+                    )}
+                  </IonTabButton>
+                );
+              })}
+            </IonTabBar>
+          </IonTabs>
+        </IonContent>
+      </IonSplitPane>
+    </>
   );
 }
 

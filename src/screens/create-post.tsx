@@ -279,7 +279,7 @@ export function CreatePost() {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent scrollY={false}>
+      <IonContent>
         <ChooseCommunity
           createPostId={draftId}
           isOpen={chooseCommunity && !isEdit}
