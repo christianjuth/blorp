@@ -43,8 +43,13 @@ type Item =
 
 function Placeholder() {
   return (
-    <ContentGutters>
-      <Skeleton className="h-24 mt-2" />
+    <ContentGutters className="px-0">
+      <div className="flex-1 flex flex-col gap-2 mt-2.5">
+        <Skeleton className="h-12 max-md:mx-3" />
+        <Skeleton className="h-5.5 max-md:mx-3" />
+        <Skeleton className="h-6 w-12 max-md:mx-3 self-end" />
+        <Skeleton className="h-px mt-0.5" />
+      </div>
       <></>
     </ContentGutters>
   );
@@ -97,9 +102,12 @@ function Mention({
                 <span className="font-bold">{mention.post.name}</span>
               </span>
             </div>
-            <MarkdownRenderer markdown={mention.comment.content} />
+            <MarkdownRenderer
+              markdown={mention.comment.content}
+              className="pb-2"
+            />
           </Link>
-          <div className="flex flex-row justify-end gap-2 pb-2.5 text-muted-foreground">
+          <div className="flex flex-row justify-end gap-2 text-muted-foreground">
             <RelativeTime time={mention.comment.published} />
             <ActionMenu
               align="end"
@@ -172,9 +180,12 @@ function Reply({
                 <span className="font-bold">{replyView.post.name}</span>
               </span>
             </div>
-            <MarkdownRenderer markdown={replyView.comment.content} />
+            <MarkdownRenderer
+              markdown={replyView.comment.content}
+              className="pb-2"
+            />
           </Link>
-          <div className="flex flex-row justify-end gap-2 pb-2.5 text-muted-foreground">
+          <div className="flex flex-row justify-end gap-2 text-muted-foreground">
             <RelativeTime time={replyView.comment.published} />
             <ActionMenu
               align="end"
@@ -355,10 +366,15 @@ export default function Inbox() {
             return null;
           }}
           onEndReached={() => {
-            if (replies.hasNextPage && (type === "all" || type === "replies")) {
+            if (
+              !replies.isFetchingNextPage &&
+              replies.hasNextPage &&
+              (type === "all" || type === "replies")
+            ) {
               replies.fetchNextPage();
             }
             if (
+              !mentions.isFetchingNextPage &&
               mentions.hasNextPage &&
               (type === "all" || type === "mentions")
             ) {

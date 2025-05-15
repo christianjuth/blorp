@@ -163,7 +163,7 @@ body {
    * Prevent body from collapsing height when radix
    * dropdown menu opens
    **/
-  min-height: 100vh;
+  min-height: 100svh;
 }
 
 /* Hide native x icon in search input */

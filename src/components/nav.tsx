@@ -143,7 +143,9 @@ export function UserDropdown() {
           <>
             {person && (
               <Link to="/home/saved">
-                <DropdownMenuItem>Saved</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <IoBookmarksOutline /> Saved
+                </DropdownMenuItem>
               </Link>
             )}
             {person && (
@@ -153,10 +155,13 @@ export function UserDropdown() {
                   userId: encodeApId(person.actor_id),
                 }}
               >
-                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <IoPersonOutline /> Profile
+                </DropdownMenuItem>
               </Link>
             )}
             <DropdownMenuItem onClick={() => logout.mutate(selectedAccount)}>
+              <FiLogOut />
               Logout
             </DropdownMenuItem>
           </>

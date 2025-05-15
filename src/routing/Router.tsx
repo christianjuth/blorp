@@ -360,7 +360,7 @@ function Tabs() {
         </IonContent>
       </IonMenu>
 
-      <IonSplitPane when="lg">
+      <IonSplitPane when="lg" contentId="main">
         <IonMenu
           type="push"
           contentId="main"

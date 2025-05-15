@@ -342,7 +342,7 @@ function MarkdownEditorInner({
       // once scrolling, always leave an 80px buffer above/below the cursor
       scrollMargin: 50,
       attributes: {
-        class: "flex-1 h-full",
+        class: "flex-1 min-h-full",
       },
       handleDrop: (view, event, slice, moved) => {
         if (
@@ -440,12 +440,12 @@ function MarkdownEditorInner({
       </div>
       <EditorContent
         id={id}
-        className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3 md:px-3.5 overflow-auto"
+        className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3 md:px-3.5"
         editor={editor}
       />
       <div
         className={cn(
-          "flex flex-row justify-between px-2 py-1 md:hidden sticky bottom-0 bg-background",
+          "flex flex-row justify-between px-2 py-1 md:hidden sticky bottom-0 bg-background/50 backdrop-blur",
           hideMenu && "hidden",
         )}
       >
@@ -544,7 +544,7 @@ function PlainTextEditorInner({
         autoFocus={autoFocus}
         defaultValue={content}
         onChange={(e) => onChange(e.target.value)}
-        className="prose dark:prose-invert prose-sm resize-none w-full max-w-full font-mono outline-none py-2 px-3 md:px-3.5 flex-1"
+        className="prose dark:prose-invert prose-sm resize-none w-full max-w-full font-mono outline-none py-2 px-3 md:px-3.5 grow shrink-0 basis-auto"
         placeholder={placeholder}
         onFocus={onFocus}
         onBlur={onBlur}
