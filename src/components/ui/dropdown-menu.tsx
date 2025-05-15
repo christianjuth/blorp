@@ -3,11 +3,28 @@ import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 
 import { cn } from "@/src/lib/utils";
+import { useLocation } from "react-router";
 
 function DropdownMenu({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+  // THIS IS A HACK
+  // Dropdown sometimes doesn't closed when
+  // changes pages in capacitor. Potentially
+  // this could negativly impact animations
+  // but the dropdown menu not closing is also
+  // negativly impacting page animations.
+  // If this does create an animation issue,
+  // we may want to try speeding up the dropdown
+  // close animation.
+  const pathname = useLocation().pathname;
+  return (
+    <DropdownMenuPrimitive.Root
+      key={pathname}
+      data-slot="dropdown-menu"
+      {...props}
+    />
+  );
 }
 
 function DropdownMenuPortal({

@@ -34,12 +34,11 @@ import { Logo } from "@/src/components/logo";
 import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
 import { useAuth } from "@/src/stores/auth";
 import {
-  useListCommunities,
   useNotificationCount,
   useSubscribedCommunities,
 } from "@/src/lib/lemmy";
 
-import { lazy, useMemo } from "react";
+import { lazy } from "react";
 import { dispatchScrollEvent } from "@/src/lib/scroll-events";
 import { isTauri } from "@/src/lib/device";
 import { CommunityCard } from "@/src/components/communities/community-card";

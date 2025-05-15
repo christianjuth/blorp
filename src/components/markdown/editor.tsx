@@ -544,7 +544,7 @@ function PlainTextEditorInner({
         autoFocus={autoFocus}
         defaultValue={content}
         onChange={(e) => onChange(e.target.value)}
-        className="prose dark:prose-invert prose-sm resize-none w-full font-mono outline-none py-2 px-3 md:px-3.5 flex-1"
+        className="prose dark:prose-invert prose-sm resize-none w-full max-w-full font-mono outline-none py-2 px-3 md:px-3.5 flex-1"
         placeholder={placeholder}
         onFocus={onFocus}
         onBlur={onBlur}

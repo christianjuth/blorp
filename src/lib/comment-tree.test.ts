@@ -42,13 +42,15 @@ describe("buildCommentTree", () => {
               comment: {
                 path: "0.1234.5678.9101112",
               },
-              sort: 2,
+              sort: 1,
             },
             comment: {
               path: "0.1234.5678",
             },
-            sort: 1,
+            sort: 0,
           },
+          // Because 1234 is implied and doesn't actually
+          // exist in the data, it get's a sort value of 0
           sort: 0,
         },
       } satisfies CommentTreeTopLevel,

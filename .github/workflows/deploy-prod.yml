@@ -40,7 +40,12 @@ jobs:
         run: yarn build
 
       - name: Handle React SPA Routing
-        run: cp dist/index.html dist/404.html
+        run: |
+          for page in csae privacy terms support download licenses home communities create inbox settings; do
+            mkdir -p dist/${page}
+            cp dist/index.html dist/${page}/index.html
+          done
+          cp dist/index.html dist/404.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

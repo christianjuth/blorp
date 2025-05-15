@@ -34,6 +34,7 @@ export function buildCommentTree(
   const firstCommentInPath = commentPath?.split(".")?.[0];
 
   let i = 0;
+
   for (const view of commentViews) {
     let loc = map;
     let viewPath = view.path;
@@ -54,17 +55,19 @@ export function buildCommentTree(
     while (path.length > 1) {
       const front: keyof typeof loc = path.shift()! as any;
       loc[front] = loc[front] ?? {
-        sort: i++,
+        sort: 0,
       };
       loc = loc[front];
     }
 
     const front: keyof typeof loc = path.shift()! as any;
 
-    loc[front] = loc[front] ?? {
-      sort: i++,
+    loc[front] = {
+      ...loc[front],
+      sort: i,
+      comment: view,
     };
-    loc[front].comment = view;
+    i++;
   }
 
   return map;
