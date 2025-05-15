@@ -24,8 +24,6 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useAuth } from "../stores/auth";
 import { cn } from "../lib/utils";
 
-const EMPTY_ARR: never[] = [];
-
 function useRouterSafe() {
   try {
     return useIonRouter();
