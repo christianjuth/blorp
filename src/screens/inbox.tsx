@@ -5,6 +5,7 @@ import { ContentGutters } from "@/src/components/gutters";
 import { MarkdownRenderer } from "../components/markdown/renderer";
 import { RelativeTime } from "@/src/components/relative-time";
 import {
+  useMarkPersonMentionRead,
   useMarkReplyRead,
   useNotificationCount,
   usePersonMentions,
@@ -25,8 +26,29 @@ import { cn } from "../lib/utils";
 import { useMemo } from "react";
 import _ from "lodash";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
-import { useMedia, useUrlSearchState } from "../lib/hooks";
-import z from "zod";
+import { useMedia } from "../lib/hooks";
+import { useInboxStore } from "../stores/inbox";
+import { Skeleton } from "../components/ui/skeleton";
+import { ActionMenu } from "../components/adaptable/action-menu";
+import { IoEllipsisHorizontal } from "react-icons/io5";
+
+const NO_ITEMS = "NO_ITEMS";
+type Item =
+  | typeof NO_ITEMS
+  | { id: string; reply: CommentReplyView }
+  | {
+      id: string;
+      mention: PersonMentionView;
+    };
+
+function Placeholder() {
+  return (
+    <ContentGutters>
+      <Skeleton className="h-24 mt-2" />
+      <></>
+    </ContentGutters>
+  );
+}
 
 function Mention({
   mention,
@@ -35,7 +57,7 @@ function Mention({
   mention: PersonMentionView;
   noBorder?: boolean;
 }) {
-  const markRead = useMarkReplyRead();
+  const markRead = useMarkPersonMentionRead();
   const communitySlug = createCommunitySlug(mention.community);
   const path = mention.comment.path.split(".");
   const parent = path.at(-2);
@@ -47,38 +69,56 @@ function Mention({
       <div
         className={cn("flex-1 max-md:px-2.5", !noBorder && "border-b-[0.5px]")}
       >
-        <Link
-          to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
-          params={{
-            communityName: communitySlug,
-            post: encodeURIComponent(mention.post.ap_id),
-            comment: newPath,
-          }}
-          onClickCapture={() => {
-            //markRead.mutate({
-            //  comment_reply_id: mention.comment_reply.id,
-            //  read: true,
-            //});
-          }}
+        <div
           className={cn(
             "my-2.5 flex-1 text-sm leading-6 block",
             !mention.person_mention.read && "border-l-3 border-l-brand pl-2",
           )}
         >
-          <div className="flex flex-row flex-wrap">
-            {mention.person_mention.read ? null : <div />}
-            <span>
-              <span className="font-bold">{mention.creator.name}</span>
-              <span> mentioned you in the post </span>
-              <span className="font-bold">{mention.post.name}</span>
-            </span>
+          <Link
+            to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
+            params={{
+              communityName: communitySlug,
+              post: encodeURIComponent(mention.post.ap_id),
+              comment: newPath,
+            }}
+            onClickCapture={() => {
+              markRead.mutate({
+                person_mention_id: mention.person_mention.id,
+                read: true,
+              });
+            }}
+          >
+            <div className="flex flex-row flex-wrap">
+              {mention.person_mention.read ? null : <div />}
+              <span>
+                <span className="font-bold">{mention.creator.name}</span>
+                <span> mentioned you in the post </span>
+                <span className="font-bold">{mention.post.name}</span>
+              </span>
+            </div>
+            <MarkdownRenderer markdown={mention.comment.content} />
+          </Link>
+          <div className="flex flex-row justify-end gap-2 pb-2.5 text-muted-foreground">
+            <RelativeTime time={mention.comment.published} />
+            <ActionMenu
+              align="end"
+              actions={[
+                {
+                  text: mention.person_mention.read
+                    ? "Mark unread"
+                    : "Mark read",
+                  onClick: () =>
+                    markRead.mutate({
+                      person_mention_id: mention.person_mention.id,
+                      read: !mention.person_mention.read,
+                    }),
+                },
+              ]}
+              trigger={<IoEllipsisHorizontal />}
+            />
           </div>
-          <MarkdownRenderer markdown={mention.comment.content} />
-          <RelativeTime
-            time={mention.comment.published}
-            className="text-zinc-400"
-          />
-        </Link>
+        </div>
       </div>
       <></>
     </ContentGutters>
@@ -104,38 +144,56 @@ function Reply({
       <div
         className={cn("flex-1 max-md:px-2.5", !noBorder && "border-b-[0.5px]")}
       >
-        <Link
-          to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
-          params={{
-            communityName: communitySlug,
-            post: encodeURIComponent(replyView.post.ap_id),
-            comment: newPath,
-          }}
-          onClickCapture={() => {
-            markRead.mutate({
-              comment_reply_id: replyView.comment_reply.id,
-              read: true,
-            });
-          }}
+        <div
           className={cn(
             "my-2.5 flex-1 text-sm leading-6 block",
             !replyView.comment_reply.read && "border-l-3 border-l-brand pl-2",
           )}
         >
-          <div className="flex flex-row flex-wrap">
-            {replyView.comment_reply.read ? null : <div />}
-            <span>
-              <span className="font-bold">{replyView.creator.name}</span>
-              <span> replied to your comment in </span>
-              <span className="font-bold">{replyView.post.name}</span>
-            </span>
+          <Link
+            to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
+            params={{
+              communityName: communitySlug,
+              post: encodeURIComponent(replyView.post.ap_id),
+              comment: newPath,
+            }}
+            onClickCapture={() => {
+              markRead.mutate({
+                comment_reply_id: replyView.comment_reply.id,
+                read: true,
+              });
+            }}
+          >
+            <div className="flex flex-row flex-wrap">
+              {replyView.comment_reply.read ? null : <div />}
+              <span>
+                <span className="font-bold">{replyView.creator.name}</span>
+                <span> replied to your comment in </span>
+                <span className="font-bold">{replyView.post.name}</span>
+              </span>
+            </div>
+            <MarkdownRenderer markdown={replyView.comment.content} />
+          </Link>
+          <div className="flex flex-row justify-end gap-2 pb-2.5 text-muted-foreground">
+            <RelativeTime time={replyView.comment.published} />
+            <ActionMenu
+              align="end"
+              actions={[
+                {
+                  text: replyView.comment_reply.read
+                    ? "Mark unread"
+                    : "Mark read",
+                  onClick: () =>
+                    markRead.mutate({
+                      comment_reply_id: replyView.comment_reply.id,
+                      read: !replyView.comment_reply.read,
+                    }),
+                },
+              ]}
+              trigger={<IoEllipsisHorizontal />}
+            />
           </div>
-          <MarkdownRenderer markdown={replyView.comment.content} />
-          <RelativeTime
-            time={replyView.comment.published}
-            className="text-zinc-400"
-          />
-        </Link>
+        </div>
       </div>
       <></>
     </ContentGutters>
@@ -145,14 +203,16 @@ function Reply({
 export default function Inbox() {
   const media = useMedia();
 
-  const replies = useReplies({});
-  const mentions = usePersonMentions({});
+  const type = useInboxStore((s) => s.inboxType);
+  const setType = useInboxStore((s) => s.setInboxType);
 
-  const [type, setType] = useUrlSearchState(
-    "type",
-    "all",
-    z.enum(["mentions", "replies", "all"]),
-  );
+  const replies = useReplies({
+    unread_only: type === "unread",
+  });
+  const mentions = usePersonMentions({
+    unread_only: type === "unread",
+  });
+  const isLoading = replies.isPending || mentions.isPending;
 
   // This updates in the backgroudn,
   // but calling it here ensures the
@@ -166,7 +226,10 @@ export default function Inbox() {
       | { id: string; mention: PersonMentionView }
     )[] = [];
 
-    if (replies.data && (type === "replies" || type === "all")) {
+    if (
+      replies.data &&
+      (type === "replies" || type === "all" || type === "unread")
+    ) {
       data.push(
         ...replies.data.pages
           .flatMap((p) => p.replies)
@@ -177,7 +240,10 @@ export default function Inbox() {
       );
     }
 
-    if (mentions.data && (type === "mentions" || type === "all")) {
+    if (
+      mentions.data &&
+      (type === "mentions" || type === "all" || type === "unread")
+    ) {
       data.push(
         ...(mentions.data?.pages
           .flatMap((p) => p.mentions)
@@ -225,10 +291,12 @@ export default function Inbox() {
                 size="sm"
                 value={type}
                 onValueChange={(val) =>
-                  val && setType(val as "mentions" | "replies" | "all")
+                  val &&
+                  setType(val as "all" | "unread" | "mentions" | "replies")
                 }
               >
                 <ToggleGroupItem value="all">All</ToggleGroupItem>
+                <ToggleGroupItem value="unread">Unread</ToggleGroupItem>
                 <ToggleGroupItem value="replies">Replies</ToggleGroupItem>
                 <ToggleGroupItem value="mentions">Mentions</ToggleGroupItem>
               </ToggleGroup>
@@ -237,7 +305,7 @@ export default function Inbox() {
         )}
       </IonHeader>
       <IonContent scrollY={false}>
-        <VirtualList
+        <VirtualList<Item>
           header={[
             <ContentGutters className="max-md:hidden" key="type-select-header">
               <div className="py-2 bg-background border-b-[.5px]">
@@ -247,10 +315,12 @@ export default function Inbox() {
                   size="sm"
                   value={type}
                   onValueChange={(val) =>
-                    val && setType(val as "mentions" | "replies" | "all")
+                    val &&
+                    setType(val as "all" | "unread" | "mentions" | "replies")
                   }
                 >
                   <ToggleGroupItem value="all">All</ToggleGroupItem>
+                  <ToggleGroupItem value="unread">Unread</ToggleGroupItem>
                   <ToggleGroupItem value="replies">Replies</ToggleGroupItem>
                   <ToggleGroupItem value="mentions">Mentions</ToggleGroupItem>
                 </ToggleGroup>
@@ -259,8 +329,19 @@ export default function Inbox() {
             </ContentGutters>,
           ]}
           stickyHeaderIndices={[0]}
-          data={data}
+          data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}
           renderItem={({ item }) => {
+            if (item === NO_ITEMS) {
+              return (
+                <ContentGutters>
+                  <div className="flex-1 italic text-muted-foreground p-6 text-center">
+                    <span>No {type !== "all" ? type : "notifications"}</span>
+                  </div>
+                  <></>
+                </ContentGutters>
+              );
+            }
+
             if ("reply" in item) {
               const reply = item.reply;
               return <Reply replyView={reply} />;
@@ -287,6 +368,7 @@ export default function Inbox() {
           estimatedItemSize={375}
           className="h-full ion-content-scroll-host"
           refresh={replies.refetch}
+          placeholder={<Placeholder />}
         />
       </IonContent>
     </IonPage>

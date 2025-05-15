@@ -129,7 +129,7 @@ export function ActionMenu<V extends string>({
   if (media.md) {
     return (
       <DropdownMenu onOpenChange={(open) => open && onOpen?.()}>
-        <DropdownMenuTrigger asChild={triggerAsChild}>
+        <DropdownMenuTrigger asChild={triggerAsChild} className="text-left">
           {trigger}
         </DropdownMenuTrigger>
         <DropdownMenuContent align={align}>

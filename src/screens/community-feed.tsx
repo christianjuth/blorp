@@ -95,7 +95,7 @@ export default function CommunityFeed() {
     isFetchingNextPage,
     refetch,
     isRefetching,
-    isLoading,
+    isPending,
   } = posts;
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -211,7 +211,7 @@ export default function CommunityFeed() {
           <VirtualList<Item>
             key={postSort}
             className="h-full ion-content-scroll-host"
-            data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}
+            data={data.length === 0 && !isPending ? [NO_ITEMS] : data}
             header={[
               <Fragment key="community-header">
                 {communityName && (

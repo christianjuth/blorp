@@ -33,9 +33,13 @@ import { useMedia } from "@/src/lib/hooks";
 import { Logo } from "@/src/components/logo";
 import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
 import { useAuth } from "@/src/stores/auth";
-import { useListCommunities, useNotificationCount } from "@/src/lib/lemmy";
+import {
+  useListCommunities,
+  useNotificationCount,
+  useSubscribedCommunities,
+} from "@/src/lib/lemmy";
 
-import { lazy } from "react";
+import { lazy, useMemo } from "react";
 import { dispatchScrollEvent } from "@/src/lib/scroll-events";
 import { isTauri } from "@/src/lib/device";
 import { CommunityCard } from "@/src/components/communities/community-card";
@@ -251,15 +255,7 @@ function Sidebar() {
   const recentCommunities = useRecentCommunitiesStore((s) => s.recentlyVisited);
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
-  const subscribedCommunities = useListCommunities({
-    type_: "Subscribed",
-    limit: 50,
-  });
-
-  const sortedCommunities = _.sortBy(
-    subscribedCommunities.data?.pages.flatMap((p) => p.communities),
-    (c) => c.community.name,
-  );
+  const subscribedCommunities = useSubscribedCommunities();
 
   return (
     <>
@@ -285,12 +281,12 @@ function Sidebar() {
         </>
       )}
 
-      {isLoggedIn && sortedCommunities.length > 0 && (
+      {isLoggedIn && subscribedCommunities.length > 0 && (
         <>
           <span className="px-4 py-1 text-sm text-muted-foreground">
-            COMMUNITIES
+            SUBSCRIBED
           </span>
-          {sortedCommunities.map(({ community: c }) => (
+          {subscribedCommunities.map(({ community: c }) => (
             <IonMenuToggle
               key={c.id}
               className="px-4 py-0.75 flex flex-row"

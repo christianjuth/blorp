@@ -349,12 +349,15 @@ export function CreatePost() {
                 </div>
               )}
 
-              {draft.type === "media" && (
+              {(draft.type === "media" || draft.type === "link") && (
                 <div className="gap-2 flex flex-col">
                   <Label htmlFor={`${id}-media`}>Image</Label>
                   <div
                     {...getRootProps()}
-                    className="border-2 border-dashed flex flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-md md:min-h-32"
+                    className={cn(
+                      "border-2 border-dashed flex flex-col items-center justify-center gap-2 p-2 cursor-pointer rounded-md",
+                      draft.type === "media" && "md:min-h-32",
+                    )}
                   >
                     <input id={`${id}-media`} {...getInputProps()} />
                     {draft.custom_thumbnail && !uploadImage.isPending && (

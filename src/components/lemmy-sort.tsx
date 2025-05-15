@@ -13,11 +13,11 @@ import { TbArrowsDownUp, TbMessageCircle } from "react-icons/tb";
 import { LuClock3, LuCalendarArrowUp } from "react-icons/lu";
 import {
   FaPersonRunning,
-  FaCaretDown,
   FaArrowTrendUp,
   FaHourglassEnd,
 } from "react-icons/fa6";
-import { IoSkullOutline } from "react-icons/io5";
+
+import { IoSkullOutline, IoChevronDown } from "react-icons/io5";
 import { TbMessageCircleUp } from "react-icons/tb";
 import { PiFireSimpleBold } from "react-icons/pi";
 import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
@@ -437,7 +437,7 @@ export function PostSortBar({
   );
 }
 
-export function HomeFilter() {
+export function HomeFilter({ children }: { children?: React.ReactNode }) {
   const instance = useAuth((s) => s.getSelectedAccount().instance);
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const listingType = useFiltersStore((s) => s.listingType);
@@ -480,12 +480,14 @@ export function HomeFilter() {
       actions={LISTING_TYPE_OPTIONS}
       selectedValue={listingType}
       trigger={
-        <div className="flex flex-row items-center gap-0.5 text-lg">
-          <span className="font-black capitalize">
-            {listingType === "ModeratorView" ? "Moderating" : listingType}
-          </span>
-          <FaCaretDown className="text-muted-foreground" />
-        </div>
+        children ?? (
+          <div className="flex flex-row items-center gap-0.5 text-lg">
+            <span className="font-black capitalize">
+              {listingType === "ModeratorView" ? "Moderating" : listingType}
+            </span>
+            <IoChevronDown className="text-muted-foreground" />
+          </div>
+        )
       }
     />
   );
@@ -540,7 +542,7 @@ export function CommunityFilter() {
           <span className="font-black capitalize">
             {listingType === "ModeratorView" ? "Moderating" : listingType}
           </span>
-          <FaCaretDown className="text-muted-foreground" />
+          <IoChevronDown className="text-muted-foreground" />
         </div>
       }
     />

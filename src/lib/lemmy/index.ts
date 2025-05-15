@@ -24,6 +24,7 @@ import {
   MarkPostAsRead,
   GetPersonMentions,
   Register,
+  MarkPersonMentionAsRead,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -993,6 +994,7 @@ export function useRefreshAuth(account: Account) {
   const updateAccount = useAuth((s) => s.updateAccount);
   const logout = useAuth((s) => s.logout);
 
+  const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
   return useMutation({
@@ -1011,6 +1013,14 @@ export function useRefreshAuth(account: Account) {
         cacheProfiles(getCachePrefixer(account), [
           _.pick(site.my_user.local_user_view, ["person", "counts"]),
         ]);
+        cacheCommunities(
+          getCachePrefixer(account),
+          [...site.my_user.follows, ...site.my_user.moderates].map(
+            ({ community }) => ({
+              communityView: { community },
+            }),
+          ),
+        );
       }
       updateAccount(account, {
         site,
@@ -1381,16 +1391,7 @@ export function useDeleteComment() {
 export function useReplies(form: GetReplies) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
-  const queryKey = [...queryKeyPrefix, "getReplies"];
-
-  if (form.limit) {
-    queryKey.push("limit", String(form.limit));
-  }
-
-  if (form.sort) {
-    queryKey.push("limit", form.sort);
-  }
-
+  const queryKey = [...queryKeyPrefix, "getReplies", form];
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
@@ -1638,9 +1639,8 @@ export function useMarkReplyRead() {
   const notificationCountQueryKey = useNotificationCountQueryKey();
 
   return useMutation({
-    mutationFn: (form: MarkCommentReplyAsRead) => {
-      return client.markCommentReplyAsRead(form);
-    },
+    mutationFn: (form: MarkCommentReplyAsRead) =>
+      client.markCommentReplyAsRead(form),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: notificationCountQueryKey,
@@ -1654,6 +1654,33 @@ export function useMarkReplyRead() {
         toast.error(_.capitalize(err.message.replaceAll("_", " ")));
       } else {
         toast.error(`Couldn't mark post ${read ? "read" : "unread"}`);
+      }
+    },
+  });
+}
+
+export function useMarkPersonMentionRead() {
+  const { client, queryKeyPrefix } = useLemmyClient();
+  const queryClient = useQueryClient();
+
+  const notificationCountQueryKey = useNotificationCountQueryKey();
+
+  return useMutation({
+    mutationFn: (form: MarkPersonMentionAsRead) =>
+      client.markPersonMentionAsRead(form),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: notificationCountQueryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeyPrefix, "getPersonMentions"],
+      });
+    },
+    onError: (err, { read }) => {
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error(`Couldn't mark mention ${read ? "read" : "unread"}`);
       }
     },
   });
@@ -1944,4 +1971,24 @@ export function useCaptcha({
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 3 * 1000),
     enabled,
   });
+}
+
+export function useSubscribedCommunities() {
+  const subscribedCommunities = useAuth(
+    (s) => s.getSelectedAccount().site?.my_user?.follows,
+  );
+  return useMemo(
+    () => _.sortBy(subscribedCommunities ?? [], (c) => c.community.name),
+    [subscribedCommunities],
+  );
+}
+
+export function useModeratingCommunities() {
+  const subscribedCommunities = useAuth(
+    (s) => s.getSelectedAccount().site?.my_user?.moderates,
+  );
+  return useMemo(
+    () => _.sortBy(subscribedCommunities ?? [], (c) => c.community.name),
+    [subscribedCommunities],
+  );
 }
