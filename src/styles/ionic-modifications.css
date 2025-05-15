@@ -106,10 +106,11 @@ ion-list.list-inset {
 }
 
 /* Keyboard avoidance */
-/* ion-alert { */
-/*   padding-bottom: var(--keyboard-height) !important; */
-/*   transition: padding-bottom 200ms; */
-/* } */
+/*ion-modal .ion-delegate-host,*/
+/*ion-alert {*/
+/*  padding-bottom: var(--keyboard-height) !important;*/
+/*  transition: padding-bottom 200ms;*/
+/*}*/
 
 .action-sheet-button-inner {
   justify-content: flex-start !important;

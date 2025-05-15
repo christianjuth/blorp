@@ -141,7 +141,7 @@ export function InlineCommentReply({
           <MarkdownEditor
             content={state.content}
             onChange={(val) => state.setContent(val)}
-            className="h-full"
+            className="min-h-full"
             autoFocus
             placeholder="Add a comment..."
           />
@@ -166,7 +166,6 @@ export function InlineCommentReply({
       <div className="flex-1 border rounded-xl shadow-xs focus-within:border-ring">
         <MarkdownEditor
           hideMenu={!state.isEditing}
-          className="block"
           key={submitSignal}
           content={state.content}
           onChange={(val) => state.setContent(val)}

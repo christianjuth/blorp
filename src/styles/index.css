@@ -163,16 +163,21 @@ body {
    * Prevent body from collapsing height when radix
    * dropdown menu opens
    **/
-  min-height: 100vh;
+  min-height: 100svh;
+}
+
+/**
+ * Prevent default iOS long press image and link action.
+ */
+a,
+img {
+  /* Disable the iOS touch-callout (context menu) */
+  -webkit-touch-callout: none;
+  /* Optional: prevent image dragging */
+  -webkit-user-drag: none;
 }
 
 /* Hide native x icon in search input */
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
-}
-
-img {
-  -webkit-touch-callout: none;
-  user-select: none;
-  pointer-events: auto;
 }

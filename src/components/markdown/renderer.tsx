@@ -40,6 +40,7 @@ function Image(
       },
       filterEvents: (event) => {
         if ("button" in event) {
+          // Ignore mouse right click
           return event.button !== 2;
         }
         return true;

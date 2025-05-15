@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core";
 import Bowser from "bowser";
 import _ from "lodash";
 
@@ -18,4 +19,8 @@ export function isTauri(): boolean {
 const MODE = import.meta.env.MODE;
 export function isDev() {
   return MODE === "development";
+}
+
+export function isNative() {
+  return Capacitor.isNativePlatform();
 }
