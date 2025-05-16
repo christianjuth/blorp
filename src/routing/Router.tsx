@@ -348,7 +348,6 @@ function Tabs() {
         style={{
           "--side-max-width": "270px",
         }}
-        className="border-l-[0.5px]"
       >
         <div className="h-[var(--ion-safe-area-top)]" />
 
@@ -368,7 +367,6 @@ function Tabs() {
           style={{
             "--side-max-width": "270px",
           }}
-          className="border-r-[0.5px]"
         >
           <div className="h-[var(--ion-safe-area-top)]" />
 
