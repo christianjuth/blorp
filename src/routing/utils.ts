@@ -18,6 +18,3 @@ export function buildRoute<P extends string, S extends z.ZodObject<any>>(
     },
   } as any;
 }
-
-export const LEFT_SIDEBAR_MENU_ID = "left-sidebar-menu";
-export const RIGHT_SIDEBAR_MENU_ID = "right-sidebar-menu";

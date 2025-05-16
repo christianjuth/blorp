@@ -1,4 +1,4 @@
-import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
+import { SmallScreenSidebar } from "@/src/components/communities/community-sidebar";
 import { useEffect } from "react";
 import { useCommunity } from "../lib/lemmy";
 import _ from "lodash";
@@ -17,6 +17,7 @@ import { useRecentCommunitiesStore } from "../stores/recent-communities";
 import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
 import { useLinkContext } from "../routing/link-context";
+import { ContentGutters } from "../components/gutters";
 export default function CommunityFeed() {
   const linkCtx = useLinkContext();
   const { communityName } = useParams(
@@ -50,11 +51,14 @@ export default function CommunityFeed() {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <CommunitySidebar
-          communityName={communityName}
-          actorId={community.data?.community_view.community.actor_id}
-          asPage
-        />
+        <ContentGutters className="px-0">
+          <SmallScreenSidebar
+            communityName={communityName}
+            actorId={community.data?.community_view.community.actor_id}
+            expanded
+          />
+          <></>
+        </ContentGutters>
       </IonContent>
     </IonPage>
   );

@@ -1,0 +1,53 @@
+import {
+  cog,
+  notifications,
+  people,
+  home,
+  homeOutline,
+  peopleOutline,
+  notificationsOutline,
+  cogOutline,
+  create,
+  createOutline,
+} from "ionicons/icons";
+
+export const TABS: {
+  icon: (active?: boolean) => string;
+  to: string;
+  label: string;
+  id: string;
+}[] = [
+  {
+    icon: (isActive) => (isActive ? home : homeOutline),
+    to: "/home",
+    label: "Home",
+    id: "home",
+  },
+  {
+    icon: (isActive) => (isActive ? people : peopleOutline),
+    to: "/communities",
+    label: "Communities",
+    id: "communities",
+  },
+  {
+    icon: (isActive) => (isActive ? create : createOutline),
+    to: "/create",
+    label: "Post",
+    id: "create",
+  },
+  {
+    icon: (isActive) => (isActive ? notifications : notificationsOutline),
+    to: "/inbox",
+    label: "Inbox",
+    id: "inbox",
+  },
+  {
+    icon: (isActive) => (isActive ? cog : cogOutline),
+    to: "/settings",
+    label: "Settings",
+    id: "settings",
+  },
+];
+
+export const LEFT_SIDEBAR_MENU_ID = "left-sidebar-menu";
+export const RIGHT_SIDEBAR_MENU_ID = "right-sidebar-menu";

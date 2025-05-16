@@ -26,11 +26,11 @@ import { Slug } from "@/src/lib/lemmy/utils";
 import { CommunityHoverCard } from "../communities/community-hover-card";
 import { PersonHoverCard } from "../person/person-hover-card";
 import { FaBookmark } from "react-icons/fa";
-import { Badge } from "@/src/components/ui/badge";
 import { postToDraft, useCreatePostStore } from "@/src/stores/create-post";
 import { usePostsStore } from "@/src/stores/posts";
-import { cn } from "@/src/lib/utils";
 import { shareRoute } from "@/src/lib/share";
+import { Shield } from "../icons";
+import { cn } from "@/src/lib/utils";
 
 export function PostByline({
   id,
@@ -50,7 +50,8 @@ export function PostByline({
   published,
   onNavigate,
   isMod,
-  detailView,
+  showCommunity = true,
+  showCreator = false,
 }: {
   id: number;
   apId: string;
@@ -69,7 +70,8 @@ export function PostByline({
   published: string;
   onNavigate?: () => any;
   isMod?: boolean;
-  detailView?: boolean;
+  showCommunity?: boolean;
+  showCreator?: boolean;
 }) {
   const [alrt] = useIonAlert();
 
@@ -209,19 +211,22 @@ export function PostByline({
     <>
       <span className="font-medium text-foreground">c/{communityName}</span>
       <i>@{communityHost}</i>
-      <RelativeTime prefix=" • " time={published} />
+      <RelativeTime time={published} className="ml-2" />
     </>
   );
 
   return (
     <div
       className={cn(
-        "flex flex-row items-center gap-2 h-6",
-        detailView && "h-9",
+        "flex flex-row items-center gap-2 h-8",
+        showCommunity && showCreator && "h-9",
       )}
     >
       <Avatar
-        className={cn("h-6 w-6 text-xs", detailView && "text-md h-8 w-8")}
+        className={cn(
+          "h-7 w-7 text-md",
+          showCommunity && showCreator && "h-8 w-8",
+        )}
       >
         <AvatarImage src={communityIcon} className="object-cover" />
         <AvatarFallback>
@@ -230,24 +235,33 @@ export function PostByline({
       </Avatar>
 
       <div className="flex flex-col text-muted-foreground">
-        <CommunityHoverCard communityName={communitySlug}>
-          {communityName ? (
-            <Link
-              to={`${linkCtx.root}c/:communityName`}
-              params={{
-                communityName: communitySlug,
-              }}
-              className="text-xs"
-              onClickCapture={onNavigate}
-            >
-              {community}
-            </Link>
-          ) : (
-            <div className="text-xs">{community}</div>
-          )}
-        </CommunityHoverCard>
-        {detailView && (
-          <div className="flex flex-row text-xs text-muted-foreground gap-1 items-center h-5">
+        {showCommunity && (
+          <CommunityHoverCard communityName={communitySlug}>
+            {communityName ? (
+              <Link
+                to={`${linkCtx.root}c/:communityName`}
+                params={{
+                  communityName: communitySlug,
+                }}
+                className={cn("text-xs", !showCreator && "text-sm")}
+                onClickCapture={onNavigate}
+              >
+                {community}
+              </Link>
+            ) : (
+              <div className={cn("text-xs", !showCreator && "text-sm")}>
+                {community}
+              </div>
+            )}
+          </CommunityHoverCard>
+        )}
+        {showCreator && (
+          <div
+            className={cn(
+              "flex flex-row text-xs text-muted-foreground gap-1 items-center h-5",
+              !showCommunity && "text-sm",
+            )}
+          >
             <PersonHoverCard actorId={creatorApId}>
               <Link
                 to={`${linkCtx.root}u/:userId`}
@@ -260,7 +274,10 @@ export function PostByline({
                 <i>@{creatorSlug?.host}</i>
               </Link>
             </PersonHoverCard>
-            {isMod && <Badge>Mod</Badge>}
+            {isMod && <Shield className="text-green-500 -mr-0.75" />}
+            {!showCommunity && (
+              <RelativeTime time={published} className="ml-2" />
+            )}
           </div>
         )}
       </div>

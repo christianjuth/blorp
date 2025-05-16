@@ -1,0 +1,171 @@
+import { IonIcon, useIonRouter, IonBadge, IonMenuToggle } from "@ionic/react";
+import { Link, ParamsFor } from "@/src/routing/index";
+import _ from "lodash";
+import { twMerge } from "tailwind-merge";
+import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
+import { useAuth } from "@/src/stores/auth";
+import {
+  useNotificationCount,
+  useSubscribedCommunities,
+} from "@/src/lib/lemmy";
+import { CommunityCard } from "@/src/components/communities/community-card";
+import { LEFT_SIDEBAR_MENU_ID, TABS } from "./config";
+import { Separator } from "../components/ui/separator";
+import {
+  DocumentsOutline,
+  LockClosedOutline,
+  ScrollTextOutline,
+  SidebarOutline,
+} from "../components/icons";
+import { useLinkContext } from "./link-context";
+import { RoutePath } from "./routes";
+
+function SidebarTabs() {
+  const count = useNotificationCount();
+  const pathname = useIonRouter().routeInfo.pathname;
+
+  return (
+    <>
+      {TABS.map((t) => {
+        const isActive = pathname.startsWith(t.to);
+        return (
+          <button
+            key={t.id}
+            onClick={() => {
+              const tab = document.querySelector(`ion-tab-button[tab=${t.id}]`);
+              if (tab && "click" in tab && _.isFunction(tab.click)) {
+                tab.click();
+              }
+            }}
+            className={twMerge(
+              "relative max-md:hidden text-md flex flex-row items-center py-2 px-3 rounded-xl",
+              isActive ? "bg-secondary" : "text-muted-foreground",
+            )}
+          >
+            <IonIcon
+              icon={t.icon(isActive)}
+              key={isActive ? "active" : "inactive"}
+              className="text-2xl"
+            />
+            <span className="text-sm ml-2">{t.label}</span>
+            {t.id === "inbox" && (
+              <IonBadge
+                className="bg-destructive px-1 -mt-3 py-0.5"
+                hidden={!count.data}
+              >
+                {count.data}
+              </IonBadge>
+            )}
+          </button>
+        );
+      })}
+
+      <Separator className="max-md:hidden my-2" />
+    </>
+  );
+}
+
+export function MainSidebar() {
+  const recentCommunities = useRecentCommunitiesStore((s) => s.recentlyVisited);
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+  const instance = useAuth((s) => s.getSelectedAccount().instance);
+  const linkCtx = useLinkContext();
+
+  const subscribedCommunities = useSubscribedCommunities();
+
+  return (
+    <>
+      <SidebarTabs />
+
+      {recentCommunities.length > 0 && (
+        <>
+          <span className="px-4 py-1 text-sm text-muted-foreground">
+            RECENT
+          </span>
+          {recentCommunities.slice(0, 5).map((c) => (
+            <IonMenuToggle
+              key={c.id}
+              className="px-4 py-0.75 flex flex-row"
+              menu={LEFT_SIDEBAR_MENU_ID}
+              autoHide={false}
+            >
+              <CommunityCard communityView={c} size="sm" />
+            </IonMenuToggle>
+          ))}
+
+          <Separator className="my-2" />
+        </>
+      )}
+
+      {isLoggedIn && subscribedCommunities.length > 0 && (
+        <>
+          <span className="px-4 py-1 text-sm text-muted-foreground">
+            SUBSCRIBED
+          </span>
+          {subscribedCommunities.map(({ community: c }) => (
+            <IonMenuToggle
+              key={c.id}
+              className="px-4 py-0.75 flex flex-row"
+              menu={LEFT_SIDEBAR_MENU_ID}
+              autoHide={false}
+            >
+              <CommunityCard communityView={c} size="sm" />
+            </IonMenuToggle>
+          ))}
+
+          <Separator className="my-2" />
+        </>
+      )}
+
+      <span className="px-4 py-1 text-sm text-muted-foreground uppercase">
+        {new URL(instance).host}
+      </span>
+
+      <SidebarLink icon={<SidebarOutline />} to={`${linkCtx.root}sidebar`}>
+        Sidebar
+      </SidebarLink>
+
+      <Separator className="mt-3" />
+
+      <SidebarLink icon={<LockClosedOutline />} to="/privacy">
+        Privacy Policy
+      </SidebarLink>
+
+      <SidebarLink icon={<ScrollTextOutline />} to="/terms">
+        Terms of Use
+      </SidebarLink>
+
+      <SidebarLink icon={<DocumentsOutline />} to="/licenses">
+        OSS Licenses
+      </SidebarLink>
+    </>
+  );
+}
+
+function SidebarLink<T extends RoutePath>({
+  to,
+  params,
+  icon,
+  children,
+}: {
+  to: T;
+  params?: ParamsFor<T>;
+  icon: React.ReactNode;
+  children: string;
+}) {
+  return (
+    <IonMenuToggle
+      className="mt-3"
+      menu={LEFT_SIDEBAR_MENU_ID}
+      autoHide={false}
+    >
+      <Link
+        to={to}
+        params={params as any}
+        className="px-4 text-muted-foreground flex flex-row items-center gap-2"
+      >
+        {icon} {children}
+      </Link>
+    </IonMenuToggle>
+  );
+}

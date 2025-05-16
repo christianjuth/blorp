@@ -8,7 +8,7 @@ import {
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 import { memo, useMemo, useState } from "react";
-import { PostSortBar } from "../components/lemmy-sort";
+import { PostSortButton } from "../components/lemmy-sort";
 import { VirtualList } from "../components/virtual-list";
 import {
   CommunityCard,
@@ -180,7 +180,11 @@ export function SearchFeed({
             key={type === "communities" ? "communities" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={
-              data.length === 0 && !searchResults.isLoading ? [NO_ITEMS] : data
+              data.length === 0 &&
+              !searchResults.isRefetching &&
+              !searchResults.isPending
+                ? [NO_ITEMS]
+                : data
             }
             header={[
               <ContentGutters
@@ -209,7 +213,7 @@ export function SearchFeed({
                   {type === "posts" && (
                     <>
                       <div className="w-[.5px] h-2/3 bg-border mx-3 my-auto" />
-                      <PostSortBar align="start" />
+                      <PostSortButton align="start" />
                     </>
                   )}
                 </div>

@@ -64,7 +64,7 @@ export function CommunityCard({
           {slug?.name}
           <span className="text-muted-foreground italic">@{slug?.host}</span>
         </span>
-        {counts && (
+        {counts && size === "md" && (
           <span className="text-xs text-muted-foreground">
             {abbriviateNumber(counts.subscribers)} members
           </span>

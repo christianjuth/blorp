@@ -1,20 +1,12 @@
 import { twMerge } from "tailwind-merge";
-import { CommunityJoinButton } from "./community-join-button";
 import { createSlug } from "@/src/lib/lemmy/utils";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import { Skeleton } from "../ui/skeleton";
 import { useState } from "react";
 import { useAuth } from "@/src/stores/auth";
-import { Button } from "../ui/button";
 import _ from "lodash";
-import { useCommunity } from "@/src/lib/lemmy";
-import { CommunityCreatePost } from "./create-post";
 
 export function CommunityBanner({ communityName }: { communityName?: string }) {
-  const community = useCommunity({
-    name: communityName,
-  });
-
   const [bannerReady, setBannerReady] = useState(false);
   const [iconReady, setIconReady] = useState(false);
 
@@ -48,7 +40,7 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
           </div>
 
           {icon && (
-            <div className="absolute left-5 h-20 w-20 outline-background outline-2 -translate-y-1/2 bg-background rounded-full flex items-center justify-center">
+            <div className="absolute left-5 h-20 w-20 outline-background outline-2 -translate-y-3/5 bg-background rounded-full flex items-center justify-center">
               {!iconReady && (
                 <Skeleton className="absolute inset-0 rounded-full" />
               )}
@@ -64,7 +56,7 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
 
       <div
         className={twMerge(
-          "my-1.5 flex flex-row gap-2",
+          "mt-1.5 flex",
           !hideBanner && icon && "pl-28",
           !hideBanner && "pb-3",
         )}
@@ -77,18 +69,6 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
         ) : (
           <Skeleton className="h-7 w-52" />
         )}
-        <div className="flex-1" />
-        {community.data && (
-          <CommunityCreatePost
-            communityName={communityName}
-            renderButton={(props) => (
-              <Button size="sm" variant="secondary" {...props}>
-                Create post
-              </Button>
-            )}
-          />
-        )}
-        <CommunityJoinButton communityName={communityName} />
       </div>
     </div>
   );

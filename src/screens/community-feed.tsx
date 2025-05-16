@@ -32,7 +32,7 @@ import { CommunityBanner } from "../components/communities/community-banner";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
 import { UserDropdown } from "../components/nav";
-import { PostSortBar } from "../components/lemmy-sort";
+import { PostSortButton } from "../components/lemmy-sort";
 import { PageTitle } from "../components/page-title";
 import { useLinkContext } from "../routing/link-context";
 import { Link } from "@/src/routing/index";
@@ -44,6 +44,7 @@ import { LuLoaderCircle } from "react-icons/lu";
 import { FaArrowUp } from "react-icons/fa6";
 import { useAuth } from "../stores/auth";
 import { useMedia, useTheme } from "../lib/hooks";
+import { CommunityFeedSortBar } from "../components/communities/community-feed-sort-bar";
 
 const EMPTY_ARR: never[] = [];
 
@@ -52,7 +53,7 @@ type Item = typeof NO_ITEMS | PostProps;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
-    <FeedPostCard {...props} />
+    <FeedPostCard {...props} showCreator showCommunity={false} />
     <></>
   </ContentGutters>
 ));
@@ -95,7 +96,6 @@ export default function CommunityFeed() {
     isFetchingNextPage,
     refetch,
     isRefetching,
-    isPending,
   } = posts;
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -177,7 +177,9 @@ export default function CommunityFeed() {
                 className="text-brand dark:text-muted-foreground"
               />
             </Link>
-            <PostSortBar align="end" />
+            <div className="md:hidden contents">
+              <PostSortButton align="end" className="text-brand" />
+            </div>
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
@@ -186,6 +188,7 @@ export default function CommunityFeed() {
           <ContentGutters className="absolute mt-2 inset-x-0">
             <div className="flex flex-row justify-center flex-1">
               <Button
+                variant="outline"
                 size="sm"
                 className="absolute"
                 onClick={() => {
@@ -211,26 +214,29 @@ export default function CommunityFeed() {
           <VirtualList<Item>
             key={postSort}
             className="h-full ion-content-scroll-host"
-            data={data.length === 0 && !isPending ? [NO_ITEMS] : data}
+            data={
+              data.length === 0 && !posts.isRefetching && !posts.isPending
+                ? [NO_ITEMS]
+                : data
+            }
+            stickyHeaderIndices={[1]}
             header={[
               <Fragment key="community-header">
                 {communityName && (
-                  <ContentGutters className="px-0">
-                    <SmallScreenSidebar
-                      communityName={communityName}
-                      actorId={
-                        community.data?.community_view.community.actor_id
-                      }
-                    />
-                    <></>
-                  </ContentGutters>
+                  <SmallScreenSidebar
+                    communityName={communityName}
+                    actorId={community.data?.community_view.community.actor_id}
+                  />
                 )}
-
-                <ContentGutters className="max-md:hidden pt-3">
+                <ContentGutters className="max-md:hidden pt-4">
                   <CommunityBanner communityName={communityName} />
                   <></>
                 </ContentGutters>
               </Fragment>,
+              <CommunityFeedSortBar
+                communityName={communityName}
+                key="community-sort-bar"
+              />,
             ]}
             renderItem={({ item }) => {
               if (item === NO_ITEMS) {
