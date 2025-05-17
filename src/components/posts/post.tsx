@@ -22,6 +22,7 @@ import _ from "lodash";
 import { shareImage } from "@/src/lib/share";
 import { useAuth } from "@/src/stores/auth";
 import removeMd from "remove-markdown";
+import { LuRepeat2 } from "react-icons/lu";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return <i className="text-muted-foreground text-sm pt-3">{children}</i>;
@@ -63,9 +64,11 @@ export function getPostProps(
     pinned = postView.post.featured_local;
   }
 
-  const crossPost = postView.crossPosts?.find(
-    ({ post }) => post.published.localeCompare(postView.post.published) < 0,
-  );
+  const crossPosts = postView.crossPosts?.map((cp) => ({
+    encodedApId: encodeApId(cp.post.ap_id),
+    communitySlug: cp.community.slug,
+  }));
+
   let url = postView.post.url;
   if (url && url.startsWith("https://i.imgur.com/") && url.endsWith(".gifv")) {
     url = url.replace(/gifv$/, "mp4");
@@ -106,10 +109,7 @@ export function getPostProps(
     body: postView.post.body,
     nsfw: postView.post.nsfw,
     commentsCount: postView.counts.comments,
-    crossPostCommunitySlug: crossPost?.community.slug,
-    crossPostEncodedApId: crossPost
-      ? encodeApId(crossPost?.post.ap_id)
-      : undefined,
+    crossPosts,
   };
 }
 
@@ -178,6 +178,7 @@ export function FeedPostCard(props: PostProps) {
     displayUrl,
     body,
     onNavigate,
+    crossPosts,
   } = props;
 
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -237,6 +238,10 @@ export function FeedPostCard(props: PostProps) {
       )}
     >
       <PostByline {...props} />
+
+      {props.detailView && crossPosts && crossPosts.length > 0 && (
+        <CrossPosts key={apId} crossPosts={crossPosts} />
+      )}
 
       <Link
         to={`${linkCtx.root}c/:communityName/posts/:post`}
@@ -365,5 +370,34 @@ export function PostBottomBar({
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
       <Voting apId={apId} score={score} myVote={myVote} />
     </div>
+  );
+}
+
+function CrossPosts({
+  crossPosts,
+}: {
+  crossPosts: {
+    encodedApId: string;
+    communitySlug: string;
+  }[];
+}) {
+  const linkCtx = useLinkContext();
+  return (
+    <span className="text-brand text-sm flex flex-row items-center gap-x-2 gap-y-1 flex-wrap">
+      <LuRepeat2 />
+      {crossPosts.map(({ encodedApId, communitySlug }) => (
+        <Link
+          key={encodedApId}
+          to={`${linkCtx.root}c/:communityName/posts/:post`}
+          params={{
+            post: encodedApId,
+            communityName: communitySlug,
+          }}
+          className="hover:underline line-clamp-1"
+        >
+          {communitySlug}
+        </Link>
+      ))}
+    </span>
   );
 }

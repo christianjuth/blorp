@@ -32,6 +32,7 @@ import { useMemo } from "react";
 import { ContentGutters } from "../gutters";
 import { shareRoute } from "@/src/lib/share";
 import { useProfilesStore } from "@/src/stores/profiles";
+import { Shield } from "../icons";
 
 function Byline({
   actorId,
@@ -72,7 +73,7 @@ function Byline({
           <span className="font-medium">{slug?.name}</span>
           <span className="italic text-muted-foreground">@{slug?.host}</span>
           {authorType === "OP" && <Badge className="ml-1.5">OP</Badge>}
-          {authorType === "MOD" && <Badge className="ml-1.5">Mod</Badge>}
+          {authorType === "MOD" && <Shield className="text-green-500 ml-1.5" />}
           {authorType === "ME" && <Badge className="ml-1.5">Me</Badge>}
         </Link>
       </PersonHoverCard>
@@ -401,6 +402,7 @@ export function PostComment({
                   myUserId={myUserId}
                   communityName={communityName}
                   highlightCommentId={highlightCommentId}
+                  modApIds={modApIds}
                 />
               ))}
 

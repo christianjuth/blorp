@@ -48,7 +48,7 @@ export default function SettingsPage() {
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
-            <IonBackButton />
+            <IonBackButton text="Settings" />
           </IonButtons>
           <IonTitle data-tauri-drag-region>{slug?.slug ?? "Person"}</IonTitle>
           <IonButtons slot="end">

@@ -28,6 +28,7 @@ import { resolveRoute } from "@/src/routing";
 import { SectionItem, Section } from "./shared-components";
 import { useConfirmationAlert } from "@/src/lib/hooks";
 import { DebouncedInput } from "@/src/components/debounced-input";
+import { FiChevronRight } from "react-icons/fi";
 
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
@@ -51,7 +52,7 @@ function AccountCard({
   return (
     <Section title={`ACCOUNT ${accountIndex + 1}`}>
       {person && (
-        <SectionItem>
+        <SectionItem unstyled>
           <PersonCard actorId={person.actor_id} person={person} size="sm" />
         </SectionItem>
       )}
@@ -64,6 +65,7 @@ function AccountCard({
             })}
           >
             Manage Blocks
+            <FiChevronRight className="text-xl" />
           </SectionItem>
 
           <SectionItem
@@ -187,7 +189,7 @@ function CacheSection() {
                         opacity:
                           (cacheSizes.length - index) / cacheSizes.length,
                       }}
-                      className="h-6 bg-brand"
+                      className="h-6 bg-foreground/50"
                     />
                   ))}
                 </div>
@@ -196,7 +198,7 @@ function CacheSection() {
                   {cacheSizes.map(([key], index) => (
                     <div key={key} className="flex flex-row gap-1 items-center">
                       <div
-                        className="h-3 w-3 bg-brand rounded-full"
+                        className="h-3 w-3 bg-foreground/50 rounded-full"
                         style={{
                           opacity:
                             (cacheSizes.length - index) / cacheSizes.length,

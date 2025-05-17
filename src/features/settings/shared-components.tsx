@@ -19,6 +19,7 @@ export function Section({
 export function SectionItem({
   children,
   to,
+  unstyled,
   ...rest
 }: {
   id?: string;
@@ -28,6 +29,7 @@ export function SectionItem({
   onClick?: () => void;
   rel?: string;
   target?: string;
+  unstyled?: boolean;
 }) {
   let Comp: "div" | "a" | "button" | typeof Link = "div";
 
@@ -46,8 +48,8 @@ export function SectionItem({
       to={to as any}
       {...rest}
       className={cn(
-        "py-2 text-start flex",
-        (rest.onClick || rest.href || to) && "text-brand font-light",
+        "py-2 text-start",
+        !unstyled && "flex items-center justify-between font-light",
       )}
     >
       {children}

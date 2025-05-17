@@ -24,8 +24,8 @@ import { LuMenu } from "react-icons/lu";
 import { Button } from "./ui/button";
 import { useMedia } from "../lib/hooks";
 import { IoPersonOutline, IoBookmarksOutline } from "react-icons/io5";
-import { FiLogOut } from "react-icons/fi";
 import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID } from "../routing/config";
+import { LogOut } from "./icons";
 
 export function UserDropdown() {
   const media = useMedia();
@@ -161,7 +161,7 @@ export function UserDropdown() {
               </Link>
             )}
             <DropdownMenuItem onClick={() => logout.mutate(selectedAccount)}>
-              <FiLogOut />
+              <LogOut />
               Logout
             </DropdownMenuItem>
           </>
@@ -287,7 +287,7 @@ export function UserSidebar() {
               onClick={() => logout.mutate(selectedAccount)}
               className="flex flex-row items-center gap-2 text-lg"
             >
-              <FiLogOut /> Logout
+              <LogOut /> Logout
             </button>
           </IonMenuToggle>
         </>
