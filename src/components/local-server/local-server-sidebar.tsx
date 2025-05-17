@@ -145,16 +145,19 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
 
   if (asPage) {
     return (
-      <section className="p-3 flex flex-col gap-3">
-        <h2 className="text-muted-foreground uppercase">
-          ABOUT {instanceName}
-        </h2>
+      <>
+        <section className="p-3 flex flex-col gap-3">
+          <h2 className="text-muted-foreground uppercase">
+            ABOUT {instanceName}
+          </h2>
 
-        <MarkdownRenderer
-          className="text-muted-foreground"
-          markdown={sidebar}
-        />
-      </section>
+          <MarkdownRenderer
+            className="text-muted-foreground"
+            markdown={sidebar}
+          />
+        </section>
+        <Separator />
+      </>
     );
   }
 
@@ -244,9 +247,6 @@ export function LocalSererSidebarPage() {
   return (
     <div className="flex-1">
       <InstanceSidebar asPage />
-      <Separator />
-      <PopularCommunitiesSidebar asPage />
-      <Separator />
       <InstanceAdmins asPage />
     </div>
   );

@@ -9,6 +9,7 @@ import {
 } from "@ionic/react";
 import { ContentGutters } from "../components/gutters";
 import { LocalSererSidebarPage } from "../components/local-server/local-server-sidebar";
+import { UserDropdown } from "../components/nav";
 
 export default function InstanceSidebar() {
   return (
@@ -19,6 +20,9 @@ export default function InstanceSidebar() {
             <IonBackButton text="" />
           </IonButtons>
           <IonTitle>Instance Sidebar</IonTitle>
+          <IonButtons slot="end">
+            <UserDropdown />
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
 

@@ -11,7 +11,10 @@ for (const { name, base } of tabs) {
     test("loads community feed", async ({ page }) => {
       await page.goto(`${base}c/asklemmy@lemmy.ml`);
       const postCard = page.getByTestId("post-card").first();
-      await expect(postCard).toContainText("asklemmy@lemmy.ml");
+      // TODO: find something else to assert for here
+      // We no longer render the community slug since you
+      // already know you're in that community
+      //await expect(postCard).toContainText("asklemmy@lemmy.ml");
     });
 
     test("loads user feed", async ({ page }) => {
