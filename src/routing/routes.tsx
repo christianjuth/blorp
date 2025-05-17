@@ -17,6 +17,9 @@ const userSchema = z.object({
 const searchSchema = z.object({
   communityName: z.string().optional(),
 });
+const manageAccountSchema = z.object({
+  index: z.string(),
+});
 
 export const routeDefs = {
   // Home
@@ -69,6 +72,7 @@ export const routeDefs = {
   ...buildRoute("/create/*"),
   // Settings
   ...buildRoute("/settings"),
+  ...buildRoute("/settings/manage-blocks/:index", manageAccountSchema),
   ...buildRoute("/settings/*"),
   // Other
   ...buildRoute("/download"),

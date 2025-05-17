@@ -12,42 +12,25 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
-  IonInput,
-  IonItem,
-  IonList,
   IonPage,
   IonTitle,
   IonToggle,
   IonToolbar,
-  useIonAlert,
 } from "@ionic/react";
-import { UserDropdown } from "../components/nav";
-import { PageTitle } from "../components/page-title";
-import { PersonCard } from "../components/person/person-card";
-import { Deferred } from "../lib/deferred";
-import { createSlug } from "../lib/lemmy/utils";
-import { cn } from "../lib/utils";
+import { UserDropdown } from "@/src/components/nav";
+import { PageTitle } from "@/src/components/page-title";
+import { PersonCard } from "@/src/components/person/person-card";
+import { createSlug } from "@/src/lib/lemmy/utils";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
-import { openUrl } from "../lib/linking";
-import { RoutePath } from "../routing/routes";
+import { openUrl } from "@/src/lib/linking";
+import { resolveRoute } from "@/src/routing";
+import { SectionItem, Section } from "./shared-components";
+import { useConfirmationAlert } from "@/src/lib/hooks";
+import { DebouncedInput } from "@/src/components/debounced-input";
 
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
-
-function SectionLabel({
-  children,
-  className,
-}: {
-  children: string;
-  className?: string;
-}) {
-  return (
-    <span className={cn("text-sm text-muted-foreground mt-4", className)}>
-      {children}
-    </span>
-  );
-}
 
 function AccountCard({
   account,
@@ -58,7 +41,7 @@ function AccountCard({
 }) {
   const modalTriggerId = useId();
 
-  const [alrt] = useIonAlert();
+  const getConfirmation = useConfirmationAlert();
   const requireAuth = useRequireAuth();
   const logout = useLogout();
   const logoutZustand = useAuth((s) => s.logout);
@@ -66,99 +49,74 @@ function AccountCard({
   const isLoggedIn = Boolean(account.jwt);
 
   return (
-    <>
-      <SectionLabel>{`ACCOUNT ${accountIndex + 1}`}</SectionLabel>
-      <IonList inset>
-        {person && (
-          <IonItem>
-            <PersonCard
-              actorId={person.actor_id}
-              person={person}
-              className="my-2"
-            />
-          </IonItem>
-        )}
+    <Section title={`ACCOUNT ${accountIndex + 1}`}>
+      {person && (
+        <SectionItem>
+          <PersonCard actorId={person.actor_id} person={person} size="sm" />
+        </SectionItem>
+      )}
 
-        {isLoggedIn && (
-          <IonItem
-            button
+      {isLoggedIn && (
+        <>
+          <SectionItem
+            to={resolveRoute("/settings/manage-blocks/:index", {
+              index: String(accountIndex),
+            })}
+          >
+            Manage Blocks
+          </SectionItem>
+
+          <SectionItem
             onClick={() => {
-              alrt({
+              getConfirmation({
                 header: `Delete Account?`,
                 message:
                   "You’ll be taken to Lemmy’s website to confirm deletion. Continue?",
-                buttons: [
-                  {
-                    text: "Cancel",
-                    role: "cancel",
-                  },
-                  {
-                    text: "Continue",
-                    role: "destructive",
-                    handler: () => {
-                      if (Capacitor.isNativePlatform()) {
-                        Browser.open({
-                          url: `${account.instance}settings`,
-                        });
-                      } else {
-                        openUrl(`${account.instance}settings`);
-                      }
-                    },
-                  },
-                ],
+                danger: true,
+                confirmText: "Continue",
+              }).then(() => {
+                if (Capacitor.isNativePlatform()) {
+                  Browser.open({
+                    url: `${account.instance}settings`,
+                  });
+                } else {
+                  openUrl(`${account.instance}settings`);
+                }
               });
             }}
             rel="noopener noreferrer"
             id={modalTriggerId}
-            detail={false}
-            className="text-brand"
           >
             Delete account
-          </IonItem>
-        )}
-        <IonItem
-          button
-          detail={false}
-          className="text-brand"
-          onClick={() => {
-            if (isLoggedIn && person) {
-              const deferred = new Deferred();
-              alrt({
-                message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
-                buttons: [
-                  {
-                    text: "Cancel",
-                    role: "cancel",
-                    handler: () => deferred.reject(),
-                  },
-                  {
-                    text: "OK",
-                    role: "confirm",
-                    handler: () => deferred.resolve(),
-                  },
-                ],
-              });
-              deferred.promise.then(() => logout.mutate(account));
-            } else if (accountIndex > 0) {
-              logoutZustand(accountIndex);
-            } else {
-              requireAuth();
-            }
-          }}
-        >
-          {[
-            isLoggedIn ? "Logout" : accountIndex > 0 ? "Remove" : "Login",
-            person
-              ? `${person.name}@${instance}`
-              : accountIndex > 0
-                ? instance
-                : null,
-          ]
-            .filter(Boolean)
-            .join(" ")}
-        </IonItem>
-      </IonList>
-    </>
+          </SectionItem>
+        </>
+      )}
+
+      <SectionItem
+        onClick={() => {
+          if (isLoggedIn && person) {
+            getConfirmation({
+              message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
+            }).then(() => logout.mutate(account));
+          } else if (accountIndex > 0) {
+            logoutZustand(accountIndex);
+          } else {
+            requireAuth();
+          }
+        }}
+      >
+        {[
+          isLoggedIn ? "Logout" : accountIndex > 0 ? "Remove" : "Login",
+          person
+            ? `${person.name}@${instance}`
+            : accountIndex > 0
+              ? instance
+              : null,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      </SectionItem>
+    </Section>
   );
 }
 
@@ -210,11 +168,9 @@ function CacheSection() {
 
   return (
     <>
-      <SectionLabel>STORAGE</SectionLabel>
-
-      <IonList inset>
-        <IonItem>
-          <div className="py-2.5 flex-1 flex flex-col gap-2">
+      <Section title="STORAGE">
+        <SectionItem>
+          <div className="flex-1 flex flex-col gap-2">
             <span className="text-sm text-muted-foreground">
               Cache {formatSize(totalSize)}
               {settings.cacheImages ? " (excludes images)" : ""}
@@ -273,26 +229,13 @@ function CacheSection() {
             {/*   Clear data cache */}
             {/* </SettingsButton> */}
           </div>
-        </IonItem>
-      </IonList>
+        </SectionItem>
+      </Section>
     </>
   );
 }
 
-function Divider() {
-  return <div />;
-}
-
 export default function SettingsPage() {
-  const [logoClicks, setLogoClicks] = useState(0);
-
-  useEffect(() => {
-    if (logoClicks >= 10) {
-      window.location.reload();
-      setLogoClicks(0);
-    }
-  }, [logoClicks]);
-
   //const showNsfw = useSettingsStore((s) => s.showNsfw);
   //const setShowNsfw = useSettingsStore((s) => s.setShowNsfw);
 
@@ -317,21 +260,20 @@ export default function SettingsPage() {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>
-        <ContentGutters className="pt-4 pb-8 max-md:px-2.5">
-          <div className="flex-1 gap-2 flex flex-col">
+        <ContentGutters className="pt-4 pb-12 max-md:px-2.5">
+          <div className="flex-1 gap-9 flex flex-col">
             <AccountSection />
 
-            <SectionLabel>GLOBAL FILTERS</SectionLabel>
-
-            <IonList inset>
-              <IonItem>
+            <Section title="GLOBAL FILTERS">
+              <SectionItem>
                 <IonToggle
+                  className="flex-1 font-light"
                   checked={hideRead}
                   onIonChange={(e) => setHideRead(e.detail.checked)}
                 >
                   Hide read posts from feeds
                 </IonToggle>
-              </IonItem>
+              </SectionItem>
               {/* 
                 This should be set at the account level,
                 and iOS requores that this is done outside of the app.
@@ -343,75 +285,55 @@ export default function SettingsPage() {
                   Show NSFW
                 </IonToggle>
               </IonItem>*/}
-            </IonList>
+            </Section>
 
-            <SectionLabel>GLOBAL KEYWORD FILTERS</SectionLabel>
-
-            <IonList inset>
+            <Section title="GLOBAL KEYWORD FILTERS">
               {keywords.map((keyword, index) => (
-                <IonItem key={index}>
-                  {index > 0 && <Divider />}
-                  <IonInput
-                    value={keyword}
-                    onIonChange={(e) =>
+                <SectionItem key={index}>
+                  <DebouncedInput
+                    defaultValue={keyword}
+                    debounceTimeout={1000}
+                    onChange={(e) =>
                       setFilterKeywords({
                         index,
-                        keyword: e.detail.value ?? "",
+                        keyword: e.target.value ?? "",
                       })
                     }
-                    onIonBlur={() => {
+                    onBlur={() => {
                       pruneFiltersKeywords();
                     }}
                     placeholder="Keyword to filter..."
                   />
-                </IonItem>
+                </SectionItem>
               ))}
-            </IonList>
+            </Section>
 
             <CacheSection />
 
-            <SectionLabel>OTHER</SectionLabel>
-
-            <IonList inset>
-              <IonItem
+            <Section title="OTHER">
+              <SectionItem
                 href="https://github.com/christianjuth/blorp/releases"
                 target="_blank"
                 rel="noopener noreferrer"
-                detail={false}
-                className="text-brand"
               >
                 What's new
-              </IonItem>
-              <IonItem
+              </SectionItem>
+              <SectionItem
                 href="https://github.com/christianjuth/blorp/issues/new"
                 target="_blank"
                 rel="noopener noreferrer"
-                detail={false}
-                className="text-brand"
               >
                 Report issue
-              </IonItem>
-              <IonItem
-                routerLink={"/privacy" satisfies RoutePath}
-                detail={false}
-                className="text-brand"
-              >
+              </SectionItem>
+              <SectionItem to={resolveRoute("/privacy")}>
                 Privacy Policy
-              </IonItem>
-
-              <IonItem
-                routerLink={"/terms" satisfies RoutePath}
-                detail={false}
-                className="text-brand"
-              >
+              </SectionItem>
+              <SectionItem to={resolveRoute("/terms")}>
                 Terms of Use
-              </IonItem>
-            </IonList>
+              </SectionItem>
+            </Section>
 
-            <div
-              className="flex flex-col items-center pt-6"
-              onClick={() => setLogoClicks((c) => c + 1)}
-            >
+            <div className="flex flex-col items-center pt-6">
               <Logo />
               <span className="text-muted-foreground">v{version}</span>
             </div>

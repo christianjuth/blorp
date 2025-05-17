@@ -78,7 +78,7 @@ export function CommunityCard({
       <div
         data-testid="community-card"
         className={cn(
-          "flex flex-row gap-2 items-center flex-shrink-0 h-12",
+          "flex flex-row gap-2 items-center flex-shrink-0 h-12 text-foreground",
           size === "sm" && "h-9",
           className,
         )}
@@ -96,7 +96,7 @@ export function CommunityCard({
         communityName: slug?.slug,
       }}
       className={cn(
-        "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full",
+        "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full text-foreground",
         size === "sm" && "h-9",
         className,
       )}

@@ -25,6 +25,7 @@ import {
   GetPersonMentions,
   Register,
   MarkPersonMentionAsRead,
+  BlockCommunity,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -69,16 +70,16 @@ const DEFAULT_HEADERS = {
   "User-Agent": env.REACT_APP_NAME.toLowerCase(),
 };
 
-function useLemmyClient(config?: { instance?: string }) {
+function useLemmyClient(account?: Partial<Account>) {
   let jwt = useAuth((s) => s.getSelectedAccount().jwt);
   const myUserId = useAuth(
     (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
   );
   let instance =
     useAuth((s) => s.getSelectedAccount().instance) ?? "https://lemmy.ml";
-  if (config?.instance) {
-    instance = config.instance;
-    jwt = undefined;
+  if (account?.instance) {
+    instance = account.instance;
+    jwt = account.jwt;
   }
 
   return useMemo(() => {
@@ -872,7 +873,7 @@ export function useRegister(config?: {
   addAccount?: boolean;
   instance?: string;
 }) {
-  const { client, setJwt } = useLemmyClient(config);
+  const { client, setJwt } = useLemmyClient({ instance: config?.instance });
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
@@ -991,20 +992,19 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
   };
 }
 
-export function useRefreshAuth(account: Account) {
+export function useRefreshAuth(account?: Account) {
+  const { client } = useLemmyClient(account);
   const updateAccount = useAuth((s) => s.updateAccount);
   const logout = useAuth((s) => s.logout);
+
+  const selectedAccount = useAuth((s) => s.getSelectedAccount());
+  account ??= selectedAccount;
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
   return useMutation({
     mutationFn: async () => {
-      const client = new LemmyHttp(account.instance);
-      client.setHeaders({
-        ...DEFAULT_HEADERS,
-        Authorization: `Bearer ${account.jwt}`,
-      });
       const site = await client.getSite();
       if (account.jwt && !site.my_user) {
         logout(account);
@@ -1783,9 +1783,9 @@ export function useCreateCommentReport() {
   });
 }
 
-export function useBlockPerson() {
-  const { client } = useLemmyClient();
-
+export function useBlockPerson(account?: Account) {
+  const { client } = useLemmyClient(account);
+  const refersh = useRefreshAuth(account);
   return useMutation({
     mutationFn: (form: BlockPerson) => client.blockPerson(form),
     onError: (err, { block }) => {
@@ -1795,6 +1795,23 @@ export function useBlockPerson() {
         toast.error(`Couldn't ${block ? "block" : "unblock"} person`);
       }
     },
+    onSuccess: () => refersh.mutate(),
+  });
+}
+
+export function useBlockCommunity(account?: Account) {
+  const { client } = useLemmyClient(account);
+  const refersh = useRefreshAuth(account);
+  return useMutation({
+    mutationFn: (form: BlockCommunity) => client.blockCommunity(form),
+    onError: (err, { block }) => {
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error(`Couldn't ${block ? "block" : "unblock"} community`);
+      }
+    },
+    onSuccess: () => refersh.mutate(),
   });
 }
 

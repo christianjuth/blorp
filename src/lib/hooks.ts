@@ -10,6 +10,8 @@ import { useMediaQuery } from "react-responsive";
 import { InAppBrowser } from "@capacitor/inappbrowser";
 import { useHistory, useLocation } from "react-router-dom";
 import type z from "zod";
+import { useIonAlert } from "@ionic/react";
+import { Deferred } from "./deferred";
 
 export function useTheme() {
   const prefersDark = useMediaQuery({ query: "(prefers-color-scheme: dark)" });
@@ -163,4 +165,41 @@ export function useUrlSearchState<S extends z.ZodSchema>(
   );
 
   return [value, setValue];
+}
+
+export function useConfirmationAlert() {
+  const [alrt] = useIonAlert();
+
+  return async ({
+    header,
+    message,
+    cancelText = "Cancel",
+    confirmText = "OK",
+    danger,
+  }: {
+    header?: string;
+    message: string;
+    cancelText?: string;
+    confirmText?: string;
+    danger?: boolean;
+  }) => {
+    const deferred = new Deferred();
+    alrt({
+      header,
+      message,
+      buttons: [
+        {
+          text: cancelText,
+          role: "cancel",
+          handler: () => deferred.reject(),
+        },
+        {
+          text: confirmText,
+          role: danger ? "destructive" : "confirm",
+          handler: () => deferred.resolve(),
+        },
+      ],
+    });
+    return await deferred.promise;
+  };
 }

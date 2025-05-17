@@ -90,20 +90,20 @@ ion-toolbar ion-searchbar {
   min-height: unset !important;
 }
 
-ion-list {
-  --ion-item-background: var(--secondary);
-}
-
-list-item {
-  --border-color: red;
-}
-
-ion-list.list-inset {
-  margin-inline-start: 0 !important;
-  margin-inline-end: 0 !important;
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-}
+/*ion-list {*/
+/*  --ion-item-background: var(--secondary);*/
+/*}*/
+/**/
+/*list-item {*/
+/*  --border-color: red;*/
+/*}*/
+/**/
+/*ion-list.list-inset {*/
+/*  margin-inline-start: 0 !important;*/
+/*  margin-inline-end: 0 !important;*/
+/*  margin-top: 0 !important;*/
+/*  margin-bottom: 0 !important;*/
+/*}*/
 
 /* Keyboard avoidance */
 /*ion-modal .ion-delegate-host,*/

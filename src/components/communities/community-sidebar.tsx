@@ -1,4 +1,4 @@
-import { useCommunity } from "@/src/lib/lemmy/index";
+import { useBlockCommunity, useCommunity } from "@/src/lib/lemmy/index";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { MarkdownRenderer } from "../markdown/renderer";
@@ -21,13 +21,17 @@ import {
 import { PersonCard } from "../person/person-card";
 import { shareRoute } from "@/src/lib/share";
 import { Sidebar, SidebarContent } from "../sidebar";
-import { Collapsible, CollapsibleTrigger } from "../ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
 import { ChevronsUpDown } from "lucide-react";
-import { CollapsibleContent } from "@radix-ui/react-collapsible";
 import { Separator } from "../ui/separator";
 import { useSidebarStore } from "@/src/stores/sidebars";
 import { cn } from "@/src/lib/utils";
 import { AggregateGrid } from "../aggregate-grid";
+import { useConfirmationAlert } from "@/src/lib/hooks";
 
 dayjs.extend(localizedFormat);
 
@@ -42,6 +46,7 @@ export function SmallScreenSidebar({
   actorId?: string;
   expanded?: boolean;
 }) {
+  const getConfirmation = useConfirmationAlert();
   const linkCtx = useLinkContext();
 
   useCommunity({
@@ -57,6 +62,8 @@ export function SmallScreenSidebar({
   const createPost = useCommunityCreatePost({
     communityName,
   });
+
+  const blockCommunity = useBlockCommunity();
 
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
@@ -89,6 +96,23 @@ export function SmallScreenSidebar({
                   // TODO: handle error
                 }
               },
+            },
+          ]
+        : []),
+      ...(isLoggedIn
+        ? [
+            {
+              text: "Block community",
+              danger: true,
+              onClick: () =>
+                getConfirmation({
+                  message: `Block ${communityName}`,
+                }).then(() =>
+                  blockCommunity.mutate({
+                    community_id: community.id,
+                    block: true,
+                  }),
+                ),
             },
           ]
         : []),
@@ -195,6 +219,8 @@ export function CommunitySidebar({
   hideDescription?: boolean;
   asPage?: boolean;
 }) {
+  const getConfirmation = useConfirmationAlert();
+
   useCommunity({
     name: communityName,
   });
@@ -216,6 +242,8 @@ export function CommunitySidebar({
   const createPost = useCommunityCreatePost({
     communityName,
   });
+
+  const blockCommunity = useBlockCommunity();
 
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
@@ -248,6 +276,23 @@ export function CommunitySidebar({
                   // TODO: handle error
                 }
               },
+            },
+          ]
+        : []),
+      ...(isLoggedIn
+        ? [
+            {
+              text: "Block community",
+              danger: true,
+              onClick: () =>
+                getConfirmation({
+                  message: `Block ${communityName}`,
+                }).then(() =>
+                  blockCommunity.mutate({
+                    community_id: community.id,
+                    block: true,
+                  }),
+                ),
             },
           ]
         : []),

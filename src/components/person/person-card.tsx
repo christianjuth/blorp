@@ -18,11 +18,13 @@ export function PersonCard({
   size = "md",
   className,
   person: override,
+  disableLink,
 }: {
   actorId: string;
   person?: Person;
   size?: "sm" | "md";
   className?: string;
+  disableLink?: boolean;
 }) {
   const linkCtx = useLinkContext();
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -36,7 +38,7 @@ export function PersonCard({
   const p = override ?? personView?.person;
   const slug = p ? createSlug(p) : null;
 
-  if (!personView) {
+  if (!personView && !override) {
     return <PersonSkeletonCard size={size} className={className} />;
   }
 
@@ -64,17 +66,30 @@ export function PersonCard({
     </>
   );
 
+  if (disableLink) {
+    return (
+      <div
+        data-testid="person-card"
+        className={cn(
+          "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full text-foreground",
+          size === "sm" && "h-9",
+          className,
+        )}
+      >
+        {content}
+      </div>
+    );
+  }
+
   return (
     <Link
       data-testid="person-card"
       to={`${linkCtx.root}u/:userId`}
       params={{
-        userId: encodeApId(
-          override ? override.actor_id : personView?.person.actor_id,
-        ),
+        userId: encodeApId(override ? override.actor_id : actorId),
       }}
       className={cn(
-        "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full",
+        "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full text-foreground",
         size === "sm" && "h-9",
         className,
       )}

@@ -21,30 +21,35 @@ import { lazy } from "react";
 import { dispatchScrollEvent } from "@/src/lib/scroll-events";
 import { isTauri } from "@/src/lib/device";
 import { AppUrlListener } from "@/src/components/universal-links";
-import { CreatePost } from "@/src/screens/create-post";
+import { CreatePost } from "@/src/features/create-post";
 import { cn } from "../lib/utils";
 import { UserSidebar } from "../components/nav";
 import { MainSidebar } from "./MainSidebar";
 import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID, TABS } from "./config";
+import InstanceSidebar from "../features/instance-sidebar";
 
-const CSAE = lazy(() => import("@/src/screens/csae"));
-const NotFound = lazy(() => import("@/src/screens/not-found"));
-const Download = lazy(() => import("@/src/screens/download"));
-const Inbox = lazy(() => import("@/src/screens/inbox"));
-const Privacy = lazy(() => import("@/src/screens/privacy"));
-const OSLicenses = lazy(() => import("@/src/screens/licenses"));
-const Terms = lazy(() => import("@/src/screens/terms"));
-const Support = lazy(() => import("@/src/screens/support"));
-const HomeFeed = lazy(() => import("@/src/screens/home-feed"));
-const Post = lazy(() => import("@/src/screens/post"));
-const SettingsPage = lazy(() => import("@/src/screens/settings"));
-const CommunityFeed = lazy(() => import("@/src/screens/community-feed"));
-const CommunitySidebar = lazy(() => import("@/src/screens/community-sidebar"));
-const CommunitiesFeed = lazy(() => import("@/src/screens/communities-feed"));
-const User = lazy(() => import("@/src/screens/user"));
-const SavedFeed = lazy(() => import("@/src/screens/saved-feed"));
-const Search = lazy(() => import("@/src/screens/search"));
-const InstanceSidebar = lazy(() => import("@/src/screens/instance-sidebar"));
+const CSAE = lazy(() => import("@/src/features/csae"));
+const NotFound = lazy(() => import("@/src/features/not-found"));
+const Download = lazy(() => import("@/src/features/download"));
+const Inbox = lazy(() => import("@/src/features/inbox"));
+const Privacy = lazy(() => import("@/src/features/privacy"));
+const OSLicenses = lazy(() => import("@/src/features/licenses"));
+const Terms = lazy(() => import("@/src/features/terms"));
+const Support = lazy(() => import("@/src/features/support"));
+const HomeFeed = lazy(() => import("@/src/features/home-feed"));
+const Post = lazy(() => import("@/src/features/post"));
+const SettingsPage = lazy(
+  () => import("@/src/features/settings/settings-screen"),
+);
+const ManageBlocks = lazy(
+  () => import("@/src/features/settings/manage-blocks-screen"),
+);
+const CommunityFeed = lazy(() => import("@/src/features/community-feed"));
+const CommunitySidebar = lazy(() => import("@/src/features/community-sidebar"));
+const CommunitiesFeed = lazy(() => import("@/src/features/communities-feed"));
+const User = lazy(() => import("@/src/features/user"));
+const SavedFeed = lazy(() => import("@/src/features/saved-feed"));
+const Search = lazy(() => import("@/src/features/search"));
 
 const HOME_STACK = [
   <Route key="/home/*" path="/home/*" component={NotFound} />,
@@ -201,6 +206,12 @@ const INBOX_STACK = [
 const SETTINGS = [
   <Route key="/settings/*" path="/settings/*" component={NotFound} />,
   <Route key="/settings" exact path="/settings" component={SettingsPage} />,
+  <Route
+    key="/settings/manage-blocks/:index"
+    exact
+    path="/settings/manage-blocks/:index"
+    component={ManageBlocks}
+  />,
 ];
 
 function Tabs() {
