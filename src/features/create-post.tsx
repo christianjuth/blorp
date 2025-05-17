@@ -431,11 +431,10 @@ export function CreatePost() {
                       body,
                     })
                   }
-                  className="md:border md:rounded-lg shadow-xs max-md:-mx-3 max-md:flex-1"
+                  className="md:border md:rounded-lg md:shadow-xs max-md:-mx-3 max-md:flex-1"
                   placeholder="Write something..."
                 />
-
-                {getPostButton("self-end")}
+                {getPostButton("self-end max-md:hidden")}
               </div>
             </div>
           )}
