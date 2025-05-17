@@ -60,7 +60,8 @@ broadcastQueryClient({
 updateTauri();
 
 function RefreshNotificationCount() {
-  const { data: count } = useNotificationCount();
+  const counts = useNotificationCount() ?? [];
+  const count = _.sum(counts);
   if (isTauri()) {
     getCurrentWindow().setBadgeCount(count === 0 ? undefined : count);
   }

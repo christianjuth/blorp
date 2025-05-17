@@ -12,6 +12,7 @@ import { CommunityCard } from "@/src/components/communities/community-card";
 import { LEFT_SIDEBAR_MENU_ID, TABS } from "./config";
 import { Separator } from "../components/ui/separator";
 import {
+  Circle,
   DocumentsOutline,
   LockClosedOutline,
   ScrollTextOutline,
@@ -19,9 +20,11 @@ import {
 } from "../components/icons";
 import { useLinkContext } from "./link-context";
 import { RoutePath } from "./routes";
+import { Badge } from "../components/badge";
 
 function SidebarTabs() {
-  const count = useNotificationCount();
+  const selectedAccountIndex = useAuth((s) => s.accountIndex);
+  const count = useNotificationCount()[selectedAccountIndex];
   const pathname = useIonRouter().routeInfo.pathname;
 
   return (
@@ -42,20 +45,14 @@ function SidebarTabs() {
               isActive ? "bg-secondary" : "text-muted-foreground",
             )}
           >
-            <IonIcon
-              icon={t.icon(isActive)}
-              key={isActive ? "active" : "inactive"}
-              className="text-2xl"
-            />
+            <Badge showBadge={t.id === "inbox" && !!count}>
+              <IonIcon
+                icon={t.icon(isActive)}
+                key={isActive ? "active" : "inactive"}
+                className="text-2xl"
+              />
+            </Badge>
             <span className="text-sm ml-2">{t.label}</span>
-            {t.id === "inbox" && (
-              <IonBadge
-                className="bg-destructive px-1 -mt-3 py-0.5"
-                hidden={!count.data}
-              >
-                {count.data}
-              </IonBadge>
-            )}
           </button>
         );
       })}
