@@ -49,7 +49,7 @@ export function SectionItem({
       {...rest}
       className={cn(
         "py-2 text-start",
-        !unstyled && "flex items-center justify-between font-light",
+        !unstyled && "flex items-center justify-between",
       )}
     >
       {children}
