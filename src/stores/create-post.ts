@@ -30,8 +30,8 @@ export const NEW_DRAFT: Draft = {
   createdAt: Date.now(),
 };
 
-function isEmptyDraft(draft: Draft) {
-  const fields = _.omit(draft, ["type", "apId", "createdAt"]);
+export function isEmptyDraft(draft: Draft) {
+  const fields = _.omit(draft, ["type", "apId", "createdAt", "community"]);
   for (const id in fields) {
     if (fields[id as keyof typeof fields]) {
       return false;
@@ -170,11 +170,16 @@ export const useCreatePostStore = create<CreatePostStore>()(
       version: 4,
       onRehydrateStorage: () => {
         return (state) => {
-          state?.cleanup();
+          if (!alreadyClean) {
+            state?.cleanup();
+            alreadyClean = true;
+          }
         };
       },
     },
   ),
 );
+
+let alreadyClean = false;
 
 sync(useCreatePostStore);

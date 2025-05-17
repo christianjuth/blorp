@@ -55,7 +55,7 @@ function useDelayedReady(delay: number) {
 
 const MemoedPostCard = memo((props: PostProps) => (
   <ContentGutters className="px-0">
-    <FeedPostCard {...props} detailView />
+    <FeedPostCard {...props} detailView showCommunity showCreator />
     <></>
   </ContentGutters>
 ));

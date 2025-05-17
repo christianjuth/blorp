@@ -75,9 +75,9 @@ export type LinkProps<P extends RoutePath> =
 export function Link<Path extends RoutePath>({
   searchParams,
   to,
+  params,
   ...rest
 }: LinkProps<Path>) {
-  const params = "params" in rest ? rest.params : {};
   const toString = compile(to, { encode: false })(params);
   return <RRLink to={toString + (searchParams ?? "")} {...rest} />;
 }

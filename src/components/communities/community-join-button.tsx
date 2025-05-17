@@ -1,7 +1,9 @@
+import { Deferred } from "@/src/lib/deferred";
 import { Button } from "../ui/button";
 import { useFollowCommunity } from "@/src/lib/lemmy/index";
 import { useAuth } from "@/src/stores/auth";
 import { useCommunitiesStore } from "@/src/stores/communities";
+import { useIonAlert } from "@ionic/react";
 
 interface Props {
   communityName: string | undefined;
@@ -9,6 +11,8 @@ interface Props {
 }
 
 export function CommunityJoinButton({ communityName, ...props }: Props) {
+  const [alrt] = useIonAlert();
+
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const follow = useFollowCommunity();
 
@@ -25,7 +29,7 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
   if (subscribed === "Pending") {
     copy = "Pending";
   } else if (subscribed === "Subscribed") {
-    copy = "Leave";
+    copy = "Joined";
   }
 
   const communityView = cache?.data.communityView;
@@ -37,13 +41,35 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
   return (
     <Button
       size="sm"
-      variant={subscribed === "NotSubscribed" ? "default" : "secondary"}
+      variant={subscribed === "NotSubscribed" ? "default" : "outline"}
       {...props}
-      onClick={() => {
+      onClick={async () => {
         if (communityView) {
+          const shouldFollow = subscribed === "NotSubscribed";
+
+          if (!shouldFollow) {
+            const deferred = new Deferred();
+            alrt({
+              message: `Are you sure you want to leave ${communityName}`,
+              buttons: [
+                {
+                  text: "Cancel",
+                  role: "cancel",
+                  handler: () => deferred.reject(),
+                },
+                {
+                  text: "Leave",
+                  role: "destructive",
+                  handler: () => deferred.resolve(),
+                },
+              ],
+            });
+            await deferred.promise;
+          }
+
           follow.mutate({
             community: communityView.community,
-            follow: subscribed === "NotSubscribed" ? true : false,
+            follow: shouldFollow ? true : false,
           });
         }
       }}

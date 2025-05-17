@@ -8,7 +8,7 @@ import {
 } from "../components/posts/post";
 import { MarkdownRenderer } from "../components/markdown/renderer";
 import { VirtualList } from "../components/virtual-list";
-import { PostSortBar } from "../components/lemmy-sort";
+import { PostSortButton } from "../components/lemmy-sort";
 import { memo, useMemo } from "react";
 import { createPersonSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
@@ -198,7 +198,7 @@ export default function User() {
                 {type === "posts" && (
                   <>
                     <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
-                    <PostSortBar align="start" />
+                    <PostSortButton align="start" />
                   </>
                 )}
               </div>
@@ -239,7 +239,7 @@ export default function User() {
                   {type === "posts" && (
                     <>
                       <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
-                      <PostSortBar align="start" />
+                      <PostSortButton align="start" />
                     </>
                   )}
                 </div>

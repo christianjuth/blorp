@@ -112,8 +112,7 @@ export default function SavedFeed() {
     type_: "All",
   });
 
-  const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch, isLoading } =
-    posts;
+  const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } = posts;
 
   const postCache = usePostsStore((s) => s.posts);
 
@@ -192,7 +191,11 @@ export default function SavedFeed() {
           <VirtualList<Item>
             key={type === "comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
-            data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}
+            data={
+              data.length === 0 && !posts.isRefetching && !posts.isPending
+                ? [NO_ITEMS]
+                : data
+            }
             header={[
               <ContentGutters
                 className="max-md:hidden"

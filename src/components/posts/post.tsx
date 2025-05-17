@@ -116,6 +116,8 @@ export function getPostProps(
 export interface PostProps extends ReturnType<typeof getPostProps> {
   detailView?: boolean;
   onNavigate?: () => any;
+  showCommunity?: boolean;
+  showCreator?: boolean;
 }
 
 export function PostCardSkeleton(props: {

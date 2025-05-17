@@ -752,10 +752,11 @@ function useThrottledInfiniteQuery<
   };
 
   useEffect(() => {
+    const isWarmed = warmedInfiniteQueryKeys.get(queryKeyStr) ?? false;
     if (!isWarmed) {
       queryWithTruncate.truncatePages();
     }
-  }, []);
+  }, [queryKeyStr]);
 
   return queryWithTruncate;
 }

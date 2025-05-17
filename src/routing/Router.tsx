@@ -10,39 +10,22 @@ import {
   useIonRouter,
   IonBadge,
   IonLabel,
-  IonMenuToggle,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import {
-  cog,
-  notifications,
-  people,
-  home,
-  homeOutline,
-  peopleOutline,
-  notificationsOutline,
-  cogOutline,
-  create,
-  createOutline,
-} from "ionicons/icons";
-import { Route, Link, Redirect } from "@/src/routing/index";
+import { Route, Redirect } from "@/src/routing/index";
 import _ from "lodash";
-import { twMerge } from "tailwind-merge";
 import { useMedia } from "@/src/lib/hooks";
-
 import { Logo } from "@/src/components/logo";
-import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
-import { useAuth } from "@/src/stores/auth";
-import {
-  useNotificationCount,
-  useSubscribedCommunities,
-} from "@/src/lib/lemmy";
-
+import { useNotificationCount } from "@/src/lib/lemmy";
 import { lazy } from "react";
 import { dispatchScrollEvent } from "@/src/lib/scroll-events";
 import { isTauri } from "@/src/lib/device";
-import { CommunityCard } from "@/src/components/communities/community-card";
 import { AppUrlListener } from "@/src/components/universal-links";
+import { CreatePost } from "@/src/screens/create-post";
+import { cn } from "../lib/utils";
+import { UserSidebar } from "../components/nav";
+import { MainSidebar } from "./MainSidebar";
+import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID, TABS } from "./config";
 
 const CSAE = lazy(() => import("@/src/screens/csae"));
 const NotFound = lazy(() => import("@/src/screens/not-found"));
@@ -61,10 +44,7 @@ const CommunitiesFeed = lazy(() => import("@/src/screens/communities-feed"));
 const User = lazy(() => import("@/src/screens/user"));
 const SavedFeed = lazy(() => import("@/src/screens/saved-feed"));
 const Search = lazy(() => import("@/src/screens/search"));
-import { CreatePost } from "@/src/screens/create-post";
-import { cn } from "../lib/utils";
-import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID } from "./utils";
-import { UserSidebar } from "../components/nav";
+const InstanceSidebar = lazy(() => import("@/src/screens/instance-sidebar"));
 
 const HOME_STACK = [
   <Route key="/home/*" path="/home/*" component={NotFound} />,
@@ -81,6 +61,12 @@ const HOME_STACK = [
     exact
     path="/home/c/:communityName/s"
     component={Search}
+  />,
+  <Route
+    key="/home/sidebar"
+    exact
+    path="/home/sidebar"
+    component={InstanceSidebar}
   />,
   <Route
     key="/home/c/:communityName/sidebar"
@@ -120,6 +106,12 @@ const COMMUNITIES_STACK = [
   <Route key="/communities/s" exact path="/communities/s">
     <Search defaultType="communities" />
   </Route>,
+  <Route
+    key="/communities/sidebar"
+    exact
+    path="/communities/sidebar"
+    component={InstanceSidebar}
+  />,
   <Route
     key="/communities/c/:communityName"
     exact
@@ -175,6 +167,12 @@ const INBOX_STACK = [
     component={Search}
   />,
   <Route
+    key="/inbox/sidebar"
+    exact
+    path="/inbox/sidebar"
+    component={InstanceSidebar}
+  />,
+  <Route
     key="/inbox/c/:communityName/sidebar"
     exact
     path="/inbox/c/:communityName/sidebar"
@@ -204,134 +202,6 @@ const SETTINGS = [
   <Route key="/settings/*" path="/settings/*" component={NotFound} />,
   <Route key="/settings" exact path="/settings" component={SettingsPage} />,
 ];
-
-function SidebarTabs() {
-  const count = useNotificationCount();
-  const pathname = useIonRouter().routeInfo.pathname;
-
-  return (
-    <>
-      {TABS.map((t) => {
-        const isActive = pathname.startsWith(t.to);
-        return (
-          <button
-            key={t.id}
-            onClick={() => {
-              const tab = document.querySelector(`ion-tab-button[tab=${t.id}]`);
-              if (tab && "click" in tab && _.isFunction(tab.click)) {
-                tab.click();
-              }
-            }}
-            className={twMerge(
-              "relative max-md:hidden text-md flex flex-row items-center py-2 px-3 rounded-xl",
-              isActive ? "bg-secondary" : "text-muted-foreground",
-            )}
-          >
-            <IonIcon
-              icon={t.icon(isActive)}
-              key={isActive ? "active" : "inactive"}
-              className="text-2xl"
-            />
-            <span className="text-sm ml-2">{t.label}</span>
-            {t.id === "inbox" && (
-              <IonBadge
-                className="bg-destructive px-1 -mt-3 py-0.5"
-                hidden={!count.data}
-              >
-                {count.data}
-              </IonBadge>
-            )}
-          </button>
-        );
-      })}
-
-      <div className="max-md:hidden h-[0.5px] w-full bg-border my-2" />
-    </>
-  );
-}
-
-function Sidebar() {
-  const recentCommunities = useRecentCommunitiesStore((s) => s.recentlyVisited);
-  const isLoggedIn = useAuth((s) => s.isLoggedIn());
-
-  const subscribedCommunities = useSubscribedCommunities();
-
-  return (
-    <>
-      <SidebarTabs />
-
-      {recentCommunities.length > 0 && (
-        <>
-          <span className="px-4 py-1 text-sm text-muted-foreground">
-            RECENT
-          </span>
-          {recentCommunities.slice(0, 5).map((c) => (
-            <IonMenuToggle
-              key={c.id}
-              className="px-4 py-0.75 flex flex-row"
-              menu={LEFT_SIDEBAR_MENU_ID}
-              autoHide={false}
-            >
-              <CommunityCard communityView={c} size="sm" />
-            </IonMenuToggle>
-          ))}
-
-          <div className="h-[0.5px] w-full bg-border my-2" />
-        </>
-      )}
-
-      {isLoggedIn && subscribedCommunities.length > 0 && (
-        <>
-          <span className="px-4 py-1 text-sm text-muted-foreground">
-            SUBSCRIBED
-          </span>
-          {subscribedCommunities.map(({ community: c }) => (
-            <IonMenuToggle
-              key={c.id}
-              className="px-4 py-0.75 flex flex-row"
-              menu={LEFT_SIDEBAR_MENU_ID}
-              autoHide={false}
-            >
-              <CommunityCard communityView={c} size="sm" />
-            </IonMenuToggle>
-          ))}
-
-          <div className="h-[0.5px] w-full bg-border my-2" />
-        </>
-      )}
-
-      <IonMenuToggle
-        className="mt-2"
-        menu={LEFT_SIDEBAR_MENU_ID}
-        autoHide={false}
-      >
-        <Link to="/privacy" className="px-4 text-sm text-muted-foreground">
-          Privacy Policy
-        </Link>
-      </IonMenuToggle>
-
-      <IonMenuToggle
-        className="mt-3"
-        menu={LEFT_SIDEBAR_MENU_ID}
-        autoHide={false}
-      >
-        <Link to="/terms" className="px-4 text-sm text-muted-foreground">
-          Terms of Use
-        </Link>
-      </IonMenuToggle>
-
-      <IonMenuToggle
-        className="mt-3"
-        menu={LEFT_SIDEBAR_MENU_ID}
-        autoHide={false}
-      >
-        <Link to="/licenses" className="px-4 text-sm text-muted-foreground">
-          Open Source Licenses
-        </Link>
-      </IonMenuToggle>
-    </>
-  );
-}
 
 function Tabs() {
   const count = useNotificationCount();
@@ -393,7 +263,7 @@ function Tabs() {
               </button>
 
               <div className="md:px-3 pt-2 pb-4 gap-0.5 flex flex-col">
-                <Sidebar />
+                <MainSidebar />
               </div>
 
               <div className="h-[var(--ion-safe-area-buttom)]" />
@@ -470,44 +340,6 @@ function Tabs() {
     </>
   );
 }
-
-const TABS: {
-  icon: (active?: boolean) => string;
-  to: string;
-  label: string;
-  id: string;
-}[] = [
-  {
-    icon: (isActive) => (isActive ? home : homeOutline),
-    to: "/home",
-    label: "Home",
-    id: "home",
-  },
-  {
-    icon: (isActive) => (isActive ? people : peopleOutline),
-    to: "/communities",
-    label: "Communities",
-    id: "communities",
-  },
-  {
-    icon: (isActive) => (isActive ? create : createOutline),
-    to: "/create",
-    label: "Post",
-    id: "create",
-  },
-  {
-    icon: (isActive) => (isActive ? notifications : notificationsOutline),
-    to: "/inbox",
-    label: "Inbox",
-    id: "inbox",
-  },
-  {
-    icon: (isActive) => (isActive ? cog : cogOutline),
-    to: "/settings",
-    label: "Settings",
-    id: "settings",
-  },
-];
 
 export default function Router() {
   return (

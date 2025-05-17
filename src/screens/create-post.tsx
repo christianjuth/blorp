@@ -1,7 +1,12 @@
 import { ContentGutters } from "../components/gutters";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 import { useCallback, useEffect, useId, useState } from "react";
-import { Draft, NEW_DRAFT, useCreatePostStore } from "../stores/create-post";
+import {
+  Draft,
+  isEmptyDraft,
+  NEW_DRAFT,
+  useCreatePostStore,
+} from "../stores/create-post";
 import { VirtualList } from "@/src/components/virtual-list";
 import { CommunityCard } from "../components/communities/community-card";
 import {
@@ -51,6 +56,8 @@ import { Deferred } from "../lib/deferred";
 import z from "zod";
 import { usePostsStore } from "../stores/posts";
 import { getAccountActorId, useAuth } from "../stores/auth";
+import { usePathname } from "../routing/hooks";
+import { Sidebar, SidebarContent } from "../components/sidebar";
 
 dayjs.extend(localizedFormat);
 
@@ -67,10 +74,10 @@ function DraftsSidebar({
   const drafts = useCreatePostStore((s) => s.drafts);
   const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
   return (
-    <div className="flex flex-col gap-3 py-6">
+    <div className="flex flex-col gap-3">
       <div className="flex flex-row justify-between items-center">
         <h2 className="font-bold">Drafts</h2>
-        <Button size="sm" variant="ghost" asChild>
+        <Button size="sm" variant="outline" asChild>
           <Link
             to="/create"
             searchParams={`?id=${uuid()}`}
@@ -92,7 +99,7 @@ function DraftsSidebar({
                 to="/create"
                 searchParams={`?id=${key}`}
                 className={cn(
-                  "bg-muted border px-3 py-2 gap-1 rounded-lg flex flex-col",
+                  "bg-background border px-3 py-2 gap-1 rounded-lg flex flex-col",
                   createPostId === key &&
                     "border-brand border-dashed bg-brand/20",
                 )}
@@ -152,6 +159,23 @@ function DraftsSidebar({
   );
 }
 
+function useLoadRecentCommunity(draftId: string, draft: Draft) {
+  const pathname = usePathname();
+  const isActive = pathname === "/create";
+  const isEmpty = isEmptyDraft(draft);
+  const mostRecentCommunity = useRecentCommunitiesStore(
+    (s) => s.recentlyVisited[0],
+  );
+  const patchDraft = useCreatePostStore((s) => s.updateDraft);
+  useEffect(() => {
+    if (isActive && isEmpty && mostRecentCommunity) {
+      patchDraft(draftId, {
+        community: mostRecentCommunity,
+      });
+    }
+  }, [draftId, isActive, patchDraft]);
+}
+
 export function CreatePost() {
   const [showDrafts, setShowDrafts] = useState(false);
   const media = useMedia();
@@ -170,6 +194,8 @@ export function CreatePost() {
   const isEdit = !!draft.apId;
   const patchDraft = useCreatePostStore((s) => s.updateDraft);
   const deleteDraft = useCreatePostStore((s) => s.deleteDraft);
+
+  useLoadRecentCommunity(draftId, draft);
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore((s) =>
@@ -228,6 +254,30 @@ export function CreatePost() {
     }
   };
 
+  const getPostButton = (className: string) => (
+    <Button
+      size="sm"
+      className={className}
+      onClick={() => {
+        try {
+          if (draft.community) {
+            if (isEdit) {
+              editPost.mutateAsync(draft).then(() => deleteDraft(draftId));
+            } else {
+              createPost.mutateAsync(draft).then(() => deleteDraft(draftId));
+            }
+          }
+        } catch {
+          // TODO: handle incomplete post data
+        }
+      }}
+      disabled={!draft.community || (isEdit && !canEdit)}
+    >
+      {isEdit ? "Update" : "Post"}
+      {createPost.isPending && <LuLoaderCircle className="animate-spin" />}
+    </Button>
+  );
+
   return (
     <IonPage>
       <IonHeader>
@@ -248,33 +298,7 @@ export function CreatePost() {
           <IonTitle>{isEdit ? "Edit" : "Create"} post</IonTitle>
 
           <IonButtons slot="end" className="md:gap-4.5 gap-3.5">
-            <Button
-              size="sm"
-              className={cn(showDrafts && "max-md:hidden")}
-              onClick={() => {
-                try {
-                  if (draft.community) {
-                    if (isEdit) {
-                      editPost
-                        .mutateAsync(draft)
-                        .then(() => deleteDraft(draftId));
-                    } else {
-                      createPost
-                        .mutateAsync(draft)
-                        .then(() => deleteDraft(draftId));
-                    }
-                  }
-                } catch {
-                  // TODO: handle incomplete post data
-                }
-              }}
-              disabled={!draft.community || (isEdit && !canEdit)}
-            >
-              {isEdit ? "Update" : "Post"}
-              {createPost.isPending && (
-                <LuLoaderCircle className="animate-spin" />
-              )}
-            </Button>
+            {getPostButton(cn("md:hidden", showDrafts && "max-md:hidden"))}
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
@@ -410,16 +434,20 @@ export function CreatePost() {
                   className="md:border md:rounded-lg shadow-xs max-md:-mx-3 max-md:flex-1"
                   placeholder="Write something..."
                 />
+
+                {getPostButton("self-end")}
               </div>
             </div>
           )}
 
-          <div className="h-[calc(100vh-60px)] overflow-auto">
-            <DraftsSidebar
-              createPostId={draftId}
-              onClickDraft={() => setShowDrafts(false)}
-            />
-          </div>
+          <Sidebar>
+            <SidebarContent className="p-4">
+              <DraftsSidebar
+                createPostId={draftId}
+                onClickDraft={() => setShowDrafts(false)}
+              />
+            </SidebarContent>
+          </Sidebar>
         </ContentGutters>
       </IonContent>
     </IonPage>

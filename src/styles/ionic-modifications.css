@@ -66,7 +66,7 @@ ion-toolbar ion-buttons {
 /* Make header toolbar padding match content padding */
 ion-toolbar.ios.ios::part(container),
 ion-toolbar.md.md {
-  @apply max-w-[1050px] mx-auto px-3;
+  @apply max-w-[1075px] mx-auto px-3;
 }
 /**
 * Tailwind apply doesn't seem to work with media queries

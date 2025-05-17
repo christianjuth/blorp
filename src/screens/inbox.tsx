@@ -223,7 +223,8 @@ export default function Inbox() {
   const mentions = usePersonMentions({
     unread_only: type === "unread",
   });
-  const isLoading = replies.isPending || mentions.isPending;
+  const isRefetching = replies.isRefetching || mentions.isRefetching;
+  const isPending = replies.isPending || mentions.isPending;
 
   // This updates in the backgroudn,
   // but calling it here ensures the
@@ -340,7 +341,9 @@ export default function Inbox() {
             </ContentGutters>,
           ]}
           stickyHeaderIndices={[0]}
-          data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}
+          data={
+            data.length === 0 && !isRefetching && !isPending ? [NO_ITEMS] : data
+          }
           renderItem={({ item }) => {
             if (item === NO_ITEMS) {
               return (

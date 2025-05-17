@@ -22,6 +22,7 @@ import { TbMessageCircleUp } from "react-icons/tb";
 import { PiFireSimpleBold } from "react-icons/pi";
 import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 import { Button } from "./ui/button";
+import { cn } from "../lib/utils";
 
 function getIconCommunitySort(sort: CommunitySortType) {
   if (sort.startsWith("Top")) {
@@ -302,12 +303,16 @@ function getIconForSort(sort: PostSortType) {
   }
 }
 
-export function PostSortBar({
+export function PostSortButton({
   hideOnGtMd,
   align = "end",
+  variant = "icon",
+  className,
 }: {
   hideOnGtMd?: boolean;
   align?: "start" | "end";
+  variant?: "button" | "icon";
+  className?: string;
 }) {
   const postSort = useFiltersStore((s) => s.postSort);
   const setPostSort = useFiltersStore((s) => s.setPostSort);
@@ -430,8 +435,18 @@ export function PostSortBar({
       align={align}
       actions={actions}
       selectedValue={postSort}
+      triggerAsChild={variant === "button"}
       trigger={
-        <div className="text-xl text-brand">{getIconForSort(postSort)}</div>
+        variant === "button" ? (
+          <Button size="sm" variant="outline" className={className}>
+            {postSort}
+            {getIconForSort(postSort)}
+          </Button>
+        ) : (
+          <div className={cn("text-xl", className)}>
+            {getIconForSort(postSort)}
+          </div>
+        )
       }
     />
   );

@@ -22,10 +22,10 @@ import { IoPerson } from "react-icons/io5";
 import { useLogout } from "../lib/lemmy";
 import { LuMenu } from "react-icons/lu";
 import { Button } from "./ui/button";
-import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID } from "../routing/utils";
 import { useMedia } from "../lib/hooks";
 import { IoPersonOutline, IoBookmarksOutline } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
+import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID } from "../routing/config";
 
 export function UserDropdown() {
   const media = useMedia();

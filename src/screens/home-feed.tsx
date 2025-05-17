@@ -12,7 +12,7 @@ import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
 import { isNotNull } from "../lib/utils";
 
-import { PopularCommunitiesSidebar } from "../components/communities/popular-communities-sidebar";
+import { LocalSererSidebar } from "../components/local-server/local-server-sidebar";
 import {
   IonButtons,
   IonContent,
@@ -25,7 +25,7 @@ import {
 } from "@ionic/react";
 import { VirtualList } from "../components/virtual-list";
 import { MenuButton, UserDropdown } from "../components/nav";
-import { HomeFilter, PostSortBar } from "../components/lemmy-sort";
+import { HomeFilter, PostSortButton } from "../components/lemmy-sort";
 import { useMedia } from "../lib/hooks";
 import { Link } from "@/src/routing/index";
 import { searchOutline } from "ionicons/icons";
@@ -37,6 +37,7 @@ import { PostReportProvider } from "../components/posts/post-report";
 import { DownloadButton } from "./download";
 import { useAuth } from "../stores/auth";
 import { PageTitle } from "../components/page-title";
+import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
 
 export const scrollToTop = {
   current: { scrollToOffset: () => {} },
@@ -173,7 +174,6 @@ export default function HomeFeed() {
     isFetchingNextPage,
     refetch,
     isRefetching,
-    isLoading,
   } = posts;
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -181,7 +181,6 @@ export default function HomeFeed() {
 
   const data = useMemo(() => {
     const postIds = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
-
     const postViews = _.uniq(postIds)
       .map((apId) => {
         const postView = postCache[getCachePrefixer()(apId)]?.data;
@@ -244,7 +243,9 @@ export default function HomeFeed() {
             >
               <IonIcon icon={searchOutline} />
             </Link>
-            <PostSortBar align="end" />
+            <div className="md:hidden contents">
+              <PostSortButton align="end" />
+            </div>
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
@@ -253,6 +254,7 @@ export default function HomeFeed() {
           <ContentGutters className="absolute mt-2 inset-x-0">
             <div className="flex flex-row justify-center flex-1">
               <Button
+                variant="outline"
                 size="sm"
                 className="absolute"
                 onClick={() => {
@@ -278,15 +280,18 @@ export default function HomeFeed() {
             onFocusChange={setFocused}
             ref={scrollRef}
             estimatedItemSize={450}
-            data={data.length === 0 && !isLoading ? [NO_ITEMS] : data}
-            placeholder={
-              posts.isPending ? (
-                <ContentGutters className="px-0">
-                  <PostCardSkeleton />
-                  <></>
-                </ContentGutters>
-              ) : undefined
+            data={
+              data.length === 0 && !posts.isRefetching && !posts.isPending
+                ? [NO_ITEMS]
+                : data
             }
+            placeholder={
+              <ContentGutters className="px-0">
+                <PostCardSkeleton />
+                <></>
+              </ContentGutters>
+            }
+            header={[<PostFeedSortBar key="header" />]}
             renderItem={({ item }) => {
               if (item === NO_ITEMS) {
                 return (
@@ -318,7 +323,7 @@ export default function HomeFeed() {
         </PostReportProvider>
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
           <div className="flex-1" />
-          <PopularCommunitiesSidebar />
+          <LocalSererSidebar />
         </ContentGutters>
       </IonContent>
     </IonPage>
