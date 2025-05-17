@@ -218,14 +218,14 @@ export function PostByline({
   return (
     <div
       className={cn(
-        "flex flex-row items-center gap-2 h-8",
+        "flex flex-row items-center gap-2 h-7",
         showCommunity && showCreator && "h-9",
       )}
     >
       <Avatar
         className={cn(
-          "h-7 w-7 text-md",
-          showCommunity && showCreator && "h-8 w-8",
+          "h-6 w-6 text-sm",
+          showCommunity && showCreator && "h-8 w-8 text-md",
         )}
       >
         <AvatarImage src={communityIcon} className="object-cover" />
@@ -243,25 +243,18 @@ export function PostByline({
                 params={{
                   communityName: communitySlug,
                 }}
-                className={cn("text-xs", !showCreator && "text-sm")}
+                className="text-xs"
                 onClickCapture={onNavigate}
               >
                 {community}
               </Link>
             ) : (
-              <div className={cn("text-xs", !showCreator && "text-sm")}>
-                {community}
-              </div>
+              <div className="text-xs">{community}</div>
             )}
           </CommunityHoverCard>
         )}
         {showCreator && (
-          <div
-            className={cn(
-              "flex flex-row text-xs text-muted-foreground gap-1 items-center h-5",
-              !showCommunity && "text-sm",
-            )}
-          >
+          <div className="flex flex-row text-xs text-muted-foreground gap-1 items-center h-5">
             <PersonHoverCard actorId={creatorApId}>
               <Link
                 to={`${linkCtx.root}u/:userId`}

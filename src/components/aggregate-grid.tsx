@@ -8,9 +8,15 @@ export function AggregateGrid({
 }: {
   aggregates: Record<string, number | undefined | null>;
 }) {
+  const entries = Object.entries(aggregates);
   return (
-    <div className="grid grid-cols-3 text-sm">
-      {Object.entries(aggregates).map(([label, value]) => (
+    <div
+      className="grid text-sm"
+      style={{
+        gridTemplateColumns: `repeat(${entries.length}, minmax(0, 1fr))`,
+      }}
+    >
+      {entries.map(([label, value]) => (
         <Fragment key={label}>
           <span className="font-semibold h-5">
             {_.isNumber(value) ? (

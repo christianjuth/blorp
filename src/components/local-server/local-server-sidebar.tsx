@@ -5,21 +5,21 @@ import {
 } from "@/src/lib/lemmy/index";
 import { useFiltersStore } from "@/src/stores/filters";
 import _ from "lodash";
-import { CommunityCard } from "../components/communities/community-card";
-import { useAuth } from "../stores/auth";
-import { MarkdownRenderer } from "../components/markdown/renderer";
-import { Separator } from "../components/ui/separator";
+import { CommunityCard } from "@/src/components/communities/community-card";
+import { useAuth } from "@/src/stores/auth";
+import { MarkdownRenderer } from "@/src/components/markdown/renderer";
+import { Separator } from "@/src/components/ui/separator";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "../components/ui/collapsible";
+} from "@/src/components/ui/collapsible";
 import { ChevronsUpDown } from "lucide-react";
-import { PersonCard } from "../components/person/person-card";
-import { Sidebar, SidebarContent } from "../components/sidebar";
-import { useSidebarStore } from "../stores/sidebars";
+import { PersonCard } from "@/src/components/person/person-card";
+import { Sidebar, SidebarContent } from "@/src/components/sidebar";
+import { useSidebarStore } from "@/src/stores/sidebars";
 
-function PopularCommunitiesSidebar() {
+function PopularCommunitiesSidebar({ asPage }: { asPage?: boolean }) {
   const listingType = useFiltersStore((s) => s.listingType);
 
   const subscribedCommunities = useSubscribedCommunities();
@@ -40,9 +40,50 @@ function PopularCommunitiesSidebar() {
     communities = _.sortBy(communities, (c) => c.community.name);
   }
 
+  if (asPage) {
+    return (
+      <section className="p-3 flex flex-col gap-2">
+        <span className="text-muted-foreground uppercase">
+          {listingType === "All" && "POPULAR ON LEMMY"}
+          {listingType === "Local" && "POPULAR LOCALLY"}
+          {listingType === "Subscribed" && "SUBSCRIBED"}
+          {listingType === "ModeratorView" && "MODERATING"}
+        </span>
+
+        {listingType === "Subscribed" &&
+          subscribedCommunities?.map((view) => (
+            <CommunityCard
+              key={view.community.id}
+              communityView={view}
+              size="sm"
+            />
+          ))}
+
+        {listingType === "ModeratorView" &&
+          moderatingCommunities?.map((view) => (
+            <CommunityCard
+              key={view.community.id}
+              communityView={view}
+              size="sm"
+            />
+          ))}
+
+        {listingType !== "Subscribed" &&
+          listingType !== "ModeratorView" &&
+          communities?.map((view) => (
+            <CommunityCard
+              key={view.community.id}
+              communityView={view}
+              size="sm"
+            />
+          ))}
+      </section>
+    );
+  }
+
   return (
     <>
-      <Collapsible className="p-4" open={open} onOpenChange={setOpen}>
+      <Collapsible className="p-3" open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
           <span>
             {listingType === "All" && "POPULAR ON LEMMY"}
@@ -88,7 +129,7 @@ function PopularCommunitiesSidebar() {
   );
 }
 
-function InstanceSidebar() {
+function InstanceSidebar({ asPage }: { asPage?: boolean }) {
   const site = useAuth((s) => s.getSelectedAccount().site);
   const sidebar = site?.site_view.site.sidebar;
 
@@ -102,9 +143,24 @@ function InstanceSidebar() {
     return null;
   }
 
+  if (asPage) {
+    return (
+      <section className="p-3 flex flex-col gap-3">
+        <h2 className="text-muted-foreground uppercase">
+          ABOUT {instanceName}
+        </h2>
+
+        <MarkdownRenderer
+          className="text-muted-foreground"
+          markdown={sidebar}
+        />
+      </section>
+    );
+  }
+
   return (
     <>
-      <Collapsible className="p-4" open={open} onOpenChange={setOpen}>
+      <Collapsible className="p-3" open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
           <span>ABOUT {instanceName}</span>
           <ChevronsUpDown className="h-4 w-4" />
@@ -121,7 +177,7 @@ function InstanceSidebar() {
   );
 }
 
-function InstanceAdmins() {
+function InstanceAdmins({ asPage }: { asPage?: boolean }) {
   const site = useAuth((s) => s.getSelectedAccount().site);
   const admins = site?.admins;
 
@@ -135,8 +191,26 @@ function InstanceAdmins() {
     return null;
   }
 
+  if (asPage) {
+    return (
+      <section className="p-3 flex flex-col gap-2">
+        <span className="text-muted-foreground uppercase">
+          {instanceName} ADMINS
+        </span>
+
+        {admins.map(({ person }) => (
+          <PersonCard
+            key={person.actor_id}
+            actorId={person.actor_id}
+            size="sm"
+          />
+        ))}
+      </section>
+    );
+  }
+
   return (
-    <Collapsible className="p-4" open={open} onOpenChange={setOpen}>
+    <Collapsible className="p-3" open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
         <span>{instanceName} ADMINS</span>
         <ChevronsUpDown className="h-4 w-4" />
@@ -154,7 +228,7 @@ function InstanceAdmins() {
   );
 }
 
-export function RightSidebar() {
+export function LocalSererSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
@@ -163,5 +237,17 @@ export function RightSidebar() {
         <InstanceAdmins />
       </SidebarContent>
     </Sidebar>
+  );
+}
+
+export function LocalSererSidebarPage() {
+  return (
+    <div className="flex-1">
+      <InstanceSidebar asPage />
+      <Separator />
+      <PopularCommunitiesSidebar asPage />
+      <Separator />
+      <InstanceAdmins asPage />
+    </div>
   );
 }

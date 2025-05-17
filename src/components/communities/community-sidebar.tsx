@@ -108,7 +108,7 @@ export function SmallScreenSidebar({
     <div>
       <div
         className={cn(
-          "flex flex-col gap-3 py-4 flex-1 px-2.5",
+          "flex flex-col gap-3 py-4 flex-1 px-3",
           !expanded && "md:hidden",
         )}
       >
@@ -304,24 +304,26 @@ export function CommunitySidebar({
 
         <Separator />
 
-        <Collapsible
-          className="p-4"
-          open={aboutOpen}
-          onOpenChange={setAboutOpen}
-        >
-          <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
-            <span>ABOUT</span>
-            <ChevronsUpDown className="h-4 w-4" />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="py-1">
-            {community.description && !hideDescription && (
-              <MarkdownRenderer
-                markdown={community.description}
-                className="text-muted-foreground pt-3"
-              />
-            )}
-          </CollapsibleContent>
-        </Collapsible>
+        {community.description && (
+          <Collapsible
+            className="p-4"
+            open={aboutOpen}
+            onOpenChange={setAboutOpen}
+          >
+            <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
+              <span>ABOUT</span>
+              <ChevronsUpDown className="h-4 w-4" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="py-1">
+              {community.description && !hideDescription && (
+                <MarkdownRenderer
+                  markdown={community.description}
+                  className="text-muted-foreground pt-3"
+                />
+              )}
+            </CollapsibleContent>
+          </Collapsible>
+        )}
 
         <Separator />
 

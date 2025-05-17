@@ -32,6 +32,7 @@ import {
 } from "@radix-ui/react-collapsible";
 import { ChevronsUpDown } from "lucide-react";
 import { useSidebarStore } from "@/src/stores/sidebars";
+import { AggregateGrid } from "../aggregate-grid";
 
 dayjs.extend(localizedFormat);
 
@@ -161,29 +162,12 @@ export function PersonSidebar({
             </span>
           </div>
 
-          <div className="grid grid-cols-2 grid-flow-dense text-sm">
-            <span className="font-semibold col-start-1 h-5">
-              {counts ? (
-                abbriviateNumber(counts.post_count)
-              ) : (
-                <Skeleton className="w-1/4 h-full" />
-              )}
-            </span>
-            <span className="col-start-1 text-sm text-muted-foreground">
-              Posts
-            </span>
-
-            <span className="font-semibold col-start-2 h-5">
-              {counts ? (
-                abbriviateNumber(counts.comment_count)
-              ) : (
-                <Skeleton className="w-1/4 h-full" />
-              )}
-            </span>
-            <span className="col-start-2 text-sm text-muted-foreground">
-              Comments
-            </span>
-          </div>
+          <AggregateGrid
+            aggregates={{
+              Posts: counts?.post_count,
+              Comments: counts?.comment_count,
+            }}
+          />
         </div>
 
         {person?.bio && (

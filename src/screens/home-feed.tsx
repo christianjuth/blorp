@@ -12,7 +12,7 @@ import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
 import { isNotNull } from "../lib/utils";
 
-import { RightSidebar } from "../routing/right-sidebar";
+import { LocalSererSidebar } from "../components/local-server/local-server-sidebar";
 import {
   IonButtons,
   IonContent,
@@ -162,8 +162,6 @@ export default function HomeFeed() {
     sort: postSort,
     type_: listingType,
   });
-
-  console.log(posts.isFetching);
 
   const mostRecentPost = useMostRecentPost("local", {
     sort: postSort,
@@ -325,7 +323,7 @@ export default function HomeFeed() {
         </PostReportProvider>
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0">
           <div className="flex-1" />
-          <RightSidebar />
+          <LocalSererSidebar />
         </ContentGutters>
       </IonContent>
     </IonPage>

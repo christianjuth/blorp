@@ -1,8 +1,8 @@
 import { IonActionSheet } from "@ionic/react";
 import { useId, useMemo, useState } from "react";
 import _ from "lodash";
+import { Slot } from "@radix-ui/react-slot";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -182,14 +182,17 @@ export function ActionMenu<V extends string>({
     );
   }
 
+  const Button = triggerAsChild ? Slot : "button";
+
   return (
     <>
-      <button
+      <Button
+        data-slot="button"
         id={id}
         onClick={() => Haptics.impact({ style: ImpactStyle.Medium })}
       >
         {trigger}
-      </button>
+      </Button>
       {subActionButtons && (
         <IonActionSheet
           {...props}

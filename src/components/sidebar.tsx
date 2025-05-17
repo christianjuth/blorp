@@ -2,7 +2,7 @@ import { cn } from "../lib/utils";
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col py-4 absolute inset-x-0 max-h-[calc(100vh-60px)]">
+    <div className="flex flex-col py-4 dark:py-0 absolute inset-x-0 max-h-[calc(100vh-60px)]">
       {children}
     </div>
   );
@@ -19,7 +19,7 @@ export function SidebarContent({
     <div className="overflow-auto md:pr-3 md:-mr-3">
       <div
         className={cn(
-          "bg-secondary/60 dark:bg-background dark:border-[.5px] rounded-xl",
+          "bg-secondary/60 dark:bg-transparent rounded-xl",
           className,
         )}
       >

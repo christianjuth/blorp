@@ -496,8 +496,7 @@ export function HomeFilter({ children }: { children?: React.ReactNode }) {
       selectedValue={listingType}
       trigger={
         children ?? (
-          // The negative margin is a hack to fix serach bar centering on desktop
-          <div className="flex flex-row items-center gap-0.5 text-lg md:min-w-32 md:-mr-26">
+          <div className="flex flex-row items-center gap-0.5 text-lg">
             <span className="font-black capitalize">
               {listingType === "ModeratorView" ? "Moderating" : listingType}
             </span>
