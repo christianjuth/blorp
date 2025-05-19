@@ -188,7 +188,7 @@ export default function Post() {
       <IonContent scrollY={false}>
         <PostReportProvider>
           <VirtualList
-            className="h-full ion-content-scroll-host pb-4"
+            className="h-full ion-content-scroll-host max-md:border-b-8 max-md:border-border/50 md:pb-4"
             data={data}
             header={[
               post ? (

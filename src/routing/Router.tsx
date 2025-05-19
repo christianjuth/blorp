@@ -27,6 +27,7 @@ import { UserSidebar } from "../components/nav";
 import { MainSidebar } from "./MainSidebar";
 import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID, TABS } from "./config";
 import InstanceSidebar from "../features/instance-sidebar";
+import { useAuth } from "../stores/auth";
 
 const CSAE = lazy(() => import("@/src/features/csae"));
 const NotFound = lazy(() => import("@/src/features/not-found"));
@@ -215,7 +216,8 @@ const SETTINGS = [
 ];
 
 function Tabs() {
-  const count = useNotificationCount();
+  const selectedAccountIndex = useAuth((s) => s.accountIndex);
+  const count = useNotificationCount()[selectedAccountIndex];
   const media = useMedia();
   const pathname = useIonRouter().routeInfo.pathname;
 
@@ -333,13 +335,8 @@ function Tabs() {
                       key={isActive ? "active" : "inactive"}
                     />
                     <IonLabel>{t.label}</IonLabel>
-                    {t.id === "inbox" && (
-                      <IonBadge
-                        className="bg-destructive px-1.5 -mt"
-                        hidden={!count.data}
-                      >
-                        {count.data}
-                      </IonBadge>
+                    {t.id === "inbox" && !!count && (
+                      <IonBadge className="aspect-square bg-brand"> </IonBadge>
                     )}
                   </IonTabButton>
                 );

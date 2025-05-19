@@ -112,6 +112,11 @@ ion-toolbar ion-searchbar {
 /*  transition: padding-bottom 200ms;*/
 /*}*/
 
+ion-modal {
+  --ion-background-color: var(--color-background) !important;
+  --ion-toolbar-background: var(--color-background) !important;
+}
+
 .action-sheet-button-inner {
   justify-content: flex-start !important;
 }

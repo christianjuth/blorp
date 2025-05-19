@@ -1448,37 +1448,64 @@ export function usePersonMentions(form: GetPersonMentions) {
 }
 
 function useNotificationCountQueryKey() {
-  const { queryKeyPrefix } = useLemmyClient();
-
-  const queryKey = [...queryKeyPrefix, "notificationCount"];
-
+  const queryKey = ["notificationCount"];
   return queryKey;
 }
 
 export function useNotificationCount() {
-  const { client } = useLemmyClient();
   const isLoggedIn = useAuth((a) => a.isLoggedIn());
 
   const queryKey = useNotificationCountQueryKey();
+  const accounts = useAuth((s) => s.accounts);
 
-  return useQuery({
+  const { data } = useQuery({
     queryKey,
     queryFn: async ({ signal }) => {
-      const { replies } = await client.getReplies(
-        {
-          unread_only: true,
-          limit: 50,
-        },
-        { signal },
-      );
-      return replies.length;
+      const counts: number[] = [];
+
+      for (const account of accounts) {
+        if (!account.jwt) {
+          counts.push(0);
+          continue;
+        }
+
+        const client = new LemmyHttp(account.instance, {
+          headers: {
+            ...DEFAULT_HEADERS,
+            Authorization: `Bearer ${account.jwt}`,
+          },
+        });
+
+        const [{ mentions }, { replies }] = await Promise.all([
+          client.getPersonMentions(
+            {
+              unread_only: true,
+              limit: 50,
+            },
+            { signal },
+          ),
+          client.getReplies(
+            {
+              unread_only: true,
+              limit: 50,
+            },
+            { signal },
+          ),
+        ]);
+        counts.push(mentions.length + replies.length);
+      }
+
+      return counts;
     },
     enabled: isLoggedIn,
     refetchInterval: 1000 * 60,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: "always",
   });
+
+  return data ?? EMPTY_ARR;
 }
+const EMPTY_ARR: never[] = [];
 
 export function useSearch(form: Search) {
   const { client, queryKeyPrefix } = useLemmyClient();
