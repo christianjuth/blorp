@@ -336,9 +336,7 @@ function Tabs() {
                     />
                     <IonLabel>{t.label}</IonLabel>
                     {t.id === "inbox" && !!count && (
-                      <IonBadge className="aspect-square bg-destructive">
-                        {" "}
-                      </IonBadge>
+                      <IonBadge className="aspect-square bg-brand"> </IonBadge>
                     )}
                   </IonTabButton>
                 );

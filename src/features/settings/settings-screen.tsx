@@ -17,7 +17,7 @@ import {
   IonToggle,
   IonToolbar,
 } from "@ionic/react";
-import { UserDropdown } from "@/src/components/nav";
+import { MenuButton, UserDropdown } from "@/src/components/nav";
 import { PageTitle } from "@/src/components/page-title";
 import { PersonCard } from "@/src/components/person/person-card";
 import { createSlug } from "@/src/lib/lemmy/utils";
@@ -255,6 +255,9 @@ export default function SettingsPage() {
       <PageTitle>Settings</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
+          <IonButtons slot="start">
+            <MenuButton />
+          </IonButtons>
           <IonTitle data-tauri-drag-region>Settings</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />

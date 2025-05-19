@@ -9,21 +9,19 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 import { parseAccountInfo, useAuth } from "../stores/auth";
 import { useLinkContext } from "../routing/link-context";
-import { encodeApId } from "../lib/lemmy/utils";
+import { createSlug, encodeApId } from "../lib/lemmy/utils";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/src/components/ui/avatar";
-import { useState } from "react";
 import { useRequireAuth } from "./auth-context";
 import { IonMenuButton, IonMenuToggle } from "@ionic/react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { IoPerson } from "react-icons/io5";
 import { useLogout, useNotificationCount } from "../lib/lemmy";
 import { LuMenu } from "react-icons/lu";
 import { Button } from "./ui/button";
-import { useMedia } from "../lib/hooks";
+import { useConfirmationAlert, useMedia } from "../lib/hooks";
 import {
   IoPersonOutline,
   IoBookmarksOutline,
@@ -33,6 +31,7 @@ import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID } from "../routing/config";
 import { LogOut } from "./icons";
 import { Badge } from "./badge";
 import _ from "lodash";
+import { Separator } from "./ui/separator";
 
 function AccountNotificationBadge({
   accountIndex,
@@ -46,6 +45,7 @@ function AccountNotificationBadge({
 }
 
 export function UserDropdown() {
+  const getConfirmation = useConfirmationAlert();
   const media = useMedia();
   const linkCtx = useLinkContext();
   const logout = useLogout();
@@ -93,8 +93,8 @@ export function UserDropdown() {
     <DropdownMenu>
       <DropdownMenuTrigger>{content}</DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">
-        <DropdownMenuItem className="flex items-center">
-          <Avatar className="h-16 w-16" key={person?.id}>
+        <DropdownMenuLabel className="flex items-center gap-2">
+          <Avatar className="h-12 w-12" key={person?.id}>
             <AvatarImage src={person?.avatar} />
             <AvatarFallback className="text-xl">
               {person && person.name?.substring(0, 1).toUpperCase()}
@@ -103,11 +103,13 @@ export function UserDropdown() {
           </Avatar>
           <div className="flex flex-row gap-2 items-center">
             <div className="flex flex-col">
-              <span className="text-md">{person?.name}</span>
-              <span className="text-xs text-muted-foreground">@{instance}</span>
+              <span className="text-md line-clamp-1">{person?.name}</span>
+              <span className="text-xs text-muted-foreground line-clamp-1">
+                @{instance}
+              </span>
             </div>
           </div>
-        </DropdownMenuItem>
+        </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
 
@@ -131,10 +133,18 @@ export function UserDropdown() {
               </DropdownMenuItem>
             </Link>
           )}
-          <DropdownMenuItem onClick={() => logout.mutate(selectedAccount)}>
-            <LogOut />
-            Logout
-          </DropdownMenuItem>
+          {person && (
+            <DropdownMenuItem
+              onClick={() =>
+                getConfirmation({
+                  message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
+                }).then(() => logout.mutate(selectedAccount))
+              }
+            >
+              <LogOut />
+              Logout
+            </DropdownMenuItem>
+          )}
         </>
 
         <DropdownMenuSeparator />
@@ -190,6 +200,7 @@ export function UserDropdown() {
 }
 
 export function UserSidebar() {
+  const getConfirmation = useConfirmationAlert();
   const linkCtx = useLinkContext();
   const logout = useLogout();
   const requireAuth = useRequireAuth();
@@ -197,119 +208,121 @@ export function UserSidebar() {
   const selectedAccount = useAuth((s) => s.getSelectedAccount());
   const accounts = useAuth((s) => s.accounts);
   const setAccountIndex = useAuth((s) => s.setAccountIndex);
+  const counts = useNotificationCount();
 
   const { person, instance } = parseAccountInfo(selectedAccount);
 
-  const [accountSwitcher, setAccountSwitcher] = useState(false);
-
   return (
     <div className="flex flex-col gap-4">
-      <Avatar className="h-24 w-24" key={person?.id}>
-        {person && <AvatarImage src={person.avatar} />}
-        <AvatarFallback className="text-2xl">
-          {person && person.name?.substring(0, 1).toUpperCase()}
-          {!person && <IoPerson />}
-        </AvatarFallback>
-      </Avatar>
+      <div className="flex items-center gap-3">
+        <Avatar className="h-12 w-12" key={person?.id}>
+          {person && <AvatarImage src={person.avatar} />}
+          <AvatarFallback className="text-xl">
+            {person && person.name?.substring(0, 1).toUpperCase()}
+            {!person && <IoPerson />}
+          </AvatarFallback>
+        </Avatar>
 
-      <button
-        onClick={() => setAccountSwitcher((b) => !b)}
-        className="flex flex-row gap-2 items-center text-left"
-      >
         <div className="flex flex-col">
-          <span className="text-lg leading-snug">{person?.name}</span>
-          <span className="text-sm text-muted-foreground">@{instance}</span>
+          <span className="leading-snug line-clamp-1">{person?.name}</span>
+          <span className="text-sm text-muted-foreground line-clamp-1">
+            @{instance}
+          </span>
         </div>
+      </div>
 
-        {accountSwitcher ? (
-          <FaChevronUp className="text-brand" />
-        ) : (
-          <FaChevronDown className="text-brand" />
-        )}
-      </button>
+      <Separator />
 
-      <div className="h-px bg-border" />
-
-      {accountSwitcher ? (
-        <>
-          {accounts.map((a, index) => {
-            const { person, instance } = parseAccountInfo(a);
-            return (
-              <IonMenuToggle key={instance + index}>
-                <button
-                  onClick={() => {
-                    close();
-                    setAccountIndex(index);
-                    setAccountSwitcher(false);
-                  }}
-                  className="flex flex-row gap-2 items-center text-left"
-                >
-                  <Avatar key={person?.id}>
-                    {person && <AvatarImage src={person.avatar} />}
-                    <AvatarFallback>
-                      {person && person.name?.substring(0, 1).toUpperCase()}
-                      {!person && <IoPerson />}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span>{person?.display_name ?? person?.name}</span>
-                    <span className="text-muted-foreground text-xs">
-                      @{instance}
-                    </span>
-                  </div>
-                </button>
-              </IonMenuToggle>
-            );
-          })}
-
+      <>
+        {person && (
           <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
+            <Link to="/home/saved" className="flex flex-row items-center gap-2">
+              <IoBookmarksOutline className="text-muted-foreground" />
+              Saved
+            </Link>
+          </IonMenuToggle>
+        )}
+        {person && (
+          <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
+            <Link
+              to={`${linkCtx.root}u/:userId`}
+              params={{
+                userId: encodeApId(person.actor_id),
+              }}
+              className="flex flex-row items-center gap-2"
+            >
+              <IoPersonOutline className="text-muted-foreground" /> Profile
+            </Link>
+          </IonMenuToggle>
+        )}
+
+        {person && (
+          <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
+            <button
+              onClick={() =>
+                getConfirmation({
+                  message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
+                }).then(() => logout.mutate(selectedAccount))
+              }
+              className="flex flex-row items-center gap-2"
+            >
+              <LogOut className="text-muted-foreground" /> Logout
+            </button>
+          </IonMenuToggle>
+        )}
+      </>
+
+      <Separator />
+
+      <span>Other accounts</span>
+
+      {accounts.map((a, index) => {
+        if (a.jwt && a.jwt === selectedAccount.jwt) {
+          return null;
+        }
+
+        const { person, instance } = parseAccountInfo(a);
+        return (
+          <IonMenuToggle key={instance + index}>
             <button
               onClick={() => {
                 close();
-                requireAuth({ addAccount: true });
+                setAccountIndex(index);
               }}
-              className="text-lg"
+              className="flex flex-row gap-2 items-center text-left"
             >
-              Add account
+              <Badge showBadge={!!counts[index]}>
+                <Avatar key={person?.id}>
+                  {person && <AvatarImage src={person.avatar} />}
+                  <AvatarFallback>
+                    {person && person.name?.substring(0, 1).toUpperCase()}
+                    {!person && <IoPerson />}
+                  </AvatarFallback>
+                </Avatar>
+              </Badge>
+              <div className="flex flex-col">
+                <span>{person?.display_name ?? person?.name}</span>
+                <span className="text-muted-foreground text-xs">
+                  @{instance}
+                </span>
+              </div>
             </button>
           </IonMenuToggle>
-        </>
-      ) : (
-        <>
-          {person && (
-            <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
-              <Link
-                to="/home/saved"
-                className="flex flex-row items-center gap-2 text-lg"
-              >
-                <IoBookmarksOutline />
-                Saved
-              </Link>
-            </IonMenuToggle>
-          )}
-          {person && (
-            <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
-              <Link
-                to={`${linkCtx.root}u/:userId`}
-                params={{
-                  userId: encodeApId(person.actor_id),
-                }}
-                className="flex flex-row items-center gap-2 text-lg"
-              >
-                <IoPersonOutline /> Profile
-              </Link>
-            </IonMenuToggle>
-          )}
-          <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
-            <button
-              onClick={() => logout.mutate(selectedAccount)}
-              className="flex flex-row items-center gap-2 text-lg"
-            >
-              <LogOut /> Logout
-            </button>
-          </IonMenuToggle>
-        </>
-      )}
+        );
+      })}
+
+      <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
+        <button
+          onClick={() => {
+            close();
+            requireAuth({ addAccount: true });
+          }}
+          className="flex flex-row items-center gap-2"
+        >
+          <IoPersonAddOutline className="text-muted-foreground" />
+          Add account
+        </button>
+      </IonMenuToggle>
     </div>
   );
 }

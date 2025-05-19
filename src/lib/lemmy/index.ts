@@ -1480,14 +1480,14 @@ export function useNotificationCount() {
           client.getPersonMentions(
             {
               unread_only: true,
-              limit: 1,
+              limit: 50,
             },
             { signal },
           ),
           client.getReplies(
             {
               unread_only: true,
-              limit: 1,
+              limit: 50,
             },
             { signal },
           ),
