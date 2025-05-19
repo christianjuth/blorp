@@ -161,7 +161,6 @@ export function UserDropdown() {
             return (
               <DropdownMenuItem
                 onClick={() => {
-                  close();
                   setAccountIndex(index);
                 }}
                 key={instance + index}
@@ -186,7 +185,6 @@ export function UserDropdown() {
 
           <DropdownMenuItem
             onClick={() => {
-              close();
               requireAuth({ addAccount: true });
             }}
           >
@@ -286,7 +284,6 @@ export function UserSidebar() {
           <IonMenuToggle key={instance + index}>
             <button
               onClick={() => {
-                close();
                 setAccountIndex(index);
               }}
               className="flex flex-row gap-2 items-center text-left"
@@ -314,7 +311,6 @@ export function UserSidebar() {
       <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
         <button
           onClick={() => {
-            close();
             requireAuth({ addAccount: true });
           }}
           className="flex flex-row items-center gap-2"
