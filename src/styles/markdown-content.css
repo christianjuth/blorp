@@ -1,0 +1,126 @@
+/**
+* Adapted from https://github.com/LemmyNet/lemmy-ui-leptos/blob/63185a1387574690090f350a2b8507222487e389/style/tailwind.css#L125
+*/
+
+.markdown-content {
+  @apply space-y-4 text-sm overflow-x-hidden;
+}
+
+.markdown-content h1 {
+  @apply text-2xl font-black;
+}
+
+.markdown-content h2 {
+  @apply text-2xl font-bold;
+}
+
+.markdown-content h3 {
+  @apply text-xl font-black;
+}
+
+.markdown-content h4 {
+  @apply text-xl font-bold;
+}
+
+.markdown-content h5 {
+  @apply text-lg font-black;
+}
+
+.markdown-content h6 {
+  @apply text-lg font-bold;
+}
+
+.markdown-content code {
+  @apply bg-gray-800 text-white font-mono not-italic slashed-zero text-xs py-0.5 px-1 rounded-sm;
+}
+
+.markdown-content pre {
+  @apply bg-gray-800 text-white font-mono not-italic slashed-zero rounded-md text-xs p-2.5;
+}
+
+.markdown-content pre > code {
+  @apply py-0 px-0;
+}
+
+.markdown-content blockquote {
+  @apply ps-1.5 pe-7 py-2 border-s-4 font-light text-sm italic relative rounded-se-md rounded-ee-md break-all;
+}
+
+.markdown-content blockquote code {
+  @apply text-xs font-normal;
+}
+
+.markdown-content blockquote strong {
+  @apply font-semibold;
+}
+
+.markdown-content blockquote em {
+  @apply not-italic;
+}
+
+/*.markdown-content blockquote:not(blockquote blockquote)::after {*/
+/*  @apply block size-6 absolute end-1 bottom-1;*/
+/*  content: " ";*/
+/*  mask-image: url("/icons.svg#css-quote");*/
+/*  -webkit-mask-image: url("/icons.svg#css-quote");*/
+/*}*/
+
+.markdown-content ul {
+  @apply list-inside list-disc;
+}
+
+.markdown-content ol {
+  @apply list-inside list-decimal;
+}
+
+.markdown-content li {
+  @apply my-1.5;
+}
+
+.markdown-content a {
+  @apply text-brand-secondary;
+}
+
+.markdown-content a:hover {
+  @apply underline underline-offset-2;
+}
+
+.markdown-content img {
+  @apply max-w-full h-auto max-h-[40vh];
+}
+
+.markdown-content img[title^="emoji"] {
+  @apply inline w-16;
+}
+
+.markdown-content hr {
+  @apply border-border border-t-1 my-3;
+}
+
+.markdown-content table {
+  @apply w-full table-auto border-collapse border;
+}
+
+.markdown-content table th {
+  @apply text-left;
+}
+
+/* give every cell a 1px accent-colored border */
+.markdown-content th,
+.markdown-content td {
+  @apply border border-accent px-2 py-1;
+}
+
+/* if you only want horizontal lines between rows */
+.markdown-content tbody tr {
+  /* default is 1px */
+  @apply border-t border-accent;
+}
+
+/* Hide details marker unless inside prose */
+details > summary::-webkit-details-marker {
+  display: none;
+}
+.markdown-content details > summary::-webkit-details-marker {
+  display: revert;
+}

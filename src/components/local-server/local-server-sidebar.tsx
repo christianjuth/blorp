@@ -1,11 +1,4 @@
-import {
-  useListCommunities,
-  useModeratingCommunities,
-  useSubscribedCommunities,
-} from "@/src/lib/lemmy/index";
-import { useFiltersStore } from "@/src/stores/filters";
 import _ from "lodash";
-import { CommunityCard } from "@/src/components/communities/community-card";
 import { useAuth } from "@/src/stores/auth";
 import { MarkdownRenderer } from "@/src/components/markdown/renderer";
 import { Separator } from "@/src/components/ui/separator";
@@ -18,116 +11,8 @@ import { ChevronsUpDown } from "lucide-react";
 import { PersonCard } from "@/src/components/person/person-card";
 import { Sidebar, SidebarContent } from "@/src/components/sidebar";
 import { useSidebarStore } from "@/src/stores/sidebars";
-
-function PopularCommunitiesSidebar({ asPage }: { asPage?: boolean }) {
-  const listingType = useFiltersStore((s) => s.listingType);
-
-  const subscribedCommunities = useSubscribedCommunities();
-  const moderatingCommunities = useModeratingCommunities();
-
-  const open = useSidebarStore((s) => s.siteCommunitiesExpanded);
-  const setOpen = useSidebarStore((s) => s.setSiteCommunitiesExpanded);
-
-  const { data } = useListCommunities({
-    sort: "TopWeek",
-    limit: 10,
-    type_: listingType,
-  });
-
-  let communities = data?.pages.map((p) => p.communities).flat();
-
-  if (listingType === "Subscribed") {
-    communities = _.sortBy(communities, (c) => c.community.name);
-  }
-
-  if (asPage) {
-    return (
-      <section className="p-3 flex flex-col gap-2">
-        <span className="text-muted-foreground uppercase">
-          {listingType === "All" && "POPULAR ON LEMMY"}
-          {listingType === "Local" && "POPULAR LOCALLY"}
-          {listingType === "Subscribed" && "SUBSCRIBED"}
-          {listingType === "ModeratorView" && "MODERATING"}
-        </span>
-
-        {listingType === "Subscribed" &&
-          subscribedCommunities?.map((view) => (
-            <CommunityCard
-              key={view.community.id}
-              communityView={view}
-              size="sm"
-            />
-          ))}
-
-        {listingType === "ModeratorView" &&
-          moderatingCommunities?.map((view) => (
-            <CommunityCard
-              key={view.community.id}
-              communityView={view}
-              size="sm"
-            />
-          ))}
-
-        {listingType !== "Subscribed" &&
-          listingType !== "ModeratorView" &&
-          communities?.map((view) => (
-            <CommunityCard
-              key={view.community.id}
-              communityView={view}
-              size="sm"
-            />
-          ))}
-      </section>
-    );
-  }
-
-  return (
-    <>
-      <Collapsible className="p-3" open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
-          <span>
-            {listingType === "All" && "POPULAR ON LEMMY"}
-            {listingType === "Local" && "POPULAR LOCALLY"}
-            {listingType === "Subscribed" && "SUBSCRIBED"}
-            {listingType === "ModeratorView" && "MODERATING"}
-          </span>
-          <ChevronsUpDown className="h-4 w-4" />
-        </CollapsibleTrigger>
-
-        <CollapsibleContent className="pt-4 flex flex-col gap-1">
-          {listingType === "Subscribed" &&
-            subscribedCommunities?.map((view) => (
-              <CommunityCard
-                key={view.community.id}
-                communityView={view}
-                size="sm"
-              />
-            ))}
-
-          {listingType === "ModeratorView" &&
-            moderatingCommunities?.map((view) => (
-              <CommunityCard
-                key={view.community.id}
-                communityView={view}
-                size="sm"
-              />
-            ))}
-
-          {listingType !== "Subscribed" &&
-            listingType !== "ModeratorView" &&
-            communities?.map((view) => (
-              <CommunityCard
-                key={view.community.id}
-                communityView={view}
-                size="sm"
-              />
-            ))}
-        </CollapsibleContent>
-      </Collapsible>
-      <Separator />
-    </>
-  );
-}
+import { AggregateBadges } from "../aggregates";
+import { PersonHoverCard } from "../person/person-hover-card";
 
 function InstanceSidebar({ asPage }: { asPage?: boolean }) {
   const site = useAuth((s) => s.getSelectedAccount().site);
@@ -138,6 +23,8 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
 
   const open = useSidebarStore((s) => s.siteAboutExpanded);
   const setOpen = useSidebarStore((s) => s.setSiteAboutExpanded);
+
+  const counts = site?.site_view.counts;
 
   if (!sidebar) {
     return null;
@@ -151,10 +38,21 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
             ABOUT {instanceName}
           </h2>
 
-          <MarkdownRenderer
-            className="text-muted-foreground"
-            markdown={sidebar}
-          />
+          <MarkdownRenderer className="text-sm" markdown={sidebar} />
+
+          {counts && (
+            <AggregateBadges
+              aggregates={{
+                "Daily users": counts.users_active_day,
+                "Weekly users": counts.users_active_week,
+                "Monthly users": counts.users_active_month,
+                Posts: counts.posts,
+                Users: counts.users,
+                Communities: counts.communities,
+                Comments: counts.comments,
+              }}
+            />
+          )}
         </section>
         <Separator />
       </>
@@ -173,6 +71,22 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
             className="text-muted-foreground"
             markdown={sidebar}
           />
+
+          {counts && (
+            <AggregateBadges
+              className="mt-4"
+              aggregates={{
+                "users / day": counts.users_active_day,
+                "users / week": counts.users_active_week,
+                "users / month": counts.users_active_month,
+                "users / 6 months": counts.users_active_half_year,
+                Users: counts.users,
+                Communities: counts.communities,
+                Posts: counts.posts,
+                Comments: counts.comments,
+              }}
+            />
+          )}
         </CollapsibleContent>
       </Collapsible>
       <Separator />
@@ -202,11 +116,9 @@ function InstanceAdmins({ asPage }: { asPage?: boolean }) {
         </span>
 
         {admins.map(({ person }) => (
-          <PersonCard
-            key={person.actor_id}
-            actorId={person.actor_id}
-            size="sm"
-          />
+          <PersonHoverCard key={person.actor_id} actorId={person.actor_id}>
+            <PersonCard actorId={person.actor_id} size="sm" />
+          </PersonHoverCard>
         ))}
       </section>
     );
@@ -220,11 +132,9 @@ function InstanceAdmins({ asPage }: { asPage?: boolean }) {
       </CollapsibleTrigger>
       <CollapsibleContent className="pt-2 flex flex-col gap-1">
         {admins.map(({ person }) => (
-          <PersonCard
-            key={person.actor_id}
-            actorId={person.actor_id}
-            size="sm"
-          />
+          <PersonHoverCard key={person.actor_id} actorId={person.actor_id}>
+            <PersonCard actorId={person.actor_id} size="sm" />
+          </PersonHoverCard>
         ))}
       </CollapsibleContent>
     </Collapsible>
@@ -236,7 +146,6 @@ export function LocalSererSidebar() {
     <Sidebar>
       <SidebarContent>
         <InstanceSidebar />
-        <PopularCommunitiesSidebar />
         <InstanceAdmins />
       </SidebarContent>
     </Sidebar>

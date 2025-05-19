@@ -1,7 +1,6 @@
 import { usePersonDetails } from "@/src/lib/lemmy/index";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { abbriviateNumber } from "@/src/lib/format";
 import { LuCakeSlice } from "react-icons/lu";
 import { Skeleton } from "../ui/skeleton";
 
@@ -13,15 +12,18 @@ import {
 import { useState } from "react";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useAuth } from "@/src/stores/auth";
+import { AggregateBadges } from "../aggregates";
 
 dayjs.extend(localizedFormat);
 
 export function PersonHoverCard({
   actorId,
   children,
+  asChild,
 }: {
   actorId: string;
   children: React.ReactNode;
+  asChild?: boolean;
 }) {
   const [enabled, setEnabled] = useState(false);
 
@@ -34,7 +36,7 @@ export function PersonHoverCard({
 
   return (
     <HoverCard onOpenChange={() => setEnabled(true)}>
-      <HoverCardTrigger asChild>{children}</HoverCardTrigger>
+      <HoverCardTrigger asChild={asChild}>{children}</HoverCardTrigger>
       <HoverCardContent
         align="start"
         className="flex flex-col gap-3 py-4 flex-1"
@@ -53,29 +55,15 @@ export function PersonHoverCard({
           </span>
         </div>
 
-        <div className="grid grid-cols-2 grid-flow-dense text-sm">
-          <span className="font-semibold col-start-1 h-5">
-            {counts ? (
-              abbriviateNumber(counts.post_count)
-            ) : (
-              <Skeleton className="w-1/4 h-full" />
-            )}
-          </span>
-          <span className="col-start-1 text-sm text-muted-foreground">
-            Posts
-          </span>
-
-          <span className="font-semibold col-start-2 h-5">
-            {counts ? (
-              abbriviateNumber(counts.comment_count)
-            ) : (
-              <Skeleton className="w-1/4 h-full" />
-            )}
-          </span>
-          <span className="col-start-2 text-sm text-muted-foreground">
-            Comments
-          </span>
-        </div>
+        {counts && (
+          <AggregateBadges
+            className="mt-1"
+            aggregates={{
+              Posts: counts.post_count,
+              Comments: counts.comment_count,
+            }}
+          />
+        )}
       </HoverCardContent>
     </HoverCard>
   );

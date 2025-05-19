@@ -19,7 +19,7 @@ export default function Support() {
       </IonHeader>
       <IonContent>
         <ContentGutters>
-          <div className="flex flex-col flex-1 py-8 prose dark:prose-invert">
+          <div className="flex flex-col flex-1 py-8 markdown-content">
             <h2>Need Help? We're Here for You!</h2>
 
             <p>

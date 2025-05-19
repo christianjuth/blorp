@@ -255,7 +255,7 @@ export function PostByline({
         )}
         {showCreator && (
           <div className="flex flex-row text-xs text-muted-foreground gap-1 items-center h-5">
-            <PersonHoverCard actorId={creatorApId}>
+            <PersonHoverCard actorId={creatorApId} asChild>
               <Link
                 to={`${linkCtx.root}u/:userId`}
                 params={{

@@ -5,9 +5,8 @@
 
 @import "tw-animate-css";
 
-@plugin "@tailwindcss/typography";
-@import "./tailwind-typography-modifications.css";
 @import "./markdown-editing.css";
+@import "./markdown-content.css";
 
 @import "@ionic/react/css/core.css";
 @import "@ionic/react/css/padding.css";

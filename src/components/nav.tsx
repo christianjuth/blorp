@@ -29,7 +29,7 @@ import {
 } from "react-icons/io5";
 import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID } from "../routing/config";
 import { LogOut } from "./icons";
-import { Badge } from "./badge";
+import { BadgeCount } from "./badge-count";
 import _ from "lodash";
 import { Separator } from "./ui/separator";
 
@@ -41,7 +41,7 @@ function AccountNotificationBadge({
   children: React.ReactNode;
 }) {
   const count = useNotificationCount()[accountIndex];
-  return <Badge showBadge={!!count}>{children}</Badge>;
+  return <BadgeCount showBadge={!!count}>{children}</BadgeCount>;
 }
 
 export function UserDropdown() {
@@ -70,7 +70,7 @@ export function UserDropdown() {
   }
 
   const content = (
-    <Badge showBadge={!!count}>
+    <BadgeCount showBadge={!!count}>
       <Avatar key={person ? 0 : 1}>
         {person && <AvatarImage src={person.avatar} />}
         <AvatarFallback>
@@ -78,7 +78,7 @@ export function UserDropdown() {
           {!person && <IoPerson />}
         </AvatarFallback>
       </Avatar>
-    </Badge>
+    </BadgeCount>
   );
 
   if (media.maxMd) {
@@ -288,7 +288,7 @@ export function UserSidebar() {
               }}
               className="flex flex-row gap-2 items-center text-left"
             >
-              <Badge showBadge={!!counts[index]}>
+              <BadgeCount showBadge={!!counts[index]}>
                 <Avatar key={person?.id}>
                   {person && <AvatarImage src={person.avatar} />}
                   <AvatarFallback>
@@ -296,7 +296,7 @@ export function UserSidebar() {
                     {!person && <IoPerson />}
                   </AvatarFallback>
                 </Avatar>
-              </Badge>
+              </BadgeCount>
               <div className="flex flex-col">
                 <span>{person?.display_name ?? person?.name}</span>
                 <span className="text-muted-foreground text-xs">

@@ -4,6 +4,7 @@ import {
   VirtualItem,
   defaultRangeExtractor,
   Range,
+  Virtualizer,
 } from "@tanstack/react-virtual";
 import {
   IonRefresher,
@@ -12,7 +13,6 @@ import {
   useIonRouter,
 } from "@ionic/react";
 import { twMerge } from "tailwind-merge";
-
 import { subscribeToScrollEvent } from "../lib/scroll-events";
 import _ from "lodash";
 import {
@@ -23,6 +23,50 @@ import {
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useAuth } from "../stores/auth";
 import { cn } from "../lib/utils";
+import { COMMENT_COLLAPSE_EVENT } from "./posts/post-comment";
+
+/**
+ * This is a hack that prevents the virtualizer from shifting the
+ * scroll for 50ms after a comment is expanded/collapsed
+ */
+function usePreventScrollJumpingOnCommentCollapse({
+  container,
+  virtualizer,
+}: {
+  container: HTMLDivElement | null;
+  virtualizer: Virtualizer<HTMLDivElement, Element>;
+}) {
+  useEffect(() => {
+    let shouldAdjust = true;
+    if (!container) {
+      return;
+    }
+
+    const { shouldAdjustScrollPositionOnItemSizeChange } = virtualizer;
+    virtualizer.shouldAdjustScrollPositionOnItemSizeChange = (...args) => {
+      if (!shouldAdjust) {
+        return false;
+      }
+      return shouldAdjustScrollPositionOnItemSizeChange?.(...args) ?? false;
+    };
+
+    let timeoutId: undefined | number;
+    const onToggle = () => {
+      window.clearTimeout(timeoutId);
+      shouldAdjust = false;
+      timeoutId = window.setTimeout(() => {
+        shouldAdjust = true;
+      }, 50);
+    };
+
+    container.addEventListener(COMMENT_COLLAPSE_EVENT, onToggle);
+    return () => {
+      container.removeEventListener(COMMENT_COLLAPSE_EVENT, onToggle);
+      virtualizer.shouldAdjustScrollPositionOnItemSizeChange =
+        shouldAdjustScrollPositionOnItemSizeChange;
+    };
+  }, [container]);
+}
 
 function useRouterSafe() {
   try {
@@ -127,6 +171,11 @@ export function VirtualListInternal<T>({
       ]);
       return Array.from(next).sort((a, b) => a - b);
     }, []),
+  });
+
+  usePreventScrollJumpingOnCommentCollapse({
+    container: scrollRef.current,
+    virtualizer: rowVirtualizer,
   });
 
   useEffect(() => {
@@ -261,7 +310,11 @@ export function VirtualList<T>({
   return (
     <>
       {refresh && (
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+        <IonRefresher
+          slot="fixed"
+          onIonRefresh={handleRefresh}
+          className="md:hidden"
+        >
           <IonRefresherContent />
         </IonRefresher>
       )}

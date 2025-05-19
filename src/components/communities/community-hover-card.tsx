@@ -13,6 +13,7 @@ import {
 } from "@/src/components/ui/hover-card";
 import { useState } from "react";
 import { useAuth } from "@/src/stores/auth";
+import { AggregateBadges } from "../aggregates";
 
 dayjs.extend(localizedFormat);
 
@@ -54,40 +55,16 @@ export function CommunityHoverCard({
           </span>
         </div>
 
-        <div className="grid grid-cols-3 text-sm">
-          <span className="font-semibold h-5">
-            {counts ? (
-              abbriviateNumber(counts.subscribers)
-            ) : (
-              <Skeleton className="w-2/3 h-full" />
-            )}
-          </span>
-          <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
-            Members
-          </span>
-
-          <span className="font-semibold h-5">
-            {counts ? (
-              abbriviateNumber(counts.posts)
-            ) : (
-              <Skeleton className="w-2/3 h-full" />
-            )}
-          </span>
-          <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
-            Posts
-          </span>
-
-          <span className="font-semibold h-5">
-            {counts ? (
-              abbriviateNumber(counts.comments)
-            ) : (
-              <Skeleton className="w-2/3 h-full" />
-            )}
-          </span>
-          <span className="row-start-2 text-zinc-500 dark:text-zinc-400">
-            Comments
-          </span>
-        </div>
+        {counts && (
+          <AggregateBadges
+            className="mt-1"
+            aggregates={{
+              Subscribers: counts.subscribers,
+              Posts: counts.posts,
+              Comments: counts.comments,
+            }}
+          />
+        )}
       </HoverCardContent>
     </HoverCard>
   );

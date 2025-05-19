@@ -206,12 +206,7 @@ export function MarkdownRenderer({
 }) {
   const root = useLinkContext().root;
   return (
-    <div
-      className={cn(
-        "prose dark:prose-invert prose-sm leading-normal max-w-full",
-        className,
-      )}
-    >
+    <div className={cn("markdown-content", className)}>
       {parse(
         RENDERERS[root][allowUnsafeHtml ? "html" : "noHtml"].render(markdown),
         options(root),

@@ -28,11 +28,36 @@ import { PersonHoverCard } from "../person/person-hover-card";
 import { useAuth } from "@/src/stores/auth";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "../ui/button";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { ContentGutters } from "../gutters";
 import { shareRoute } from "@/src/lib/share";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { Shield } from "../icons";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "../ui/collapsible";
+import { create } from "zustand";
+
+export const COMMENT_COLLAPSE_EVENT = "COMMENT_COLLAPSE_EVENT";
+
+type StoreState = {
+  expandedDetails: Record<string, boolean>;
+  setExpandedDetails: (id: string, expanded: boolean) => void;
+};
+
+const useDetailsStore = create<StoreState>((set) => ({
+  expandedDetails: {},
+  setExpandedDetails: (id, expanded) => {
+    set((prev) => ({
+      expandedDetails: {
+        ...prev.expandedDetails,
+        [id]: expanded,
+      },
+    }));
+  },
+}));
 
 function Byline({
   actorId,
@@ -53,8 +78,11 @@ function Byline({
   const creator = profileView?.person;
   const slug = creator ? createSlug(creator) : null;
   return (
-    <summary
-      className={cn("flex flex-row gap-1.5 items-center py-px", className)}
+    <CollapsibleTrigger
+      className={cn(
+        "flex flex-row gap-1.5 items-center py-px w-full",
+        className,
+      )}
     >
       <Avatar className="w-6 h-6">
         <AvatarImage src={creator?.avatar} />
@@ -62,7 +90,7 @@ function Byline({
           {creator?.name?.substring(0, 1).toUpperCase()}{" "}
         </AvatarFallback>
       </Avatar>
-      <PersonHoverCard actorId={actorId}>
+      <PersonHoverCard actorId={actorId} asChild>
         <Link
           to={`${linkCtx.root}u/:userId`}
           params={{
@@ -72,9 +100,17 @@ function Byline({
         >
           <span className="font-medium">{slug?.name}</span>
           <span className="italic text-muted-foreground">@{slug?.host}</span>
-          {authorType === "OP" && <Badge className="ml-1.5">OP</Badge>}
+          {authorType === "OP" && (
+            <Badge variant="brand" className="ml-1.5">
+              OP
+            </Badge>
+          )}
           {authorType === "MOD" && <Shield className="text-green-500 ml-1.5" />}
-          {authorType === "ME" && <Badge className="ml-1.5">Me</Badge>}
+          {authorType === "ME" && (
+            <Badge variant="brand" className="ml-1.5">
+              Me
+            </Badge>
+          )}
         </Link>
       </PersonHoverCard>
       <span className="text-muted-foreground text-xs">•</span>
@@ -82,7 +118,7 @@ function Byline({
         time={publishedDate}
         className="text-xs text-muted-foreground"
       />
-    </summary>
+    </CollapsibleTrigger>
   );
 }
 
@@ -177,6 +213,16 @@ export function PostComment({
     return parent.join(".");
   }, [level, commentPath, singleCommentThread]);
 
+  const open =
+    useDetailsStore((s) =>
+      commentView?.comment.ap_id
+        ? s.expandedDetails[commentView.comment.ap_id]
+        : null,
+    ) ?? true;
+  const setOpen = useDetailsStore((s) => s.setExpandedDetails);
+
+  const ref = useRef<HTMLDivElement>(null);
+
   if (!commentView) {
     return null;
   }
@@ -191,6 +237,7 @@ export function PostComment({
 
   const content = (
     <div
+      ref={ref}
       className={cn(
         "flex-1 pt-2",
         level === 0 && "max-md:px-2.5 py-3",
@@ -242,9 +289,24 @@ export function PostComment({
           {!parentLink && <div className="h-px flex-1 bg-border" />}
         </div>
       )}
-      <details open className={cn(comment.id < 0 && "opacity-50")}>
+      <Collapsible
+        className={cn(comment.id < 0 && "opacity-50")}
+        defaultOpen={open}
+        onOpenChange={() => {
+          setOpen(comment.ap_id, !open);
+          ref.current?.dispatchEvent(
+            new CustomEvent<boolean>(COMMENT_COLLAPSE_EVENT, {
+              bubbles: true,
+            }),
+          );
+        }}
+      >
         <Byline
-          className={cn("pb-2", highlightComment && "bg-brand/10")}
+          className={cn(
+            open && "pb-1.5",
+            level > 0 && !open && "pb-3",
+            highlightComment && "bg-brand/10",
+          )}
           actorId={creator.actor_id}
           publishedDate={comment.published}
           authorType={
@@ -258,7 +320,7 @@ export function PostComment({
           }
         />
 
-        <div>
+        <CollapsibleContent>
           {comment.deleted && <span className="italic text-sm">deleted</span>}
           {comment.removed && <span className="italic text-sm">removed</span>}
 
@@ -409,8 +471,8 @@ export function PostComment({
               <div className="h-1 -mt-1 w-full bg-background translate-y-0.5" />
             </div>
           )}
-        </div>
-      </details>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 

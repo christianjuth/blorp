@@ -1,4 +1,4 @@
-export function Badge({
+export function BadgeCount({
   children,
   showBadge,
 }: {
