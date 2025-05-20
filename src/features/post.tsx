@@ -90,6 +90,10 @@ export default function Post() {
     ap_id: decodedApId,
   });
 
+  const adminApIds = useAuth((s) => s.getSelectedAccount().site?.admins)?.map(
+    (a) => a.person.actor_id,
+  );
+
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore((s) =>
     decodedApId ? s.posts[getCachePrefixer()(decodedApId)]?.data : null,
@@ -197,6 +201,7 @@ export default function Post() {
                   {...getPostProps(post, {
                     featuredContext: "community",
                     modApIds,
+                    adminApIds,
                     detailView: true,
                   })}
                 />
@@ -257,6 +262,7 @@ export default function Post() {
                 myUserId={myUserId}
                 communityName={communityName}
                 modApIds={modApIds}
+                adminApIds={adminApIds}
                 singleCommentThread={!!commentPath}
               />
             )}

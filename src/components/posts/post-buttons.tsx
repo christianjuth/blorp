@@ -21,10 +21,12 @@ export function Voting({
   apId,
   myVote,
   score,
+  className,
 }: {
   apId: string;
   myVote: number;
   score: number;
+  className?: string;
 }) {
   const id = useId();
   const requireAuth = useRequireAuth();
@@ -35,7 +37,7 @@ export function Voting({
   const isDownvoted = myVote < 0;
 
   return (
-    <div className="flex flex-row items-center h-7">
+    <div className={cn("flex flex-row items-center h-7", className)}>
       <Button
         id={id}
         size="icon"

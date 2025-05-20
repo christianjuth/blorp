@@ -23,7 +23,7 @@ import {
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useAuth } from "../stores/auth";
 import { cn } from "../lib/utils";
-import { COMMENT_COLLAPSE_EVENT } from "./posts/post-comment";
+import { COMMENT_COLLAPSE_EVENT } from "./posts/config";
 
 /**
  * This is a hack that prevents the virtualizer from shifting the

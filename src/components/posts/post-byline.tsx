@@ -29,7 +29,7 @@ import { FaBookmark } from "react-icons/fa";
 import { postToDraft, useCreatePostStore } from "@/src/stores/create-post";
 import { usePostsStore } from "@/src/stores/posts";
 import { shareRoute } from "@/src/lib/share";
-import { Shield } from "../icons";
+import { Shield, ShieldCheckmark } from "../icons";
 import { cn } from "@/src/lib/utils";
 
 export function PostByline({
@@ -50,6 +50,7 @@ export function PostByline({
   published,
   onNavigate,
   isMod,
+  isAdmin,
   showCommunity = true,
   showCreator = false,
 }: {
@@ -70,6 +71,7 @@ export function PostByline({
   published: string;
   onNavigate?: () => any;
   isMod?: boolean;
+  isAdmin?: boolean;
   showCommunity?: boolean;
   showCreator?: boolean;
 }) {
@@ -267,7 +269,18 @@ export function PostByline({
                 <i>@{creatorSlug?.host}</i>
               </Link>
             </PersonHoverCard>
-            {isMod && <Shield className="text-green-500 -mr-0.75" />}
+            {isMod && !isAdmin && (
+              <>
+                <Shield className="text-green-500 ml-2 text-base" />
+                <span className="text-xs ml-1 text-green-500">MOD</span>
+              </>
+            )}
+            {isAdmin && (
+              <>
+                <ShieldCheckmark className="text-brand ml-2 text-base" />
+                <span className="text-xs ml-1 text-brand">ADMIN</span>
+              </>
+            )}
             {!showCommunity && (
               <RelativeTime time={published} className="ml-2" />
             )}

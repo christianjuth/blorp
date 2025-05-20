@@ -217,7 +217,7 @@ function getIconCommentSort(sort: CommentSortType) {
   }
 }
 
-export function CommentSortSelect() {
+export function CommentSortSelect({ className }: { className?: string }) {
   const commentSort = useFiltersStore((s) => s.commentSort);
   const setCommentSort = useFiltersStore((s) => s.setCommentSort);
 
@@ -263,7 +263,10 @@ export function CommentSortSelect() {
         <Button
           size="sm"
           variant="ghost"
-          className="text-md font-normal text-brand hover:text-brand"
+          className={cn(
+            "text-md font-normal text-brand hover:text-brand",
+            className,
+          )}
           asChild
         >
           <div>

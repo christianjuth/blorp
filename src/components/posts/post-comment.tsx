@@ -32,15 +32,14 @@ import { useMemo, useRef } from "react";
 import { ContentGutters } from "../gutters";
 import { shareRoute } from "@/src/lib/share";
 import { useProfilesStore } from "@/src/stores/profiles";
-import { Shield } from "../icons";
+import { Shield, ShieldCheckmark } from "../icons";
 import {
   Collapsible,
   CollapsibleTrigger,
   CollapsibleContent,
 } from "../ui/collapsible";
 import { create } from "zustand";
-
-export const COMMENT_COLLAPSE_EVENT = "COMMENT_COLLAPSE_EVENT";
+import { COMMENT_COLLAPSE_EVENT } from "./config";
 
 type StoreState = {
   expandedDetails: Record<string, boolean>;
@@ -67,7 +66,7 @@ function Byline({
 }: {
   actorId: string;
   publishedDate: string;
-  authorType?: "OP" | "ME" | "MOD";
+  authorType?: "OP" | "ME" | "MOD" | "ADMIN";
   className?: string;
 }) {
   const linkCtx = useLinkContext();
@@ -96,16 +95,29 @@ function Byline({
           params={{
             userId: encodeApId(actorId),
           }}
-          className="text-xs overflow-ellipsis flex flex-row overflow-x-hidden items-center"
+          className="text-lg overflow-ellipsis flex flex-row overflow-x-hidden items-center"
         >
-          <span className="font-medium">{slug?.name}</span>
-          <span className="italic text-muted-foreground">@{slug?.host}</span>
+          <span className="font-medium text-xs">{slug?.name}</span>
+          <span className="italic text-xs text-muted-foreground">
+            @{slug?.host}
+          </span>
+          {authorType === "ADMIN" && (
+            <>
+              <Shield className="text-brand ml-2" />
+              <span className="text-xs ml-1 text-brand">ADMIN</span>
+            </>
+          )}
           {authorType === "OP" && (
             <Badge variant="brand" className="ml-1.5">
               OP
             </Badge>
           )}
-          {authorType === "MOD" && <Shield className="text-green-500 ml-1.5" />}
+          {authorType === "MOD" && (
+            <>
+              <Shield className="text-green-500 ml-2" />
+              <span className="text-xs ml-1 text-green-500">MOD</span>
+            </>
+          )}
           {authorType === "ME" && (
             <Badge variant="brand" className="ml-1.5">
               Me
@@ -131,6 +143,7 @@ export function PostComment({
   myUserId,
   communityName,
   modApIds,
+  adminApIds,
   singleCommentThread,
   highlightCommentId,
 }: {
@@ -142,6 +155,7 @@ export function PostComment({
   myUserId: number | undefined;
   communityName: string;
   modApIds?: string[];
+  adminApIds?: string[];
   singleCommentThread?: boolean;
   highlightCommentId?: string;
 }) {
@@ -161,6 +175,8 @@ export function PostComment({
       ? s.comments[getCachePrefixer()(commentPath.path)]?.data
       : undefined,
   );
+  const isAdmin =
+    commentView && adminApIds?.includes(commentView?.creator.actor_id);
   const isMod =
     commentView && modApIds?.includes(commentView?.creator.actor_id);
 
@@ -310,13 +326,15 @@ export function PostComment({
           actorId={creator.actor_id}
           publishedDate={comment.published}
           authorType={
-            isMod
-              ? "MOD"
-              : creator.id === opId
-                ? "OP"
-                : creator.id === myUserId
-                  ? "ME"
-                  : undefined
+            isAdmin
+              ? "ADMIN"
+              : isMod
+                ? "MOD"
+                : creator.id === opId
+                  ? "OP"
+                  : creator.id === myUserId
+                    ? "ME"
+                    : undefined
           }
         />
 
@@ -432,7 +450,7 @@ export function PostComment({
             />
 
             <CommentReplyButton onClick={() => reply.setIsEditing(true)} />
-            <CommentVoting commentView={commentView} />
+            <CommentVoting commentView={commentView} className="-mr-2.5" />
           </div>
 
           {(sorted.length > 0 || reply.isEditing) && (
@@ -462,6 +480,7 @@ export function PostComment({
                   communityName={communityName}
                   highlightCommentId={highlightCommentId}
                   modApIds={modApIds}
+                  adminApIds={adminApIds}
                 />
               ))}
 
