@@ -37,6 +37,7 @@ type AuthStore = {
   addAccount: (patch?: Partial<Account>) => any;
   setAccountIndex: (index: number) => Account | null;
   logout: (index?: number | Account) => any;
+  logoutMultiple: (index: number[]) => any;
   getCachePrefixer: () => CachePrefixer;
 };
 
@@ -125,6 +126,25 @@ export const useAuth = create<AuthStore>()(
               accountIndex: _.clamp(accountIndex, 0, newAccounts.length - 1),
             });
           }
+        }
+      },
+      logoutMultiple: (indicies: number[]) => {
+        const { accounts, accountIndex } = get();
+        const newAccounts = accounts.filter((_a, i) => !indicies.includes(i));
+        if (newAccounts.length === 0) {
+          set({
+            accounts: [
+              {
+                instance: env.REACT_APP_DEFAULT_INSTANCE,
+              },
+            ],
+            accountIndex: 0,
+          });
+        } else {
+          set({
+            accounts: newAccounts,
+            accountIndex: _.clamp(accountIndex, 0, newAccounts.length - 1),
+          });
         }
       },
       setAccountIndex: (index) => {

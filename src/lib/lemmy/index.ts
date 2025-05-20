@@ -995,37 +995,53 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
 export function useRefreshAuth(account?: Account) {
   const { client } = useLemmyClient(account);
   const updateAccount = useAuth((s) => s.updateAccount);
-  const logout = useAuth((s) => s.logout);
+  const logoutMultiple = useAuth((s) => s.logoutMultiple);
 
-  const selectedAccount = useAuth((s) => s.getSelectedAccount());
-  account ??= selectedAccount;
+  const accounts = useAuth((s) => s.accounts);
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
   return useMutation({
     mutationFn: async () => {
-      const site = await client.getSite();
-      if (account.jwt && !site.my_user) {
-        logout(account);
-        throw new Error("User not found");
-      }
-      if (site.my_user) {
-        cacheProfiles(getCachePrefixer(account), [
-          _.pick(site.my_user.local_user_view, ["person", "counts"]),
-        ]);
-        cacheCommunities(
+      const logoutIndicies: number[] = [];
+
+      for (let i = 0; i < accounts.length; i++) {
+        const account = accounts[i];
+        if (!account) {
+          continue;
+        }
+
+        const site = await client.getSite();
+        if (account.jwt && !site.my_user) {
+          logoutIndicies.push(i);
+          continue;
+        }
+        if (site.my_user) {
+          cacheProfiles(getCachePrefixer(account), [
+            _.pick(site.my_user.local_user_view, ["person", "counts"]),
+          ]);
+          cacheCommunities(
+            getCachePrefixer(account),
+            [...site.my_user.follows, ...site.my_user.moderates].map(
+              ({ community }) => ({
+                communityView: { community },
+              }),
+            ),
+          );
+        }
+        cacheProfiles(
           getCachePrefixer(account),
-          [...site.my_user.follows, ...site.my_user.moderates].map(
-            ({ community }) => ({
-              communityView: { community },
-            }),
-          ),
+          site.admins.map((p) => _.pick(p, ["person", "counts"])),
         );
+        updateAccount(i, {
+          site,
+        });
       }
-      updateAccount(account, {
-        site,
-      });
+
+      if (logoutIndicies.length > 0) {
+        logoutMultiple(logoutIndicies);
+      }
     },
     onError: (err) => {
       console.log("Err", err);
