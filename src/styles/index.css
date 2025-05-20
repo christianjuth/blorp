@@ -60,6 +60,7 @@
 @media (prefers-color-scheme: dark) {
   :root:root {
     --brand: #ff1fbb;
+    --brand-secondary: #7b5ff7;
 
     /* Shad cn dark theme */
     --background: oklch(0.141 0.005 285.823);

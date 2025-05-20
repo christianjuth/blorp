@@ -58,23 +58,9 @@
   @apply not-italic;
 }
 
-/*.markdown-content blockquote:not(blockquote blockquote)::after {*/
-/*  @apply block size-6 absolute end-1 bottom-1;*/
-/*  content: " ";*/
-/*  mask-image: url("/icons.svg#css-quote");*/
-/*  -webkit-mask-image: url("/icons.svg#css-quote");*/
-/*}*/
-
-.markdown-content ul {
-  @apply list-inside list-disc;
-}
-
+.markdown-content ul,
 .markdown-content ol {
-  @apply list-inside list-decimal;
-}
-
-.markdown-content li {
-  @apply my-1.5;
+  @apply list-disc list-outside ps-4 space-y-1;
 }
 
 .markdown-content a {
@@ -108,7 +94,7 @@
 /* give every cell a 1px accent-colored border */
 .markdown-content th,
 .markdown-content td {
-  @apply border border-accent px-2 py-1;
+  @apply border px-2 py-1;
 }
 
 /* if you only want horizontal lines between rows */

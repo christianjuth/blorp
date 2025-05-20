@@ -308,13 +308,11 @@ export function VirtualList<T>({
   }
 
   return (
+    // Hide refresher on large screen sizes, because it kept
+    // getting triggered by my mouse
     <>
-      {refresh && (
-        <IonRefresher
-          slot="fixed"
-          onIonRefresh={handleRefresh}
-          className="md:hidden"
-        >
+      {refresh && media.maxMd && (
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent />
         </IonRefresher>
       )}

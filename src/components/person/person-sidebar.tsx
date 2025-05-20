@@ -180,10 +180,7 @@ export function PersonSidebar({
                 <ChevronsUpDown className="h-4 w-4" />
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <MarkdownRenderer
-                  markdown={person.bio}
-                  className="text-muted-foreground mt-3"
-                />
+                <MarkdownRenderer markdown={person.bio} dim className="mt-3" />
               </CollapsibleContent>
             </Collapsible>
           </>

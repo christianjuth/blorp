@@ -327,10 +327,7 @@ export function PostComment({
           {!hideContent && !edit.isEditing && (
             <MarkdownRenderer
               markdown={comment.content}
-              className={cn(
-                "text-foreground",
-                highlightComment && "bg-brand/10",
-              )}
+              className={cn(highlightComment && "bg-brand/10")}
             />
           )}
 

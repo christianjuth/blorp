@@ -199,14 +199,18 @@ export function MarkdownRenderer({
   markdown,
   className,
   allowUnsafeHtml,
+  dim,
 }: {
   markdown: string;
   className?: string;
   allowUnsafeHtml?: boolean;
+  dim?: boolean;
 }) {
   const root = useLinkContext().root;
   return (
-    <div className={cn("markdown-content", className)}>
+    <div
+      className={cn("markdown-content", dim && "text-foreground/70", className)}
+    >
       {parse(
         RENDERERS[root][allowUnsafeHtml ? "html" : "noHtml"].render(markdown),
         options(root),

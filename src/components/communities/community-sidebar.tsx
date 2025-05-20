@@ -198,7 +198,8 @@ export function SmallScreenSidebar({
             {community.description && (
               <MarkdownRenderer
                 markdown={community.description}
-                className="text-muted-foreground pt-3"
+                dim
+                className="pt-3"
               />
             )}
           </section>
@@ -367,7 +368,8 @@ export function CommunitySidebar({
               {community.description && !hideDescription && (
                 <MarkdownRenderer
                   markdown={community.description}
-                  className="text-foreground/70 pt-3"
+                  dim
+                  className="pt-3"
                 />
               )}
 

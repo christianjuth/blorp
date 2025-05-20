@@ -38,7 +38,7 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
             ABOUT {instanceName}
           </h2>
 
-          <MarkdownRenderer className="text-sm" markdown={sidebar} />
+          <MarkdownRenderer dim className="text-sm" markdown={sidebar} />
 
           {counts && (
             <AggregateBadges
@@ -67,10 +67,7 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
           <ChevronsUpDown className="h-4 w-4" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-5 pb-2">
-          <MarkdownRenderer
-            className="text-muted-foreground"
-            markdown={sidebar}
-          />
+          <MarkdownRenderer dim markdown={sidebar} />
 
           {counts && (
             <AggregateBadges
