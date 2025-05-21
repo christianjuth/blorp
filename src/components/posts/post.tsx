@@ -32,11 +32,12 @@ export function getPostProps(
   postView: FlattenedPost,
   config?: {
     featuredContext?: "community" | "home";
+    adminApIds?: string[];
     modApIds?: string[];
     detailView?: boolean;
   },
 ) {
-  const { featuredContext, modApIds } = config ?? {};
+  const { featuredContext, modApIds, adminApIds } = config ?? {};
 
   const embed = getPostEmbed(
     postView.post,
@@ -83,6 +84,7 @@ export function getPostProps(
   return {
     ...embed,
     isMod: modApIds?.includes(postView.creator.actor_id),
+    isAdmin: adminApIds?.includes(postView.creator.actor_id),
     id: postView.post.id,
     apId: postView.post.ap_id,
     encodedApId: encodeApId(postView.post.ap_id),
@@ -330,7 +332,12 @@ export function FeedPostCard(props: PostProps) {
             communityName={communitySlug}
             postApId={encodedApId}
           />
-          <Voting apId={apId} score={score} myVote={myVote} />
+          <Voting
+            apId={apId}
+            score={score}
+            myVote={myVote}
+            className="-mr-2.5"
+          />
         </div>
       )}
     </div>
@@ -365,10 +372,10 @@ export function PostBottomBar({
 
   return (
     <div className="py-1 md:py-2 flex flex-row items-center gap-1 bg-background border-b-[.5px] max-md:px-3">
-      <CommentSortSelect />
+      <CommentSortSelect className="-ml-2.5" />
       <div className="flex-1" />
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
-      <Voting apId={apId} score={score} myVote={myVote} />
+      <Voting apId={apId} score={score} myVote={myVote} className="-mr-2.5" />
     </div>
   );
 }

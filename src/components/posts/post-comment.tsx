@@ -28,11 +28,35 @@ import { PersonHoverCard } from "../person/person-hover-card";
 import { useAuth } from "@/src/stores/auth";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "../ui/button";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { ContentGutters } from "../gutters";
 import { shareRoute } from "@/src/lib/share";
 import { useProfilesStore } from "@/src/stores/profiles";
-import { Shield } from "../icons";
+import { Shield, ShieldCheckmark } from "../icons";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "../ui/collapsible";
+import { create } from "zustand";
+import { COMMENT_COLLAPSE_EVENT } from "./config";
+
+type StoreState = {
+  expandedDetails: Record<string, boolean>;
+  setExpandedDetails: (id: string, expanded: boolean) => void;
+};
+
+const useDetailsStore = create<StoreState>((set) => ({
+  expandedDetails: {},
+  setExpandedDetails: (id, expanded) => {
+    set((prev) => ({
+      expandedDetails: {
+        ...prev.expandedDetails,
+        [id]: expanded,
+      },
+    }));
+  },
+}));
 
 function Byline({
   actorId,
@@ -42,7 +66,7 @@ function Byline({
 }: {
   actorId: string;
   publishedDate: string;
-  authorType?: "OP" | "ME" | "MOD";
+  authorType?: "OP" | "ME" | "MOD" | "ADMIN";
   className?: string;
 }) {
   const linkCtx = useLinkContext();
@@ -53,8 +77,11 @@ function Byline({
   const creator = profileView?.person;
   const slug = creator ? createSlug(creator) : null;
   return (
-    <summary
-      className={cn("flex flex-row gap-1.5 items-center py-px", className)}
+    <CollapsibleTrigger
+      className={cn(
+        "flex flex-row gap-1.5 items-center py-px w-full",
+        className,
+      )}
     >
       <Avatar className="w-6 h-6">
         <AvatarImage src={creator?.avatar} />
@@ -62,19 +89,40 @@ function Byline({
           {creator?.name?.substring(0, 1).toUpperCase()}{" "}
         </AvatarFallback>
       </Avatar>
-      <PersonHoverCard actorId={actorId}>
+      <PersonHoverCard actorId={actorId} asChild>
         <Link
           to={`${linkCtx.root}u/:userId`}
           params={{
             userId: encodeApId(actorId),
           }}
-          className="text-xs overflow-ellipsis flex flex-row overflow-x-hidden items-center"
+          className="text-base overflow-ellipsis flex flex-row overflow-x-hidden items-center"
         >
-          <span className="font-medium">{slug?.name}</span>
-          <span className="italic text-muted-foreground">@{slug?.host}</span>
-          {authorType === "OP" && <Badge className="ml-1.5">OP</Badge>}
-          {authorType === "MOD" && <Shield className="text-green-500 ml-1.5" />}
-          {authorType === "ME" && <Badge className="ml-1.5">Me</Badge>}
+          <span className="font-medium text-xs">{slug?.name}</span>
+          <span className="italic text-xs text-muted-foreground">
+            @{slug?.host}
+          </span>
+          {authorType === "ADMIN" && (
+            <>
+              <ShieldCheckmark className="text-brand ml-2" />
+              <span className="text-xs ml-1 text-brand">ADMIN</span>
+            </>
+          )}
+          {authorType === "OP" && (
+            <Badge variant="brand" size="sm" className="ml-1.5">
+              OP
+            </Badge>
+          )}
+          {authorType === "MOD" && (
+            <>
+              <Shield className="text-green-500 ml-2" />
+              <span className="text-xs ml-1 text-green-500">MOD</span>
+            </>
+          )}
+          {authorType === "ME" && (
+            <Badge variant="brand" size="sm" className="ml-1.5">
+              Me
+            </Badge>
+          )}
         </Link>
       </PersonHoverCard>
       <span className="text-muted-foreground text-xs">•</span>
@@ -82,7 +130,7 @@ function Byline({
         time={publishedDate}
         className="text-xs text-muted-foreground"
       />
-    </summary>
+    </CollapsibleTrigger>
   );
 }
 
@@ -95,6 +143,7 @@ export function PostComment({
   myUserId,
   communityName,
   modApIds,
+  adminApIds,
   singleCommentThread,
   highlightCommentId,
 }: {
@@ -106,6 +155,7 @@ export function PostComment({
   myUserId: number | undefined;
   communityName: string;
   modApIds?: string[];
+  adminApIds?: string[];
   singleCommentThread?: boolean;
   highlightCommentId?: string;
 }) {
@@ -125,6 +175,8 @@ export function PostComment({
       ? s.comments[getCachePrefixer()(commentPath.path)]?.data
       : undefined,
   );
+  const isAdmin =
+    commentView && adminApIds?.includes(commentView?.creator.actor_id);
   const isMod =
     commentView && modApIds?.includes(commentView?.creator.actor_id);
 
@@ -177,6 +229,16 @@ export function PostComment({
     return parent.join(".");
   }, [level, commentPath, singleCommentThread]);
 
+  const open =
+    useDetailsStore((s) =>
+      commentView?.comment.ap_id
+        ? s.expandedDetails[commentView.comment.ap_id]
+        : null,
+    ) ?? true;
+  const setOpen = useDetailsStore((s) => s.setExpandedDetails);
+
+  const ref = useRef<HTMLDivElement>(null);
+
   if (!commentView) {
     return null;
   }
@@ -191,6 +253,7 @@ export function PostComment({
 
   const content = (
     <div
+      ref={ref}
       className={cn(
         "flex-1 pt-2",
         level === 0 && "max-md:px-2.5 py-3",
@@ -242,33 +305,47 @@ export function PostComment({
           {!parentLink && <div className="h-px flex-1 bg-border" />}
         </div>
       )}
-      <details open className={cn(comment.id < 0 && "opacity-50")}>
+      <Collapsible
+        className={cn(comment.id < 0 && "opacity-50")}
+        defaultOpen={open}
+        onOpenChange={() => {
+          setOpen(comment.ap_id, !open);
+          ref.current?.dispatchEvent(
+            new CustomEvent<boolean>(COMMENT_COLLAPSE_EVENT, {
+              bubbles: true,
+            }),
+          );
+        }}
+      >
         <Byline
-          className={cn("pb-2", highlightComment && "bg-brand/10")}
+          className={cn(
+            open && "pb-1.5",
+            level > 0 && !open && "pb-3",
+            highlightComment && "bg-brand/10",
+          )}
           actorId={creator.actor_id}
           publishedDate={comment.published}
           authorType={
-            isMod
-              ? "MOD"
-              : creator.id === opId
-                ? "OP"
-                : creator.id === myUserId
-                  ? "ME"
-                  : undefined
+            isAdmin
+              ? "ADMIN"
+              : isMod
+                ? "MOD"
+                : creator.id === opId
+                  ? "OP"
+                  : creator.id === myUserId
+                    ? "ME"
+                    : undefined
           }
         />
 
-        <div>
+        <CollapsibleContent>
           {comment.deleted && <span className="italic text-sm">deleted</span>}
           {comment.removed && <span className="italic text-sm">removed</span>}
 
           {!hideContent && !edit.isEditing && (
             <MarkdownRenderer
               markdown={comment.content}
-              className={cn(
-                "text-foreground",
-                highlightComment && "bg-brand/10",
-              )}
+              className={cn(highlightComment && "bg-brand/10")}
             />
           )}
 
@@ -373,7 +450,7 @@ export function PostComment({
             />
 
             <CommentReplyButton onClick={() => reply.setIsEditing(true)} />
-            <CommentVoting commentView={commentView} />
+            <CommentVoting commentView={commentView} className="-mr-2.5" />
           </div>
 
           {(sorted.length > 0 || reply.isEditing) && (
@@ -403,14 +480,15 @@ export function PostComment({
                   communityName={communityName}
                   highlightCommentId={highlightCommentId}
                   modApIds={modApIds}
+                  adminApIds={adminApIds}
                 />
               ))}
 
               <div className="h-1 -mt-1 w-full bg-background translate-y-0.5" />
             </div>
           )}
-        </div>
-      </details>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 

@@ -3,11 +3,17 @@ import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 
 type SidebarStore = {
+  // Main (left) sidebar
+  mainSidebarRecent: boolean;
+  setMainSidebarRecent: (val: boolean) => void;
+  mainSidebarSubscribed: boolean;
+  setMainSidebarSubscribed: (val: boolean) => void;
+  mainSidebarModerating: boolean;
+  setMainSidebarModerating: (val: boolean) => void;
+
   // Site sidebar
   siteAboutExpanded: boolean;
   setSiteAboutExpanded: (val: boolean) => void;
-  siteCommunitiesExpanded: boolean;
-  setSiteCommunitiesExpanded: (val: boolean) => void;
   siteAdminsExpanded: boolean;
   setSiteAdminsExpanded: (val: boolean) => void;
 
@@ -25,12 +31,19 @@ type SidebarStore = {
 export const useSidebarStore = create<SidebarStore>()(
   persist(
     (set) => ({
+      // Main sidebar
+      mainSidebarRecent: true,
+      setMainSidebarRecent: (mainSidebarRecent) => set({ mainSidebarRecent }),
+      mainSidebarSubscribed: true,
+      setMainSidebarSubscribed: (mainSidebarSubscribed) =>
+        set({ mainSidebarSubscribed }),
+      mainSidebarModerating: true,
+      setMainSidebarModerating: (mainSidebarModerating) =>
+        set({ mainSidebarModerating }),
+
       // Site sidebar
       siteAboutExpanded: true,
       setSiteAboutExpanded: (siteAboutExpanded) => set({ siteAboutExpanded }),
-      siteCommunitiesExpanded: true,
-      setSiteCommunitiesExpanded: (siteCommunitiesExpanded: boolean) =>
-        set({ siteCommunitiesExpanded }),
       siteAdminsExpanded: true,
       setSiteAdminsExpanded: (siteAdminsExpanded: boolean) =>
         set({ siteAdminsExpanded }),
@@ -51,7 +64,7 @@ export const useSidebarStore = create<SidebarStore>()(
     {
       name: "sidebar",
       storage: createStorage<SidebarStore>(),
-      version: 0,
+      version: 1,
     },
   ),
 );

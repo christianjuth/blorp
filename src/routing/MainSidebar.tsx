@@ -1,10 +1,11 @@
-import { IonIcon, useIonRouter, IonBadge, IonMenuToggle } from "@ionic/react";
+import { IonIcon, useIonRouter, IonMenuToggle } from "@ionic/react";
 import { Link, ParamsFor } from "@/src/routing/index";
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
 import { useAuth } from "@/src/stores/auth";
 import {
+  useModeratingCommunities,
   useNotificationCount,
   useSubscribedCommunities,
 } from "@/src/lib/lemmy";
@@ -12,7 +13,6 @@ import { CommunityCard } from "@/src/components/communities/community-card";
 import { LEFT_SIDEBAR_MENU_ID, TABS } from "./config";
 import { Separator } from "../components/ui/separator";
 import {
-  Circle,
   DocumentsOutline,
   LockClosedOutline,
   ScrollTextOutline,
@@ -20,7 +20,14 @@ import {
 } from "../components/icons";
 import { useLinkContext } from "./link-context";
 import { RoutePath } from "./routes";
-import { Badge } from "../components/badge";
+import { BadgeCount } from "../components/badge-count";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/src/components/ui/collapsible";
+import { ChevronsUpDown } from "lucide-react";
+import { useSidebarStore } from "../stores/sidebars";
 
 function SidebarTabs() {
   const selectedAccountIndex = useAuth((s) => s.accountIndex);
@@ -45,13 +52,13 @@ function SidebarTabs() {
               isActive ? "bg-secondary" : "text-muted-foreground",
             )}
           >
-            <Badge showBadge={t.id === "inbox" && !!count}>
+            <BadgeCount showBadge={t.id === "inbox" && !!count}>
               <IonIcon
                 icon={t.icon(isActive)}
                 key={isActive ? "active" : "inactive"}
                 className="text-2xl"
               />
-            </Badge>
+            </BadgeCount>
             <span className="text-sm ml-2">{t.label}</span>
           </button>
         );
@@ -69,26 +76,68 @@ export function MainSidebar() {
   const linkCtx = useLinkContext();
 
   const subscribedCommunities = useSubscribedCommunities();
+  const moderatingCommunities = useModeratingCommunities();
+
+  const recentOpen = useSidebarStore((s) => s.mainSidebarRecent);
+  const setRecentOpen = useSidebarStore((s) => s.setMainSidebarRecent);
+  const subscribedOpen = useSidebarStore((s) => s.mainSidebarSubscribed);
+  const setSubscribedOpen = useSidebarStore((s) => s.setMainSidebarSubscribed);
+  const moderatingOpen = useSidebarStore((s) => s.mainSidebarModerating);
+  const setModeratingOpen = useSidebarStore((s) => s.setMainSidebarModerating);
 
   return (
     <>
       <SidebarTabs />
 
-      {recentCommunities.length > 0 && (
-        <>
-          <span className="px-4 py-1 text-sm text-muted-foreground">
-            RECENT
-          </span>
+      <Collapsible
+        className="px-4 py-1"
+        open={recentOpen}
+        onOpenChange={setRecentOpen}
+      >
+        <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
+          <span>RECENT</span>
+          <ChevronsUpDown className="h-4 w-4" />
+        </CollapsibleTrigger>
+
+        <CollapsibleContent className="pt-2 flex flex-col gap-1.5">
           {recentCommunities.slice(0, 5).map((c) => (
             <IonMenuToggle
               key={c.id}
-              className="px-4 py-0.75 flex flex-row"
               menu={LEFT_SIDEBAR_MENU_ID}
               autoHide={false}
             >
               <CommunityCard communityView={c} size="sm" />
             </IonMenuToggle>
           ))}
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Separator className="my-2" />
+
+      {isLoggedIn && moderatingCommunities.length > 0 && (
+        <>
+          <Collapsible
+            className="px-4 py-1"
+            open={moderatingOpen}
+            onOpenChange={setModeratingOpen}
+          >
+            <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
+              <span>MODERATING</span>
+              <ChevronsUpDown className="h-4 w-4" />
+            </CollapsibleTrigger>
+
+            <CollapsibleContent className="pt-2 flex flex-col gap-1.5">
+              {moderatingCommunities.map(({ community: c }) => (
+                <IonMenuToggle
+                  key={c.id}
+                  menu={LEFT_SIDEBAR_MENU_ID}
+                  autoHide={false}
+                >
+                  <CommunityCard communityView={c} size="sm" />
+                </IonMenuToggle>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
 
           <Separator className="my-2" />
         </>
@@ -96,33 +145,44 @@ export function MainSidebar() {
 
       {isLoggedIn && subscribedCommunities.length > 0 && (
         <>
-          <span className="px-4 py-1 text-sm text-muted-foreground">
-            SUBSCRIBED
-          </span>
-          {subscribedCommunities.map(({ community: c }) => (
-            <IonMenuToggle
-              key={c.id}
-              className="px-4 py-0.75 flex flex-row"
-              menu={LEFT_SIDEBAR_MENU_ID}
-              autoHide={false}
-            >
-              <CommunityCard communityView={c} size="sm" />
-            </IonMenuToggle>
-          ))}
+          <Collapsible
+            className="px-4 py-1"
+            open={subscribedOpen}
+            onOpenChange={setSubscribedOpen}
+          >
+            <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
+              <span>SUBSCRIBED</span>
+              <ChevronsUpDown className="h-4 w-4" />
+            </CollapsibleTrigger>
+
+            <CollapsibleContent className="pt-2 flex flex-col gap-1.5">
+              {subscribedCommunities.map(({ community: c }) => (
+                <IonMenuToggle
+                  key={c.id}
+                  menu={LEFT_SIDEBAR_MENU_ID}
+                  autoHide={false}
+                >
+                  <CommunityCard communityView={c} size="sm" />
+                </IonMenuToggle>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
 
           <Separator className="my-2" />
         </>
       )}
 
-      <span className="px-4 py-1 text-sm text-muted-foreground uppercase">
-        {new URL(instance).host}
-      </span>
+      <section className="md:hidden">
+        <h2 className="px-4 pt-1 pb-3 text-sm text-muted-foreground uppercase">
+          {new URL(instance).host}
+        </h2>
 
-      <SidebarLink icon={<SidebarOutline />} to={`${linkCtx.root}sidebar`}>
-        Sidebar
-      </SidebarLink>
+        <SidebarLink icon={<SidebarOutline />} to={`${linkCtx.root}sidebar`}>
+          Sidebar
+        </SidebarLink>
 
-      <Separator className="mt-3" />
+        <Separator className="mt-3" />
+      </section>
 
       <SidebarLink icon={<LockClosedOutline />} to="/privacy">
         Privacy Policy

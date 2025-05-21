@@ -19,7 +19,7 @@ import _ from "lodash";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
-import { CommunityView } from "lemmy-js-client";
+import { CommunityView, SearchType } from "lemmy-js-client";
 import { useParams } from "@/src/routing/index";
 import {
   IonBackButton,
@@ -88,10 +88,24 @@ export function SearchFeed({
     name: communityName,
   });
 
+  let type_: SearchType;
+  switch (type) {
+    case "posts":
+      type_ = "Posts";
+      break;
+    case "communities":
+      type_ = "Communities";
+      break;
+    case "users":
+      type_ = "Users";
+      break;
+  }
+
   const searchResults = useSearch({
     q: search ?? "",
     sort: type === "communities" ? "TopAll" : postSort,
     community_name: type === "posts" ? communityName : undefined,
+    type_,
   });
 
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } =

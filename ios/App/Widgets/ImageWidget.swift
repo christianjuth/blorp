@@ -86,7 +86,7 @@ struct ImageProvider: AppIntentTimelineProvider {
         let topPost = await fetchImage(for: configuration.community?.rawValue ?? "aww@lemmy.world")
         
         let thumbData: Data?
-        if let urlString = topPost?.post.url,
+        if let urlString = topPost?.post.thumbnail_url,
            let url = URL(string: urlString) {
             do {
                 // 1) Fetch raw bytes

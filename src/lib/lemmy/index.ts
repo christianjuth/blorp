@@ -26,6 +26,7 @@ import {
   Register,
   MarkPersonMentionAsRead,
   BlockCommunity,
+  GetSiteResponse,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -992,44 +993,84 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
   };
 }
 
-export function useRefreshAuth(account?: Account) {
-  const { client } = useLemmyClient(account);
-  const updateAccount = useAuth((s) => s.updateAccount);
-  const logout = useAuth((s) => s.logout);
+function useRefreshAuthKey() {
+  const accounts = useAuth((s) => s.accounts);
+  return accounts.map((a) => Boolean(a.jwt));
+}
 
-  const selectedAccount = useAuth((s) => s.getSelectedAccount());
-  account ??= selectedAccount;
+export function useRefreshAuth() {
+  const updateAccount = useAuth((s) => s.updateAccount);
+  const logoutMultiple = useAuth((s) => s.logoutMultiple);
+
+  const accounts = useAuth((s) => s.accounts);
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
-  return useMutation({
-    mutationFn: async () => {
-      const site = await client.getSite();
-      if (account.jwt && !site.my_user) {
-        logout(account);
-        throw new Error("User not found");
-      }
-      if (site.my_user) {
-        cacheProfiles(getCachePrefixer(account), [
-          _.pick(site.my_user.local_user_view, ["person", "counts"]),
-        ]);
-        cacheCommunities(
+  const queryKey = useRefreshAuthKey();
+
+  return useQuery({
+    queryKey,
+    queryFn: async ({ signal }) => {
+      const logoutIndicies: number[] = [];
+      const sites: (GetSiteResponse | null)[] =
+        Array.from<GetSiteResponse | null>({
+          length: accounts.length,
+        }).fill(null);
+
+      for (let i = 0; i < accounts.length; i++) {
+        const account = accounts[i];
+        if (!account) {
+          continue;
+        }
+
+        const client = new LemmyHttp(account.instance);
+        if (account.jwt) {
+          client.setHeaders({
+            ...DEFAULT_HEADERS,
+            Authorization: `Bearer ${account.jwt}`,
+          });
+        } else {
+          client.setHeaders(DEFAULT_HEADERS);
+        }
+
+        const site = await client.getSite({ signal });
+        sites[i] = site;
+        if (account.jwt && !site.my_user) {
+          logoutIndicies.push(i);
+          continue;
+        }
+        if (site.my_user) {
+          cacheProfiles(getCachePrefixer(account), [
+            _.pick(site.my_user.local_user_view, ["person", "counts"]),
+          ]);
+          cacheCommunities(
+            getCachePrefixer(account),
+            [...site.my_user.follows, ...site.my_user.moderates].map(
+              ({ community }) => ({
+                communityView: { community },
+              }),
+            ),
+          );
+        }
+        cacheProfiles(
           getCachePrefixer(account),
-          [...site.my_user.follows, ...site.my_user.moderates].map(
-            ({ community }) => ({
-              communityView: { community },
-            }),
-          ),
+          site.admins.map((p) => _.pick(p, ["person", "counts"])),
         );
+        updateAccount(i, {
+          site,
+        });
       }
-      updateAccount(account, {
-        site,
-      });
+
+      if (logoutIndicies.length > 0) {
+        logoutMultiple(logoutIndicies);
+      }
     },
-    onError: (err) => {
-      console.log("Err", err);
-    },
+    //onError: (err: any) => {
+    //  console.log("Err", err);
+    //},
+    refetchOnWindowFocus: "always",
+    refetchOnMount: "always",
   });
 }
 
@@ -1811,8 +1852,9 @@ export function useCreateCommentReport() {
 }
 
 export function useBlockPerson(account?: Account) {
+  const queryClient = useQueryClient();
   const { client } = useLemmyClient(account);
-  const refersh = useRefreshAuth(account);
+  const accountsQueryKey = useRefreshAuthKey();
   return useMutation({
     mutationFn: (form: BlockPerson) => client.blockPerson(form),
     onError: (err, { block }) => {
@@ -1822,13 +1864,17 @@ export function useBlockPerson(account?: Account) {
         toast.error(`Couldn't ${block ? "block" : "unblock"} person`);
       }
     },
-    onSuccess: () => refersh.mutate(),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: accountsQueryKey,
+      }),
   });
 }
 
 export function useBlockCommunity(account?: Account) {
+  const queryClient = useQueryClient();
   const { client } = useLemmyClient(account);
-  const refersh = useRefreshAuth(account);
+  const accountsQueryKey = useRefreshAuthKey();
   return useMutation({
     mutationFn: (form: BlockCommunity) => client.blockCommunity(form),
     onError: (err, { block }) => {
@@ -1838,7 +1884,10 @@ export function useBlockCommunity(account?: Account) {
         toast.error(`Couldn't ${block ? "block" : "unblock"} community`);
       }
     },
-    onSuccess: () => refersh.mutate(),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: accountsQueryKey,
+      }),
   });
 }
 

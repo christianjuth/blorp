@@ -440,7 +440,7 @@ function MarkdownEditorInner({
       </div>
       <EditorContent
         id={id}
-        className="prose dark:prose-invert prose-sm flex-1 max-w-full leading-normal py-2 px-3 md:px-3.5"
+        className="markdown-content flex-1 max-w-full leading-normal py-2 px-3 md:px-3.5"
         editor={editor}
       />
       <div
@@ -544,7 +544,7 @@ function PlainTextEditorInner({
         autoFocus={autoFocus}
         defaultValue={content}
         onChange={(e) => onChange(e.target.value)}
-        className="prose dark:prose-invert prose-sm resize-none w-full max-w-full font-mono outline-none py-2 px-3 md:px-3.5 grow shrink-0 basis-auto"
+        className="markdown-content resize-none w-full max-w-full font-mono outline-none py-2 px-3 md:px-3.5 grow shrink-0 basis-auto"
         placeholder={placeholder}
         onFocus={onFocus}
         onBlur={onBlur}

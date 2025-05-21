@@ -5,9 +5,8 @@
 
 @import "tw-animate-css";
 
-@plugin "@tailwindcss/typography";
-@import "./tailwind-typography-modifications.css";
 @import "./markdown-editing.css";
+@import "./markdown-content.css";
 
 @import "@ionic/react/css/core.css";
 @import "@ionic/react/css/padding.css";
@@ -61,6 +60,7 @@
 @media (prefers-color-scheme: dark) {
   :root:root {
     --brand: #ff1fbb;
+    --brand-secondary: #7b5ff7;
 
     /* Shad cn dark theme */
     --background: oklch(0.141 0.005 285.823);

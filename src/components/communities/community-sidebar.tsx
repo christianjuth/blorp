@@ -30,7 +30,7 @@ import { ChevronsUpDown } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { useSidebarStore } from "@/src/stores/sidebars";
 import { cn } from "@/src/lib/utils";
-import { AggregateGrid } from "../aggregate-grid";
+import { AggregateBadges } from "../aggregates";
 import { useConfirmationAlert } from "@/src/lib/hooks";
 
 dayjs.extend(localizedFormat);
@@ -156,13 +156,25 @@ export function SmallScreenSidebar({
           <span>Created {dayjs(community.published).format("ll")}</span>
         </div>
 
-        <AggregateGrid
-          aggregates={{
-            Members: counts?.subscribers,
-            Posts: counts?.posts,
-            Comments: counts?.comments,
-          }}
-        />
+        {counts && (
+          <AggregateBadges
+            className="mt-1"
+            aggregates={{
+              ...(expanded
+                ? {
+                    "users / day": counts.users_active_day,
+                    "users / week": counts.users_active_week,
+                    "users / month": counts.users_active_month,
+                    "users / 6 months": counts.users_active_half_year,
+                    "Local subscribers": counts.subscribers_local,
+                  }
+                : {}),
+              Subscribers: counts.subscribers,
+              Posts: counts.posts,
+              Comments: counts.comments,
+            }}
+          />
+        )}
 
         {!expanded && (
           <Link
@@ -186,7 +198,8 @@ export function SmallScreenSidebar({
             {community.description && (
               <MarkdownRenderer
                 markdown={community.description}
-                className="text-muted-foreground pt-3"
+                dim
+                className="pt-3"
               />
             )}
           </section>
@@ -337,14 +350,6 @@ export function CommunitySidebar({
             <LuCakeSlice />
             <span>Created {dayjs(community.published).format("ll")}</span>
           </div>
-
-          <AggregateGrid
-            aggregates={{
-              Members: counts?.subscribers,
-              Posts: counts?.posts,
-              Comments: counts?.comments,
-            }}
-          />
         </div>
 
         <Separator />
@@ -363,7 +368,24 @@ export function CommunitySidebar({
               {community.description && !hideDescription && (
                 <MarkdownRenderer
                   markdown={community.description}
-                  className="text-muted-foreground pt-3"
+                  dim
+                  className="pt-3"
+                />
+              )}
+
+              {counts && (
+                <AggregateBadges
+                  className="mt-4"
+                  aggregates={{
+                    "users / day": counts.users_active_day,
+                    "users / week": counts.users_active_week,
+                    "users / month": counts.users_active_month,
+                    "users / 6 months": counts.users_active_half_year,
+                    "Local subscribers": counts.subscribers_local,
+                    Subscribers: counts.subscribers,
+                    Posts: counts.posts,
+                    Comments: counts.comments,
+                  }}
                 />
               )}
             </CollapsibleContent>

@@ -199,18 +199,17 @@ export function MarkdownRenderer({
   markdown,
   className,
   allowUnsafeHtml,
+  dim,
 }: {
   markdown: string;
   className?: string;
   allowUnsafeHtml?: boolean;
+  dim?: boolean;
 }) {
   const root = useLinkContext().root;
   return (
     <div
-      className={cn(
-        "prose dark:prose-invert prose-sm leading-normal max-w-full",
-        className,
-      )}
+      className={cn("markdown-content", dim && "text-foreground/70", className)}
     >
       {parse(
         RENDERERS[root][allowUnsafeHtml ? "html" : "noHtml"].render(markdown),

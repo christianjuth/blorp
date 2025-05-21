@@ -4,8 +4,6 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { LuCakeSlice } from "react-icons/lu";
-import { abbriviateNumber } from "@/src/lib/format";
-import { Skeleton } from "@/src/components/ui/skeleton";
 import type { Person, PersonAggregates } from "lemmy-js-client";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -32,7 +30,7 @@ import {
 } from "@radix-ui/react-collapsible";
 import { ChevronsUpDown } from "lucide-react";
 import { useSidebarStore } from "@/src/stores/sidebars";
-import { AggregateGrid } from "../aggregate-grid";
+import { AggregateBadges } from "../aggregates";
 
 dayjs.extend(localizedFormat);
 
@@ -162,12 +160,15 @@ export function PersonSidebar({
             </span>
           </div>
 
-          <AggregateGrid
-            aggregates={{
-              Posts: counts?.post_count,
-              Comments: counts?.comment_count,
-            }}
-          />
+          {counts && (
+            <AggregateBadges
+              className="mt-1"
+              aggregates={{
+                Posts: counts.post_count,
+                Comments: counts.comment_count,
+              }}
+            />
+          )}
         </div>
 
         {person?.bio && (
@@ -179,10 +180,7 @@ export function PersonSidebar({
                 <ChevronsUpDown className="h-4 w-4" />
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <MarkdownRenderer
-                  markdown={person.bio}
-                  className="text-muted-foreground mt-3"
-                />
+                <MarkdownRenderer markdown={person.bio} dim className="mt-3" />
               </CollapsibleContent>
             </Collapsible>
           </>

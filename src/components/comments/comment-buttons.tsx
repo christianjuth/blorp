@@ -15,8 +15,10 @@ import { abbriviateNumber } from "@/src/lib/format";
 
 export function CommentVoting({
   commentView,
+  className,
 }: {
   commentView: FlattenedComment;
+  className?: string;
 }) {
   const id = useId();
 
@@ -37,7 +39,7 @@ export function CommentVoting({
   const score = commentView?.counts.score + diff;
 
   return (
-    <div className="flex flex-row items-center">
+    <div className={cn("flex flex-row items-center", className)}>
       <Button
         id={id}
         size="icon"

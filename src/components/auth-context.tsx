@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { Account, useAuth } from "@/src/stores/auth";
+import { useAuth } from "@/src/stores/auth";
 import {
   useCaptcha,
   useInstances,
@@ -37,7 +37,6 @@ import {
   InputOTPSlot,
 } from "./ui/input-otp";
 import { LuLoaderCircle } from "react-icons/lu";
-import { Browser } from "@capacitor/browser";
 import { FaPlay, FaPause } from "react-icons/fa";
 import { MdOutlineRefresh } from "react-icons/md";
 import { Textarea } from "./ui/textarea";
@@ -85,52 +84,9 @@ const Context = createContext<{
   authenticate: () => Promise.reject(),
 });
 
-function RefreshAccount({
-  account,
-  signal,
-}: {
-  account: Account;
-  signal: number;
-}) {
-  const refresh = useRefreshAuth(account);
-  useEffect(() => {
-    if (!account.jwt) {
-      return;
-    }
-    refresh.mutate();
-  }, [account.jwt, signal]);
-  return null;
-}
-
-export function RefreshAccounts() {
-  const accounts = useAuth((s) => s.accounts);
-  const [signal, setSignal] = useState(0);
-  useEffect(() => {
-    const debouncedSignal = _.debounce(() => setSignal((s) => s + 1), 50);
-    const visibilityHanlder = () => {
-      if (!document.hidden) {
-        debouncedSignal();
-      }
-    };
-    document.addEventListener("visibilitychange", visibilityHanlder);
-    window.addEventListener("focus", debouncedSignal);
-    Browser.addListener("browserFinished", debouncedSignal);
-    return () => {
-      debouncedSignal.cancel();
-      document.removeEventListener("visibilitychange", debouncedSignal);
-      window.removeEventListener("focus", debouncedSignal);
-    };
-  }, []);
-  return (
-    <>
-      {accounts.map((a, i) => (
-        <RefreshAccount key={i + a.instance} account={a} signal={signal} />
-      ))}
-    </>
-  );
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  useRefreshAuth();
+
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
   const [promise, setPromise] = useState<{
@@ -177,7 +133,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         onSuccess={() => promise?.resolve()}
         addAccount={promise?.addAccount === true}
       />
-      <RefreshAccounts />
     </Context.Provider>
   );
 }
