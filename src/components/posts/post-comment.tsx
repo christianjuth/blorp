@@ -95,7 +95,7 @@ function Byline({
           params={{
             userId: encodeApId(actorId),
           }}
-          className="text-lg overflow-ellipsis flex flex-row overflow-x-hidden items-center"
+          className="text-base overflow-ellipsis flex flex-row overflow-x-hidden items-center"
         >
           <span className="font-medium text-xs">{slug?.name}</span>
           <span className="italic text-xs text-muted-foreground">
@@ -103,12 +103,12 @@ function Byline({
           </span>
           {authorType === "ADMIN" && (
             <>
-              <Shield className="text-brand ml-2" />
+              <ShieldCheckmark className="text-brand ml-2" />
               <span className="text-xs ml-1 text-brand">ADMIN</span>
             </>
           )}
           {authorType === "OP" && (
-            <Badge variant="brand" className="ml-1.5">
+            <Badge variant="brand" size="sm" className="ml-1.5">
               OP
             </Badge>
           )}
@@ -119,7 +119,7 @@ function Byline({
             </>
           )}
           {authorType === "ME" && (
-            <Badge variant="brand" className="ml-1.5">
+            <Badge variant="brand" size="sm" className="ml-1.5">
               Me
             </Badge>
           )}

@@ -45,7 +45,7 @@ export function AggregateBadges({
     <div className={cn("flex flex-wrap gap-1", className)}>
       {entries.map(([label, value]) =>
         _.isNumber(value) ? (
-          <Badge key={label} variant="outline">
+          <Badge key={label} variant="secondary">
             <span className="block" key={label}>
               {abbriviateNumber(value)} {label}
             </span>
