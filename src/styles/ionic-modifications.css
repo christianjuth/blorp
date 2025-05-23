@@ -1,7 +1,6 @@
 :root:root {
-  --ion-border-color: var(--tailwind-border);
-  --ion-color-primary: var(--muted-foreground);
-  --ion-tab-bar-color-selected: var(--brand);
+  --ion-border-color: var(--color-border);
+  --ion-color-primary: var(--color-muted-foreground);
   --ion-toolbar-background: white;
   --ion-tab-bar-background: white;
 }

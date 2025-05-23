@@ -6,7 +6,41 @@
   3. Reset all borders.
 */
 
-*:not(ion-accordion):not(ion-accordion-group):not(ion-alert):not(ion-app):not(ion-avatar):not(ion-back-button):not(ion-badge):not(ion-breadcrumb):not(ion-breadcrumbs):not(ion-button):not(ion-buttons):not(ion-card):not(ion-card-content):not(ion-card-header):not(ion-card-subtitle):not(ion-card-title):not(ion-checkbox):not(ion-chip):not(ion-col):not(ion-content):not(ion-datetime):not(ion-fab):not(ion-fab-button):not(ion-fab-list):not(ion-footer):not(ion-grid):not(ion-header):not(ion-icon):not(ion-img):not(ion-input):not(ion-item):not(ion-item-divider):not(ion-item-group):not(ion-item-option):not(ion-item-options):not(ion-item-sliding):not(ion-label):not(ion-list):not(ion-list-header):not(ion-loading):not(ion-menu):not(ion-menu-button):not(ion-menu-toggle):not(ion-modal):not(ion-nav):not(ion-note):not(ion-picker):not(ion-popover):not(ion-progress-bar):not(ion-radio):not(ion-radio-group):not(ion-range):not(ion-refresher):not(ion-refresher-content):not(ion-reorder):not(ion-reorder-group):not(ion-ripple-effect):not(ion-row):not(ion-searchbar):not(ion-segment):not(ion-segment-button):not(ion-select):not(ion-select-option):not(ion-skeleton-text):not(ion-slide):not(ion-slides):not(ion-spinner):not(ion-split-pane):not(ion-tab):not(ion-tab-bar):not(ion-tab-button):not(ion-tabs):not(ion-text):not(ion-textarea):not(ion-thumbnail):not(ion-title):not(ion-toast):not(ion-toggle):not(ion-toolbar):not(ion-virtual-scroll),
+*:not(ion-accordion):not(ion-accordion-group):not(ion-alert):not(ion-app):not(
+    ion-avatar
+  ):not(ion-back-button):not(ion-badge):not(ion-breadcrumb):not(
+    ion-breadcrumbs
+  ):not(ion-button):not(ion-buttons):not(ion-card):not(ion-card-content):not(
+    ion-card-header
+  ):not(ion-card-subtitle):not(ion-card-title):not(ion-checkbox):not(
+    ion-chip
+  ):not(ion-col):not(ion-content):not(ion-datetime):not(ion-fab):not(
+    ion-fab-button
+  ):not(ion-fab-list):not(ion-footer):not(ion-grid):not(ion-header):not(
+    ion-icon
+  ):not(ion-img):not(ion-input):not(ion-item):not(ion-item-divider):not(
+    ion-item-group
+  ):not(ion-item-option):not(ion-item-options):not(ion-item-sliding):not(
+    ion-label
+  ):not(ion-list):not(ion-list-header):not(ion-loading):not(ion-menu):not(
+    ion-menu-button
+  ):not(ion-menu-toggle):not(ion-modal):not(ion-nav):not(ion-note):not(
+    ion-picker
+  ):not(ion-popover):not(ion-progress-bar):not(ion-radio):not(
+    ion-radio-group
+  ):not(ion-range):not(ion-refresher):not(ion-refresher-content):not(
+    ion-reorder
+  ):not(ion-reorder-group):not(ion-ripple-effect):not(ion-row):not(
+    ion-searchbar
+  ):not(ion-segment):not(ion-segment-button):not(ion-select):not(
+    ion-select-option
+  ):not(ion-skeleton-text):not(ion-slide):not(ion-slides):not(ion-spinner):not(
+    ion-split-pane
+  ):not(ion-tab):not(ion-tab-bar):not(ion-tab-button):not(ion-tabs):not(
+    ion-text
+  ):not(ion-textarea):not(ion-thumbnail):not(ion-title):not(ion-toast):not(
+    ion-toggle
+  ):not(ion-toolbar):not(ion-virtual-scroll),
 ::after,
 ::before,
 ::backdrop,
@@ -15,7 +49,7 @@
   margin: 0; /* 2 */
   padding: 0; /* 2 */
   border: 0 solid; /* 3 */
-  border-color: var(--tailwind-border)
+  border-color: var(--shad-border);
 }
 
 /*
@@ -38,13 +72,16 @@ html,
     ui-sans-serif,
     system-ui,
     sans-serif,
-    'Apple Color Emoji',
-    'Segoe UI Emoji',
-    'Segoe UI Symbol',
-    'Noto Color Emoji'
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    "Noto Color Emoji"
   ); /* 4 */
   font-feature-settings: var(--default-font-feature-settings, normal); /* 5 */
-  font-variation-settings: var(--default-font-variation-settings, normal); /* 6 */
+  font-variation-settings: var(
+    --default-font-variation-settings,
+    normal
+  ); /* 6 */
   -webkit-tap-highlight-color: transparent; /* 7 */
 }
 
@@ -128,12 +165,18 @@ pre {
     Menlo,
     Monaco,
     Consolas,
-    'Liberation Mono',
-    'Courier New',
+    "Liberation Mono",
+    "Courier New",
     monospace
   ); /* 1 */
-  font-feature-settings: var(--default-mono-font-feature-settings, normal); /* 2 */
-  font-variation-settings: var(--default-mono-font-variation-settings, normal); /* 3 */
+  font-feature-settings: var(
+    --default-mono-font-feature-settings,
+    normal
+  ); /* 2 */
+  font-variation-settings: var(
+    --default-mono-font-variation-settings,
+    normal
+  ); /* 3 */
   font-size: 1em; /* 4 */
 }
 
@@ -363,7 +406,7 @@ textarea {
 */
 
 button,
-input:where([type='button'], [type='reset'], [type='submit']),
+input:where([type="button"], [type="reset"], [type="submit"]),
 ::file-selector-button {
   appearance: button;
 }
@@ -381,6 +424,6 @@ input:where([type='button'], [type='reset'], [type='submit']),
   Make elements with the HTML hidden attribute stay hidden by default.
 */
 
-[hidden]:where(:not([hidden='until-found'])) {
+[hidden]:where(:not([hidden="until-found"])) {
   display: none !important;
 }
