@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { createContext, useContext, useId, useState } from "react";
 import { Comment } from "lemmy-js-client";
 import {
   FlattenedComment,
@@ -20,114 +20,184 @@ import {
 } from "@ionic/react";
 import { Button } from "@/src/components/ui/button";
 
-export function useInlineCommentReplyState(
-  commentKey?: number | string,
-  initContent?: string,
-) {
-  const media = useMedia();
+export function useCommentEditingState({
+  parent,
+  comment,
+  postId,
+}: {
+  parent?: FlattenedComment;
+  comment?: FlattenedComment;
+  postId?: number;
+}): InternalState | null {
+  const { state } = useContext(Context);
 
-  const lastResortId = useId();
-  commentKey ??= lastResortId;
-  const content =
-    useCommentRepliesStore((s) => s.getComment(commentKey)) ||
-    initContent ||
-    "";
-
-  const setContent = useCommentRepliesStore((s) => s.setComment);
-
-  const isEditing = useCommentRepliesStore((s) => s.isEditing(commentKey));
-  const setIsEditing = useCommentRepliesStore((s) => s.setIsEditing);
-
-  const [localIsEditing, setLocalIsEditing] = useState(false);
-  if (localIsEditing && media.md) {
-    setLocalIsEditing(false);
+  let isMe = false;
+  if (comment) {
+    if (comment.comment.id === state?.comment?.id) {
+      isMe = true;
+    }
+  } else if (parent) {
+    if (parent.comment.ap_id === state?.parent?.comment.ap_id) {
+      isMe = true;
+    }
+  } else if (_.isNumber(postId)) {
+    if (postId === state?.postId && !state.parent && !state.comment) {
+      isMe = true;
+    }
   }
 
-  return {
-    content,
-    setContent: (content: string) => {
-      setContent(commentKey, content);
-    },
-    isEditing: media.maxMd ? localIsEditing : isEditing,
-    setIsEditing: (isEditing: boolean) => {
-      if (media.maxMd) {
-        setLocalIsEditing(isEditing);
-      } else {
-        setIsEditing(commentKey, isEditing);
-      }
-    },
-  };
+  return isMe ? state : null;
 }
 
 export function InlineCommentReply({
   state,
-  comment,
-  postId,
-  queryKeyParentId,
-  parent,
-  onCancel,
-  onSubmit,
   autoFocus,
-  mode = "auto",
 }: {
-  state: ReturnType<typeof useInlineCommentReplyState>;
+  state: InternalState;
+  autoFocus?: boolean;
+}) {
+  const media = useMedia();
+
+  if (media.maxMd) {
+    return null;
+  }
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        state.submit();
+      }}
+      className="max-md:hidden w-full flex-1 py-2"
+    >
+      <div className="flex-1 border rounded-xl shadow-xs focus-within:border-ring">
+        <MarkdownEditor
+          content={state.content}
+          onChange={(val) => state.setContent(val)}
+          autoFocus={autoFocus}
+          placeholder="Add a comment..."
+          footer={
+            <div className="flex flex-row justify-end p-1.5 pt-0 gap-2">
+              <Button
+                size="sm"
+                type="button"
+                variant="outline"
+                onClick={() => state.cancel()}
+              >
+                Cancel
+              </Button>
+
+              <Button size="sm">
+                {state.comment ? "Update" : parent ? "Reply" : "Comment"}
+              </Button>
+            </div>
+          }
+        />
+      </div>
+    </form>
+  );
+}
+
+type State = {
   comment?: Comment;
   postId: number | string;
   queryKeyParentId?: number;
   parent?: FlattenedComment;
-  onCancel?: () => void;
-  onSubmit?: () => void;
-  autoFocus?: boolean;
-  mode?: "auto" | "mobile-only" | "desktop-only";
+};
+
+interface InternalState extends State {
+  content: string;
+  setContent: (content: string) => void;
+  cancel: () => void;
+  submit: () => void;
+}
+
+const Context = createContext<{
+  state: InternalState | null;
+  setState: (state: State) => void;
+}>({
+  state: null,
+  setState: () => console.error("THIS SHOULD NEVER BE CALLED"),
+});
+
+export function useLoadCommentIntoEditor() {
+  return useContext(Context).setState;
+}
+
+export function CommentReplyProvider({
+  children,
+  presentingElement,
+}: {
+  children: React.ReactNode;
+  presentingElement?: HTMLElement;
 }) {
-  const [submitSignal, setSubmitSignal] = useState(0);
-  const media = useMedia();
+  const [signal, setSignal] = useState(0);
+  const [state, setState] = useState<State | null>(null);
+
+  const { queryKeyParentId, comment, postId, parent } = state ?? {};
 
   const createComment = useCreateComment({
     queryKeyParentId: queryKeyParentId,
   });
   const editComment = useEditComment();
 
+  const lastResortId = useId();
+  const commentKey =
+    comment?.id ?? parent?.comment.id ?? postId ?? lastResortId;
+  const content =
+    useCommentRepliesStore((s) => s.getComment(commentKey)) ||
+    comment?.content ||
+    "";
+
+  const setContent = useCommentRepliesStore((s) => s.setComment);
+
   const handleSubmit = () => {
-    if (!state.content) {
-      state.setIsEditing(false);
+    if (!content) {
+      setState(null);
       return;
     }
     if (comment) {
       editComment.mutate({
         path: comment.path,
         comment_id: comment.id,
-        content: state.content,
+        content: content,
       });
-    } else {
+    } else if (_.isNumber(postId)) {
       createComment.mutate({
         post_id: +postId,
-        content: state.content,
+        content: content,
         parent_id: parent?.comment.id,
         parentPath: parent?.comment.path ?? "0",
       });
     }
-    state.setIsEditing(false);
-    state.setContent("");
-    setSubmitSignal((s) => s + 1);
-    onSubmit?.();
+    setContent(commentKey, "");
+    setState(null);
+    setSignal((s) => s + 1);
   };
 
-  if (media.maxMd) {
-    if (mode === "desktop-only") {
-      return null;
-    }
-    return (
+  const internalState: InternalState | null = state
+    ? {
+        ...state,
+        content,
+        setContent: (newContent: string) => setContent(commentKey, newContent),
+        cancel: () => setState(null),
+        submit: handleSubmit,
+      }
+    : null;
+
+  return (
+    <Context.Provider value={{ setState, state: internalState }}>
       <IonModal
-        isOpen={state.isEditing}
-        onWillDismiss={() => state.setIsEditing(false)}
+        isOpen={state !== null}
+        onWillDismiss={() => setState(null)}
+        onDidPresent={() => setSignal((s) => s + 1)}
+        presentingElement={presentingElement}
+        className="md:hidden"
       >
         <IonHeader>
           <IonToolbar>
             <IonButtons slot="start">
-              <IonButton onClick={() => state.setIsEditing(false)}>
-                Cancel
-              </IonButton>
+              <IonButton onClick={() => setState(null)}>Cancel</IonButton>
             </IonButtons>
             <IonTitle>{parent ? "Reply to comment" : "Add comment"}</IonTitle>
             <IonButtons slot="end">
@@ -139,62 +209,16 @@ export function InlineCommentReply({
         </IonHeader>
         <IonContent>
           <MarkdownEditor
-            content={state.content}
-            onChange={(val) => state.setContent(val)}
+            key={signal}
+            content={content}
+            onChange={(val) => setContent(commentKey, val)}
             className="min-h-full"
             autoFocus
             placeholder="Add a comment..."
           />
         </IonContent>
       </IonModal>
-    );
-  }
-
-  if (mode === "mobile-only") {
-    return null;
-  }
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit();
-        onSubmit?.();
-      }}
-      className="max-md:hidden w-full flex-1 py-2"
-    >
-      <div className="flex-1 border rounded-xl shadow-xs focus-within:border-ring">
-        <MarkdownEditor
-          hideMenu={!state.isEditing}
-          key={submitSignal}
-          content={state.content}
-          onChange={(val) => state.setContent(val)}
-          autoFocus={autoFocus}
-          placeholder="Add a comment..."
-          onFocus={() => state.setIsEditing(true)}
-          footer={
-            state.isEditing && (
-              <div className="flex flex-row justify-end p-1.5 pt-0 gap-2">
-                <Button
-                  size="sm"
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    state.setIsEditing(false);
-                    onCancel?.();
-                  }}
-                >
-                  Cancel
-                </Button>
-
-                <Button size="sm">
-                  {comment ? "Update" : parent ? "Reply" : "Comment"}
-                </Button>
-              </div>
-            )
-          }
-        />
-      </div>
-    </form>
+      {children}
+    </Context.Provider>
   );
 }

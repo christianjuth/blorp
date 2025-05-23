@@ -33,26 +33,26 @@ export const usePostsStore = create<SortsStore>()(
       patchPost: (apId, prefix, patch) => {
         const prev = get().posts;
         const cacheKey = prefix(apId);
-        const prevPost = prev[cacheKey];
-        if (!prevPost) {
+        const prevPostData = prev[cacheKey]?.data;
+        if (!prevPostData) {
           console.error("failed to patch post that isn't in cache");
           return;
         }
         const updatedPostData = {
-          ...prevPost.data,
+          ...prevPostData,
           ...patch,
+          imageDetails: patch.imageDetails ?? prevPostData?.imageDetails,
+          crossPosts: patch.crossPosts ?? prevPostData?.crossPosts,
         };
-        if (prevPost) {
-          set({
-            posts: {
-              ...prev,
-              [cacheKey]: {
-                data: updatedPostData,
-                lastUsed: Date.now(),
-              },
+        set({
+          posts: {
+            ...prev,
+            [cacheKey]: {
+              data: updatedPostData,
+              lastUsed: Date.now(),
             },
-          });
-        }
+          },
+        });
         return updatedPostData;
       },
       cachePost: (prefix, view) => {

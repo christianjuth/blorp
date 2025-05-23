@@ -203,3 +203,23 @@ export function useConfirmationAlert() {
     return await deferred.promise;
   };
 }
+
+/**
+ * To be used to extract the page element from an
+ * IonPage and passed to an IonModal.
+ *
+ * See https://ionicframework.com/docs/api/modal#setting-a-boolean-value
+ */
+export function useIonPageElement() {
+  const ref = useRef<HTMLElement>(undefined);
+  const [element, setElement] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (ref.current) {
+      setElement(ref.current);
+    }
+  }, []);
+  return {
+    ref,
+    element: element ?? undefined,
+  };
+}
