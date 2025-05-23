@@ -14,6 +14,13 @@
   }
 }
 
+/* Without this, the ion-content inside of the ion-split-pane */
+/* will cover the background color of body. We want the background */
+/* from body to be visible for modals with presentingElement. */
+ion-content#main {
+  --background: transparent;
+}
+
 ion-back-button {
   --color: var(--brand);
 }

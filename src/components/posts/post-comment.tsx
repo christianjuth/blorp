@@ -3,7 +3,8 @@ import _ from "lodash";
 import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
 import {
   InlineCommentReply,
-  useInlineCommentReplyState,
+  useCommentEditingState,
+  useLoadCommentIntoEditor,
 } from "../comments/comment-reply-modal";
 import { useCommentsStore } from "@/src/stores/comments";
 import { RelativeTime } from "../relative-time";
@@ -40,6 +41,7 @@ import {
 } from "../ui/collapsible";
 import { create } from "zustand";
 import { COMMENT_COLLAPSE_EVENT } from "./config";
+import { useMedia } from "@/src/lib/hooks";
 
 type StoreState = {
   expandedDetails: Record<string, boolean>;
@@ -159,6 +161,9 @@ export function PostComment({
   singleCommentThread?: boolean;
   highlightCommentId?: string;
 }) {
+  const media = useMedia();
+  const loadCommentIntoEditor = useLoadCommentIntoEditor();
+
   const linkCtx = useLinkContext();
   const [alrt] = useIonAlert();
 
@@ -179,14 +184,6 @@ export function PostComment({
     commentView && adminApIds?.includes(commentView?.creator.actor_id);
   const isMod =
     commentView && modApIds?.includes(commentView?.creator.actor_id);
-
-  const edit = useInlineCommentReplyState(
-    commentView?.comment.ap_id,
-    commentView?.comment.content,
-  );
-  const reply = useInlineCommentReplyState(
-    commentView?.comment.ap_id + "reply",
-  );
 
   const deleteComment = useDeleteComment();
 
@@ -238,6 +235,13 @@ export function PostComment({
   const setOpen = useDetailsStore((s) => s.setExpandedDetails);
 
   const ref = useRef<HTMLDivElement>(null);
+
+  const editingState = useCommentEditingState({
+    comment: commentView,
+  });
+  const replyState = useCommentEditingState({
+    parent: commentView,
+  });
 
   if (!commentView) {
     return null;
@@ -342,20 +346,16 @@ export function PostComment({
           {comment.deleted && <span className="italic text-sm">deleted</span>}
           {comment.removed && <span className="italic text-sm">removed</span>}
 
-          {!hideContent && !edit.isEditing && (
+          {!hideContent && !editingState && (
             <MarkdownRenderer
               markdown={comment.content}
               className={cn(highlightComment && "bg-brand/10")}
             />
           )}
 
-          {edit.isEditing && (
-            <InlineCommentReply
-              state={edit}
-              postId={comment.post_id}
-              comment={comment}
-              autoFocus
-            />
+          {/* Editing */}
+          {editingState && (
+            <InlineCommentReply state={editingState} autoFocus />
           )}
 
           <div className="flex flex-row items-center text-sm text-muted-foreground justify-end gap-1">
@@ -380,7 +380,11 @@ export function PostComment({
                       {
                         text: "Edit",
                         onClick: () => {
-                          edit.setIsEditing(!edit.isEditing);
+                          loadCommentIntoEditor({
+                            postId: comment.post_id,
+                            queryKeyParentId: queryKeyParentId,
+                            comment,
+                          });
                         },
                       } as const,
                     ]
@@ -449,23 +453,25 @@ export function PostComment({
               }
             />
 
-            <CommentReplyButton onClick={() => reply.setIsEditing(true)} />
+            <CommentReplyButton
+              onClick={() =>
+                loadCommentIntoEditor({
+                  postId: comment.post_id,
+                  queryKeyParentId: queryKeyParentId,
+                  parent: commentView,
+                })
+              }
+            />
             <CommentVoting commentView={commentView} className="-mr-2.5" />
           </div>
 
-          {(sorted.length > 0 || reply.isEditing) && (
+          {(sorted.length > 0 || (replyState && media.md)) && (
             <div
               className="border-l-[1.5px] border-b-[1.5px] pl-3 md:pl-3.5 rounded-bl-xl mb-2"
               style={{ borderColor: color }}
             >
-              {reply.isEditing && (
-                <InlineCommentReply
-                  state={reply}
-                  postId={comment.post_id}
-                  queryKeyParentId={queryKeyParentId}
-                  parent={commentView}
-                  autoFocus
-                />
+              {replyState && (
+                <InlineCommentReply state={replyState} autoFocus />
               )}
 
               {sorted.map(([id, map]) => (

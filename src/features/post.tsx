@@ -11,13 +11,14 @@ import {
 } from "@/src/components/posts/post";
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
-
 import { memo, useMemo } from "react";
 import _ from "lodash";
 import { useState } from "react";
 import {
+  CommentReplyProvider,
   InlineCommentReply,
-  useInlineCommentReplyState,
+  useCommentEditingState,
+  useLoadCommentIntoEditor,
 } from "../components/comments/comment-reply-modal";
 import { useAuth } from "../stores/auth";
 import { VirtualList } from "../components/virtual-list";
@@ -35,7 +36,7 @@ import {
 import { useParams } from "@/src/routing/index";
 import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
-import { useMedia, useTheme } from "../lib/hooks";
+import { useIonPageElement, useMedia, useTheme } from "../lib/hooks";
 import { NotFound } from "./not-found";
 import { CommentSkeleton } from "../components/comments/comment-skeleton";
 import { useLinkContext } from "../routing/link-context";
@@ -59,6 +60,34 @@ const MemoedPostCard = memo((props: PostProps) => (
     <></>
   </ContentGutters>
 ));
+
+function ReplyToPost({ postId }: { postId: number }) {
+  const postReplyState = useCommentEditingState({
+    postId,
+  });
+  const loadCommentIntoEditor = useLoadCommentIntoEditor();
+  return (
+    <ContentGutters className="md:py-3" key="post-reply">
+      <div className="flex-1">
+        {postReplyState ? (
+          <InlineCommentReply state={postReplyState} />
+        ) : (
+          <button
+            className="py-2 px-3 my-4 border rounded-2xl w-full text-left shadow-xs text-muted-foreground text-sm"
+            onClick={() =>
+              loadCommentIntoEditor({
+                postId,
+              })
+            }
+          >
+            Add a comment
+          </button>
+        )}
+      </div>
+      <></>
+    </ContentGutters>
+  );
+}
 
 export default function Post() {
   const theme = useTheme();
@@ -148,8 +177,7 @@ export default function Post() {
     [structured],
   );
 
-  const mobleReply = useInlineCommentReplyState();
-  const reply = useInlineCommentReplyState();
+  const pageElement = useIonPageElement();
 
   if (!decodedApId || (postQuery.isError && !post)) {
     return <NotFound />;
@@ -158,7 +186,7 @@ export default function Post() {
   const opId = post?.creator.id;
 
   return (
-    <IonPage>
+    <IonPage ref={pageElement.ref}>
       <PageTitle>{post?.post.name ?? "Post"}</PageTitle>
       <IonHeader>
         <IonToolbar
@@ -190,101 +218,79 @@ export default function Post() {
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
-        <PostReportProvider>
-          <VirtualList
-            className="h-full ion-content-scroll-host"
-            data={data}
-            header={[
-              post ? (
-                <MemoedPostCard
-                  key="post-details"
-                  {...getPostProps(post, {
-                    featuredContext: "community",
-                    modApIds,
-                    adminApIds,
-                    detailView: true,
-                  })}
-                />
-              ) : (
-                <ContentGutters className="px-0" key="post-skeleton">
-                  <PostCardSkeleton hideImage={false} detailView />
-                  <></>
-                </ContentGutters>
-              ),
-              post && (
-                <Fragment key="post-bottom-bar">
-                  <ContentGutters className="px-0">
-                    <PostBottomBar
-                      apId={decodedApId}
-                      commentsCount={post.counts.comments}
-                      onReply={() => mobleReply.setIsEditing(true)}
-                    />
+        <CommentReplyProvider presentingElement={pageElement.element}>
+          <PostReportProvider>
+            <VirtualList
+              className="h-full ion-content-scroll-host"
+              data={data}
+              header={[
+                post ? (
+                  <MemoedPostCard
+                    key="post-details"
+                    {...getPostProps(post, {
+                      featuredContext: "community",
+                      modApIds,
+                      adminApIds,
+                      detailView: true,
+                    })}
+                  />
+                ) : (
+                  <ContentGutters className="px-0" key="post-skeleton">
+                    <PostCardSkeleton hideImage={false} detailView />
                     <></>
                   </ContentGutters>
-                  <InlineCommentReply
-                    state={mobleReply}
-                    postId={post.post.id}
-                    queryKeyParentId={parentId}
-                    autoFocus={reply.isEditing}
-                    mode="mobile-only"
-                  />
-                </Fragment>
-              ),
-              post && !commentPath && (
-                <ContentGutters className="md:py-3" key="post-reply">
-                  <div className="flex-1">
-                    <InlineCommentReply
-                      state={reply}
-                      postId={post.post.id}
-                      queryKeyParentId={parentId}
-                      autoFocus={reply.isEditing}
-                      mode="desktop-only"
-                    />
-                    <button
-                      className="md:hidden py-2 px-3 my-4 border rounded-2xl w-full text-left shadow-xs text-muted-foreground text-sm"
-                      onClick={() => mobleReply.setIsEditing(true)}
-                    >
-                      Add a comment
-                    </button>
-                  </div>
-                  <></>
-                </ContentGutters>
-              ),
-            ]}
-            renderItem={({ item }) => (
-              <MemoedPostComment
-                highlightCommentId={highlightCommentId}
-                postApId={decodedApId}
-                queryKeyParentId={parentId}
-                commentTree={item[1]}
-                level={0}
-                opId={opId}
-                myUserId={myUserId}
-                communityName={communityName}
-                modApIds={modApIds}
-                adminApIds={adminApIds}
-                singleCommentThread={!!commentPath}
-              />
-            )}
-            placeholder={
-              comments.isPending || !isReady ? (
-                <ContentGutters className="px-0">
-                  <CommentSkeleton />
-                  <></>
-                </ContentGutters>
-              ) : undefined
-            }
-            numPlaceholders={
-              _.isNumber(post?.counts.comments)
-                ? Math.max(1, post.counts.comments)
-                : undefined
-            }
-            onEndReached={loadMore}
-            estimatedItemSize={450}
-            stickyHeaderIndices={[1]}
-            refresh={refresh}
-          />
-        </PostReportProvider>
+                ),
+                post && (
+                  <Fragment key="post-bottom-bar">
+                    <ContentGutters className="px-0">
+                      <PostBottomBar
+                        apId={decodedApId}
+                        commentsCount={post.counts.comments}
+                        onReply={() => {}}
+                      />
+                      <></>
+                    </ContentGutters>
+                  </Fragment>
+                ),
+                post && !commentPath && (
+                  <ReplyToPost key="reply-to-post" postId={post.post.id} />
+                ),
+              ]}
+              renderItem={({ item }) => (
+                <MemoedPostComment
+                  highlightCommentId={highlightCommentId}
+                  postApId={decodedApId}
+                  queryKeyParentId={parentId}
+                  commentTree={item[1]}
+                  level={0}
+                  opId={opId}
+                  myUserId={myUserId}
+                  communityName={communityName}
+                  modApIds={modApIds}
+                  adminApIds={adminApIds}
+                  singleCommentThread={!!commentPath}
+                />
+              )}
+              placeholder={
+                comments.isPending || !isReady ? (
+                  <ContentGutters className="px-0">
+                    <CommentSkeleton />
+                    <></>
+                  </ContentGutters>
+                ) : undefined
+              }
+              numPlaceholders={
+                _.isNumber(post?.counts.comments)
+                  ? Math.max(1, post.counts.comments)
+                  : undefined
+              }
+              onEndReached={loadMore}
+              estimatedItemSize={450}
+              stickyHeaderIndices={[1]}
+              refresh={refresh}
+            />
+          </PostReportProvider>
+        </CommentReplyProvider>
 
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0 z-10">
           <div className="flex-1" />
