@@ -18,9 +18,11 @@
 <br/>
 
 <p align="center">
-&nbsp;<img src="https://github.com/user-attachments/assets/0bddca59-16a0-4a7b-a681-5d6273fa6913" width="250">&nbsp;
- &nbsp;<img src="https://github.com/user-attachments/assets/2bc7fdaf-8679-4e6f-acec-5a1a29672796" width="250">&nbsp;
- &nbsp;<img src="https://github.com/user-attachments/assets/75835957-cc6d-4971-9824-05562b08f8c7" width="250">&nbsp;
+ &nbsp;<img src="public/screenshots/iphone-1.png" width="150">&nbsp;
+ &nbsp;<img src="public/screenshots/iphone-2.png" width="150">&nbsp;
+ &nbsp;<img src="public/screenshots/iphone-3.png" width="150">&nbsp;
+ &nbsp;<img src="public/screenshots/iphone-4.png" width="150">&nbsp;
+ &nbsp;<img src="public/screenshots/iphone-5.png" width="150">&nbsp;
 </p>
 <br/>
 
