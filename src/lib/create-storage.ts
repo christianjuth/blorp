@@ -111,7 +111,7 @@ function createSqliteStore(rowName?: string) {
   };
 }
 
-export function createTauriStore(rowName: string) {
+function createTauriStore(rowName: string) {
   const store = load(DB_NAME, { autoSave: 5 * 1000 });
 
   return {
@@ -152,7 +152,7 @@ export function createTauriStore(rowName: string) {
   };
 }
 
-export function createIdb(rowName: string) {
+function createIdb(rowName: string) {
   function getDb() {
     return openDB(DB_NAME, DB_VERSION, {
       upgrade(db) {

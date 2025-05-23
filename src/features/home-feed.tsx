@@ -39,10 +39,6 @@ import { useAuth } from "../stores/auth";
 import { PageTitle } from "../components/page-title";
 import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
 
-export const scrollToTop = {
-  current: { scrollToOffset: () => {} },
-};
-
 const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";

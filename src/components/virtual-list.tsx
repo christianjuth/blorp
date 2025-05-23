@@ -76,7 +76,7 @@ function useRouterSafe() {
   }
 }
 
-export function VirtualListInternal<T>({
+function VirtualListInternal<T>({
   data,
   estimatedItemSize,
   onEndReached,

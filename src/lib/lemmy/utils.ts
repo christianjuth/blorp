@@ -1,5 +1,4 @@
 import {
-  Community,
   ImageDetails,
   Person,
   Post,
@@ -8,48 +7,31 @@ import {
 } from "lemmy-js-client";
 import _ from "lodash";
 
-export function createPersonSlug(person: Pick<Person, "actor_id">) {
-  const url = new URL(person.actor_id);
-  const path = url.pathname.split("/");
-  if (!path[2]) {
-    // TODO: make this more strict
-    return "";
-  }
-  return `${path[2]}@${url.host}`;
-}
-
-/**
- * @deprecated replace with createSlug
- */
-export function createCommunitySlug(community: Pick<Community, "actor_id">) {
-  const url = new URL(community.actor_id);
-  const path = url.pathname.split("/");
-  if (!path[2]) {
-    // TODO: make this more strict
-    return "";
-  }
-  return `${path[2]}@${url.host}`;
-}
-
-export function parseCommunitySlug(slug: string) {
-  const [communityName, lemmyServer] = slug.split("@");
-  return {
-    communityName,
-    lemmyServer,
-  };
-}
-
 export type Slug = {
   name: string;
   host: string;
   slug: string;
 };
 
-export function createSlug(object: { actor_id: string }) {
+export function createSlug(
+  object: { actor_id: string },
+  throwOnError: true,
+): Slug;
+export function createSlug(
+  object: { actor_id: string },
+  throwOnError?: false,
+): Slug | null;
+export function createSlug(
+  object: { actor_id: string },
+  throwOnError = false,
+): Slug | null {
   try {
     const url = new URL(object.actor_id);
     const path = url.pathname.split("/");
     if (!path[2]) {
+      if (throwOnError) {
+        throw new Error("invalid url for slug");
+      }
       return null;
     }
     const name = path[2];
@@ -59,7 +41,10 @@ export function createSlug(object: { actor_id: string }) {
       host,
       slug: `${name}@${host}`,
     } satisfies Slug;
-  } catch {
+  } catch (err) {
+    if (throwOnError) {
+      throw err;
+    }
     return null;
   }
 }
@@ -112,7 +97,7 @@ export function flattenPost({
       name: community.name,
       title: community.title,
       icon: community.icon,
-      slug: createCommunitySlug(postView.community),
+      slug: createSlug(postView.community, true).slug,
       actorId: postView.community.actor_id,
     },
     creator: _.pick(postView.creator, ["id", "name", "avatar", "actor_id"]),

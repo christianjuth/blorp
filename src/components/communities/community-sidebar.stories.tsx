@@ -5,7 +5,7 @@ import { CommunitySidebar } from "./community-sidebar";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import { useEffect } from "react";
 import * as lemmy from "@/test-utils/lemmy";
-import { createCommunitySlug } from "@/src/lib/lemmy/utils";
+import { createSlug } from "@/src/lib/lemmy/utils";
 import { useAuth } from "@/src/stores/auth";
 
 function LoadCommunity() {
@@ -38,7 +38,7 @@ type Story = StoryObj<typeof CommunitySidebar>;
 
 export const Sidebar: Story = {
   args: {
-    communityName: createCommunitySlug(lemmy.getCommunity().community),
+    communityName: createSlug(lemmy.getCommunity().community, true).slug,
     asPage: true,
   },
 };

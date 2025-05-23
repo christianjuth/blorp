@@ -55,7 +55,7 @@ const Post = memo((props: PostProps) => (
   </ContentGutters>
 ));
 
-export function SearchFeed({
+export default function SearchFeed({
   defaultType = "posts",
 }: {
   defaultType?: "posts" | "communities" | "users";
@@ -301,5 +301,3 @@ export function SearchFeed({
     </IonPage>
   );
 }
-
-export default SearchFeed;

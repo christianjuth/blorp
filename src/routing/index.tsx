@@ -11,7 +11,7 @@ import { RouteDefs, routeDefs, RoutePath } from "./routes";
 import z from "zod";
 
 // lookup schema by path
-export type DefByPath = {
+type DefByPath = {
   [K in keyof RouteDefs as (typeof routeDefs)[K]["path"]]: (typeof routeDefs)[K]["schema"];
 };
 

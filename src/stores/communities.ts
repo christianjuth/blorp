@@ -8,7 +8,7 @@ import type {
   CommunityModeratorView,
   SubscribedType,
 } from "lemmy-js-client";
-import { createCommunitySlug } from "../lib/lemmy/utils";
+import { createSlug } from "../lib/lemmy/utils";
 import { MAX_CACHE_MS } from "./config";
 import { CachePrefixer } from "./auth";
 
@@ -32,7 +32,7 @@ type SortsStore = {
     prefix: CachePrefixer,
     post: Partial<Data>,
   ) => void;
-  cacheCommunity: (prefix: CachePrefixer, data: Data) => Data;
+  cacheCommunity: (prefix: CachePrefixer, data: Data) => void;
   cacheCommunities: (
     prefix: CachePrefixer,
     data: Data[],
@@ -74,27 +74,28 @@ export const useCommunitiesStore = create<SortsStore>()(
       },
       cacheCommunity: (prefix, view) => {
         const prev = get();
-        const slug = createCommunitySlug(view.communityView.community);
-        const cacheKey = prefix(slug);
-        const prevCommunityData = prev.communities[cacheKey]?.data;
-        const updatedCommunityData: Data = {
-          ...prevCommunityData,
-          ...view,
-          communityView: {
-            ...prevCommunityData?.communityView,
-            ...view.communityView,
-          },
-        };
-        set({
-          communities: {
-            ...prev.communities,
-            [cacheKey]: {
-              data: updatedCommunityData,
-              lastUsed: Date.now(),
+        const slug = createSlug(view.communityView.community)?.slug;
+        if (slug) {
+          const cacheKey = prefix(slug);
+          const prevCommunityData = prev.communities[cacheKey]?.data;
+          const updatedCommunityData: Data = {
+            ...prevCommunityData,
+            ...view,
+            communityView: {
+              ...prevCommunityData?.communityView,
+              ...view.communityView,
             },
-          },
-        });
-        return updatedCommunityData;
+          };
+          set({
+            communities: {
+              ...prev.communities,
+              [cacheKey]: {
+                data: updatedCommunityData,
+                lastUsed: Date.now(),
+              },
+            },
+          });
+        }
       },
       cacheCommunities: (prefix, views) => {
         const prev = get().communities;
@@ -102,20 +103,22 @@ export const useCommunitiesStore = create<SortsStore>()(
         const newCommunities: Record<string, CachedCommunity> = {};
 
         for (const view of views) {
-          const slug = createCommunitySlug(view.communityView.community);
-          const cacheKey = prefix(slug);
-          const prevCommunityData = prev[cacheKey]?.data;
-          newCommunities[cacheKey] = {
-            data: {
-              ...prevCommunityData,
-              ...view,
-              communityView: {
-                ...prevCommunityData?.communityView,
-                ...view.communityView,
+          const slug = createSlug(view.communityView.community)?.slug;
+          if (slug) {
+            const cacheKey = prefix(slug);
+            const prevCommunityData = prev[cacheKey]?.data;
+            newCommunities[cacheKey] = {
+              data: {
+                ...prevCommunityData,
+                ...view,
+                communityView: {
+                  ...prevCommunityData?.communityView,
+                  ...view.communityView,
+                },
               },
-            },
-            lastUsed: Date.now(),
-          };
+              lastUsed: Date.now(),
+            };
+          }
         }
 
         const updatedCommunities = {

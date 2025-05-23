@@ -19,7 +19,7 @@ import { PersonCard } from "@/src/components/person/person-card";
 import { CommunityCard } from "@/src/components/communities/community-card";
 import { SectionItem, Section } from "./shared-components";
 import { useBlockCommunity, useBlockPerson } from "@/src/lib/lemmy";
-import { useConfirmationAlert } from "@/src/lib/hooks";
+import { useConfirmationAlert } from "@/src/lib/hooks/index";
 
 export default function SettingsPage() {
   const getConfirmation = useConfirmationAlert();

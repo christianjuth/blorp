@@ -3,7 +3,7 @@ import * as lemmy from "@/test-utils/lemmy";
 import { useCommunitiesStore } from "./communities";
 import _ from "lodash";
 import { renderHook, act } from "@testing-library/react";
-import { createCommunitySlug } from "../lib/lemmy/utils";
+import { createSlug } from "../lib/lemmy/utils";
 import { SubscribedType } from "lemmy-js-client";
 import { getCachePrefixer } from "./auth";
 
@@ -12,7 +12,7 @@ const prefix = getCachePrefixer({ instance: "123" });
 describe("useCommunitiesStore", () => {
   describe("cacheCommunity", () => {
     const communityView = lemmy.getCommunity();
-    const slug = createCommunitySlug(communityView.community);
+    const slug = createSlug(communityView.community, true).slug;
 
     test("load post into store", () => {
       const { result } = renderHook(() => useCommunitiesStore());
@@ -60,7 +60,7 @@ describe("useCommunitiesStore", () => {
 
   describe("patchCommunity", () => {
     const communityView = lemmy.getCommunity();
-    const slug = createCommunitySlug(communityView.community);
+    const slug = createSlug(communityView.community, true).slug;
 
     test("load post into store", () => {
       const { result } = renderHook(() => useCommunitiesStore());
@@ -108,9 +108,9 @@ describe("useCommunitiesStore", () => {
 
   describe("cacheCommunities", () => {
     const communityView1 = lemmy.getRandomCommunity();
-    const slug1 = createCommunitySlug(communityView1.community);
+    const slug1 = createSlug(communityView1.community, true).slug;
     const communityView2 = lemmy.getRandomCommunity();
-    const slug2 = createCommunitySlug(communityView2.community);
+    const slug2 = createSlug(communityView2.community, true).slug;
 
     test("load posts into store", () => {
       const { result } = renderHook(() => useCommunitiesStore());

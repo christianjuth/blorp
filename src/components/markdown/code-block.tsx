@@ -10,7 +10,7 @@ import { ChevronsUpDown } from "lucide-react";
 export const lowlight = createLowlight(common);
 
 // Define a type for lowlight AST nodes.
-export interface LowlightNode {
+interface LowlightNode {
   type: string;
   value?: string;
   children?: LowlightNode[];

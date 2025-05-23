@@ -6,7 +6,7 @@ import {
   useEditComment,
 } from "@/src/lib/lemmy/index";
 import _ from "lodash";
-import { useMedia } from "@/src/lib/hooks";
+import { useMedia } from "@/src/lib/hooks/index";
 import { MarkdownEditor } from "../markdown/editor";
 import { useCommentRepliesStore } from "@/src/stores/comment-replies";
 import {
@@ -136,9 +136,7 @@ export function CommentReplyProvider({
 
   const { queryKeyParentId, comment, postId, parent } = state ?? {};
 
-  const createComment = useCreateComment({
-    queryKeyParentId: queryKeyParentId,
-  });
+  const createComment = useCreateComment();
   const editComment = useEditComment();
 
   const lastResortId = useId();
@@ -168,6 +166,7 @@ export function CommentReplyProvider({
         content: content,
         parent_id: parent?.comment.id,
         parentPath: parent?.comment.path ?? "0",
+        queryKeyParentId,
       });
     }
     setContent(commentKey, "");

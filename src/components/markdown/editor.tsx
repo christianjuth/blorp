@@ -10,6 +10,10 @@ import { Markdown } from "tiptap-markdown";
 import Spoiler from "./spoiler-plugin";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
+import Table from "@tiptap/extension-table";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
 import { useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Button } from "../ui/button";
@@ -273,7 +277,7 @@ const MenuBar = ({
   );
 };
 
-function MarkdownEditorInner({
+function TipTapEditor({
   autoFocus,
   content,
   onChange,
@@ -329,6 +333,12 @@ function MarkdownEditorInner({
         autolink: true,
         defaultProtocol: "https",
       }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     onUpdate: ({ editor }) => {
       const markdown = editor?.storage["markdown"].getMarkdown();
@@ -342,7 +352,7 @@ function MarkdownEditorInner({
       // once scrolling, always leave an 80px buffer above/below the cursor
       scrollMargin: 50,
       attributes: {
-        class: "flex-1 min-h-full",
+        class: "flex-1 min-h-full space-y-4 outline-none",
       },
       handleDrop: (view, event, slice, moved) => {
         if (
@@ -491,7 +501,7 @@ function MarkdownEditorInner({
   );
 }
 
-function PlainTextEditorInner({
+function TextAreaEditor({
   content,
   onChange,
   onChangeEditorType,
@@ -608,7 +618,7 @@ export function MarkdownEditor({
   return (
     <div className={cn("flex flex-col", className)}>
       {showMarkdown ? (
-        <PlainTextEditorInner
+        <TextAreaEditor
           content={content}
           onChange={onChange}
           onChangeEditorType={() => {
@@ -623,7 +633,7 @@ export function MarkdownEditor({
           hideMenu={hideMenu}
         />
       ) : (
-        <MarkdownEditorInner
+        <TipTapEditor
           content={content}
           onChange={onChange}
           onChangeEditorType={() => {

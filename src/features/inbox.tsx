@@ -11,7 +11,7 @@ import {
   usePersonMentions,
   useReplies,
 } from "@/src/lib/lemmy/index";
-import { createCommunitySlug } from "@/src/lib/lemmy/utils";
+import { createSlug } from "@/src/lib/lemmy/utils";
 import {
   IonButtons,
   IonContent,
@@ -63,12 +63,15 @@ function Mention({
   noBorder?: boolean;
 }) {
   const markRead = useMarkPersonMentionRead();
-  const communitySlug = createCommunitySlug(mention.community);
+  const communitySlug = createSlug(mention.community)?.slug;
   const path = mention.comment.path.split(".");
   const parent = path.at(-2);
   const newPath = [parent !== "0" ? parent : undefined, mention.comment.id]
     .filter(Boolean)
     .join(".");
+  if (!communitySlug) {
+    return null;
+  }
   return (
     <ContentGutters className="px-0">
       <div
@@ -141,12 +144,15 @@ function Reply({
   noBorder?: boolean;
 }) {
   const markRead = useMarkReplyRead();
-  const communitySlug = createCommunitySlug(replyView.community);
+  const communitySlug = createSlug(replyView.community)?.slug;
   const path = replyView.comment.path.split(".");
   const parent = path.at(-2);
   const newPath = [parent !== "0" ? parent : undefined, replyView.comment.id]
     .filter(Boolean)
     .join(".");
+  if (!communitySlug) {
+    return null;
+  }
   return (
     <ContentGutters className="px-0">
       <div

@@ -5,17 +5,6 @@ import { relaunch } from "@tauri-apps/plugin-process";
 import { isTauri } from "./device";
 import { env } from "../env";
 
-export async function tauriCheckUpdate() {
-  if (isTauri()) {
-    return;
-  }
-  try {
-    return await check();
-  } catch {
-    return;
-  }
-}
-
 export async function updateTauri() {
   try {
     if (isTauri()) {
