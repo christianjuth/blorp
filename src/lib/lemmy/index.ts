@@ -1212,11 +1212,7 @@ interface CreateCommentWithPath extends CreateComment {
   parentPath: string;
 }
 
-export function useCreateComment({
-  queryKeyParentId,
-}: {
-  queryKeyParentId?: number;
-}) {
+export function useCreateComment() {
   const queryClient = useQueryClient();
   const { client } = useLemmyClient();
   const myProfile = useAuth(
@@ -1231,9 +1227,9 @@ export function useCreateComment({
   const getCommentsKey = useCommentsKey();
 
   return useMutation({
-    mutationFn: (form: CreateCommentWithPath) =>
-      client.createComment(_.omit(form, "parentPath")),
-    onMutate: ({ post_id, parentPath, content }) => {
+    mutationFn: (form: CreateCommentWithPath & { queryKeyParentId?: number }) =>
+      client.createComment(_.omit(form, ["parentPath", "queryKeyParentId"])),
+    onMutate: ({ post_id, parentPath, content, queryKeyParentId }) => {
       const date = new Date();
       const isoDate = date.toISOString();
       const commentId = _.random(1, 1000000) * -1;
@@ -1325,8 +1321,12 @@ export function useCreateComment({
 
       return newComment;
     },
-    onSuccess: (res, { post_id }, ctx) => {
-      const settledCommentPath = res.comment_view.comment.path;
+    onSuccess: (res, { post_id, queryKeyParentId }, ctx) => {
+      const settledComment = {
+        path: res.comment_view.comment.path,
+        creatorId: res.comment_view.creator.id,
+        postId: res.comment_view.comment.post_id,
+      };
 
       const SORTS: CommentSortType[] = [
         "Hot",
@@ -1336,10 +1336,10 @@ export function useCreateComment({
         "Controversial",
       ];
 
-      cacheComment(getCachePrefixer(), flattenComment(res.comment_view));
       removeComment(ctx.comment.path, getCachePrefixer());
+      cacheComment(getCachePrefixer(), flattenComment(res.comment_view));
 
-      for (const sort of SORTS) {
+      sort: for (const sort of SORTS) {
         const form: GetComments = {
           ...DEFAULT_COMMENT_FORM,
           post_id: post_id,
@@ -1362,18 +1362,38 @@ export function useCreateComment({
         >(getCommentsKey(form));
 
         if (!comments) {
+          // TODO: I think we have to trigger an API fetch here
           continue;
         }
 
-        outer: for (const p of comments.pages) {
-          for (const c of p.comments) {
-            if (c.path === ctx.comment.path) {
-              c.path = settledCommentPath;
-              break outer;
-            }
+        comments = _.cloneDeep(comments);
+
+        // Technically we can skip this if we are removing
+        // the comment from the cache
+        for (const p of comments.pages) {
+          const index = p.comments.findIndex(
+            (c) => c.path === ctx.comment.path,
+          );
+          if (index > 0) {
+            p.comments[index] = settledComment;
+            queryClient.setQueryData(getCommentsKey(form), comments);
+            continue sort;
           }
         }
 
+        // If we're here then we didn't find the optimistic comment
+        const firstPage = comments.pages[0];
+        if (!firstPage) {
+          // TODO: I think we have to trigger an API fetch here
+          continue;
+        }
+        if (firstPage) {
+          firstPage.comments.unshift({
+            path: res.comment_view.comment.path,
+            creatorId: res.comment_view.creator.id,
+            postId: res.comment_view.comment.post_id,
+          });
+        }
         queryClient.setQueryData(getCommentsKey(form), comments);
       }
     },
