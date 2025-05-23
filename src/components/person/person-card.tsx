@@ -99,7 +99,7 @@ export function PersonCard({
   );
 }
 
-export function PersonSkeletonCard({
+function PersonSkeletonCard({
   className,
   size = "md",
 }: {

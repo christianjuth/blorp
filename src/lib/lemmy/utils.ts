@@ -31,14 +31,6 @@ export function createCommunitySlug(community: Pick<Community, "actor_id">) {
   return `${path[2]}@${url.host}`;
 }
 
-export function parseCommunitySlug(slug: string) {
-  const [communityName, lemmyServer] = slug.split("@");
-  return {
-    communityName,
-    lemmyServer,
-  };
-}
-
 export type Slug = {
   name: string;
   host: string;

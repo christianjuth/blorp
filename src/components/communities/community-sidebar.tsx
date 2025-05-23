@@ -35,8 +35,6 @@ import { useConfirmationAlert } from "@/src/lib/hooks";
 
 dayjs.extend(localizedFormat);
 
-export const COMMUNITY_SIDEBAR_WIDTH = 300;
-
 export function SmallScreenSidebar({
   communityName,
   actorId,
