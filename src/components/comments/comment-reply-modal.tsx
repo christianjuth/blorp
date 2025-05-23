@@ -6,7 +6,7 @@ import {
   useEditComment,
 } from "@/src/lib/lemmy/index";
 import _ from "lodash";
-import { useMedia } from "@/src/lib/hooks";
+import { useMedia } from "@/src/lib/hooks/index";
 import { MarkdownEditor } from "../markdown/editor";
 import { useCommentRepliesStore } from "@/src/stores/comment-replies";
 import {

@@ -26,7 +26,7 @@ import { Browser } from "@capacitor/browser";
 import { openUrl } from "@/src/lib/linking";
 import { resolveRoute } from "@/src/routing";
 import { SectionItem, Section } from "./shared-components";
-import { useConfirmationAlert } from "@/src/lib/hooks";
+import { useConfirmationAlert } from "@/src/lib/hooks/index";
 import { DebouncedInput } from "@/src/components/debounced-input";
 import { FiChevronRight } from "react-icons/fi";
 

@@ -41,7 +41,7 @@ import {
 } from "../ui/collapsible";
 import { create } from "zustand";
 import { COMMENT_COLLAPSE_EVENT } from "./config";
-import { useMedia } from "@/src/lib/hooks";
+import { useMedia } from "@/src/lib/hooks/index";
 
 type StoreState = {
   expandedDetails: Record<string, boolean>;

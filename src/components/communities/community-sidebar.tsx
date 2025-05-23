@@ -31,7 +31,7 @@ import { Separator } from "../ui/separator";
 import { useSidebarStore } from "@/src/stores/sidebars";
 import { cn } from "@/src/lib/utils";
 import { AggregateBadges } from "../aggregates";
-import { useConfirmationAlert } from "@/src/lib/hooks";
+import { useConfirmationAlert } from "@/src/lib/hooks/index";
 
 dayjs.extend(localizedFormat);
 

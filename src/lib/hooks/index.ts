@@ -6,55 +6,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { useMediaQuery } from "react-responsive";
 import { InAppBrowser } from "@capacitor/inappbrowser";
 import { useHistory, useLocation } from "react-router-dom";
 import type z from "zod";
 import { useIonAlert } from "@ionic/react";
-import { Deferred } from "./deferred";
-
-export function useTheme() {
-  const prefersDark = useMediaQuery({ query: "(prefers-color-scheme: dark)" });
-  return prefersDark ? "dark" : "light";
-}
-
-export function useMedia() {
-  const sm = useMediaQuery({
-    minWidth: "40rem",
-  });
-
-  const md = useMediaQuery({
-    minWidth: "48rem",
-  });
-
-  const lg = useMediaQuery({
-    minWidth: "64rem",
-  });
-
-  const xl = useMediaQuery({
-    minWidth: "80rem",
-  });
-
-  const xxl = useMediaQuery({
-    minWidth: "96rem",
-  });
-
-  return useMemo(
-    () => ({
-      sm,
-      md,
-      lg,
-      xl,
-      xxl,
-      maxSm: !sm,
-      maxMd: !md,
-      maxLg: !lg,
-      maxXl: !xl,
-      maxXxl: !xxl,
-    }),
-    [sm, md, lg, xl, xxl],
-  );
-}
+import { Deferred } from "../deferred";
+export { useMedia } from "./use-media";
+export { useTheme } from "./use-theme";
 
 interface ObserverOptions {
   root?: Element | null;

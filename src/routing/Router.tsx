@@ -14,7 +14,7 @@ import {
 import { IonReactRouter } from "@ionic/react-router";
 import { Route, Redirect } from "@/src/routing/index";
 import _ from "lodash";
-import { useMedia } from "@/src/lib/hooks";
+import { useMedia } from "@/src/lib/hooks/index";
 import { Logo } from "@/src/components/logo";
 import { useNotificationCount } from "@/src/lib/lemmy";
 import { lazy } from "react";

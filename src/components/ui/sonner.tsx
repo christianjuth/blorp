@@ -1,4 +1,4 @@
-import { useMedia } from "@/src/lib/hooks";
+import { useMedia } from "@/src/lib/hooks/index";
 import { Toaster as Sonner, ToasterProps } from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps) => {
