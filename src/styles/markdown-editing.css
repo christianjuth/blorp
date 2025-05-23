@@ -6,18 +6,6 @@
   pointer-events: none;
 }
 
-.tiptap {
-  outline: none;
-}
-
-.tiptap > *:first-child {
-  margin-top: 0;
-}
-
-.tiptap > *:last-child {
-  margin-bottom: 0;
-}
-
 .spoiler [data-node-view-content-react] > *:first-child::before {
   content: "▼ ";
 }

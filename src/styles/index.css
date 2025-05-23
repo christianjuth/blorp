@@ -5,6 +5,7 @@
 
 @import "tw-animate-css";
 
+@import "./highlight-js-github-dark.min.css";
 @import "./markdown-editing.css";
 @import "./markdown-content.css";
 

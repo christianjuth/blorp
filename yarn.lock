@@ -4581,15 +4581,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-onboarding@npm:^8.6.12":
-  version: 8.6.12
-  resolution: "@storybook/addon-onboarding@npm:8.6.12"
-  peerDependencies:
-    storybook: ^8.6.12
-  checksum: 10c0/1dfdfff93b044efaf186d4011f250526187816197538e265ab26dacac1f1dc425f3676ba68874531aea151b142f76431c68e619e430565011124565748513292
-  languageName: node
-  linkType: hard
-
 "@storybook/addon-outline@npm:8.6.12":
   version: 8.6.12
   resolution: "@storybook/addon-outline@npm:8.6.12"
@@ -5449,6 +5440,43 @@ __metadata:
   peerDependencies:
     "@tiptap/core": ^2.7.0
   checksum: 10c0/edd5348454eb73b43083ea7df280b0b0a8d70fe22f14c72dff94b7f4fb10dad3fa4ede7433bf0583439499f7acb2a544a3904462d8729e32c489dab0f1429491
+  languageName: node
+  linkType: hard
+
+"@tiptap/extension-table-cell@npm:^2.12.0":
+  version: 2.12.0
+  resolution: "@tiptap/extension-table-cell@npm:2.12.0"
+  peerDependencies:
+    "@tiptap/core": ^2.7.0
+  checksum: 10c0/019f9ded0143c142ad9132d38ba3f22545af6bb2145f704a2cbfe91c9baddd9d395a08cc75508cdb7434632ca2ae0c93cbe2d7f16d0dad4407de473ac9887e52
+  languageName: node
+  linkType: hard
+
+"@tiptap/extension-table-header@npm:^2.12.0":
+  version: 2.12.0
+  resolution: "@tiptap/extension-table-header@npm:2.12.0"
+  peerDependencies:
+    "@tiptap/core": ^2.7.0
+  checksum: 10c0/2d6cd00367514452d35a3a668cf987e3f51f305b39d0fd8e1d1712c16e0d6896f7959ebef6ed54aa0b9a72f7c39b1d1cdd230a7cf80e6f26c69caefa93f624db
+  languageName: node
+  linkType: hard
+
+"@tiptap/extension-table-row@npm:^2.12.0":
+  version: 2.12.0
+  resolution: "@tiptap/extension-table-row@npm:2.12.0"
+  peerDependencies:
+    "@tiptap/core": ^2.7.0
+  checksum: 10c0/f7ca186090caf43b1fe1df5f5db75072deed9b69ef4dd897b83f28a62c546128044f384827f9783d0ecd8459eaf8502e07d14cb94ba28ecedbfd1de550179890
+  languageName: node
+  linkType: hard
+
+"@tiptap/extension-table@npm:^2.12.0":
+  version: 2.12.0
+  resolution: "@tiptap/extension-table@npm:2.12.0"
+  peerDependencies:
+    "@tiptap/core": ^2.7.0
+    "@tiptap/pm": ^2.7.0
+  checksum: 10c0/664f2a321023bc048bd2d3b8c21bd023809fee0d7b12137481e8474010067ba0e82c74c0e6bb98bc3f30d820730e33adf5dfe07047f035e85a6c913c3a873ecd
   languageName: node
   linkType: hard
 
@@ -10269,7 +10297,6 @@ __metadata:
     "@storybook/addon-a11y": "npm:^8.6.12"
     "@storybook/addon-essentials": "npm:^8.6.12"
     "@storybook/addon-interactions": "npm:^8.6.12"
-    "@storybook/addon-onboarding": "npm:^8.6.12"
     "@storybook/blocks": "npm:^8.6.12"
     "@storybook/react": "npm:^8.6.12"
     "@storybook/react-vite": "npm:^8.6.12"
@@ -10293,6 +10320,10 @@ __metadata:
     "@tiptap/extension-image": "npm:^2.11.7"
     "@tiptap/extension-link": "npm:^2.11.7"
     "@tiptap/extension-placeholder": "npm:^2.11.7"
+    "@tiptap/extension-table": "npm:^2.12.0"
+    "@tiptap/extension-table-cell": "npm:^2.12.0"
+    "@tiptap/extension-table-header": "npm:^2.12.0"
+    "@tiptap/extension-table-row": "npm:^2.12.0"
     "@tiptap/react": "npm:^2.11.7"
     "@tiptap/starter-kit": "npm:^2.11.7"
     "@types/express": "npm:^4"
