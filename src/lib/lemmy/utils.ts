@@ -7,16 +7,6 @@ import {
 } from "lemmy-js-client";
 import _ from "lodash";
 
-export function createPersonSlug(person: Pick<Person, "actor_id">) {
-  const url = new URL(person.actor_id);
-  const path = url.pathname.split("/");
-  if (!path[2]) {
-    // TODO: make this more strict
-    return "";
-  }
-  return `${path[2]}@${url.host}`;
-}
-
 export type Slug = {
   name: string;
   host: string;

@@ -10,7 +10,7 @@ import { MarkdownRenderer } from "../components/markdown/renderer";
 import { VirtualList } from "../components/virtual-list";
 import { PostSortButton } from "../components/lemmy-sort";
 import { memo, useMemo } from "react";
-import { createPersonSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
+import { createSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
@@ -160,14 +160,16 @@ export default function User() {
 
   return (
     <IonPage>
-      <PageTitle>{person ? createPersonSlug(person) : "Person"}</PageTitle>
+      <PageTitle>
+        {(person ? createSlug(person)?.slug : null) ?? "Person"}
+      </PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>
           <IonTitle data-tauri-drag-region>
-            {person ? createPersonSlug(person) : "Person"}
+            {(person ? createSlug(person)?.slug : null) ?? "Person"}
           </IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
