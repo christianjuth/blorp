@@ -50,7 +50,7 @@ import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
 import { useThrottleQueue } from "../throttle-queue";
 import { useCommunitiesStore } from "../../stores/communities";
-import { createCommunitySlug, FlattenedPost, flattenPost } from "./utils";
+import { createSlug, FlattenedPost, flattenPost } from "./utils";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useIonRouter } from "@ionic/react";
 import { toast } from "sonner";
@@ -141,7 +141,7 @@ function flattenComment(commentView: CommentView): FlattenedComment {
       name: community.name,
       title: community.title,
       icon: community.icon,
-      slug: createCommunitySlug(community),
+      slug: createSlug(community, true)?.slug,
     },
     post: {
       ap_id: commentView.post.ap_id,
@@ -1671,10 +1671,12 @@ export function useFollowCommunity() {
       });
     },
     onMutate: (form) => {
-      const slug = createCommunitySlug(form.community);
-      patchCommunity(slug, getCachePrefixer(), {
-        optimisticSubscribed: "Pending",
-      });
+      const slug = createSlug(form.community)?.slug;
+      if (slug) {
+        patchCommunity(slug, getCachePrefixer(), {
+          optimisticSubscribed: "Pending",
+        });
+      }
     },
     onSuccess: (data) => {
       cacheCommunity(getCachePrefixer(), {
@@ -1683,10 +1685,12 @@ export function useFollowCommunity() {
       });
     },
     onError: (err, form) => {
-      const slug = createCommunitySlug(form.community);
-      patchCommunity(slug, getCachePrefixer(), {
-        optimisticSubscribed: undefined,
-      });
+      const slug = createSlug(form.community)?.slug;
+      if (slug) {
+        patchCommunity(slug, getCachePrefixer(), {
+          optimisticSubscribed: undefined,
+        });
+      }
       if (err instanceof Error) {
         toast.error(_.capitalize(err.message.replaceAll("_", " ")));
       } else {
@@ -1778,8 +1782,10 @@ export function useCreatePost() {
     },
     onSuccess: (res) => {
       const apId = res.post_view.post.ap_id;
-      const slug = createCommunitySlug(res.post_view.community);
-      router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
+      const slug = createSlug(res.post_view.community)?.slug;
+      if (slug) {
+        router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
+      }
     },
     onError: (err) => {
       if (err instanceof Error) {
@@ -1810,8 +1816,10 @@ export function useEditPost(apId: string) {
     },
     onSuccess: ({ post_view }) => {
       patchPost(apId, getCachePrefixer(), flattenPost({ post_view }));
-      const slug = createCommunitySlug(post_view.community);
-      router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
+      const slug = createSlug(post_view.community)?.slug;
+      if (slug) {
+        router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
+      }
     },
     onError: (err) => {
       if (err instanceof Error) {
