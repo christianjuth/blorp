@@ -165,7 +165,7 @@ export function CommentReplyProvider({
         post_id: +postId,
         content: content,
         parent_id: parent?.comment.id,
-        parentPath: parent?.comment.path ?? "0",
+        parentPath: parent?.comment.path,
         queryKeyParentId,
       });
     }
