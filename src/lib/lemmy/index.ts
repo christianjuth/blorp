@@ -1220,7 +1220,9 @@ export function useCreateComment() {
   );
   const commentSort = useFiltersStore((s) => s.commentSort);
   const cacheComment = useCommentsStore((s) => s.cacheComment);
-  const removeComment = useCommentsStore((s) => s.removeComment);
+  const markCommentForRemoval = useCommentsStore(
+    (s) => s.markCommentForRemoval,
+  );
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
@@ -1339,7 +1341,7 @@ export function useCreateComment() {
         "Controversial",
       ];
 
-      removeComment(ctx.comment.path, getCachePrefixer());
+      markCommentForRemoval(ctx.comment.path, getCachePrefixer());
       cacheComment(getCachePrefixer(), flattenComment(res.comment_view));
 
       sort: for (const sort of SORTS) {
