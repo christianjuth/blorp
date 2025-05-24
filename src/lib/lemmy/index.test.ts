@@ -20,7 +20,7 @@ function mockGetComments(length: number, parentId?: number) {
       }),
     );
 
-  fetchMock.mockIf(/\/api\/v3\/comment\/list/, () =>
+  fetchMock.once(() =>
     Promise.resolve({
       status: 200,
       body: JSON.stringify({
@@ -33,7 +33,7 @@ function mockGetComments(length: number, parentId?: number) {
 }
 
 function mockCreateComment(path: string) {
-  fetchMock.mockIf(/\/api\/v3\/comment$/, (res) =>
+  fetchMock.once(() =>
     Promise.resolve({
       status: 200,
       body: JSON.stringify({
