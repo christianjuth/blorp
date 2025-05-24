@@ -5,27 +5,32 @@
 //  Created by Butt on 5/1/25.
 //
 
-import WidgetKit
-import SwiftUI
 import AppIntents
-import os
 import ImageIO
+import SwiftUI
+import WidgetKit
+import os
+
+//let problemImg = URL(
+//  string:
+//    "https://lemmy.ml/api/v3/image_proxy?url=https%3A%2F%2Flemmy.world%2Fpictrs%2Fimage%2F76f564e3-9a49-4d79-9714-66c2d195c298.jpeg"
+//)!
 
 // MARK: - Community Options
 
 enum ImageCommunityOption: String, CaseIterable, AppEnum {
-  case aww_lemmy_world  = "aww@lemmy.world"
+  case aww_lemmy_world = "aww@lemmy.world"
   case pics_lemmy_world = "pics@lemmy.world"
-  case cat_lemmy_world  = "cat@lemmy.world"
+  case cat_lemmy_world = "cat@lemmy.world"
   case dogs_lemmy_world = "dogs@lemmy.world"
 
   static var typeDisplayRepresentation =
     TypeDisplayRepresentation(name: "Community")
 
   static var caseDisplayRepresentations: [Self: DisplayRepresentation] = [
-    .aww_lemmy_world:  DisplayRepresentation(title: "aww",  subtitle: "@lemmy.world"),
+    .aww_lemmy_world: DisplayRepresentation(title: "aww", subtitle: "@lemmy.world"),
     .pics_lemmy_world: DisplayRepresentation(title: "pics", subtitle: "@lemmy.world"),
-    .cat_lemmy_world:  DisplayRepresentation(title: "cat",  subtitle: "@lemmy.world"),
+    .cat_lemmy_world: DisplayRepresentation(title: "cat", subtitle: "@lemmy.world"),
     .dogs_lemmy_world: DisplayRepresentation(title: "dogs", subtitle: "@lemmy.world"),
   ]
 }
@@ -70,9 +75,12 @@ struct ImageProvider: AppIntentTimelineProvider {
     )
   }
 
-  func snapshot(for configuration: ImageConfigurationAppIntent, in context: Context) async -> ImageEntry {
-    let placeholderURL = URL(string:
-      "https://fastly.picsum.photos/id/765/800/400.jpg?hmac=PK0uVX0lM9FOl6w0DhIbioGUWY0IGYnG2T9n244Iq_w"
+  func snapshot(for configuration: ImageConfigurationAppIntent, in context: Context) async
+    -> ImageEntry
+  {
+    let placeholderURL = URL(
+      string:
+        "https://fastly.picsum.photos/id/765/800/400.jpg?hmac=PK0uVX0lM9FOl6w0DhIbioGUWY0IGYnG2T9n244Iq_w"
     )!
     let data = (try? await URLSession.shared.data(from: placeholderURL).0) ?? Data()
     let thumbData = downsampledData(from: data, maxPixelSize: 600)
@@ -85,7 +93,9 @@ struct ImageProvider: AppIntentTimelineProvider {
     )
   }
 
-  func timeline(for configuration: ImageConfigurationAppIntent, in context: Context) async -> Timeline<ImageEntry> {
+  func timeline(for configuration: ImageConfigurationAppIntent, in context: Context) async
+    -> Timeline<ImageEntry>
+  {
     let now = Date()
     let communityRaw = configuration.community?.rawValue ?? "aww@lemmy.world"
     logger.debug("Fetching top post for community: \(communityRaw)")
@@ -100,9 +110,10 @@ struct ImageProvider: AppIntentTimelineProvider {
     // Download & downsample image data
     var thumbData: Data? = nil
     if let urlString = thumbnailURLString,
-       let url = URL(string: urlString) {
+      let url = URL(string: urlString)
+    {
       do {
-        let (data, _) = try await URLSession.shared.data(from: url)
+        let data = try await fetchData(with: url)
         thumbData = downsampledData(from: data, maxPixelSize: 600)
       } catch {
         logger.debug("Error fetching image data: \(String(describing: error))")
@@ -139,15 +150,17 @@ struct ImageProvider: AppIntentTimelineProvider {
       var comps = URLComponents(string: "https://lemm.ee/api/v3/post/list")
       comps?.queryItems = [
         URLQueryItem(name: "community_name", value: community),
-        URLQueryItem(name: "sort",           value: sort),
-        URLQueryItem(name: "type",           value: "All"),
-        URLQueryItem(name: "limit",          value: "50")
+        URLQueryItem(name: "sort", value: sort),
+        URLQueryItem(name: "type", value: "All"),
+        URLQueryItem(name: "limit", value: "50"),
       ]
       guard let url = comps?.url else { continue }
       do {
         let (data, _) = try await URLSession.shared.data(from: url)
         let wrapper = try JSONDecoder().decode(LemmyPostsResponse.self, from: data)
-        if let postWrapper = wrapper.posts.first(where: { ($0.post.thumbnail_url ?? "").hasPrefix("http") }) {
+        if let postWrapper = wrapper.posts.first(where: {
+          ($0.post.thumbnail_url ?? "").hasPrefix("http")
+        }) {
           return postWrapper
         }
       } catch {
@@ -158,11 +171,12 @@ struct ImageProvider: AppIntentTimelineProvider {
   }
 
   private func downsampledData(from data: Data, maxPixelSize: CGFloat) -> Data? {
-    let options: CFDictionary = [
-      kCGImageSourceCreateThumbnailFromImageAlways:      true,
-      kCGImageSourceShouldCacheImmediately:             true,
-      kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
-    ] as CFDictionary
+    let options: CFDictionary =
+      [
+        kCGImageSourceCreateThumbnailFromImageAlways: true,
+        kCGImageSourceShouldCacheImmediately: true,
+        kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+      ] as CFDictionary
 
     guard
       let src = CGImageSourceCreateWithData(data as CFData, nil),
@@ -194,7 +208,8 @@ struct ImageWidgetEntryView: View {
       .widgetURL(tapURL)
       .containerBackground(for: .widget) {
         if let data = entry.thumbnailData,
-           let uiImage = UIImage(data: data) {
+          let uiImage = UIImage(data: data)
+        {
           Image(uiImage: uiImage)
             .resizable()
             .scaledToFill()
@@ -241,4 +256,3 @@ struct ImageWidget_Previews: PreviewProvider {
     .previewContext(WidgetPreviewContext(family: .systemMedium))
   }
 }
-
