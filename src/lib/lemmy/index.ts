@@ -1209,7 +1209,7 @@ export function useLikeComment() {
 }
 
 interface CreateCommentWithPath extends CreateComment {
-  parentPath: string;
+  parentPath?: string;
 }
 
 export function useCreateComment() {
@@ -1220,7 +1220,9 @@ export function useCreateComment() {
   );
   const commentSort = useFiltersStore((s) => s.commentSort);
   const cacheComment = useCommentsStore((s) => s.cacheComment);
-  const removeComment = useCommentsStore((s) => s.removeComment);
+  const markCommentForRemoval = useCommentsStore(
+    (s) => s.markCommentForRemoval,
+  );
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
@@ -1243,7 +1245,7 @@ export function useCreateComment() {
           published: isoDate,
           deleted: false,
           local: false,
-          path: `${parentPath}.${commentId}`,
+          path: `${parentPath ?? 0}.${commentId}`,
           distinguished: false,
           ap_id: "",
           language_id: -1,
@@ -1294,6 +1296,7 @@ export function useCreateComment() {
                 path: string;
                 postId: number;
                 creatorId: number;
+                published: string;
               }[];
               nextPage: number | null;
             },
@@ -1313,6 +1316,7 @@ export function useCreateComment() {
             path: newComment.comment.path,
             creatorId: newComment.creator.id,
             postId: newComment.comment.post_id,
+            published: newComment.comment.published,
           });
         }
 
@@ -1326,6 +1330,7 @@ export function useCreateComment() {
         path: res.comment_view.comment.path,
         creatorId: res.comment_view.creator.id,
         postId: res.comment_view.comment.post_id,
+        published: res.comment_view.comment.published,
       };
 
       const SORTS: CommentSortType[] = [
@@ -1336,7 +1341,7 @@ export function useCreateComment() {
         "Controversial",
       ];
 
-      removeComment(ctx.comment.path, getCachePrefixer());
+      markCommentForRemoval(ctx.comment.path, getCachePrefixer());
       cacheComment(getCachePrefixer(), flattenComment(res.comment_view));
 
       sort: for (const sort of SORTS) {
@@ -1354,6 +1359,7 @@ export function useCreateComment() {
                 path: string;
                 postId: number;
                 creatorId: number;
+                published: string;
               }[];
               nextPage: number | null;
             },
@@ -1374,7 +1380,7 @@ export function useCreateComment() {
           const index = p.comments.findIndex(
             (c) => c.path === ctx.comment.path,
           );
-          if (index > 0) {
+          if (index >= 0) {
             p.comments[index] = settledComment;
             queryClient.setQueryData(getCommentsKey(form), comments);
             continue sort;
@@ -1388,11 +1394,7 @@ export function useCreateComment() {
           continue;
         }
         if (firstPage) {
-          firstPage.comments.unshift({
-            path: res.comment_view.comment.path,
-            creatorId: res.comment_view.creator.id,
-            postId: res.comment_view.comment.post_id,
-          });
+          firstPage.comments.unshift(settledComment);
         }
         queryClient.setQueryData(getCommentsKey(form), comments);
       }

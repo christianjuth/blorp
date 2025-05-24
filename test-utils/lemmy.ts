@@ -6,6 +6,7 @@ import {
   PersonView,
   CommunityView,
   ImageDetails,
+  CommentView,
 } from "lemmy-js-client";
 import { PartialDeep } from "type-fest";
 import { faker } from "@faker-js/faker";
@@ -37,6 +38,9 @@ const COMMUNITY_PUBLISHED = absoluteTime();
 
 const PERSON_ID = uuid();
 const PERSON_PUBLISHED = relativeTime();
+
+const COMMENT_ID = uuid();
+const COMMENT_PUBLISHED = relativeTime();
 
 export function getPerson(config?: { personView?: PartialDeep<PersonView> }) {
   const id = config?.personView?.person?.id ?? PERSON_ID;
@@ -243,4 +247,63 @@ export function getRandomPost() {
       },
     },
   });
+}
+
+export function getComment(config?: {
+  commentView?: PartialDeep<CommentView>;
+  postView?: PartialDeep<Omit<PostView, "image_details">>;
+  personView?: PartialDeep<PersonView>;
+}): CommentView {
+  const post = getPost({
+    variant: "text",
+    postView: config?.postView,
+  });
+
+  const creator = getPerson({
+    personView: config?.personView,
+  });
+  const community = getCommunity({
+    communityView: {
+      community: config?.postView?.community,
+    },
+  });
+
+  const id = config?.commentView?.comment?.id ?? COMMENT_ID;
+
+  return {
+    post: post.post,
+    creator: creator.person,
+    community: community.community,
+    creator_banned_from_community: false,
+    creator_is_moderator: false,
+    creator_is_admin: false,
+    saved: false,
+    banned_from_community: false,
+    subscribed: "NotSubscribed",
+    creator_blocked: false,
+    comment: {
+      ap_id: `${API_ROOT}/comment/${id}`,
+      id,
+      creator_id: creator.person.id,
+      post_id: post.post.id,
+      content: "123",
+      removed: false,
+      deleted: false,
+      published: COMMENT_PUBLISHED,
+      local: true,
+      path: `0.${id}`,
+      distinguished: false,
+      language_id: 0,
+      ...config?.commentView?.comment,
+    },
+    counts: {
+      comment_id: id,
+      score: 1,
+      upvotes: 1,
+      downvotes: 0,
+      published: COMMENT_PUBLISHED,
+      child_count: 0,
+      ...config?.commentView?.counts,
+    },
+  };
 }

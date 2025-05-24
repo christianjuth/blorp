@@ -8,6 +8,7 @@ import { CachePrefixer } from "./auth";
 
 type CachedComment = {
   data: FlattenedComment;
+  remove?: boolean;
   lastUsed: number;
 };
 
@@ -28,7 +29,7 @@ type SortsStore = {
     prefix: CachePrefixer,
     comments: FlattenedComment[],
   ) => Record<CommentPath, CachedComment>;
-  removeComment: (path: string, prefix: CachePrefixer) => void;
+  markCommentForRemoval: (path: string, prefix: CachePrefixer) => void;
   cleanup: () => any;
 };
 export const useCommentsStore = create<SortsStore>()(
@@ -61,13 +62,14 @@ export const useCommentsStore = create<SortsStore>()(
         }
         return updatedCommentData;
       },
-      removeComment: (path, prefix) => {
-        const prev = get().comments;
+      markCommentForRemoval: (path, prefix) => {
+        const commentsClone = get().comments;
         const cacheKey = prefix(path);
+        if (commentsClone[cacheKey]) {
+          commentsClone[cacheKey].remove = true;
+        }
         set({
-          comments: {
-            ..._.omit(prev, [cacheKey]),
-          },
+          comments: commentsClone,
         });
       },
       cacheComment: (prefix, view) => {
@@ -126,7 +128,7 @@ export const useCommentsStore = create<SortsStore>()(
           const comment = comments[key];
           if (comment) {
             const shouldEvict = now - comment.lastUsed > MAX_CACHE_MS;
-            if (shouldEvict) {
+            if (shouldEvict || comment.remove) {
               delete comments[key];
             }
           }
