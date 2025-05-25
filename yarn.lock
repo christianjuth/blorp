@@ -10392,6 +10392,7 @@ __metadata:
     use-deep-compare-effect: "npm:^1.8.1"
     use-long-press: "npm:^3.3.0"
     uuid: "npm:*"
+    virtua: "npm:^0.41.2"
     vite: "npm:6.2.6"
     vite-plugin-checker: "npm:^0.8.0"
     vite-plugin-circular-dependency: "npm:^0.5.0"
@@ -15167,6 +15168,30 @@ __metadata:
   version: 1.1.2
   resolution: "vary@npm:1.1.2"
   checksum: 10c0/f15d588d79f3675135ba783c91a4083dcd290a2a5be9fcb6514220a1634e23df116847b1cc51f66bfb0644cf9353b2abb7815ae499bab06e46dd33c1a6bf1f4f
+  languageName: node
+  linkType: hard
+
+"virtua@npm:^0.41.2":
+  version: 0.41.2
+  resolution: "virtua@npm:0.41.2"
+  peerDependencies:
+    react: ">=16.14.0"
+    react-dom: ">=16.14.0"
+    solid-js: ">=1.0"
+    svelte: ">=5.0"
+    vue: ">=3.2"
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-dom:
+      optional: true
+    solid-js:
+      optional: true
+    svelte:
+      optional: true
+    vue:
+      optional: true
+  checksum: 10c0/8ac22b1ffe7c4a54fbc36622f6ebb3f6936353687ecf2844c82c451a0a3bfbc31977160a527ed7639af0eb034d24a226e576e9361d6aceaa059acd16b7444c61
   languageName: node
   linkType: hard
 

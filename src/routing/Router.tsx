@@ -33,6 +33,10 @@ const CSAE = lazy(() => import("@/src/features/csae"));
 const NotFound = lazy(() => import("@/src/features/not-found"));
 const Download = lazy(() => import("@/src/features/download"));
 const Inbox = lazy(() => import("@/src/features/inbox"));
+const Messages = lazy(() => import("@/src/features/messages/messages-screen"));
+const MessagesChat = lazy(
+  () => import("@/src/features/messages/messages-chat-screen"),
+);
 const Privacy = lazy(() => import("@/src/features/privacy"));
 const OSLicenses = lazy(() => import("@/src/features/licenses"));
 const Terms = lazy(() => import("@/src/features/terms"));
@@ -204,6 +208,17 @@ const INBOX_STACK = [
   />,
 ];
 
+const MESSAGES_STACK = [
+  <Route key="/messages/*" path="/messages/*" component={NotFound} />,
+  <Route key="/message" exact path="/messages" component={Messages} />,
+  <Route
+    key="/message/chat/:userId"
+    exact
+    path="/messages/chat/:userId"
+    component={MessagesChat}
+  />,
+];
+
 const SETTINGS = [
   <Route key="/settings/*" path="/settings/*" component={NotFound} />,
   <Route key="/settings" exact path="/settings" component={SettingsPage} />,
@@ -291,6 +306,7 @@ function Tabs() {
               {...COMMUNITIES_STACK}
               {...CREATE_POST_STACK}
               {...INBOX_STACK}
+              {...MESSAGES_STACK}
               {...SETTINGS}
               <Redirect
                 key="/c/:communityName"

@@ -27,6 +27,7 @@ import {
   MarkPersonMentionAsRead,
   BlockCommunity,
   GetSiteResponse,
+  GetPrivateMessages,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -696,7 +697,9 @@ function useThrottledInfiniteQuery<
   //  }
   //}, [throttleQueue, focused]);
 
-  const queryKeyStr = options.queryKey.join("-");
+  const queryKeyStr = options.queryKey
+    .map((part) => JSON.stringify(part))
+    .join("-");
   const isWarmed = warmedInfiniteQueryKeys.get(queryKeyStr) ?? false;
 
   const query = useInfiniteQuery({
@@ -753,12 +756,9 @@ function useThrottledInfiniteQuery<
     },
   };
 
-  useEffect(() => {
-    const isWarmed = warmedInfiniteQueryKeys.get(queryKeyStr) ?? false;
-    if (!isWarmed) {
-      queryWithTruncate.truncatePages();
-    }
-  }, [queryKeyStr]);
+  if (!isWarmed) {
+    queryWithTruncate.truncatePages();
+  }
 
   return queryWithTruncate;
 }
@@ -1452,10 +1452,55 @@ export function useDeleteComment() {
   });
 }
 
+export function usePrivateMessages(form: GetPrivateMessages) {
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+  const { client, queryKeyPrefix } = useLemmyClient();
+  const queryKey = [...queryKeyPrefix, "getPrivateMessages", form];
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
+  return useThrottledInfiniteQuery({
+    queryKey,
+    queryFn: async ({ pageParam, signal }) => {
+      const limit = form.limit ?? 50;
+      const { private_messages } = await client.getPrivateMessages(
+        {
+          ...form,
+          page: pageParam,
+          limit,
+        },
+        {
+          signal,
+        },
+      );
+      const profiles = _.uniqBy(
+        [
+          ...private_messages.map((pm) => pm.creator),
+          ...private_messages.map((pm) => pm.recipient),
+        ],
+        "actor_id",
+      );
+      cacheProfiles(
+        getCachePrefixer(),
+        profiles.map((person) => ({ person })),
+      );
+      return {
+        private_messages,
+        nextPage: private_messages.length < limit ? null : pageParam + 1,
+      };
+    },
+    initialPageParam: 1,
+    getNextPageParam: (prev) => prev.nextPage,
+    enabled: isLoggedIn,
+    refetchOnWindowFocus: "always",
+  });
+}
+
 export function useReplies(form: GetReplies) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
   const queryKey = [...queryKeyPrefix, "getReplies", form];
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
@@ -1468,6 +1513,14 @@ export function useReplies(form: GetReplies) {
         {
           signal,
         },
+      );
+      const profiles = _.uniqBy(
+        replies.map((pm) => pm.creator),
+        "actor_id",
+      );
+      cacheProfiles(
+        getCachePrefixer(),
+        profiles.map((person) => ({ person })),
       );
       return {
         replies,
@@ -1485,6 +1538,8 @@ export function usePersonMentions(form: GetPersonMentions) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
   const queryKey = [...queryKeyPrefix, "getPersonMentions", form];
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
@@ -1497,6 +1552,14 @@ export function usePersonMentions(form: GetPersonMentions) {
         {
           signal,
         },
+      );
+      const profiles = _.uniqBy(
+        mentions.map((pm) => pm.creator),
+        "actor_id",
+      );
+      cacheProfiles(
+        getCachePrefixer(),
+        profiles.map((person) => ({ person })),
       );
       return {
         mentions,

@@ -17,7 +17,7 @@ import {
 } from "@/src/components/ui/avatar";
 import { useRequireAuth } from "./auth-context";
 import { IonMenuButton, IonMenuToggle } from "@ionic/react";
-import { IoPerson } from "react-icons/io5";
+import { IoPerson, IoSettings, IoSettingsOutline } from "react-icons/io5";
 import { useLogout, useNotificationCount } from "../lib/lemmy";
 import { LuMenu } from "react-icons/lu";
 import { Button } from "./ui/button";
@@ -60,14 +60,6 @@ export function UserDropdown() {
   const count = _.sum(counts.filter((_, i) => i !== selectedAccountIndex));
 
   const { person, instance } = parseAccountInfo(selectedAccount);
-
-  if (!person && accounts.length <= 1) {
-    return (
-      <Button size="sm" onClick={() => requireAuth()}>
-        Login
-      </Button>
-    );
-  }
 
   const content = (
     <BadgeCount showBadge={!!count}>
@@ -191,6 +183,14 @@ export function UserDropdown() {
             <IoPersonAddOutline />
             Add account
           </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <Link to={`/settings`}>
+            <DropdownMenuItem>
+              <IoSettingsOutline /> Settings
+            </DropdownMenuItem>
+          </Link>
         </>
       </DropdownMenuContent>
     </DropdownMenu>

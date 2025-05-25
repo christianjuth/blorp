@@ -31,6 +31,9 @@ import { useInboxStore } from "../stores/inbox";
 import { Skeleton } from "../components/ui/skeleton";
 import { ActionMenu } from "../components/adaptable/action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
+import { PersonAvatar } from "../components/person/person-avatar";
+import { BadgeIcon } from "../components/badge-count";
+import { Message, Person } from "../components/icons";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item =
@@ -44,11 +47,14 @@ type Item =
 function Placeholder() {
   return (
     <ContentGutters className="px-0">
-      <div className="flex-1 flex flex-col gap-2 mt-2.5">
-        <Skeleton className="h-12 max-md:mx-3" />
-        <Skeleton className="h-5.5 max-md:mx-3" />
-        <Skeleton className="h-6 w-12 max-md:mx-3 self-end" />
-        <Skeleton className="h-px mt-0.5" />
+      <div className="flex-1 flex mt-2.5 gap-3">
+        <Skeleton className="h-8 w-8 rounded-full" />
+        <div className="flex-1 flex flex-col gap-2">
+          <Skeleton className="h-12 max-md:mx-3" />
+          <Skeleton className="h-5.5 max-md:mx-3" />
+          <Skeleton className="h-6 w-12 max-md:mx-3 self-end" />
+          <Skeleton className="h-px mt-0.5" />
+        </div>
       </div>
       <></>
     </ContentGutters>
@@ -77,57 +83,68 @@ function Mention({
       <div
         className={cn("flex-1 max-md:px-2.5", !noBorder && "border-b-[0.5px]")}
       >
-        <div
-          className={cn(
-            "my-2.5 flex-1 text-sm leading-6 block",
-            !mention.person_mention.read && "border-l-3 border-l-brand pl-2",
-          )}
-        >
-          <Link
-            to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
-            params={{
-              communityName: communitySlug,
-              post: encodeURIComponent(mention.post.ap_id),
-              comment: newPath,
-            }}
-            onClickCapture={() => {
-              markRead.mutate({
-                person_mention_id: mention.person_mention.id,
-                read: true,
-              });
-            }}
+        <div className="flex my-2.5 gap-3 items-start">
+          <BadgeIcon
+            icon={<Person className="h-full w-full text-muted-foreground" />}
           >
-            <div className="flex flex-row flex-wrap">
-              {mention.person_mention.read ? null : <div />}
-              <span>
-                <span className="font-bold">{mention.creator.name}</span>
-                <span> mentioned you in the post </span>
-                <span className="font-bold">{mention.post.name}</span>
-              </span>
+            <PersonAvatar
+              actorId={mention.creator.actor_id}
+              person={mention.creator}
+              size="sm"
+            />
+          </BadgeIcon>
+          <div
+            className={cn(
+              "flex-1 text-sm leading-6 block",
+              !mention.person_mention.read && "border-l-3 border-l-brand pl-2",
+            )}
+          >
+            <Link
+              to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
+              params={{
+                communityName: communitySlug,
+                post: encodeURIComponent(mention.post.ap_id),
+                comment: newPath,
+              }}
+              onClickCapture={() => {
+                markRead.mutate({
+                  person_mention_id: mention.person_mention.id,
+                  read: true,
+                });
+              }}
+            >
+              <div className="flex flex-row flex-wrap">
+                {mention.person_mention.read ? null : <div />}
+                <span>
+                  <span className="font-bold">{mention.creator.name}</span>
+                  <span> mentioned you in the post </span>
+                  <span className="font-bold">{mention.post.name}</span>
+                </span>
+              </div>
+              <MarkdownRenderer
+                markdown={mention.comment.content}
+                className="pb-2"
+              />
+            </Link>
+            <div className="flex flex-row justify-end gap-2 text-muted-foreground">
+              <RelativeTime time={mention.comment.published} />
+              <ActionMenu
+                align="end"
+                actions={[
+                  {
+                    text: mention.person_mention.read
+                      ? "Mark unread"
+                      : "Mark read",
+                    onClick: () =>
+                      markRead.mutate({
+                        person_mention_id: mention.person_mention.id,
+                        read: !mention.person_mention.read,
+                      }),
+                  },
+                ]}
+                trigger={<IoEllipsisHorizontal />}
+              />
             </div>
-            <MarkdownRenderer
-              markdown={mention.comment.content}
-              className="pb-2"
-            />
-          </Link>
-          <div className="flex flex-row justify-end gap-2 text-muted-foreground">
-            <RelativeTime time={mention.comment.published} />
-            <ActionMenu
-              align="end"
-              actions={[
-                {
-                  text: mention.person_mention.read
-                    ? "Mark unread"
-                    : "Mark read",
-                  onClick: () =>
-                    markRead.mutate({
-                      person_mention_id: mention.person_mention.id,
-                      read: !mention.person_mention.read,
-                    }),
-                },
-              ]}
-              trigger={<IoEllipsisHorizontal />}
-            />
           </div>
         </div>
       </div>
@@ -158,57 +175,68 @@ function Reply({
       <div
         className={cn("flex-1 max-md:px-2.5", !noBorder && "border-b-[0.5px]")}
       >
-        <div
-          className={cn(
-            "my-2.5 flex-1 text-sm leading-6 block",
-            !replyView.comment_reply.read && "border-l-3 border-l-brand pl-2",
-          )}
-        >
-          <Link
-            to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
-            params={{
-              communityName: communitySlug,
-              post: encodeURIComponent(replyView.post.ap_id),
-              comment: newPath,
-            }}
-            onClickCapture={() => {
-              markRead.mutate({
-                comment_reply_id: replyView.comment_reply.id,
-                read: true,
-              });
-            }}
+        <div className="flex my-2.5 gap-3 items-start">
+          <BadgeIcon
+            icon={<Message className="h-full w-full text-muted-foreground" />}
           >
-            <div className="flex flex-row flex-wrap">
-              {replyView.comment_reply.read ? null : <div />}
-              <span>
-                <span className="font-bold">{replyView.creator.name}</span>
-                <span> replied to your comment in </span>
-                <span className="font-bold">{replyView.post.name}</span>
-              </span>
+            <PersonAvatar
+              actorId={replyView.creator.actor_id}
+              person={replyView.creator}
+              size="sm"
+            />
+          </BadgeIcon>
+          <div
+            className={cn(
+              "flex-1 text-sm leading-6 block",
+              !replyView.comment_reply.read && "border-l-3 border-l-brand pl-2",
+            )}
+          >
+            <Link
+              to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
+              params={{
+                communityName: communitySlug,
+                post: encodeURIComponent(replyView.post.ap_id),
+                comment: newPath,
+              }}
+              onClickCapture={() => {
+                markRead.mutate({
+                  comment_reply_id: replyView.comment_reply.id,
+                  read: true,
+                });
+              }}
+            >
+              <div className="flex flex-row flex-wrap">
+                {replyView.comment_reply.read ? null : <div />}
+                <span>
+                  <span className="font-bold">{replyView.creator.name}</span>
+                  <span> replied to your comment in </span>
+                  <span className="font-bold">{replyView.post.name}</span>
+                </span>
+              </div>
+              <MarkdownRenderer
+                markdown={replyView.comment.content}
+                className="pb-2"
+              />
+            </Link>
+            <div className="flex flex-row justify-end gap-2 text-muted-foreground">
+              <RelativeTime time={replyView.comment.published} />
+              <ActionMenu
+                align="end"
+                actions={[
+                  {
+                    text: replyView.comment_reply.read
+                      ? "Mark unread"
+                      : "Mark read",
+                    onClick: () =>
+                      markRead.mutate({
+                        comment_reply_id: replyView.comment_reply.id,
+                        read: !replyView.comment_reply.read,
+                      }),
+                  },
+                ]}
+                trigger={<IoEllipsisHorizontal />}
+              />
             </div>
-            <MarkdownRenderer
-              markdown={replyView.comment.content}
-              className="pb-2"
-            />
-          </Link>
-          <div className="flex flex-row justify-end gap-2 text-muted-foreground">
-            <RelativeTime time={replyView.comment.published} />
-            <ActionMenu
-              align="end"
-              actions={[
-                {
-                  text: replyView.comment_reply.read
-                    ? "Mark unread"
-                    : "Mark read",
-                  onClick: () =>
-                    markRead.mutate({
-                      comment_reply_id: replyView.comment_reply.id,
-                      read: !replyView.comment_reply.read,
-                    }),
-                },
-              ]}
-              trigger={<IoEllipsisHorizontal />}
-            />
           </div>
         </div>
       </div>

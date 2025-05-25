@@ -14,3 +14,22 @@ export function BadgeCount({
     </div>
   );
 }
+
+export function BadgeIcon({
+  children,
+  icon,
+}: {
+  children?: React.ReactNode;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <div className="relative flex">
+      {children}
+      {icon && (
+        <div className="h-4.5 w-4.5 bg-background rounded-full absolute right-0 bottom-0 translate-y-1/3 translate-x-1/3 border-px border p-0.5">
+          {icon}
+        </div>
+      )}
+    </div>
+  );
+}
