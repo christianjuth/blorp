@@ -319,6 +319,14 @@ export function UserSidebar() {
           Add account
         </button>
       </IonMenuToggle>
+
+      <Separator />
+
+      <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
+        <Link to={`/settings`}>
+          <IoSettingsOutline /> Settings
+        </Link>
+      </IonMenuToggle>
     </div>
   );
 }

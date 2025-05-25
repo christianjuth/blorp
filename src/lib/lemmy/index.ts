@@ -757,6 +757,7 @@ function useThrottledInfiniteQuery<
   };
 
   if (!isWarmed) {
+    warmedInfiniteQueryKeys.set(queryKeyStr, true);
     queryWithTruncate.truncatePages();
   }
 

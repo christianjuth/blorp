@@ -21,7 +21,6 @@ import { VList, VListHandle } from "virtua";
 import dayjs from "dayjs";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { useProfilesStore } from "@/src/stores/profiles";
-import { Avatar } from "@radix-ui/react-avatar";
 import { PersonAvatar } from "@/src/components/person/person-avatar";
 
 dayjs.extend(updateLocale);
@@ -78,7 +77,7 @@ export default function Messages() {
       <IonHeader>
         <IonToolbar>
           <IonButtons>
-            <IonBackButton text="Messages" />
+            <IonBackButton text="" />
           </IonButtons>
           <IonTitle>
             {(person ? createSlug(person)?.slug : null) ?? "Loading..."}
