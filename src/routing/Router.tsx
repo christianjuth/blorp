@@ -294,7 +294,7 @@ function Tabs() {
                 <MainSidebar />
               </div>
 
-              <div className="h-[var(--ion-safe-area-buttom)]" />
+              <div className="h-[var(--ion-safe-area-bottom)]" />
             </div>
           </IonContent>
         </IonMenu>

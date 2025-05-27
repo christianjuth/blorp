@@ -1,6 +1,6 @@
 import { ContentGutters } from "@/src/components/gutters";
 import { MarkdownRenderer } from "@/src/components/markdown/renderer";
-import { UserDropdown } from "@/src/components/nav";
+import { MenuButton, UserDropdown } from "@/src/components/nav";
 import { PersonAvatar } from "@/src/components/person/person-avatar";
 import { RelativeTime } from "@/src/components/relative-time";
 import { Separator } from "@/src/components/ui/separator";
@@ -63,6 +63,9 @@ export default function Messages() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          <IonButtons slot="start">
+            <MenuButton />
+          </IonButtons>
           <IonTitle>Messages</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
@@ -71,6 +74,7 @@ export default function Messages() {
       </IonHeader>
       <IonContent>
         <VirtualList
+          refresh={chats.refetch}
           estimatedItemSize={50}
           data={chats.chats ?? EMPTY_ARR}
           renderItem={({ item }) => (

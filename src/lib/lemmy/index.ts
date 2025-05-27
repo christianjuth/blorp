@@ -28,6 +28,9 @@ import {
   BlockCommunity,
   GetSiteResponse,
   GetPrivateMessages,
+  CreatePrivateMessage,
+  PrivateMessage,
+  PrivateMessageView,
 } from "lemmy-js-client";
 import {
   useQuery,
@@ -42,7 +45,12 @@ import {
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "@/src/stores/filters";
-import { Account, getCachePrefixer, useAuth } from "../../stores/auth";
+import {
+  Account,
+  getCachePrefixer,
+  parseAccountInfo,
+  useAuth,
+} from "../../stores/auth";
 import { useEffect, useMemo, useRef } from "react";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
@@ -51,7 +59,12 @@ import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
 import { useThrottleQueue } from "../throttle-queue";
 import { useCommunitiesStore } from "../../stores/communities";
-import { createSlug, FlattenedPost, flattenPost } from "./utils";
+import {
+  createSlug,
+  FlattenedPost,
+  flattenPost,
+  lemmyTimestamp,
+} from "./utils";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useIonRouter } from "@ionic/react";
 import { toast } from "sonner";
@@ -703,14 +716,15 @@ function useThrottledInfiniteQuery<
   const isWarmed = warmedInfiniteQueryKeys.get(queryKeyStr) ?? false;
 
   const query = useInfiniteQuery({
-    refetchOnMount: isWarmed ? false : "always",
+    refetchOnMount: isWarmed ? true : "always",
     ...options,
     ...(_.isFunction(queryFn)
       ? {
           queryFn: (ctx: any) => {
             return throttleQueue.enqueue<TQueryFnData>(async () => {
+              const p = await queryFn(ctx);
               warmedInfiniteQueryKeys.set(queryKeyStr, true);
-              return await queryFn(ctx);
+              return p;
             });
           },
         }
@@ -1453,16 +1467,21 @@ export function useDeleteComment() {
   });
 }
 
-export function usePrivateMessages(form: GetPrivateMessages) {
+function usePrivateMessagesKey(form: {}) {
+  const { queryKeyPrefix } = useLemmyClient();
+  return [...queryKeyPrefix, "getPrivateMessages", form];
+}
+
+export function usePrivateMessages(form: {}) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
-  const { client, queryKeyPrefix } = useLemmyClient();
-  const queryKey = [...queryKeyPrefix, "getPrivateMessages", form];
+  const { client } = useLemmyClient();
+  const queryKey = usePrivateMessagesKey(form);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
-      const limit = form.limit ?? 50;
+      const limit = 50;
       const { private_messages } = await client.getPrivateMessages(
         {
           ...form,
@@ -1493,6 +1512,57 @@ export function usePrivateMessages(form: GetPrivateMessages) {
     getNextPageParam: (prev) => prev.nextPage,
     enabled: isLoggedIn,
     refetchOnWindowFocus: "always",
+  });
+}
+
+export function useCreatePrivateMessage(recipient: Person) {
+  const account = useAuth((s) => s.getSelectedAccount());
+  const { person: me } = parseAccountInfo(account);
+  const { client } = useLemmyClient();
+  const privateMessagesKey = usePrivateMessagesKey({});
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (form: CreatePrivateMessage) =>
+      client.createPrivateMessage(form),
+    onMutate: (ctx) => {
+      if (me) {
+        const pm: PrivateMessageView = {
+          creator: {
+            ...me,
+          },
+          recipient,
+          private_message: {
+            id: -1 * _.random(),
+            creator_id: me?.id,
+            deleted: false,
+            read: false,
+            published: lemmyTimestamp(),
+            local: false,
+            ap_id: "",
+            ...ctx,
+          },
+        };
+        queryClient.setQueryData<
+          InfiniteData<
+            { private_messages: PrivateMessageView[]; nextPage: number },
+            number
+          >
+        >(privateMessagesKey, (data) => {
+          if (isInfiniteQueryData(data)) {
+            const pages = [...data.pages];
+            if (_.isArray(pages[0]?.private_messages)) {
+              pages[0] = _.cloneDeep(pages[0]);
+              pages[0].private_messages.unshift(pm);
+            }
+            return {
+              ...data,
+              pages,
+            };
+          }
+          return data;
+        });
+      }
+    },
   });
 }
 

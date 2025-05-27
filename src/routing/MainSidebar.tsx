@@ -28,6 +28,7 @@ import {
 } from "@/src/components/ui/collapsible";
 import { ChevronsUpDown } from "lucide-react";
 import { useSidebarStore } from "../stores/sidebars";
+import { IoSettingsOutline } from "react-icons/io5";
 
 function SidebarTabs() {
   const selectedAccountIndex = useAuth((s) => s.accountIndex);
@@ -183,6 +184,10 @@ export function MainSidebar() {
 
         <Separator className="mt-3" />
       </section>
+
+      <SidebarLink icon={<IoSettingsOutline />} to="/settings">
+        Settings
+      </SidebarLink>
 
       <SidebarLink icon={<LockClosedOutline />} to="/privacy">
         Privacy Policy

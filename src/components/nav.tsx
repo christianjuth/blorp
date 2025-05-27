@@ -211,7 +211,7 @@ export function UserSidebar() {
   const { person, instance } = parseAccountInfo(selectedAccount);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 min-h-full pb-[var(--ion-safe-area-bottom)]">
       <div className="flex items-center gap-3">
         <Avatar className="h-12 w-12" key={person?.id}>
           {person && <AvatarImage src={person.avatar} />}
@@ -321,10 +321,11 @@ export function UserSidebar() {
       </IonMenuToggle>
 
       <Separator />
+      <div className="flex-1" />
 
       <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
-        <Link to={`/settings`}>
-          <IoSettingsOutline /> Settings
+        <Link to={`/settings`} className="flex flex-row items-center gap-2">
+          <IoSettingsOutline className="text-muted-foreground" /> Settings
         </Link>
       </IonMenuToggle>
     </div>
