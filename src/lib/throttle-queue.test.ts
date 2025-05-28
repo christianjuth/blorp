@@ -1,3 +1,4 @@
+import { Fa500Px } from "react-icons/fa6";
 import { describe, test, expect, vi } from "vitest";
 
 vi.useFakeTimers();
@@ -94,24 +95,45 @@ describe("PriorityThrottleQueue", () => {
     expect(fn3.viFn).toHaveBeenCalledTimes(1);
   });
 
-  /* test("clear", async () => { */
-  /*   const interval = 5000; */
-  /*   const { PriorityThrottledQueue } = await import("./throttle-queue"); */
-  /*   const queue = new PriorityThrottledQueue(interval); */
-  /*   queue.start(); */
-  /**/
-  /*   const fn1 = mockPromise(); */
-  /*   queue.enqueue(fn1.promise).catch(() => {}); */
-  /**/
-  /*   const fn2 = mockPromise(); */
-  /*   queue.enqueue(fn2.promise).catch(() => {}); */
-  /**/
-  /*   expect(queue.getQueueLength()).toBe(2); */
-  /**/
-  /*   queue.clear(); */
-  /**/
-  /*   const fn3 = mockPromise(); */
-  /*   queue.enqueue(fn3.promise).catch(() => {}); */
-  /*   expect(queue.getQueueLength()).toBe(1); */
-  /* }); */
+  test.each([50, 100, 200, 500, 1000, 1500, 2000, 3000, 5000])(
+    "rate of throttle queue at %sms",
+    async (interval) => {
+      const { PriorityThrottledQueue } = await import("./throttle-queue");
+      const queue = new PriorityThrottledQueue(interval);
+      queue.start();
+
+      const REPEAT = 100;
+
+      const fn1 = mockPromise();
+
+      for (let i = 0; i < REPEAT; i++) {
+        queue.enqueue(fn1.promise);
+      }
+
+      await vi.advanceTimersByTime(queue.tickTime);
+      expect(fn1.viFn).toHaveBeenCalledTimes(1);
+
+      for (let i = 0; i < REPEAT - 1; i++) {
+        await vi.advanceTimersByTime(interval);
+        expect(fn1.viFn).toHaveBeenCalledTimes(i + 2);
+      }
+    },
+  );
+
+  test("queue does not auto start", async () => {
+    const interval = 5000;
+    const { PriorityThrottledQueue } = await import("./throttle-queue");
+    const queue = new PriorityThrottledQueue(interval);
+
+    const fn1 = mockPromise();
+    queue.enqueue(fn1.promise);
+
+    await vi.advanceTimersByTime(queue.tickTime + interval);
+
+    expect(fn1.viFn).toHaveBeenCalledTimes(0);
+
+    queue.start();
+    await vi.advanceTimersByTime(interval);
+    expect(fn1.viFn).toHaveBeenCalledTimes(1);
+  });
 });

@@ -1354,15 +1354,15 @@ export function useDeleteComment() {
   });
 }
 
-function usePrivateMessagesKey(form: {}) {
+function usePrivateMessagesKey() {
   const { queryKeyPrefix } = useLemmyClient();
-  return [...queryKeyPrefix, "getPrivateMessages", form];
+  return [...queryKeyPrefix, "getPrivateMessages"];
 }
 
 export function usePrivateMessages(form: {}) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client } = useLemmyClient();
-  const queryKey = usePrivateMessagesKey(form);
+  const queryKey = usePrivateMessagesKey();
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   return useThrottledInfiniteQuery({
@@ -1399,7 +1399,9 @@ export function usePrivateMessages(form: {}) {
     getNextPageParam: (prev) => prev.nextPage,
     enabled: isLoggedIn,
     refetchOnWindowFocus: "always",
+    refetchIntervalInBackground: true,
     refetchInterval: 1000 * 60,
+    refetchOnMount: "always",
   });
 }
 
@@ -1407,7 +1409,7 @@ export function useCreatePrivateMessage(recipient: Person) {
   const account = useAuth((s) => s.getSelectedAccount());
   const { person: me } = parseAccountInfo(account);
   const { client } = useLemmyClient();
-  const privateMessagesKey = usePrivateMessagesKey({});
+  const privateMessagesKey = usePrivateMessagesKey();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (form: CreatePrivateMessage) =>
@@ -1508,14 +1510,29 @@ export function usePrivateMessagesCount() {
 export function useMarkPriavteMessageRead() {
   const { client } = useLemmyClient();
   const queryClient = useQueryClient();
+  const accountIndex = useAuth((s) => s.accountIndex);
 
-  const privateMessagesKey = usePrivateMessagesKey({});
+  const privateMessagesKey = usePrivateMessagesKey();
   const privateMessageCountQueryKey = usePrivateMessageCountQueryKey();
 
   return useMutation({
     mutationFn: (form: MarkPrivateMessageAsRead) =>
       client.markPrivateMessageAsRead(form),
     onMutate: (form) => {
+      queryClient.setQueryData<number[]>(
+        privateMessageCountQueryKey,
+        (data) => {
+          if (_.isNumber(data?.[accountIndex])) {
+            const clone = [...data];
+            const prev = clone[accountIndex];
+            if (_.isNumber(prev)) {
+              clone[accountIndex] = Math.max(prev + (form.read ? -1 : 1), 0);
+            }
+            return clone;
+          }
+          return data;
+        },
+      );
       queryClient.setQueryData<
         InfiniteData<
           { private_messages: PrivateMessageView[]; nextPage: number },
@@ -1542,9 +1559,9 @@ export function useMarkPriavteMessageRead() {
       queryClient.invalidateQueries({
         queryKey: privateMessageCountQueryKey,
       });
-      /* queryClient.invalidateQueries({ */
-      /*   queryKey: [...queryKeyPrefix, "getReplies"], */
-      /* }); */
+      queryClient.invalidateQueries({
+        queryKey: privateMessagesKey,
+      });
     },
     onError: (err, { read }) => {
       if (err instanceof Error) {

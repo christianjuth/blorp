@@ -15,6 +15,7 @@ export class PriorityThrottledQueue {
   private lastResolvedAt: number;
   private stopped = true;
   private preApprovedCount = 0;
+  private loopOwner = 0;
 
   constructor(private interval: number) {
     // Pretend the "last" finished exactly `interval` ago, so the first can run immediately
@@ -73,7 +74,14 @@ export class PriorityThrottledQueue {
   }
 
   private async startLoop(): Promise<void> {
+    this.loopOwner++;
+    const owner = this.loopOwner;
+
     while (!this.stopped) {
+      if (this.loopOwner !== owner) {
+        break;
+      }
+
       // 1) Wait for something in the queue
       if (this.queue.length === 0) {
         await this.delay(this.tickTime);
@@ -91,7 +99,9 @@ export class PriorityThrottledQueue {
       }
 
       // maybe cleared while waiting
-      if (this.stopped) break;
+      if (this.stopped) {
+        break;
+      }
 
       // 3) Pull exactly one item
       this.lastResolvedAt = Date.now();
