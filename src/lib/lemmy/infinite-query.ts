@@ -56,11 +56,16 @@ export function useThrottledInfiniteQuery<
   const truncate = () => {
     const data = queryClient.getQueryData<InfiniteData<any>>(options.queryKey);
     if (data && isInfiniteQueryData(data)) {
-      queryClient.setQueryData<InfiniteData<any>>(options.queryKey, {
-        pages: data.pages.slice(0, 3),
-        pageParams: data.pageParams.slice(0, 3),
-      });
+      const pages = queryClient.setQueryData<InfiniteData<any>>(
+        options.queryKey,
+        {
+          pages: data.pages.slice(0, 3),
+          pageParams: data.pageParams.slice(0, 3),
+        },
+      );
+      return pages?.pages.length ?? 0;
     }
+    return 0;
   };
 
   const query = useInfiniteQuery({
@@ -83,10 +88,9 @@ export function useThrottledInfiniteQuery<
       return p;
     },
     refetch: (refetchOptions) => {
-      truncate();
-      const p = query.refetch(refetchOptions);
-      throttleQueue.flush();
-      return p;
+      const numPages = truncate();
+      throttleQueue.preApprove(numPages);
+      return query.refetch(refetchOptions);
     },
   };
 

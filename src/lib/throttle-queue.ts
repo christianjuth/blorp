@@ -10,20 +10,25 @@ interface QueueItem<T> {
 }
 
 export class PriorityThrottledQueue {
+  public tickTime = 50;
   private queue: QueueItem<any>[] = [];
   private lastResolvedAt: number;
   private stopped = true;
+  private preApprovedCount = 0;
 
   constructor(private interval: number) {
     // Pretend the "last" finished exactly `interval` ago, so the first can run immediately
     this.lastResolvedAt = Date.now() - interval;
-    this.startLoop();
   }
 
   enqueue<T>(task: Task<T>): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       this.queue.push({ task, resolve, reject });
     });
+  }
+
+  preApprove(count: number) {
+    this.preApprovedCount += count;
   }
 
   /**
@@ -71,14 +76,16 @@ export class PriorityThrottledQueue {
     while (!this.stopped) {
       // 1) Wait for something in the queue
       if (this.queue.length === 0) {
-        await this.delay(100);
+        await this.delay(this.tickTime);
         continue;
       }
 
       // 2) Wait until interval has passed since lastResolvedAt
       const now = Date.now();
       const since = now - this.lastResolvedAt;
-      if (since < this.interval) {
+      if (this.preApprovedCount > 0) {
+        this.preApprovedCount--;
+      } else if (since < this.interval) {
         await this.delay(this.interval - since);
         continue;
       }
@@ -87,14 +94,9 @@ export class PriorityThrottledQueue {
       if (this.stopped) break;
 
       // 3) Pull exactly one item
+      this.lastResolvedAt = Date.now();
       const { task, resolve, reject } = this.queue.shift()!;
-      task()
-        .then(resolve)
-        .catch(reject)
-        .finally(() => {
-          // 4) mark when this one actually finished
-          this.lastResolvedAt = Date.now();
-        });
+      task().then(resolve).catch(reject);
     }
   }
 

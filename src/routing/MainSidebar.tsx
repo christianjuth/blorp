@@ -33,8 +33,8 @@ import { IoSettingsOutline } from "react-icons/io5";
 
 function SidebarTabs() {
   const selectedAccountIndex = useAuth((s) => s.accountIndex);
-  const pmCount = usePrivateMessagesCount()[selectedAccountIndex];
-  const count = useNotificationCount()[selectedAccountIndex];
+  const messageCount = usePrivateMessagesCount()[selectedAccountIndex];
+  const inboxCount = useNotificationCount()[selectedAccountIndex];
   const pathname = useIonRouter().routeInfo.pathname;
 
   return (
@@ -58,9 +58,9 @@ function SidebarTabs() {
             <BadgeCount
               showBadge={
                 t.id === "inbox"
-                  ? !!count
+                  ? !!inboxCount
                   : t.id === "messages"
-                    ? !!pmCount
+                    ? !!messageCount
                     : false
               }
             >

@@ -16,7 +16,7 @@ import { Route, Redirect } from "@/src/routing/index";
 import _ from "lodash";
 import { useMedia } from "@/src/lib/hooks/index";
 import { Logo } from "@/src/components/logo";
-import { useNotificationCount } from "@/src/lib/lemmy";
+import { useNotificationCount, usePrivateMessagesCount } from "@/src/lib/lemmy";
 import { lazy } from "react";
 import { dispatchScrollEvent } from "@/src/lib/scroll-events";
 import { isTauri } from "@/src/lib/device";
@@ -232,7 +232,8 @@ const SETTINGS = [
 
 function Tabs() {
   const selectedAccountIndex = useAuth((s) => s.accountIndex);
-  const count = useNotificationCount()[selectedAccountIndex];
+  const inboxCount = useNotificationCount()[selectedAccountIndex];
+  const messageCount = usePrivateMessagesCount()[selectedAccountIndex];
   const media = useMedia();
   const pathname = useIonRouter().routeInfo.pathname;
 
@@ -351,7 +352,8 @@ function Tabs() {
                       key={isActive ? "active" : "inactive"}
                     />
                     <IonLabel>{t.label}</IonLabel>
-                    {t.id === "inbox" && !!count && (
+                    {((t.id === "inbox" && !!inboxCount) ||
+                      (t.id === "messages" && !!messageCount)) && (
                       <IonBadge className="aspect-square bg-brand"> </IonBadge>
                     )}
                   </IonTabButton>
