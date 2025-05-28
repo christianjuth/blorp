@@ -7,7 +7,7 @@ import { Separator } from "@/src/components/ui/separator";
 import { VirtualList } from "@/src/components/virtual-list";
 import { usePrivateMessages } from "@/src/lib/lemmy";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
-import { isNotNil } from "@/src/lib/utils";
+import { cn, isNotNil } from "@/src/lib/utils";
 import { Link } from "@/src/routing";
 import { parseAccountInfo, useAuth } from "@/src/stores/auth";
 import {
@@ -26,6 +26,8 @@ const EMPTY_ARR: never[] = [];
 
 function useChats() {
   const query = usePrivateMessages({});
+  const account = useAuth((s) => s.getSelectedAccount());
+  const { person: me } = parseAccountInfo(account);
 
   const chats = useMemo(() => {
     const messages = query.data?.pages.flatMap((p) => p.private_messages);
@@ -34,13 +36,21 @@ function useChats() {
       (m) => m.creator.id + m.recipient.id,
     );
     const onePerRecipient = _.values(byRecipient)
-      .map((item) => item[0])
+      .map((item) => {
+        const hasUnread = item.some(
+          (i) => i.creator.id !== me?.id && !i.private_message.read,
+        );
+        return {
+          ...item[0]!,
+          hasUnread,
+        };
+      })
       .filter(isNotNil);
     onePerRecipient.sort((a, b) =>
       b.private_message.published.localeCompare(a.private_message.published),
     );
     return onePerRecipient;
-  }, [query.data]);
+  }, [query.data, me?.id]);
 
   return {
     ...query,
@@ -84,7 +94,12 @@ export default function Messages() {
             >
               <ContentGutters>
                 <div className="overflow-hidden">
-                  <div className="flex gap-3 py-2.5">
+                  <div
+                    className={cn(
+                      "flex gap-3 my-2.5",
+                      item.hasUnread && "border-l-3 border-l-brand pl-2",
+                    )}
+                  >
                     <PersonAvatar
                       actorId={getOtherPerson(item).actor_id}
                       person={getOtherPerson(item)}
@@ -112,7 +127,12 @@ export default function Messages() {
             </Link>
           )}
           onEndReached={() => {
-            if (!chats.isFetchingNextPage && chats.hasNextPage) {
+            /* console.log({ ...chats }); */
+            if (
+              !chats.isFetching &&
+              !chats.isFetchingNextPage &&
+              chats.hasNextPage
+            ) {
               chats.fetchNextPage();
             }
           }}

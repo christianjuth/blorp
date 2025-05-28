@@ -5027,12 +5027,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-devtools@npm:5.76.0":
+  version: 5.76.0
+  resolution: "@tanstack/query-devtools@npm:5.76.0"
+  checksum: 10c0/2bee4a39c083a0260bd15e98f02d39f078d363430b74da313260ff37deb4b416d874e3a58f4691698f848076532eaf104ff2843a016aec6186dd1c39c5dd3d6f
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-persist-client-core@npm:5.75.0":
   version: 5.75.0
   resolution: "@tanstack/query-persist-client-core@npm:5.75.0"
   dependencies:
     "@tanstack/query-core": "npm:5.75.0"
   checksum: 10c0/47063f39d784897c8372bc94acbf686114616a113e29467a390963f04f7f690fe33b73d1d3257e3d8e024a3f476690a37390e80941306fd5259a25e4ea09844f
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query-devtools@npm:^5.77.2":
+  version: 5.77.2
+  resolution: "@tanstack/react-query-devtools@npm:5.77.2"
+  dependencies:
+    "@tanstack/query-devtools": "npm:5.76.0"
+  peerDependencies:
+    "@tanstack/react-query": ^5.77.2
+    react: ^18 || ^19
+  checksum: 10c0/2a3b3dd55c5dc2fbe631acd79c86e152c7cec202dcd3d2f9a870febd156d1e652c2f824677b5a15d544eba6ec1c95e4b61e3744f4dbd7b6bf6b9810b5e0a05ab
   languageName: node
   linkType: hard
 
@@ -6779,6 +6798,13 @@ __metadata:
   version: 1.0.0
   resolution: "boolbase@npm:1.0.0"
   checksum: 10c0/e4b53deb4f2b85c52be0e21a273f2045c7b6a6ea002b0e139c744cb6f95e9ec044439a52883b0d74dedd1ff3da55ed140cfdddfed7fb0cccbed373de5dce1bcf
+  languageName: node
+  linkType: hard
+
+"bottleneck@npm:^2.19.5":
+  version: 2.19.5
+  resolution: "bottleneck@npm:2.19.5"
+  checksum: 10c0/b0f72e45b2e0f56a21ba720183f16bef8e693452fb0495d997fa354e42904353a94bd8fd429868e6751bc85e54b6755190519eed5a0ae0a94a5185209ae7c6d0
   languageName: node
   linkType: hard
 
@@ -9626,6 +9652,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"immer@npm:^10.1.1":
+  version: 10.1.1
+  resolution: "immer@npm:10.1.1"
+  checksum: 10c0/b749e10d137ccae91788f41bd57e9387f32ea6d6ea8fd7eb47b23fd7766681575efc7f86ceef7fe24c3bc9d61e38ff5d2f49c2663b2b0c056e280a4510923653
+  languageName: node
+  linkType: hard
+
 "import-fresh@npm:^3.3.0":
   version: 3.3.0
   resolution: "import-fresh@npm:3.3.0"
@@ -10305,6 +10338,7 @@ __metadata:
     "@tailwindcss/vite": "npm:^4.1.7"
     "@tanstack/query-broadcast-client-experimental": "npm:5.75.0"
     "@tanstack/react-query": "npm:5.75.0"
+    "@tanstack/react-query-devtools": "npm:^5.77.2"
     "@tanstack/react-query-persist-client": "npm:5.75.0"
     "@tanstack/react-virtual": "npm:^3.13.8"
     "@tauri-apps/plugin-deep-link": "npm:~2"
@@ -10340,6 +10374,7 @@ __metadata:
     "@vitejs/plugin-react": "npm:^4.3.4"
     "@vitest/coverage-v8": "npm:3.1.1"
     "@vitest/ui": "npm:3.1.1"
+    bottleneck: "npm:^2.19.5"
     bowser: "npm:^2.11.0"
     capacitor-plugin-safe-area: "npm:^4.0.0"
     chromatic: "npm:^11.25.1"
@@ -10353,6 +10388,7 @@ __metadata:
     html-react-parser: "npm:^5.2.3"
     husky: "npm:^9.1.7"
     idb: "npm:^8.0.0"
+    immer: "npm:^10.1.1"
     input-otp: "npm:^1.4.2"
     jsdom: "npm:^26.0.0"
     lemmy-js-client: "npm:0.20.0-alpha.18"
@@ -10365,7 +10401,9 @@ __metadata:
     markdown-it: "npm:^14.1.0"
     markdown-it-container: "npm:^4.0.0"
     oxlint: "npm:^0.16.10"
+    p-queue: "npm:^8.1.0"
     p-retry: "npm:^6.2.1"
+    p-throttle: "npm:^7.0.0"
     path-to-regexp: "npm:^8.2.0"
     prettier: "npm:3.4.1"
     prosemirror-model: "npm:^1.25.0"
@@ -11847,6 +11885,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"p-queue@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "p-queue@npm:8.1.0"
+  dependencies:
+    eventemitter3: "npm:^5.0.1"
+    p-timeout: "npm:^6.1.2"
+  checksum: 10c0/6bdea170840546769c29682fed212745c951933476761ed3a981967fab624c7c0120dff79bd99a1ac8b650b420719a245813e944af4b8ee77d4dd78adbf5fe75
+  languageName: node
+  linkType: hard
+
 "p-retry@npm:^6.2.1":
   version: 6.2.1
   resolution: "p-retry@npm:6.2.1"
@@ -11858,12 +11906,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"p-throttle@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "p-throttle@npm:7.0.0"
+  checksum: 10c0/7a9ca80826808b3d7f946369fc17a0ba020064c1bda9a5dfa74d2c9713f896576cdc4872bd61091ef2950d6a84072cac672bb1eb88a8b6a0c9e348d030623fc1
+  languageName: node
+  linkType: hard
+
 "p-timeout@npm:^3.2.0":
   version: 3.2.0
   resolution: "p-timeout@npm:3.2.0"
   dependencies:
     p-finally: "npm:^1.0.0"
   checksum: 10c0/524b393711a6ba8e1d48137c5924749f29c93d70b671e6db761afa784726572ca06149c715632da8f70c090073afb2af1c05730303f915604fd38ee207b70a61
+  languageName: node
+  linkType: hard
+
+"p-timeout@npm:^6.1.2":
+  version: 6.1.4
+  resolution: "p-timeout@npm:6.1.4"
+  checksum: 10c0/019edad1c649ab07552aa456e40ce7575c4b8ae863191477f02ac8d283ac8c66cedef0ca93422735130477a051dfe952ba717641673fd3599befdd13f63bcc33
   languageName: node
   linkType: hard
 

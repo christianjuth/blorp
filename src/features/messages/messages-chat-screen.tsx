@@ -1,7 +1,11 @@
 import { ContentGutters } from "@/src/components/gutters";
 import { MarkdownRenderer } from "@/src/components/markdown/renderer";
 import { UserDropdown } from "@/src/components/nav";
-import { useCreatePrivateMessage, usePrivateMessages } from "@/src/lib/lemmy";
+import {
+  useCreatePrivateMessage,
+  useMarkPriavteMessageRead,
+  usePrivateMessages,
+} from "@/src/lib/lemmy";
 import { createSlug, decodeApId } from "@/src/lib/lemmy/utils";
 import { cn } from "@/src/lib/utils";
 import { useParams } from "@/src/routing";
@@ -30,6 +34,7 @@ import { Person } from "lemmy-js-client";
 dayjs.extend(updateLocale);
 
 export default function Messages() {
+  const markMessageRead = useMarkPriavteMessageRead();
   const otherActorId = decodeApId(useParams("/messages/chat/:userId").userId);
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -69,6 +74,22 @@ export default function Messages() {
 
   const account = useAuth((s) => s.getSelectedAccount());
   const { person: me } = parseAccountInfo(account);
+
+  useEffect(() => {
+    const fn = async () => {
+      if (data && me) {
+        for (const { private_message } of data) {
+          if (!private_message.read && private_message.creator_id !== me?.id) {
+            await markMessageRead.mutateAsync({
+              private_message_id: private_message.id,
+              read: true,
+            });
+          }
+        }
+      }
+    };
+    fn();
+  }, [data, me]);
 
   const ref = useRef<VListHandle>(null);
   useEffect(() => {
@@ -171,25 +192,31 @@ function ComposeMessage({
   return (
     <ContentGutters>
       <form
-        className="py-1 flex items-center"
+        className="my-1 flex items-center gap-2 border rounded-2xl pr-1 focus-within:ring"
         onSubmit={(e) => {
           e.preventDefault();
-          createPrivateMessage.mutateAsync({
-            content,
-            recipient_id: recipient.id,
-          });
-          onSubmit();
-          setContent("");
+          if (content.trim().length > 0) {
+            createPrivateMessage.mutateAsync({
+              content,
+              recipient_id: recipient.id,
+            });
+            onSubmit();
+            setContent("");
+          }
         }}
       >
         <TextareaAutosize
           placeholder="Message"
-          className="border px-2 py-0.5 rounded-lg flex-1"
+          className="pl-3 py-1 flex-1 outline-none resize-none min-h-8"
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-        <Button size="icon" variant="ghost" className="-rotate-90">
-          <Send className="text-brand" />
+        <Button
+          size="icon"
+          variant={content.length === 0 ? "secondary" : "default"}
+          className="-rotate-90 h-6.5 w-6.5"
+        >
+          <Send />
         </Button>
       </form>
     </ContentGutters>

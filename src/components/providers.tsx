@@ -1,5 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 import {
+  PersistedClient,
   Persister,
   PersistQueryClientProvider,
 } from "@tanstack/react-query-persist-client";
@@ -13,15 +14,50 @@ import { createDb } from "../lib/create-storage";
 import pRetry from "p-retry";
 import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
 import { Toaster } from "@/src/components/ui/sonner";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 // List the last reason for bumping the key:
 // Caching creator profiles when fetching comments
 const REACT_QUERY_CACHE_VERSON = 6;
 
+function pruneInfinitePages(client: PersistedClient): PersistedClient {
+  const cacheState = client.clientState;
+  return {
+    ...client,
+    clientState: {
+      ...cacheState,
+      queries: cacheState.queries.map((q: any) => {
+        const data = q.state.data;
+        if (
+          data &&
+          typeof data === "object" &&
+          Array.isArray(data.pages) &&
+          Array.isArray(data.pageParams)
+        ) {
+          return {
+            ...q,
+            state: {
+              ...q.state,
+              data: {
+                pages: data.pages.slice(0, 3),
+                pageParams: data.pageParams.slice(0, 3),
+              },
+            },
+          };
+        }
+        return q;
+      }),
+    },
+  };
+}
+
 const db = createDb("react-query");
 const persister: Persister = {
   persistClient: async (client) => {
-    await db.setItem("react-query-cache", JSON.stringify(client));
+    await db.setItem(
+      "react-query-cache",
+      JSON.stringify(pruneInfinitePages(client)),
+    );
   },
   restoreClient: async () => {
     try {
@@ -80,6 +116,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <RefreshNotificationCount />
       <AuthProvider>{children}</AuthProvider>
       <Toaster />
+      <ReactQueryDevtools />
     </PersistQueryClientProvider>
   );
 }

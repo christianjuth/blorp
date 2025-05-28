@@ -7,6 +7,7 @@ import { useAuth } from "@/src/stores/auth";
 import {
   useModeratingCommunities,
   useNotificationCount,
+  usePrivateMessagesCount,
   useSubscribedCommunities,
 } from "@/src/lib/lemmy";
 import { CommunityCard } from "@/src/components/communities/community-card";
@@ -32,6 +33,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 
 function SidebarTabs() {
   const selectedAccountIndex = useAuth((s) => s.accountIndex);
+  const pmCount = usePrivateMessagesCount()[selectedAccountIndex];
   const count = useNotificationCount()[selectedAccountIndex];
   const pathname = useIonRouter().routeInfo.pathname;
 
@@ -53,7 +55,15 @@ function SidebarTabs() {
               isActive ? "bg-secondary" : "text-muted-foreground",
             )}
           >
-            <BadgeCount showBadge={t.id === "inbox" && !!count}>
+            <BadgeCount
+              showBadge={
+                t.id === "inbox"
+                  ? !!count
+                  : t.id === "messages"
+                    ? !!pmCount
+                    : false
+              }
+            >
               <IonIcon
                 icon={t.icon(isActive)}
                 key={isActive ? "active" : "inactive"}
