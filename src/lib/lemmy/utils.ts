@@ -15,19 +15,19 @@ export type Slug = {
 };
 
 export function createSlug(
-  object: { actor_id: string },
+  object: { actor_id: string } | { ap_id: string },
   throwOnError: true,
 ): Slug;
 export function createSlug(
-  object: { actor_id: string },
+  object: { actor_id: string } | { ap_id: string },
   throwOnError?: false,
 ): Slug | null;
 export function createSlug(
-  object: { actor_id: string },
+  object: { actor_id: string } | { ap_id: string },
   throwOnError = false,
 ): Slug | null {
   try {
-    const url = new URL(object.actor_id);
+    const url = new URL("actor_id" in object ? object.actor_id : object.ap_id);
     const path = url.pathname.split("/");
     if (!path[2]) {
       if (throwOnError) {
