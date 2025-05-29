@@ -37,6 +37,7 @@ import { useFiltersStore } from "../stores/filters";
 import { useAuth } from "../stores/auth";
 import z from "zod";
 import { PersonSidebar } from "../components/person/person-sidebar";
+import { PersonActionMenu } from "../components/person/person-action-menu";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item = typeof NO_ITEMS | PostProps | CommentView;
@@ -204,6 +205,9 @@ export default function User() {
                   </>
                 )}
               </div>
+            </IonButtons>
+            <IonButtons slot="end">
+              <PersonActionMenu person={person} />
             </IonButtons>
           </IonToolbar>
         )}

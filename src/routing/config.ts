@@ -9,6 +9,8 @@ import {
   cogOutline,
   create,
   createOutline,
+  chatbubble,
+  chatbubbleOutline,
 } from "ionicons/icons";
 
 export const TABS: {
@@ -42,10 +44,10 @@ export const TABS: {
     id: "inbox",
   },
   {
-    icon: (isActive) => (isActive ? cog : cogOutline),
-    to: "/settings",
-    label: "Settings",
-    id: "settings",
+    icon: (isActive) => (isActive ? chatbubble : chatbubbleOutline),
+    to: "/messages",
+    label: "Messages",
+    id: "messages",
   },
 ];
 

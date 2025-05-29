@@ -17,7 +17,7 @@ import {
 } from "@/src/components/ui/avatar";
 import { useRequireAuth } from "./auth-context";
 import { IonMenuButton, IonMenuToggle } from "@ionic/react";
-import { IoPerson } from "react-icons/io5";
+import { IoPerson, IoSettings, IoSettingsOutline } from "react-icons/io5";
 import { useLogout, useNotificationCount } from "../lib/lemmy";
 import { LuMenu } from "react-icons/lu";
 import { Button } from "./ui/button";
@@ -60,14 +60,6 @@ export function UserDropdown() {
   const count = _.sum(counts.filter((_, i) => i !== selectedAccountIndex));
 
   const { person, instance } = parseAccountInfo(selectedAccount);
-
-  if (!person && accounts.length <= 1) {
-    return (
-      <Button size="sm" onClick={() => requireAuth()}>
-        Login
-      </Button>
-    );
-  }
 
   const content = (
     <BadgeCount showBadge={!!count}>
@@ -191,6 +183,14 @@ export function UserDropdown() {
             <IoPersonAddOutline />
             Add account
           </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <Link to={`/settings`}>
+            <DropdownMenuItem>
+              <IoSettingsOutline /> Settings
+            </DropdownMenuItem>
+          </Link>
         </>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -211,7 +211,7 @@ export function UserSidebar() {
   const { person, instance } = parseAccountInfo(selectedAccount);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 min-h-full pb-[var(--ion-safe-area-bottom)]">
       <div className="flex items-center gap-3">
         <Avatar className="h-12 w-12" key={person?.id}>
           {person && <AvatarImage src={person.avatar} />}
@@ -318,6 +318,15 @@ export function UserSidebar() {
           <IoPersonAddOutline className="text-muted-foreground" />
           Add account
         </button>
+      </IonMenuToggle>
+
+      <Separator />
+      <div className="flex-1" />
+
+      <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
+        <Link to={`/settings`} className="flex flex-row items-center gap-2">
+          <IoSettingsOutline className="text-muted-foreground" /> Settings
+        </Link>
       </IonMenuToggle>
     </div>
   );

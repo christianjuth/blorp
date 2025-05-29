@@ -264,7 +264,7 @@ export function CommentSortSelect({ className }: { className?: string }) {
           size="sm"
           variant="ghost"
           className={cn(
-            "text-md font-normal text-brand hover:text-brand",
+            "text-md font-normal text-muted-foreground hover:text-brand",
             className,
           )}
           asChild
@@ -446,7 +446,7 @@ export function PostSortButton({
             {getIconForSort(postSort)}
           </Button>
         ) : (
-          <div className={cn("text-xl", className)}>
+          <div className={cn("text-xl text-muted-foreground", className)}>
             {getIconForSort(postSort)}
           </div>
         )

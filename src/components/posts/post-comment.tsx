@@ -23,7 +23,7 @@ import {
 import { cn } from "@/src/lib/utils";
 import { ActionMenu } from "../adaptable/action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
-import { useIonAlert } from "@ionic/react";
+import { useIonAlert, useIonRouter } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
 import { PersonHoverCard } from "../person/person-hover-card";
 import { useAuth } from "@/src/stores/auth";
@@ -243,6 +243,8 @@ export function PostComment({
     parent: commentView,
   });
 
+  const router = useIonRouter();
+
   if (!commentView) {
     return null;
   }
@@ -404,6 +406,17 @@ export function PostComment({
                       } as const,
                     ]
                   : [
+                      {
+                        text: `Message ${creator.name}`,
+                        onClick: () =>
+                          requireAuth().then(() =>
+                            router.push(
+                              resolveRoute("/messages/chat/:userId", {
+                                userId: encodeApId(creator.actor_id),
+                              }),
+                            ),
+                          ),
+                      } as const,
                       {
                         text: "Report",
                         onClick: () =>

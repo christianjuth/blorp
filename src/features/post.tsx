@@ -30,16 +30,19 @@ import {
   IonContent,
   IonHeader,
   IonPage,
+  IonSearchbar,
   IonTitle,
   IonToolbar,
+  useIonRouter,
 } from "@ionic/react";
-import { useParams } from "@/src/routing/index";
+import { resolveRoute, useParams } from "@/src/routing/index";
 import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
 import { useIonPageElement, useMedia, useTheme } from "../lib/hooks";
 import { NotFound } from "./not-found";
 import { CommentSkeleton } from "../components/comments/comment-skeleton";
 import { useLinkContext } from "../routing/link-context";
+import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -100,6 +103,7 @@ export default function Post() {
   } = useParams(
     `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
   );
+  const [search, setSearch] = useState("");
 
   const decodedApId = apId ? decodeURIComponent(apId) : undefined;
 
@@ -179,6 +183,8 @@ export default function Post() {
 
   const pageElement = useIonPageElement();
 
+  const router = useIonRouter();
+
   if (!decodedApId || (postQuery.isError && !post)) {
     return <NotFound />;
   }
@@ -207,11 +213,33 @@ export default function Post() {
         >
           <IonButtons slot="start" className="gap-2">
             <IonBackButton text="" />
-            <span className="font-bold max-w-[calc(100vw-180px)] overflow-hidden overflow-ellipsis md:hidden max-md:text-white">
+            <ToolbarTitle className="md:hidden" size="sm">
               {communityName}
-            </span>
+            </ToolbarTitle>
           </IonButtons>
-          <IonTitle className="max-md:hidden">{communityName}</IonTitle>
+          <form
+            className="max-md:hidden"
+            onSubmit={(e) => {
+              e.preventDefault();
+              router.push(
+                resolveRoute(
+                  `${linkCtx.root}c/:communityName/s`,
+                  {
+                    communityName,
+                  },
+                  `?s=${search}`,
+                ),
+              );
+            }}
+            data-tauri-drag-region
+          >
+            <IonSearchbar
+              className="max-w-md mx-auto"
+              placeholder={`Search ${communityName}`}
+              value={search}
+              onIonInput={(e) => setSearch(e.detail.value ?? "")}
+            />
+          </form>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

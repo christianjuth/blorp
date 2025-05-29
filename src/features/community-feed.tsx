@@ -45,6 +45,7 @@ import { FaArrowUp } from "react-icons/fa6";
 import { useAuth } from "../stores/auth";
 import { useMedia, useTheme } from "../lib/hooks";
 import { CommunityFeedSortBar } from "../components/communities/community-feed-sort-bar";
+import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 
 const EMPTY_ARR: never[] = [];
 
@@ -144,9 +145,9 @@ export default function CommunityFeed() {
         >
           <IonButtons slot="start" className="gap-2">
             <IonBackButton text="" />
-            <span className="font-bold max-w-[calc(100vw-180px)] overflow-hidden overflow-ellipsis md:hidden max-md:text-white">
+            <ToolbarTitle size="sm" className="md:hidden max-md:text-white">
               {communityName}
-            </span>
+            </ToolbarTitle>
           </IonButtons>
           <form
             onSubmit={(e) => {
@@ -157,7 +158,6 @@ export default function CommunityFeed() {
             className="max-md:hidden"
           >
             <IonSearchbar
-              mode="ios"
               className="max-w-md mx-auto"
               placeholder={`Search ${communityName}`}
               value={search}
@@ -178,7 +178,7 @@ export default function CommunityFeed() {
               />
             </Link>
             <div className="md:hidden contents">
-              <PostSortButton align="end" className="text-brand" />
+              <PostSortButton align="end" />
             </div>
             <UserDropdown />
           </IonButtons>

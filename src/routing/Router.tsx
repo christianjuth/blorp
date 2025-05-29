@@ -16,7 +16,7 @@ import { Route, Redirect } from "@/src/routing/index";
 import _ from "lodash";
 import { useMedia } from "@/src/lib/hooks/index";
 import { Logo } from "@/src/components/logo";
-import { useNotificationCount } from "@/src/lib/lemmy";
+import { useNotificationCount, usePrivateMessagesCount } from "@/src/lib/lemmy";
 import { lazy } from "react";
 import { dispatchScrollEvent } from "@/src/lib/scroll-events";
 import { isTauri } from "@/src/lib/device";
@@ -33,6 +33,10 @@ const CSAE = lazy(() => import("@/src/features/csae"));
 const NotFound = lazy(() => import("@/src/features/not-found"));
 const Download = lazy(() => import("@/src/features/download"));
 const Inbox = lazy(() => import("@/src/features/inbox"));
+const Messages = lazy(() => import("@/src/features/messages/messages-screen"));
+const MessagesChat = lazy(
+  () => import("@/src/features/messages/messages-chat-screen"),
+);
 const Privacy = lazy(() => import("@/src/features/privacy"));
 const OSLicenses = lazy(() => import("@/src/features/licenses"));
 const Terms = lazy(() => import("@/src/features/terms"));
@@ -204,6 +208,17 @@ const INBOX_STACK = [
   />,
 ];
 
+const MESSAGES_STACK = [
+  <Route key="/messages/*" path="/messages/*" component={NotFound} />,
+  <Route key="/message" exact path="/messages" component={Messages} />,
+  <Route
+    key="/message/chat/:userId"
+    exact
+    path="/messages/chat/:userId"
+    component={MessagesChat}
+  />,
+];
+
 const SETTINGS = [
   <Route key="/settings/*" path="/settings/*" component={NotFound} />,
   <Route key="/settings" exact path="/settings" component={SettingsPage} />,
@@ -217,7 +232,8 @@ const SETTINGS = [
 
 function Tabs() {
   const selectedAccountIndex = useAuth((s) => s.accountIndex);
-  const count = useNotificationCount()[selectedAccountIndex];
+  const inboxCount = useNotificationCount()[selectedAccountIndex];
+  const messageCount = usePrivateMessagesCount()[selectedAccountIndex];
   const media = useMedia();
   const pathname = useIonRouter().routeInfo.pathname;
 
@@ -279,7 +295,7 @@ function Tabs() {
                 <MainSidebar />
               </div>
 
-              <div className="h-[var(--ion-safe-area-buttom)]" />
+              <div className="h-[var(--ion-safe-area-bottom)]" />
             </div>
           </IonContent>
         </IonMenu>
@@ -291,6 +307,7 @@ function Tabs() {
               {...COMMUNITIES_STACK}
               {...CREATE_POST_STACK}
               {...INBOX_STACK}
+              {...MESSAGES_STACK}
               {...SETTINGS}
               <Redirect
                 key="/c/:communityName"
@@ -335,7 +352,8 @@ function Tabs() {
                       key={isActive ? "active" : "inactive"}
                     />
                     <IonLabel>{t.label}</IonLabel>
-                    {t.id === "inbox" && !!count && (
+                    {((t.id === "inbox" && !!inboxCount) ||
+                      (t.id === "messages" && !!messageCount)) && (
                       <IonBadge className="aspect-square bg-brand"> </IonBadge>
                     )}
                   </IonTabButton>

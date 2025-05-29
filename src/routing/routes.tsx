@@ -52,6 +52,10 @@ export const routeDefs = {
   ),
   ...buildRoute("/communities/u/:userId", userSchema),
   ...buildRoute("/communities/saved"),
+  // Messages
+  ...buildRoute("/messages/*"),
+  ...buildRoute("/messages"),
+  ...buildRoute("/messages/chat/:userId", userSchema),
   // Inbox
   ...buildRoute("/inbox"),
   ...buildRoute("/inbox/*"),

@@ -27,30 +27,37 @@ import {
   MarkPersonMentionAsRead,
   BlockCommunity,
   GetSiteResponse,
+  CreatePrivateMessage,
+  PrivateMessageView,
+  MarkPrivateMessageAsRead,
 } from "lemmy-js-client";
 import {
   useQuery,
-  useInfiniteQuery,
   InfiniteData,
   useQueryClient,
   useMutation,
-  UseInfiniteQueryOptions,
-  DefaultError,
-  QueryKey,
-  UseInfiniteQueryResult,
 } from "@tanstack/react-query";
 import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "@/src/stores/filters";
-import { Account, getCachePrefixer, useAuth } from "../../stores/auth";
-import { useEffect, useMemo, useRef } from "react";
+import {
+  Account,
+  getCachePrefixer,
+  parseAccountInfo,
+  useAuth,
+} from "../../stores/auth";
+import { useMemo, useRef } from "react";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
 import { useSettingsStore } from "../../stores/settings";
 import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
-import { useThrottleQueue } from "../throttle-queue";
 import { useCommunitiesStore } from "../../stores/communities";
-import { createSlug, FlattenedPost, flattenPost } from "./utils";
+import {
+  createSlug,
+  FlattenedPost,
+  flattenPost,
+  lemmyTimestamp,
+} from "./utils";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useIonRouter } from "@ionic/react";
 import { toast } from "sonner";
@@ -60,6 +67,11 @@ import {
   draftToEditPostData,
 } from "@/src/stores/create-post";
 import { env } from "@/src/env";
+import {
+  isInfiniteQueryData,
+  useThrottledInfiniteQuery,
+} from "./infinite-query";
+import { produce } from "immer";
 
 enum Errors {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -630,7 +642,6 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
     getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: "init",
     notifyOnChangeProps: "all",
-    staleTime: form.saved_only ? 0 : Infinity,
     refetchOnWindowFocus: false,
     refetchInterval: false,
     enabled: enabled && (form.type_ === "Subscribed" ? isLoggedIn : true),
@@ -650,117 +661,6 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
     ...query,
     prefetch,
   };
-}
-
-function isInfiniteQueryData(data: any): data is InfiniteData<any> {
-  return (
-    data &&
-    typeof data === "object" &&
-    Array.isArray(data.pages) &&
-    Array.isArray(data.pageParams)
-  );
-}
-
-const warmedInfiniteQueryKeys = new Map<string, boolean>();
-
-function useThrottledInfiniteQuery<
-  TQueryFnData,
-  TError = DefaultError,
-  TData = InfiniteData<TQueryFnData>,
-  TQueryKey extends QueryKey = QueryKey,
-  TPageParam = unknown,
->(
-  options: UseInfiniteQueryOptions<
-    TQueryFnData,
-    TError,
-    TData,
-    TQueryFnData,
-    TQueryKey,
-    TPageParam
-  >,
-) {
-  const queryClient = useQueryClient();
-  const throttleQueue = useThrottleQueue(options.queryKey);
-  const queryFn = options.queryFn;
-
-  // Used to check if we are in an active route
-  // but now we do this from within the list virtualizer.
-  // Leaving this here for now as we may want to add it back
-  const focused = true;
-
-  //useEffect(() => {
-  //  if (focused) {
-  //    throttleQueue.play();
-  //  } else {
-  //    throttleQueue.pause();
-  //  }
-  //}, [throttleQueue, focused]);
-
-  const queryKeyStr = options.queryKey.join("-");
-  const isWarmed = warmedInfiniteQueryKeys.get(queryKeyStr) ?? false;
-
-  const query = useInfiniteQuery({
-    refetchOnMount: isWarmed ? false : "always",
-    ...options,
-    ...(_.isFunction(queryFn)
-      ? {
-          queryFn: (ctx: any) => {
-            return throttleQueue.enqueue<TQueryFnData>(async () => {
-              warmedInfiniteQueryKeys.set(queryKeyStr, true);
-              return await queryFn(ctx);
-            });
-          },
-        }
-      : {}),
-  });
-  const extendedQuery: UseInfiniteQueryResult<TData, TError> = {
-    ...query,
-    fetchNextPage: () => {
-      if (focused) {
-        const p = query.fetchNextPage();
-        throttleQueue.flush();
-        return p;
-      }
-      return undefined as any;
-    },
-    refetch: (refetchOptions) => {
-      throttleQueue.clear();
-      queryClient.setQueryData<InfiniteData<any>>(options.queryKey, (data) => {
-        if (isInfiniteQueryData(data)) {
-          return {
-            pages: data.pages.slice(0, 1),
-            pageParams: data.pageParams.slice(0, 1),
-          };
-        }
-        return data;
-      });
-      return query.refetch(refetchOptions);
-    },
-  };
-
-  const queryWithTruncate = {
-    ...extendedQuery,
-    truncatePages: () => {
-      queryClient.setQueryData<InfiniteData<any>>(options.queryKey, (data) => {
-        if (isInfiniteQueryData(data)) {
-          return {
-            pages: data.pages.slice(0, 1),
-            pageParams: data.pageParams.slice(0, 1),
-          };
-        }
-        return data;
-      });
-    },
-  };
-
-  useEffect(() => {
-    const isWarmed = warmedInfiniteQueryKeys.get(queryKeyStr) ?? false;
-    if (!isWarmed) {
-      queryWithTruncate.truncatePages();
-    }
-  }, [queryKeyStr]);
-
-  return queryWithTruncate;
 }
 
 export function useListCommunities(form: ListCommunities) {
@@ -995,7 +895,7 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
 
 function useRefreshAuthKey() {
   const accounts = useAuth((s) => s.accounts);
-  return accounts.map((a) => Boolean(a.jwt));
+  return ["refreshAuth", ...accounts.map((a) => Boolean(a.jwt))];
 }
 
 export function useRefreshAuth() {
@@ -1065,6 +965,8 @@ export function useRefreshAuth() {
       if (logoutIndicies.length > 0) {
         logoutMultiple(logoutIndicies);
       }
+
+      return {};
     },
     //onError: (err: any) => {
     //  console.log("Err", err);
@@ -1452,10 +1354,231 @@ export function useDeleteComment() {
   });
 }
 
+function usePrivateMessagesKey() {
+  const { queryKeyPrefix } = useLemmyClient();
+  return [...queryKeyPrefix, "getPrivateMessages"];
+}
+
+export function usePrivateMessages(form: {}) {
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+  const { client } = useLemmyClient();
+  const queryKey = usePrivateMessagesKey();
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
+  return useThrottledInfiniteQuery({
+    queryKey,
+    queryFn: async ({ pageParam, signal }) => {
+      const limit = 50;
+      const { private_messages } = await client.getPrivateMessages(
+        {
+          ...form,
+          page: pageParam,
+          limit,
+        },
+        {
+          signal,
+        },
+      );
+      const profiles = _.uniqBy(
+        [
+          ...private_messages.map((pm) => pm.creator),
+          ...private_messages.map((pm) => pm.recipient),
+        ],
+        "actor_id",
+      );
+      cacheProfiles(
+        getCachePrefixer(),
+        profiles.map((person) => ({ person })),
+      );
+      return {
+        private_messages,
+        nextPage: private_messages.length < limit ? null : pageParam + 1,
+      };
+    },
+    initialPageParam: 1,
+    getNextPageParam: (prev) => prev.nextPage,
+    enabled: isLoggedIn,
+    refetchOnWindowFocus: "always",
+    refetchIntervalInBackground: true,
+    refetchInterval: 1000 * 60,
+    refetchOnMount: "always",
+  });
+}
+
+export function useCreatePrivateMessage(recipient: Person) {
+  const account = useAuth((s) => s.getSelectedAccount());
+  const { person: me } = parseAccountInfo(account);
+  const { client } = useLemmyClient();
+  const privateMessagesKey = usePrivateMessagesKey();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (form: CreatePrivateMessage) =>
+      client.createPrivateMessage(form),
+    onMutate: (ctx) => {
+      if (me) {
+        const pm: PrivateMessageView = {
+          creator: {
+            ...me,
+          },
+          recipient,
+          private_message: {
+            id: -1 * _.random(),
+            creator_id: me?.id,
+            deleted: false,
+            read: false,
+            published: lemmyTimestamp(),
+            local: false,
+            ap_id: "",
+            ...ctx,
+          },
+        };
+        queryClient.setQueryData<
+          InfiniteData<
+            { private_messages: PrivateMessageView[]; nextPage: number },
+            number
+          >
+        >(privateMessagesKey, (data) => {
+          if (isInfiniteQueryData(data)) {
+            const pages = [...data.pages];
+            if (_.isArray(pages[0]?.private_messages)) {
+              pages[0] = _.cloneDeep(pages[0]);
+              pages[0].private_messages.unshift(pm);
+            }
+            return {
+              ...data,
+              pages,
+            };
+          }
+          return data;
+        });
+      }
+    },
+  });
+}
+
+function usePrivateMessageCountQueryKey() {
+  const queryKey = ["privateMessageCount"];
+  return queryKey;
+}
+
+export function usePrivateMessagesCount() {
+  const isLoggedIn = useAuth((a) => a.isLoggedIn());
+
+  const queryKey = usePrivateMessageCountQueryKey();
+  const accounts = useAuth((s) => s.accounts);
+
+  const { data } = useQuery({
+    queryKey,
+    queryFn: async ({ signal }) => {
+      const counts: number[] = [];
+
+      for (const account of accounts) {
+        if (!account.jwt) {
+          counts.push(0);
+          continue;
+        }
+        const { person: me } = parseAccountInfo(account);
+        const client = new LemmyHttp(account.instance, {
+          headers: {
+            ...DEFAULT_HEADERS,
+            Authorization: `Bearer ${account.jwt}`,
+          },
+        });
+        const { private_messages } = await client.getPrivateMessages(
+          {
+            unread_only: true,
+            limit: 50,
+          },
+          { signal },
+        );
+        counts.push(
+          private_messages.filter((pm) => pm.creator.id !== me?.id).length,
+        );
+      }
+
+      return counts;
+    },
+    enabled: isLoggedIn,
+    refetchInterval: 1000 * 60,
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: "always",
+  });
+
+  return data ?? EMPTY_ARR;
+}
+
+export function useMarkPriavteMessageRead() {
+  const { client } = useLemmyClient();
+  const queryClient = useQueryClient();
+  const accountIndex = useAuth((s) => s.accountIndex);
+
+  const privateMessagesKey = usePrivateMessagesKey();
+  const privateMessageCountQueryKey = usePrivateMessageCountQueryKey();
+
+  return useMutation({
+    mutationFn: (form: MarkPrivateMessageAsRead) =>
+      client.markPrivateMessageAsRead(form),
+    onMutate: (form) => {
+      queryClient.setQueryData<number[]>(
+        privateMessageCountQueryKey,
+        (data) => {
+          if (_.isNumber(data?.[accountIndex])) {
+            const clone = [...data];
+            const prev = clone[accountIndex];
+            if (_.isNumber(prev)) {
+              clone[accountIndex] = Math.max(prev + (form.read ? -1 : 1), 0);
+            }
+            return clone;
+          }
+          return data;
+        },
+      );
+      queryClient.setQueryData<
+        InfiniteData<
+          { private_messages: PrivateMessageView[]; nextPage: number },
+          number
+        >
+      >(privateMessagesKey, (data) => {
+        if (isInfiniteQueryData(data)) {
+          return produce(data, (draftState) => {
+            for (const page of draftState.pages) {
+              const messageIndex = page.private_messages.findIndex(
+                (pm) => pm.private_message.id === form.private_message_id,
+              );
+              if (messageIndex >= 0 && page.private_messages[messageIndex]) {
+                page.private_messages[messageIndex].private_message.read =
+                  form.read;
+              }
+            }
+          });
+        }
+        return data;
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: privateMessageCountQueryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: privateMessagesKey,
+      });
+    },
+    onError: (err, { read }) => {
+      if (err instanceof Error) {
+        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      } else {
+        toast.error(`Couldn't mark message ${read ? "read" : "unread"}`);
+      }
+    },
+  });
+}
+
 export function useReplies(form: GetReplies) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
   const queryKey = [...queryKeyPrefix, "getReplies", form];
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
@@ -1468,6 +1591,14 @@ export function useReplies(form: GetReplies) {
         {
           signal,
         },
+      );
+      const profiles = _.uniqBy(
+        replies.map((pm) => pm.creator),
+        "actor_id",
+      );
+      cacheProfiles(
+        getCachePrefixer(),
+        profiles.map((person) => ({ person })),
       );
       return {
         replies,
@@ -1485,6 +1616,8 @@ export function usePersonMentions(form: GetPersonMentions) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { client, queryKeyPrefix } = useLemmyClient();
   const queryKey = [...queryKeyPrefix, "getPersonMentions", form];
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
@@ -1497,6 +1630,14 @@ export function usePersonMentions(form: GetPersonMentions) {
         {
           signal,
         },
+      );
+      const profiles = _.uniqBy(
+        mentions.map((pm) => pm.creator),
+        "actor_id",
+      );
+      cacheProfiles(
+        getCachePrefixer(),
+        profiles.map((person) => ({ person })),
       );
       return {
         mentions,

@@ -5027,12 +5027,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-devtools@npm:5.76.0":
+  version: 5.76.0
+  resolution: "@tanstack/query-devtools@npm:5.76.0"
+  checksum: 10c0/2bee4a39c083a0260bd15e98f02d39f078d363430b74da313260ff37deb4b416d874e3a58f4691698f848076532eaf104ff2843a016aec6186dd1c39c5dd3d6f
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-persist-client-core@npm:5.75.0":
   version: 5.75.0
   resolution: "@tanstack/query-persist-client-core@npm:5.75.0"
   dependencies:
     "@tanstack/query-core": "npm:5.75.0"
   checksum: 10c0/47063f39d784897c8372bc94acbf686114616a113e29467a390963f04f7f690fe33b73d1d3257e3d8e024a3f476690a37390e80941306fd5259a25e4ea09844f
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query-devtools@npm:^5.77.2":
+  version: 5.77.2
+  resolution: "@tanstack/react-query-devtools@npm:5.77.2"
+  dependencies:
+    "@tanstack/query-devtools": "npm:5.76.0"
+  peerDependencies:
+    "@tanstack/react-query": ^5.77.2
+    react: ^18 || ^19
+  checksum: 10c0/2a3b3dd55c5dc2fbe631acd79c86e152c7cec202dcd3d2f9a870febd156d1e652c2f824677b5a15d544eba6ec1c95e4b61e3744f4dbd7b6bf6b9810b5e0a05ab
   languageName: node
   linkType: hard
 
@@ -9626,6 +9645,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"immer@npm:^10.1.1":
+  version: 10.1.1
+  resolution: "immer@npm:10.1.1"
+  checksum: 10c0/b749e10d137ccae91788f41bd57e9387f32ea6d6ea8fd7eb47b23fd7766681575efc7f86ceef7fe24c3bc9d61e38ff5d2f49c2663b2b0c056e280a4510923653
+  languageName: node
+  linkType: hard
+
 "import-fresh@npm:^3.3.0":
   version: 3.3.0
   resolution: "import-fresh@npm:3.3.0"
@@ -10305,6 +10331,7 @@ __metadata:
     "@tailwindcss/vite": "npm:^4.1.7"
     "@tanstack/query-broadcast-client-experimental": "npm:5.75.0"
     "@tanstack/react-query": "npm:5.75.0"
+    "@tanstack/react-query-devtools": "npm:^5.77.2"
     "@tanstack/react-query-persist-client": "npm:5.75.0"
     "@tanstack/react-virtual": "npm:^3.13.8"
     "@tauri-apps/plugin-deep-link": "npm:~2"
@@ -10353,6 +10380,7 @@ __metadata:
     html-react-parser: "npm:^5.2.3"
     husky: "npm:^9.1.7"
     idb: "npm:^8.0.0"
+    immer: "npm:^10.1.1"
     input-otp: "npm:^1.4.2"
     jsdom: "npm:^26.0.0"
     lemmy-js-client: "npm:0.20.0-alpha.18"
@@ -10392,6 +10420,7 @@ __metadata:
     use-deep-compare-effect: "npm:^1.8.1"
     use-long-press: "npm:^3.3.0"
     uuid: "npm:*"
+    virtua: "npm:^0.41.2"
     vite: "npm:6.2.6"
     vite-plugin-checker: "npm:^0.8.0"
     vite-plugin-circular-dependency: "npm:^0.5.0"
@@ -15167,6 +15196,30 @@ __metadata:
   version: 1.1.2
   resolution: "vary@npm:1.1.2"
   checksum: 10c0/f15d588d79f3675135ba783c91a4083dcd290a2a5be9fcb6514220a1634e23df116847b1cc51f66bfb0644cf9353b2abb7815ae499bab06e46dd33c1a6bf1f4f
+  languageName: node
+  linkType: hard
+
+"virtua@npm:^0.41.2":
+  version: 0.41.2
+  resolution: "virtua@npm:0.41.2"
+  peerDependencies:
+    react: ">=16.14.0"
+    react-dom: ">=16.14.0"
+    solid-js: ">=1.0"
+    svelte: ">=5.0"
+    vue: ">=3.2"
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-dom:
+      optional: true
+    solid-js:
+      optional: true
+    svelte:
+      optional: true
+    vue:
+      optional: true
+  checksum: 10c0/8ac22b1ffe7c4a54fbc36622f6ebb3f6936353687ecf2844c82c451a0a3bfbc31977160a527ed7639af0eb034d24a226e576e9361d6aceaa059acd16b7444c61
   languageName: node
   linkType: hard
 

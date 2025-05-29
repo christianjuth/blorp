@@ -7,6 +7,7 @@ import { useAuth } from "@/src/stores/auth";
 import {
   useModeratingCommunities,
   useNotificationCount,
+  usePrivateMessagesCount,
   useSubscribedCommunities,
 } from "@/src/lib/lemmy";
 import { CommunityCard } from "@/src/components/communities/community-card";
@@ -28,10 +29,12 @@ import {
 } from "@/src/components/ui/collapsible";
 import { ChevronsUpDown } from "lucide-react";
 import { useSidebarStore } from "../stores/sidebars";
+import { IoSettingsOutline } from "react-icons/io5";
 
 function SidebarTabs() {
   const selectedAccountIndex = useAuth((s) => s.accountIndex);
-  const count = useNotificationCount()[selectedAccountIndex];
+  const messageCount = usePrivateMessagesCount()[selectedAccountIndex];
+  const inboxCount = useNotificationCount()[selectedAccountIndex];
   const pathname = useIonRouter().routeInfo.pathname;
 
   return (
@@ -52,7 +55,15 @@ function SidebarTabs() {
               isActive ? "bg-secondary" : "text-muted-foreground",
             )}
           >
-            <BadgeCount showBadge={t.id === "inbox" && !!count}>
+            <BadgeCount
+              showBadge={
+                t.id === "inbox"
+                  ? !!inboxCount
+                  : t.id === "messages"
+                    ? !!messageCount
+                    : false
+              }
+            >
               <IonIcon
                 icon={t.icon(isActive)}
                 key={isActive ? "active" : "inactive"}
@@ -183,6 +194,10 @@ export function MainSidebar() {
 
         <Separator className="mt-3" />
       </section>
+
+      <SidebarLink icon={<IoSettingsOutline />} to="/settings">
+        Settings
+      </SidebarLink>
 
       <SidebarLink icon={<LockClosedOutline />} to="/privacy">
         Privacy Policy

@@ -52,6 +52,7 @@
     "@tailwindcss/vite": "^4.1.7",
     "@tanstack/query-broadcast-client-experimental": "5.75.0",
     "@tanstack/react-query": "5.75.0",
+    "@tanstack/react-query-devtools": "^5.77.2",
     "@tanstack/react-query-persist-client": "5.75.0",
     "@tanstack/react-virtual": "^3.13.8",
     "@tauri-apps/plugin-deep-link": "~2",
@@ -86,6 +87,7 @@
     "history": "~4",
     "html-react-parser": "^5.2.3",
     "idb": "^8.0.0",
+    "immer": "^10.1.1",
     "input-otp": "^1.4.2",
     "lemmy-js-client": "0.20.0-alpha.18",
     "lite-youtube-embed": "^0.3.3",
@@ -118,6 +120,7 @@
     "use-deep-compare-effect": "^1.8.1",
     "use-long-press": "^3.3.0",
     "uuid": "*",
+    "virtua": "^0.41.2",
     "vite-plugin-circular-dependency": "^0.5.0",
     "zod": "^3.24.1",
     "zustand": "^5.0.2"

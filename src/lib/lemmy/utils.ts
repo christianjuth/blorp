@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import {
   ImageDetails,
   Person,
@@ -117,3 +118,5 @@ export function encodeApId(id: string) {
 export function decodeApId(encodedUrl: string) {
   return decodeURIComponent(encodedUrl);
 }
+
+export const lemmyTimestamp = () => new Date().toISOString();
