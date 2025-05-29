@@ -88,7 +88,7 @@
     "idb": "^8.0.0",
     "immer": "^10.1.1",
     "input-otp": "^1.4.2",
-    "lemmy-js-client": "0.20.0-alpha.18",
+    "lemmy-js-client": "1.0.0-multi-community.13",
     "lite-youtube-embed": "^0.3.3",
     "lodash": "^4.17.21",
     "lowlight": "^3.3.0",
