@@ -324,7 +324,7 @@ export function VirtualList<T>({
           className,
         )}
         style={{
-          scrollbarGutter: media.md ? "stable both-edges" : undefined,
+          scrollbarGutter: media.xxl ? "stable both-edges" : undefined,
         }}
         onScroll={onScroll}
       >

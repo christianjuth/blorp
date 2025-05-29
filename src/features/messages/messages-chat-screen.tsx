@@ -30,10 +30,13 @@ import TextareaAutosize from "react-textarea-autosize";
 import { Send } from "@/src/components/icons";
 import { Button } from "@/src/components/ui/button";
 import { Person } from "lemmy-js-client";
+import { useMedia } from "@/src/lib/hooks";
 
 dayjs.extend(updateLocale);
 
 export default function Messages() {
+  const media = useMedia();
+
   const markMessageRead = useMarkPriavteMessageRead();
   const otherActorId = decodeApId(useParams("/messages/chat/:userId").userId);
 
@@ -118,9 +121,9 @@ export default function Messages() {
           <VList
             key={signal}
             className="pt-5 ion-content-scroll-host"
-            //style={{
-            //  scrollbarGutter: "stable both-edges",
-            //}}
+            style={{
+              scrollbarGutter: media.xxl ? "stable both-edges" : undefined,
+            }}
             shift
             ref={ref}
             onScroll={() => {
