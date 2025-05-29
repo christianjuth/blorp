@@ -3,6 +3,7 @@ import { MarkdownRenderer } from "@/src/components/markdown/renderer";
 import { MenuButton, UserDropdown } from "@/src/components/nav";
 import { PersonAvatar } from "@/src/components/person/person-avatar";
 import { RelativeTime } from "@/src/components/relative-time";
+import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 import { Separator } from "@/src/components/ui/separator";
 import { VirtualList } from "@/src/components/virtual-list";
 import { usePrivateMessages } from "@/src/lib/lemmy";
@@ -73,10 +74,10 @@ export default function Messages() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
+          <IonButtons slot="start" className="gap-2">
             <MenuButton />
+            <ToolbarTitle>Messages</ToolbarTitle>
           </IonButtons>
-          <IonTitle>Messages</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

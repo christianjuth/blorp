@@ -34,6 +34,7 @@ import { IoEllipsisHorizontal } from "react-icons/io5";
 import { PersonAvatar } from "../components/person/person-avatar";
 import { BadgeIcon } from "../components/badge-count";
 import { Message, Person } from "../components/icons";
+import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item =
@@ -320,10 +321,10 @@ export default function Inbox() {
       <PageTitle>Inbox</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start">
+          <IonButtons slot="start" className="gap-2">
             <MenuButton />
+            <ToolbarTitle>Inbox</ToolbarTitle>
           </IonButtons>
-          <IonTitle data-tauri-drag-region>Inbox</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

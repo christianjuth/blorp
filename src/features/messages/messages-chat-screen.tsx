@@ -31,6 +31,7 @@ import { Send } from "@/src/components/icons";
 import { Button } from "@/src/components/ui/button";
 import { Person } from "lemmy-js-client";
 import { useMedia } from "@/src/lib/hooks";
+import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 
 dayjs.extend(updateLocale);
 
@@ -105,12 +106,12 @@ export default function Messages() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButtons>
+          <IonButtons className="gap-2">
             <IonBackButton text="" />
+            <ToolbarTitle size="sm">
+              {(person ? createSlug(person)?.slug : null) ?? "Loading..."}
+            </ToolbarTitle>
           </IonButtons>
-          <IonTitle>
-            {(person ? createSlug(person)?.slug : null) ?? "Loading..."}
-          </IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>
