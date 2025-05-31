@@ -41,7 +41,7 @@ export function PostReportProvider({
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore((s) =>
-    apId ? s.posts[getCachePrefixer()(apId)]?.data.post : null,
+    apId ? s.posts[getCachePrefixer()(apId)]?.data : null,
   );
   const comment = useCommentsStore((s) =>
     commentPath ? s.comments[getCachePrefixer()(commentPath)] : null,
@@ -119,7 +119,7 @@ export function PostReportProvider({
           >
             <div className="p-3 h-full flex flex-col gap-3">
               <div className="p-3 bg-secondary rounded-lg max-h-[250px] overflow-auto">
-                {post && <span className="font-bold">{post?.name}</span>}
+                {post && <span className="font-bold">{post?.title}</span>}
 
                 {comment && (
                   <MarkdownRenderer markdown={comment.data.comment.content} />

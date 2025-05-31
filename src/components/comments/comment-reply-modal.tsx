@@ -1,5 +1,5 @@
 import { createContext, useContext, useId, useState } from "react";
-import { Comment } from "lemmy-js-client";
+import { Comment } from "lemmy-v3";
 import {
   FlattenedComment,
   useCreateComment,

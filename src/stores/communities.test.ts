@@ -4,7 +4,7 @@ import { useCommunitiesStore } from "./communities";
 import _ from "lodash";
 import { renderHook, act } from "@testing-library/react";
 import { createSlug } from "../lib/lemmy/utils";
-import { SubscribedType } from "lemmy-js-client";
+import { SubscribedType } from "lemmy-v3";
 import { getCachePrefixer } from "./auth";
 
 const prefix = getCachePrefixer({ instance: "123" });

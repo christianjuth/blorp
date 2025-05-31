@@ -7,7 +7,7 @@ import {
   CommunityView,
   ImageDetails,
   CommentView,
-} from "lemmy-js-client";
+} from "lemmy-v3";
 import { PartialDeep } from "type-fest";
 import { faker } from "@faker-js/faker";
 
