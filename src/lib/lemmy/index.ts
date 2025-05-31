@@ -75,6 +75,7 @@ import { produce } from "immer";
 import { LemmyV3Api } from "./adapters/lemmy-v3";
 import { LemmyV4Api } from "./adapters/lemmy-v4";
 import { ApiAdapter } from "./adapters/adapter";
+import { ListingType } from "lemmy-v4";
 
 enum Errors {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -513,7 +514,13 @@ export function useComments(form: GetComments) {
   });
 }
 
-interface UsePostsConfig extends GetPosts {
+interface UsePostsConfig {
+  showRead?: boolean;
+  sort?: string;
+  type_?: ListingType;
+  savedOnly?: boolean;
+  pageCursor?: string;
+  communitySlug?: string;
   enabled?: boolean;
 }
 
@@ -563,7 +570,7 @@ export function useMostRecentPost(
 ) {
   const { client } = useLemmyClient();
 
-  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
+  const showNsfw = useSettingsStore((s) => s.showNsfw);
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
@@ -571,18 +578,21 @@ export function useMostRecentPost(
   const hideRead = useSettingsStore((s) => s.hideRead);
 
   form = {
-    show_read: !hideRead,
-    sort,
-    show_nsfw: showNsfw,
+    showRead: !hideRead,
     ...form,
-    limit: 10,
-  } satisfies GetPosts;
-
-  const queryKey = usePostsKey(form);
+  } satisfies Omit<UsePostsConfig, "enabled">;
 
   const query = useQuery({
-    queryKey: ["mostRecentPost", ...queryKey],
-    queryFn: ({ signal }) => client.getPosts(form, { signal }),
+    queryKey: ["mostRecentPost", form],
+    queryFn: ({ signal }) =>
+      client.getPosts(
+        {
+          ...form,
+          sort: form.sort as any,
+          type_: form.type_ === "Suggested" ? "All" : form.type_,
+        },
+        { signal },
+      ),
     refetchInterval: 1000 * 60,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
@@ -604,9 +614,9 @@ export function useMostRecentPost(
 
 export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
-  const { client, api } = useLemmyClient();
+  const { client, api, queryKeyPrefix } = useLemmyClient();
 
-  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
+  const showNsfw = useSettingsStore((s) => s.showNsfw);
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
@@ -614,14 +624,13 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   const hideRead = useSettingsStore((s) => s.hideRead);
 
   form = {
-    show_read: !hideRead,
-    limit: 50,
+    showRead: !hideRead,
     sort,
-    show_nsfw: showNsfw,
+    /* pageCursor: pageParam === "init" ? undefined : pageParam, */
+    /* sort, */
+    /* communitySlug: form.community_name, */
     ...form,
   };
-
-  const queryKey = usePostsKey(form);
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
   // const patchPost = usePostsStore((s) => s.patchPost);
@@ -637,24 +646,7 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
     pageParam: string;
     signal: AbortSignal;
   }) => {
-    const { data, nextCursor } = await api.getPosts(
-      {
-        showRead: !hideRead,
-        pageCursor: pageParam === "init" ? undefined : pageParam,
-        sort,
-      },
-      { signal },
-    );
-
-    const res = await client.getPosts(
-      {
-        ...form,
-        page_cursor: pageParam === "init" ? undefined : pageParam,
-      },
-      {
-        signal,
-      },
-    );
+    const { data, nextCursor } = await api.getPosts(form, { signal });
 
     cachePosts(
       getCachePrefixer(),
@@ -676,6 +668,8 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
       nextCursor,
     };
   };
+
+  const queryKey = [...queryKeyPrefix, "getPosts", form];
 
   const query = useThrottledInfiniteQuery({
     queryKey,
@@ -1976,12 +1970,12 @@ export function useCreatePost() {
   const { client } = useLemmyClient();
   return useMutation({
     mutationFn: async (draft: Draft) => {
-      if (!draft.community?.actor_id) {
+      if (!draft.communityApId) {
         throw new Error("could not find community to create post under");
       }
 
       const { community } = await client.resolveObject({
-        q: draft.community?.actor_id,
+        q: draft.communityApId,
       });
 
       if (!community) {
@@ -2113,7 +2107,7 @@ export function useBlockCommunity(account?: Account) {
 
 export function useSavePost(apId: string) {
   const queryClient = useQueryClient();
-  const { client } = useLemmyClient();
+  const { api } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
@@ -2122,15 +2116,15 @@ export function useSavePost(apId: string) {
   });
 
   return useMutation({
-    mutationFn: (form: SavePost) => client.savePost(form),
+    mutationFn: (form: { postId: number; save: boolean }) => api.savePost(form),
     onMutate: ({ save }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticSaved: save,
       });
     },
-    onSuccess: ({ post_view }) => {
+    onSuccess: (post) => {
       patchPost(apId, getCachePrefixer(), {
-        ...flattenPost({ post_view }),
+        ...post,
         optimisticSaved: undefined,
       });
       queryClient.invalidateQueries({
