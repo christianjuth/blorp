@@ -1,6 +1,5 @@
 import {
   FeedPostCard,
-  getPostProps,
   PostCardSkeleton,
   PostProps,
 } from "@/src/components/posts/post";
@@ -13,8 +12,6 @@ import { Fragment, memo, useEffect, useMemo, useState } from "react";
 import { VirtualList } from "../components/virtual-list";
 import { useCommunity, useMostRecentPost, usePosts } from "../lib/lemmy";
 import { PostReportProvider } from "../components/posts/post-report";
-import { isNotNull } from "../lib/utils";
-import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
 import {
   IonBackButton,
@@ -42,7 +39,6 @@ import { Button } from "../components/ui/button";
 import { dispatchScrollEvent } from "../lib/scroll-events";
 import { LuLoaderCircle } from "react-icons/lu";
 import { FaArrowUp } from "react-icons/fa6";
-import { useAuth } from "../stores/auth";
 import { useMedia, useTheme } from "../lib/hooks";
 import { CommunityFeedSortBar } from "../components/communities/community-feed-sort-bar";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
@@ -50,11 +46,11 @@ import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = typeof NO_ITEMS | PostProps;
+type Item = string;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
-    <FeedPostCard {...props} showCreator showCommunity={false} />
+    <FeedPostCard {...props} />
     <></>
   </ContentGutters>
 ));
@@ -71,11 +67,15 @@ export default function CommunityFeed() {
 
   const postSort = useFiltersStore((s) => s.postSort);
   const posts = usePosts({
-    community_name: communityName,
+    communitySlug: communityName,
   });
+  const data = useMemo(
+    () => posts.data?.pages.flatMap((p) => p.posts) ?? EMPTY_ARR,
+    [posts.data],
+  );
 
   const mostRecentPost = useMostRecentPost("community", {
-    community_name: communityName,
+    communitySlug: communityName,
   });
 
   const community = useCommunity({
@@ -99,34 +99,12 @@ export default function CommunityFeed() {
     isRefetching,
   } = posts;
 
-  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const postCache = usePostsStore((s) => s.posts);
-
-  const data = useMemo(() => {
-    const postIds = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
-
-    const postViews = _.uniq(postIds)
-      .map((apId) => {
-        const postView = postCache[getCachePrefixer()(apId)]?.data;
-        return postView
-          ? getPostProps(postView, {
-              featuredContext: "community",
-              modApIds,
-            })
-          : null;
-      })
-      .filter(isNotNull);
-
-    return postViews;
-  }, [posts.data?.pages, postCache, getCachePrefixer]);
-
-  const firstReadPost = data.find((p) => !p.pinned);
-  const firstUnreadPost = data.find((p) => !p.pinned && !p.read);
+  /* const firstReadPost = data.find((p) => !p.pinned); */
+  /* const firstUnreadPost = data.find((p) => !p.pinned && !p.read); */
   const mostRecentPostId = mostRecentPost?.data?.post.ap_id;
-  const hasNewPost =
-    mostRecentPostId &&
-    mostRecentPostId !== firstReadPost?.apId &&
-    mostRecentPostId !== firstUnreadPost?.apId;
+  const hasNewPost = mostRecentPostId; //&&
+  /* mostRecentPostId !== firstReadPost?.apId && */
+  /* mostRecentPostId !== firstUnreadPost?.apId; */
 
   return (
     <IonPage>
@@ -252,7 +230,7 @@ export default function CommunityFeed() {
                   </ContentGutters>
                 );
               }
-              return <Post {...item} />;
+              return <Post apId={item} featuredContext="community" />;
             }}
             onEndReached={() => {
               if (hasNextPage && !isFetchingNextPage) {
