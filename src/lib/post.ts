@@ -1,11 +1,11 @@
-import { Post } from "lemmy-js-client";
 import { isYouTubeVideoUrl } from "./youtube";
+import { Schemas } from "./lemmy/adapters/adapter";
 
 export function getPostEmbed(
-  post: Post,
+  post: Schemas.Post,
   imageMode: "optimized" | "full-resolution",
 ) {
-  const urlContentType = post.url_content_type;
+  const urlContentType = post.urlContentType;
 
   let embedType: "image" | "video" | "article" | "youtube" | "loops" | "text" =
     "text";
@@ -33,7 +33,7 @@ export function getPostEmbed(
     embedType = "article";
   }
 
-  let thumbnail = post.thumbnail_url;
+  let thumbnail = post.thumbnailUrl;
   if (
     (!thumbnail || imageMode === "full-resolution") &&
     post.url &&

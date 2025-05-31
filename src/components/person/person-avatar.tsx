@@ -7,7 +7,7 @@ import { cn } from "@/src/lib/utils";
 import { useAuth } from "@/src/stores/auth";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { usePersonDetails } from "@/src/lib/lemmy";
-import { Person } from "lemmy-js-client";
+import { Person } from "lemmy-v3";
 
 export function PersonAvatar({
   actorId,

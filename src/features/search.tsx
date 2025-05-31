@@ -19,7 +19,7 @@ import _ from "lodash";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
-import { CommunityView, SearchType } from "lemmy-js-client";
+import { CommunityView, SearchType } from "lemmy-v3";
 import { useParams } from "@/src/routing/index";
 import {
   IonBackButton,

@@ -1,10 +1,11 @@
-import { Community, CreatePost, EditPost } from "lemmy-js-client";
+import { Community, CreatePost, EditPost } from "lemmy-v3";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
 import { FlattenedPost } from "../lib/lemmy/utils";
 import dayjs from "dayjs";
+import { Schemas } from "../lib/lemmy/adapters/adapter";
 
 export type CommunityPartial = Pick<
   Community,
@@ -40,17 +41,17 @@ export function isEmptyDraft(draft: Draft) {
   return true;
 }
 
-export function postToDraft(post: FlattenedPost): Draft {
+export function postToDraft(post: Schemas.Post): Draft {
   return {
-    name: post.post.name,
-    body: post.post.body,
+    name: post.title,
+    body: post.body ?? "",
     community: {
       ...post.community,
       actor_id: post.community.actorId,
     },
-    createdAt: dayjs(post.post.published).toDate().valueOf(),
+    createdAt: dayjs(post.createdAt).toDate().valueOf(),
     type: "text",
-    apId: post.post.ap_id,
+    apId: post.apId,
   };
 }
 
