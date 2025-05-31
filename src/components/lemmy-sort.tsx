@@ -2,7 +2,7 @@ import {
   CommentSortType,
   CommunitySortType,
   PostSortType,
-} from "lemmy-js-client";
+} from "lemmy-v3";
 import { useFiltersStore } from "@/src/stores/filters";
 import { useMemo } from "react";
 import { useAuth } from "../stores/auth";
