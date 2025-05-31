@@ -1,4 +1,4 @@
-import type { Person } from "lemmy-js-client";
+import type { Person } from "lemmy-v3";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";

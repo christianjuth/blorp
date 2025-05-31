@@ -6,7 +6,6 @@ import {
   PostBottomBar,
   FeedPostCard,
   PostProps,
-  getPostProps,
   PostCardSkeleton,
 } from "@/src/components/posts/post";
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
@@ -31,7 +30,6 @@ import {
   IonHeader,
   IonPage,
   IonSearchbar,
-  IonTitle,
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
@@ -59,7 +57,7 @@ function useDelayedReady(delay: number) {
 
 const MemoedPostCard = memo((props: PostProps) => (
   <ContentGutters className="px-0">
-    <FeedPostCard {...props} detailView showCommunity showCreator />
+    <FeedPostCard {...props} detailView />
     <></>
   </ContentGutters>
 ));
@@ -135,7 +133,7 @@ export default function Post() {
   const parentId = commentId ? +commentId : undefined;
 
   const comments = useComments({
-    post_id: post?.post.id,
+    post_id: post?.id,
     parent_id: parentId,
   });
 
@@ -189,11 +187,11 @@ export default function Post() {
     return <NotFound />;
   }
 
-  const opId = post?.creator.id;
+  const opId = post?.creatorId;
 
   return (
     <IonPage ref={pageElement.ref}>
-      <PageTitle>{post?.post.name ?? "Post"}</PageTitle>
+      <PageTitle>{post?.title ?? "Post"}</PageTitle>
       <IonHeader>
         <IonToolbar
           data-tauri-drag-region
@@ -255,12 +253,9 @@ export default function Post() {
                 post ? (
                   <MemoedPostCard
                     key="post-details"
-                    {...getPostProps(post, {
-                      featuredContext: "community",
-                      modApIds,
-                      adminApIds,
-                      detailView: true,
-                    })}
+                    apId={post.apId}
+                    featuredContext="community"
+                    detailView
                   />
                 ) : (
                   <ContentGutters className="px-0" key="post-skeleton">
@@ -273,7 +268,7 @@ export default function Post() {
                     <ContentGutters className="px-0">
                       <PostBottomBar
                         apId={decodedApId}
-                        commentsCount={post.counts.comments}
+                        commentsCount={post.commentsCount}
                         onReply={() => {}}
                       />
                       <></>
@@ -281,7 +276,7 @@ export default function Post() {
                   </Fragment>
                 ),
                 post && !commentPath && (
-                  <ReplyToPost key="reply-to-post" postId={post.post.id} />
+                  <ReplyToPost key="reply-to-post" postId={post.id} />
                 ),
               ]}
               renderItem={({ item }) => (
@@ -308,8 +303,8 @@ export default function Post() {
                 ) : undefined
               }
               numPlaceholders={
-                _.isNumber(post?.counts.comments)
-                  ? Math.max(1, post.counts.comments)
+                _.isNumber(post?.commentsCount)
+                  ? Math.max(1, post.commentsCount)
                   : undefined
               }
               onEndReached={loadMore}

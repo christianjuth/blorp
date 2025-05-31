@@ -5,7 +5,7 @@ import {
   Post,
   PostAggregates,
   PostView,
-} from "lemmy-js-client";
+} from "lemmy-v3";
 import _ from "lodash";
 
 export type Slug = {

@@ -42,11 +42,11 @@ import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
 const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = typeof NO_ITEMS | PostProps;
+type Item = string;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
-    <FeedPostCard {...props} />
+    <FeedPostCard {...props} featuredContext="home" />
     <></>
   </ContentGutters>
 ));
@@ -158,6 +158,10 @@ export default function HomeFeed() {
     sort: postSort,
     type_: listingType,
   });
+  const data = useMemo(
+    () => posts.data?.pages.flatMap((p) => p.posts) ?? EMPTY_ARR,
+    [posts.data],
+  );
 
   const mostRecentPost = useMostRecentPost("local", {
     sort: postSort,
@@ -172,32 +176,12 @@ export default function HomeFeed() {
     isRefetching,
   } = posts;
 
-  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const postCache = usePostsStore((s) => s.posts);
-
-  const data = useMemo(() => {
-    const postIds = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
-    const postViews = _.uniq(postIds)
-      .map((apId) => {
-        const postView = postCache[getCachePrefixer()(apId)]?.data;
-        return postView
-          ? getPostProps(postView, {
-              featuredContext: "home",
-            })
-          : null;
-      })
-      .filter(isNotNull);
-
-    return postViews;
-  }, [posts.data?.pages, postCache, getCachePrefixer]);
-
-  const firstReadPost = data.find((p) => !p.pinned);
-  const firstUnreadPost = data.find((p) => !p.pinned && !p.read);
+  /* const firstReadPost = data.find((p) => !p.pinned); */
+  /* const firstUnreadPost = data.find((p) => !p.pinned && !p.read); */
   const mostRecentPostId = mostRecentPost?.data?.post.ap_id;
-  const hasNewPost =
-    mostRecentPostId &&
-    mostRecentPostId !== firstReadPost?.apId &&
-    mostRecentPostId !== firstUnreadPost?.apId;
+  const hasNewPost = mostRecentPostId; //&&
+  /* mostRecentPostId !== firstReadPost?.apId && */
+  /* mostRecentPostId !== firstUnreadPost?.apId; */
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focused, setFocused] = useState(false);
@@ -301,8 +285,8 @@ export default function HomeFeed() {
               }
               return (
                 <Post
-                  key={item.apId}
-                  {...item}
+                  key={item}
+                  apId={item}
                   onNavigate={scrollAnimation.reset}
                 />
               );

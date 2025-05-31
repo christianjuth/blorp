@@ -3,7 +3,7 @@ import * as lemmy from "@/test-utils/lemmy";
 import { createQueryClientWrapper } from "@/test-utils/tanstack-query";
 import { useComments, useCreateComment } from ".";
 import { renderHook, waitFor } from "@testing-library/react";
-import { CommentResponse, GetCommentsResponse } from "lemmy-js-client";
+import { CommentResponse, GetCommentsResponse } from "lemmy-v3";
 import _ from "lodash";
 
 function mockGetComments(length: number, parentId?: number) {

@@ -21,7 +21,7 @@ export function PostArticleEmbed({
   name: string;
   url?: string;
   displayUrl?: string;
-  thumbnail?: string;
+  thumbnail?: string | null;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
 

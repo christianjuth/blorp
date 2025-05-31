@@ -1,4 +1,4 @@
-import { CommunityAggregates, CommunityView } from "lemmy-js-client";
+import { CommunityAggregates, CommunityView } from "lemmy-v3";
 import { abbriviateNumber } from "@/src/lib/format";
 import { createSlug, Slug } from "@/src/lib/lemmy/utils";
 import { useLinkContext } from "@/src/routing/link-context";

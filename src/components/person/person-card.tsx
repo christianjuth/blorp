@@ -11,7 +11,7 @@ import { useProfilesStore } from "@/src/stores/profiles";
 import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
 import { useLinkContext } from "../../routing/link-context";
 import { usePersonDetails } from "@/src/lib/lemmy";
-import { Person } from "lemmy-js-client";
+import { Person } from "lemmy-v3";
 
 export function PersonCard({
   actorId,

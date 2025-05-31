@@ -4,7 +4,7 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { LuCakeSlice } from "react-icons/lu";
-import type { Person, PersonAggregates } from "lemmy-js-client";
+import type { Person, PersonAggregates } from "lemmy-v3";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { MarkdownRenderer } from "../markdown/renderer";

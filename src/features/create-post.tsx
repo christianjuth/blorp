@@ -17,7 +17,7 @@ import {
   useUploadImage,
 } from "../lib/lemmy";
 import _ from "lodash";
-import { Community } from "lemmy-js-client";
+import { Community } from "lemmy-v3";
 import { parseOgData } from "../lib/html-parsing";
 import {
   IonButton,
@@ -202,10 +202,7 @@ export function CreatePost() {
     draft.apId ? s.posts[getCachePrefixer()(draft.apId)] : undefined,
   );
   const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
-  const canEdit =
-    isEdit &&
-    post?.data.creator.actor_id &&
-    myUserId === post.data.creator.actor_id;
+  const canEdit = isEdit && post?.data.apId && myUserId === post.data.apId;
   const postOwner = post?.data.creator
     ? createSlug(post.data.creator)?.slug
     : undefined;

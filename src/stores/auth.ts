@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
-import { GetSiteResponse } from "lemmy-js-client";
+import { GetSiteResponse } from "lemmy-v3";
 import _ from "lodash";
 import { env } from "../env";
 
