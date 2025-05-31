@@ -29,89 +29,6 @@ function Notice({ children }: { children: React.ReactNode }) {
   return <i className="text-muted-foreground text-sm pt-3">{children}</i>;
 }
 
-export function getPostProps(
-  postView: Schemas.Post,
-  config?: {
-    featuredContext?: "community" | "home";
-    adminApIds?: string[];
-    modApIds?: string[];
-    detailView?: boolean;
-  },
-) {
-  const { featuredContext, modApIds, adminApIds } = config ?? {};
-
-  const embed = getPostEmbed(
-    postView,
-    config?.detailView ? "full-resolution" : "optimized",
-  );
-
-  const aspectRatio = postView.thumbnailAspectRatio;
-
-  const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
-  const diff =
-    typeof postView?.optimisticMyVote === "number"
-      ? postView?.optimisticMyVote - (postView?.myVote ?? 0)
-      : 0;
-  const score = postView.upvotes - postView.downvotes + diff;
-
-  let pinned = false;
-  if (featuredContext === "community") {
-    pinned = postView.optimisticFeaturedCommunity ?? postView.featuredCommunity;
-  }
-  if (featuredContext === "home") {
-    pinned = postView.featuredLocal;
-  }
-
-  const crossPosts = postView.crossPosts?.map((cp) => ({
-    encodedApId: encodeApId(cp.apId),
-    communitySlug: cp.communitySlug,
-  }));
-
-  let url = postView.url;
-  if (url && url.startsWith("https://i.imgur.com/") && url.endsWith(".gifv")) {
-    url = url.replace(/gifv$/, "mp4");
-  }
-
-  let displayUrl = url;
-  if (displayUrl) {
-    const parsedUrl = new URL(displayUrl);
-    displayUrl = `${parsedUrl.host.replace(/^www\./, "")}${parsedUrl.pathname.replace(/\/$/, "")}`;
-  }
-
-  return {
-    ...embed,
-    isMod: modApIds?.includes(postView.creatorApId),
-    isAdmin: adminApIds?.includes(postView.creatorApId),
-    id: postView.id,
-    apId: postView.apId,
-    encodedApId: encodeApId(postView.apId),
-    read: postView.optimisticRead ?? postView.read,
-    deleted: postView.optimisticDeleted ?? postView.deleted,
-    name: postView.title,
-    url,
-    displayUrl,
-    aspectRatio,
-    myVote,
-    score,
-    pinned,
-    featuredCommunity:
-      postView.optimisticFeaturedCommunity ?? postView.featuredCommunity,
-    saved: postView.optimisticSaved ?? postView.saved,
-    creatorId: postView.creatorId,
-    creatorApId: postView.creatorApId,
-    creatorSlug: createSlug({ ap_id: postView.creatorApId }),
-    encodedCreatorApId: encodeApId(postView.creator.actor_id),
-    creatorName: postView.creator.name,
-    communitySlug: postView.community.slug,
-    communityIcon: postView.community.icon,
-    published: postView.post.published,
-    body: postView.post.body,
-    nsfw: postView.post.nsfw,
-    commentsCount: postView.counts.comments,
-    crossPosts,
-  };
-}
-
 export interface PostProps {
   apId: string;
   detailView?: boolean;
@@ -248,8 +165,10 @@ export function FeedPostCard(props: PostProps) {
       <PostByline
         post={post}
         pinned={pinned}
-        showCreator={props.featuredContext !== "home"}
-        showCommunity={props.featuredContext === "home" ? true : false}
+        showCreator={props.featuredContext !== "home" || props.detailView}
+        showCommunity={
+          props.featuredContext === "home" ? true : (props.detailView ?? false)
+        }
       />
 
       {props.detailView && post.crossPosts && post.crossPosts.length > 0 && (
