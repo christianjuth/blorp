@@ -19,8 +19,8 @@ export function PostArticleEmbed({
   thumbnail,
 }: {
   name: string;
-  url?: string;
-  displayUrl?: string;
+  url?: string | null;
+  displayUrl?: string | null;
   thumbnail?: string | null;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -50,7 +50,7 @@ export function PostArticleEmbed({
 
   return (
     <a
-      href={url}
+      href={url ?? undefined}
       target="_blank"
       rel="noopener noreferrer"
       onClick={(e) => {

@@ -1,6 +1,5 @@
 import {
   FeedPostCard,
-  getPostProps,
   PostCardSkeleton,
   PostProps,
 } from "@/src/components/posts/post";
@@ -8,9 +7,7 @@ import { ContentGutters } from "../components/gutters";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFiltersStore } from "../stores/filters";
 import { useMostRecentPost, usePosts } from "../lib/lemmy";
-import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
-import { isNotNull } from "../lib/utils";
 
 import { LocalSererSidebar } from "../components/local-server/local-server-sidebar";
 import {
@@ -34,8 +31,6 @@ import { FaArrowUp } from "react-icons/fa6";
 import { LuLoaderCircle } from "react-icons/lu";
 import { dispatchScrollEvent } from "../lib/scroll-events";
 import { PostReportProvider } from "../components/posts/post-report";
-import { DownloadButton } from "./download";
-import { useAuth } from "../stores/auth";
 import { PageTitle } from "../components/page-title";
 import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
 
@@ -154,7 +149,6 @@ export default function HomeFeed() {
   const listingType = useFiltersStore((s) => s.listingType);
 
   const posts = usePosts({
-    limit: 50,
     sort: postSort,
     type_: listingType,
   });

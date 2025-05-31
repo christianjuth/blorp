@@ -2,6 +2,7 @@ import { env } from "@/src/env";
 import * as lemmyV3 from "lemmy-v3";
 import { ApiAdapter, Schemas, RequestOptions } from "./adapter";
 import { createSlug } from "../utils";
+import { ListingType } from "lemmy-v4";
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -33,6 +34,7 @@ function convertPerson(
 ): Schemas.Person {
   return {
     apId: person.actor_id,
+    id: person.id,
     avatar: person.avatar ?? null,
     bio: person.bio ?? null,
     matrixUserId: person.matrix_user_id ?? null,
@@ -63,21 +65,16 @@ function convertPost(postView: lemmyV3.PostView): Schemas.Post {
     optimisticMyVote: postView.my_vote,
     commentsCount: counts.comments,
     deleted: post.deleted,
-    optimisticDeleted: null,
     removed: post.removed,
-    optimisticRemoved: null,
     thumbnailAspectRatio: null,
     communitySlug: createSlug(community, true).slug,
+    communityApId: community.actor_id,
     creatorApId: creator.actor_id,
     crossPosts: [],
     featuredCommunity: post.featured_community,
-    optimisticFeaturedCommunity: null,
     featuredLocal: post.featured_local,
-    optimisticFeaturedLocal: null,
     read: postView.read,
-    optimisticRead: null,
     saved: postView.saved,
-    optimisticSaved: null,
   };
 }
 
@@ -135,9 +132,12 @@ export class LemmyV3Api implements ApiAdapter<lemmyV3.LemmyHttp> {
 
   async getPosts(
     form: {
-      showRead: boolean;
-      sort: string;
+      showRead?: boolean;
+      sort?: string;
+      type_: ListingType;
+      savedOnly?: boolean;
       pageCursor?: string;
+      communitySlug?: string;
     },
     options: RequestOptions,
   ) {
@@ -145,8 +145,11 @@ export class LemmyV3Api implements ApiAdapter<lemmyV3.LemmyHttp> {
       {
         show_read: form.showRead,
         sort: form.sort as any,
+        type_: form.type_ === "Suggested" ? "All" : form.type_,
         page_cursor: form.pageCursor,
         limit: this.limit,
+        community_name: form.communitySlug,
+        saved_only: form.savedOnly,
       },
       options,
     );
@@ -158,5 +161,13 @@ export class LemmyV3Api implements ApiAdapter<lemmyV3.LemmyHttp> {
         /* community:  */
       })),
     };
+  }
+
+  async savePost(form: { postId: number; save: boolean }) {
+    const { post_view } = await this.client.savePost({
+      post_id: form.postId,
+      save: form.save,
+    });
+    return convertPost(post_view);
   }
 }

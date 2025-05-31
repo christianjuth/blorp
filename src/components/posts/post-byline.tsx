@@ -78,6 +78,8 @@ export function PostByline({
   const encodedApId = encodeApId(post.apId);
   const encodedCreatorApId = encodeApId(post.creatorApId);
 
+  const saved = post.optimisticSaved ?? post.saved;
+
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
     () => [
@@ -92,12 +94,12 @@ export function PostByline({
           ),
       },
       {
-        text: post.saved ? "Unsave" : "Save",
+        text: saved ? "Unsave" : "Save",
         onClick: () =>
           requireAuth().then(() => {
             savePost.mutateAsync({
-              post_id: post.id,
-              save: !post.saved,
+              postId: post.id,
+              save: !saved,
             });
           }),
       },
@@ -236,10 +238,10 @@ export function PostByline({
                 className="text-xs"
                 onClickCapture={onNavigate}
               >
-                {post.communitySlug}
+                {communityPart}
               </Link>
             ) : (
-              <div className="text-xs">{post.communitySlug}</div>
+              <div className="text-xs">{communityPart}</div>
             )}
           </CommunityHoverCard>
         )}
@@ -278,7 +280,7 @@ export function PostByline({
 
       <div className="flex-1" />
 
-      {post.saved && <FaBookmark className="text-lg text-brand" />}
+      {saved && <FaBookmark className="text-lg text-brand" />}
       {pinned && <BsFillPinAngleFill className="text-xl text-[#17B169]" />}
 
       <ActionMenu

@@ -2,7 +2,6 @@ import { ContentGutters } from "../components/gutters";
 import { usePersonDetails, usePersonFeed } from "../lib/lemmy";
 import {
   FeedPostCard,
-  getPostProps,
   PostCardSkeleton,
   PostProps,
 } from "../components/posts/post";
@@ -40,11 +39,7 @@ import { PersonSidebar } from "../components/person/person-sidebar";
 import { PersonActionMenu } from "../components/person/person-action-menu";
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = typeof NO_ITEMS | PostProps | CommentView;
-
-function isPost(item: Item): item is PostProps {
-  return _.isObject(item) && "apId" in item;
-}
+type Item = string | CommentView;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
@@ -144,28 +139,13 @@ export default function User() {
 
     const postIds = data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
-    const postViews = _.uniq(postIds)
-      .map((apId) => {
-        const postView = postCache[getCachePrefixer()(apId)]?.data;
-        return postView ? getPostProps(postView) : null;
-      })
-      .filter(isNotNull);
-
     switch (type) {
       case "posts":
-        return postViews;
+        return postIds;
       case "comments":
         return commentViews;
       default:
-        return [...postViews, ...commentViews].sort((a, b) => {
-          const aPublished = isPost(a)
-            ? a.published
-            : (a as CommentView).comment.published;
-          const bPublished = isPost(b)
-            ? b.published
-            : (b as CommentView).comment.published;
-          return bPublished.localeCompare(aPublished);
-        });
+        return [...postIds, ...commentViews];
     }
   }, [data?.pages, postCache, type, getCachePrefixer]);
 
@@ -274,8 +254,8 @@ export default function User() {
                 );
               }
 
-              if (isPost(item)) {
-                return <Post {...item} />;
+              if (_.isString(item)) {
+                return <Post apId={item} />;
               }
 
               return <Comment path={item.comment.path} />;

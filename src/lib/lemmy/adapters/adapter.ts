@@ -4,7 +4,8 @@ const communitySlug = z.string();
 
 const personSchema = z.object({
   createdAt: z.string(),
-  apId: z.string().nullable(),
+  id: z.number(),
+  apId: z.string(),
   avatar: z.string().nullable(),
   slug: z.string(),
   matrixUserId: z.string().nullable(),
@@ -25,6 +26,7 @@ const postSchema = z.object({
   id: z.number(),
   apId: z.string(),
   communitySlug,
+  communityApId: z.string(),
   creatorId: z.number(),
   creatorApId: z.string(),
   creatorSlug: z.string(),
@@ -39,9 +41,9 @@ const postSchema = z.object({
   url: z.string().nullable(),
   urlContentType: z.string().nullable(),
   removed: z.boolean(),
-  optimisticRemoved: z.boolean().nullable(),
+  optimisticRemoved: z.boolean().optional(),
   deleted: z.boolean(),
-  optimisticDeleted: z.boolean().nullable(),
+  optimisticDeleted: z.boolean().optional(),
   crossPosts: z
     .array(
       z.object({
@@ -53,13 +55,13 @@ const postSchema = z.object({
   myVote: z.number().optional(),
   optimisticMyVote: z.number().optional(),
   featuredCommunity: z.boolean(),
-  optimisticFeaturedCommunity: z.boolean().nullable(),
+  optimisticFeaturedCommunity: z.boolean().optional(),
   featuredLocal: z.boolean(),
-  optimisticFeaturedLocal: z.boolean().nullable(),
+  optimisticFeaturedLocal: z.boolean().optional(),
   read: z.boolean(),
-  optimisticRead: z.boolean().nullable(),
+  optimisticRead: z.boolean().optional(),
   saved: z.boolean(),
-  optimisticSaved: z.boolean().nullable(),
+  optimisticSaved: z.boolean().optional(),
 });
 const communitySchema = z.object({
   apId: z.string().nullable(),
@@ -101,9 +103,10 @@ export abstract class ApiAdapter<C> {
   }>;
   abstract getPosts(
     form: {
-      showRead: boolean;
-      sort: string;
+      showRead?: boolean;
+      sort?: string;
       pageCursor?: string;
+      communitySlug?: string;
     },
     options: RequestOptions,
   ): Promise<
@@ -115,6 +118,11 @@ export abstract class ApiAdapter<C> {
       }[]
     >
   >;
+
+  abstract savePost(form: {
+    postId: number;
+    save: boolean;
+  }): Promise<Schemas.Post>;
 
   //abstract getCommunity(): Promise<Schemas.Community>;
   //

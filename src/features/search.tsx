@@ -1,7 +1,6 @@
 import { useCommunity, useSearch } from "../lib/lemmy";
 import {
   FeedPostCard,
-  getPostProps,
   PostCardSkeleton,
   PostProps,
 } from "@/src/components/posts/post";
@@ -18,7 +17,6 @@ import { useFiltersStore } from "../stores/filters";
 import _ from "lodash";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { usePostsStore } from "../stores/posts";
-import { isNotNull } from "../lib/utils";
 import { CommunityView, SearchType } from "lemmy-v3";
 import { useParams } from "@/src/routing/index";
 import {
@@ -42,11 +40,7 @@ import { useLinkContext } from "../routing/link-context";
 const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = typeof NO_ITEMS | string | PostProps | CommunityView;
-
-function isPost(item: Item): item is PostProps {
-  return _.isObject(item) && "apId" in item;
-}
+type Item = string | CommunityView;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="max-md:px-0">
@@ -128,17 +122,7 @@ export default function SearchFeed({
       return communities;
     }
 
-    const postIds =
-      searchResults.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
-
-    const postViews = _.uniq(postIds)
-      .map((apId) => {
-        const postView = postCache[getCachePrefixer()(apId)]?.data;
-        return postView ? getPostProps(postView) : null;
-      })
-      .filter(isNotNull);
-
-    return postViews;
+    return searchResults.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
   }, [searchResults.data?.pages, postCache, type, getCachePrefixer]);
 
   return (
@@ -246,8 +230,8 @@ export default function SearchFeed({
                 );
               }
 
-              if (isPost(item)) {
-                return <Post {...item} />;
+              if (_.isString(item)) {
+                return <Post apId={item} />;
               }
 
               if (_.isString(item)) {

@@ -1,4 +1,3 @@
-import { createSlug } from "@/src/lib/lemmy/utils";
 import { useCreatePostStore } from "@/src/stores/create-post";
 import { useIonAlert, useIonRouter } from "@ionic/react";
 import { v4 as uuid } from "uuid";
@@ -6,6 +5,7 @@ import _ from "lodash";
 import { Deferred } from "@/src/lib/deferred";
 import { useAuth } from "@/src/stores/auth";
 import { useCommunity } from "@/src/lib/lemmy";
+import { createSlug } from "@/src/lib/lemmy/utils";
 
 export function useCommunityCreatePost({
   communityName,
@@ -28,8 +28,7 @@ export function useCommunityCreatePost({
       return;
     }
     let createPostId = _.entries(drafts).find(
-      ([_id, { community }]) =>
-        community && createSlug(community)?.slug === communityName,
+      ([_id, { community }]) => community?.apId === communityData.actor_id,
     )?.[0];
 
     if (createPostId) {
@@ -58,13 +57,10 @@ export function useCommunityCreatePost({
     createPostId ??= uuid();
 
     updateDraft(createPostId, {
-      community: _.pick(communityData, [
-        "name",
-        "id",
-        "title",
-        "icon",
-        "actor_id",
-      ]),
+      community: {
+        apId: communityData.actor_id,
+        slug: createSlug(communityData, true).slug,
+      },
     });
     router.push(`/create?id=${createPostId}`);
   };

@@ -15,7 +15,10 @@ export type CommunityPartial = Pick<
 export interface Draft extends Partial<Omit<CreatePost, "community_id">> {
   type: "text" | "media" | "link";
   createdAt: number;
-  community?: CommunityPartial;
+  community?: {
+    apId: string;
+    slug: string;
+  };
   apId?: string;
 }
 
@@ -46,8 +49,8 @@ export function postToDraft(post: Schemas.Post): Draft {
     name: post.title,
     body: post.body ?? "",
     community: {
-      ...post.community,
-      actor_id: post.community.actorId,
+      apId: post.communityApId,
+      slug: post.communitySlug,
     },
     createdAt: dayjs(post.createdAt).toDate().valueOf(),
     type: "text",
