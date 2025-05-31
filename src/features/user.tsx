@@ -18,7 +18,7 @@ import { useLinkContext } from "../routing/link-context";
 import { useProfilesStore } from "../stores/profiles";
 import { usePostsStore } from "../stores/posts";
 import { isNotNull } from "../lib/utils";
-import { CommentView } from "lemmy-js-client";
+import { CommentView } from "lemmy-v3";
 import { Link, useParams } from "@/src/routing/index";
 import {
   IonBackButton,

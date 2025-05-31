@@ -7,7 +7,7 @@ import type {
   CommunityView,
   CommunityModeratorView,
   SubscribedType,
-} from "lemmy-js-client";
+} from "lemmy-v3";
 import { createSlug } from "../lib/lemmy/utils";
 import { MAX_CACHE_MS } from "./config";
 import { CachePrefixer } from "./auth";
