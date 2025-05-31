@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
-import type { Person, PersonAggregates } from "lemmy-js-client";
+import type { Person, PersonAggregates } from "lemmy-v3";
 import { MAX_CACHE_MS } from "./config";
 import { CacheKey, CachePrefixer } from "./auth";
 

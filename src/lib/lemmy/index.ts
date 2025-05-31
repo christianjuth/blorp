@@ -30,14 +30,14 @@ import {
   CreatePrivateMessage,
   PrivateMessageView,
   MarkPrivateMessageAsRead,
-} from "lemmy-js-client";
+  GetComments,
+} from "lemmy-v3";
 import {
   useQuery,
   InfiniteData,
   useQueryClient,
   useMutation,
 } from "@tanstack/react-query";
-import { GetComments } from "lemmy-js-client";
 import { useFiltersStore } from "@/src/stores/filters";
 import {
   Account,
@@ -72,6 +72,10 @@ import {
   useThrottledInfiniteQuery,
 } from "./infinite-query";
 import { produce } from "immer";
+import { LemmyV3Api } from "./adapters/lemmy-v3";
+import { LemmyV4Api } from "./adapters/lemmy-v4";
+import { ApiAdapter } from "./adapters/adapter";
+import { ListingType } from "lemmy-v4";
 
 enum Errors {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -95,20 +99,56 @@ function useLemmyClient(account?: Partial<Account>) {
     jwt = account.jwt;
   }
 
-  return useMemo(() => {
-    const client = new LemmyHttp(instance.replace(/\/$/, ""), {
-      headers: DEFAULT_HEADERS,
-    });
+  const apiRoot = instance.replace(/\/$/, "");
 
-    const setJwt = (jwt: string) => {
-      client.setHeaders({
-        ...DEFAULT_HEADERS,
-        Authorization: `Bearer ${jwt}`,
-      });
-    };
-
+  const lemmyV3Client = useMemo(() => {
+    const client = new LemmyV3Api({ instance });
     if (jwt) {
-      setJwt(jwt);
+      client.setJwt(jwt);
+    }
+    return client;
+  }, [jwt]);
+
+  const lemmyV4Client = useMemo(() => {
+    const client = new LemmyV4Api({ instance });
+    if (jwt) {
+      client.setJwt(jwt);
+    }
+    return client;
+  }, [jwt]);
+
+  const query = useQuery({
+    queryKey: ["inspectApi"],
+    queryFn: async ({ signal }) => {
+      try {
+        const site = await lemmyV3Client.getSite({ signal });
+        if (site) {
+          return {
+            type: "LEMMY-V3",
+            version: site.version,
+          } as const;
+        }
+      } catch {}
+      try {
+        const site = await lemmyV4Client.getSite({ signal });
+        if (site) {
+          return {
+            type: "LEMMY-V4",
+            version: site.version,
+          } as const;
+        }
+      } catch {}
+      return {
+        type: "UNKNOWN",
+        version: -1,
+      } as const;
+    },
+  });
+
+  return useMemo(() => {
+    let api: ApiAdapter<any> = lemmyV3Client;
+    if (query.data?.type === "LEMMY-V4") {
+      api = lemmyV4Client;
     }
 
     const queryKeyPrefix: unknown[] = [`instance-${instance}`];
@@ -116,8 +156,17 @@ function useLemmyClient(account?: Partial<Account>) {
       queryKeyPrefix.push(`user-${myUserId}`);
     }
 
-    return { client, queryKeyPrefix, setJwt, instance };
-  }, [jwt, instance, myUserId]);
+    return {
+      api,
+      setJwt: api.setJwt,
+      /**
+       * @deprecated use api instead of client
+       */
+      client: lemmyV3Client.client,
+      queryKeyPrefix,
+      instance,
+    };
+  }, [jwt, instance, myUserId, lemmyV3Client, lemmyV4Client]);
 }
 
 export type FlattenedComment = {
@@ -278,76 +327,55 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
 }
 
 export function usePost({
-  ap_id,
+  ap_id: apId,
   enabled,
 }: {
   ap_id?: string;
   enabled?: boolean;
 }) {
-  const { client, queryKeyPrefix } = useLemmyClient();
+  const { client, api, queryKeyPrefix } = useLemmyClient();
 
-  const queryKey = [...queryKeyPrefix, "getPost", ap_id];
+  const queryKey = [...queryKeyPrefix, "getPost", apId];
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   const initialData = usePostsStore((s) =>
-    ap_id ? s.posts[getCachePrefixer()(ap_id)]?.data : undefined,
+    apId ? s.posts[getCachePrefixer()(apId)]?.data : undefined,
   );
 
-  const cachePost = usePostsStore((s) => s.cachePost);
+  const cachePosts = usePostsStore((s) => s.cachePosts);
   // const patchPost = usePostsStore((s) => s.patchPost);
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
-  return useQuery<FlattenedPost>({
+  return useQuery({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!ap_id) {
+      if (!apId) {
         throw new Error("ap_id undefined");
       }
-      const { post: resPost } = await client.resolveObject(
-        {
-          q: ap_id,
-        },
-        {
-          signal,
-        },
-      );
-      if (!resPost) {
-        throw new Error("fetchd object is not type post");
-      }
 
-      const res2 = await client.getPost(
-        {
-          id: resPost.post.id,
-        },
-        {
-          signal,
-        },
-      );
+      const { post, creator } = await api.getPost({ apId }, { signal });
 
-      const post = flattenPost({
-        post_view: resPost,
-        cross_posts: res2.cross_posts,
-      });
-
-      cachePost(getCachePrefixer(), {
-        ...post,
-        // Fetching an individual post marks it
-        // as read, but not until the next request
-        // is made. We mark it as read here knowing
-        // that on Lemmy's end it is now read.
-        read: true,
-      });
-
-      cacheCommunities(getCachePrefixer(), [
+      cachePosts(getCachePrefixer(), [
         {
-          communityView: { community: resPost.community },
+          ...post,
+          // Fetching an individual post marks it
+          // as read, but not until the next request
+          // is made. We mark it as read here knowing
+          // that on Lemmy's end it is now read.
+          read: true,
         },
       ]);
 
-      cacheProfiles(getCachePrefixer(), [{ person: resPost.creator }]);
+      /* cacheCommunities(getCachePrefixer(), [ */
+      /*   { */
+      /*     communityView: { community: post.community }, */
+      /*   }, */
+      /* ]); */
+      /**/
+      /* cacheProfiles(getCachePrefixer(), [{ person: resPost.creator }]); */
 
       return post;
     },
@@ -358,7 +386,7 @@ export function usePost({
       }
       return count <= 3;
     },
-    enabled: !!ap_id && enabled,
+    enabled: !!apId && enabled,
     initialData,
     refetchOnMount: "always",
   });
@@ -483,7 +511,13 @@ export function useComments(form: GetComments) {
   });
 }
 
-interface UsePostsConfig extends GetPosts {
+interface UsePostsConfig {
+  showRead?: boolean;
+  sort?: string;
+  type_?: ListingType;
+  savedOnly?: boolean;
+  pageCursor?: string;
+  communitySlug?: string;
   enabled?: boolean;
 }
 
@@ -533,7 +567,7 @@ export function useMostRecentPost(
 ) {
   const { client } = useLemmyClient();
 
-  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
+  const showNsfw = useSettingsStore((s) => s.showNsfw);
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
@@ -541,18 +575,21 @@ export function useMostRecentPost(
   const hideRead = useSettingsStore((s) => s.hideRead);
 
   form = {
-    show_read: !hideRead,
-    sort,
-    show_nsfw: showNsfw,
+    showRead: !hideRead,
     ...form,
-    limit: 10,
-  } satisfies GetPosts;
-
-  const queryKey = usePostsKey(form);
+  } satisfies Omit<UsePostsConfig, "enabled">;
 
   const query = useQuery({
-    queryKey: ["mostRecentPost", ...queryKey],
-    queryFn: ({ signal }) => client.getPosts(form, { signal }),
+    queryKey: ["mostRecentPost", form],
+    queryFn: ({ signal }) =>
+      client.getPosts(
+        {
+          ...form,
+          sort: form.sort as any,
+          type_: form.type_ === "Suggested" ? "All" : form.type_,
+        },
+        { signal },
+      ),
     refetchInterval: 1000 * 60,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
@@ -574,9 +611,9 @@ export function useMostRecentPost(
 
 export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
-  const { client } = useLemmyClient();
+  const { client, api, queryKeyPrefix } = useLemmyClient();
 
-  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
+  const showNsfw = useSettingsStore((s) => s.showNsfw);
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
@@ -584,14 +621,13 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
   const hideRead = useSettingsStore((s) => s.hideRead);
 
   form = {
-    show_read: !hideRead,
-    limit: 50,
+    showRead: !hideRead,
     sort,
-    show_nsfw: showNsfw,
+    /* pageCursor: pageParam === "init" ? undefined : pageParam, */
+    /* sort, */
+    /* communitySlug: form.community_name, */
     ...form,
   };
-
-  const queryKey = usePostsKey(form);
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
   // const patchPost = usePostsStore((s) => s.patchPost);
@@ -607,39 +643,35 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
     pageParam: string;
     signal: AbortSignal;
   }) => {
-    const res = await client.getPosts(
-      {
-        ...form,
-        page_cursor: pageParam === "init" ? undefined : pageParam,
-      },
-      {
-        signal,
-      },
-    );
+    const { data, nextCursor } = await api.getPosts(form, { signal });
 
-    const posts = res.posts.map((post_view) => flattenPost({ post_view }));
-    cachePosts(getCachePrefixer(), posts);
-
-    cacheCommunities(
+    cachePosts(
       getCachePrefixer(),
-      res.posts.map((p) => ({ communityView: { community: p.community } })),
+      data.map((p) => p.post),
     );
 
-    cacheProfiles(
-      getCachePrefixer(),
-      res.posts.map((p) => ({ person: p.creator })),
-    );
+    /* cacheCommunities( */
+    /*   getCachePrefixer(), */
+    /*   res.posts.map((p) => ({ communityView: { community: p.community } })), */
+    /* ); */
+
+    /* cacheProfiles( */
+    /*   getCachePrefixer(), */
+    /*   res.posts.map((p) => ({ person: p.creator })), */
+    /* ); */
 
     return {
-      posts: posts.map((p) => p.post.ap_id),
-      next_page: res.next_page,
+      posts: data.map((p) => p.post.apId),
+      nextCursor,
     };
   };
+
+  const queryKey = [...queryKeyPrefix, "getPosts", form];
 
   const query = useThrottledInfiniteQuery({
     queryKey,
     queryFn,
-    getNextPageParam: (lastPage) => lastPage.next_page,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: "init",
     notifyOnChangeProps: "all",
     refetchOnWindowFocus: false,
@@ -653,7 +685,7 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
       queryKey,
       queryFn,
       initialPageParam: "init",
-      getNextPageParam: (lastPage) => lastPage.next_page,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
       pages: 1,
     });
 
@@ -1031,7 +1063,7 @@ export function useLikePost(apId: string) {
         throw new Error("post not found");
       }
       return client.likePost({
-        post_id: post.post.id,
+        post_id: post.id,
         score,
       });
     },
@@ -1927,12 +1959,12 @@ export function useCreatePost() {
   const { client } = useLemmyClient();
   return useMutation({
     mutationFn: async (draft: Draft) => {
-      if (!draft.community?.actor_id) {
+      if (!draft.communityApId) {
         throw new Error("could not find community to create post under");
       }
 
       const { community } = await client.resolveObject({
-        q: draft.community?.actor_id,
+        q: draft.communityApId,
       });
 
       if (!community) {
@@ -2064,7 +2096,7 @@ export function useBlockCommunity(account?: Account) {
 
 export function useSavePost(apId: string) {
   const queryClient = useQueryClient();
-  const { client } = useLemmyClient();
+  const { api } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
@@ -2073,15 +2105,15 @@ export function useSavePost(apId: string) {
   });
 
   return useMutation({
-    mutationFn: (form: SavePost) => client.savePost(form),
+    mutationFn: (form: { postId: number; save: boolean }) => api.savePost(form),
     onMutate: ({ save }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticSaved: save,
       });
     },
-    onSuccess: ({ post_view }) => {
+    onSuccess: (post) => {
       patchPost(apId, getCachePrefixer(), {
-        ...flattenPost({ post_view }),
+        ...post,
         optimisticSaved: undefined,
       });
       queryClient.invalidateQueries({

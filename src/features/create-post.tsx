@@ -17,7 +17,7 @@ import {
   useUploadImage,
 } from "../lib/lemmy";
 import _ from "lodash";
-import { Community } from "lemmy-js-client";
+import { Community } from "lemmy-v3";
 import { parseOgData } from "../lib/html-parsing";
 import {
   IonButton,
@@ -90,9 +90,7 @@ function DraftsSidebar({
       {_.entries(drafts)
         .sort(([_a, a], [_b, b]) => b.createdAt - a.createdAt)
         .map(([key, draft]) => {
-          const slug = draft.community
-            ? createSlug(draft.community)?.slug
-            : undefined;
+          const slug = draft.community?.slug;
           return (
             <div key={key} className="relative">
               <Link
@@ -170,7 +168,10 @@ function useLoadRecentCommunity(draftId: string, draft: Draft) {
   useEffect(() => {
     if (isActive && isEmpty && mostRecentCommunity) {
       patchDraft(draftId, {
-        community: mostRecentCommunity,
+        community: {
+          apId: mostRecentCommunity.actor_id,
+          slug: createSlug(mostRecentCommunity, true).slug,
+        },
       });
     }
   }, [draftId, isActive, patchDraft]);
@@ -202,13 +203,8 @@ export function CreatePost() {
     draft.apId ? s.posts[getCachePrefixer()(draft.apId)] : undefined,
   );
   const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
-  const canEdit =
-    isEdit &&
-    post?.data.creator.actor_id &&
-    myUserId === post.data.creator.actor_id;
-  const postOwner = post?.data.creator
-    ? createSlug(post.data.creator)?.slug
-    : undefined;
+  const canEdit = isEdit && post?.data.apId && myUserId === post.data.apId;
+  const postOwner = post?.data.creatorSlug;
 
   const uploadImage = useUploadImage();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -332,7 +328,10 @@ export function CreatePost() {
                 disabled={isEdit}
               >
                 {draft.community ? (
-                  <CommunityCard communityView={draft.community} disableLink />
+                  <CommunityCard
+                    communityView={draft.community.apId}
+                    disableLink
+                  />
                 ) : (
                   <span className="font-bold">Select a community</span>
                 )}
@@ -561,7 +560,10 @@ function ChooseCommunity({
                 <button
                   onClick={() => {
                     patchDraft(createPostId, {
-                      community: item,
+                      community: {
+                        apId: item.actor_id,
+                        slug: createSlug(item, true).slug,
+                      },
                     });
                     closeModal();
                   }}
@@ -570,7 +572,7 @@ function ChooseCommunity({
                 >
                   <CommunityCard communityView={item} disableLink />
                   {draft.community &&
-                    item.actor_id === draft.community?.actor_id && (
+                    item.actor_id === draft.community.apId && (
                       <FaCheck className="text-brand" />
                     )}
                 </button>
