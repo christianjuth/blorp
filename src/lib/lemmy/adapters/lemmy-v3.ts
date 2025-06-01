@@ -1,8 +1,9 @@
 import { env } from "@/src/env";
 import * as lemmyV3 from "lemmy-v3";
-import { ApiAdapter, Schemas, RequestOptions } from "./adapter";
+import { ApiAdapter, Schemas, RequestOptions, Forms } from "./adapter";
 import { createSlug } from "../utils";
 import { ListingType } from "lemmy-v4";
+import _ from "lodash";
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -26,6 +27,10 @@ export function getLemmyClient(instance: string) {
     client,
     setJwt,
   };
+}
+
+function cursorToInt(pageCursor: string | null | undefined) {
+  return pageCursor ? _.parseInt(pageCursor) : undefined;
 }
 
 function convertPerson(
@@ -130,22 +135,13 @@ export class LemmyV3Api implements ApiAdapter<lemmyV3.LemmyHttp> {
     };
   }
 
-  async getPosts(
-    form: {
-      showRead?: boolean;
-      sort?: string;
-      type_: ListingType;
-      savedOnly?: boolean;
-      pageCursor?: string;
-      communitySlug?: string;
-    },
-    options: RequestOptions,
-  ) {
+  async getPosts(form: Forms.GetPosts, options: RequestOptions) {
+    console.log("HEREHE");
     const posts = await this.client.getPosts(
       {
         show_read: form.showRead,
         sort: form.sort as any,
-        type_: form.type_ === "Suggested" ? "All" : form.type_,
+        type_: form.type,
         page_cursor: form.pageCursor,
         limit: this.limit,
         community_name: form.communitySlug,
@@ -163,11 +159,82 @@ export class LemmyV3Api implements ApiAdapter<lemmyV3.LemmyHttp> {
     };
   }
 
-  async savePost(form: { postId: number; save: boolean }) {
+  async savePost(form: Forms.SavePost) {
     const { post_view } = await this.client.savePost({
       post_id: form.postId,
       save: form.save,
     });
     return convertPost(post_view);
+  }
+
+  async likePost(form: Forms.LikePost) {
+    const { post_view } = await this.client.likePost({
+      post_id: form.postId,
+      score: form.score,
+    });
+    return convertPost(post_view);
+  }
+
+  async deletePost(form: Forms.DeletePost) {
+    const { post_view } = await this.client.deletePost({
+      post_id: form.postId,
+      deleted: form.deleted,
+    });
+    return convertPost(post_view);
+  }
+
+  async featurePost(form: Forms.FeaturePost) {
+    const { post_view } = await this.client.featurePost({
+      post_id: form.postId,
+      featured: form.featured,
+      feature_type: form.featureType,
+    });
+    return convertPost(post_view);
+  }
+
+  async getPersonContent(
+    form: Forms.GetPersonContent,
+    options: RequestOptions,
+  ) {
+    const { person } = await this.client.resolveObject(
+      {
+        q: form.apId,
+      },
+      options,
+    );
+
+    if (!person) {
+      throw new Error("person not found");
+    }
+
+    const { posts } = await this.client.getPersonDetails(
+      {
+        person_id: person.person.id,
+        limit: this.limit,
+        page: form.pageCursor ? _.parseInt(form.pageCursor) : undefined,
+      },
+      options,
+    );
+
+    return {
+      posts: posts.map(convertPost),
+      nextCursor: form.pageCursor ? `${_.parseInt(form.pageCursor) + 1}` : "2",
+    };
+  }
+
+  async search(form: Forms.Search, options: RequestOptions) {
+    const cursor = cursorToInt(form.pageCursor) ?? 1;
+    const { posts } = await this.client.search(
+      {
+        q: form.q,
+        page: cursor,
+      },
+      options,
+    );
+    const nextCursor = posts.length > this.limit ? `${cursor + 1}` : null;
+    return {
+      posts: posts.map(convertPost),
+      nextCursor,
+    };
   }
 }
