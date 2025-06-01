@@ -111,8 +111,8 @@ export function PostByline({
                 : "Pin in community",
               onClick: () =>
                 featurePost.mutate({
-                  feature_type: "Community",
-                  post_id: post.id,
+                  featureType: "Community",
+                  postId: post.id,
                   featured: !post.featuredCommunity,
                 }),
             },
@@ -143,7 +143,7 @@ export function PostByline({
               text: post.deleted ? "Restore" : "Delete",
               onClick: () =>
                 deletePost.mutate({
-                  post_id: post.id,
+                  postId: post.id,
                   deleted: !post.deleted,
                 }),
               danger: true,
