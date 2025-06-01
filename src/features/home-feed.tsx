@@ -150,7 +150,7 @@ export default function HomeFeed() {
 
   const posts = usePosts({
     sort: postSort,
-    type_: listingType,
+    type: listingType,
   });
   const data = useMemo(
     () => posts.data?.pages.flatMap((p) => p.posts) ?? EMPTY_ARR,

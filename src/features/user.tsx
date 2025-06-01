@@ -16,7 +16,6 @@ import { useCommentsStore } from "../stores/comments";
 import { useLinkContext } from "../routing/link-context";
 import { useProfilesStore } from "../stores/profiles";
 import { usePostsStore } from "../stores/posts";
-import { isNotNull } from "../lib/utils";
 import { CommentView } from "lemmy-v3";
 import { Link, useParams } from "@/src/routing/index";
 import {
@@ -131,8 +130,6 @@ export default function User() {
 
   const person = personView?.person;
 
-  const postCache = usePostsStore((s) => s.posts);
-
   const listData = useMemo(() => {
     const commentViews =
       data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR;
@@ -147,7 +144,7 @@ export default function User() {
       default:
         return [...postIds, ...commentViews];
     }
-  }, [data?.pages, postCache, type, getCachePrefixer]);
+  }, [data?.pages, type, getCachePrefixer]);
 
   return (
     <IonPage>

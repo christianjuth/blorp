@@ -96,6 +96,12 @@ export function MainSidebar() {
   const moderatingOpen = useSidebarStore((s) => s.mainSidebarModerating);
   const setModeratingOpen = useSidebarStore((s) => s.setMainSidebarModerating);
 
+  let instanceHost = "";
+  try {
+    const url = new URL(instance);
+    instanceHost = url.host;
+  } catch {}
+
   return (
     <>
       <SidebarTabs />
@@ -185,7 +191,7 @@ export function MainSidebar() {
 
       <section className="md:hidden">
         <h2 className="px-4 pt-1 pb-3 text-sm text-muted-foreground uppercase">
-          {new URL(instance).host}
+          {instanceHost}
         </h2>
 
         <SidebarLink icon={<SidebarOutline />} to={`${linkCtx.root}sidebar`}>

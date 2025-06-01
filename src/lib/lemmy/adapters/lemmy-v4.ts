@@ -1,6 +1,6 @@
 import { env } from "@/src/env";
 import * as lemmyV4 from "lemmy-v4";
-import { ApiAdapter, RequestOptions, Schemas } from "./adapter";
+import { ApiAdapter, Forms, RequestOptions, Schemas } from "./adapter";
 import { createSlug } from "../utils";
 
 const DEFAULT_HEADERS = {
@@ -29,6 +29,7 @@ export function getLemmyClient(instance: string) {
 
 function convertPerson(person: lemmyV4.Person): Schemas.Person {
   return {
+    id: person.id,
     apId: person.ap_id,
     avatar: person.avatar ?? null,
     bio: person.bio ?? null,
@@ -42,17 +43,37 @@ function convertPerson(person: lemmyV4.Person): Schemas.Person {
   };
 }
 
-function convertPost(post: lemmyV4.Post): Schemas.Post {
+function convertPost({
+  post,
+  community,
+  creator,
+  post_actions,
+}: lemmyV4.PostView): Schemas.Post {
   return {
+    id: post.id,
+    createdAt: post.published,
     apId: post.ap_id,
     title: post.name,
     body: post.body ?? null,
-    thumbnail: post.thumbnail_url ?? null,
+    thumbnailUrl: post.thumbnail_url ?? null,
     upvotes: post.upvotes,
     downvotes: post.downvotes,
     commentsCount: post.comments,
-    isDeleted: post.deleted,
-    isRemoved: post.removed,
+    deleted: post.deleted,
+    removed: post.removed,
+    communityApId: community.ap_id,
+    communitySlug: createSlug(community, true).slug,
+    creatorId: creator.id,
+    creatorApId: creator.ap_id,
+    creatorSlug: createSlug(creator, true).slug,
+    thumbnailAspectRatio: null,
+    url: post.url ?? null,
+    urlContentType: post.url_content_type ?? null,
+    crossPosts: [],
+    featuredCommunity: post.featured_community,
+    featuredLocal: post.featured_local,
+    read: !!post_actions?.read,
+    saved: !!post_actions?.saved,
   };
 }
 
@@ -65,6 +86,10 @@ export class LemmyV4Api implements ApiAdapter<lemmyV4.LemmyHttp> {
     this.instance = instance;
     this.client = new lemmyV4.LemmyHttp(instance.replace(/\/$/, ""), {
       headers: DEFAULT_HEADERS,
+      fetchFunction: (...args) => {
+        console.log(...args);
+        return fetch(...args);
+      },
     });
   }
 
@@ -104,29 +129,94 @@ export class LemmyV4Api implements ApiAdapter<lemmyV4.LemmyHttp> {
       },
       options,
     );
-    return convertPost(fullPost.post_view.post);
+    return {
+      post: convertPost(fullPost.post_view),
+      creator: convertPerson(fullPost.post_view.creator),
+    };
   }
 
-  async getPosts(
-    form: {
-      showRead: boolean;
-      sort: string;
-      pageCursor?: string;
-    },
-    options: RequestOptions,
-  ) {
+  async savePost(form: Forms.SavePost) {
+    const { post_view } = await this.client.savePost({
+      post_id: form.postId,
+      save: form.save,
+    });
+    return convertPost(post_view);
+  }
+
+  async likePost(form: Forms.LikePost) {
+    const { post_view } = await this.client.likePost({
+      post_id: form.postId,
+      score: form.score,
+    });
+    return convertPost(post_view);
+  }
+
+  async deletePost(form: Forms.DeletePost) {
+    const { post_view } = await this.client.deletePost({
+      post_id: form.postId,
+      deleted: form.deleted,
+    });
+    return convertPost(post_view);
+  }
+
+  async featurePost(form: Forms.FeaturePost) {
+    const { post_view } = await this.client.featurePost({
+      post_id: form.postId,
+      feature_type: form.featureType,
+      featured: form.featured,
+    });
+    return convertPost(post_view);
+  }
+
+  async getPosts(form: Forms.GetPosts, options: RequestOptions) {
     const posts = await this.client.getPosts(
       {
         show_read: form.showRead,
         sort: form.sort as any,
+        type_: form.type,
         page_cursor: form.pageCursor,
         limit: this.limit,
+        community_name: form.communitySlug,
       },
       options,
     );
+
     return {
       nextCursor: posts.next_page ?? null,
-      data: posts.posts.map((p) => convertPost(p.post)),
+      data: posts.posts.map((p) => ({
+        post: convertPost(p),
+        creator: convertPerson(p.creator),
+      })),
     };
   }
+
+  //async getPersonContent(
+  //  form: Forms.GetPersonContent,
+  //  options: RequestOptions,
+  //) {
+  //  const { person } = await this.client.resolveObject(
+  //    {
+  //      q: form.apId,
+  //    },
+  //    options,
+  //  );
+  //
+  //  if (!person) {
+  //    throw new Error("person not found");
+  //  }
+  //
+  //  const p = await this.client.getPersonDetails(
+  //    {
+  //      person_id: person.person.id,
+  //      limit: this.limit,
+  //      page: form.pageCursor ? _.parseInt(form.pageCursor) : undefined,
+  //    },
+  //    options,
+  //  );
+  //
+  //  return {
+  //    posts: posts.map(convertPost),
+  //    nextCursor: form.pageCursor ? `${_.parseInt(form.pageCursor) + 1}` : "2",
+  //  };
+  //}
 }
