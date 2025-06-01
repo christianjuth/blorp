@@ -98,8 +98,8 @@ export default function SearchFeed({
   const searchResults = useSearch({
     q: search ?? "",
     sort: type === "communities" ? "TopAll" : postSort,
-    community_name: type === "posts" ? communityName : undefined,
-    type_,
+    communitySlug: type === "posts" ? communityName : undefined,
+    type: type_,
   });
 
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } =

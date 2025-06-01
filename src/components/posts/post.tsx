@@ -2,7 +2,7 @@ import { usePostsStore } from "@/src/stores/posts";
 import { useLinkContext } from "../../routing/link-context";
 import { useSettingsStore } from "@/src/stores/settings";
 import { getPostEmbed } from "@/src/lib/post";
-import { createSlug, encodeApId, FlattenedPost } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/lemmy/utils";
 import { Link } from "@/src/routing/index";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
@@ -154,6 +154,14 @@ export function FeedPostCard(props: PostProps) {
     }
   }
 
+  const diff =
+    typeof post?.optimisticMyVote === "number"
+      ? post?.optimisticMyVote - (post?.myVote ?? 0)
+      : 0;
+  const score = post.upvotes - post.downvotes + diff;
+
+  const myVote = post?.optimisticMyVote ?? post?.myVote ?? 0;
+
   return (
     <div
       data-testid="post-card"
@@ -267,8 +275,8 @@ export function FeedPostCard(props: PostProps) {
           />
           <Voting
             apId={post.apId}
-            score={post.upvotes - post.downvotes}
-            myVote={post.myVote ?? 0}
+            score={score}
+            myVote={myVote}
             className="-mr-2.5"
           />
         </div>

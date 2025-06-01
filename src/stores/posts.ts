@@ -110,7 +110,7 @@ export const usePostsStore = create<SortsStore>()(
     {
       name: "posts",
       storage: createStorage<SortsStore>(),
-      version: 4.02,
+      version: 4.03,
       onRehydrateStorage: () => {
         return (state) => {
           state?.cleanup();

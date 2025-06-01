@@ -46,11 +46,17 @@ export function getAccountActorId(account: Account) {
 }
 
 export function parseAccountInfo(account: Account) {
-  const url = new URL(account.instance);
-  return {
-    person: account.site?.my_user?.local_user_view.person,
-    instance: url.host,
-  };
+  try {
+    const url = new URL(account.instance);
+    return {
+      person: account.site?.my_user?.local_user_view.person,
+      instance: url.host,
+    };
+  } catch {
+    return {
+      instance: "",
+    };
+  }
 }
 
 function getNewAccount() {

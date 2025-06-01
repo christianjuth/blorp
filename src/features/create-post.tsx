@@ -481,7 +481,7 @@ function ChooseCommunity({
 
   const searchResultsRes = useSearch({
     q: search,
-    type_: "Communities",
+    type: "Communities",
     sort: "TopAll",
   });
 

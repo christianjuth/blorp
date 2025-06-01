@@ -19,7 +19,12 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
   const sidebar = site?.site_view.site.sidebar;
 
   const instance = useAuth((s) => s.getSelectedAccount().instance);
-  const instanceName = new URL(instance).host;
+
+  let instanceHost = "";
+  try {
+    const url = new URL(instance);
+    instanceHost = url.host;
+  } catch {}
 
   const open = useSidebarStore((s) => s.siteAboutExpanded);
   const setOpen = useSidebarStore((s) => s.setSiteAboutExpanded);
@@ -35,7 +40,7 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
       <>
         <section className="p-3 flex flex-col gap-3">
           <h2 className="text-muted-foreground uppercase">
-            ABOUT {instanceName}
+            ABOUT {instanceHost}
           </h2>
 
           <MarkdownRenderer dim className="text-sm" markdown={sidebar} />
@@ -63,7 +68,7 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
     <>
       <Collapsible className="p-3" open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
-          <span>ABOUT {instanceName}</span>
+          <span>ABOUT {instanceHost}</span>
           <ChevronsUpDown className="h-4 w-4" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-5 pb-2">
@@ -96,10 +101,15 @@ function InstanceAdmins({ asPage }: { asPage?: boolean }) {
   const admins = site?.admins;
 
   const instance = useAuth((s) => s.getSelectedAccount().instance);
-  const instanceName = new URL(instance).host;
 
   const open = useSidebarStore((s) => s.siteAdminsExpanded);
   const setOpen = useSidebarStore((s) => s.setSiteAdminsExpanded);
+
+  let instanceHost = "";
+  try {
+    const url = new URL(instance);
+    instanceHost = url.host;
+  } catch {}
 
   if (!admins) {
     return null;
@@ -109,7 +119,7 @@ function InstanceAdmins({ asPage }: { asPage?: boolean }) {
     return (
       <section className="p-3 flex flex-col gap-2">
         <span className="text-muted-foreground uppercase">
-          {instanceName} ADMINS
+          {instanceHost} ADMINS
         </span>
 
         {admins.map(({ person }) => (
@@ -124,7 +134,7 @@ function InstanceAdmins({ asPage }: { asPage?: boolean }) {
   return (
     <Collapsible className="p-3" open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
-        <span>{instanceName} ADMINS</span>
+        <span>{instanceHost} ADMINS</span>
         <ChevronsUpDown className="h-4 w-4" />
       </CollapsibleTrigger>
       <CollapsibleContent className="pt-2 flex flex-col gap-1">

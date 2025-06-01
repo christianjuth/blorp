@@ -1,8 +1,4 @@
-import {
-  CommentSortType,
-  CommunitySortType,
-  PostSortType,
-} from "lemmy-v3";
+import { CommentSortType, CommunitySortType, PostSortType } from "lemmy-v3";
 import { useFiltersStore } from "@/src/stores/filters";
 import { useMemo } from "react";
 import { useAuth } from "../stores/auth";
@@ -461,6 +457,12 @@ export function HomeFilter({ children }: { children?: React.ReactNode }) {
   const listingType = useFiltersStore((s) => s.listingType);
   const setListingType = useFiltersStore((s) => s.setListingType);
 
+  let instanceHost = "";
+  try {
+    const url = new URL(instance);
+    instanceHost = url.host;
+  } catch {}
+
   const LISTING_TYPE_OPTIONS: ActionMenuProps["actions"] = useMemo(
     () =>
       [
@@ -469,7 +471,7 @@ export function HomeFilter({ children }: { children?: React.ReactNode }) {
           value: "All",
         } as const,
         {
-          label: `Local (${instance ? new URL(instance).host : ""})`,
+          label: `Local (${instanceHost ? instanceHost : ""})`,
           value: "Local",
         } as const,
         ...(isLoggedIn
@@ -518,6 +520,12 @@ export function CommunityFilter() {
   const setListingType = useFiltersStore((s) => s.setCommunitiesListingType);
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
+  let instanceHost = "";
+  try {
+    const url = new URL(instance);
+    instanceHost = url.host;
+  } catch {}
+
   const LISTING_TYPE_OPTIONS = useMemo(
     () =>
       [
@@ -526,7 +534,7 @@ export function CommunityFilter() {
           value: "All",
         } as const,
         {
-          label: `Local (${instance ? new URL(instance).host : ""})`,
+          label: `Local (${instanceHost})`,
           value: "Local",
         } as const,
         ...(isLoggedIn

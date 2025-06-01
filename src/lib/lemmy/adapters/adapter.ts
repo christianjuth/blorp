@@ -1,3 +1,4 @@
+import { SearchType, PostFeatureType, ListingType } from "lemmy-v4";
 import z from "zod";
 
 const communitySlug = z.string();
@@ -76,6 +77,51 @@ export namespace Schemas {
   export type Person = z.infer<typeof personSchema>;
 }
 
+export namespace Forms {
+  export type GetPersonContent = {
+    apId: string;
+    pageCursor?: string;
+  };
+
+  export type GetPosts = {
+    showRead?: boolean;
+    sort?: string;
+    pageCursor?: string;
+    type?: ListingType;
+    communitySlug?: string;
+    savedOnly?: boolean;
+  };
+
+  export type FeaturePost = {
+    postId: number;
+    featured: boolean;
+    featureType: PostFeatureType;
+  };
+
+  export type SavePost = {
+    postId: number;
+    save: boolean;
+  };
+
+  export type DeletePost = {
+    postId: number;
+    deleted: boolean;
+  };
+
+  export type LikePost = {
+    postId: number;
+    score: 0 | 1 | -1;
+  };
+
+  export type Search = {
+    q: string;
+    communitySlug?: string;
+    type: SearchType;
+    sort?: string;
+    pageCursor?: string;
+  };
+}
+
 type Paginated<Data> = {
   data: Data;
   nextCursor: string | null;
@@ -102,12 +148,7 @@ export abstract class ApiAdapter<C> {
     creator?: Schemas.Person;
   }>;
   abstract getPosts(
-    form: {
-      showRead?: boolean;
-      sort?: string;
-      pageCursor?: string;
-      communitySlug?: string;
-    },
+    form: Forms.GetPosts,
     options: RequestOptions,
   ): Promise<
     Paginated<
@@ -123,6 +164,28 @@ export abstract class ApiAdapter<C> {
     postId: number;
     save: boolean;
   }): Promise<Schemas.Post>;
+
+  abstract likePost(form: Forms.LikePost): Promise<Schemas.Post>;
+
+  abstract deletePost(form: Forms.DeletePost): Promise<Schemas.Post>;
+
+  abstract featurePost(form: Forms.FeaturePost): Promise<Schemas.Post>;
+
+  abstract getPersonContent(
+    form: Forms.GetPersonContent,
+    options: RequestOptions,
+  ): Promise<{
+    posts: Schemas.Post[];
+    nextCursor: string | null;
+  }>;
+
+  abstract search(
+    form: Forms.Search,
+    options: RequestOptions,
+  ): Promise<{
+    posts: Schemas.Post[];
+    nextCursor: string | null;
+  }>;
 
   //abstract getCommunity(): Promise<Schemas.Community>;
   //

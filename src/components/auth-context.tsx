@@ -392,6 +392,16 @@ function AuthModal({
     }
   }, [mfaToken]);
 
+  useEffect(() => {
+    try {
+      const url = new URL(search);
+      setInstanceLocal({
+        url: `${url.protocol}//${url.host}/`,
+        baseurl: url.host,
+      });
+    } catch {}
+  }, [search]);
+
   const modal = useRef<HTMLIonModalElement>(null);
 
   return (
