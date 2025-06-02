@@ -3,7 +3,6 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
-import { FlattenedPost } from "../lib/lemmy/utils";
 import dayjs from "dayjs";
 import { Schemas } from "../lib/lemmy/adapters/adapter";
 
@@ -12,14 +11,9 @@ export type CommunityPartial = Pick<
   "name" | "title" | "icon" | "actor_id"
 >;
 
-export interface Draft extends Partial<Omit<CreatePost, "community_id">> {
+export interface Draft extends Partial<Schemas.EditPost> {
   type: "text" | "media" | "link";
   createdAt: number;
-  community?: {
-    apId: string;
-    slug: string;
-  };
-  apId?: string;
 }
 
 type CreatePostStore = {
@@ -46,45 +40,56 @@ export function isEmptyDraft(draft: Draft) {
 
 export function postToDraft(post: Schemas.Post): Draft {
   return {
-    name: post.title,
+    title: post.title,
     body: post.body ?? "",
-    community: {
-      apId: post.communityApId,
-      slug: post.communitySlug,
-    },
+    communityApId: post.communityApId,
+    communitySlug: post.communitySlug,
     createdAt: dayjs(post.createdAt).toDate().valueOf(),
     type: "text",
     apId: post.apId,
+    thumbnailUrl: post.thumbnailUrl,
+    altText: post.altText,
   };
 }
 
-export function draftToEditPostData(draft: Draft, post_id: number): EditPost {
-  if (!draft.name) {
+export function draftToEditPostData(draft: Draft): Schemas.EditPost {
+  const { title, apId, communitySlug, communityApId } = draft;
+  if (!title) {
     throw new Error("post name is required");
   }
-  const post: EditPost = {
+  if (!apId) {
+    throw new Error("apId name is required");
+  }
+  if (!communityApId || !communitySlug) {
+    throw new Error("community is required");
+  }
+  const post: Schemas.EditPost = {
     ...draft,
-    post_id,
-    name: draft.name,
-    body: draft.body,
+    title,
+    apId,
+    communitySlug,
+    communityApId,
+    thumbnailUrl: draft.thumbnailUrl ?? null,
+    url: draft.url ?? null,
+    body: draft.body ?? null,
   };
 
   switch (draft.type) {
     case "text":
-      delete post.url;
-      delete post.custom_thumbnail;
+      post.url = null;
+      post.thumbnailUrl = null;
       break;
     case "media":
-      post.url = post.custom_thumbnail;
+      post.url = post.thumbnailUrl;
       break;
     case "link":
   }
 
   if (!post.url) {
-    delete post.url;
+    post.url = null;
   }
-  if (!post.custom_thumbnail) {
-    delete post.custom_thumbnail;
+  if (!post.thumbnailUrl) {
+    post.thumbnailUrl = null;
   }
 
   return post;
