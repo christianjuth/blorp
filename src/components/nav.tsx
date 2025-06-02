@@ -125,7 +125,7 @@ export function UserDropdown() {
               </DropdownMenuItem>
             </Link>
           )}
-          {person && (
+          {person ? (
             <DropdownMenuItem
               onClick={() =>
                 getConfirmation({
@@ -136,6 +136,10 @@ export function UserDropdown() {
               <LogOut />
               Logout
             </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onClick={() => requireAuth()}>
+              Login
+            </DropdownMenuItem>
           )}
         </>
 
@@ -145,7 +149,7 @@ export function UserDropdown() {
 
         <>
           {accounts.map((a, index) => {
-            if (a.jwt && a.jwt === selectedAccount.jwt) {
+            if (index === selectedAccountIndex) {
               return null;
             }
 
@@ -174,7 +178,6 @@ export function UserDropdown() {
               </DropdownMenuItem>
             );
           })}
-
           <DropdownMenuItem
             onClick={() => {
               requireAuth({ addAccount: true });
@@ -183,9 +186,7 @@ export function UserDropdown() {
             <IoPersonAddOutline />
             Add account
           </DropdownMenuItem>
-
           <DropdownMenuSeparator />
-
           <Link to={`/settings`}>
             <DropdownMenuItem>
               <IoSettingsOutline /> Settings
@@ -203,6 +204,7 @@ export function UserSidebar() {
   const logout = useLogout();
   const requireAuth = useRequireAuth();
 
+  const selectedAccountIndex = useAuth((s) => s.accountIndex);
   const selectedAccount = useAuth((s) => s.getSelectedAccount());
   const accounts = useAuth((s) => s.accounts);
   const setAccountIndex = useAuth((s) => s.setAccountIndex);
@@ -254,7 +256,7 @@ export function UserSidebar() {
           </IonMenuToggle>
         )}
 
-        {person && (
+        {person ? (
           <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
             <button
               onClick={() =>
@@ -267,6 +269,15 @@ export function UserSidebar() {
               <LogOut className="text-muted-foreground" /> Logout
             </button>
           </IonMenuToggle>
+        ) : (
+          <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
+            <button
+              onClick={() => requireAuth()}
+              className="flex flex-row items-center gap-2"
+            >
+              Login
+            </button>
+          </IonMenuToggle>
         )}
       </>
 
@@ -275,7 +286,7 @@ export function UserSidebar() {
       <span>Other accounts</span>
 
       {accounts.map((a, index) => {
-        if (a.jwt && a.jwt === selectedAccount.jwt) {
+        if (index === selectedAccountIndex) {
           return null;
         }
 
