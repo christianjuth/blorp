@@ -72,7 +72,22 @@ const communitySchema = z.object({
 
 export namespace Schemas {
   export type Site = z.infer<typeof siteSchema>;
+
   export type Post = z.infer<typeof postSchema>;
+  export interface EditPost
+    extends Pick<
+      Schemas.Post,
+      | "title"
+      | "url"
+      | "body"
+      | "altText"
+      | "thumbnailUrl"
+      | "communitySlug"
+      | "communityApId"
+    > {
+    apId: string;
+  }
+
   export type Community = z.infer<typeof communitySchema>;
   export type Person = z.infer<typeof personSchema>;
 }
@@ -168,6 +183,8 @@ export abstract class ApiAdapter<C> {
   abstract likePost(form: Forms.LikePost): Promise<Schemas.Post>;
 
   abstract deletePost(form: Forms.DeletePost): Promise<Schemas.Post>;
+
+  abstract editPost(form: Forms.EditPost): Promise<Schemas.Post>;
 
   abstract featurePost(form: Forms.FeaturePost): Promise<Schemas.Post>;
 
