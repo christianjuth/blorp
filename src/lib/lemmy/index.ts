@@ -641,10 +641,8 @@ export function usePosts({ enabled = true, ...form }: UsePostsConfig) {
     queryFn,
     getNextPageParam: (lastPage) => lastPage.next_page,
     initialPageParam: "init",
-    notifyOnChangeProps: "all",
-    refetchOnWindowFocus: false,
-    refetchInterval: false,
     enabled: enabled && (form.type_ === "Subscribed" ? isLoggedIn : true),
+    reduceAutomaticRefetch: true,
   });
 
   const queryClient = useQueryClient();

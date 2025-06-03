@@ -10,7 +10,6 @@ import {
 import _ from "lodash";
 import { useThrottleQueue } from "../throttle-queue";
 import { create } from "zustand/react";
-import { useEffect, useRef } from "react";
 
 const useWarmedKeysStore = create<{
   warmedKeys: string[];
@@ -39,16 +38,26 @@ export function useThrottledInfiniteQuery<
   TData = InfiniteData<TQueryFnData>,
   TQueryKey extends QueryKey = QueryKey,
   TPageParam = unknown,
->(
-  options: UseInfiniteQueryOptions<
-    TQueryFnData,
-    TError,
-    TData,
-    TQueryFnData,
-    TQueryKey,
-    TPageParam
-  >,
-) {
+>({
+  reduceAutomaticRefetch,
+  ...options
+}: UseInfiniteQueryOptions<
+  TQueryFnData,
+  TError,
+  TData,
+  TQueryFnData,
+  TQueryKey,
+  TPageParam
+> & {
+  /**
+   * It's very jarring to have a feed of e.g. posts
+   * start refreshing itself automatically, then the
+   * post you were looking at suddenly dissapears.
+   * This options says, once you've fetch the infinite feed
+   * once, only refresh it manually via query.refetch.
+   */
+  reduceAutomaticRefetch?: boolean;
+}) {
   const queryClient = useQueryClient();
   const throttleQueue = useThrottleQueue(options.queryKey);
   const queryFn = options.queryFn;
@@ -68,12 +77,25 @@ export function useThrottledInfiniteQuery<
     return 0;
   };
 
+  const queryKeyStr = JSON.stringify(options.queryKey);
+  const isWarmed = useWarmedKeysStore((s) =>
+    s.warmedKeys.includes(queryKeyStr),
+  );
+  const addWarmedKey = useWarmedKeysStore((s) => s.addWarmedKey);
+
   const query = useInfiniteQuery({
+    ...(reduceAutomaticRefetch
+      ? {
+          refetchOnMount: isWarmed ? false : "always",
+          refetchOnWindowFocus: isWarmed ? false : "always",
+        }
+      : {}),
     ...options,
     ...(_.isFunction(queryFn)
       ? {
           queryFn: (ctx: any) => {
             return throttleQueue.enqueue<TQueryFnData>(async () => {
+              addWarmedKey(queryKeyStr);
               return await queryFn(ctx);
             });
           },
