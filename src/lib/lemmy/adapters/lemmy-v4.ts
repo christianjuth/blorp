@@ -1,6 +1,6 @@
 import { env } from "@/src/env";
 import * as lemmyV4 from "lemmy-v4";
-import { ApiAdapter, Forms, RequestOptions, Schemas } from "./adapter";
+import { ApiBlueprint, Forms, RequestOptions, Schemas } from "./api-blueprint";
 import { createSlug } from "../utils";
 
 const DEFAULT_HEADERS = {
@@ -77,20 +77,19 @@ function convertPost({
   };
 }
 
-export class LemmyV4Api implements ApiAdapter<lemmyV4.LemmyHttp> {
+export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
   client: lemmyV4.LemmyHttp;
   instance: string;
   limit = 50;
 
-  constructor({ instance }: { instance: string }) {
+  constructor({ instance, jwt }: { instance: string; jwt?: string }) {
     this.instance = instance;
     this.client = new lemmyV4.LemmyHttp(instance.replace(/\/$/, ""), {
       headers: DEFAULT_HEADERS,
-      fetchFunction: (...args) => {
-        console.log(...args);
-        return fetch(...args);
-      },
     });
+    if (jwt) {
+      this.setJwt(jwt);
+    }
   }
 
   setJwt(jwt: string) {

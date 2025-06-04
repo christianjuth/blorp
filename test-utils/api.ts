@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import utcPlugin from "dayjs/plugin/utc";
-import { Schemas } from "@/src/lib/lemmy/adapters/adapter";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 import { createSlug } from "@/src/lib/lemmy/utils";
 import _ from "lodash";
 import { PartialDeep } from "type-fest";
