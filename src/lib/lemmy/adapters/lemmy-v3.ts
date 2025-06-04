@@ -1,6 +1,6 @@
 import { env } from "@/src/env";
 import * as lemmyV3 from "lemmy-v3";
-import { ApiAdapter, Schemas, RequestOptions, Forms } from "./adapter";
+import { ApiBlueprint, Schemas, RequestOptions, Forms } from "./api-blueprint";
 import { createSlug } from "../utils";
 import { ListingType } from "lemmy-v4";
 import _ from "lodash";
@@ -83,16 +83,19 @@ function convertPost(postView: lemmyV3.PostView): Schemas.Post {
   };
 }
 
-export class LemmyV3Api implements ApiAdapter<lemmyV3.LemmyHttp> {
+export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
   client: lemmyV3.LemmyHttp;
   instance: string;
   limit = 50;
 
-  constructor({ instance }: { instance: string }) {
+  constructor({ instance, jwt }: { instance: string; jwt?: string }) {
     this.instance = instance;
     this.client = new lemmyV3.LemmyHttp(instance.replace(/\/$/, ""), {
       headers: DEFAULT_HEADERS,
     });
+    if (jwt) {
+      this.setJwt(jwt);
+    }
   }
 
   setJwt(jwt: string) {

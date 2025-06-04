@@ -146,7 +146,7 @@ export type RequestOptions = {
   signal?: AbortSignal;
 };
 
-export abstract class ApiAdapter<C> {
+export abstract class ApiBlueprint<C> {
   abstract client: C;
   abstract limit: number;
 
