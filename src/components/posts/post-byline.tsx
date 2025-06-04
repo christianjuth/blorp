@@ -30,7 +30,7 @@ import { postToDraft, useCreatePostStore } from "@/src/stores/create-post";
 import { shareRoute } from "@/src/lib/share";
 import { Shield, ShieldCheckmark } from "../icons";
 import { cn } from "@/src/lib/utils";
-import { Schemas } from "@/src/lib/lemmy/adapters/adapter";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useCommunitiesStore } from "@/src/stores/communities";
 
