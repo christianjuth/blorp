@@ -23,7 +23,7 @@ import { shareImage } from "@/src/lib/share";
 import { useAuth } from "@/src/stores/auth";
 import removeMd from "remove-markdown";
 import { LuRepeat2 } from "react-icons/lu";
-import { Schemas } from "@/src/lib/lemmy/adapters/adapter";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return <i className="text-muted-foreground text-sm pt-3">{children}</i>;

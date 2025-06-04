@@ -5,7 +5,7 @@ import { usePostsStore } from "./posts";
 import { FlattenedPost, flattenPost } from "../lib/lemmy/utils";
 import _ from "lodash";
 import { getCachePrefixer } from "./auth";
-import { Schemas } from "../lib/lemmy/adapters/adapter";
+import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 
 const prefix = getCachePrefixer({ instance: "123" });
 
