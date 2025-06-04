@@ -4,7 +4,7 @@ import { createStorage, sync } from "./storage";
 import _ from "lodash";
 import { MAX_CACHE_MS } from "./config";
 import { CacheKey, CachePrefixer } from "./auth";
-import { Schemas } from "../lib/lemmy/adapters/adapter";
+import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 
 type CachedPost = {
   data: Schemas.Post;

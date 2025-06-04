@@ -74,8 +74,9 @@ import {
 import { produce } from "immer";
 import { LemmyV3Api } from "./adapters/lemmy-v3";
 import { LemmyV4Api } from "./adapters/lemmy-v4";
-import { ApiAdapter, Forms } from "./adapters/adapter";
+import { Forms } from "./adapters/api-blueprint";
 import { ListingType } from "lemmy-v4";
+import { apiClient } from "./adapters/client";
 
 enum Errors {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -99,81 +100,26 @@ function useLemmyClient(account?: Partial<Account>) {
     jwt = account.jwt;
   }
 
-  const apiRoot = instance.replace(/\/$/, "");
-
-  const lemmyV3Client = useMemo(() => {
-    const client = new LemmyV3Api({ instance });
-    if (jwt) {
-      client.setJwt(jwt);
-    }
-    return client;
-  }, [jwt]);
-
-  const lemmyV4Client = useMemo(() => {
-    const client = new LemmyV4Api({ instance });
-    if (jwt) {
-      client.setJwt(jwt);
-    }
-    return client;
-  }, [jwt]);
-
-  const query = useQuery({
-    queryKey: ["inspectApi", instance],
-    queryFn: async ({ signal }) => {
-      try {
-        const site1 = await fetch(`${instance}api/v3/site`, { signal });
-        if (await site1.json()) {
-          return {
-            type: "LEMMY-V3",
-            //version: site.version,
-          } as const;
-        }
-      } catch {}
-      try {
-        const site2 = await fetch(`${instance}api/v4/site`, { signal });
-        if (await site2.json()) {
-          return {
-            type: "LEMMY-V4",
-            //version: site.version,
-          } as const;
-        }
-      } catch {}
-      return {
-        type: "UNKNOWN",
-        //version: -1,
-      } as const;
-    },
-    refetchOnMount: "always",
-    retry: false,
-  });
+  const api = useMemo(() => {
+    return apiClient({ instance, jwt });
+  }, [instance, jwt]);
 
   return useMemo(() => {
-    let api: ApiAdapter<any> = lemmyV3Client;
-    if (query.data?.type === "LEMMY-V4") {
-      api = lemmyV4Client;
-    }
-
-    const apiType = query.data?.type ?? "UNKNOWN";
-
-    const queryKeyPrefix: unknown[] = [
-      `instance-${instance}`,
-      `api-${apiType}`,
-    ];
+    const queryKeyPrefix: unknown[] = [`instance-${instance}`];
     if (myUserId) {
       queryKeyPrefix.push(`user-${myUserId}`);
     }
 
     return {
       api,
-      setJwt: api.setJwt,
       /**
        * @deprecated use api instead of client
        */
-      client: lemmyV3Client.client,
+      client: new LemmyV3Api({ instance }).client,
       queryKeyPrefix,
       instance,
     };
-  }, [jwt, instance, myUserId, lemmyV3Client, lemmyV4Client, query.data?.type]);
+  }, [jwt, instance, myUserId, api]);
 }
 
 export type FlattenedComment = {
@@ -288,8 +234,6 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
-      const limit = 50;
-
       if (!actorId) {
         throw new Error("person_id undefined");
       }
@@ -302,7 +246,9 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
         throw new Error("person not found");
       }
 
-      const feed = await api.getPersonContent(
+      const feed = await (
+        await api
+      ).getPersonContent(
         {
           apId: actorId,
           pageCursor: pageParam,
@@ -360,7 +306,7 @@ export function usePost({
         throw new Error("ap_id undefined");
       }
 
-      const { post, creator } = await api.getPost({ apId }, { signal });
+      const { post, creator } = await (await api).getPost({ apId }, { signal });
 
       cachePosts(getCachePrefixer(), [
         {
@@ -585,8 +531,8 @@ export function useMostRecentPost(
 
   const query = useQuery({
     queryKey: ["mostRecentPost", form],
-    queryFn: ({ signal }) =>
-      api.getPosts(
+    queryFn: async ({ signal }) =>
+      (await api).getPosts(
         {
           ...form,
           sort: form.sort as any,
@@ -647,7 +593,7 @@ export function usePosts(form: Forms.GetPosts) {
     pageParam: string;
     signal: AbortSignal;
   }) => {
-    const { data, nextCursor } = await api.getPosts(form, { signal });
+    const { data, nextCursor } = await (await api).getPosts(form, { signal });
 
     cachePosts(
       getCachePrefixer(),
@@ -818,7 +764,7 @@ export function useRegister(config?: {
   addAccount?: boolean;
   instance?: string;
 }) {
-  const { client, setJwt } = useLemmyClient({ instance: config?.instance });
+  const { client, api } = useLemmyClient({ instance: config?.instance });
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
@@ -829,7 +775,7 @@ export function useRegister(config?: {
     mutationFn: async (form: Register) => {
       const res = await client.register(form);
       if (res.jwt) {
-        setJwt(res.jwt);
+        (await api).setJwt(res.jwt);
         const site = await client.getSite();
         const person = site.my_user?.local_user_view.person;
         const payload = {
@@ -886,7 +832,7 @@ export function useRegister(config?: {
 }
 
 export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
-  const { client, setJwt } = useLemmyClient(config);
+  const { client, api } = useLemmyClient(config);
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
@@ -897,7 +843,7 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
     mutationFn: async (form: Login) => {
       const res = await client.login(form);
       if (res.jwt) {
-        setJwt(res.jwt);
+        (await api).setJwt(res.jwt);
         const site = await client.getSite();
         const person = site.my_user?.local_user_view.person;
         const payload = {
@@ -1070,11 +1016,11 @@ export function useLikePost(apId: string) {
 
   return useMutation({
     mutationKey: ["likePost", apId],
-    mutationFn: (score: -1 | 0 | 1) => {
+    mutationFn: async (score: -1 | 0 | 1) => {
       if (!post) {
         throw new Error("post not found");
       }
-      return api.likePost({
+      return (await api).likePost({
         postId: post.id,
         score,
       });
@@ -1770,7 +1716,9 @@ export function useSearch(form: Forms.Search) {
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
-      const { posts, nextCursor } = await api.search(
+      const { posts, nextCursor } = await (
+        await api
+      ).search(
         {
           sort,
           ...form,
@@ -2092,7 +2040,8 @@ export function useSavePost(apId: string) {
   });
 
   return useMutation({
-    mutationFn: (form: { postId: number; save: boolean }) => api.savePost(form),
+    mutationFn: async (form: { postId: number; save: boolean }) =>
+      (await api).savePost(form),
     onMutate: ({ save }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticSaved: save,
@@ -2126,7 +2075,7 @@ export function useDeletePost(apId: string) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useMutation({
-    mutationFn: (form: Forms.DeletePost) => api.deletePost(form),
+    mutationFn: async (form: Forms.DeletePost) => (await api).deletePost(form),
     onMutate: ({ deleted }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticDeleted: deleted,
@@ -2190,7 +2139,8 @@ export function useFeaturePost(apId: string) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useMutation({
-    mutationFn: (form: Forms.FeaturePost) => api.featurePost(form),
+    mutationFn: async (form: Forms.FeaturePost) =>
+      (await api).featurePost(form),
     onMutate: ({ featured }) => {
       patchPost(apId, getCachePrefixer(), {
         optimisticFeaturedCommunity: featured,

@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
 import dayjs from "dayjs";
-import { Schemas } from "../lib/lemmy/adapters/adapter";
+import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 
 export type CommunityPartial = Pick<
   Community,
