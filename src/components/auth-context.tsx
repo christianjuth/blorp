@@ -15,6 +15,7 @@ import {
   useLogin,
   useRefreshAuth,
   useRegister,
+  useSite,
 } from "../lib/lemmy";
 import fuzzysort from "fuzzysort";
 import _ from "lodash";
@@ -158,6 +159,10 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
     instance: env.REACT_APP_DEFAULT_INSTANCE,
   });
 
+  const site = useSite({
+    instance: env.REACT_APP_DEFAULT_INSTANCE,
+  });
+
   const submitLogin = (e?: FormEvent) => {
     e?.preventDefault();
     register
@@ -180,6 +185,9 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
         setCaptchaAnswer("");
       });
   };
+
+  const applicationQuestion =
+    site.data?.site_view.local_site.application_question;
 
   return (
     <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
@@ -270,16 +278,15 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
       )}
 
-      <MarkdownRenderer
-        markdown={[
-          "Before you finish your registration, please read through the instance sidebar on our front page (https://lemm.ee). In the sidebar, please pay particular attention to the instance rules - they are important.",
-          "",
-          "Do you agree to follow lemm.ee instance rules?",
-          "Please write your answer in English.",
-        ].join("\n")}
-      />
+      {applicationQuestion && (
+        <MarkdownRenderer markdown={applicationQuestion} />
+      )}
 
-      <Textarea value={answer} onChange={(e) => setAnswer(e.target.value)} />
+      <Textarea
+        value={answer}
+        onChange={(e) => setAnswer(e.target.value)}
+        required
+      />
 
       <Button type="submit" className="mx-auto">
         Sign up

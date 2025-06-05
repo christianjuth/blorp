@@ -178,7 +178,10 @@ export default function CommunityFeed() {
               />
             </Link>
             <div className="md:hidden contents">
-              <PostSortButton align="end" />
+              <PostSortButton
+                align="end"
+                className="text-brand dark:text-muted-foreground"
+              />
             </div>
             <UserDropdown />
           </IonButtons>

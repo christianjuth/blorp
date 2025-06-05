@@ -768,6 +768,16 @@ function is2faError(err?: Error | null) {
   return err && err.message.includes("missing_totp_token");
 }
 
+export function useSite({ instance }: { instance: string }) {
+  return useQuery({
+    queryKey: ["getSite", instance],
+    queryFn: () => {
+      const client = new LemmyHttp(instance);
+      return client.getSite();
+    },
+  });
+}
+
 export function useRegister(config?: {
   addAccount?: boolean;
   instance?: string;
