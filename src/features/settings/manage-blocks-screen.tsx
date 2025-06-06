@@ -108,7 +108,7 @@ export default function SettingsPage() {
                       )
                     }
                   >
-                    <CommunityCard size="sm" communityView={c} disableLink />
+                    <CommunityCard size="sm" apId={c.actor_id} disableLink />
                   </SectionItem>
                 );
               })}
