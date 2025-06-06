@@ -1,6 +1,5 @@
-import { CommunityAggregates, CommunityView } from "lemmy-v3";
 import { abbriviateNumber } from "@/src/lib/format";
-import { createSlug, Slug } from "@/src/lib/lemmy/utils";
+import { createSlug } from "@/src/lib/lemmy/utils";
 import { useLinkContext } from "@/src/routing/link-context";
 import { Link } from "@/src/routing/index";
 import {
@@ -8,50 +7,49 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/src/components/ui/avatar";
-import { CommunityPartial } from "@/src/stores/create-post";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
+import { useAuth } from "@/src/stores/auth";
+import { useCommunitiesStore } from "@/src/stores/communities";
 
 export function CommunityCard({
-  communityView,
+  apId,
   disableLink,
   className,
   size = "md",
 }: {
-  communityView:
-    | Pick<CommunityView, "community">
-    | Pick<CommunityView, "community" | "counts">
-    | CommunityPartial;
+  apId: string;
   disableLink?: boolean;
   className?: string;
   size?: "sm" | "md";
 }) {
-  let icon: string | undefined = undefined;
-  let title: string;
-  let slug: Slug | null;
-  let counts: CommunityAggregates | undefined = undefined;
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const community = useCommunitiesStore((s) => {
+    const slug = createSlug({ apId })?.slug;
+    return slug ? s.communities[getCachePrefixer()(slug)]?.data : undefined;
+  });
 
-  if ("actor_id" in communityView) {
-    icon = communityView.icon;
-    title = communityView.title;
-    slug = createSlug(communityView);
-  } else {
-    const { community } = communityView;
-    if ("counts" in communityView) {
-      counts = communityView.counts;
-    }
-    icon = community.icon;
-    title = community.title;
-    slug = createSlug(community);
-  }
+  // TODO: FIX THIS
+  const counts = { subscribers: 0 };
 
   const linkCtx = useLinkContext();
+
+  if (!community) {
+    return <CommunityCardSkeleton />;
+  }
+  const { communityView } = community;
+  const slug = createSlug(communityView.community);
 
   const content = (
     <>
       <Avatar className={cn("h-9 w-9", size === "sm" && "h-8 w-8")}>
-        <AvatarImage src={icon} className="object-cover" />
-        <AvatarFallback>{title.substring(0, 1)}</AvatarFallback>
+        <AvatarImage
+          src={communityView.community.icon}
+          className="object-cover"
+        />
+        <AvatarFallback>
+          {communityView.community.name.substring(0, 1)}
+        </AvatarFallback>
       </Avatar>
 
       <div className="flex flex-col gap-0.5 flex-1 overflow-hidden">

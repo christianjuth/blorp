@@ -516,7 +516,7 @@ function usePostsKey(form: GetPosts) {
 
 export function useMostRecentPost(
   featuredContext: "local" | "community",
-  { enabled, ...form }: UsePostsConfig,
+  form: Forms.GetPosts,
 ) {
   const { client, api } = useLemmyClient();
 
@@ -529,8 +529,9 @@ export function useMostRecentPost(
 
   form = {
     showRead: !hideRead,
+    sort,
     ...form,
-  } satisfies Omit<UsePostsConfig, "enabled">;
+  } satisfies Forms.GetPosts;
 
   const query = useQuery({
     queryKey: ["mostRecentPost", form],
@@ -546,7 +547,6 @@ export function useMostRecentPost(
     refetchInterval: 1000 * 60,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
-    enabled,
   });
 
   return {

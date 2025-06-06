@@ -328,10 +328,7 @@ export function CreatePost() {
                 disabled={isEdit}
               >
                 {draft.communityApId ? (
-                  <CommunityCard
-                    communityView={draft.communityApId}
-                    disableLink
-                  />
+                  <CommunityCard apId={draft.communityApId} disableLink />
                 ) : (
                   <span className="font-bold">Select a community</span>
                 )}
@@ -568,7 +565,7 @@ function ChooseCommunity({
                   className="flex flex-row items-center gap-2"
                   disabled={!!draft.apId}
                 >
-                  <CommunityCard communityView={item} disableLink />
+                  <CommunityCard apId={item.actor_id} disableLink />
                   {draft.communityApId &&
                     item.actor_id === draft.communityApId && (
                       <FaCheck className="text-brand" />
