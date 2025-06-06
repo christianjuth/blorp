@@ -554,9 +554,9 @@ export function useMostRecentPost(
     data: query.data?.posts?.find(({ post }) => {
       switch (featuredContext) {
         case "local":
-          return !post.featured_local;
+          return !post.featuredLocal;
         case "community":
-          return !post.featured_community;
+          return !post.featuredCommunity;
       }
     }),
   };
@@ -596,11 +596,11 @@ export function usePosts(form: Forms.GetPosts) {
     pageParam: string;
     signal: AbortSignal;
   }) => {
-    const { data, nextCursor } = await (await api).getPosts(form, { signal });
+    const { posts, nextCursor } = await (await api).getPosts(form, { signal });
 
     cachePosts(
       getCachePrefixer(),
-      data.map((p) => p.post),
+      posts.map((p) => p.post),
     );
 
     /* cacheCommunities( */
@@ -614,7 +614,7 @@ export function usePosts(form: Forms.GetPosts) {
     /* ); */
 
     return {
-      posts: data.map((p) => p.post.apId),
+      posts: posts.map((p) => p.post.apId),
       nextCursor,
     };
   };
@@ -1897,12 +1897,12 @@ export function useCreatePost() {
   const { client } = useLemmyClient();
   return useMutation({
     mutationFn: async (draft: Draft) => {
-      if (!draft.community) {
+      if (!draft.communityApId) {
         throw new Error("could not find community to create post under");
       }
 
       const { community } = await client.resolveObject({
-        q: draft.community.apId,
+        q: draft.communityApId,
       });
 
       if (!community) {
@@ -1932,7 +1932,7 @@ export function useCreatePost() {
 
 export function useEditPost(apId: string) {
   const router = useIonRouter();
-  const { client } = useLemmyClient();
+  const { client, api } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   return useMutation({
@@ -1945,11 +1945,11 @@ export function useEditPost(apId: string) {
         throw new Error("Could not find post to update");
       }
 
-      return await client.editPost(draftToEditPostData(draft, post.post.id));
+      return await (await api).editPost(draftToEditPostData(draft));
     },
-    onSuccess: ({ post_view }) => {
-      patchPost(apId, getCachePrefixer(), flattenPost({ post_view }));
-      const slug = createSlug(post_view.community)?.slug;
+    onSuccess: (postView) => {
+      patchPost(apId, getCachePrefixer(), postView);
+      const slug = postView.communitySlug;
       if (slug) {
         router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
       }
