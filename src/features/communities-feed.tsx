@@ -30,7 +30,7 @@ const MemoedListItem = memo(
   function ListItem(props: { community: Community }) {
     return (
       <ContentGutters className="md:contents">
-        <CommunityCard communityView={props} className="mt-1" />
+        <CommunityCard apId={props.community.actor_id} className="mt-1" />
       </ContentGutters>
     );
   },

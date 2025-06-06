@@ -123,7 +123,7 @@ export function MainSidebar() {
               menu={LEFT_SIDEBAR_MENU_ID}
               autoHide={false}
             >
-              <CommunityCard communityView={c} size="sm" />
+              <CommunityCard apId={c.actor_id} size="sm" />
             </IonMenuToggle>
           ))}
         </CollapsibleContent>
@@ -150,7 +150,7 @@ export function MainSidebar() {
                   menu={LEFT_SIDEBAR_MENU_ID}
                   autoHide={false}
                 >
-                  <CommunityCard communityView={c} size="sm" />
+                  <CommunityCard apId={c.actor_id} size="sm" />
                 </IonMenuToggle>
               ))}
             </CollapsibleContent>
@@ -179,7 +179,7 @@ export function MainSidebar() {
                   menu={LEFT_SIDEBAR_MENU_ID}
                   autoHide={false}
                 >
-                  <CommunityCard communityView={c} size="sm" />
+                  <CommunityCard apId={c.actor_id} size="sm" />
                 </IonMenuToggle>
               ))}
             </CollapsibleContent>
