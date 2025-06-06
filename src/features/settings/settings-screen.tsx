@@ -29,6 +29,7 @@ import { SectionItem, Section } from "./shared-components";
 import { useConfirmationAlert } from "@/src/lib/hooks/index";
 import { DebouncedInput } from "@/src/components/debounced-input";
 import { FiChevronRight } from "react-icons/fi";
+import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
@@ -255,10 +256,10 @@ export default function SettingsPage() {
       <PageTitle>Settings</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start">
+          <IonButtons slot="start" className="gap-2">
             <MenuButton />
+            <ToolbarTitle>Settings</ToolbarTitle>
           </IonButtons>
-          <IonTitle data-tauri-drag-region>Settings</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

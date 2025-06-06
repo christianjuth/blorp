@@ -47,13 +47,13 @@ type Item =
 
 function Placeholder() {
   return (
-    <ContentGutters className="px-0">
+    <ContentGutters>
       <div className="flex-1 flex mt-2.5 gap-3">
         <Skeleton className="h-8 w-8 rounded-full" />
         <div className="flex-1 flex flex-col gap-2">
-          <Skeleton className="h-12 max-md:mx-3" />
-          <Skeleton className="h-5.5 max-md:mx-3" />
-          <Skeleton className="h-6 w-12 max-md:mx-3 self-end" />
+          <Skeleton className="h-12" />
+          <Skeleton className="h-5.5" />
+          <Skeleton className="h-6 w-12 self-end" />
           <Skeleton className="h-px mt-0.5" />
         </div>
       </div>

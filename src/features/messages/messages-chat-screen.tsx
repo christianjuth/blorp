@@ -158,7 +158,7 @@ export default function Messages() {
                         className={cn(
                           "p-2.5 rounded-xl max-w-2/3",
                           isMe
-                            ? "bg-brand-secondary text-white ml-auto"
+                            ? "bg-brand-secondary text-white ml-auto [&_*]:text-white! [&_a]:underline"
                             : "rounded-tl-none bg-secondary",
                         )}
                       />
