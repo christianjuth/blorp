@@ -182,7 +182,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
 
     return {
       nextCursor: posts.next_page ?? null,
-      data: posts.posts.map((p) => ({
+      posts: posts.posts.map((p) => ({
         post: convertPost(p),
         creator: convertPerson(p.creator),
       })),

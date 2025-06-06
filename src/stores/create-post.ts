@@ -99,14 +99,15 @@ export function draftToCreatePostData(
   draft: Draft,
   community_id: number,
 ): CreatePost {
-  if (!draft.name) {
+  if (!draft.title) {
     throw new Error("post name is required");
   }
   const post: CreatePost = {
     ...draft,
-    name: draft.name,
+    name: draft.title,
     community_id,
-    body: draft.body,
+    body: draft.body ?? undefined,
+    url: draft.url ?? undefined,
   };
 
   switch (draft.type) {
