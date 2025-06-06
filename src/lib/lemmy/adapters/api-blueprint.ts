@@ -137,8 +137,7 @@ export namespace Forms {
   };
 }
 
-type Paginated<Data> = {
-  data: Data;
+type Paginated = {
   nextCursor: string | null;
 };
 
@@ -166,13 +165,13 @@ export abstract class ApiBlueprint<C> {
     form: Forms.GetPosts,
     options: RequestOptions,
   ): Promise<
-    Paginated<
-      {
+    Paginated & {
+      posts: {
         post: Schemas.Post;
         community?: Schemas.Community;
         creator?: Schemas.Person;
-      }[]
-    >
+      }[];
+    }
   >;
 
   abstract savePost(form: {
@@ -184,7 +183,7 @@ export abstract class ApiBlueprint<C> {
 
   abstract deletePost(form: Forms.DeletePost): Promise<Schemas.Post>;
 
-  abstract editPost(form: Forms.EditPost): Promise<Schemas.Post>;
+  abstract editPost(form: Schemas.EditPost): Promise<Schemas.Post>;
 
   abstract featurePost(form: Forms.FeaturePost): Promise<Schemas.Post>;
 

@@ -101,7 +101,7 @@ export default function CommunityFeed() {
 
   /* const firstReadPost = data.find((p) => !p.pinned); */
   /* const firstUnreadPost = data.find((p) => !p.pinned && !p.read); */
-  const mostRecentPostId = mostRecentPost?.data?.post.ap_id;
+  const mostRecentPostId = mostRecentPost?.data?.post.apId;
   const hasNewPost = mostRecentPostId; //&&
   /* mostRecentPostId !== firstReadPost?.apId && */
   /* mostRecentPostId !== firstUnreadPost?.apId; */

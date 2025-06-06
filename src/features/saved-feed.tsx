@@ -102,7 +102,7 @@ export default function SavedFeed() {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const posts = usePosts({
     savedOnly: true,
-    type_: "All",
+    type: "All",
   });
 
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } = posts;
