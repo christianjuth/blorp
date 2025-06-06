@@ -159,7 +159,7 @@ export default function HomeFeed() {
 
   const mostRecentPost = useMostRecentPost("local", {
     sort: postSort,
-    type_: listingType,
+    type: listingType,
   });
 
   const {

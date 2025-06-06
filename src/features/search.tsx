@@ -244,7 +244,10 @@ export default function SearchFeed({
 
               return (
                 <ContentGutters>
-                  <CommunityCard communityView={item} className="pt-3.5" />
+                  <CommunityCard
+                    apId={item.community.actor_id}
+                    className="pt-3.5"
+                  />
                   <></>
                 </ContentGutters>
               );
