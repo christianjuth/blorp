@@ -139,7 +139,6 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
   }
 
   async getPosts(form: Forms.GetPosts, options: RequestOptions) {
-    console.log("HEREHE");
     const posts = await this.client.getPosts(
       {
         show_read: form.showRead,
@@ -154,7 +153,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
     );
     return {
       nextCursor: posts.next_page ?? null,
-      data: posts.posts.map((p) => ({
+      posts: posts.posts.map((p) => ({
         post: convertPost(p),
         creator: convertPerson(p.creator),
         /* community:  */
