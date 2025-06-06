@@ -3,9 +3,14 @@ set -a  # Automatically export all variables
 source .env
 set +a  # Stop automatic export
 
+# 0) Clean release folder
 rm -rf release
 mkdir release
 
+# 1) Make sure yarn is up to date
+yarn install
+
+# 2) Build Tauri MacOS
 tauri build --bundles app --target universal-apple-darwin
 xcrun productbuild --sign "$PRODUCTBUILD_SIGNING_IDENTITY" \
     --component "./src-tauri/target/universal-apple-darwin/release/bundle/macos/Blorp.app" /Applications \
@@ -36,3 +41,10 @@ cat > release/latest.json <<EOF
 EOF
 
 cp src-tauri/target/universal-apple-darwin/release/bundle/macos/Blorp.app.tar.gz release/Mac-Blorp.app.tar.gz
+
+# 3) Build 
+cd android
+./gradlew bundleRelease
+cd ..
+
+cp android/app/build/outputs/bundle/release/app-release.aab ./release/android-release.aab
