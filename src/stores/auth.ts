@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
-import { GetSiteResponse } from "lemmy-js-client";
+import { GetSiteResponse } from "lemmy-v3";
 import _ from "lodash";
 import { env } from "../env";
 
@@ -46,11 +46,17 @@ export function getAccountActorId(account: Account) {
 }
 
 export function parseAccountInfo(account: Account) {
-  const url = new URL(account.instance);
-  return {
-    person: account.site?.my_user?.local_user_view.person,
-    instance: url.host,
-  };
+  try {
+    const url = new URL(account.instance);
+    return {
+      person: account.site?.my_user?.local_user_view.person,
+      instance: url.host,
+    };
+  } catch {
+    return {
+      instance: "",
+    };
+  }
 }
 
 function getNewAccount() {

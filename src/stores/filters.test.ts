@@ -7,7 +7,7 @@ import {
   CommunitySortType,
   ListingType,
   PostSortType,
-} from "lemmy-js-client";
+} from "lemmy-v3";
 
 describe("useFiltersStore", () => {
   describe("communitySort", () => {

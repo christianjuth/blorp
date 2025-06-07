@@ -1,24 +1,46 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { VirtualList } from "./virtual-list";
-import { FeedPostCard, getPostProps } from "./posts/post";
-import * as lemmy from "@/test-utils/lemmy";
-import { flattenPost } from "@/src/lib/lemmy/utils";
+import { FeedPostCard } from "./posts/post";
+import * as api from "@/test-utils/api";
+import _ from "lodash";
+import { useAuth } from "../stores/auth";
+import { usePostsStore } from "../stores/posts";
+import { useEffect } from "react";
+
+const POST_FEED = Array.from({ length: 50 }).map((_i, index) =>
+  api.getPost({
+    variant: index % 2 === 0 ? "text" : "image",
+    post: {
+      id: api.randomDbId(),
+    },
+  }),
+);
+
+function LoadData() {
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const cachePosts = usePostsStore((s) => s.cachePosts);
+
+  useEffect(() => {
+    cachePosts(
+      getCachePrefixer(),
+      POST_FEED.map((p) => p.post),
+    );
+  }, []);
+
+  return null;
+}
 
 //👇 This default export determines where your story goes in the story list
 const meta: Meta<typeof VirtualList> = {
   component: VirtualList,
-};
-
-const POST_FEED = Array.from({ length: 50 }).map((_, index) =>
-  getPostProps(
-    flattenPost({
-      post_view: lemmy.getPost({
-        variant: index % 2 === 0 ? "text" : "image",
-      }),
-    }),
+  decorators: (Story) => (
+    <>
+      <LoadData />
+      <Story />
+    </>
   ),
-);
+};
 
 export default meta;
 type Story = StoryObj<typeof VirtualList>;
@@ -36,10 +58,8 @@ export const Placeholder: Story = {
 export const PostFeed: Story = {
   args: {
     className: "h-[500px]",
-    data: POST_FEED,
-    renderItem: ({ item }) => (
-      <FeedPostCard {...(item as (typeof POST_FEED)[number])} />
-    ),
+    data: POST_FEED.map((p) => p.post.apId),
+    renderItem: ({ item }) => <FeedPostCard apId={item as string} />,
     numPlaceholders: 200,
     estimatedItemSize: 24,
   },

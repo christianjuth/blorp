@@ -1,4 +1,4 @@
-import { Community } from "lemmy-js-client";
+import { Community } from "lemmy-v3";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
