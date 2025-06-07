@@ -1,9 +1,24 @@
 import { env } from "@/src/env";
 import * as lemmyV3 from "lemmy-v3";
-import { ApiBlueprint, Schemas, RequestOptions, Forms } from "./api-blueprint";
+import {
+  ApiBlueprint,
+  Schemas,
+  RequestOptions,
+  Forms,
+  INIT_PAGE_TOKEN,
+} from "./api-blueprint";
 import { createSlug } from "../utils";
-import { ListingType } from "lemmy-v4";
 import _ from "lodash";
+
+function parseCursor<V extends string | number>(
+  cursor: V | typeof INIT_PAGE_TOKEN | undefined,
+  initValue: V,
+): V {
+  if (_.isUndefined(cursor) || cursor === INIT_PAGE_TOKEN) {
+    return initValue;
+  }
+  return cursor;
+}
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -144,7 +159,8 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
         show_read: form.showRead,
         sort: form.sort as any,
         type_: form.type,
-        page_cursor: form.pageCursor,
+        page_cursor:
+          form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         limit: this.limit,
         community_name: form.communitySlug,
         saved_only: form.savedOnly,
@@ -213,14 +229,23 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       {
         person_id: person.person.id,
         limit: this.limit,
-        page: form.pageCursor ? _.parseInt(form.pageCursor) : undefined,
+        page:
+          _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+            ? 1
+            : _.parseInt(form.pageCursor) + 1,
       },
       options,
     );
 
+    const nextCursor =
+      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+        ? 1
+        : _.parseInt(form.pageCursor) + 1;
+    const hasNextCursor = posts.length > this.limit;
+
     return {
       posts: posts.map(convertPost),
-      nextCursor: form.pageCursor ? `${_.parseInt(form.pageCursor) + 1}` : "2",
+      nextCursor: hasNextCursor ? String(nextCursor) : null,
     };
   }
 
