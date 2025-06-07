@@ -64,7 +64,7 @@
     --brand-secondary: #876cff;
 
     /* Shad cn dark theme */
-    --shad-background: oklch(0.141 0.005 285.823);
+    --shad-background: oklch(0 0 0);
     --shad-foreground: oklch(0.985 0 0);
     --shad-card: oklch(0.21 0.006 285.885);
     --shad-card-foreground: oklch(0.985 0 0);
