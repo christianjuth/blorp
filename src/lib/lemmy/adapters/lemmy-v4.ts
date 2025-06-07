@@ -1,7 +1,14 @@
 import { env } from "@/src/env";
 import * as lemmyV4 from "lemmy-v4";
-import { ApiBlueprint, Forms, RequestOptions, Schemas } from "./api-blueprint";
+import {
+  ApiBlueprint,
+  Forms,
+  INIT_PAGE_TOKEN,
+  RequestOptions,
+  Schemas,
+} from "./api-blueprint";
 import { createSlug } from "../utils";
+import _ from "lodash";
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -167,13 +174,49 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     return convertPost(post_view);
   }
 
+  async getPersonContent(
+    form: Forms.GetPersonContent,
+    options: RequestOptions,
+  ) {
+    const { person } = await this.client.resolveObject(
+      {
+        q: form.apId,
+      },
+      options,
+    );
+
+    if (!person) {
+      throw new Error("person not found");
+    }
+
+    const content = await this.client.listPersonContent(
+      {
+        person_id: person.person.id,
+        limit: this.limit,
+        page_cursor:
+          form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
+      },
+      options,
+    );
+
+    const posts = content.content
+      .filter((c) => c.type_ === "Post")
+      .map((c) => convertPost(c));
+
+    return {
+      posts,
+      nextCursor: content.next_page ?? null,
+    };
+  }
+
   async getPosts(form: Forms.GetPosts, options: RequestOptions) {
     const posts = await this.client.getPosts(
       {
         show_read: form.showRead,
         sort: form.sort as any,
         type_: form.type,
-        page_cursor: form.pageCursor,
+        page_cursor:
+          form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         limit: this.limit,
         community_name: form.communitySlug,
       },
