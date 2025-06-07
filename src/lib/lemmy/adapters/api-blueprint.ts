@@ -1,6 +1,8 @@
 import { SearchType, PostFeatureType, ListingType } from "lemmy-v4";
 import z from "zod";
 
+export const INIT_PAGE_TOKEN = "INIT_PAGE_TOKEN";
+
 const communitySlug = z.string();
 
 const personSchema = z.object({
@@ -93,6 +95,10 @@ export namespace Schemas {
 }
 
 export namespace Forms {
+  export type GetPerson = {
+    apId: string;
+  };
+
   export type GetPersonContent = {
     apId: string;
     pageCursor?: string;

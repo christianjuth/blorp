@@ -74,7 +74,7 @@ import {
 import { produce } from "immer";
 import { LemmyV3Api } from "./adapters/lemmy-v3";
 import { LemmyV4Api } from "./adapters/lemmy-v4";
-import { Forms } from "./adapters/api-blueprint";
+import { Forms, INIT_PAGE_TOKEN } from "./adapters/api-blueprint";
 import { ListingType } from "lemmy-v4";
 import { apiClient } from "./adapters/client";
 
@@ -215,7 +215,7 @@ export function usePersonDetails({
 }
 
 export function usePersonFeed({ actorId }: { actorId?: string }) {
-  const { client, api, queryKeyPrefix } = useLemmyClient();
+  const { api, queryKeyPrefix } = useLemmyClient();
 
   const postSort = useFiltersStore((s) => s.postSort);
 
@@ -238,14 +238,6 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
     queryFn: async ({ pageParam, signal }) => {
       if (!actorId) {
         throw new Error("person_id undefined");
-      }
-
-      const { person } = await client.resolveObject({
-        q: actorId,
-      });
-
-      if (!person) {
-        throw new Error("person not found");
       }
 
       const feed = await (
@@ -273,7 +265,7 @@ export function usePersonFeed({ actorId }: { actorId?: string }) {
       };
     },
     enabled: !!actorId,
-    initialPageParam: "1",
+    initialPageParam: INIT_PAGE_TOKEN,
     getNextPageParam: (data) => data.next_page,
   });
 }
@@ -564,7 +556,7 @@ export function useMostRecentPost(
 
 export function usePosts(form: Forms.GetPosts) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
-  const { client, api, queryKeyPrefix } = useLemmyClient();
+  const { api, queryKeyPrefix } = useLemmyClient();
 
   const showNsfw = useSettingsStore((s) => s.showNsfw);
 
@@ -625,7 +617,7 @@ export function usePosts(form: Forms.GetPosts) {
     queryKey,
     queryFn,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
-    initialPageParam: "init",
+    initialPageParam: INIT_PAGE_TOKEN,
     enabled: form.type === "Subscribed" ? isLoggedIn : true,
     reduceAutomaticRefetch: true,
   });
