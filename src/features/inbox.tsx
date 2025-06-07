@@ -17,7 +17,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
 } from "@ionic/react";
 import { MenuButton, UserDropdown } from "../components/nav";
@@ -82,7 +81,10 @@ function Mention({
   return (
     <ContentGutters className="px-0">
       <div
-        className={cn("flex-1 max-md:px-2.5", !noBorder && "border-b-[0.5px]")}
+        className={cn(
+          "flex-1 max-md:px-2.5",
+          !noBorder && "border-b-8 max-md:border-border/50 md:border-b",
+        )}
       >
         <div className="flex my-2.5 gap-3 items-start">
           <BadgeIcon
@@ -174,7 +176,10 @@ function Reply({
   return (
     <ContentGutters className="px-0">
       <div
-        className={cn("flex-1 max-md:px-2.5", !noBorder && "border-b-[0.5px]")}
+        className={cn(
+          "flex-1 max-md:px-2.5",
+          !noBorder && "border-b-8 max-md:border-border/50 md:border-b",
+        )}
       >
         <div className="flex my-2.5 gap-3 items-start">
           <BadgeIcon

@@ -192,7 +192,7 @@ export function CommunitySortSelect() {
       actions={actions}
       selectedValue={communitySort}
       trigger={
-        <div className="text-xl text-brand">
+        <div className="text-xl text-muted-foreground">
           {getIconCommunitySort(communitySort)}
         </div>
       }

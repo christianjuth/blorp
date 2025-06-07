@@ -236,7 +236,7 @@ export function FeedPostCard(props: PostProps) {
       data-testid="post-card"
       className={cn(
         "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 max-md:px-3 overflow-x-hidden",
-        props.detailView ? "pb-2" : "border-b-[0.5px] pb-4",
+        props.detailView ? "pb-2" : "border-b pb-4",
       )}
     >
       <PostByline {...props} />

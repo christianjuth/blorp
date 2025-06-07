@@ -205,7 +205,7 @@ export default function SearchFeed({
                 className="max-md:hidden"
                 key="header-type-toggle"
               >
-                <div className="flex flex-row h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center">
+                <div className="flex flex-row h-12 md:border-b md:bg-background flex-1 items-center">
                   <div>
                     <ToggleGroup
                       type="single"

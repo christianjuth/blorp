@@ -1,6 +1,6 @@
 import { ContentGutters } from "@/src/components/gutters";
-import { MarkdownRenderer } from "@/src/components/markdown/renderer";
 import { MenuButton, UserDropdown } from "@/src/components/nav";
+import { PageTitle } from "@/src/components/page-title";
 import { PersonAvatar } from "@/src/components/person/person-avatar";
 import { RelativeTime } from "@/src/components/relative-time";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
@@ -16,7 +16,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
 } from "@ionic/react";
 import _ from "lodash";
@@ -72,11 +71,12 @@ export default function Messages() {
 
   return (
     <IonPage>
+      <PageTitle>Chats</PageTitle>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start" className="gap-2">
             <MenuButton />
-            <ToolbarTitle>Messages</ToolbarTitle>
+            <ToolbarTitle>Chats</ToolbarTitle>
           </IonButtons>
           <IonButtons slot="end">
             <UserDropdown />
@@ -93,12 +93,12 @@ export default function Messages() {
               to="/messages/chat/:userId"
               params={{ userId: encodeApId(getOtherPerson(item).actor_id) }}
             >
-              <ContentGutters>
+              <ContentGutters className="px-0">
                 <div className="overflow-hidden">
                   <div
                     className={cn(
-                      "flex gap-3 my-2.5",
-                      item.hasUnread && "border-l-3 border-l-brand pl-2",
+                      "flex gap-3 my-4 max-md:px-2.5",
+                      item.hasUnread && "border-l-3 border-l-brand ml-2.5",
                     )}
                   >
                     <PersonAvatar

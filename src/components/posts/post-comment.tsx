@@ -265,7 +265,7 @@ export function PostComment({
         level === 0 && "max-md:px-2.5 py-3",
         level === 0 &&
           !singleCommentThread &&
-          "border-t-8 max-md:border-border/50 md:border-t-[0.5px]",
+          "border-t-8 max-md:border-border/50 md:border-t",
       )}
     >
       {singleCommentThread && level === 0 && (

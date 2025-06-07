@@ -32,6 +32,7 @@ import { Button } from "@/src/components/ui/button";
 import { Person } from "lemmy-js-client";
 import { useMedia } from "@/src/lib/hooks";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
+import { PageTitle } from "@/src/components/page-title";
 
 dayjs.extend(updateLocale);
 
@@ -104,6 +105,7 @@ export default function Messages() {
 
   return (
     <IonPage>
+      <PageTitle>{person ? createSlug(person)?.slug : null}</PageTitle>
       <IonHeader>
         <IonToolbar>
           <IonButtons className="gap-2">
@@ -123,7 +125,7 @@ export default function Messages() {
             key={signal}
             className="pt-5 ion-content-scroll-host"
             style={{
-              scrollbarGutter: media.xxl ? "stable both-edges" : undefined,
+              scrollbarGutter: media.xxl ? "stable" : undefined,
             }}
             shift
             ref={ref}

@@ -2,7 +2,7 @@ import { useIonRouter } from "@ionic/react";
 import { useRouteMatch } from "react-router";
 import { env } from "../env";
 
-export function PageTitle({ children }: { children?: string }) {
+export function PageTitle({ children }: { children?: string | null }) {
   const router = useIonRouter();
   const match = useRouteMatch();
 

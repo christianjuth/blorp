@@ -307,6 +307,8 @@ export function VirtualList<T>({
     refresh?.().finally(() => event.detail.complete());
   }
 
+  const numCols = props.numColumns ?? 1;
+
   return (
     // Hide refresher on large screen sizes, because it kept
     // getting triggered by my mouse
@@ -324,7 +326,11 @@ export function VirtualList<T>({
           className,
         )}
         style={{
-          scrollbarGutter: media.xxl ? "stable both-edges" : undefined,
+          scrollbarGutter: media.xxl
+            ? numCols > 1
+              ? "stable"
+              : "stable both-edges"
+            : undefined,
         }}
         onScroll={onScroll}
       >

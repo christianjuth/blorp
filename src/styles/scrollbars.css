@@ -3,6 +3,13 @@
 }
 
 @media screen and (width >= 48rem) {
+  ion-toolbar {
+    padding-right: calc(var(--ion-safe-area-right, 0) + 8px);
+    padding-left: calc(var(--ion-safe-area-left, 0) + 8px);
+  }
+}
+
+@media screen and (width >= 48rem) {
   ::-webkit-scrollbar {
     width: 8px;
     border-left: 1px solid transparent;

@@ -17,10 +17,13 @@ import {
 } from "@/src/components/ui/avatar";
 import { useRequireAuth } from "./auth-context";
 import { IonMenuButton, IonMenuToggle } from "@ionic/react";
-import { IoPerson, IoSettings, IoSettingsOutline } from "react-icons/io5";
-import { useLogout, useNotificationCount } from "../lib/lemmy";
+import { IoPerson, IoSettingsOutline } from "react-icons/io5";
+import {
+  useLogout,
+  useNotificationCount,
+  usePrivateMessagesCount,
+} from "../lib/lemmy";
 import { LuMenu } from "react-icons/lu";
-import { Button } from "./ui/button";
 import { useConfirmationAlert, useMedia } from "../lib/hooks";
 import {
   IoPersonOutline,
@@ -40,8 +43,11 @@ function AccountNotificationBadge({
   accountIndex: number;
   children: React.ReactNode;
 }) {
-  const count = useNotificationCount()[accountIndex];
-  return <BadgeCount showBadge={!!count}>{children}</BadgeCount>;
+  const inboxCount = useNotificationCount()[accountIndex];
+  const pmCount = usePrivateMessagesCount()[accountIndex];
+  return (
+    <BadgeCount showBadge={!!inboxCount || !!pmCount}>{children}</BadgeCount>
+  );
 }
 
 export function UserDropdown() {
@@ -56,8 +62,11 @@ export function UserDropdown() {
   const accounts = useAuth((s) => s.accounts);
   const setAccountIndex = useAuth((s) => s.setAccountIndex);
 
-  const counts = useNotificationCount();
-  const count = _.sum(counts.filter((_, i) => i !== selectedAccountIndex));
+  const inboxCounts = useNotificationCount();
+  const pmCounts = usePrivateMessagesCount();
+  const count =
+    _.sum(inboxCounts.filter((_, i) => i !== selectedAccountIndex)) +
+    _.sum(pmCounts.filter((_, i) => i !== selectedAccountIndex));
 
   const { person, instance } = parseAccountInfo(selectedAccount);
 
@@ -208,7 +217,8 @@ export function UserSidebar() {
   const selectedAccount = useAuth((s) => s.getSelectedAccount());
   const accounts = useAuth((s) => s.accounts);
   const setAccountIndex = useAuth((s) => s.setAccountIndex);
-  const counts = useNotificationCount();
+  const inboxAcounts = useNotificationCount();
+  const pmCounts = usePrivateMessagesCount();
 
   const { person, instance } = parseAccountInfo(selectedAccount);
 
@@ -299,7 +309,9 @@ export function UserSidebar() {
               }}
               className="flex flex-row gap-2 items-center text-left"
             >
-              <BadgeCount showBadge={!!counts[index]}>
+              <BadgeCount
+                showBadge={!!inboxAcounts[index] || !!pmCounts[index]}
+              >
                 <Avatar key={person?.id}>
                   {person && <AvatarImage src={person.avatar} />}
                   <AvatarFallback>
