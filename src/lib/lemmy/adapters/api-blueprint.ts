@@ -70,6 +70,7 @@ const communitySchema = z.object({
   apId: z.string().nullable(),
   slug: communitySlug,
   icon: z.string().nullable(),
+  banner: z.string().nullable(),
 });
 
 export namespace Schemas {
@@ -141,6 +142,10 @@ export namespace Forms {
     sort?: string;
     pageCursor?: string;
   };
+
+  export type GetCommunity = {
+    slug?: string;
+  };
 }
 
 type Paginated = {
@@ -209,7 +214,18 @@ export abstract class ApiBlueprint<C> {
     nextCursor: string | null;
   }>;
 
+  abstract getCommunity(
+    form: Forms.GetCommunity,
+    options: RequestOptions,
+  ): Promise<{
+    community: Schemas.Community;
+    mods: Schemas.Person[];
+  }>;
+
   //abstract getCommunity(): Promise<Schemas.Community>;
-  //
-  //abstract getPerson(form: { apId: string }): Promise<Schemas.Person>;
+
+  abstract getPerson(
+    form: Forms.GetPerson,
+    options: RequestOptions,
+  ): Promise<Schemas.Person>;
 }
