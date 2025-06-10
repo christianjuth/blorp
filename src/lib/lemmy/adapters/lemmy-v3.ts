@@ -10,16 +10,6 @@ import {
 import { createSlug } from "../utils";
 import _ from "lodash";
 
-function parseCursor<V extends string | number>(
-  cursor: V | typeof INIT_PAGE_TOKEN | undefined,
-  initValue: V,
-): V {
-  if (_.isUndefined(cursor) || cursor === INIT_PAGE_TOKEN) {
-    return initValue;
-  }
-  return cursor;
-}
-
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
   // User-Agent header is not present
@@ -48,10 +38,23 @@ function cursorToInt(pageCursor: string | null | undefined) {
   return pageCursor ? _.parseInt(pageCursor) : undefined;
 }
 
-function convertPerson(
-  person: lemmyV3.Person,
-  aggregates?: lemmyV3.PersonAggregates,
-): Schemas.Person {
+function convertCommunity(
+  communityView: lemmyV3.CommunityView,
+): Schemas.Community {
+  return {
+    apId: communityView.community.actor_id,
+    slug: createSlug(communityView.community, true).slug,
+    icon: communityView.community.icon ?? null,
+    banner: communityView.community.banner ?? null,
+  };
+}
+
+function convertPerson({
+  person,
+  counts,
+}:
+  | lemmyV3.PersonView
+  | { person: lemmyV3.Person; counts?: undefined }): Schemas.Person {
   return {
     apId: person.actor_id,
     id: person.id,
@@ -62,8 +65,8 @@ function convertPerson(
     deleted: person.deleted,
     createdAt: person.published,
     isBot: person.bot_account,
-    postCount: aggregates?.post_count ?? null,
-    commentCount: aggregates?.comment_count ?? null,
+    postCount: counts?.post_count ?? null,
+    commentCount: counts?.comment_count ?? null,
   };
 }
 
@@ -125,8 +128,8 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
     const me = site.my_user?.local_user_view.person;
     return {
       instance: this.instance,
-      admins: site.admins.map((p) => convertPerson(p.person, p.counts)),
-      me: me ? convertPerson(me) : null,
+      admins: site.admins.map((p) => convertPerson(p)),
+      me: me ? convertPerson({ person: me }) : null,
       version: site.version,
     };
   }
@@ -149,7 +152,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
     );
     return {
       post: convertPost(fullPost.post_view),
-      creator: convertPerson(fullPost.post_view.creator),
+      creator: convertPerson({ person: fullPost.post_view.creator }),
     };
   }
 
@@ -171,7 +174,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       nextCursor: posts.next_page ?? null,
       posts: posts.posts.map((p) => ({
         post: convertPost(p),
-        creator: convertPerson(p.creator),
+        creator: convertPerson({ person: p.creator }),
         /* community:  */
       })),
     };
@@ -208,6 +211,21 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       feature_type: form.featureType,
     });
     return convertPost(post_view);
+  }
+
+  async getPerson(form: Forms.GetPerson, options: RequestOptions) {
+    const { person } = await this.client.resolveObject(
+      {
+        q: form.apId,
+      },
+      options,
+    );
+
+    if (!person) {
+      throw new Error("person not found");
+    }
+
+    return convertPerson(person);
   }
 
   async getPersonContent(
@@ -262,6 +280,16 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
     return {
       posts: posts.map(convertPost),
       nextCursor,
+    };
+  }
+
+  async getCommunity(form: Forms.GetCommunity, options: RequestOptions) {
+    const { community_view, moderators } = await this.client.getCommunity({
+      name: form.slug,
+    });
+    return {
+      community: convertCommunity(community_view),
+      mods: moderators.map((m) => convertPerson({ person: m.moderator })),
     };
   }
 }

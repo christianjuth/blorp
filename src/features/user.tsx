@@ -124,11 +124,9 @@ export default function User() {
   } = usePersonFeed({ actorId });
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const personView = useProfilesStore((s) =>
+  const person = useProfilesStore((s) =>
     actorId ? s.profiles[getCachePrefixer()(actorId)]?.data : undefined,
   );
-
-  const person = personView?.person;
 
   const listData = useMemo(() => {
     const commentViews =
@@ -148,17 +146,13 @@ export default function User() {
 
   return (
     <IonPage>
-      <PageTitle>
-        {(person ? createSlug(person)?.slug : null) ?? "Person"}
-      </PageTitle>
+      <PageTitle>{person?.slug ?? "Person"}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>
-          <IonTitle data-tauri-drag-region>
-            {(person ? createSlug(person)?.slug : null) ?? "Person"}
-          </IonTitle>
+          <IonTitle data-tauri-drag-region>{person?.slug ?? "Person"}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>
@@ -276,7 +270,7 @@ export default function User() {
 
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0 z-10">
           <div className="flex-1" />
-          <PersonSidebar personView={personView} />
+          <PersonSidebar person={person} />
         </ContentGutters>
       </IonContent>
     </IonPage>

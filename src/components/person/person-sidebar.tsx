@@ -4,7 +4,6 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { LuCakeSlice } from "react-icons/lu";
-import type { Person, PersonAggregates } from "lemmy-v3";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { MarkdownRenderer } from "../markdown/renderer";
@@ -31,23 +30,15 @@ import {
 import { ChevronsUpDown } from "lucide-react";
 import { useSidebarStore } from "@/src/stores/sidebars";
 import { AggregateBadges } from "../aggregates";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 dayjs.extend(localizedFormat);
 
-export function PersonSidebar({
-  personView,
-}: {
-  personView?: {
-    person: Person;
-    counts?: PersonAggregates;
-  };
-}) {
+export function PersonSidebar({ person }: { person?: Schemas.Person }) {
   const [alrt] = useIonAlert();
 
   const router = useIonRouter();
   const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
-  const person = personView?.person;
-  const counts = personView?.counts;
 
   const linkCtx = useLinkContext();
 
@@ -70,7 +61,7 @@ export function PersonSidebar({
               onClick: () =>
                 router.push(
                   resolveRoute("/messages/chat/:userId", {
-                    userId: encodeApId(person?.actor_id),
+                    userId: encodeApId(person?.apId),
                   }),
                 ),
             },
@@ -79,7 +70,7 @@ export function PersonSidebar({
               onClick: () =>
                 shareRoute(
                   resolveRoute(`${linkCtx.root}u/:userId`, {
-                    userId: encodeApId(person?.actor_id),
+                    userId: encodeApId(person?.apId),
                   }),
                 ),
             },
@@ -87,7 +78,7 @@ export function PersonSidebar({
               text: "View source",
               onClick: async () => {
                 try {
-                  openUrl(person.actor_id);
+                  openUrl(person.apId);
                 } catch {
                   // TODO: handle error
                 }
@@ -95,7 +86,7 @@ export function PersonSidebar({
             },
           ]
         : []),
-      ...(person && person.actor_id !== myUserId
+      ...(person && person.apId !== myUserId
         ? [
             {
               text: "Block person",
@@ -139,9 +130,12 @@ export function PersonSidebar({
         <div className="p-4 flex flex-col gap-3">
           <div className="flex flex-row items-start justify-between flex-1">
             <Avatar className="h-13 w-13">
-              <AvatarImage src={person?.avatar} className="object-cover" />
+              <AvatarImage
+                src={person?.avatar ?? undefined}
+                className="object-cover"
+              />
               <AvatarFallback className="text-xl">
-                {person?.name?.substring(0, 1).toUpperCase()}
+                {person?.slug?.substring(0, 1).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
@@ -156,29 +150,22 @@ export function PersonSidebar({
             />
           </div>
 
-          <span className="font-bold">
-            {personView?.person.display_name ?? personView?.person.name}
-          </span>
+          <span className="font-bold">{person?.slug}</span>
 
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <LuCakeSlice />
             <span>
-              Created{" "}
-              {personView
-                ? dayjs(personView.person.published).format("ll")
-                : ""}
+              Created {person ? dayjs(person.createdAt).format("ll") : ""}
             </span>
           </div>
 
-          {counts && (
-            <AggregateBadges
-              className="mt-1"
-              aggregates={{
-                Posts: counts.post_count,
-                Comments: counts.comment_count,
-              }}
-            />
-          )}
+          <AggregateBadges
+            className="mt-1"
+            aggregates={{
+              Posts: person?.postCount,
+              Comments: person?.commentCount,
+            }}
+          />
         </div>
 
         {person?.bio && (
