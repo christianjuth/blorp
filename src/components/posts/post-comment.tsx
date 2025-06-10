@@ -76,8 +76,9 @@ function Byline({
   const profileView = useProfilesStore(
     (s) => s.profiles[getCachePrefixer()(actorId)]?.data,
   );
-  const creator = profileView?.person;
-  const slug = creator ? createSlug(creator) : null;
+
+  const [name, host] = profileView?.slug.split("@") ?? [];
+
   return (
     <CollapsibleTrigger
       className={cn(
@@ -86,9 +87,9 @@ function Byline({
       )}
     >
       <Avatar className="w-6 h-6">
-        <AvatarImage src={creator?.avatar} />
+        <AvatarImage src={profileView?.avatar ?? undefined} />
         <AvatarFallback className="text-xs">
-          {creator?.name?.substring(0, 1).toUpperCase()}{" "}
+          {profileView?.slug?.substring(0, 1).toUpperCase()}{" "}
         </AvatarFallback>
       </Avatar>
       <PersonHoverCard actorId={actorId} asChild>
@@ -99,10 +100,8 @@ function Byline({
           }}
           className="text-base overflow-ellipsis flex flex-row overflow-x-hidden items-center"
         >
-          <span className="font-medium text-xs">{slug?.name}</span>
-          <span className="italic text-xs text-muted-foreground">
-            @{slug?.host}
-          </span>
+          <span className="font-medium text-xs">{name}</span>
+          <span className="italic text-xs text-muted-foreground">@{host}</span>
           {authorType === "ADMIN" && (
             <>
               <ShieldCheckmark className="text-brand ml-2" />
@@ -327,7 +326,7 @@ export function PostComment({
           className={cn(
             open && "pb-1.5",
             level > 0 && !open && "pb-3",
-            highlightComment && "bg-brand/10",
+            highlightComment && "bg-brand/10 dark:bg-brand/20",
           )}
           actorId={creator.actor_id}
           publishedDate={comment.published}
@@ -351,7 +350,7 @@ export function PostComment({
           {!hideContent && !editingState && (
             <MarkdownRenderer
               markdown={comment.content}
-              className={cn(highlightComment && "bg-brand/10")}
+              className={cn(highlightComment && "bg-brand/10 dark:bg-brand/20")}
             />
           )}
 

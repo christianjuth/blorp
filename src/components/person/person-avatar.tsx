@@ -7,7 +7,7 @@ import { cn } from "@/src/lib/utils";
 import { useAuth } from "@/src/stores/auth";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { usePersonDetails } from "@/src/lib/lemmy";
-import { Person } from "lemmy-v3";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 export function PersonAvatar({
   actorId,
@@ -16,7 +16,7 @@ export function PersonAvatar({
   person: override,
 }: {
   actorId: string;
-  person?: Person;
+  person?: Schemas.Person;
   size?: "sm" | "md";
   className?: string;
 }) {
@@ -32,11 +32,11 @@ export function PersonAvatar({
   return (
     <Avatar className={cn("h-9 w-9", size === "sm" && "h-8 w-8", className)}>
       <AvatarImage
-        src={override ? override.avatar : personView?.person.avatar}
+        src={(override ? override.avatar : personView?.avatar) ?? undefined}
         className="object-cover"
       />
       <AvatarFallback>
-        {(override?.name ?? personView?.person.name)?.substring(0, 1)}
+        {(override?.slug ?? personView?.slug)?.substring(0, 1)}
       </AvatarFallback>
     </Avatar>
   );

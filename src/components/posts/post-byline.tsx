@@ -165,7 +165,7 @@ export function PostByline({
                   await requireAuth();
                   const deferred = new Deferred();
                   alrt({
-                    message: `Block ${creator?.person.name}`,
+                    message: `Block ${creator?.slug}`,
                     buttons: [
                       {
                         text: "Cancel",

@@ -2,17 +2,12 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
-import type { Person, PersonAggregates } from "lemmy-v3";
 import { MAX_CACHE_MS } from "./config";
 import { CacheKey, CachePrefixer } from "./auth";
-
-type Data = {
-  person: Person;
-  counts?: PersonAggregates;
-};
+import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 
 type CachedProfile = {
-  data: Data;
+  data: Schemas.Person;
   lastUsed: number;
 };
 
@@ -21,11 +16,11 @@ type ProfilesStore = {
   patchProfile: (
     id: string,
     prefixer: CachePrefixer,
-    post: Partial<Data>,
+    post: Partial<Schemas.Person>,
   ) => void;
   cacheProfiles: (
     prefixer: CachePrefixer,
-    data: Data[],
+    data: Schemas.Person[],
   ) => Record<string, CachedProfile>;
   cleanup: () => any;
 };
@@ -44,7 +39,7 @@ export const useProfilesStore = create<ProfilesStore>()(
           console.error("failed to patch person that is not in cache");
           return;
         }
-        const updatedProfileData: Data = {
+        const updatedProfileData: Schemas.Person = {
           ...prevProfileData,
           ...patch,
         };
@@ -65,7 +60,7 @@ export const useProfilesStore = create<ProfilesStore>()(
         const newProfiles: Record<string, CachedProfile> = {};
 
         for (const view of views) {
-          const cacheKey = prefix(view.person.actor_id);
+          const cacheKey = prefix(view.apId);
           const prevProfileData = prev[cacheKey]?.data ?? {};
           newProfiles[cacheKey] = {
             data: {
