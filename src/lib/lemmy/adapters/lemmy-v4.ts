@@ -34,7 +34,18 @@ export function getLemmyClient(instance: string) {
   };
 }
 
-function convertPerson(person: lemmyV4.Person): Schemas.Person {
+function convertCommunity(community: lemmyV4.CommunityView): Schemas.Community {
+  return {
+    apId: community.community.ap_id,
+    slug: createSlug(community.community, true).slug,
+    icon: community.community.icon ?? null,
+    banner: community.community.banner ?? null,
+  };
+}
+
+function convertPerson({
+  person,
+}: lemmyV4.PersonView | { person: lemmyV4.Person }): Schemas.Person {
   return {
     id: person.id,
     apId: person.ap_id,
@@ -55,7 +66,10 @@ function convertPost({
   community,
   creator,
   post_actions,
-}: lemmyV4.PostView): Schemas.Post {
+}: Pick<
+  lemmyV4.PostView,
+  "post" | "community" | "creator" | "post_actions"
+>): Schemas.Post {
   return {
     id: post.id,
     createdAt: post.published,
@@ -112,7 +126,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     // const account = await this.client.getAccount();
     return {
       instance: this.instance,
-      admins: site.admins.map((p) => convertPerson(p.person)),
+      admins: site.admins.map((p) => convertPerson(p)),
       me: null,
       version: site.version,
       /* me: me ? convertPerson(me) : null, */
@@ -137,7 +151,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     );
     return {
       post: convertPost(fullPost.post_view),
-      creator: convertPerson(fullPost.post_view.creator),
+      creator: convertPerson({ person: fullPost.post_view.creator }),
     };
   }
 
@@ -172,6 +186,19 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       featured: form.featured,
     });
     return convertPost(post_view);
+  }
+
+  async getPerson(form: Forms.GetPerson, options: RequestOptions) {
+    const { person } = await this.client.resolveObject(
+      {
+        q: form.apId,
+      },
+      options,
+    );
+    if (!person) {
+      throw new Error("person not found");
+    }
+    return convertPerson(person);
   }
 
   async getPersonContent(
@@ -227,38 +254,21 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       nextCursor: posts.next_page ?? null,
       posts: posts.posts.map((p) => ({
         post: convertPost(p),
-        creator: convertPerson(p.creator),
+        creator: convertPerson({ person: p.creator }),
       })),
     };
   }
 
-  //async getPersonContent(
-  //  form: Forms.GetPersonContent,
-  //  options: RequestOptions,
-  //) {
-  //  const { person } = await this.client.resolveObject(
-  //    {
-  //      q: form.apId,
-  //    },
-  //    options,
-  //  );
-  //
-  //  if (!person) {
-  //    throw new Error("person not found");
-  //  }
-  //
-  //  const p = await this.client.getPersonDetails(
-  //    {
-  //      person_id: person.person.id,
-  //      limit: this.limit,
-  //      page: form.pageCursor ? _.parseInt(form.pageCursor) : undefined,
-  //    },
-  //    options,
-  //  );
-  //
-  //  return {
-  //    posts: posts.map(convertPost),
-  //    nextCursor: form.pageCursor ? `${_.parseInt(form.pageCursor) + 1}` : "2",
-  //  };
-  //}
+  async getCommunity(form: Forms.GetCommunity, options: RequestOptions) {
+    const { community_view, moderators } = await this.client.getCommunity(
+      {
+        name: form.slug,
+      },
+      options,
+    );
+    return {
+      community: convertCommunity(community_view),
+      mods: moderators.map((m) => convertPerson({ person: m.moderator })),
+    };
+  }
 }

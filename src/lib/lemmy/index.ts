@@ -115,7 +115,7 @@ function useLemmyClient(account?: Partial<Account>) {
       /**
        * @deprecated use api instead of client
        */
-      client: new LemmyV3Api({ instance }).client,
+      client: new LemmyV3Api({ instance, jwt }).client,
       queryKeyPrefix,
       instance,
     };
@@ -172,7 +172,7 @@ export function usePersonDetails({
   actorId?: string;
   enabled?: boolean;
 }) {
-  const { client, queryKeyPrefix } = useLemmyClient();
+  const { api, queryKeyPrefix } = useLemmyClient();
 
   const queryKey = [...queryKeyPrefix, "getPersonDetails", actorId];
 
@@ -185,30 +185,16 @@ export function usePersonDetails({
       if (!actorId) {
         throw new Error("person_id undefined");
       }
-
-      const { person } = await client.resolveObject(
+      const person = await (
+        await api
+      ).getPerson(
         {
-          q: actorId,
+          apId: actorId,
         },
         { signal },
       );
-
-      if (!person) {
-        throw new Error("person not found");
-      }
-
-      const res = await client.getPersonDetails(
-        {
-          person_id: person?.person.id,
-          limit: 1,
-        },
-        {
-          signal,
-        },
-      );
-      cacheProfiles(getCachePrefixer(), [_.omit(res.person_view, "is_admin")]);
-
-      return _.omit(res, ["posts", "comments"]);
+      cacheProfiles(getCachePrefixer(), [person]);
+      return {};
     },
     enabled: !!actorId && enabled,
   });
