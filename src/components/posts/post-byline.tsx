@@ -218,7 +218,7 @@ export function PostByline({
         )}
       >
         <AvatarImage
-          src={community?.communityView.community.icon}
+          src={community?.communityView.icon ?? undefined}
           className="object-cover"
         />
         <AvatarFallback>

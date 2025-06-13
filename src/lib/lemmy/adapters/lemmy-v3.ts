@@ -42,10 +42,21 @@ function convertCommunity(
   communityView: lemmyV3.CommunityView,
 ): Schemas.Community {
   return {
+    createdAt: communityView.community.published,
+    id: communityView.community.id,
     apId: communityView.community.actor_id,
     slug: createSlug(communityView.community, true).slug,
     icon: communityView.community.icon ?? null,
     banner: communityView.community.banner ?? null,
+    description: communityView.community.description ?? null,
+    usersActiveDayCount: communityView.counts.users_active_day,
+    usersActiveWeekCount: communityView.counts.users_active_week,
+    usersActiveMonthCount: communityView.counts.users_active_month,
+    usersActiveHalfYearCount: communityView.counts.users_active_half_year,
+    postCount: communityView.counts.posts,
+    commentCount: communityView.counts.posts,
+    subscriberCount: communityView.counts.subscribers,
+    subscribersLocalCount: communityView.counts.subscribers_local,
   };
 }
 
