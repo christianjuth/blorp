@@ -18,7 +18,7 @@ const personSchema = z.object({
   commentCount: z.number().nullable(),
   postCount: z.number().nullable(),
 });
-const siteSchema = z.object({
+export const siteSchema = z.object({
   instance: z.string(),
   me: personSchema.nullable(),
   admins: z.array(personSchema),

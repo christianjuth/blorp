@@ -4,6 +4,8 @@ import { createStorage, sync } from "./storage";
 import { GetSiteResponse } from "lemmy-v3";
 import _ from "lodash";
 import { env } from "../env";
+import z from "zod";
+import { siteSchema } from "../lib/lemmy/adapters/api-blueprint";
 
 export type CacheKey = `cache_${string}`;
 export type CachePrefixer = (cacheKey: string) => CacheKey;
@@ -21,17 +23,28 @@ export function getCachePrefixer(account?: Account): CachePrefixer {
   };
 }
 
-export type Account = {
-  instance: string;
-  jwt?: string;
-  site?: GetSiteResponse;
-};
+const accountSchema = z.union([
+  z.object({
+    instance: z.string(),
+    jwt: z.string().optional(),
+  }),
+  z.object({
+    instance: z.string(),
+    jwt: z.string().optional(),
+    site: siteSchema,
+  }),
+]);
+
+export type Account = z.infer<typeof accountSchema>;
+
+const storeSchema = z.object({
+  accounts: z.array(accountSchema),
+  accountIndex: z.number(),
+});
 
 type AuthStore = {
-  accounts: Account[];
   getSelectedAccount: () => Account;
   isLoggedIn: () => boolean;
-  accountIndex: number;
   updateSelectedAccount: (patch: Partial<Account>) => any;
   updateAccount: (index: number | Account, patch: Partial<Account>) => any;
   addAccount: (patch?: Partial<Account>) => any;
@@ -39,17 +52,18 @@ type AuthStore = {
   logout: (index?: number | Account) => any;
   logoutMultiple: (index: number[]) => any;
   getCachePrefixer: () => CachePrefixer;
-};
+} & z.infer<typeof storeSchema>;
 
 export function getAccountActorId(account: Account) {
-  return account?.site?.my_user?.local_user_view.person.actor_id;
+  return "site" in account ? account.site?.me?.apId : undefined;
 }
 
 export function parseAccountInfo(account: Account) {
+  const site = "site" in account ? account.site : undefined;
   try {
     const url = new URL(account.instance);
     return {
-      person: account.site?.my_user?.local_user_view.person,
+      person: site?.me,
       instance: url.host,
     };
   } catch {
@@ -203,7 +217,10 @@ export const useAuth = create<AuthStore>()(
     {
       name: "auth",
       storage: createStorage<AuthStore>(),
-      version: 1,
+      version: 1.3,
+      migrate: (state) => {
+        return storeSchema.parse(state) as AuthStore;
+      },
     },
   ),
 );
