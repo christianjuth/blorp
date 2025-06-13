@@ -274,7 +274,7 @@ export function UserSidebar() {
                   message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
                 }).then(() => logout.mutate(selectedAccount))
               }
-              className="flex flex-row items-center gap-2"
+              className="flex flex-row items-center gap-2 w-full"
             >
               <LogOut className="text-muted-foreground" /> Logout
             </button>
@@ -283,7 +283,7 @@ export function UserSidebar() {
           <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
             <button
               onClick={() => requireAuth()}
-              className="flex flex-row items-center gap-2"
+              className="flex flex-row items-center gap-2 w-full"
             >
               Login
             </button>
@@ -307,7 +307,7 @@ export function UserSidebar() {
               onClick={() => {
                 setAccountIndex(index);
               }}
-              className="flex flex-row gap-2 items-center text-left"
+              className="flex flex-row gap-2 items-center text-left w-full"
             >
               <BadgeCount
                 showBadge={!!inboxAcounts[index] || !!pmCounts[index]}
@@ -336,7 +336,7 @@ export function UserSidebar() {
           onClick={() => {
             requireAuth({ addAccount: true });
           }}
-          className="flex flex-row items-center gap-2"
+          className="flex flex-row items-center gap-2 w-full"
         >
           <IoPersonAddOutline className="text-muted-foreground" />
           Add account
