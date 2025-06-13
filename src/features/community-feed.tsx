@@ -81,13 +81,12 @@ export default function CommunityFeed() {
   const community = useCommunity({
     name: communityName,
   });
-  const modApIds = community.data?.moderators.map((m) => m.moderator.actor_id);
 
   const updateRecent = useRecentCommunitiesStore((s) => s.update);
 
   useEffect(() => {
     if (community.data) {
-      updateRecent(community.data.community_view.community);
+      updateRecent(community.data.community);
     }
   }, [community.data]);
 
@@ -206,7 +205,7 @@ export default function CommunityFeed() {
                 {communityName && (
                   <SmallScreenSidebar
                     communityName={communityName}
-                    actorId={community.data?.community_view.community.actor_id}
+                    actorId={community.data?.community.apId}
                   />
                 )}
                 <ContentGutters className="max-md:hidden pt-4">
@@ -255,7 +254,7 @@ export default function CommunityFeed() {
           {communityName && (
             <CommunitySidebar
               communityName={communityName}
-              actorId={community.data?.community_view.community.actor_id}
+              actorId={community.data?.community.apId}
             />
           )}
         </ContentGutters>

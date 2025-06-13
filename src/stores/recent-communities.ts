@@ -1,17 +1,12 @@
-import { Community } from "lemmy-v3";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
-
-type CommunityPartial = Pick<
-  Community,
-  "name" | "id" | "title" | "icon" | "actor_id"
->;
+import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 
 type RecentCommunityStore = {
-  recentlyVisited: CommunityPartial[];
-  update: (c: CommunityPartial) => void;
+  recentlyVisited: Schemas.Community[];
+  update: (c: Schemas.Community) => void;
 };
 
 export const MAX_VISITED = 100;
@@ -21,16 +16,9 @@ export const useRecentCommunitiesStore = create<RecentCommunityStore>()(
     (set, get) => ({
       recentlyVisited: [],
       update: (comunity) => {
-        const partialCommunity = _.pick(comunity, [
-          "name",
-          "id",
-          "title",
-          "icon",
-          "actor_id",
-        ]);
         const prev = get().recentlyVisited;
         const update = _.slice(
-          _.uniqBy([partialCommunity, ...prev], "actor_id"),
+          _.uniqBy([comunity, ...prev], (c) => c.apId),
           0,
           MAX_VISITED,
         );
@@ -42,7 +30,7 @@ export const useRecentCommunitiesStore = create<RecentCommunityStore>()(
     {
       name: "recent-communities",
       storage: createStorage<RecentCommunityStore>(),
-      version: 0,
+      version: 0.3,
     },
   ),
 );

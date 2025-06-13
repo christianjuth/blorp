@@ -11,6 +11,8 @@ import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/src/stores/auth";
 import { useCommunitiesStore } from "@/src/stores/communities";
+import _ from "lodash";
+import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
 
 export function CommunityCard({
   apId,
@@ -24,32 +26,32 @@ export function CommunityCard({
   size?: "sm" | "md";
 }) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const community = useCommunitiesStore((s) => {
+  const fromRecent = useRecentCommunitiesStore((s) => {
+    return s.recentlyVisited.find((r) => r.apId === apId);
+  });
+  const fromCommunityCache = useCommunitiesStore((s) => {
     const slug = createSlug({ apId })?.slug;
     return slug ? s.communities[getCachePrefixer()(slug)]?.data : undefined;
   });
+  const communityView = fromCommunityCache?.communityView ?? fromRecent;
 
   // TODO: FIX THIS
-  const counts = { subscribers: 0 };
-
   const linkCtx = useLinkContext();
 
-  if (!community) {
-    return <CommunityCardSkeleton />;
+  if (!communityView) {
+    return <CommunityCardSkeleton size={size} />;
   }
-  const { communityView } = community;
-  const slug = createSlug(communityView.community);
+
+  const [name, host] = communityView.slug.split("@");
 
   const content = (
     <>
       <Avatar className={cn("h-9 w-9", size === "sm" && "h-8 w-8")}>
         <AvatarImage
-          src={communityView.community.icon}
+          src={communityView.icon ?? undefined}
           className="object-cover"
         />
-        <AvatarFallback>
-          {communityView.community.name.substring(0, 1)}
-        </AvatarFallback>
+        <AvatarFallback>{communityView.slug.substring(0, 1)}</AvatarFallback>
       </Avatar>
 
       <div className="flex flex-col gap-0.5 flex-1 overflow-hidden">
@@ -59,19 +61,19 @@ export function CommunityCard({
             size === "sm" && "text-xs",
           )}
         >
-          {slug?.name}
-          <span className="text-muted-foreground italic">@{slug?.host}</span>
+          {name}
+          <span className="text-muted-foreground italic">@{host}</span>
         </span>
-        {counts && size === "md" && (
+        {_.isNumber(communityView.subscriberCount) && size === "md" && (
           <span className="text-xs text-muted-foreground">
-            {abbriviateNumber(counts.subscribers)} members
+            {abbriviateNumber(communityView.subscriberCount)} members
           </span>
         )}
       </div>
     </>
   );
 
-  if (disableLink || !slug) {
+  if (disableLink) {
     return (
       <div
         data-testid="community-card"
@@ -91,7 +93,7 @@ export function CommunityCard({
       data-testid="community-card"
       to={`${linkCtx.root}c/:communityName`}
       params={{
-        communityName: slug?.slug,
+        communityName: communityView.slug,
       }}
       className={cn(
         "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full text-foreground",
@@ -124,7 +126,7 @@ export function CommunityCardSkeleton({
 
       <div className="flex flex-col gap-1">
         <Skeleton className="h-3 w-32" />
-        <Skeleton className="h-3 w-44" />
+        {size !== "sm" && <Skeleton className="h-3 w-44" />}
       </div>
     </div>
   );

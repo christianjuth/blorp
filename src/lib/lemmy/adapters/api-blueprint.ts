@@ -67,10 +67,21 @@ const postSchema = z.object({
   optimisticSaved: z.boolean().optional(),
 });
 const communitySchema = z.object({
-  apId: z.string().nullable(),
+  createdAt: z.string(),
+  id: z.number(),
+  apId: z.string(),
   slug: communitySlug,
   icon: z.string().nullable(),
+  description: z.string().nullable(),
   banner: z.string().nullable(),
+  usersActiveDayCount: z.number().nullable(),
+  usersActiveWeekCount: z.number().nullable(),
+  usersActiveMonthCount: z.number().nullable(),
+  usersActiveHalfYearCount: z.number().nullable(),
+  subscriberCount: z.number().nullable(),
+  subscribersLocalCount: z.number().nullable(),
+  postCount: z.number().nullable(),
+  commentCount: z.number().nullable(),
 });
 
 export namespace Schemas {

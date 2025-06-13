@@ -104,7 +104,7 @@ export const useProfilesStore = create<ProfilesStore>()(
     {
       name: "profiles",
       storage: createStorage<ProfilesStore>(),
-      version: 1,
+      version: 1.1,
     },
   ),
 );
