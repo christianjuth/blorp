@@ -295,9 +295,12 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
   }
 
   async getCommunity(form: Forms.GetCommunity, options: RequestOptions) {
-    const { community_view, moderators } = await this.client.getCommunity({
-      name: form.slug,
-    });
+    const { community_view, moderators } = await this.client.getCommunity(
+      {
+        name: form.slug,
+      },
+      options,
+    );
     return {
       community: convertCommunity(community_view),
       mods: moderators.map((m) => convertPerson({ person: m.moderator })),
