@@ -116,7 +116,7 @@ export default function Post() {
   const community = useCommunity({
     name: communityName,
   });
-  const modApIds = community.data?.moderators.map((m) => m.moderator.actor_id);
+  const modApIds = community.data?.mods.map((m) => m.apId);
   const postQuery = usePost({
     ap_id: decodedApId,
   });
@@ -320,7 +320,7 @@ export default function Post() {
           {communityName && (
             <CommunitySidebar
               communityName={communityName}
-              actorId={community.data?.community_view.community.actor_id}
+              actorId={community.data?.community.apId}
             />
           )}
         </ContentGutters>

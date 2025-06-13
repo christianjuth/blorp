@@ -32,7 +32,7 @@ export default function CommunityFeed() {
 
   useEffect(() => {
     if (community.data) {
-      updateRecent(community.data.community_view.community);
+      updateRecent(community.data.community);
     }
   }, [community.data]);
 
@@ -54,7 +54,7 @@ export default function CommunityFeed() {
         <ContentGutters className="px-0">
           <SmallScreenSidebar
             communityName={communityName}
-            actorId={community.data?.community_view.community.actor_id}
+            actorId={community.data?.community.apId}
             expanded
           />
           <></>

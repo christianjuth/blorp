@@ -36,10 +36,21 @@ export function getLemmyClient(instance: string) {
 
 function convertCommunity(community: lemmyV4.CommunityView): Schemas.Community {
   return {
+    createdAt: community.community.published,
+    id: community.community.id,
     apId: community.community.ap_id,
     slug: createSlug(community.community, true).slug,
     icon: community.community.icon ?? null,
     banner: community.community.banner ?? null,
+    description: community.community.description ?? null,
+    usersActiveDayCount: community.community.users_active_day,
+    usersActiveWeekCount: community.community.users_active_week,
+    usersActiveMonthCount: community.community.users_active_month,
+    usersActiveHalfYearCount: community.community.users_active_half_year,
+    postCount: community.community.posts,
+    commentCount: community.community.comments,
+    subscriberCount: community.community.subscribers,
+    subscribersLocalCount: community.community.subscribers_local,
   };
 }
 
