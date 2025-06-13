@@ -7,7 +7,7 @@ import { memo, useMemo, useState } from "react";
 import { useFiltersStore } from "@/src/stores/filters";
 import { ContentGutters } from "@/src/components/gutters";
 import { VirtualList } from "@/src/components/virtual-list";
-import { Community } from "lemmy-js-client";
+import { Community } from "lemmy-v3";
 import { useMedia } from "../lib/hooks";
 import {
   IonButtons,
@@ -30,7 +30,7 @@ const MemoedListItem = memo(
   function ListItem(props: { community: Community }) {
     return (
       <ContentGutters className="md:contents">
-        <CommunityCard communityView={props} className="mt-1" />
+        <CommunityCard apId={props.community.actor_id} className="mt-1" />
       </ContentGutters>
     );
   },

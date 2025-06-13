@@ -2,7 +2,6 @@ import { ContentGutters } from "../components/gutters";
 import { usePersonDetails, usePersonFeed } from "../lib/lemmy";
 import {
   FeedPostCard,
-  getPostProps,
   PostCardSkeleton,
   PostProps,
 } from "../components/posts/post";
@@ -17,8 +16,7 @@ import { useCommentsStore } from "../stores/comments";
 import { useLinkContext } from "../routing/link-context";
 import { useProfilesStore } from "../stores/profiles";
 import { usePostsStore } from "../stores/posts";
-import { isNotNull } from "../lib/utils";
-import { CommentView } from "lemmy-js-client";
+import { CommentView } from "lemmy-v3";
 import { Link, useParams } from "@/src/routing/index";
 import {
   IonBackButton,
@@ -40,11 +38,7 @@ import { PersonSidebar } from "../components/person/person-sidebar";
 import { PersonActionMenu } from "../components/person/person-action-menu";
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = typeof NO_ITEMS | PostProps | CommentView;
-
-function isPost(item: Item): item is PostProps {
-  return _.isObject(item) && "apId" in item;
-}
+type Item = string | CommentView;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
@@ -120,13 +114,9 @@ export default function User() {
   } = usePersonFeed({ actorId });
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const personView = useProfilesStore((s) =>
+  const person = useProfilesStore((s) =>
     actorId ? s.profiles[getCachePrefixer()(actorId)]?.data : undefined,
   );
-
-  const person = personView?.person;
-
-  const postCache = usePostsStore((s) => s.posts);
 
   const listData = useMemo(() => {
     const commentViews =
@@ -134,44 +124,25 @@ export default function User() {
 
     const postIds = data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
-    const postViews = _.uniq(postIds)
-      .map((apId) => {
-        const postView = postCache[getCachePrefixer()(apId)]?.data;
-        return postView ? getPostProps(postView) : null;
-      })
-      .filter(isNotNull);
-
     switch (type) {
       case "posts":
-        return postViews;
+        return postIds;
       case "comments":
         return commentViews;
       default:
-        return [...postViews, ...commentViews].sort((a, b) => {
-          const aPublished = isPost(a)
-            ? a.published
-            : (a as CommentView).comment.published;
-          const bPublished = isPost(b)
-            ? b.published
-            : (b as CommentView).comment.published;
-          return bPublished.localeCompare(aPublished);
-        });
+        return [...postIds, ...commentViews];
     }
-  }, [data?.pages, postCache, type, getCachePrefixer]);
+  }, [data?.pages, type, getCachePrefixer]);
 
   return (
     <IonPage>
-      <PageTitle>
-        {(person ? createSlug(person)?.slug : null) ?? "Person"}
-      </PageTitle>
+      <PageTitle>{person?.slug ?? "Person"}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>
-          <IonTitle data-tauri-drag-region>
-            {(person ? createSlug(person)?.slug : null) ?? "Person"}
-          </IonTitle>
+          <IonTitle data-tauri-drag-region>{person?.slug ?? "Person"}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>
@@ -264,8 +235,8 @@ export default function User() {
                 );
               }
 
-              if (isPost(item)) {
-                return <Post {...item} />;
+              if (_.isString(item)) {
+                return <Post apId={item} />;
               }
 
               return <Comment path={item.comment.path} />;
@@ -289,7 +260,7 @@ export default function User() {
 
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0 z-10">
           <div className="flex-1" />
-          <PersonSidebar personView={personView} />
+          <PersonSidebar person={person} />
         </ContentGutters>
       </IonContent>
     </IonPage>
