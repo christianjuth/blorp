@@ -687,7 +687,7 @@ export function useCommunity({
   name?: string;
   instance?: string;
 }) {
-  const { client, queryKeyPrefix } = useLemmyClient();
+  const { api, queryKeyPrefix } = useLemmyClient();
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
@@ -702,9 +702,11 @@ export function useCommunity({
   return useQuery({
     queryKey,
     queryFn: async ({ signal }) => {
-      const res = await client.getCommunity(
+      const res = await (
+        await api
+      ).getCommunity(
         {
-          name: form.name,
+          slug: form.name,
         },
         {
           signal,
@@ -712,14 +714,11 @@ export function useCommunity({
       );
       cacheCommunities(getCachePrefixer(), [
         {
-          communityView: res.community_view,
-          mods: res.moderators,
+          communityView: res.community,
+          mods: res.mods,
         },
       ]);
-      cacheProfiles(
-        getCachePrefixer(),
-        res.moderators.map((m) => ({ person: m.moderator })),
-      );
+      cacheProfiles(getCachePrefixer(), res.mods);
       return res;
     },
     enabled: !!form.name && enabled,

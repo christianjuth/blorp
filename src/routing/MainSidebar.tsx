@@ -123,7 +123,7 @@ export function MainSidebar() {
               menu={LEFT_SIDEBAR_MENU_ID}
               autoHide={false}
             >
-              <CommunityCard apId={c.actor_id} size="sm" />
+              <CommunityCard apId={c.apId} size="sm" />
             </IonMenuToggle>
           ))}
         </CollapsibleContent>
