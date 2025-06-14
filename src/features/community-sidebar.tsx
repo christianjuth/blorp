@@ -39,7 +39,7 @@ export default function CommunityFeed() {
   return (
     <IonPage>
       <PageTitle>{communityName}</PageTitle>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
@@ -50,7 +50,7 @@ export default function CommunityFeed() {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent fullscreen>
         <ContentGutters className="px-0">
           <SmallScreenSidebar
             communityName={communityName}

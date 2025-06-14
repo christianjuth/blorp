@@ -2,14 +2,13 @@
   --ion-border-color: var(--color-border);
   --ion-color-primary: var(--color-muted-foreground);
   --ion-toolbar-background: white;
-  --ion-tab-bar-background: white;
+  --ion-tab-bar-background: transparent;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:root {
     --ion-background-color: black;
     --ion-toolbar-background: black;
-    --ion-tab-bar-background: black;
   }
 }
 
@@ -130,4 +129,18 @@ ion-modal {
 .action-sheet-button.action-sheet-selected {
   font-weight: unset;
   --button-background-selected: transparent;
+}
+
+ion-tab-bar {
+  border-radius: 9999px;
+  margin-left: max(calc(var(--ion-safe-area-bottom) - 15px), 10px);
+  margin-right: max(calc(var(--ion-safe-area-bottom) - 15px), 10px);
+  margin-bottom: max(calc(var(--ion-safe-area-bottom) - 15px), 10px);
+  padding: 5px !important;
+  @apply bg-background/70 backdrop-blur-xs border border-background inset-shadow-foreground/10 inset-shadow-sm;
+}
+
+ion-tab-button.tab-selected {
+  @apply bg-foreground/15 transition-colors;
+  border-radius: 9999px;
 }

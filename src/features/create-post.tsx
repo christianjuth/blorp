@@ -280,7 +280,7 @@ export function CreatePost() {
 
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar>
           <IonButtons slot="start" className="md:gap-4.5 gap-3.5">
             <Button
@@ -303,7 +303,7 @@ export function CreatePost() {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent fullscreen>
         <ChooseCommunity
           createPostId={draftId}
           isOpen={chooseCommunity && !isEdit}

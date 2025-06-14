@@ -14,7 +14,7 @@ import { UserDropdown } from "../components/nav";
 export default function InstanceSidebar() {
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton text="" />
@@ -26,7 +26,7 @@ export default function InstanceSidebar() {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>
+      <IonContent fullscreen>
         <ContentGutters className="px-0">
           <LocalSererSidebarPage />
           <></>

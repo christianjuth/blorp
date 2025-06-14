@@ -83,7 +83,7 @@ export default function Communities() {
   return (
     <IonPage>
       <PageTitle>Communities</PageTitle>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start" className="gap-2">
             <MenuButton />
@@ -113,11 +113,11 @@ export default function Communities() {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent scrollY={false}>
+      <IonContent scrollY={false} fullscreen={true}>
         <ContentGutters className="h-full max-md:contents">
           <VirtualList<{ community: Community }>
             key={communitySort + listingType}
-            className="h-full ion-content-scroll-host"
+            className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
             numColumns={numCols}
             data={
               listingType === "ModeratorView"

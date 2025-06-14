@@ -5,7 +5,7 @@ import "./styles/index.css";
 import App from "./App";
 
 scan({
-  enabled: true,
+  enabled: false,
 });
 
 createRoot(document.getElementById("root")!).render(

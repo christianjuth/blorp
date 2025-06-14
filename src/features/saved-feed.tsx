@@ -156,7 +156,7 @@ export default function SavedFeed() {
   return (
     <IonPage>
       <PageTitle>Saved</PageTitle>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
@@ -186,11 +186,11 @@ export default function SavedFeed() {
           </IonToolbar>
         )}
       </IonHeader>
-      <IonContent scrollY={false}>
+      <IonContent scrollY={false} fullscreen>
         <PostReportProvider>
           <VirtualList<Item>
             key={type === "comments" ? "comments" : type + postSort}
-            className="h-full ion-content-scroll-host"
+            className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
             data={
               data.length === 0 && !posts.isRefetching && !posts.isPending
                 ? [NO_ITEMS]

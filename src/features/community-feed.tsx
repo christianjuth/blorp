@@ -131,7 +131,7 @@ export default function CommunityFeed() {
   return (
     <IonPage>
       <PageTitle>{communityName}</PageTitle>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar
           data-tauri-drag-region
           style={
@@ -212,11 +212,11 @@ export default function CommunityFeed() {
           </ContentGutters>
         )}
       </IonHeader>
-      <IonContent scrollY={false}>
+      <IonContent scrollY={false} fullscreen>
         <PostReportProvider>
           <VirtualList<Item>
             key={postSort}
-            className="h-full ion-content-scroll-host"
+            className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
             data={
               data.length === 0 && !posts.isRefetching && !posts.isPending
                 ? [NO_ITEMS]

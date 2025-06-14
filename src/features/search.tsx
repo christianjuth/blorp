@@ -146,7 +146,7 @@ export default function SearchFeed({
       <PageTitle>
         {communityName ? `Search ${communityName}` : "Search"}
       </PageTitle>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
@@ -188,11 +188,11 @@ export default function SearchFeed({
           </IonToolbar>
         )}
       </IonHeader>
-      <IonContent scrollY={false}>
+      <IonContent scrollY={false} fullscreen>
         <PostReportProvider>
           <VirtualList<Item>
             key={type === "communities" ? "communities" : type + postSort}
-            className="h-full ion-content-scroll-host"
+            className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
             data={
               data.length === 0 &&
               !searchResults.isRefetching &&
