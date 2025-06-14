@@ -194,7 +194,7 @@ export default function Post() {
   return (
     <IonPage ref={pageElement.ref}>
       <PageTitle>{post?.post.name ?? "Post"}</PageTitle>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar
           data-tauri-drag-region
           className="max-md:text-white"
@@ -245,11 +245,11 @@ export default function Post() {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent scrollY={false}>
+      <IonContent scrollY={false} fullscreen>
         <CommentReplyProvider presentingElement={pageElement.element}>
           <PostReportProvider>
             <VirtualList
-              className="h-full ion-content-scroll-host"
+              className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
               data={data}
               header={[
                 post ? (

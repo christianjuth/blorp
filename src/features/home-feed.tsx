@@ -116,7 +116,7 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
         }px)`;
         toolbar.style.opacity = String((1 - headerAnimateRef.current) ** 3);
         tabBar.style.transform = `translate(0, ${
-          tabBarAnimateRef.current * 100
+          tabBarAnimateRef.current * 150
         }%)`;
       }
     },
@@ -211,7 +211,7 @@ export default function HomeFeed() {
   return (
     <IonPage>
       <PageTitle />
-      <IonHeader className="bg-background dismissable">
+      <IonHeader className="backdrop-blur dismissable" translucent>
         <IonToolbar data-tauri-drag-region className="dismissable">
           <IonButtons slot="start" className="gap-2">
             <MenuButton />

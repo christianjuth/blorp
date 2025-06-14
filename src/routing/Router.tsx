@@ -350,13 +350,14 @@ function Tabs() {
                         dispatchScrollEvent(pathname);
                       }
                     }}
-                    className={cn(isActive && "text-foreground")}
+                    className={cn(
+                      isActive ? "text-brand-secondary" : "text-foreground",
+                    )}
                   >
                     <IonIcon
                       icon={t.icon(isActive)}
                       key={isActive ? "active" : "inactive"}
                     />
-                    <IonLabel>{t.label}</IonLabel>
                     {((t.id === "inbox" && !!inboxCount) ||
                       (t.id === "messages" && !!messageCount)) && (
                       <IonBadge className="aspect-square bg-brand"> </IonBadge>

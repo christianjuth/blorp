@@ -324,7 +324,7 @@ export default function Inbox() {
   return (
     <IonPage>
       <PageTitle>Inbox</PageTitle>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start" className="gap-2">
             <MenuButton />
@@ -356,7 +356,7 @@ export default function Inbox() {
           </IonToolbar>
         )}
       </IonHeader>
-      <IonContent scrollY={false}>
+      <IonContent scrollY={false} fullscreen>
         <VirtualList<Item>
           header={[
             <ContentGutters className="max-md:hidden" key="type-select-header">
@@ -425,7 +425,7 @@ export default function Inbox() {
             }
           }}
           estimatedItemSize={375}
-          className="h-full ion-content-scroll-host"
+          className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
           refresh={replies.refetch}
           placeholder={<Placeholder />}
         />

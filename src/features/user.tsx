@@ -174,7 +174,7 @@ export default function User() {
       <PageTitle>
         {(person ? createSlug(person)?.slug : null) ?? "Person"}
       </PageTitle>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
@@ -222,11 +222,11 @@ export default function User() {
           </IonToolbar>
         )}
       </IonHeader>
-      <IonContent scrollY={false}>
+      <IonContent scrollY={false} fullscreen>
         <PostReportProvider>
           <VirtualList<Item>
             key={type === "comments" ? "comments" : type + postSort}
-            className="h-full ion-content-scroll-host"
+            className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
             data={listData.length === 0 && !isLoading ? [NO_ITEMS] : listData}
             header={[
               <ContentGutters
