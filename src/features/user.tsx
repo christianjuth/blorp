@@ -58,6 +58,10 @@ const Comment = memo(function Comment({ path }: { path: string }) {
   const commentView = useCommentsStore(
     (s) => s.comments[getCachePrefixer()(path)]?.data,
   );
+  const postView = usePostsStore((s) => {
+    const postApId = commentView?.post.ap_id;
+    return postApId ? s.posts[getCachePrefixer()(postApId)]?.data : null;
+  });
   const linkCtx = useLinkContext();
 
   if (!commentView) {
@@ -65,6 +69,8 @@ const Comment = memo(function Comment({ path }: { path: string }) {
   }
 
   const { comment, community, post } = commentView;
+
+  const postName = commentView.post.name ?? postView?.post.name;
 
   const parent = path.split(".").at(-2);
   const newPath = [parent !== "0" ? parent : undefined, comment.id]
@@ -80,10 +86,14 @@ const Comment = memo(function Comment({ path }: { path: string }) {
           post: encodeApId(post.ap_id),
           comment: newPath,
         }}
-        className="py-2 border-b flex-1 overflow-hidden"
+        className="py-2 border-b flex-1 overflow-hidden text-sm flex flex-col gap-1.5"
       >
+        <span>
+          Replied to <b>{postName}</b> in <b>{community.slug}</b>
+        </span>
+
         {comment.deleted ? (
-          <span className="text-sm text-muted-foreground italic">deleted</span>
+          <span className="text-muted-foreground italic">deleted</span>
         ) : (
           <MarkdownRenderer markdown={comment.content} />
         )}

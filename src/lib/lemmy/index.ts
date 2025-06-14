@@ -134,6 +134,7 @@ export type FlattenedComment = {
   };
   post: {
     ap_id: string;
+    name?: string;
   };
 };
 
@@ -157,6 +158,7 @@ function flattenComment(commentView: CommentView): FlattenedComment {
     },
     post: {
       ap_id: commentView.post.ap_id,
+      name: commentView.post.name,
     },
   };
 }
@@ -420,6 +422,7 @@ export function useComments(form: GetComments) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheComments = useCommentsStore((s) => s.cacheComments);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
+  const cachePosts = usePostsStore((s) => s.cachePosts);
 
   const prevPageParam = useRef(-1);
   const prevPage = useRef("");
