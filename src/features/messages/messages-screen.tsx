@@ -72,7 +72,7 @@ export default function Messages() {
   return (
     <IonPage>
       <PageTitle>Chats</PageTitle>
-      <IonHeader>
+      <IonHeader translucent>
         <IonToolbar>
           <IonButtons slot="start" className="gap-2">
             <MenuButton />
@@ -83,9 +83,10 @@ export default function Messages() {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent scrollY={false} fullscreen>
         <VirtualList
           refresh={chats.refetch}
+          className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
           estimatedItemSize={50}
           data={chats.chats ?? EMPTY_ARR}
           renderItem={({ item }) => (
