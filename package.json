@@ -16,8 +16,7 @@
     "test:e2e": "playwright test",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "serve": "yarn node ./test-utils/express.js",
-    "chromatic": "chromatic"
+    "serve": "yarn node ./test-utils/express.js"
   },
   "installConfig": {
     "hoistingLimits": "workspaces"
