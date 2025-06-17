@@ -15,7 +15,6 @@ import { IonReactRouter } from "@ionic/react-router";
 import { Route, Redirect } from "@/src/routing/index";
 import _ from "lodash";
 import { useMedia } from "@/src/lib/hooks/index";
-import { Logo } from "@/src/components/logo";
 import { useNotificationCount, usePrivateMessagesCount } from "@/src/lib/lemmy";
 import { lazy } from "react";
 import { dispatchScrollEvent } from "@/src/lib/scroll-events";
@@ -236,6 +235,9 @@ function Tabs() {
   const messageCount = usePrivateMessagesCount()[selectedAccountIndex];
   const media = useMedia();
   const pathname = useIonRouter().routeInfo.pathname;
+  const site = useAuth((s) => s.getSelectedAccount()).site;
+  const icon = site?.site_view.site.icon;
+  const siteLogo = site?.site_view.site.name;
 
   return (
     <>
@@ -278,7 +280,7 @@ function Tabs() {
                 />
               )}
               <button
-                className="h-[60px] mt-3 md:mt-1 px-4 md:px-6 flex items-center"
+                className="h-[60px] mt-3 md:mt-1 px-4 flex items-center"
                 onClick={() => {
                   const tab = document.querySelector(
                     `ion-tab-button[tab="home"]`,
@@ -288,7 +290,10 @@ function Tabs() {
                   }
                 }}
               >
-                <Logo />
+                {icon && <img src={icon} className="h-7.5 mr-1.5" />}
+                <span className="font-jersey text-3xl">
+                  {siteLogo ?? "Loading..."}
+                </span>
               </button>
 
               <div className="md:px-3 pt-2 pb-4 gap-0.5 flex flex-col">

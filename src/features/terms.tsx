@@ -8,19 +8,18 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { PageTitle } from "../components/page-title";
-import { env } from "../env";
 
 const TERMS = `
-**Terms of Use for ${env.REACT_APP_NAME}**  
+**Terms of Use for Blorp**  
 _Last updated: April 29, 2025_
 
-By using ${env.REACT_APP_NAME} (“App”), a Lemmy-compatible client for iOS and other platforms maintained by the developer (“I,” “me,” or “Developer”), you agree to these Terms of Use (“Terms”). Please read them carefully.
+By using Blorp (“App”), a Lemmy-compatible client for iOS and other platforms maintained by the developer (“I,” “me,” or “Developer”), you agree to these Terms of Use (“Terms”). Please read them carefully.
 
 ---
 
 ## 1. User-Generated Content and Responsible Engagement  
 **1.1 Access to Content.**  
-${env.REACT_APP_NAME} provides access to user-generated content hosted on Lemmy instances (“Servers”). You may browse, create, comment on, and share posts in any community to which you have access.  
+Blorp provides access to user-generated content hosted on Lemmy instances (“Servers”). You may browse, create, comment on, and share posts in any community to which you have access.  
 
 **1.2 Responsible Conduct.**  
 All users must engage respectfully. You may not post or facilitate any content that is unlawful, harassing, hateful, obscene, defamatory, or otherwise objectionable. Each Server you connect to has its own rules—familiarize yourself with them before posting.
@@ -38,22 +37,22 @@ The App includes an in-App report button on every post and comment. Reports are 
 
 ## 3. User Responsibility and Content Moderation  
 **3.1 Server-Side Moderation.**  
-All moderation (content removal, user bans/suspensions) is performed by each Lemmy Server’s administrators and moderators. ${env.REACT_APP_NAME} merely provides the interface.  
+All moderation (content removal, user bans/suspensions) is performed by each Lemmy Server’s administrators and moderators. Blorp merely provides the interface.  
 
 **3.2 Indemnification.**  
-You agree to indemnify and hold harmless ${env.REACT_APP_NAME}’s contributors and maintainers from any claims arising out of your use of the App or violation of these Terms.
+You agree to indemnify and hold harmless Blorp’s contributors and maintainers from any claims arising out of your use of the App or violation of these Terms.
 
 ---
 
 ## 4. Child Safety Standards  
 **4.1 Zero Tolerance for CSAE.**  
-${env.REACT_APP_NAME} expressly prohibits any form of Child Sexual Abuse and Exploitation (“CSAE”).  
+Blorp expressly prohibits any form of Child Sexual Abuse and Exploitation (“CSAE”).  
 
 **4.2 Reporting CSAE.**  
 You may report CSAE or other violations either in-App or via email at **support@blorpblorp.xyz**.  
 
 **4.3 Legal Compliance.**  
-${env.REACT_APP_NAME} complies with applicable child protection laws, including mandatory reporting of confirmed CSAE to authorities (e.g., National Center for Missing & Exploited Children in the U.S.).  
+Blorp complies with applicable child protection laws, including mandatory reporting of confirmed CSAE to authorities (e.g., National Center for Missing & Exploited Children in the U.S.).  
 
 **4.4 Designated Contact.**  
 For CSAE-related inquiries, contact the Developer at **support@blorpblorp.xyz**.
@@ -91,7 +90,7 @@ I may remove or disable access to the App for users who violate these Terms, wit
 ---
 
 ## 8. Disclaimers & Limitation of Liability  
-${env.REACT_APP_NAME} is provided **“as-is”** without warranties. To the fullest extent permitted by law, my total liability to you for any claim arising out of these Terms is limited to US $50.
+Blorp is provided **“as-is”** without warranties. To the fullest extent permitted by law, my total liability to you for any claim arising out of these Terms is limited to US $50.
 
 ---
 
@@ -103,7 +102,7 @@ These Terms are governed by the laws of the State of New Jersey, USA. Any disput
 **Contact & Support**  
 For support, bug reports, or feature requests, email **support@blorpblorp.xyz**.  
 
-_By using ${env.REACT_APP_NAME}, you acknowledge that you have read, understood, and agree to these Terms of Use._
+_By using Blorp, you acknowledge that you have read, understood, and agree to these Terms of Use._
 `;
 
 export default function Privacy() {

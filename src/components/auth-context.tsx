@@ -308,6 +308,11 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
+const DEFAULT_INSTACE = {
+  url: env.REACT_APP_DEFAULT_INSTANCE,
+  baseurl: new URL(env.REACT_APP_DEFAULT_INSTANCE).host,
+};
+
 function AuthModal({
   open,
   onClose,
@@ -322,10 +327,13 @@ function AuthModal({
   const [signup, setSignup] = useState(false);
 
   const [search, setSearch] = useState("");
-  const [instance, setInstanceLocal] = useState<{
+  const [_instance, setInstanceLocal] = useState<{
     url?: string;
     baseurl?: string;
   }>({});
+  const instance = env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE
+    ? DEFAULT_INSTACE
+    : _instance;
 
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -393,7 +401,7 @@ function AuthModal({
           <IonButtons slot="start">
             <IonButton
               onClick={() => {
-                if (instance.url) {
+                if (instance.url && !env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE) {
                   setSignup(false);
                   setInstanceLocal({});
                 } else {
@@ -401,7 +409,9 @@ function AuthModal({
                 }
               }}
             >
-              {instance.baseurl ? "Back" : "Close"}
+              {instance.baseurl && !env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE
+                ? "Back"
+                : "Close"}
             </IonButton>
           </IonButtons>
           <IonTitle>{instance.baseurl ? instance.baseurl : "Login"}</IonTitle>

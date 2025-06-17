@@ -16,6 +16,11 @@
 
 @import "./scrollbars.css";
 
+@font-face {
+  font-family: Jersey10;
+  src: url(/fonts/Jersey10-Regular.ttf);
+}
+
 :root {
   /* Increase small text size slightly */
   --text-sm: 0.875rem;
@@ -99,6 +104,8 @@
 }
 
 @theme inline {
+  --font-jersey: "Jersey10";
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

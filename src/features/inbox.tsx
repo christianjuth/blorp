@@ -98,7 +98,7 @@ function Mention({
           </BadgeIcon>
           <div
             className={cn(
-              "flex-1 text-sm leading-6 block",
+              "flex-1 text-sm leading-6 block overflow-x-hidden",
               !mention.person_mention.read && "border-l-3 border-l-brand pl-2",
             )}
           >
@@ -193,7 +193,7 @@ function Reply({
           </BadgeIcon>
           <div
             className={cn(
-              "flex-1 text-sm leading-6 block",
+              "flex-1 text-sm leading-6 block overflow-x-hidden",
               !replyView.comment_reply.read && "border-l-3 border-l-brand pl-2",
             )}
           >
