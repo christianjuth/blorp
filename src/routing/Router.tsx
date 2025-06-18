@@ -248,6 +248,7 @@ function Tabs() {
         type="push"
         style={{
           "--side-max-width": "270px",
+          "--background": "transparent",
         }}
       >
         <div className="h-[var(--ion-safe-area-top)]" />
@@ -267,18 +268,19 @@ function Tabs() {
           menuId={LEFT_SIDEBAR_MENU_ID}
           style={{
             "--side-max-width": "270px",
+            "--background": "transparent",
           }}
         >
-          <div className="h-[var(--ion-safe-area-top)]" />
-
-          <IonContent scrollY={false}>
-            <div className="overflow-y-auto h-full">
-              {isTauri() && (
-                <div
-                  className="h-12 -mb-6 w-full top-0 sticky bg-gradient-to-b from-background to-transparent from-30% z-10"
-                  data-tauri-drag-region
-                />
+          <IonContent scrollY={false} style={{ "--background": "transparent" }}>
+            <div
+              className={cn(
+                "h-[var(--ion-safe-area-top)]",
+                isTauri() && "min-h-7",
               )}
+              data-tauri-drag-region
+            />
+
+            <div className="overflow-y-auto h-full">
               <button
                 className="h-[60px] mt-3 md:mt-1 px-4 flex items-center"
                 onClick={() => {
@@ -305,7 +307,11 @@ function Tabs() {
           </IonContent>
         </IonMenu>
 
-        <IonContent id="main" scrollY={false}>
+        <IonContent
+          id="main"
+          scrollY={false}
+          style={{ "--background": "transparent" }}
+        >
           <IonTabs>
             <IonRouterOutlet animated={media.maxMd}>
               {...HOME_STACK}

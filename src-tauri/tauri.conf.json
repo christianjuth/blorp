@@ -10,6 +10,7 @@
     "beforeBuildCommand": "yarn build"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
         "title": "",
@@ -18,8 +19,13 @@
         "resizable": true,
         "fullscreen": false,
         "titleBarStyle": "Overlay",
-        "transparent": false,
-        "devtools": true
+        "transparent": true,
+        "devtools": true,
+        "windowEffects": {
+          "effects": [
+            "sidebar"
+          ]
+        }
       }
     ],
     "security": {

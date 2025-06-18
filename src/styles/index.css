@@ -161,7 +161,7 @@ details summary {
 }
 
 body {
-  background-color: var(--color-background);
+  @apply bg-black/30;
   /* 
    * Prevent overscroll bouncing 
    * This makes the header, sidebar, and tabbar 

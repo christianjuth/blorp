@@ -52,7 +52,7 @@ function SidebarTabs() {
             }}
             className={twMerge(
               "relative max-md:hidden text-md flex flex-row items-center py-2 px-3 rounded-xl",
-              isActive ? "bg-secondary" : "text-muted-foreground",
+              isActive && "bg-secondary",
             )}
           >
             <BadgeCount

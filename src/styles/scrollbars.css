@@ -14,7 +14,6 @@
     width: 8px;
     border-left: 1px solid transparent;
     border-right: 1px solid transparent;
-    @apply bg-background!;
   }
   ::-webkit-scrollbar-thumb {
     @apply bg-secondary;
