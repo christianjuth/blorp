@@ -18,17 +18,17 @@ export function useCommunityCreatePost({
   const drafts = useCreatePostStore((s) => s.drafts);
   const updateDraft = useCreatePostStore((s) => s.updateDraft);
 
-  const community = useCommunity({
+  const communityView = useCommunity({
     name: communityName,
   });
 
   return async () => {
-    const communityData = community.data?.community_view.community;
-    if (!communityData) {
+    const community = communityView.data?.community;
+    if (!community) {
       return;
     }
     let createPostId = _.entries(drafts).find(
-      ([_id, { communityApId }]) => communityApId === communityData.actor_id,
+      ([_id, { communityApId }]) => communityApId === community.apId,
     )?.[0];
 
     if (createPostId) {
@@ -57,8 +57,8 @@ export function useCommunityCreatePost({
     createPostId ??= uuid();
 
     updateDraft(createPostId, {
-      communityApId: communityData.actor_id,
-      communitySlug: createSlug(communityData, true).slug,
+      communityApId: community.apId,
+      communitySlug: community.slug,
     });
     router.push(`/create?id=${createPostId}`);
   };

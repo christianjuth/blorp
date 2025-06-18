@@ -23,7 +23,7 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
 
   const data = cache?.data;
   const subscribed =
-    data?.optimisticSubscribed ?? data?.communityView.subscribed;
+    data?.communityView.optimisticSubscribed ?? data?.communityView.subscribed;
 
   let copy = "Join";
   if (subscribed === "Pending") {

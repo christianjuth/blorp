@@ -51,6 +51,16 @@ function convertCommunity(community: lemmyV4.CommunityView): Schemas.Community {
     commentCount: community.community.comments,
     subscriberCount: community.community.subscribers,
     subscribersLocalCount: community.community.subscribers_local,
+    subscribed: (() => {
+      switch (community.community_actions?.follow_state) {
+        case "Pending":
+        case "ApprovalRequired":
+          return "Pending";
+        case "Accepted":
+          return "Subscribed";
+      }
+      return "NotSubscribed";
+    })(),
   };
 }
 
@@ -141,6 +151,17 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       me: null,
       version: site.version,
       /* me: me ? convertPerson(me) : null, */
+      usersActiveDayCount: site.site_view.local_site.users_active_day,
+      usersActiveWeekCount: site.site_view.local_site.users_active_week,
+      usersActiveMonthCount: site.site_view.local_site.users_active_month,
+      usersActiveHalfYearCount:
+        site.site_view.local_site.users_active_half_year,
+      postCount: site.site_view.local_site.posts,
+      commentCount: site.site_view.local_site.comments,
+      userCount: site.site_view.local_site.users,
+      sidebar: site.site_view.site.sidebar ?? null,
+      icon: site.site_view.site.icon ?? null,
+      title: site.site_view.site.name,
     };
   }
 

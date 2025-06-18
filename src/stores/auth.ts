@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
-import { GetSiteResponse } from "lemmy-v3";
 import _ from "lodash";
 import { env } from "../env";
 import z from "zod";
@@ -53,6 +52,10 @@ type AuthStore = {
   logoutMultiple: (index: number[]) => any;
   getCachePrefixer: () => CachePrefixer;
 } & z.infer<typeof storeSchema>;
+
+export function getAccountSite(account: Account) {
+  return "site" in account ? account.site : undefined;
+}
 
 export function getAccountActorId(account: Account) {
   return "site" in account ? account.site?.me?.apId : undefined;
