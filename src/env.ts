@@ -39,5 +39,3 @@ export const env = createEnv({
     throw new Error("Invalid environment variables");
   },
 });
-
-console.log(import.meta.env["REACT_APP_LOCK_TO_DEFAULT_INSTANCE"]);

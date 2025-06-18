@@ -57,6 +57,10 @@ function convertCommunity(
     commentCount: communityView.counts.posts,
     subscriberCount: communityView.counts.subscribers,
     subscribersLocalCount: communityView.counts.subscribers_local,
+    subscribed:
+      communityView.subscribed === "ApprovalRequired"
+        ? "Pending"
+        : communityView.subscribed,
   };
 }
 
@@ -142,6 +146,16 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       admins: site.admins.map((p) => convertPerson(p)),
       me: me ? convertPerson({ person: me }) : null,
       version: site.version,
+      usersActiveDayCount: site.site_view.counts.users_active_day,
+      usersActiveWeekCount: site.site_view.counts.users_active_week,
+      usersActiveMonthCount: site.site_view.counts.users_active_month,
+      usersActiveHalfYearCount: site.site_view.counts.users_active_half_year,
+      postCount: site.site_view.counts.posts,
+      commentCount: site.site_view.counts.comments,
+      userCount: site.site_view.counts.users,
+      sidebar: site.site_view.site.sidebar ?? null,
+      icon: site.site_view.site.icon ?? null,
+      title: site.site_view.site.name,
     };
   }
 

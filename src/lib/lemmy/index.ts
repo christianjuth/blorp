@@ -41,6 +41,7 @@ import {
 import { useFiltersStore } from "@/src/stores/filters";
 import {
   Account,
+  getAccountSite,
   getCachePrefixer,
   parseAccountInfo,
   useAuth,
@@ -88,10 +89,37 @@ const DEFAULT_HEADERS = {
   "User-Agent": env.REACT_APP_NAME.toLowerCase(),
 };
 
+function useApiClients() {
+  const accountIndex = useAuth((s) => s.accountIndex);
+  const accounts = useAuth((s) => s.accounts);
+
+  const apis = accounts.map((a) => {
+    const site = getAccountSite(a);
+    const myUserId = site?.me?.id;
+    const { instance, jwt } = a;
+    const api = apiClient({ instance, jwt });
+
+    const queryKeyPrefix: unknown[] = [`instance-${instance}`];
+    if (myUserId) {
+      queryKeyPrefix.push(`user-${myUserId}`);
+    }
+
+    return {
+      api,
+      queryKeyPrefix,
+    };
+  });
+
+  return {
+    apis,
+    ...apis[accountIndex],
+  };
+}
+
 function useLemmyClient(account?: Partial<Account>) {
   let jwt = useAuth((s) => s.getSelectedAccount().jwt);
   const myUserId = useAuth(
-    (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
+    (s) => getAccountSite(s.getSelectedAccount())?.me?.id,
   );
   let instance =
     useAuth((s) => s.getSelectedAccount().instance) ?? "https://lemmy.ml";
@@ -869,6 +897,8 @@ function useRefreshAuthKey() {
 }
 
 export function useRefreshAuth() {
+  const { apis } = useApiClients();
+
   const updateAccount = useAuth((s) => s.updateAccount);
   const logoutMultiple = useAuth((s) => s.logoutMultiple);
 
@@ -883,53 +913,39 @@ export function useRefreshAuth() {
     queryKey,
     queryFn: async ({ signal }) => {
       const logoutIndicies: number[] = [];
-      const sites: (GetSiteResponse | null)[] =
-        Array.from<GetSiteResponse | null>({
-          length: accounts.length,
-        }).fill(null);
 
-      for (let i = 0; i < accounts.length; i++) {
+      const sites = await Promise.all(
+        apis.map(async ({ api }) => (await api).getSite({ signal })),
+      );
+
+      for (let i = 0; i < sites.length; i++) {
         const account = accounts[i];
-        if (!account) {
-          continue;
-        }
-
-        const client = new LemmyHttp(account.instance);
-        if (account.jwt) {
-          client.setHeaders({
-            ...DEFAULT_HEADERS,
-            Authorization: `Bearer ${account.jwt}`,
-          });
-        } else {
-          client.setHeaders(DEFAULT_HEADERS);
-        }
-
-        const site = await client.getSite({ signal });
-        sites[i] = site;
-        if (account.jwt && !site.my_user) {
+        const site = sites[i];
+        if (account?.jwt && site && !site.me) {
           logoutIndicies.push(i);
           continue;
         }
-        if (site.my_user) {
-          cacheProfiles(getCachePrefixer(account), [
-            _.pick(site.my_user.local_user_view, ["person", "counts"]),
-          ]);
-          cacheCommunities(
-            getCachePrefixer(account),
-            [...site.my_user.follows, ...site.my_user.moderates].map(
-              ({ community }) => ({
-                communityView: { community },
-              }),
-            ),
-          );
+
+        const me = account ? getAccountSite(account)?.me : null;
+
+        if (me) {
+          cacheProfiles(getCachePrefixer(account), [me]);
+          //cacheCommunities(
+          //  getCachePrefixer(account),
+          //  [...site.my_user.follows, ...site.my_user.moderates].map(
+          //    ({ community }) => ({
+          //      communityView: { community },
+          //    }),
+          //  ),
+          //);
         }
-        cacheProfiles(
-          getCachePrefixer(account),
-          site.admins.map((p) => _.pick(p, ["person", "counts"])),
-        );
-        updateAccount(i, {
-          site,
-        });
+
+        if (site) {
+          cacheProfiles(getCachePrefixer(account), site.admins);
+          updateAccount(i, {
+            site,
+          });
+        }
       }
 
       if (logoutIndicies.length > 0) {
