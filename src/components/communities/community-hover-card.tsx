@@ -32,9 +32,7 @@ export function CommunityHoverCard({
     (s) => s.communities[getCachePrefixer()(communityName)]?.data,
   );
 
-  const communityView = data?.communityView;
-  const community = communityView?.community;
-  const counts = communityView?.counts;
+  const community = data?.communityView;
 
   return (
     <HoverCard onOpenChange={() => setEnabled(true)}>
@@ -43,26 +41,24 @@ export function CommunityHoverCard({
         align="start"
         className="flex flex-col gap-3 py-4 flex-1"
       >
-        <span className="font-semibold text-sm">{community?.title}</span>
+        <span className="font-semibold text-sm">{community?.slug}</span>
 
         <div className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
           <LuCakeSlice />
           <span>
             Created{" "}
-            {community?.published && dayjs(community.published).format("ll")}
+            {community?.createdAt && dayjs(community.createdAt).format("ll")}
           </span>
         </div>
 
-        {counts && (
-          <AggregateBadges
-            className="mt-1"
-            aggregates={{
-              Subscribers: counts.subscribers,
-              Posts: counts.posts,
-              Comments: counts.comments,
-            }}
-          />
-        )}
+        <AggregateBadges
+          className="mt-1"
+          aggregates={{
+            Subscribers: community?.subscriberCount,
+            Posts: community?.postCount,
+            Comments: community?.commentCount,
+          }}
+        />
       </HoverCardContent>
     </HoverCard>
   );

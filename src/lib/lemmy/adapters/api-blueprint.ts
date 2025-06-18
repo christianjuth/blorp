@@ -23,6 +23,16 @@ export const siteSchema = z.object({
   me: personSchema.nullable(),
   admins: z.array(personSchema),
   version: z.string(),
+  sidebar: z.string().nullable(),
+  userCount: z.number().nullable(),
+  usersActiveDayCount: z.number().nullable(),
+  usersActiveWeekCount: z.number().nullable(),
+  usersActiveMonthCount: z.number().nullable(),
+  usersActiveHalfYearCount: z.number().nullable(),
+  postCount: z.number().nullable(),
+  commentCount: z.number().nullable(),
+  icon: z.string().nullable(),
+  title: z.string().nullable(),
 });
 const postSchema = z.object({
   createdAt: z.string(),
@@ -82,6 +92,10 @@ const communitySchema = z.object({
   subscribersLocalCount: z.number().nullable(),
   postCount: z.number().nullable(),
   commentCount: z.number().nullable(),
+  subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
+  optimisticSubscribed: z
+    .enum(["Subscribed", "NotSubscribed", "Pending"])
+    .optional(),
 });
 
 export namespace Schemas {

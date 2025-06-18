@@ -26,7 +26,7 @@ import { UserSidebar } from "../components/nav";
 import { MainSidebar } from "./MainSidebar";
 import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID, TABS } from "./config";
 import InstanceSidebar from "../features/instance-sidebar";
-import { useAuth } from "../stores/auth";
+import { getAccountSite, useAuth } from "../stores/auth";
 
 const CSAE = lazy(() => import("@/src/features/csae"));
 const NotFound = lazy(() => import("@/src/features/not-found"));
@@ -235,9 +235,9 @@ function Tabs() {
   const messageCount = usePrivateMessagesCount()[selectedAccountIndex];
   const media = useMedia();
   const pathname = useIonRouter().routeInfo.pathname;
-  const site = useAuth((s) => s.getSelectedAccount()).site;
-  const icon = site?.site_view.site.icon;
-  const siteLogo = site?.site_view.site.name;
+  const site = useAuth((s) => getAccountSite(s.getSelectedAccount()));
+  const icon = site?.icon;
+  const siteTitle = site?.title;
 
   return (
     <>
@@ -292,7 +292,7 @@ function Tabs() {
               >
                 {icon && <img src={icon} className="h-7.5 mr-1.5" />}
                 <span className="font-jersey text-3xl">
-                  {siteLogo ?? "Loading..."}
+                  {siteTitle ?? "Loading..."}
                 </span>
               </button>
 
