@@ -33,6 +33,7 @@ import { Person } from "lemmy-js-client";
 import { useMedia } from "@/src/lib/hooks";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 import { PageTitle } from "@/src/components/page-title";
+import LoginRequired from "../login-required";
 
 dayjs.extend(updateLocale);
 
@@ -102,6 +103,12 @@ export default function Messages() {
       ref.current?.scrollToIndex(data.length);
     }
   }, [chat.isPending, signal]);
+
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+
+  if (!isLoggedIn) {
+    return <LoginRequired />;
+  }
 
   return (
     <IonPage>

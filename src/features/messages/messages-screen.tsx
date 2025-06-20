@@ -21,6 +21,7 @@ import {
 import _ from "lodash";
 import { useMemo } from "react";
 import removeMd from "remove-markdown";
+import LoginRequired from "../login-required";
 
 const EMPTY_ARR: never[] = [];
 
@@ -68,6 +69,12 @@ export default function Messages() {
       ? item.recipient
       : item.creator;
   };
+
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+
+  if (!isLoggedIn) {
+    return <LoginRequired />;
+  }
 
   return (
     <IonPage>

@@ -34,6 +34,8 @@ import { PersonAvatar } from "../components/person/person-avatar";
 import { BadgeIcon } from "../components/badge-count";
 import { Message, Person } from "../components/icons";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
+import { useAuth } from "../stores/auth";
+import LoginRequired from "./login-required";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item =
@@ -320,6 +322,12 @@ export default function Inbox() {
 
     return _.uniqBy(data, "id");
   }, [type, replies.data, mentions.data]);
+
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+
+  if (!isLoggedIn) {
+    return <LoginRequired />;
+  }
 
   return (
     <IonPage>
