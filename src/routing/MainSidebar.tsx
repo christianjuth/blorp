@@ -144,13 +144,13 @@ export function MainSidebar() {
             </CollapsibleTrigger>
 
             <CollapsibleContent className="pt-2 flex flex-col gap-1.5">
-              {moderatingCommunities.map(({ community: c }) => (
+              {moderatingCommunities.map((c) => (
                 <IonMenuToggle
                   key={c.id}
                   menu={LEFT_SIDEBAR_MENU_ID}
                   autoHide={false}
                 >
-                  <CommunityCard apId={c.actor_id} size="sm" />
+                  <CommunityCard apId={c.apId} size="sm" />
                 </IonMenuToggle>
               ))}
             </CollapsibleContent>
@@ -173,13 +173,13 @@ export function MainSidebar() {
             </CollapsibleTrigger>
 
             <CollapsibleContent className="pt-2 flex flex-col gap-1.5">
-              {subscribedCommunities.map(({ community: c }) => (
+              {subscribedCommunities.map((c) => (
                 <IonMenuToggle
                   key={c.id}
                   menu={LEFT_SIDEBAR_MENU_ID}
                   autoHide={false}
                 >
-                  <CommunityCard apId={c.actor_id} size="sm" />
+                  <CommunityCard apId={c.apId} size="sm" />
                 </IonMenuToggle>
               ))}
             </CollapsibleContent>

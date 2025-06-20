@@ -75,7 +75,7 @@ import {
 import { produce } from "immer";
 import { LemmyV3Api } from "./adapters/lemmy-v3";
 import { LemmyV4Api } from "./adapters/lemmy-v4";
-import { Forms, INIT_PAGE_TOKEN } from "./adapters/api-blueprint";
+import { Forms, INIT_PAGE_TOKEN, Schemas } from "./adapters/api-blueprint";
 import { ListingType } from "lemmy-v4";
 import { apiClient } from "./adapters/client";
 
@@ -781,8 +781,8 @@ export function useRegister(config?: {
       const res = await client.register(form);
       if (res.jwt) {
         (await api).setJwt(res.jwt);
-        const site = await client.getSite();
-        const person = site.my_user?.local_user_view.person;
+        const site = await (await api).getSite();
+        const person = site.me;
         const payload = {
           site,
           jwt: res.jwt,
@@ -849,8 +849,8 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
       const res = await client.login(form);
       if (res.jwt) {
         (await api).setJwt(res.jwt);
-        const site = await client.getSite();
-        const person = site.my_user?.local_user_view.person;
+        const site = await (await api).getSite();
+        const person = site.me;
         const payload = {
           site,
           jwt: res.jwt,
@@ -864,7 +864,7 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
           updateSelectedAccount(payload);
         }
         if (person) {
-          cacheProfiles(getCachePrefixer(), [{ person }]);
+          cacheProfiles(getCachePrefixer(), [person]);
         }
       }
       return res;
@@ -927,14 +927,14 @@ export function useRefreshAuth() {
 
         if (me) {
           cacheProfiles(getCachePrefixer(account), [me]);
-          //cacheCommunities(
-          //  getCachePrefixer(account),
-          //  [...site.my_user.follows, ...site.my_user.moderates].map(
-          //    ({ community }) => ({
-          //      communityView: { community },
-          //    }),
-          //  ),
-          //);
+          cacheCommunities(
+            getCachePrefixer(account),
+            [...(site?.follows ?? []), ...(site?.moderates ?? [])].map(
+              (community) => ({
+                communityView: community,
+              }),
+            ),
+          );
         }
 
         if (site) {
@@ -1100,9 +1100,7 @@ interface CreateCommentWithPath extends CreateComment {
 export function useCreateComment() {
   const queryClient = useQueryClient();
   const { client } = useLemmyClient();
-  const myProfile = useAuth(
-    (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person,
-  );
+  const myProfile = useAuth((s) => getAccountSite(s.getSelectedAccount())?.me);
   const commentSort = useFiltersStore((s) => s.commentSort);
   const cacheComment = useCommentsStore((s) => s.cacheComment);
   const markCommentForRemoval = useCommentsStore(
@@ -1137,9 +1135,9 @@ export function useCreateComment() {
         },
         creator: {
           id: myProfile?.id ?? -1,
-          name: myProfile?.name ?? "",
-          avatar: myProfile?.avatar,
-          actor_id: myProfile?.actor_id ?? "",
+          name: myProfile?.slug ?? "",
+          avatar: myProfile?.avatar ?? undefined,
+          actor_id: myProfile?.apId ?? "",
         },
         counts: {
           score: 1,
@@ -1778,7 +1776,7 @@ export function useInstances() {
 }
 
 export function useFollowCommunity() {
-  const { client, queryKeyPrefix } = useLemmyClient();
+  const { api, queryKeyPrefix } = useLemmyClient();
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const patchCommunity = useCommunitiesStore((s) => s.patchCommunity);
@@ -1787,9 +1785,12 @@ export function useFollowCommunity() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (form: { community: Community; follow: boolean }) => {
-      return client.followCommunity({
-        community_id: form.community.id,
+    mutationFn: async (form: {
+      community: Schemas.Community;
+      follow: boolean;
+    }) => {
+      return (await api).followCommunity({
+        communityId: form.community.id,
         follow: form.follow,
       });
     },
@@ -1797,21 +1798,27 @@ export function useFollowCommunity() {
       const slug = createSlug(form.community)?.slug;
       if (slug) {
         patchCommunity(slug, getCachePrefixer(), {
-          optimisticSubscribed: "Pending",
+          communityView: {
+            optimisticSubscribed: "Pending",
+          },
         });
       }
     },
     onSuccess: (data) => {
       cacheCommunity(getCachePrefixer(), {
-        communityView: data.community_view,
-        optimisticSubscribed: undefined,
+        communityView: {
+          ...data,
+          optimisticSubscribed: undefined,
+        },
       });
     },
     onError: (err, form) => {
       const slug = createSlug(form.community)?.slug;
       if (slug) {
         patchCommunity(slug, getCachePrefixer(), {
-          optimisticSubscribed: undefined,
+          communityView: {
+            optimisticSubscribed: undefined,
+          },
         });
       }
       if (err instanceof Error) {
@@ -2202,20 +2209,20 @@ export function useCaptcha({
 
 export function useSubscribedCommunities() {
   const subscribedCommunities = useAuth(
-    (s) => s.getSelectedAccount().site?.my_user?.follows,
+    (s) => getAccountSite(s.getSelectedAccount())?.follows,
   );
   return useMemo(
-    () => _.sortBy(subscribedCommunities ?? [], (c) => c.community.name),
+    () => _.sortBy(subscribedCommunities ?? [], (c) => c.slug),
     [subscribedCommunities],
   );
 }
 
 export function useModeratingCommunities() {
   const subscribedCommunities = useAuth(
-    (s) => s.getSelectedAccount().site?.my_user?.moderates,
+    (s) => getAccountSite(s.getSelectedAccount())?.moderates,
   );
   return useMemo(
-    () => _.sortBy(subscribedCommunities ?? [], (c) => c.community.name),
+    () => _.sortBy(subscribedCommunities ?? [], (c) => c.slug),
     [subscribedCommunities],
   );
 }

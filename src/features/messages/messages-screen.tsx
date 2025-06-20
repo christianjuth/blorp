@@ -64,9 +64,7 @@ export default function Messages() {
   const { person: me } = parseAccountInfo(account);
 
   const getOtherPerson = (item: (typeof chats.chats)[number]) => {
-    return item.creator.actor_id === me?.actor_id
-      ? item.recipient
-      : item.creator;
+    return item.creator.actor_id === me?.apId ? item.recipient : item.creator;
   };
 
   return (

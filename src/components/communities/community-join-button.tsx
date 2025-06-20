@@ -68,7 +68,7 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
           }
 
           follow.mutate({
-            community: communityView.community,
+            community: communityView,
             follow: shouldFollow ? true : false,
           });
         }

@@ -64,7 +64,7 @@ const Comment = memo(function Comment({ path }: { path: string }) {
 
   const { comment, community, post } = commentView;
 
-  const postName = commentView.post.name ?? postView?.post.name;
+  const postTitle = commentView.post.name ?? postView?.title;
 
   const parent = path.split(".").at(-2);
   const newPath = [parent !== "0" ? parent : undefined, comment.id]
@@ -83,7 +83,7 @@ const Comment = memo(function Comment({ path }: { path: string }) {
         className="py-2 border-b flex-1 overflow-hidden text-sm flex flex-col gap-1.5"
       >
         <span>
-          Replied to <b>{postName}</b> in <b>{community.slug}</b>
+          Replied to <b>{postTitle}</b> in <b>{community.slug}</b>
         </span>
 
         {comment.deleted ? (

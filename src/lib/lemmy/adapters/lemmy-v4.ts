@@ -152,6 +152,9 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       version: site.version,
       /* me: me ? convertPerson(me) : null, */
       moderates: [],
+      follows: [],
+      communityBlocks: [],
+      personBlocks: [],
       usersActiveDayCount: site.site_view.local_site.users_active_day,
       usersActiveWeekCount: site.site_view.local_site.users_active_week,
       usersActiveMonthCount: site.site_view.local_site.users_active_month,
@@ -292,6 +295,22 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     };
   }
 
+  async search(form: Forms.Search, options: RequestOptions) {
+    const { results, next_page } = await this.client.search(
+      {
+        search_term: form.q,
+        page_cursor:
+          form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
+      },
+      options,
+    );
+    const posts = results.filter((r) => r.type_ === "Post");
+    return {
+      posts: posts.map(convertPost),
+      nextCursor: next_page ?? null,
+    };
+  }
+
   async getCommunity(form: Forms.GetCommunity, options: RequestOptions) {
     const { community_view, moderators } = await this.client.getCommunity(
       {
@@ -320,5 +339,34 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       communities: communities.map(convertCommunity),
       nextCursor: next_page ?? null,
     };
+  }
+
+  async followCommunity(form: Forms.FollowCommunity) {
+    const { community_view } = await this.client.followCommunity({
+      community_id: form.communityId,
+      follow: form.follow,
+    });
+    return convertCommunity(community_view);
+  }
+
+  async editPost(form: Schemas.EditPost) {
+    const { post } = await this.client.resolveObject({
+      q: form.apId,
+    });
+
+    if (!post) {
+      throw new Error("couldn't find post");
+    }
+
+    const { post_view } = await this.client.editPost({
+      post_id: post.post.id,
+      url: form.url ?? undefined,
+      body: form.body ?? undefined,
+      name: form.title,
+      alt_text: form.altText,
+      custom_thumbnail: form.thumbnailUrl ?? undefined,
+    });
+
+    return convertPost(post_view);
   }
 }
