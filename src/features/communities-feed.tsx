@@ -24,20 +24,15 @@ import { CommunityFilter, CommunitySortSelect } from "../components/lemmy-sort";
 import { PageTitle } from "../components/page-title";
 import { Link } from "@/src/routing/index";
 import { searchOutline } from "ionicons/icons";
-import { useAuth } from "../stores/auth";
+import { getAccountSite, useAuth } from "../stores/auth";
 
-const MemoedListItem = memo(
-  function ListItem(props: { community: Community }) {
-    return (
-      <ContentGutters className="md:contents">
-        <CommunityCard apId={props.community.actor_id} className="mt-1" />
-      </ContentGutters>
-    );
-  },
-  (a, b) => {
-    return a.community.actor_id === b.community.actor_id;
-  },
-);
+const MemoedListItem = memo(function ListItem(props: { apId: string }) {
+  return (
+    <ContentGutters className="md:contents">
+      <CommunityCard apId={props.apId} className="mt-1" />
+    </ContentGutters>
+  );
+});
 
 export default function Communities() {
   const router = useIonRouter();
@@ -48,12 +43,10 @@ export default function Communities() {
 
   const media = useMedia();
 
-  const moderates = useAuth(
-    (s) => s.getSelectedAccount().site?.my_user?.moderates,
-  );
-  const moderatesCommunities = moderates?.map(({ community }) => ({
-    community,
-  }));
+  const moderates = useAuth((s) =>
+    getAccountSite(s.getSelectedAccount()),
+  )?.moderates;
+  const moderatesCommunities = moderates?.map(({ apId }) => apId);
 
   const {
     data,
@@ -69,7 +62,11 @@ export default function Communities() {
   });
 
   const communities = useMemo(
-    () => data?.pages.map((p) => p.communities).flat(),
+    () =>
+      data?.pages
+        .map((p) => p.communities)
+        .flat()
+        .map(({ apId }) => apId),
     [data?.pages],
   );
 
@@ -115,7 +112,7 @@ export default function Communities() {
       </IonHeader>
       <IonContent scrollY={false}>
         <ContentGutters className="h-full max-md:contents">
-          <VirtualList<{ community: Community }>
+          <VirtualList<string>
             key={communitySort + listingType}
             className="h-full ion-content-scroll-host"
             numColumns={numCols}
@@ -124,7 +121,7 @@ export default function Communities() {
                 ? moderatesCommunities
                 : communities
             }
-            renderItem={({ item }) => <MemoedListItem {...item} />}
+            renderItem={({ item }) => <MemoedListItem apId={item} />}
             onEndReached={() => {
               if (
                 listingType !== "ModeratorView" &&

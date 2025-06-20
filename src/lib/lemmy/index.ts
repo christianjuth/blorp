@@ -652,9 +652,9 @@ export function usePosts(form: Forms.GetPosts) {
   };
 }
 
-export function useListCommunities(form: ListCommunities) {
+export function useListCommunities(form: Forms.GetCommunities) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
-  const { client, queryKeyPrefix } = useLemmyClient();
+  const { api, queryKeyPrefix } = useLemmyClient();
 
   const showNsfw = useSettingsStore((s) => s.showNsfw);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -665,12 +665,8 @@ export function useListCommunities(form: ListCommunities) {
     queryKey.push("sort", form.sort);
   }
 
-  if (form.limit) {
-    queryKey.push("limit", String(form.limit));
-  }
-
-  if (form.type_) {
-    queryKey.push("type", form.type_);
+  if (form.type) {
+    queryKey.push("type", form.type);
   }
 
   if (showNsfw) {
@@ -682,12 +678,13 @@ export function useListCommunities(form: ListCommunities) {
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
-      const limit = form.limit ?? 50;
-      const { communities } = await client.listCommunities(
+      const { communities, nextCursor } = await (
+        await api
+      ).getCommunities(
         {
           ...form,
-          show_nsfw: showNsfw,
-          page: pageParam,
+          //show_nsfw: showNsfw,
+          pageCursor: pageParam,
         },
         {
           signal,
@@ -695,16 +692,16 @@ export function useListCommunities(form: ListCommunities) {
       );
       cacheCommunities(
         getCachePrefixer(),
-        communities.map((c) => ({ communityView: c })),
+        communities.map((communityView) => ({ communityView })),
       );
       return {
         communities,
-        nextPage: communities.length < limit ? null : pageParam + 1,
+        nextPage: nextCursor,
       };
     },
     getNextPageParam: (data) => data.nextPage,
-    initialPageParam: 1,
-    enabled: form.type_ === "Subscribed" ? isLoggedIn : true,
+    initialPageParam: INIT_PAGE_TOKEN,
+    enabled: form.type === "Subscribed" ? isLoggedIn : true,
   });
 }
 export function useCommunity({

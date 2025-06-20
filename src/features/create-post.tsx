@@ -58,6 +58,7 @@ import { usePostsStore } from "../stores/posts";
 import { getAccountActorId, useAuth } from "../stores/auth";
 import { usePathname } from "../routing/hooks";
 import { Sidebar, SidebarContent } from "../components/sidebar";
+import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 
 dayjs.extend(localizedFormat);
 
@@ -168,7 +169,7 @@ function useLoadRecentCommunity(draftId: string, draft: Draft) {
   useEffect(() => {
     if (isActive && isEmpty && mostRecentCommunity) {
       patchDraft(draftId, {
-        communityApId: mostRecentCommunity.actor_id,
+        communityApId: mostRecentCommunity.apId,
         communitySlug: createSlug(mostRecentCommunity, true).slug,
       });
     }
@@ -473,8 +474,7 @@ function ChooseCommunity({
   const subscribedCommunities =
     subscribedCommunitiesRes.data?.pages
       .flatMap((p) => p.communities)
-      .sort((a, b) => a.community.name.localeCompare(b.community.name))
-      .map(({ community }) => community) ?? EMPTY_ARR;
+      .sort((a, b) => a.slug.localeCompare(b.slug)) ?? EMPTY_ARR;
 
   const searchResultsRes = useSearch({
     q: search,
@@ -488,7 +488,7 @@ function ChooseCommunity({
     ) ?? EMPTY_ARR;
 
   let data: (
-    | Pick<Community, "name" | "title" | "icon" | "actor_id">
+    | Schemas.Community
     | "Selected"
     | "Recent"
     | "Subscribed"
@@ -511,7 +511,7 @@ function ChooseCommunity({
     if (typeof item === "string") {
       return item;
     }
-    return item.actor_id;
+    return item.apId;
   });
 
   return (
@@ -557,7 +557,7 @@ function ChooseCommunity({
                 <button
                   onClick={() => {
                     patchDraft(createPostId, {
-                      communityApId: item.actor_id,
+                      communityApId: item.apId,
                       communitySlug: createSlug(item, true).slug,
                     });
                     closeModal();
@@ -565,11 +565,10 @@ function ChooseCommunity({
                   className="flex flex-row items-center gap-2"
                   disabled={!!draft.apId}
                 >
-                  <CommunityCard apId={item.actor_id} disableLink />
-                  {draft.communityApId &&
-                    item.actor_id === draft.communityApId && (
-                      <FaCheck className="text-brand" />
-                    )}
+                  <CommunityCard apId={item.apId} disableLink />
+                  {draft.communityApId && item.apId === draft.communityApId && (
+                    <FaCheck className="text-brand" />
+                  )}
                 </button>
               </ContentGutters>
             );
