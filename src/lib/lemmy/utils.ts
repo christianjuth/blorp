@@ -1,11 +1,5 @@
 import dayjs from "dayjs";
-import {
-  ImageDetails,
-  Person,
-  Post,
-  PostAggregates,
-  PostView,
-} from "lemmy-js-client";
+import { ImageDetails, Person, Post, PostAggregates, PostView } from "lemmy-v3";
 import _ from "lodash";
 
 export type Slug = {
@@ -15,19 +9,26 @@ export type Slug = {
 };
 
 export function createSlug(
-  object: { actor_id: string },
+  object: { actor_id: string } | { ap_id: string } | { apId: string },
   throwOnError: true,
 ): Slug;
 export function createSlug(
-  object: { actor_id: string },
+  object: { actor_id: string } | { ap_id: string } | { apId: string },
   throwOnError?: false,
 ): Slug | null;
 export function createSlug(
-  object: { actor_id: string },
+  object: { actor_id: string } | { ap_id: string } | { apId: string },
   throwOnError = false,
 ): Slug | null {
   try {
-    const url = new URL(object.actor_id);
+    const apId =
+      "actor_id" in object
+        ? object.actor_id
+        : "ap_id" in object
+          ? object.ap_id
+          : object.apId;
+
+    const url = new URL(apId);
     const path = url.pathname.split("/");
     if (!path[2]) {
       if (throwOnError) {

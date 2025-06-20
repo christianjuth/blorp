@@ -6,7 +6,6 @@ import {
   PostBottomBar,
   FeedPostCard,
   PostProps,
-  getPostProps,
   PostCardSkeleton,
 } from "@/src/components/posts/post";
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
@@ -20,7 +19,7 @@ import {
   useCommentEditingState,
   useLoadCommentIntoEditor,
 } from "../components/comments/comment-reply-modal";
-import { useAuth } from "../stores/auth";
+import { getAccountSite, useAuth } from "../stores/auth";
 import { VirtualList } from "../components/virtual-list";
 import { PostReportProvider } from "../components/posts/post-report";
 import { usePostsStore } from "../stores/posts";
@@ -31,7 +30,6 @@ import {
   IonHeader,
   IonPage,
   IonSearchbar,
-  IonTitle,
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
@@ -59,7 +57,7 @@ function useDelayedReady(delay: number) {
 
 const MemoedPostCard = memo((props: PostProps) => (
   <ContentGutters className="px-0">
-    <FeedPostCard {...props} detailView showCommunity showCreator />
+    <FeedPostCard {...props} detailView />
     <></>
   </ContentGutters>
 ));
@@ -111,21 +109,20 @@ export default function Post() {
   const [commentId] = commentPathArr;
   const highlightCommentId = commentPathArr.at(-1);
 
-  const myUserId = useAuth(
-    (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
-  );
+  const myUserId = useAuth((s) => getAccountSite(s.getSelectedAccount()))?.me
+    ?.id;
 
   const community = useCommunity({
     name: communityName,
   });
-  const modApIds = community.data?.moderators.map((m) => m.moderator.actor_id);
+  const modApIds = community.data?.mods.map((m) => m.apId);
   const postQuery = usePost({
     ap_id: decodedApId,
   });
 
-  const adminApIds = useAuth((s) => s.getSelectedAccount().site?.admins)?.map(
-    (a) => a.person.actor_id,
-  );
+  const adminApIds = useAuth(
+    (s) => getAccountSite(s.getSelectedAccount())?.admins,
+  )?.map((a) => a.apId);
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore((s) =>
@@ -135,7 +132,7 @@ export default function Post() {
   const parentId = commentId ? +commentId : undefined;
 
   const comments = useComments({
-    post_id: post?.post.id,
+    post_id: post?.id,
     parent_id: parentId,
   });
 
@@ -189,11 +186,11 @@ export default function Post() {
     return <NotFound />;
   }
 
-  const opId = post?.creator.id;
+  const opId = post?.creatorId;
 
   return (
     <IonPage ref={pageElement.ref}>
-      <PageTitle>{post?.post.name ?? "Post"}</PageTitle>
+      <PageTitle>{post?.title ?? "Post"}</PageTitle>
       <IonHeader>
         <IonToolbar
           data-tauri-drag-region
@@ -255,12 +252,9 @@ export default function Post() {
                 post ? (
                   <MemoedPostCard
                     key="post-details"
-                    {...getPostProps(post, {
-                      featuredContext: "community",
-                      modApIds,
-                      adminApIds,
-                      detailView: true,
-                    })}
+                    apId={post.apId}
+                    featuredContext="community"
+                    detailView
                   />
                 ) : (
                   <ContentGutters className="px-0" key="post-skeleton">
@@ -273,7 +267,7 @@ export default function Post() {
                     <ContentGutters className="px-0">
                       <PostBottomBar
                         apId={decodedApId}
-                        commentsCount={post.counts.comments}
+                        commentsCount={post.commentsCount}
                         onReply={() => {}}
                       />
                       <></>
@@ -281,7 +275,7 @@ export default function Post() {
                   </Fragment>
                 ),
                 post && !commentPath && (
-                  <ReplyToPost key="reply-to-post" postId={post.post.id} />
+                  <ReplyToPost key="reply-to-post" postId={post.id} />
                 ),
               ]}
               renderItem={({ item }) => (
@@ -308,8 +302,8 @@ export default function Post() {
                 ) : undefined
               }
               numPlaceholders={
-                _.isNumber(post?.counts.comments)
-                  ? Math.max(1, post.counts.comments)
+                _.isNumber(post?.commentsCount)
+                  ? Math.max(1, post.commentsCount)
                   : undefined
               }
               onEndReached={loadMore}
@@ -325,7 +319,7 @@ export default function Post() {
           {communityName && (
             <CommunitySidebar
               communityName={communityName}
-              actorId={community.data?.community_view.community.actor_id}
+              actorId={community.data?.community.apId}
             />
           )}
         </ContentGutters>

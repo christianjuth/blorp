@@ -8,10 +8,10 @@ import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/src/stores/auth";
 import { useProfilesStore } from "@/src/stores/profiles";
-import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/lemmy/utils";
 import { useLinkContext } from "../../routing/link-context";
 import { usePersonDetails } from "@/src/lib/lemmy";
-import { Person } from "lemmy-js-client";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 export function PersonCard({
   actorId,
@@ -21,7 +21,7 @@ export function PersonCard({
   disableLink,
 }: {
   actorId: string;
-  person?: Person;
+  person?: Schemas.Person;
   size?: "sm" | "md";
   className?: string;
   disableLink?: boolean;
@@ -35,22 +35,23 @@ export function PersonCard({
     actorId,
     enabled: !personView,
   });
-  const p = override ?? personView?.person;
-  const slug = p ? createSlug(p) : null;
+  const p = override ?? personView;
 
   if (!personView && !override) {
     return <PersonSkeletonCard size={size} className={className} />;
   }
 
+  const [name, host] = p?.slug.split("@") ?? [];
+
   const content = (
     <>
       <Avatar className={cn("h-9 w-9", size === "sm" && "h-8 w-8")}>
         <AvatarImage
-          src={override ? override.avatar : personView?.person.avatar}
+          src={(override ? override.avatar : personView?.avatar) ?? undefined}
           className="object-cover"
         />
         <AvatarFallback>
-          {(override?.name ?? personView?.person.name)?.substring(0, 1)}
+          {(override?.slug ?? personView?.slug)?.substring(0, 1)}
         </AvatarFallback>
       </Avatar>
 
@@ -60,8 +61,8 @@ export function PersonCard({
           size === "sm" && "text-xs",
         )}
       >
-        {override?.name ?? personView?.person?.name}
-        <span className="text-muted-foreground italic">@{slug?.host}</span>
+        {name}
+        <span className="text-muted-foreground italic">@{host}</span>
       </span>
     </>
   );
@@ -86,7 +87,7 @@ export function PersonCard({
       data-testid="person-card"
       to={`${linkCtx.root}u/:userId`}
       params={{
-        userId: encodeApId(override ? override.actor_id : actorId),
+        userId: encodeApId(override ? override.apId : actorId),
       }}
       className={cn(
         "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full text-foreground",
