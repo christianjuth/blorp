@@ -39,8 +39,11 @@ function cursorToInt(pageCursor: string | null | undefined) {
 }
 
 function convertCommunity(
-  communityView: lemmyV3.CommunityView,
+  communityView: lemmyV3.CommunityView | { community: lemmyV3.Community },
 ): Schemas.Community {
+  const counts = "counts" in communityView ? communityView.counts : null;
+  const subscribed =
+    "subscribed" in communityView ? communityView.subscribed : null;
   return {
     createdAt: communityView.community.published,
     id: communityView.community.id,
@@ -49,18 +52,24 @@ function convertCommunity(
     icon: communityView.community.icon ?? null,
     banner: communityView.community.banner ?? null,
     description: communityView.community.description ?? null,
-    usersActiveDayCount: communityView.counts.users_active_day,
-    usersActiveWeekCount: communityView.counts.users_active_week,
-    usersActiveMonthCount: communityView.counts.users_active_month,
-    usersActiveHalfYearCount: communityView.counts.users_active_half_year,
-    postCount: communityView.counts.posts,
-    commentCount: communityView.counts.posts,
-    subscriberCount: communityView.counts.subscribers,
-    subscribersLocalCount: communityView.counts.subscribers_local,
-    subscribed:
-      communityView.subscribed === "ApprovalRequired"
-        ? "Pending"
-        : communityView.subscribed,
+    ...(counts
+      ? {
+          usersActiveDayCount: counts.users_active_day,
+          usersActiveWeekCount: counts.users_active_week,
+          usersActiveMonthCount: counts.users_active_month,
+          usersActiveHalfYearCount: counts.users_active_half_year,
+          postCount: counts.posts,
+          commentCount: counts.posts,
+          subscriberCount: counts.subscribers,
+          subscribersLocalCount: counts.subscribers_local,
+        }
+      : {}),
+    ...(subscribed
+      ? {
+          subscribed:
+            subscribed === "ApprovalRequired" ? "Pending" : subscribed,
+        }
+      : {}),
   };
 }
 
@@ -156,6 +165,10 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       sidebar: site.site_view.site.sidebar ?? null,
       icon: site.site_view.site.icon ?? null,
       title: site.site_view.site.name,
+      moderates:
+        site.my_user?.moderates.map(({ community }) =>
+          convertCommunity({ community }),
+        ) ?? null,
     };
   }
 
@@ -284,7 +297,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
         ? 1
         : _.parseInt(form.pageCursor) + 1;
-    const hasNextCursor = posts.length > this.limit;
+    const hasNextCursor = posts.length >= this.limit;
 
     return {
       posts: posts.map(convertPost),
@@ -318,6 +331,34 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
     return {
       community: convertCommunity(community_view),
       mods: moderators.map((m) => convertPerson({ person: m.moderator })),
+    };
+  }
+
+  async getCommunities(form: Forms.GetCommunities, options: RequestOptions) {
+    const { communities } = await this.client.listCommunities(
+      {
+        sort: form.sort,
+        type_: form.type,
+        limit: this.limit,
+        page:
+          _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+            ? 1
+            : _.parseInt(form.pageCursor) + 1,
+      },
+      options,
+    );
+
+    const nextCursor =
+      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+        ? 1
+        : _.parseInt(form.pageCursor) + 1;
+    const hasNextCursor = communities.length >= this.limit;
+
+    return {
+      communities: communities.map((communityView) =>
+        convertCommunity(communityView),
+      ),
+      nextCursor: hasNextCursor ? String(nextCursor) : null,
     };
   }
 }

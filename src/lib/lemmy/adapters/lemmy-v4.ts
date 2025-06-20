@@ -151,6 +151,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       me: null,
       version: site.version,
       /* me: me ? convertPerson(me) : null, */
+      moderates: [],
       usersActiveDayCount: site.site_view.local_site.users_active_day,
       usersActiveWeekCount: site.site_view.local_site.users_active_week,
       usersActiveMonthCount: site.site_view.local_site.users_active_month,
@@ -301,6 +302,23 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     return {
       community: convertCommunity(community_view),
       mods: moderators.map((m) => convertPerson({ person: m.moderator })),
+    };
+  }
+
+  async getCommunities(form: Forms.GetCommunities, options: RequestOptions) {
+    const { communities, next_page } = await this.client.listCommunities(
+      {
+        sort: form.sort,
+        type_: form.type,
+        page_cursor:
+          form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
+      },
+      options,
+    );
+
+    return {
+      communities: communities.map(convertCommunity),
+      nextCursor: next_page ?? null,
     };
   }
 }
