@@ -30,13 +30,15 @@ const absoluteTime = () =>
 const relativeTime = () =>
   dayjs().utc().subtract(1, "hour").format("YYYY-MM-DDTHH:mm:ss.SSS[000]Z");
 
-export function getPerson(): Schemas.Person {
+export function getPerson(overrides?: Partial<Schemas.Person>): Schemas.Person {
+  const id = overrides?.id ?? PERSON_ID;
+  const apId = `${API_ROOT}/u/${id}`;
   return {
     createdAt: relativeTime(),
-    id: PERSON_ID,
-    apId: `${API_ROOT}/u/${PERSON_ID}`,
+    id,
+    apId,
     avatar: null,
-    slug: "",
+    slug: createSlug({ apId }, true).slug,
     matrixUserId: null,
     bio: "This is me",
     deleted: false,
@@ -60,6 +62,8 @@ export function getPost(config?: {
 
   const postId = config?.post?.id ?? POST_ID;
 
+  const community = getCommunity();
+
   const post: Schemas.Post = {
     createdAt: relativeTime(),
     id: postId,
@@ -74,8 +78,8 @@ export function getPost(config?: {
     creatorSlug,
     creatorId: creator.id,
     creatorApId: creator.apId,
-    communitySlug: "",
-    communityApId: "",
+    communitySlug: createSlug(community, true).slug,
+    communityApId: community.apId,
     thumbnailUrl: null,
     thumbnailAspectRatio: null,
     url: null,

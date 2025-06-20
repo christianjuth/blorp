@@ -169,6 +169,18 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
         site.my_user?.moderates.map(({ community }) =>
           convertCommunity({ community }),
         ) ?? null,
+      follows:
+        site.my_user?.follows.map(({ community }) =>
+          convertCommunity({ community }),
+        ) ?? null,
+      personBlocks:
+        site.my_user?.person_blocks.map((person) =>
+          convertPerson({ person }),
+        ) ?? null,
+      communityBlocks:
+        site.my_user?.community_blocks.map((community) =>
+          convertCommunity({ community }),
+        ) ?? null,
     };
   }
 
@@ -360,5 +372,34 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       ),
       nextCursor: hasNextCursor ? String(nextCursor) : null,
     };
+  }
+
+  async followCommunity(form: Forms.FollowCommunity) {
+    const { community_view } = await this.client.followCommunity({
+      community_id: form.communityId,
+      follow: form.follow,
+    });
+    return convertCommunity(community_view);
+  }
+
+  async editPost(form: Schemas.EditPost) {
+    const { post } = await this.client.resolveObject({
+      q: form.apId,
+    });
+
+    if (!post) {
+      throw new Error("couldn't find post");
+    }
+
+    const { post_view } = await this.client.editPost({
+      post_id: post.post.id,
+      url: form.url ?? undefined,
+      body: form.body ?? undefined,
+      name: form.title,
+      alt_text: form.altText,
+      custom_thumbnail: form.thumbnailUrl ?? undefined,
+    });
+
+    return convertPost(post_view);
   }
 }

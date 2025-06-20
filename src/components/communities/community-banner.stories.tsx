@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { CommunityBanner } from "./community-banner";
 import { useCommunitiesStore } from "@/src/stores/communities";

@@ -21,7 +21,10 @@ type SortsStore = {
   patchCommunity: (
     id: string,
     prefix: CachePrefixer,
-    post: Partial<Data>,
+    post: {
+      communityView?: Partial<Schemas.Community>;
+      mods?: Schemas.Person[];
+    },
   ) => void;
   cacheCommunity: (prefix: CachePrefixer, data: Data) => void;
   cacheCommunities: (

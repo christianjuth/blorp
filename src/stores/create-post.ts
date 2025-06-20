@@ -1,4 +1,4 @@
-import { Community, CreatePost, EditPost } from "lemmy-v3";
+import { Community, CreatePost } from "lemmy-v3";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
@@ -29,7 +29,13 @@ export const NEW_DRAFT: Draft = {
 };
 
 export function isEmptyDraft(draft: Draft) {
-  const fields = _.omit(draft, ["type", "apId", "createdAt", "community"]);
+  const fields = _.omit(draft, [
+    "type",
+    "apId",
+    "createdAt",
+    "communitySlug",
+    "communityApId",
+  ]);
   for (const id in fields) {
     if (fields[id as keyof typeof fields]) {
       return false;

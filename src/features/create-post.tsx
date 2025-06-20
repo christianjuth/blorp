@@ -17,7 +17,6 @@ import {
   useUploadImage,
 } from "../lib/lemmy";
 import _ from "lodash";
-import { Community } from "lemmy-v3";
 import { parseOgData } from "../lib/html-parsing";
 import {
   IonButton,
@@ -59,6 +58,7 @@ import { getAccountActorId, useAuth } from "../stores/auth";
 import { usePathname } from "../routing/hooks";
 import { Sidebar, SidebarContent } from "../components/sidebar";
 import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { useCommunitiesStore } from "../stores/communities";
 
 dayjs.extend(localizedFormat);
 
@@ -468,8 +468,7 @@ function ChooseCommunity({
   const patchDraft = useCreatePostStore((s) => s.updateDraft);
 
   const subscribedCommunitiesRes = useListCommunities({
-    type_: "Subscribed",
-    limit: 50,
+    type: "Subscribed",
   });
   const subscribedCommunities =
     subscribedCommunitiesRes.data?.pages
@@ -481,6 +480,14 @@ function ChooseCommunity({
     type: "Communities",
     sort: "TopAll",
   });
+
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const selectedCommunity = useCommunitiesStore((s) =>
+    draft.communitySlug
+      ? s.communities[getCachePrefixer()(draft.communitySlug)]?.data
+          .communityView
+      : null,
+  );
 
   const searchResultsCommunities =
     searchResultsRes.data?.pages.flatMap((p) =>
@@ -503,8 +510,8 @@ function ChooseCommunity({
   if (search) {
     data = ["Search results", ...searchResultsCommunities];
   }
-  if (draft.community) {
-    data = ["Selected", draft.community, ...data];
+  if (selectedCommunity) {
+    data = ["Selected", selectedCommunity, ...data];
   }
 
   data = _.uniqBy(data, (item) => {

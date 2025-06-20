@@ -280,7 +280,7 @@ export default function SearchFeed({
           {communityName && (
             <CommunitySidebar
               communityName={communityName}
-              actorId={community.data?.community_view.community.actor_id}
+              actorId={community.data?.community.apId}
             />
           )}
         </ContentGutters>

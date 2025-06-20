@@ -45,7 +45,7 @@ export default function Messages() {
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const person = useProfilesStore(
-    (s) => s.profiles[getCachePrefixer()(otherActorId)]?.data.person,
+    (s) => s.profiles[getCachePrefixer()(otherActorId)]?.data,
   );
   const [signal, setSignal] = useState(0);
   const chat = usePrivateMessages({});

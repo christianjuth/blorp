@@ -54,7 +54,7 @@ export function CommunityCard({
         <AvatarFallback>{communityView.slug.substring(0, 1)}</AvatarFallback>
       </Avatar>
 
-      <div className="flex flex-col gap-0.5 flex-1 overflow-hidden">
+      <div className="flex flex-col gap-0.5 flex-1 overflow-hidden text-left">
         <span
           className={cn(
             "text-sm overflow-hidden overflow-ellipsis",

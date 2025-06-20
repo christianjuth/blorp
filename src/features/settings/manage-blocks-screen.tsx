@@ -12,7 +12,7 @@ import {
 import { UserDropdown } from "@/src/components/nav";
 import { PageTitle } from "@/src/components/page-title";
 import { useParams } from "@/src/routing";
-import { parseAccountInfo, useAuth } from "@/src/stores/auth";
+import { getAccountSite, parseAccountInfo, useAuth } from "@/src/stores/auth";
 import NotFound from "../not-found";
 import { createSlug } from "@/src/lib/lemmy/utils";
 import { PersonCard } from "@/src/components/person/person-card";
@@ -36,8 +36,9 @@ export default function SettingsPage() {
     return <NotFound />;
   }
 
-  const personBlocks = account.site?.my_user?.person_blocks;
-  const community_blocks = account.site?.my_user?.community_blocks;
+  const site = getAccountSite(account);
+  const personBlocks = site?.personBlocks;
+  const community_blocks = site?.communityBlocks;
 
   const { person } = parseAccountInfo(account);
   const slug = person ? createSlug(person) : null;
@@ -96,7 +97,7 @@ export default function SettingsPage() {
                 const slug = createSlug(target);
                 return (
                   <SectionItem
-                    key={c.actor_id}
+                    key={c.apId}
                     onClick={() =>
                       getConfirmation({
                         message: `Unblock ${slug?.slug ?? "community"}`,
@@ -108,7 +109,7 @@ export default function SettingsPage() {
                       )
                     }
                   >
-                    <CommunityCard size="sm" apId={c.actor_id} disableLink />
+                    <CommunityCard size="sm" apId={c.apId} disableLink />
                   </SectionItem>
                 );
               })}
