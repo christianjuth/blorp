@@ -19,7 +19,7 @@ import {
   useCommentEditingState,
   useLoadCommentIntoEditor,
 } from "../components/comments/comment-reply-modal";
-import { useAuth } from "../stores/auth";
+import { getAccountSite, useAuth } from "../stores/auth";
 import { VirtualList } from "../components/virtual-list";
 import { PostReportProvider } from "../components/posts/post-report";
 import { usePostsStore } from "../stores/posts";
@@ -109,9 +109,8 @@ export default function Post() {
   const [commentId] = commentPathArr;
   const highlightCommentId = commentPathArr.at(-1);
 
-  const myUserId = useAuth(
-    (s) => s.getSelectedAccount().site?.my_user?.local_user_view.person.id,
-  );
+  const myUserId = useAuth((s) => getAccountSite(s.getSelectedAccount()))?.me
+    ?.id;
 
   const community = useCommunity({
     name: communityName,
@@ -121,9 +120,9 @@ export default function Post() {
     ap_id: decodedApId,
   });
 
-  const adminApIds = useAuth((s) => s.getSelectedAccount().site?.admins)?.map(
-    (a) => a.person.actor_id,
-  );
+  const adminApIds = useAuth(
+    (s) => getAccountSite(s.getSelectedAccount())?.admins,
+  )?.map((a) => a.apId);
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore((s) =>

@@ -1,4 +1,9 @@
-import { SearchType, PostFeatureType, ListingType } from "lemmy-v4";
+import {
+  CommunitySortType,
+  SearchType,
+  PostFeatureType,
+  ListingType,
+} from "lemmy-v4";
 import z from "zod";
 
 export const INIT_PAGE_TOKEN = "INIT_PAGE_TOKEN";
@@ -17,22 +22,6 @@ const personSchema = z.object({
   isBot: z.boolean(),
   commentCount: z.number().nullable(),
   postCount: z.number().nullable(),
-});
-export const siteSchema = z.object({
-  instance: z.string(),
-  me: personSchema.nullable(),
-  admins: z.array(personSchema),
-  version: z.string(),
-  sidebar: z.string().nullable(),
-  userCount: z.number().nullable(),
-  usersActiveDayCount: z.number().nullable(),
-  usersActiveWeekCount: z.number().nullable(),
-  usersActiveMonthCount: z.number().nullable(),
-  usersActiveHalfYearCount: z.number().nullable(),
-  postCount: z.number().nullable(),
-  commentCount: z.number().nullable(),
-  icon: z.string().nullable(),
-  title: z.string().nullable(),
 });
 const postSchema = z.object({
   createdAt: z.string(),
@@ -84,18 +73,35 @@ const communitySchema = z.object({
   icon: z.string().nullable(),
   description: z.string().nullable(),
   banner: z.string().nullable(),
+  usersActiveDayCount: z.number().optional(),
+  usersActiveWeekCount: z.number().optional(),
+  usersActiveMonthCount: z.number().optional(),
+  usersActiveHalfYearCount: z.number().optional(),
+  subscriberCount: z.number().optional(),
+  subscribersLocalCount: z.number().optional(),
+  postCount: z.number().optional(),
+  commentCount: z.number().optional(),
+  subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]).optional(),
+  optimisticSubscribed: z
+    .enum(["Subscribed", "NotSubscribed", "Pending"])
+    .optional(),
+});
+export const siteSchema = z.object({
+  instance: z.string(),
+  me: personSchema.nullable(),
+  admins: z.array(personSchema),
+  moderates: z.array(communitySchema).nullable(),
+  version: z.string(),
+  sidebar: z.string().nullable(),
+  userCount: z.number().nullable(),
   usersActiveDayCount: z.number().nullable(),
   usersActiveWeekCount: z.number().nullable(),
   usersActiveMonthCount: z.number().nullable(),
   usersActiveHalfYearCount: z.number().nullable(),
-  subscriberCount: z.number().nullable(),
-  subscribersLocalCount: z.number().nullable(),
   postCount: z.number().nullable(),
   commentCount: z.number().nullable(),
-  subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
-  optimisticSubscribed: z
-    .enum(["Subscribed", "NotSubscribed", "Pending"])
-    .optional(),
+  icon: z.string().nullable(),
+  title: z.string().nullable(),
 });
 
 export namespace Schemas {
@@ -171,6 +177,12 @@ export namespace Forms {
   export type GetCommunity = {
     slug?: string;
   };
+
+  export type GetCommunities = {
+    sort?: CommunitySortType;
+    type?: ListingType;
+    pageCursor?: string;
+  };
 }
 
 type Paginated = {
@@ -245,6 +257,14 @@ export abstract class ApiBlueprint<C> {
   ): Promise<{
     community: Schemas.Community;
     mods: Schemas.Person[];
+  }>;
+
+  abstract getCommunities(
+    form: Forms.GetCommunities,
+    options: RequestOptions,
+  ): Promise<{
+    communities: Schemas.Community[];
+    nextCursor: string | null;
   }>;
 
   //abstract getCommunity(): Promise<Schemas.Community>;
