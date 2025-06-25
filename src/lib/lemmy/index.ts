@@ -1,35 +1,26 @@
 import {
   CommentAggregates,
   CommentSortType,
-  CommentView,
   Comment,
-  Community,
   CreateCommentLike,
   GetPosts,
   LemmyHttp,
-  ListCommunities,
   Login,
   Person,
   GetReplies,
-  Search,
   MarkCommentReplyAsRead,
   CreatePostReport,
   CreateCommentReport,
   BlockPerson,
-  SavePost,
-  DeletePost,
-  FeaturePost,
   UploadImage,
   MarkPostAsRead,
   GetPersonMentions,
   Register,
   MarkPersonMentionAsRead,
   BlockCommunity,
-  GetSiteResponse,
   CreatePrivateMessage,
   PrivateMessageView,
   MarkPrivateMessageAsRead,
-  GetComments,
 } from "lemmy-v3";
 import {
   useQuery,
@@ -409,7 +400,7 @@ export function useComments(form: Forms.GetComments) {
         nextCursor,
       };
     },
-    enabled: _.isString(form.postApId),
+    enabled: !_.isNil(form.postApId),
     getNextPageParam: (data) => data.nextPage,
     initialPageParam: INIT_PAGE_TOKEN,
     refetchOnMount: "always",
@@ -732,7 +723,7 @@ export function useRegister(config?: {
           updateSelectedAccount(payload);
         }
         if (person) {
-          cacheProfiles(getCachePrefixer(), [{ person }]);
+          cacheProfiles(getCachePrefixer(), [person]);
         }
       }
       return res;
@@ -979,27 +970,31 @@ export function useLikePost(apId: string) {
   });
 }
 
-interface CustumCreateCommentLike extends CreateCommentLike {
-  post_id: number;
+interface CustumCreateCommentLike extends Forms.LikeComment {
   path: string;
 }
 
 export function useLikeComment() {
-  const { client } = useLemmyClient();
+  const { api } = useLemmyClient();
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const patchComment = useCommentsStore((s) => s.patchComment);
   const cacheComments = useCommentsStore((s) => s.cacheComments);
 
   return useMutation({
-    mutationFn: (form: CustumCreateCommentLike) =>
-      client.likeComment(_.omit(form, ["path", "post_id"])),
+    mutationFn: async (form: CustumCreateCommentLike) =>
+      await (await api).likeComment(_.omit(form, ["path"])),
     onMutate: ({ score, path }) => {
       patchComment(path, getCachePrefixer(), () => ({
         optimisticMyVote: score,
       }));
     },
     onSuccess: (data) => {
-      cacheComments(getCachePrefixer(), [data.comment_view]);
+      cacheComments(getCachePrefixer(), [
+        {
+          ...data,
+          optimisticMyVote: undefined,
+        },
+      ]);
     },
     onError: (err, { path, score }) => {
       patchComment(path, getCachePrefixer(), () => ({
@@ -1072,6 +1067,7 @@ export function useCreateComment() {
         communitySlug: "",
         communityApId: "",
         postTitle: "",
+        myVote: 1,
       };
 
       cacheComments(getCachePrefixer(), [newComment]);
@@ -1203,38 +1199,35 @@ export function useCreateComment() {
 }
 
 export function useEditComment() {
-  const { client } = useLemmyClient();
+  const { api } = useLemmyClient();
   const cacheComments = useCommentsStore((s) => s.cacheComments);
   const patchComment = useCommentsStore((s) => s.patchComment);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useMutation({
-    mutationFn: (form: { comment_id: number; content: string; path: string }) =>
-      client.editComment(_.omit(form, "path")),
-    onMutate: ({ path, content }) => {
+    mutationFn: async (form: { id: number; body: string; path: string }) =>
+      await (await api).editComment(_.omit(form, "path")),
+    onMutate: ({ path, body }) => {
       patchComment(path, getCachePrefixer(), (prev) => ({
         ...prev,
-        body: content,
+        body,
       }));
     },
-    onSuccess: ({ comment_view }) => {
-      cacheComments(getCachePrefixer(), [comment_view]);
+    onSuccess: (commentView) => {
+      cacheComments(getCachePrefixer(), [commentView]);
     },
   });
 }
 
 export function useDeleteComment() {
-  const { client } = useLemmyClient();
+  const { api } = useLemmyClient();
   const patchComment = useCommentsStore((s) => s.patchComment);
   const cacheComments = useCommentsStore((s) => s.cacheComments);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useMutation({
-    mutationFn: (form: {
-      comment_id: number;
-      path: string;
-      deleted: boolean;
-    }) => client.deleteComment(_.omit(form, "path")),
+    mutationFn: async (form: { id: number; path: string; deleted: boolean }) =>
+      await (await api).deleteComment(_.omit(form, "path")),
     onMutate: ({ path, deleted }) => {
       patchComment(path, getCachePrefixer(), (prev) => ({
         ...prev,
@@ -1244,8 +1237,8 @@ export function useDeleteComment() {
         },
       }));
     },
-    onSuccess: ({ comment_view }) => {
-      cacheComments(getCachePrefixer(), [comment_view]);
+    onSuccess: (commentView) => {
+      cacheComments(getCachePrefixer(), [commentView]);
     },
   });
 }
@@ -1710,7 +1703,7 @@ export function useFollowCommunity() {
       });
     },
     onMutate: (form) => {
-      const slug = createSlug(form.community)?.slug;
+      const slug = form.community.slug;
       if (slug) {
         patchCommunity(slug, getCachePrefixer(), {
           communityView: {

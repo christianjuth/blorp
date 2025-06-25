@@ -393,7 +393,7 @@ export function PostComment({
                         text: commentView.deleted ? "Restore" : "Delete",
                         onClick: () => {
                           deleteComment.mutate({
-                            comment_id: commentView.id,
+                            id: commentView.id,
                             path: commentView.path,
                             deleted: !commentView.deleted,
                           });

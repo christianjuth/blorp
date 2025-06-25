@@ -138,6 +138,7 @@ function convertComment(commentView: lemmyV4.CommentView): Schemas.Comment {
     communitySlug: createSlug(community, true).slug,
     communityApId: community.ap_id,
     postTitle: post.name,
+    myVote: commentView.comment_actions?.like_score ?? null,
   };
 }
 
@@ -148,13 +149,15 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
 
   private resolveObjectId = _.memoize(
     async (apId: string) => {
-      const { post, comment, community } = await this.client.resolveObject({
-        q: apId,
-      });
+      const { post, comment, community, person } =
+        await this.client.resolveObject({
+          q: apId,
+        });
       return {
         post_id: post?.post.id,
         comment_id: comment?.comment.id,
         community_id: community?.community.id,
+        person_id: person?.person.id,
       };
     },
     (apId) => apId,
@@ -208,18 +211,13 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
   }
 
   async getPost(form: { apId: string }, options: RequestOptions) {
-    const { post } = await this.client.resolveObject(
-      {
-        q: form.apId,
-      },
-      options,
-    );
-    if (!post) {
+    const { post_id } = await this.resolveObjectId(form.apId);
+    if (_.isNil(post_id)) {
       throw new Error("post not found");
     }
     const fullPost = await this.client.getPost(
       {
-        id: post.post.id,
+        id: post_id,
       },
       options,
     );
@@ -279,20 +277,15 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     form: Forms.GetPersonContent,
     options: RequestOptions,
   ) {
-    const { person } = await this.client.resolveObject(
-      {
-        q: form.apId,
-      },
-      options,
-    );
+    const { person_id } = await this.resolveObjectId(form.apId);
 
-    if (!person) {
+    if (_.isNil(person_id)) {
       throw new Error("person not found");
     }
 
     const content = await this.client.listPersonContent(
       {
-        person_id: person.person.id,
+        person_id,
         limit: this.limit,
         page_cursor:
           form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
@@ -388,16 +381,14 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
   }
 
   async editPost(form: Schemas.EditPost) {
-    const { post } = await this.client.resolveObject({
-      q: form.apId,
-    });
+    const { post_id } = await this.resolveObjectId(form.apId);
 
-    if (!post) {
+    if (_.isNil(post_id)) {
       throw new Error("couldn't find post");
     }
 
     const { post_view } = await this.client.editPost({
-      post_id: post.post.id,
+      post_id,
       url: form.url ?? undefined,
       body: form.body ?? undefined,
       name: form.title,
@@ -461,5 +452,29 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     });
 
     return convertComment(comment.comment_view);
+  }
+
+  async likeComment({ id, score }: Forms.LikeComment) {
+    const { comment_view } = await this.client.likeComment({
+      comment_id: id,
+      score,
+    });
+    return convertComment(comment_view);
+  }
+
+  async deleteComment({ id, deleted }: Forms.DeleteComment) {
+    const { comment_view } = await this.client.deleteComment({
+      comment_id: id,
+      deleted,
+    });
+    return convertComment(comment_view);
+  }
+
+  async editComment({ id, body }: Forms.EditComment) {
+    const { comment_view } = await this.client.editComment({
+      comment_id: id,
+      content: body,
+    });
+    return convertComment(comment_view);
   }
 }

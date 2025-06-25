@@ -120,7 +120,7 @@ export const commentSchema = z.object({
   postApId: z.string(),
   downvotes: z.number(),
   upvotes: z.number(),
-  myVote: z.number().optional(),
+  myVote: z.number().nullable(),
   communitySlug,
   communityApId: z.string(),
   optimisticMyVote: z.number().optional(),
@@ -230,6 +230,21 @@ export namespace Forms {
     body: string;
     parentId?: number;
   };
+
+  export type LikeComment = {
+    id: number;
+    score: number;
+  };
+
+  export type DeleteComment = {
+    id: number;
+    deleted: boolean;
+  };
+
+  export type EditComment = {
+    id: number;
+    body: string;
+  };
 }
 
 type Paginated = {
@@ -335,4 +350,10 @@ export abstract class ApiBlueprint<C> {
   }>;
 
   abstract createComment(form: Forms.CreateComment): Promise<Schemas.Comment>;
+
+  abstract likeComment(form: Forms.LikeComment): Promise<Schemas.Comment>;
+
+  abstract deleteComment(form: Forms.DeleteComment): Promise<Schemas.Comment>;
+
+  abstract editComment(form: Forms.EditComment): Promise<Schemas.Comment>;
 }

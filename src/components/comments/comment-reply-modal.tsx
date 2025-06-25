@@ -142,7 +142,7 @@ export function CommentReplyProvider({
 
   const lastResortId = useId();
   const commentKey = comment?.id ?? parent?.id ?? postApId ?? lastResortId;
-  const content =
+  const body =
     useCommentRepliesStore((s) => s.getComment(commentKey)) ||
     comment?.body ||
     "";
@@ -150,20 +150,20 @@ export function CommentReplyProvider({
   const setContent = useCommentRepliesStore((s) => s.setComment);
 
   const handleSubmit = () => {
-    if (!content) {
+    if (!body) {
       setState(null);
       return;
     }
     if (comment) {
       editComment.mutate({
+        id: comment.id,
         path: comment.path,
-        comment_id: comment.id,
-        content: content,
+        body: body,
       });
     } else if (_.isString(postApId)) {
       createComment.mutate({
         postApId,
-        body: content,
+        body: body,
         parentId: parent?.id,
         parentPath: parent?.path,
         queryKeyParentId,
@@ -177,7 +177,7 @@ export function CommentReplyProvider({
   const internalState: InternalState | null = state
     ? {
         ...state,
-        content,
+        content: body,
         setContent: (newContent: string) => setContent(commentKey, newContent),
         cancel: () => setState(null),
         submit: handleSubmit,
@@ -209,7 +209,7 @@ export function CommentReplyProvider({
         <IonContent>
           <MarkdownEditor
             key={signal}
-            content={content}
+            content={body}
             onChange={(val) => setContent(commentKey, val)}
             className="min-h-full"
             autoFocus
