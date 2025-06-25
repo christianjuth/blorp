@@ -50,8 +50,7 @@ export function CommentVoting({
           voteHaptics(newVote);
           requireAuth().then(() => {
             vote.mutate({
-              post_id: commentView.postId,
-              comment_id: commentView.id,
+              id: commentView.id,
               score: newVote,
               path: commentView.path,
             });
