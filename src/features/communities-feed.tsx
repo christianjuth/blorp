@@ -56,9 +56,8 @@ export default function Communities() {
     // isRefetching,
     refetch,
   } = useListCommunities({
-    limit: 50,
     sort: communitySort,
-    type_: listingType,
+    type: listingType,
   });
 
   const communities = useMemo(

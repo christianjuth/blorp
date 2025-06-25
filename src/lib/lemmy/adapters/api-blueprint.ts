@@ -182,7 +182,7 @@ export namespace Forms {
   };
 
   export type GetCommunities = {
-    sort?: CommunitySortType;
+    sort?: string;
     type?: ListingType;
     pageCursor?: string;
   };
