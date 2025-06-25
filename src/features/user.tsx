@@ -53,7 +53,7 @@ const Comment = memo(function Comment({ path }: { path: string }) {
     (s) => s.comments[getCachePrefixer()(path)]?.data,
   );
   const postView = usePostsStore((s) => {
-    const postApId = commentView?.post.ap_id;
+    const postApId = commentView?.postApId;
     return postApId ? s.posts[getCachePrefixer()(postApId)]?.data : null;
   });
   const linkCtx = useLinkContext();
@@ -62,12 +62,10 @@ const Comment = memo(function Comment({ path }: { path: string }) {
     return null;
   }
 
-  const { comment, community, post } = commentView;
-
-  const postTitle = commentView.post.name ?? postView?.title;
+  const postTitle = commentView.postTitle ?? postView?.title;
 
   const parent = path.split(".").at(-2);
-  const newPath = [parent !== "0" ? parent : undefined, comment.id]
+  const newPath = [parent !== "0" ? parent : undefined, commentView.id]
     .filter(Boolean)
     .join(".");
 
@@ -76,20 +74,20 @@ const Comment = memo(function Comment({ path }: { path: string }) {
       <Link
         to={`${linkCtx.root}c/:communityName/posts/:post/comments/:comment`}
         params={{
-          communityName: community.slug,
-          post: encodeApId(post.ap_id),
+          communityName: commentView.communitySlug,
+          post: encodeApId(commentView.postApId),
           comment: newPath,
         }}
         className="py-2 border-b flex-1 overflow-hidden text-sm flex flex-col gap-1.5"
       >
         <span>
-          Replied to <b>{postTitle}</b> in <b>{community.slug}</b>
+          Replied to <b>{postTitle}</b> in <b>{commentView.communitySlug}</b>
         </span>
 
-        {comment.deleted ? (
+        {commentView.deleted ? (
           <span className="text-muted-foreground italic">deleted</span>
         ) : (
-          <MarkdownRenderer markdown={comment.content} />
+          <MarkdownRenderer markdown={commentView.body} />
         )}
       </Link>
       <></>

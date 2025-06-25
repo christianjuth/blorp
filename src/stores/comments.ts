@@ -1,33 +1,29 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
-import { FlattenedComment } from "../lib/lemmy";
 import _ from "lodash";
 import { MAX_CACHE_MS } from "./config";
 import { CachePrefixer } from "./auth";
+import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 
 type CachedComment = {
-  data: FlattenedComment;
+  data: Schemas.Comment;
   remove?: boolean;
   lastUsed: number;
 };
 
-type CommentPath = FlattenedComment["comment"]["path"];
+type CommentPath = Schemas.Comment["path"];
 
 type SortsStore = {
   comments: Record<CommentPath, CachedComment>;
   patchComment: (
-    path: FlattenedComment["comment"]["path"],
+    path: CommentPath,
     prefix: CachePrefixer,
-    comment: (prev: FlattenedComment) => Partial<FlattenedComment>,
+    comment: (prev: Schemas.Comment) => Partial<Schemas.Comment>,
   ) => void;
-  cacheComment: (
-    prefix: CachePrefixer,
-    comment: FlattenedComment,
-  ) => FlattenedComment;
   cacheComments: (
     prefix: CachePrefixer,
-    comments: FlattenedComment[],
+    comments: Schemas.Comment[],
   ) => Record<CommentPath, CachedComment>;
   markCommentForRemoval: (path: string, prefix: CachePrefixer) => void;
   cleanup: () => any;
@@ -72,36 +68,17 @@ export const useCommentsStore = create<SortsStore>()(
           comments: commentsClone,
         });
       },
-      cacheComment: (prefix, view) => {
-        const prev = get().comments;
-        const cacheKey = prefix(view.comment.path);
-        const prevPostData = prev[cacheKey]?.data ?? {};
-        const updatedPostData = {
-          ..._.pick(prevPostData, ["optimisticMyVote"]),
-          ...view,
-        };
-        set({
-          comments: {
-            ...prev,
-            [cacheKey]: {
-              data: updatedPostData,
-              lastUsed: Date.now(),
-            },
-          },
-        });
-        return updatedPostData;
-      },
       cacheComments: (prefix, views) => {
         const prev = get().comments;
 
         const newComments: Record<CommentPath, CachedComment> = {};
 
         for (const view of views) {
-          const cacheKey = prefix(view.comment.path);
+          const cacheKey = prefix(view.path);
           const prevCommentData = prev[cacheKey]?.data ?? {};
           newComments[cacheKey] = {
             data: {
-              ..._.pick(prevCommentData, ["optimisticMyVote"]),
+              ...prevCommentData,
               ...view,
             },
             lastUsed: Date.now(),

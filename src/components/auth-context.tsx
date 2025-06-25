@@ -186,8 +186,7 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
       });
   };
 
-  const applicationQuestion =
-    site.data?.site_view.local_site.application_question;
+  const applicationQuestion = site.data?.applicationQuestion;
 
   return (
     <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
@@ -394,7 +393,9 @@ function AuthModal({
 
   useEffect(() => {
     try {
-      const url = new URL(search);
+      const url = new URL(
+        search.includes("://") ? search : `https://` + search,
+      );
       setInstanceLocal({
         url: `${url.protocol}//${url.host}/`,
         baseurl: url.host,

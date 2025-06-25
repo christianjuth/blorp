@@ -19,29 +19,30 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { Button } from "@/src/components/ui/button";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 export function useCommentEditingState({
   parent,
   comment,
-  postId,
+  postApId,
 }: {
-  parent?: FlattenedComment;
-  comment?: FlattenedComment;
-  postId?: number;
+  parent?: Schemas.Comment;
+  comment?: Schemas.Comment;
+  postApId?: string;
 }): InternalState | null {
   const { state } = useContext(Context);
 
   let isMe = false;
   if (comment) {
-    if (comment.comment.id === state?.comment?.id) {
+    if (comment.id === state?.comment?.id) {
       isMe = true;
     }
   } else if (parent) {
-    if (parent.comment.ap_id === state?.parent?.comment.ap_id) {
+    if (parent.apId === state?.parent?.apId) {
       isMe = true;
     }
-  } else if (_.isNumber(postId)) {
-    if (postId === state?.postId && !state.parent && !state.comment) {
+  } else if (postApId) {
+    if (postApId === state?.postApId && !state.parent && !state.comment) {
       isMe = true;
     }
   }
@@ -99,10 +100,10 @@ export function InlineCommentReply({
 }
 
 type State = {
-  comment?: Comment;
-  postId: number | string;
+  comment?: Schemas.Comment;
+  postApId: string;
   queryKeyParentId?: number;
-  parent?: FlattenedComment;
+  parent?: Schemas.Comment;
 };
 
 interface InternalState extends State {
@@ -134,17 +135,16 @@ export function CommentReplyProvider({
   const [signal, setSignal] = useState(0);
   const [state, setState] = useState<State | null>(null);
 
-  const { queryKeyParentId, comment, postId, parent } = state ?? {};
+  const { queryKeyParentId, comment, postApId, parent } = state ?? {};
 
   const createComment = useCreateComment();
   const editComment = useEditComment();
 
   const lastResortId = useId();
-  const commentKey =
-    comment?.id ?? parent?.comment.id ?? postId ?? lastResortId;
+  const commentKey = comment?.id ?? parent?.id ?? postApId ?? lastResortId;
   const content =
     useCommentRepliesStore((s) => s.getComment(commentKey)) ||
-    comment?.content ||
+    comment?.body ||
     "";
 
   const setContent = useCommentRepliesStore((s) => s.setComment);
@@ -160,12 +160,12 @@ export function CommentReplyProvider({
         comment_id: comment.id,
         content: content,
       });
-    } else if (_.isNumber(postId)) {
+    } else if (_.isString(postApId)) {
       createComment.mutate({
-        post_id: +postId,
-        content: content,
-        parent_id: parent?.comment.id,
-        parentPath: parent?.comment.path,
+        postApId,
+        body: content,
+        parentId: parent?.id,
+        parentPath: parent?.path,
         queryKeyParentId,
       });
     }

@@ -13,7 +13,7 @@ import { CommentTree } from "@/src/lib/comment-tree";
 import { useShowCommentReportModal } from "./post-report";
 import { useRequireAuth } from "../auth-context";
 import { useLinkContext } from "../../routing/link-context";
-import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/lemmy/utils";
 import { Link, resolveRoute } from "../../routing/index";
 import {
   Avatar,
@@ -179,14 +179,12 @@ export function PostComment({
       ? s.comments[getCachePrefixer()(commentPath.path)]?.data
       : undefined,
   );
-  const isAdmin =
-    commentView && adminApIds?.includes(commentView?.creator.actor_id);
-  const isMod =
-    commentView && modApIds?.includes(commentView?.creator.actor_id);
+  const isAdmin = commentView && adminApIds?.includes(commentView?.creatorApId);
+  const isMod = commentView && modApIds?.includes(commentView?.creatorApId);
 
   const deleteComment = useDeleteComment();
 
-  const isMyComment = commentView?.comment.creator_id === myUserId;
+  const isMyComment = commentView?.creatorId === myUserId;
 
   const sorted = _.entries(_.omit(rest, "sort")).sort(
     ([_id1, a], [_id2, b]) => a.sort - b.sort,
@@ -227,9 +225,7 @@ export function PostComment({
 
   const open =
     useDetailsStore((s) =>
-      commentView?.comment.ap_id
-        ? s.expandedDetails[commentView.comment.ap_id]
-        : null,
+      commentView?.apId ? s.expandedDetails[commentView.apId] : null,
     ) ?? true;
   const setOpen = useDetailsStore((s) => s.setExpandedDetails);
 
@@ -248,13 +244,10 @@ export function PostComment({
     return null;
   }
 
-  const comment = commentView.comment;
-  const creator = commentView.creator;
-
-  const hideContent = comment.removed || comment.deleted;
+  const hideContent = commentView.removed || commentView.deleted;
 
   const highlightComment =
-    highlightCommentId && highlightCommentId === String(comment.id);
+    highlightCommentId && highlightCommentId === String(commentView.id);
 
   const content = (
     <div
@@ -311,10 +304,10 @@ export function PostComment({
         </div>
       )}
       <Collapsible
-        className={cn(comment.id < 0 && "opacity-50")}
+        className={cn(commentView.id < 0 && "opacity-50")}
         defaultOpen={open}
         onOpenChange={() => {
-          setOpen(comment.ap_id, !open);
+          setOpen(commentView.apId, !open);
           ref.current?.dispatchEvent(
             new CustomEvent<boolean>(COMMENT_COLLAPSE_EVENT, {
               bubbles: true,
@@ -328,28 +321,32 @@ export function PostComment({
             level > 0 && !open && "pb-3",
             highlightComment && "bg-brand/10 dark:bg-brand/20",
           )}
-          actorId={creator.actor_id}
-          publishedDate={comment.published}
+          actorId={commentView.creatorApId}
+          publishedDate={commentView.createdAt}
           authorType={
             isAdmin
               ? "ADMIN"
               : isMod
                 ? "MOD"
-                : creator.id === opId
+                : commentView.creatorId === opId
                   ? "OP"
-                  : creator.id === myUserId
+                  : commentView.creatorId === myUserId
                     ? "ME"
                     : undefined
           }
         />
 
         <CollapsibleContent>
-          {comment.deleted && <span className="italic text-sm">deleted</span>}
-          {comment.removed && <span className="italic text-sm">removed</span>}
+          {commentView.deleted && (
+            <span className="italic text-sm">deleted</span>
+          )}
+          {commentView.removed && (
+            <span className="italic text-sm">removed</span>
+          )}
 
           {!hideContent && !editingState && (
             <MarkdownRenderer
-              markdown={comment.content}
+              markdown={commentView.body}
               className={cn(highlightComment && "bg-brand/10 dark:bg-brand/20")}
             />
           )}
@@ -371,20 +368,20 @@ export function PostComment({
                         {
                           communityName,
                           post: encodeURIComponent(postApId),
-                          comment: String(comment.id),
+                          comment: String(commentView.id),
                         },
                       ),
                     ),
                 } as const,
-                ...(isMyComment && !comment.deleted
+                ...(isMyComment && !commentView.deleted
                   ? [
                       {
                         text: "Edit",
                         onClick: () => {
                           loadCommentIntoEditor({
-                            postId: comment.post_id,
+                            postApId: commentView.postApId,
                             queryKeyParentId: queryKeyParentId,
-                            comment,
+                            comment: commentView,
                           });
                         },
                       } as const,
@@ -393,12 +390,12 @@ export function PostComment({
                 ...(isMyComment
                   ? [
                       {
-                        text: comment.deleted ? "Restore" : "Delete",
+                        text: commentView.deleted ? "Restore" : "Delete",
                         onClick: () => {
                           deleteComment.mutate({
-                            comment_id: comment.id,
-                            path: comment.path,
-                            deleted: !comment.deleted,
+                            comment_id: commentView.id,
+                            path: commentView.path,
+                            deleted: !commentView.deleted,
                           });
                         },
                         danger: true,
@@ -406,12 +403,12 @@ export function PostComment({
                     ]
                   : [
                       {
-                        text: `Message ${creator.name}`,
+                        text: `Message ${commentView.creatorSlug}`,
                         onClick: () =>
                           requireAuth().then(() =>
                             router.push(
                               resolveRoute("/messages/chat/:userId", {
-                                userId: encodeApId(creator.actor_id),
+                                userId: encodeApId(commentView.creatorApId),
                               }),
                             ),
                           ),
@@ -420,7 +417,7 @@ export function PostComment({
                         text: "Report",
                         onClick: () =>
                           requireAuth().then(() =>
-                            showReportModal(comment.path),
+                            showReportModal(commentView.path),
                           ),
                         danger: true,
                       } as const,
@@ -431,7 +428,7 @@ export function PostComment({
                             await requireAuth();
                             const deferred = new Deferred();
                             alrt({
-                              message: `Block ${commentView.creator.name}`,
+                              message: `Block ${commentView.creatorSlug}`,
                               buttons: [
                                 {
                                   text: "Cancel",
@@ -447,7 +444,7 @@ export function PostComment({
                             });
                             await deferred.promise;
                             blockPerson.mutate({
-                              person_id: commentView.creator.id,
+                              person_id: commentView.creatorId,
                               block: true,
                             });
                           } catch {}
@@ -468,7 +465,7 @@ export function PostComment({
             <CommentReplyButton
               onClick={() =>
                 loadCommentIntoEditor({
-                  postId: comment.post_id,
+                  postApId: commentView.postApId,
                   queryKeyParentId: queryKeyParentId,
                   parent: commentView,
                 })

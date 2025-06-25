@@ -61,12 +61,12 @@ describe("creating comments", () => {
     const numComments = _.random(0, 10);
     mockGetComments(numComments);
 
-    const POST_ID = 1234;
+    const POST_AP_ID = "https://blorpblorp.xyz/p/123456789";
 
     const allComments = renderHook(
       () =>
         useComments({
-          post_id: POST_ID,
+          postApId: POST_AP_ID,
         }),
       {
         wrapper: queryClientWrapper,
@@ -92,8 +92,8 @@ describe("creating comments", () => {
     mockCreateComment(NEW_COMMENT_PATH);
 
     await createComment.result.current.mutateAsync({
-      content: "New comment",
-      post_id: POST_ID,
+      body: "New comment",
+      postApId: POST_AP_ID,
     });
     allComments.rerender();
 
@@ -112,12 +112,12 @@ describe("creating comments", () => {
       throw new Error("this shouldn't happen");
     }
 
-    const POST_ID = 1234;
+    const POST_AP_ID = "https://blorpblorp.xyz/p/123456789";
 
     const allComments = renderHook(
       () =>
         useComments({
-          post_id: POST_ID,
+          postApId: POST_AP_ID,
         }),
       {
         wrapper: queryClientWrapper,
@@ -145,8 +145,8 @@ describe("creating comments", () => {
     mockCreateComment(NEW_COMMENT_PATH);
 
     await createComment.result.current.mutateAsync({
-      content: "New comment",
-      post_id: POST_ID,
+      body: "New comment",
+      postApId: POST_AP_ID,
       parentPath: parentComment?.comment.path,
     });
     allComments.rerender();
@@ -160,7 +160,7 @@ describe("creating comments", () => {
   test("create reply comment while in thread", async () => {
     const queryClientWrapper = createQueryClientWrapper();
 
-    const POST_ID = 1234;
+    const POST_AP_ID = "https://blorpblorp.xyz/p/123456789";
     const PARENT_ID = 4567;
 
     const numComments = _.random(1, 10);
@@ -173,8 +173,8 @@ describe("creating comments", () => {
     const allComments = renderHook(
       () =>
         useComments({
-          post_id: POST_ID,
-          parent_id: PARENT_ID,
+          postApId: POST_AP_ID,
+          parentId: PARENT_ID,
         }),
       {
         wrapper: queryClientWrapper,
@@ -202,9 +202,9 @@ describe("creating comments", () => {
     mockCreateComment(NEW_COMMENT_PATH);
 
     await createComment.result.current.mutateAsync({
-      content: "New comment",
-      post_id: POST_ID,
-      parent_id: parentComment?.comment.id,
+      body: "New comment",
+      postApId: POST_AP_ID,
+      parentId: parentComment?.comment.id,
       parentPath: parentComment?.comment.path,
       queryKeyParentId: PARENT_ID,
     });

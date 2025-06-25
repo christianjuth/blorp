@@ -12,12 +12,13 @@ import {
 } from "react-icons/pi";
 import { Button } from "../ui/button";
 import { abbriviateNumber } from "@/src/lib/format";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 export function CommentVoting({
   commentView,
   className,
 }: {
-  commentView: FlattenedComment;
+  commentView: Schemas.Comment;
   className?: string;
 }) {
   const id = useId();
@@ -36,7 +37,7 @@ export function CommentVoting({
       ? commentView?.optimisticMyVote - (commentView?.myVote ?? 0)
       : 0;
 
-  const score = commentView?.counts.score + diff;
+  const score = commentView.upvotes + commentView.downvotes + diff;
 
   return (
     <div className={cn("flex flex-row items-center", className)}>
@@ -49,10 +50,10 @@ export function CommentVoting({
           voteHaptics(newVote);
           requireAuth().then(() => {
             vote.mutate({
-              post_id: commentView.comment.post_id,
-              comment_id: commentView.comment.id,
+              post_id: commentView.postId,
+              comment_id: commentView.id,
               score: newVote,
-              path: commentView.comment.path,
+              path: commentView.path,
             });
           });
         }}
@@ -83,10 +84,10 @@ export function CommentVoting({
           voteHaptics(newVote);
           requireAuth().then(() => {
             vote.mutate({
-              post_id: commentView.comment.post_id,
-              comment_id: commentView.comment.id,
+              post_id: commentView.postId,
+              comment_id: commentView.id,
               score: newVote,
-              path: commentView.comment.path,
+              path: commentView.path,
             });
           });
         }}
