@@ -8,6 +8,7 @@ import {
   SQLiteDBConnection,
 } from "@capacitor-community/sqlite";
 import { Capacitor } from "@capacitor/core";
+import { debounceByKey } from "./debounce-by-key";
 
 const DB_VERSION = 1;
 const DB_NAME = "lemmy-db";
@@ -51,6 +52,16 @@ function createSqliteStore(rowName?: string) {
     return dbAwaited;
   }
 
+  const setItem = async (key: string, value: string): Promise<void> => {
+    const connection = await getDb();
+    const fullKey = `${rowName}_${key}`;
+    // Use run with value interpolation for INSERT OR REPLACE
+    await connection.run(
+      `INSERT OR REPLACE INTO kv (key, value) VALUES (?, ?)`,
+      [fullKey, value],
+    );
+  };
+
   return {
     async getItem(key: string): Promise<string | null> {
       const connection = await getDb();
@@ -65,15 +76,11 @@ function createSqliteStore(rowName?: string) {
       return null;
     },
 
-    async setItem(key: string, value: string): Promise<void> {
-      const connection = await getDb();
-      const fullKey = `${rowName}_${key}`;
-      // Use run with value interpolation for INSERT OR REPLACE
-      await connection.run(
-        `INSERT OR REPLACE INTO kv (key, value) VALUES (?, ?)`,
-        [fullKey, value],
-      );
-    },
+    // iOS crashes if we write too frequently here
+    setItem: debounceByKey(setItem, (key) => rowName + key, {
+      wait: 2500,
+      trailing: true,
+    }),
 
     async removeItem(key: string): Promise<void> {
       const connection = await getDb();

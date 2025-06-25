@@ -1,5 +1,5 @@
 PODS:
-  - Capacitor (7.2.0):
+  - Capacitor (7.4.0):
     - CapacitorCordova
   - CapacitorApp (7.0.1):
     - Capacitor
@@ -9,7 +9,7 @@ PODS:
     - Capacitor
     - SQLCipher
     - ZIPFoundation
-  - CapacitorCordova (7.2.0)
+  - CapacitorCordova (7.4.0)
   - CapacitorFilesystem (7.0.1):
     - Capacitor
   - CapacitorHaptics (7.0.1):
@@ -80,11 +80,11 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
 
 SPEC CHECKSUMS:
-  Capacitor: 03bc7cbdde6a629a8b910a9d7d78c3cc7ed09ea7
+  Capacitor: 10feab36396883c55373328124a677f118cd4b5f
   CapacitorApp: febecbb9582cb353aed037e18ec765141f880fe9
   CapacitorBrowser: 6299776d496e968505464884d565992faa20444a
   CapacitorCommunitySqlite: b11e556cf5d149f9e0b6fbbb47959a6cd718c3d0
-  CapacitorCordova: 5967b9ba03915ef1d585469d6e31f31dc49be96f
+  CapacitorCordova: 723e017d8a80ab2ede9959fbe37556c35ac860d5
   CapacitorFilesystem: e6261c410436f54908c11f94336c5b58286b1db0
   CapacitorHaptics: 1f1e17041f435d8ead9ff2a34edd592c6aa6a8d6
   CapacitorInappbrowser: b9b366f37561bf92da226df6353631ac01cc5b92

@@ -1439,12 +1439,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/android@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "@capacitor/android@npm:7.2.0"
+"@capacitor/android@npm:^7.4.0":
+  version: 7.4.0
+  resolution: "@capacitor/android@npm:7.4.0"
   peerDependencies:
-    "@capacitor/core": ^7.2.0
-  checksum: 10c0/94f6084d63aff60d5dee338a369b51bd1175ef241cf53157179467c3bd1f598f5cea5b9d4054eab6a7557b5083f9047e2eff247e04ba316ad79e819d0268daf3
+    "@capacitor/core": ^7.4.0
+  checksum: 10c0/3595409b65fe7ad882dee47b681cb47681ea358e445eae3bebbc9c69c8c102aa4c8697f04ec03e8ca9355f84f2e70930f1a78e925d72266fd1bd1673c3df16c6
   languageName: node
   linkType: hard
 
@@ -1544,12 +1544,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/core@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "@capacitor/core@npm:7.2.0"
+"@capacitor/core@npm:^7.4.0":
+  version: 7.4.0
+  resolution: "@capacitor/core@npm:7.4.0"
   dependencies:
     tslib: "npm:^2.1.0"
-  checksum: 10c0/b8fc3e20f7a35ad67baa7b82f1d01c527bf3a09a7eac7a85fab1054897c97f69a228db4a30f505acaa16148e1806408f459d15f3dbd3f409a2b9f90f1ef86fd2
+  checksum: 10c0/b7173dadcd805e6063596982d68edcbc1a6b4b0adb1ca4e03fff05781f2dee3a6c2fc30d94671ce346073769df9b1eea5c96f19c2c0e87be4abf99c5fbbd8927
   languageName: node
   linkType: hard
 
@@ -1580,12 +1580,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/ios@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "@capacitor/ios@npm:7.2.0"
+"@capacitor/ios@npm:^7.4.0":
+  version: 7.4.0
+  resolution: "@capacitor/ios@npm:7.4.0"
   peerDependencies:
-    "@capacitor/core": ^7.2.0
-  checksum: 10c0/125fe6d2100172b7e2d0a69f386b577253e24a7b03a125d898ea3a561a317b4a0b61034f8b293904e710c7106c2a6680e800d699f29520ccc70940f12e9780d3
+    "@capacitor/core": ^7.4.0
+  checksum: 10c0/816f596ad15e85aacf76bd34096b99b59851d7e8695b103296dfbde07411ecafbabb198d996fbb3cf4e3d8bb75a4429ffa2332de7fa329e44fd1789677956917
   languageName: node
   linkType: hard
 
@@ -10288,16 +10288,16 @@ __metadata:
   resolution: "lemmy@workspace:."
   dependencies:
     "@capacitor-community/sqlite": "npm:^7.0.0"
-    "@capacitor/android": "npm:^7.2.0"
+    "@capacitor/android": "npm:^7.4.0"
     "@capacitor/app": "npm:^7.0.1"
     "@capacitor/assets": "npm:^3.0.5"
     "@capacitor/browser": "npm:^7.0.1"
     "@capacitor/cli": "npm:^7.1.0"
-    "@capacitor/core": "npm:^7.2.0"
+    "@capacitor/core": "npm:^7.4.0"
     "@capacitor/filesystem": "npm:^7.0.1"
     "@capacitor/haptics": "npm:^7.0.1"
     "@capacitor/inappbrowser": "npm:^2.1.0"
-    "@capacitor/ios": "npm:^7.2.0"
+    "@capacitor/ios": "npm:^7.4.0"
     "@capacitor/keyboard": "npm:^7.0.1"
     "@capacitor/share": "npm:^7.0.1"
     "@capacitor/status-bar": "npm:^7.0.1"
