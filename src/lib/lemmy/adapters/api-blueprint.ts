@@ -105,6 +105,30 @@ export const siteSchema = z.object({
   commentCount: z.number().nullable(),
   icon: z.string().nullable(),
   title: z.string().nullable(),
+  applicationQuestion: z.string().nullable(),
+});
+export const commentSchema = z.object({
+  createdAt: z.string(),
+  id: z.number(),
+  apId: z.string(),
+  path: z.string(),
+  body: z.string(),
+  creatorId: z.number(),
+  creatorApId: z.string(),
+  creatorSlug: z.string(),
+  postId: z.number(),
+  postApId: z.string(),
+  downvotes: z.number(),
+  upvotes: z.number(),
+  myVote: z.number().optional(),
+  communitySlug,
+  communityApId: z.string(),
+  optimisticMyVote: z.number().optional(),
+  removed: z.boolean(),
+  optimisticRemoved: z.boolean().optional(),
+  deleted: z.boolean(),
+  optimisticDeleted: z.boolean().optional(),
+  postTitle: z.string(),
 });
 
 export namespace Schemas {
@@ -127,6 +151,8 @@ export namespace Schemas {
 
   export type Community = z.infer<typeof communitySchema>;
   export type Person = z.infer<typeof personSchema>;
+
+  export type Comment = z.infer<typeof commentSchema>;
 }
 
 export namespace Forms {
@@ -190,6 +216,19 @@ export namespace Forms {
   export type FollowCommunity = {
     communityId: number;
     follow: boolean;
+  };
+
+  export type GetComments = {
+    postApId?: string;
+    parentId?: number;
+    sort?: string;
+    pageCursor?: string;
+  };
+
+  export type CreateComment = {
+    postApId: string;
+    body: string;
+    parentId?: number;
   };
 }
 
@@ -275,8 +314,6 @@ export abstract class ApiBlueprint<C> {
     nextCursor: string | null;
   }>;
 
-  //abstract getCommunity(): Promise<Schemas.Community>;
-
   abstract getPerson(
     form: Forms.GetPerson,
     options: RequestOptions,
@@ -285,4 +322,17 @@ export abstract class ApiBlueprint<C> {
   abstract followCommunity(
     form: Forms.FollowCommunity,
   ): Promise<Schemas.Community>;
+
+  abstract logout(): Promise<void>;
+
+  abstract getComments(
+    form: Forms.GetComments,
+    options: RequestOptions,
+  ): Promise<{
+    comments: Schemas.Comment[];
+    creators: Schemas.Person[];
+    nextCursor: string | null;
+  }>;
+
+  abstract createComment(form: Forms.CreateComment): Promise<Schemas.Comment>;
 }

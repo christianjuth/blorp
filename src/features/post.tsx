@@ -62,9 +62,9 @@ const MemoedPostCard = memo((props: PostProps) => (
   </ContentGutters>
 ));
 
-function ReplyToPost({ postId }: { postId: number }) {
+function ReplyToPost({ postApId }: { postApId: string }) {
   const postReplyState = useCommentEditingState({
-    postId,
+    postApId,
   });
   const loadCommentIntoEditor = useLoadCommentIntoEditor();
   return (
@@ -77,7 +77,7 @@ function ReplyToPost({ postId }: { postId: number }) {
             className="py-2 px-3 my-4 border rounded-2xl w-full text-left shadow-xs text-muted-foreground text-sm"
             onClick={() =>
               loadCommentIntoEditor({
-                postId,
+                postApId,
               })
             }
           >
@@ -132,8 +132,8 @@ export default function Post() {
   const parentId = commentId ? +commentId : undefined;
 
   const comments = useComments({
-    post_id: post?.id,
-    parent_id: parentId,
+    postApId: decodedApId,
+    parentId: parentId,
   });
 
   const isReady = useDelayedReady(500);
@@ -275,7 +275,7 @@ export default function Post() {
                   </Fragment>
                 ),
                 post && !commentPath && (
-                  <ReplyToPost key="reply-to-post" postId={post.id} />
+                  <ReplyToPost key="reply-to-post" postApId={post.apId} />
                 ),
               ]}
               renderItem={({ item }) => (

@@ -136,7 +136,7 @@ export function getCommunity(
     createdAt: relativeTime(),
     id: communityId,
     apId: `${API_ROOT}/c/${communityId}`,
-    slug: `${COMMUNITY_ID}@${HOST}`,
+    slug: `${communityId}@${HOST}`,
     subscriberCount: 562,
     subscribersLocalCount: 432,
     postCount: 753,

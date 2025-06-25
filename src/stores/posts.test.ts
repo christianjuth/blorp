@@ -10,68 +10,6 @@ import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 const prefix = getCachePrefixer({ instance: "123" });
 
 describe("usePostsStore", () => {
-  /* describe("cachePost", () => { */
-  /*   test("can cache a single post", () => { */
-  /*     const post = api.getPost(); */
-  /*     const { result } = renderHook(() => usePostsStore()); */
-  /**/
-  /*     act(() => { */
-  /*       result.current.cachePosts(prefix, post.post); */
-  /*     }); */
-  /**/
-  /*     expect(result.current.posts[prefix(post.post.ap_id)]?.data).toMatchObject( */
-  /*       flatPost, */
-  /*     ); */
-  /*   }); */
-  /**/
-  /*   test("does not overwrite optimistic updates", () => { */
-  /*     const post1 = lemmy.getRandomPost(); */
-  /**/
-  /*     const vote = _.random(-1, 1); */
-  /*     const saved = _.sample([true, false]); */
-  /*     const deleted = _.sample([true, false]); */
-  /*     const read = _.sample([true, false]); */
-  /**/
-  /*     const flatPost = flattenPost({ post_view: post1 }); */
-  /**/
-  /*     const flatPostOptimistic: FlattenedPost = { */
-  /*       ...flatPost, */
-  /*       optimisticRead: read, */
-  /*       optimisticDeleted: deleted, */
-  /*       optimisticSaved: saved, */
-  /*       optimisticMyVote: vote, */
-  /*     }; */
-  /**/
-  /*     const { result } = renderHook(() => usePostsStore()); */
-  /**/
-  /*     act(() => { */
-  /*       result.current.cachePost(prefix, flatPostOptimistic); */
-  /*     }); */
-  /**/
-  /*     expect( */
-  /*       result.current.posts[prefix(post1.post.ap_id)]?.data, */
-  /*     ).toMatchObject({ */
-  /*       optimisticRead: read, */
-  /*       optimisticDeleted: deleted, */
-  /*       optimisticSaved: saved, */
-  /*       optimisticMyVote: vote, */
-  /*     }); */
-  /**/
-  /*     act(() => { */
-  /*       result.current.cachePost(prefix, flatPost); */
-  /*     }); */
-  /**/
-  /*     expect( */
-  /*       result.current.posts[prefix(post1.post.ap_id)]?.data, */
-  /*     ).toMatchObject({ */
-  /*       optimisticRead: read, */
-  /*       optimisticDeleted: deleted, */
-  /*       optimisticSaved: saved, */
-  /*       optimisticMyVote: vote, */
-  /*     }); */
-  /*   }); */
-  /* }); */
-
   describe("cachePosts", () => {
     test("can cache multiple posts", () => {
       const post1 = api.getPost({ post: { id: api.randomDbId() } });
@@ -142,6 +80,7 @@ describe("usePostsStore", () => {
     const { result } = renderHook(() => usePostsStore());
 
     act(() => {
+      result.current.cachePosts(prefix, [post.post]);
       result.current.patchPost(post.post.apId, prefix, post.post);
     });
 

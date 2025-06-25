@@ -118,11 +118,47 @@ function convertPost({
     saved: !!post_actions?.saved,
   };
 }
+function convertComment(commentView: lemmyV4.CommentView): Schemas.Comment {
+  const { post, creator, comment, community } = commentView;
+  return {
+    createdAt: comment.published,
+    id: comment.id,
+    apId: comment.ap_id,
+    body: comment.content,
+    creatorId: creator.id,
+    creatorApId: creator.ap_id,
+    creatorSlug: createSlug(creator, true).slug,
+    path: comment.path,
+    downvotes: comment.downvotes,
+    upvotes: comment.upvotes,
+    postId: post.id,
+    postApId: post.ap_id,
+    removed: comment.removed,
+    deleted: comment.deleted,
+    communitySlug: createSlug(community, true).slug,
+    communityApId: community.ap_id,
+    postTitle: post.name,
+  };
+}
 
 export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
   client: lemmyV4.LemmyHttp;
   instance: string;
   limit = 50;
+
+  private resolveObjectId = _.memoize(
+    async (apId: string) => {
+      const { post, comment, community } = await this.client.resolveObject({
+        q: apId,
+      });
+      return {
+        post_id: post?.post.id,
+        comment_id: comment?.comment.id,
+        community_id: community?.community.id,
+      };
+    },
+    (apId) => apId,
+  );
 
   constructor({ instance, jwt }: { instance: string; jwt?: string }) {
     this.instance = instance;
@@ -166,6 +202,8 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       sidebar: site.site_view.site.sidebar ?? null,
       icon: site.site_view.site.icon ?? null,
       title: site.site_view.site.name,
+      applicationQuestion:
+        site.site_view.local_site.application_question ?? null,
     };
   }
 
@@ -368,5 +406,60 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     });
 
     return convertPost(post_view);
+  }
+
+  async logout() {
+    const { success } = await this.client.logout();
+    if (!success) {
+      throw new Error("failed to logout");
+    }
+  }
+
+  async getComments(form: Forms.GetComments, options: RequestOptions) {
+    if (!form.postApId) {
+      throw new Error("postApId required");
+    }
+
+    const { post_id } = await this.resolveObjectId(form.postApId);
+
+    if (_.isNil(post_id)) {
+      throw new Error("could not find post");
+    }
+
+    const { comments, next_page } = await this.client.getComments(
+      {
+        post_id,
+        type_: "All",
+        limit: this.limit,
+        max_depth: 6,
+        page_cursor:
+          form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
+      },
+      options,
+    );
+
+    return {
+      comments: comments.map(convertComment),
+      creators: comments.map(({ creator }) =>
+        convertPerson({ person: creator }),
+      ),
+      nextCursor: next_page ?? null,
+    };
+  }
+
+  async createComment({ postApId, body, parentId }: Forms.CreateComment) {
+    const { post_id } = await this.resolveObjectId(postApId);
+
+    if (_.isNil(post_id)) {
+      throw new Error("could not find post");
+    }
+
+    const comment = await this.client.createComment({
+      post_id,
+      content: body,
+      parent_id: parentId,
+    });
+
+    return convertComment(comment.comment_view);
   }
 }

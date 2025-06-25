@@ -71,7 +71,7 @@ export function PostReportProvider({
     } else if (comment) {
       createCommentReport
         .mutateAsync({
-          comment_id: comment.data.comment.id,
+          comment_id: comment.data.id,
           reason,
         })
         .then(() => {
@@ -121,9 +121,7 @@ export function PostReportProvider({
               <div className="p-3 bg-secondary rounded-lg max-h-[250px] overflow-auto">
                 {post && <span className="font-bold">{post?.title}</span>}
 
-                {comment && (
-                  <MarkdownRenderer markdown={comment.data.comment.content} />
-                )}
+                {comment && <MarkdownRenderer markdown={comment.data.body} />}
               </div>
 
               <Textarea

@@ -15,7 +15,6 @@ import { MarkdownRenderer } from "../components/markdown/renderer";
 import { useLinkContext } from "../routing/link-context";
 import { encodeApId } from "../lib/lemmy/utils";
 import { usePostsStore } from "../stores/posts";
-import { isNotNull } from "../lib/utils";
 import { Link } from "@/src/routing/index";
 import {
   IonBackButton,
@@ -62,10 +61,8 @@ function Comment({ path }: { path: string }) {
     return null;
   }
 
-  const { comment, community, post } = commentView;
-
   const parent = path.split(".").at(-2);
-  const newPath = [parent !== "0" ? parent : undefined, comment.id]
+  const newPath = [parent !== "0" ? parent : undefined, commentView.id]
     .filter(Boolean)
     .join(".");
 
@@ -74,12 +71,12 @@ function Comment({ path }: { path: string }) {
       className="border-b pb-4 mt-4"
       to={`${linkCtx.root}c/:communityName/posts/:post/comments/:comment`}
       params={{
-        communityName: community.slug,
-        post: encodeApId(post.ap_id),
+        communityName: commentView.communitySlug,
+        post: encodeApId(commentView.postApId),
         comment: newPath,
       }}
     >
-      <MarkdownRenderer markdown={comment.content} />
+      <MarkdownRenderer markdown={commentView.body} />
     </Link>
   );
 }
@@ -95,7 +92,7 @@ export default function SavedFeed() {
 
   const comments = useComments({
     saved_only: true,
-    type_: "All",
+    type: "All",
   });
 
   const postSort = useFiltersStore((s) => s.postSort);

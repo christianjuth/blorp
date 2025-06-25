@@ -4,7 +4,6 @@ import {
   CommentView,
   Comment,
   Community,
-  CreateComment,
   CreateCommentLike,
   GetPosts,
   LemmyHttp,
@@ -172,27 +171,6 @@ export type FlattenedGetCommentsResponse = {
   posts: FlattenedComment[];
 };
 
-function flattenComment(commentView: CommentView): FlattenedComment {
-  const comment = commentView.comment;
-  const community = commentView.community;
-  return {
-    myVote: commentView.my_vote,
-    comment,
-    creator: _.pick(commentView.creator, ["id", "name", "avatar", "actor_id"]),
-    counts: _.pick(commentView.counts, ["score"]),
-    community: {
-      name: community.name,
-      title: community.title,
-      icon: community.icon,
-      slug: createSlug(community, true)?.slug,
-    },
-    post: {
-      ap_id: commentView.post.ap_id,
-      name: commentView.post.name,
-    },
-  };
-}
-
 export function usePersonDetails({
   actorId,
   enabled = true,
@@ -355,23 +333,15 @@ function useCommentsKey() {
 
   const commentSort = useFiltersStore((s) => s.commentSort);
 
-  return (form: GetComments) => {
+  return (form: Forms.GetComments) => {
     const queryKey = [...queryKeyPrefix, "getComments"];
 
-    if (form.saved_only) {
-      queryKey.push("savedOnly");
+    if (form.postApId) {
+      queryKey.push(`postApId-${form.postApId}`);
     }
 
-    if (form.post_id) {
-      queryKey.push(`postId-${form.post_id}`);
-    }
-
-    if (form.parent_id) {
-      queryKey.push(`parent-${form.parent_id}`);
-    }
-
-    if (form.type_) {
-      queryKey.push(`type-${form.type_}`);
+    if (_.isNumber(form.parentId)) {
+      queryKey.push(`parent-${form.parentId}`);
     }
 
     const sort = form.sort ?? commentSort;
@@ -383,20 +353,12 @@ function useCommentsKey() {
   };
 }
 
-const DEFAULT_COMMENT_FORM: GetComments = {
-  type_: "All",
-  limit: 50,
-  max_depth: 6,
-  saved_only: false,
-};
-
-export function useComments(form: GetComments) {
+export function useComments(form: Forms.GetComments) {
   const commentSort = useFiltersStore((s) => s.commentSort);
   const sort = form.sort ?? commentSort;
-  const { client } = useLemmyClient();
+  const { api } = useLemmyClient();
 
   form = {
-    ...DEFAULT_COMMENT_FORM,
     ...form,
     sort,
   };
@@ -408,18 +370,18 @@ export function useComments(form: GetComments) {
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   const cachePosts = usePostsStore((s) => s.cachePosts);
 
-  const prevPageParam = useRef(-1);
+  const prevPageParam = useRef("");
   const prevPage = useRef("");
 
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
-      const limit = form.limit ?? 50;
-      const { comments } = await client.getComments(
+      const { comments, creators, nextCursor } = await (
+        await api
+      ).getComments(
         {
           ...form,
-          limit,
-          page: pageParam,
+          pageCursor: pageParam ?? undefined,
           sort,
         },
         {
@@ -427,8 +389,7 @@ export function useComments(form: GetComments) {
         },
       );
 
-      const page =
-        queryKey.join() + comments.map((c) => c.comment.ap_id).join();
+      const page = queryKey.join() + comments.map((c) => c.apId).join();
 
       if (page === prevPage.current && pageParam !== prevPageParam.current) {
         return {
@@ -440,44 +401,19 @@ export function useComments(form: GetComments) {
       prevPage.current = page;
       prevPageParam.current = pageParam;
 
-      cacheComments(getCachePrefixer(), comments.map(flattenComment));
-      cacheProfiles(
-        getCachePrefixer(),
-        comments.map((c) => ({ person: c.creator })),
-      );
+      cacheComments(getCachePrefixer(), comments);
+      cacheProfiles(getCachePrefixer(), creators);
 
       return {
-        comments: comments.map((c) => ({
-          path: c.comment.path,
-          postId: c.comment.post_id,
-          creatorId: c.creator.id,
-          published: c.comment.published,
-        })),
-        nextPage: comments.length < limit ? null : pageParam + 1,
+        comments,
+        nextCursor,
       };
     },
-    enabled: _.isNumber(form.post_id) || form.saved_only,
+    enabled: _.isString(form.postApId),
     getNextPageParam: (data) => data.nextPage,
-    initialPageParam: 1,
-    placeholderData: (prev) => {
-      const firstComment = prev?.pages[0]?.comments?.[0];
-      if (!firstComment || firstComment.postId !== form.post_id) {
-        return undefined;
-      }
-      return prev;
-    },
+    initialPageParam: INIT_PAGE_TOKEN,
     refetchOnMount: "always",
   });
-}
-
-interface UsePostsConfig {
-  showRead?: boolean;
-  sort?: string;
-  type_?: ListingType;
-  savedOnly?: boolean;
-  pageCursor?: string;
-  communitySlug?: string;
-  enabled?: boolean;
 }
 
 function usePostsKey(form: GetPosts) {
@@ -758,9 +694,9 @@ function is2faError(err?: Error | null) {
 export function useSite({ instance }: { instance: string }) {
   return useQuery({
     queryKey: ["getSite", instance],
-    queryFn: () => {
-      const client = new LemmyHttp(instance);
-      return client.getSite();
+    queryFn: async () => {
+      const api = await apiClient({ instance });
+      return await api.getSite();
     },
   });
 }
@@ -971,18 +907,12 @@ export function useLogout() {
 
   const mut = useMutation({
     mutationFn: async (account: Account) => {
-      const client = new LemmyHttp(account.instance);
-      client.setHeaders({
-        ...DEFAULT_HEADERS,
-        Authorization: `Bearer ${account.jwt}`,
-      });
-      return await client.logout();
+      const api = await apiClient(account);
+      await api.logout();
     },
-    onSuccess: ({ success }, account) => {
-      if (success) {
-        logout(account);
-        resetFilters();
-      }
+    onSuccess: (_res, account) => {
+      logout(account);
+      resetFilters();
     },
   });
 
@@ -1058,7 +988,7 @@ export function useLikeComment() {
   const { client } = useLemmyClient();
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const patchComment = useCommentsStore((s) => s.patchComment);
-  const cacheComment = useCommentsStore((s) => s.cacheComment);
+  const cacheComments = useCommentsStore((s) => s.cacheComments);
 
   return useMutation({
     mutationFn: (form: CustumCreateCommentLike) =>
@@ -1069,7 +999,7 @@ export function useLikeComment() {
       }));
     },
     onSuccess: (data) => {
-      cacheComment(getCachePrefixer(), flattenComment(data.comment_view));
+      cacheComments(getCachePrefixer(), [data.comment_view]);
     },
     onError: (err, { path, score }) => {
       patchComment(path, getCachePrefixer(), () => ({
@@ -1093,16 +1023,17 @@ export function useLikeComment() {
   });
 }
 
-interface CreateCommentWithPath extends CreateComment {
+interface CreateComment extends Forms.CreateComment {
   parentPath?: string;
+  queryKeyParentId?: number;
 }
 
 export function useCreateComment() {
   const queryClient = useQueryClient();
-  const { client } = useLemmyClient();
+  const { client, api } = useLemmyClient();
   const myProfile = useAuth((s) => getAccountSite(s.getSelectedAccount())?.me);
   const commentSort = useFiltersStore((s) => s.commentSort);
-  const cacheComment = useCommentsStore((s) => s.cacheComment);
+  const cacheComments = useCommentsStore((s) => s.cacheComments);
   const markCommentForRemoval = useCommentsStore(
     (s) => s.markCommentForRemoval,
   );
@@ -1112,48 +1043,38 @@ export function useCreateComment() {
   const getCommentsKey = useCommentsKey();
 
   return useMutation({
-    mutationFn: (form: CreateCommentWithPath & { queryKeyParentId?: number }) =>
-      client.createComment(_.omit(form, ["parentPath", "queryKeyParentId"])),
-    onMutate: ({ post_id, parentPath, content, queryKeyParentId }) => {
+    mutationFn: async ({
+      parentPath,
+      queryKeyParentId,
+      ...form
+    }: CreateComment) => {
+      return await (await api).createComment(form);
+    },
+    onMutate: ({ postApId, parentPath, body, queryKeyParentId }) => {
       const date = new Date();
       const isoDate = date.toISOString();
       const commentId = _.random(1, 1000000) * -1;
-      const newComment: FlattenedComment = {
-        comment: {
-          id: commentId,
-          content,
-          post_id,
-          creator_id: myProfile?.id ?? -1,
-          removed: false,
-          published: isoDate,
-          deleted: false,
-          local: false,
-          path: `${parentPath ?? 0}.${commentId}`,
-          distinguished: false,
-          ap_id: "",
-          language_id: -1,
-        },
-        creator: {
-          id: myProfile?.id ?? -1,
-          name: myProfile?.slug ?? "",
-          avatar: myProfile?.avatar ?? undefined,
-          actor_id: myProfile?.apId ?? "",
-        },
-        counts: {
-          score: 1,
-        },
-        myVote: 1,
-        community: {
-          name: "",
-          title: "",
-          slug: "",
-        },
-        post: {
-          ap_id: "",
-        },
+      const newComment: Schemas.Comment = {
+        apId: "",
+        id: commentId,
+        createdAt: isoDate,
+        path: `${parentPath ?? 0}.${commentId}`,
+        upvotes: 1,
+        downvotes: 0,
+        deleted: false,
+        removed: false,
+        body,
+        creatorId: myProfile?.id ?? -1,
+        creatorApId: myProfile?.apId ?? "",
+        creatorSlug: myProfile ? (createSlug(myProfile)?.slug ?? "") : "",
+        postId: -1,
+        postApId,
+        communitySlug: "",
+        communityApId: "",
+        postTitle: "",
       };
 
-      cacheComment(getCachePrefixer(), newComment);
+      cacheComments(getCachePrefixer(), [newComment]);
 
       const SORTS = new Set<CommentSortType>([
         commentSort,
@@ -1165,10 +1086,9 @@ export function useCreateComment() {
       ]);
 
       for (const sort of Array.from(SORTS)) {
-        const form: GetComments = {
-          ...DEFAULT_COMMENT_FORM,
-          post_id,
-          parent_id: queryKeyParentId,
+        const form: Forms.GetComments = {
+          postApId,
+          parentId: queryKeyParentId,
           sort,
         };
 
@@ -1179,7 +1099,7 @@ export function useCreateComment() {
                 path: string;
                 postId: number;
                 creatorId: number;
-                published: string;
+                createdAt: string;
               }[];
               nextPage: number | null;
             },
@@ -1196,10 +1116,10 @@ export function useCreateComment() {
         const firstPage = comments.pages[0];
         if (firstPage) {
           firstPage.comments.unshift({
-            path: newComment.comment.path,
-            creatorId: newComment.creator.id,
-            postId: newComment.comment.post_id,
-            published: newComment.comment.published,
+            path: newComment.path,
+            creatorId: newComment.creatorId,
+            postId: newComment.postId,
+            createdAt: newComment.createdAt,
           });
         }
 
@@ -1208,12 +1128,12 @@ export function useCreateComment() {
 
       return newComment;
     },
-    onSuccess: (res, { post_id, queryKeyParentId }, ctx) => {
+    onSuccess: (res, { postApId, queryKeyParentId }, ctx) => {
       const settledComment = {
-        path: res.comment_view.comment.path,
-        creatorId: res.comment_view.creator.id,
-        postId: res.comment_view.comment.post_id,
-        published: res.comment_view.comment.published,
+        path: res.path,
+        creatorId: res.creatorId,
+        postId: res.postId,
+        createdAt: res.createdAt,
       };
 
       const SORTS: CommentSortType[] = [
@@ -1224,14 +1144,13 @@ export function useCreateComment() {
         "Controversial",
       ];
 
-      markCommentForRemoval(ctx.comment.path, getCachePrefixer());
-      cacheComment(getCachePrefixer(), flattenComment(res.comment_view));
+      markCommentForRemoval(ctx.path, getCachePrefixer());
+      cacheComments(getCachePrefixer(), [res]);
 
       sort: for (const sort of SORTS) {
-        const form: GetComments = {
-          ...DEFAULT_COMMENT_FORM,
-          post_id: post_id,
-          parent_id: queryKeyParentId,
+        const form: Forms.GetComments = {
+          postApId,
+          parentId: queryKeyParentId,
           sort,
         };
 
@@ -1242,7 +1161,7 @@ export function useCreateComment() {
                 path: string;
                 postId: number;
                 creatorId: number;
-                published: string;
+                createdAt: string;
               }[];
               nextPage: number | null;
             },
@@ -1260,9 +1179,7 @@ export function useCreateComment() {
         // Technically we can skip this if we are removing
         // the comment from the cache
         for (const p of comments.pages) {
-          const index = p.comments.findIndex(
-            (c) => c.path === ctx.comment.path,
-          );
+          const index = p.comments.findIndex((c) => c.path === ctx.path);
           if (index >= 0) {
             p.comments[index] = settledComment;
             queryClient.setQueryData(getCommentsKey(form), comments);
@@ -1287,7 +1204,7 @@ export function useCreateComment() {
 
 export function useEditComment() {
   const { client } = useLemmyClient();
-  const cacheComment = useCommentsStore((s) => s.cacheComment);
+  const cacheComments = useCommentsStore((s) => s.cacheComments);
   const patchComment = useCommentsStore((s) => s.patchComment);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
@@ -1296,14 +1213,12 @@ export function useEditComment() {
       client.editComment(_.omit(form, "path")),
     onMutate: ({ path, content }) => {
       patchComment(path, getCachePrefixer(), (prev) => ({
-        comment: {
-          ...prev.comment,
-          content,
-        },
+        ...prev,
+        body: content,
       }));
     },
     onSuccess: ({ comment_view }) => {
-      cacheComment(getCachePrefixer(), flattenComment(comment_view));
+      cacheComments(getCachePrefixer(), [comment_view]);
     },
   });
 }
@@ -1311,7 +1226,7 @@ export function useEditComment() {
 export function useDeleteComment() {
   const { client } = useLemmyClient();
   const patchComment = useCommentsStore((s) => s.patchComment);
-  const cacheComment = useCommentsStore((s) => s.cacheComment);
+  const cacheComments = useCommentsStore((s) => s.cacheComments);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useMutation({
@@ -1324,13 +1239,13 @@ export function useDeleteComment() {
       patchComment(path, getCachePrefixer(), (prev) => ({
         ...prev,
         comment: {
-          ...prev.comment,
+          ...prev,
           deleted,
         },
       }));
     },
     onSuccess: ({ comment_view }) => {
-      cacheComment(getCachePrefixer(), flattenComment(comment_view));
+      cacheComments(getCachePrefixer(), [comment_view]);
     },
   });
 }
@@ -1891,23 +1806,28 @@ export function useMarkPersonMentionRead() {
 
 export function useCreatePost() {
   const router = useIonRouter();
-  const { client } = useLemmyClient();
+  const { client, api } = useLemmyClient();
   return useMutation({
     mutationFn: async (draft: Draft) => {
       if (!draft.communityApId) {
         throw new Error("could not find community to create post under");
       }
 
-      const { community } = await client.resolveObject({
-        q: draft.communityApId,
-      });
+      const { community } = await (
+        await api
+      ).getCommunity(
+        {
+          slug: draft.communitySlug,
+        },
+        {},
+      );
 
       if (!community) {
         throw new Error("could not find community to create post under");
       }
 
       return await client.createPost(
-        draftToCreatePostData(draft, community.community.id),
+        draftToCreatePostData(draft, community.id),
       );
     },
     onSuccess: (res) => {
