@@ -375,9 +375,9 @@ function AuthModal({
     e?.preventDefault();
     login
       .mutateAsync({
-        username_or_email: userName,
+        username: userName,
         password: password,
-        totp_2fa_token: mfaToken,
+        mfaCode: mfaToken,
       })
       .then(() => {
         onSuccess();
@@ -393,9 +393,7 @@ function AuthModal({
 
   useEffect(() => {
     try {
-      const url = new URL(
-        search.includes("://") ? search : `https://` + search,
-      );
+      const url = new URL(search);
       setInstanceLocal({
         url: `${url.protocol}//${url.host}/`,
         baseurl: url.host,
@@ -538,7 +536,7 @@ function AuthModal({
                 />
               </div>
 
-              {(login.needs2FA || _.isString(mfaToken)) && (
+              {(login.needsMfa || _.isString(mfaToken)) && (
                 <InputOTP
                   maxLength={6}
                   defaultValue={mfaToken}

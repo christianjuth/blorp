@@ -6,9 +6,14 @@ import {
   RequestOptions,
   Forms,
   INIT_PAGE_TOKEN,
+  Errors,
 } from "./api-blueprint";
 import { createSlug } from "../utils";
 import _ from "lodash";
+
+function is2faError(err?: Error | null) {
+  return err && err.message.includes("missing_totp_token");
+}
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -518,5 +523,25 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       content: body,
     });
     return convertComment(comment_view);
+  }
+
+  async login(form: Forms.Login): Promise<{ jwt: string }> {
+    try {
+      const { jwt } = await this.client.login({
+        username_or_email: form.username,
+        password: form.password,
+        totp_2fa_token: form.mfaCode,
+      });
+      if (_.isNil(jwt)) {
+        throw new Error("api did not return jwt");
+      }
+      this.setJwt(jwt);
+      return { jwt };
+    } catch (err) {
+      if (_.isError(err) && is2faError(err)) {
+        throw Errors.MFA_REQUIRED;
+      }
+      throw err;
+    }
   }
 }

@@ -14,6 +14,7 @@ import { useLongPress } from "use-long-press";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { shareImage } from "@/src/lib/share";
 import { cn } from "@/src/lib/utils";
+import DOMPurify from "dompurify";
 
 const COMMUNITY_BANG =
   /^!([A-Za-z0-9_-]+)@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})$/;
@@ -126,13 +127,10 @@ const options: (
   },
 });
 
-function createMd(
-  root: ReturnType<typeof useLinkContext>["root"],
-  allowUnsafeHtml: boolean,
-) {
+function createMd(root: ReturnType<typeof useLinkContext>["root"]) {
   const md = markdownit({
     linkify: true,
-    html: allowUnsafeHtml,
+    html: true,
   });
 
   // Extend linkify for lemmy links starting with "!"
@@ -177,23 +175,12 @@ function createMd(
   return md;
 }
 
-const RENDERERS: Record<
-  ReturnType<typeof useLinkContext>["root"],
-  { html: MarkdownIt; noHtml: MarkdownIt }
-> = {
-  "/home/": {
-    html: createMd("/home/", true),
-    noHtml: createMd("/home/", false),
-  },
-  "/inbox/": {
-    html: createMd("/inbox/", true),
-    noHtml: createMd("/inbox/", false),
-  },
-  "/communities/": {
-    html: createMd("/communities/", true),
-    noHtml: createMd("/communities/", false),
-  },
-};
+const RENDERERS: Record<ReturnType<typeof useLinkContext>["root"], MarkdownIt> =
+  {
+    "/home/": createMd("/home/"),
+    "/inbox/": createMd("/inbox/"),
+    "/communities/": createMd("/communities/"),
+  };
 
 export function MarkdownRenderer({
   markdown,
@@ -212,7 +199,7 @@ export function MarkdownRenderer({
       className={cn("markdown-content", dim && "text-foreground/70", className)}
     >
       {parse(
-        RENDERERS[root][allowUnsafeHtml ? "html" : "noHtml"].render(markdown),
+        DOMPurify.sanitize(RENDERERS[root].render(markdown)),
         options(root),
       )}
     </div>
