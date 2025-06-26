@@ -15,27 +15,43 @@ export type Slug = {
 };
 
 export function createSlug(
-  object: { actor_id: string },
+  object:
+    | { actor_id: string; name?: string }
+    | { ap_id: string; name?: string }
+    | { apId: string; name?: string },
   throwOnError: true,
 ): Slug;
 export function createSlug(
-  object: { actor_id: string },
+  object:
+    | { actor_id: string; name?: string }
+    | { ap_id: string; name?: string }
+    | { apId: string; name?: string },
   throwOnError?: false,
 ): Slug | null;
 export function createSlug(
-  object: { actor_id: string },
+  object:
+    | { actor_id: string; name?: string }
+    | { ap_id: string; name?: string }
+    | { apId: string; name?: string },
   throwOnError = false,
 ): Slug | null {
   try {
-    const url = new URL(object.actor_id);
+    const apId =
+      "actor_id" in object
+        ? object.actor_id
+        : "ap_id" in object
+          ? object.ap_id
+          : object.apId;
+
+    const url = new URL(apId);
     const path = url.pathname.split("/");
-    if (!path[2]) {
+    const name = object.name ?? path[2] ?? path[1]?.replace(/^@/, "");
+    if (!name) {
       if (throwOnError) {
-        throw new Error("invalid url for slug");
+        throw new Error("invalid url for slug, apId=" + apId);
       }
       return null;
     }
-    const name = path[2];
     const host = url.host;
     return {
       name,
