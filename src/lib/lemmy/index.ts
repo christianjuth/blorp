@@ -65,11 +65,16 @@ import {
 import { produce } from "immer";
 import { LemmyV3Api } from "./adapters/lemmy-v3";
 import { LemmyV4Api } from "./adapters/lemmy-v4";
-import { Forms, INIT_PAGE_TOKEN, Schemas } from "./adapters/api-blueprint";
+import {
+  Errors,
+  Forms,
+  INIT_PAGE_TOKEN,
+  Schemas,
+} from "./adapters/api-blueprint";
 import { ListingType } from "lemmy-v4";
 import { apiClient } from "./adapters/client";
 
-enum Errors {
+enum Errors2 {
   OBJECT_NOT_FOUND = "couldnt_find_object",
 }
 
@@ -307,7 +312,7 @@ export function usePost({
       return post;
     },
     retry: (count, err) => {
-      const notFound = err.message === Errors.OBJECT_NOT_FOUND;
+      const notFound = err.message === Errors2.OBJECT_NOT_FOUND;
       if (notFound) {
         return false;
       }
@@ -529,17 +534,25 @@ export function usePosts(form: Forms.GetPosts) {
     pageParam: string;
     signal: AbortSignal;
   }) => {
-    const { posts, nextCursor } = await (await api).getPosts(form, { signal });
+    const { posts, nextCursor } = await (
+      await api
+    ).getPosts(
+      {
+        ...form,
+        pageCursor: pageParam,
+      },
+      { signal },
+    );
 
     cachePosts(
       getCachePrefixer(),
       posts.map((p) => p.post),
     );
 
-    /* cacheCommunities( */
-    /*   getCachePrefixer(), */
-    /*   res.posts.map((p) => ({ communityView: { community: p.community } })), */
-    /* ); */
+    //cacheCommunities(
+    //  getCachePrefixer(),
+    //  res.posts.map((p) => ({ communityView: { community: p.community } })),
+    //);
 
     /* cacheProfiles( */
     /*   getCachePrefixer(), */
@@ -746,7 +759,7 @@ export function useRegister(config?: {
       }
     },
     onError: (err) => {
-      if (!is2faError(err)) {
+      if (err !== Errors.MFA_REQUIRED) {
         let errorMsg = "Unkown error";
         if (err.message) {
           errorMsg = _.capitalize(err?.message?.replaceAll("_", " "));
@@ -764,7 +777,7 @@ export function useRegister(config?: {
 }
 
 export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
-  const { client, api } = useLemmyClient(config);
+  const { api } = useLemmyClient(config);
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
@@ -772,10 +785,9 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
   const addAccount = useAuth((s) => s.addAccount);
 
   const mutation = useMutation({
-    mutationFn: async (form: Login) => {
-      const res = await client.login(form);
+    mutationFn: async (form: Forms.Login) => {
+      const res = await (await api).login(form);
       if (res.jwt) {
-        (await api).setJwt(res.jwt);
         const site = await (await api).getSite();
         const person = site.me;
         const payload = {
@@ -798,7 +810,7 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
     },
     onMutate: () => {},
     onError: (err) => {
-      if (!is2faError(err)) {
+      if (err !== Errors.MFA_REQUIRED) {
         let errorMsg = "Unkown error";
         if (err.message) {
           errorMsg = _.capitalize(err?.message?.replaceAll("_", " "));
@@ -811,7 +823,7 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
 
   return {
     ...mutation,
-    needs2FA: is2faError(mutation.error),
+    needsMfa: mutation.error === Errors.MFA_REQUIRED,
   };
 }
 

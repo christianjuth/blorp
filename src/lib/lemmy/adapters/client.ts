@@ -3,10 +3,11 @@ import { LemmyV4Api } from "./lemmy-v4";
 import { ApiBlueprint } from "./api-blueprint";
 import z from "zod";
 import _ from "lodash";
+import { PieFedApi } from "./piefed";
 
 const nodeInfoSchema = z.object({
   software: z.object({
-    name: z.enum(["lemmy"]),
+    name: z.enum(["lemmy", "piefed"]),
     version: z.string(),
   }),
 });
@@ -33,6 +34,9 @@ export const apiClient = _.memoize(
         } else {
           return new LemmyV3Api({ instance, jwt });
         }
+      }
+      case "piefed": {
+        return new PieFedApi({ instance, jwt });
       }
     }
 

@@ -8,6 +8,10 @@ import z from "zod";
 
 export const INIT_PAGE_TOKEN = "INIT_PAGE_TOKEN";
 
+export const Errors = {
+  MFA_REQUIRED: new Error("MFA_REQUIRED"),
+};
+
 const communitySlug = z.string();
 
 const personSchema = z.object({
@@ -245,6 +249,12 @@ export namespace Forms {
     id: number;
     body: string;
   };
+
+  export type Login = {
+    username: string;
+    password: string;
+    mfaCode?: string;
+  };
 }
 
 type Paginated = {
@@ -356,4 +366,6 @@ export abstract class ApiBlueprint<C> {
   abstract deleteComment(form: Forms.DeleteComment): Promise<Schemas.Comment>;
 
   abstract editComment(form: Forms.EditComment): Promise<Schemas.Comment>;
+
+  abstract login(form: Forms.Login): Promise<{ jwt: string }>;
 }
