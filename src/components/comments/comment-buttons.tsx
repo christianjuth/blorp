@@ -1,4 +1,4 @@
-import { FlattenedComment, useLikeComment } from "@/src/lib/lemmy/index";
+import { useLikeComment } from "@/src/lib/lemmy/index";
 import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 import { ButtonHTMLAttributes, DetailedHTMLProps, useId } from "react";
@@ -13,6 +13,7 @@ import {
 import { Button } from "../ui/button";
 import { abbriviateNumber } from "@/src/lib/format";
 import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
+import _ from "lodash";
 
 export function CommentVoting({
   commentView,
@@ -32,12 +33,11 @@ export function CommentVoting({
   const isUpvoted = myVote > 0;
   const isDownvoted = myVote < 0;
 
-  const diff =
-    typeof commentView?.optimisticMyVote === "number"
-      ? commentView?.optimisticMyVote - (commentView?.myVote ?? 0)
-      : 0;
+  const diff = _.isNumber(commentView?.optimisticMyVote)
+    ? commentView?.optimisticMyVote - (commentView?.myVote ?? 0)
+    : 0;
 
-  const score = commentView.upvotes + commentView.downvotes + diff;
+  const score = commentView.upvotes - commentView.downvotes + diff;
 
   return (
     <div className={cn("flex flex-row items-center", className)}>
@@ -50,6 +50,7 @@ export function CommentVoting({
           voteHaptics(newVote);
           requireAuth().then(() => {
             vote.mutate({
+              postId: commentView.postId,
               id: commentView.id,
               score: newVote,
               path: commentView.path,
@@ -83,8 +84,8 @@ export function CommentVoting({
           voteHaptics(newVote);
           requireAuth().then(() => {
             vote.mutate({
-              post_id: commentView.postId,
-              comment_id: commentView.id,
+              postId: commentView.postId,
+              id: commentView.id,
               score: newVote,
               path: commentView.path,
             });

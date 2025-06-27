@@ -145,6 +145,9 @@ function useLemmyClient(account?: Partial<Account>) {
   }, [jwt, instance, myUserId, api]);
 }
 
+/**
+ * @deprecated
+ */
 export type FlattenedComment = {
   optimisticMyVote?: number;
   myVote?: number;
