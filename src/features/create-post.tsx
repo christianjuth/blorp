@@ -170,7 +170,7 @@ function useLoadRecentCommunity(draftId: string, draft: Draft) {
     if (isActive && isEmpty && mostRecentCommunity) {
       patchDraft(draftId, {
         communityApId: mostRecentCommunity.apId,
-        communitySlug: createSlug(mostRecentCommunity, true).slug,
+        communitySlug: mostRecentCommunity.slug,
       });
     }
   }, [draftId, isActive, patchDraft]);
@@ -328,8 +328,11 @@ export function CreatePost() {
                 className="flex flex-row items-center gap-2 h-9 self-start"
                 disabled={isEdit}
               >
-                {draft.communityApId ? (
-                  <CommunityCard apId={draft.communityApId} disableLink />
+                {draft.communitySlug ? (
+                  <CommunityCard
+                    communitySlug={draft.communitySlug}
+                    disableLink
+                  />
                 ) : (
                   <span className="font-bold">Select a community</span>
                 )}
@@ -565,14 +568,14 @@ function ChooseCommunity({
                   onClick={() => {
                     patchDraft(createPostId, {
                       communityApId: item.apId,
-                      communitySlug: createSlug(item, true).slug,
+                      communitySlug: item.slug,
                     });
                     closeModal();
                   }}
                   className="flex flex-row items-center gap-2"
                   disabled={!!draft.apId}
                 >
-                  <CommunityCard apId={item.apId} disableLink />
+                  <CommunityCard communitySlug={item.slug} disableLink />
                   {draft.communityApId && item.apId === draft.communityApId && (
                     <FaCheck className="text-brand" />
                   )}

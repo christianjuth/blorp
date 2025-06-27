@@ -140,7 +140,7 @@ export function UserDropdown() {
             <DropdownMenuItem
               onClick={() =>
                 getConfirmation({
-                  message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
+                  message: `Are you sure you want to logout of ${person.slug ?? "this account"}`,
                 }).then(() => logout.mutate(selectedAccount))
               }
             >
@@ -274,7 +274,7 @@ export function UserSidebar() {
             <button
               onClick={() =>
                 getConfirmation({
-                  message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
+                  message: `Are you sure you want to logout of ${person.slug ?? "this account"}`,
                 }).then(() => logout.mutate(selectedAccount))
               }
               className="flex flex-row items-center gap-2 w-full"

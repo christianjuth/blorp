@@ -10486,6 +10486,7 @@ __metadata:
     markdown-it-container: "npm:^4.0.0"
     oxlint: "npm:^0.16.10"
     p-retry: "npm:^6.2.1"
+    p-timeout: "npm:^6.1.4"
     path-to-regexp: "npm:^8.2.0"
     prettier: "npm:3.4.1"
     prosemirror-model: "npm:^1.25.0"
@@ -11956,6 +11957,13 @@ __metadata:
   dependencies:
     p-finally: "npm:^1.0.0"
   checksum: 10c0/524b393711a6ba8e1d48137c5924749f29c93d70b671e6db761afa784726572ca06149c715632da8f70c090073afb2af1c05730303f915604fd38ee207b70a61
+  languageName: node
+  linkType: hard
+
+"p-timeout@npm:^6.1.4":
+  version: 6.1.4
+  resolution: "p-timeout@npm:6.1.4"
+  checksum: 10c0/019edad1c649ab07552aa456e40ce7575c4b8ae863191477f02ac8d283ac8c66cedef0ca93422735130477a051dfe952ba717641673fd3599befdd13f63bcc33
   languageName: node
   linkType: hard
 

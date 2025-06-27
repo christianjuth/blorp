@@ -26,10 +26,12 @@ import { Link } from "@/src/routing/index";
 import { searchOutline } from "ionicons/icons";
 import { getAccountSite, useAuth } from "../stores/auth";
 
-const MemoedListItem = memo(function ListItem(props: { apId: string }) {
+const MemoedListItem = memo(function ListItem(props: {
+  communitySlug: string;
+}) {
   return (
     <ContentGutters className="md:contents">
-      <CommunityCard apId={props.apId} className="mt-1" />
+      <CommunityCard communitySlug={props.communitySlug} className="mt-1" />
     </ContentGutters>
   );
 });
@@ -46,7 +48,7 @@ export default function Communities() {
   const moderates = useAuth((s) =>
     getAccountSite(s.getSelectedAccount()),
   )?.moderates;
-  const moderatesCommunities = moderates?.map(({ apId }) => apId);
+  const moderatesCommunities = moderates?.map(({ slug }) => slug);
 
   const {
     data,
@@ -65,7 +67,7 @@ export default function Communities() {
       data?.pages
         .map((p) => p.communities)
         .flat()
-        .map(({ apId }) => apId),
+        .map(({ slug }) => slug),
     [data?.pages],
   );
 
@@ -120,7 +122,7 @@ export default function Communities() {
                 ? moderatesCommunities
                 : communities
             }
-            renderItem={({ item }) => <MemoedListItem apId={item} />}
+            renderItem={({ item }) => <MemoedListItem communitySlug={item} />}
             onEndReached={() => {
               if (
                 listingType !== "ModeratorView" &&

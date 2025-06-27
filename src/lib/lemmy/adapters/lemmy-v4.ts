@@ -34,25 +34,28 @@ export function getLemmyClient(instance: string) {
   };
 }
 
-function convertCommunity(community: lemmyV4.CommunityView): Schemas.Community {
+function convertCommunity(
+  communityView: lemmyV4.CommunityView,
+): Schemas.Community {
+  const { community } = communityView;
   return {
-    createdAt: community.community.published,
-    id: community.community.id,
-    apId: community.community.ap_id,
-    slug: createSlug(community.community, true).slug,
-    icon: community.community.icon ?? null,
-    banner: community.community.banner ?? null,
-    description: community.community.description ?? null,
-    usersActiveDayCount: community.community.users_active_day,
-    usersActiveWeekCount: community.community.users_active_week,
-    usersActiveMonthCount: community.community.users_active_month,
-    usersActiveHalfYearCount: community.community.users_active_half_year,
-    postCount: community.community.posts,
-    commentCount: community.community.comments,
-    subscriberCount: community.community.subscribers,
-    subscribersLocalCount: community.community.subscribers_local,
+    createdAt: communityView.community.published,
+    id: communityView.community.id,
+    apId: communityView.community.ap_id,
+    slug: createSlug({ apId: community.ap_id, name: community.name }).slug,
+    icon: communityView.community.icon ?? null,
+    banner: communityView.community.banner ?? null,
+    description: communityView.community.description ?? null,
+    usersActiveDayCount: communityView.community.users_active_day,
+    usersActiveWeekCount: communityView.community.users_active_week,
+    usersActiveMonthCount: communityView.community.users_active_month,
+    usersActiveHalfYearCount: communityView.community.users_active_half_year,
+    postCount: communityView.community.posts,
+    commentCount: communityView.community.comments,
+    subscriberCount: communityView.community.subscribers,
+    subscribersLocalCount: communityView.community.subscribers_local,
     subscribed: (() => {
-      switch (community.community_actions?.follow_state) {
+      switch (communityView.community_actions?.follow_state) {
         case "Pending":
         case "ApprovalRequired":
           return "Pending";
@@ -73,7 +76,7 @@ function convertPerson({
     avatar: person.avatar ?? null,
     bio: person.bio ?? null,
     matrixUserId: person.matrix_user_id ?? null,
-    slug: createSlug(person, true).slug,
+    slug: createSlug({ apId: person.ap_id, name: person.name }).slug,
     deleted: person.deleted,
     createdAt: person.published,
     isBot: person.bot_account,
@@ -104,10 +107,11 @@ function convertPost({
     deleted: post.deleted,
     removed: post.removed,
     communityApId: community.ap_id,
-    communitySlug: createSlug(community, true).slug,
+    communitySlug: createSlug({ apId: community.ap_id, name: community.name })
+      .slug,
     creatorId: creator.id,
     creatorApId: creator.ap_id,
-    creatorSlug: createSlug(creator, true).slug,
+    creatorSlug: createSlug({ apId: creator.ap_id, name: creator.name }).slug,
     thumbnailAspectRatio: null,
     url: post.url ?? null,
     urlContentType: post.url_content_type ?? null,
@@ -127,7 +131,7 @@ function convertComment(commentView: lemmyV4.CommentView): Schemas.Comment {
     body: comment.content,
     creatorId: creator.id,
     creatorApId: creator.ap_id,
-    creatorSlug: createSlug(creator, true).slug,
+    creatorSlug: createSlug({ apId: creator.ap_id, name: creator.name }).slug,
     path: comment.path,
     downvotes: comment.downvotes,
     upvotes: comment.upvotes,
@@ -135,7 +139,8 @@ function convertComment(commentView: lemmyV4.CommentView): Schemas.Comment {
     postApId: post.ap_id,
     removed: comment.removed,
     deleted: comment.deleted,
-    communitySlug: createSlug(community, true).slug,
+    communitySlug: createSlug({ apId: community.ap_id, name: community.name })
+      .slug,
     communityApId: community.ap_id,
     postTitle: post.name,
     myVote: commentView.comment_actions?.like_score ?? null,

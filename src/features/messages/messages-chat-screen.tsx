@@ -112,13 +112,13 @@ export default function Messages() {
 
   return (
     <IonPage>
-      <PageTitle>{person ? createSlug(person)?.slug : null}</PageTitle>
+      <PageTitle>{person ? person.slug : null}</PageTitle>
       <IonHeader>
         <IonToolbar>
           <IonButtons className="gap-2">
             <IonBackButton text="" />
             <ToolbarTitle size="sm">
-              {(person ? createSlug(person)?.slug : null) ?? "Loading..."}
+              {(person ? person.slug : null) ?? "Loading..."}
             </ToolbarTitle>
           </IonButtons>
           <IonButtons slot="end">

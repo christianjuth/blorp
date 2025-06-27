@@ -99,7 +99,7 @@ function AccountCard({
         onClick={() => {
           if (isLoggedIn && person) {
             getConfirmation({
-              message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
+              message: `Are you sure you want to logout of ${person.slug ?? "this account"}`,
             }).then(() => logout.mutate(account));
           } else if (accountIndex > 0) {
             logoutZustand(accountIndex);

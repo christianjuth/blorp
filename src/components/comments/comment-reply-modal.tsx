@@ -1,10 +1,5 @@
 import { createContext, useContext, useId, useState } from "react";
-import { Comment } from "lemmy-v3";
-import {
-  FlattenedComment,
-  useCreateComment,
-  useEditComment,
-} from "@/src/lib/lemmy/index";
+import { useCreateComment, useEditComment } from "@/src/lib/lemmy/index";
 import _ from "lodash";
 import { useMedia } from "@/src/lib/hooks/index";
 import { MarkdownEditor } from "../markdown/editor";

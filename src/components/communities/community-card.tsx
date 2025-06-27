@@ -1,5 +1,4 @@
 import { abbriviateNumber } from "@/src/lib/format";
-import { createSlug } from "@/src/lib/lemmy/utils";
 import { useLinkContext } from "@/src/routing/link-context";
 import { Link } from "@/src/routing/index";
 import {
@@ -15,23 +14,22 @@ import _ from "lodash";
 import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
 
 export function CommunityCard({
-  apId,
+  communitySlug,
   disableLink,
   className,
   size = "md",
 }: {
-  apId: string;
+  communitySlug: string;
   disableLink?: boolean;
   className?: string;
   size?: "sm" | "md";
 }) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const fromRecent = useRecentCommunitiesStore((s) => {
-    return s.recentlyVisited.find((r) => r.apId === apId);
+    return s.recentlyVisited.find((r) => r.slug === communitySlug);
   });
   const fromCommunityCache = useCommunitiesStore((s) => {
-    const slug = createSlug({ apId })?.slug;
-    return slug ? s.communities[getCachePrefixer()(slug)]?.data : undefined;
+    return s.communities[getCachePrefixer()(communitySlug)]?.data;
   });
   const communityView = fromCommunityCache?.communityView ?? fromRecent;
 
