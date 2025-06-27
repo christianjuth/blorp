@@ -237,6 +237,7 @@ export namespace Forms {
 
   export type LikeComment = {
     id: number;
+    postId: number;
     score: number;
   };
 
