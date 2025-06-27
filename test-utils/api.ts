@@ -38,7 +38,7 @@ export function getPerson(overrides?: Partial<Schemas.Person>): Schemas.Person {
     id,
     apId,
     avatar: null,
-    slug: createSlug({ apId }, true).slug,
+    slug: createSlug({ apId, name: String(id) }).slug,
     matrixUserId: null,
     bio: "This is me",
     deleted: false,
@@ -58,7 +58,7 @@ export function getPost(config?: {
   creator: Schemas.Person;
 } {
   const creator = getPerson();
-  const creatorSlug = createSlug(creator, true).slug;
+  const creatorSlug = creator.slug;
 
   const postId = config?.post?.id ?? POST_ID;
 
@@ -78,7 +78,7 @@ export function getPost(config?: {
     creatorSlug,
     creatorId: creator.id,
     creatorApId: creator.apId,
-    communitySlug: createSlug(community, true).slug,
+    communitySlug: community.slug,
     communityApId: community.apId,
     thumbnailUrl: null,
     thumbnailAspectRatio: null,

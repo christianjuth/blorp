@@ -20,6 +20,7 @@ import { CommunityCard } from "@/src/components/communities/community-card";
 import { SectionItem, Section } from "./shared-components";
 import { useBlockCommunity, useBlockPerson } from "@/src/lib/lemmy";
 import { useConfirmationAlert } from "@/src/lib/hooks/index";
+import { Community } from "lemmy-v3";
 
 export default function SettingsPage() {
   const getConfirmation = useConfirmationAlert();
@@ -41,17 +42,17 @@ export default function SettingsPage() {
   const community_blocks = site?.communityBlocks;
 
   const { person } = parseAccountInfo(account);
-  const slug = person ? createSlug(person) : null;
+  const slug = person?.slug;
 
   return (
     <IonPage>
-      <PageTitle>{slug?.slug ?? "Person"}</PageTitle>
+      <PageTitle>{slug ?? "Person"}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="Settings" />
           </IonButtons>
-          <IonTitle data-tauri-drag-region>{slug?.slug ?? "Person"}</IonTitle>
+          <IonTitle data-tauri-drag-region>{slug ?? "Person"}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>
@@ -94,7 +95,10 @@ export default function SettingsPage() {
               {community_blocks?.map((c) => {
                 // @ts-expect-error
                 const target: Community = c.community;
-                const slug = createSlug(target);
+                const slug = createSlug({
+                  apId: target.actor_id,
+                  name: target.name,
+                });
                 return (
                   <SectionItem
                     key={c.apId}
@@ -109,7 +113,11 @@ export default function SettingsPage() {
                       )
                     }
                   >
-                    <CommunityCard size="sm" apId={c.apId} disableLink />
+                    <CommunityCard
+                      size="sm"
+                      communitySlug={c.slug}
+                      disableLink
+                    />
                   </SectionItem>
                 );
               })}

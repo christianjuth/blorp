@@ -71,7 +71,11 @@ function Mention({
   noBorder?: boolean;
 }) {
   const markRead = useMarkPersonMentionRead();
-  const communitySlug = createSlug(mention.community)?.slug;
+  const { community } = mention;
+  const communitySlug = createSlug({
+    apId: community.actor_id,
+    name: community.name,
+  })?.slug;
   const path = mention.comment.path.split(".");
   const parent = path.at(-2);
   const newPath = [parent !== "0" ? parent : undefined, mention.comment.id]
@@ -166,7 +170,11 @@ function Reply({
   noBorder?: boolean;
 }) {
   const markRead = useMarkReplyRead();
-  const communitySlug = createSlug(replyView.community)?.slug;
+  const { community } = replyView;
+  const communitySlug = createSlug({
+    apId: community.actor_id,
+    name: community.name,
+  })?.slug;
   const path = replyView.comment.path.split(".");
   const parent = path.at(-2);
   const newPath = [parent !== "0" ? parent : undefined, replyView.comment.id]

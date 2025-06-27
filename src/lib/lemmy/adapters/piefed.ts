@@ -9,6 +9,7 @@ import {
 } from "./api-blueprint";
 import z from "zod";
 import { createSlug } from "../utils";
+import pTimeout from "p-timeout";
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -154,7 +155,7 @@ export const pieFedSiteDetailsSchema = z.object({
   icon: z.string().optional(),
   name: z.string(),
   registration_mode: z.string(),
-  sidebar: z.string(),
+  sidebar: z.string().optional(),
   user_count: z.number(),
 });
 
@@ -247,7 +248,8 @@ function convertPost(
 ): Schemas.Post {
   const { post, counts, community, creator } = postView;
   return {
-    creatorSlug: createSlug(post, true).slug,
+    creatorSlug: createSlug({ apId: creator.actor_id, name: creator.user_name })
+      .slug,
     url: post.url ?? null,
     // TODO: see if this exists
     urlContentType: null,
@@ -266,7 +268,10 @@ function convertPost(
     deleted: post.deleted,
     removed: post.removed,
     thumbnailAspectRatio: null,
-    communitySlug: createSlug(community, true).slug,
+    communitySlug: createSlug({
+      apId: community.actor_id,
+      name: community.name,
+    }).slug,
     communityApId: community.actor_id,
     creatorApId: creator.actor_id,
     crossPosts: [],
@@ -291,7 +296,10 @@ function convertCommunity(
     createdAt: communityView.community.published,
     id: communityView.community.id,
     apId: communityView.community.actor_id,
-    slug: createSlug(communityView.community, true).slug,
+    slug: createSlug({
+      apId: communityView.community.actor_id,
+      name: communityView.community.name,
+    }).slug,
     icon: communityView.community.icon ?? null,
     banner: communityView.community.banner ?? null,
     description: communityView.community.description ?? null,
@@ -326,7 +334,7 @@ function convertPerson({
     avatar: person.avatar ?? null,
     bio: person.about ?? null,
     matrixUserId: null,
-    slug: createSlug(person, true).slug,
+    slug: createSlug({ apId: person.actor_id, name: person.user_name }).slug,
     deleted: person.deleted,
     createdAt: person.published,
     isBot: person.bot,
@@ -347,7 +355,8 @@ function convertComment(
     body: comment.body,
     creatorId: creator.id,
     creatorApId: creator.actor_id,
-    creatorSlug: createSlug(creator, true).slug,
+    creatorSlug: createSlug({ apId: creator.actor_id, name: creator.user_name })
+      .slug,
     path: comment.path,
     downvotes: counts.downvotes,
     upvotes: counts.upvotes,
@@ -355,7 +364,10 @@ function convertComment(
     postApId: post.ap_id,
     removed: comment.removed,
     deleted: comment.deleted,
-    communitySlug: createSlug(community, true).slug,
+    communitySlug: createSlug({
+      apId: community.actor_id,
+      name: community.name,
+    }).slug,
     communityApId: community.actor_id,
     postTitle: post.title,
     myVote: commentView.my_vote ?? null,
@@ -498,39 +510,44 @@ export class PieFedApi implements ApiBlueprint<null> {
 
   async getSite(options: RequestOptions) {
     const json = await this.get("/site", {}, options);
-    const site = pieFedSiteSchema.parse(json);
-    const me = site.my_user?.local_user_view?.person;
-    return {
-      instance: this.instance,
-      admins: site.admins.map((p) => convertPerson(p)),
-      me: me ? convertPerson({ person: me }) : null,
-      version: site.version,
-      // TODO: get these counts
-      usersActiveDayCount: null,
-      usersActiveWeekCount: null,
-      usersActiveMonthCount: null,
-      usersActiveHalfYearCount: null,
-      postCount: null,
-      commentCount: null,
-      userCount: site.site.user_count,
-      sidebar: site.site.sidebar ?? null,
-      icon: site.site.icon ?? null,
-      title: site.site.name,
-      moderates: null,
-      follows:
-        site.my_user?.follows?.map(({ community }) =>
-          convertCommunity({ community }),
-        ) ?? null,
-      personBlocks:
-        site.my_user?.person_blocks?.map((block) =>
-          convertPerson({ person: block }),
-        ) ?? null,
-      communityBlocks:
-        site.my_user?.community_blocks?.map(({ community }) =>
-          convertCommunity({ community }),
-        ) ?? null,
-      applicationQuestion: null,
-    };
+    try {
+      const site = pieFedSiteSchema.parse(json);
+      const me = site.my_user?.local_user_view?.person;
+      return {
+        instance: this.instance,
+        admins: site.admins.map((p) => convertPerson(p)),
+        me: me ? convertPerson({ person: me }) : null,
+        version: site.version,
+        // TODO: get these counts
+        usersActiveDayCount: null,
+        usersActiveWeekCount: null,
+        usersActiveMonthCount: null,
+        usersActiveHalfYearCount: null,
+        postCount: null,
+        commentCount: null,
+        userCount: site.site.user_count,
+        sidebar: site.site.sidebar ?? null,
+        icon: site.site.icon ?? null,
+        title: site.site.name,
+        moderates: null,
+        follows:
+          site.my_user?.follows?.map(({ community }) =>
+            convertCommunity({ community }),
+          ) ?? null,
+        personBlocks:
+          site.my_user?.person_blocks?.map((block) =>
+            convertPerson({ person: block }),
+          ) ?? null,
+        communityBlocks:
+          site.my_user?.community_blocks?.map(({ community }) =>
+            convertCommunity({ community }),
+          ) ?? null,
+        applicationQuestion: null,
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async getPosts(form: Forms.GetPosts, options: RequestOptions) {
@@ -541,21 +558,27 @@ export class PieFedApi implements ApiBlueprint<null> {
         page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         community_name: form.communitySlug,
         sort: form.sort,
+        type_: form.type,
       },
       options,
     );
-    const data = z
-      .object({
-        next_page: z.string().nullable(),
-        posts: z.array(pieFedPostViewSchema),
-      })
-      .parse(json);
-    return {
-      nextCursor: data.next_page,
-      posts: data.posts.map((post) => ({
-        post: convertPost(post),
-      })),
-    };
+    try {
+      const data = z
+        .object({
+          next_page: z.string().nullable(),
+          posts: z.array(pieFedPostViewSchema),
+        })
+        .parse(json);
+      return {
+        nextCursor: data.next_page,
+        posts: data.posts.map((post) => ({
+          post: convertPost(post),
+        })),
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async getCommunities(form: Forms.GetCommunities, options: RequestOptions) {
@@ -565,6 +588,7 @@ export class PieFedApi implements ApiBlueprint<null> {
         limit: this.limit,
         page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         sort: form.sort,
+        type_: form.type,
       },
       options,
     );

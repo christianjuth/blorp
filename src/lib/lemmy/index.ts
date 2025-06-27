@@ -43,12 +43,7 @@ import { useSettingsStore } from "../../stores/settings";
 import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
 import { useCommunitiesStore } from "../../stores/communities";
-import {
-  createSlug,
-  FlattenedPost,
-  flattenPost,
-  lemmyTimestamp,
-} from "./utils";
+import { createSlug, lemmyTimestamp } from "./utils";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useIonRouter } from "@ionic/react";
 import { toast } from "sonner";
@@ -73,6 +68,7 @@ import {
 } from "./adapters/api-blueprint";
 import { ListingType } from "lemmy-v4";
 import { apiClient } from "./adapters/client";
+import pTimeout from "p-timeout";
 
 enum Errors2 {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -144,31 +140,6 @@ function useLemmyClient(account?: Partial<Account>) {
     };
   }, [jwt, instance, myUserId, api]);
 }
-
-/**
- * @deprecated
- */
-export type FlattenedComment = {
-  optimisticMyVote?: number;
-  myVote?: number;
-  comment: Comment;
-  creator: Pick<Person, "id" | "name" | "avatar" | "actor_id">;
-  counts: Pick<CommentAggregates, "score">;
-  community: {
-    name: string;
-    title: string;
-    icon?: string;
-    slug: string;
-  };
-  post: {
-    ap_id: string;
-    name?: string;
-  };
-};
-
-export type FlattenedGetCommentsResponse = {
-  posts: FlattenedComment[];
-};
 
 export function usePersonDetails({
   actorId,
@@ -853,37 +824,48 @@ export function useRefreshAuth() {
     queryFn: async ({ signal }) => {
       const logoutIndicies: number[] = [];
 
-      const sites = await Promise.all(
-        apis.map(async ({ api }) => (await api).getSite({ signal })),
+      const sites = await Promise.allSettled(
+        apis
+          .map(async ({ api }) => (await api).getSite({ signal }))
+          .map((p) => pTimeout(p, { milliseconds: 10 * 1000 })),
       );
 
       for (let i = 0; i < sites.length; i++) {
         const account = accounts[i];
-        const site = sites[i];
-        if (account?.jwt && site && !site.me) {
+        const p = sites[i];
+
+        if (p?.status === "fulfilled") {
+          const site = p.value;
+          if (account?.jwt && site && !site.me) {
+            logoutIndicies.push(i);
+            continue;
+          }
+
+          const me = account ? getAccountSite(account)?.me : null;
+
+          if (me) {
+            cacheProfiles(getCachePrefixer(account), [me]);
+            cacheCommunities(
+              getCachePrefixer(account),
+              [...(site?.follows ?? []), ...(site?.moderates ?? [])].map(
+                (community) => ({
+                  communityView: community,
+                }),
+              ),
+            );
+          }
+
+          if (site) {
+            cacheProfiles(getCachePrefixer(account), site.admins);
+            updateAccount(i, {
+              site,
+            });
+          }
+        } else if (
+          _.isString(p?.reason) &&
+          p.reason.toLowerCase().indexOf("aborterror") === -1
+        ) {
           logoutIndicies.push(i);
-          continue;
-        }
-
-        const me = account ? getAccountSite(account)?.me : null;
-
-        if (me) {
-          cacheProfiles(getCachePrefixer(account), [me]);
-          cacheCommunities(
-            getCachePrefixer(account),
-            [...(site?.follows ?? []), ...(site?.moderates ?? [])].map(
-              (community) => ({
-                communityView: community,
-              }),
-            ),
-          );
-        }
-
-        if (site) {
-          cacheProfiles(getCachePrefixer(account), site.admins);
-          updateAccount(i, {
-            site,
-          });
         }
       }
 
@@ -1076,7 +1058,7 @@ export function useCreateComment() {
         body,
         creatorId: myProfile?.id ?? -1,
         creatorApId: myProfile?.apId ?? "",
-        creatorSlug: myProfile ? (createSlug(myProfile)?.slug ?? "") : "",
+        creatorSlug: myProfile ? (myProfile.slug ?? "") : "",
         postId: -1,
         postApId,
         communitySlug: "",
@@ -1736,7 +1718,7 @@ export function useFollowCommunity() {
       });
     },
     onError: (err, form) => {
-      const slug = createSlug(form.community)?.slug;
+      const slug = form.community.slug;
       if (slug) {
         patchCommunity(slug, getCachePrefixer(), {
           communityView: {
@@ -1840,7 +1822,11 @@ export function useCreatePost() {
     },
     onSuccess: (res) => {
       const apId = res.post_view.post.ap_id;
-      const slug = createSlug(res.post_view.community)?.slug;
+      const community = res.post_view.community;
+      const slug = createSlug({
+        apId: community.actor_id,
+        name: community.name,
+      })?.slug;
       if (slug) {
         router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
       }

@@ -49,14 +49,15 @@ function convertCommunity(
   const counts = "counts" in communityView ? communityView.counts : null;
   const subscribed =
     "subscribed" in communityView ? communityView.subscribed : null;
+  const { community } = communityView;
   return {
-    createdAt: communityView.community.published,
-    id: communityView.community.id,
-    apId: communityView.community.actor_id,
-    slug: createSlug(communityView.community, true).slug,
-    icon: communityView.community.icon ?? null,
-    banner: communityView.community.banner ?? null,
-    description: communityView.community.description ?? null,
+    createdAt: community.published,
+    id: community.id,
+    apId: community.actor_id,
+    slug: createSlug({ apId: community.actor_id, name: community.name }).slug,
+    icon: community.icon ?? null,
+    banner: community.banner ?? null,
+    description: community.description ?? null,
     ...(counts
       ? {
           usersActiveDayCount: counts.users_active_day,
@@ -90,7 +91,7 @@ function convertPerson({
     avatar: person.avatar ?? null,
     bio: person.bio ?? null,
     matrixUserId: person.matrix_user_id ?? null,
-    slug: createSlug(person, true).slug,
+    slug: createSlug({ apId: person.actor_id, name: person.name }).slug,
     deleted: person.deleted,
     createdAt: person.published,
     isBot: person.bot_account,
@@ -102,7 +103,8 @@ function convertPerson({
 function convertPost(postView: lemmyV3.PostView): Schemas.Post {
   const { post, counts, community, creator } = postView;
   return {
-    creatorSlug: createSlug(post, true).slug,
+    creatorSlug: createSlug({ apId: creator.actor_id, name: creator.name })
+      .slug,
     url: post.url ?? null,
     urlContentType: post.url_content_type ?? null,
     creatorId: post.creator_id,
@@ -119,7 +121,10 @@ function convertPost(postView: lemmyV3.PostView): Schemas.Post {
     deleted: post.deleted,
     removed: post.removed,
     thumbnailAspectRatio: null,
-    communitySlug: createSlug(community, true).slug,
+    communitySlug: createSlug({
+      apId: community.actor_id,
+      name: community.name,
+    }).slug,
     communityApId: community.actor_id,
     creatorApId: creator.actor_id,
     crossPosts: [],
@@ -138,7 +143,8 @@ function convertComment(commentView: lemmyV3.CommentView): Schemas.Comment {
     body: comment.content,
     creatorId: creator.id,
     creatorApId: creator.actor_id,
-    creatorSlug: createSlug(creator, true).slug,
+    creatorSlug: createSlug({ apId: creator.actor_id, name: creator.name })
+      .slug,
     path: comment.path,
     downvotes: counts.downvotes,
     upvotes: counts.upvotes,
@@ -146,7 +152,10 @@ function convertComment(commentView: lemmyV3.CommentView): Schemas.Comment {
     postApId: post.ap_id,
     removed: comment.removed,
     deleted: comment.deleted,
-    communitySlug: createSlug(community, true).slug,
+    communitySlug: createSlug({
+      apId: community.actor_id,
+      name: community.name,
+    }).slug,
     communityApId: community.actor_id,
     postTitle: post.name,
     myVote: commentView.my_vote ?? null,

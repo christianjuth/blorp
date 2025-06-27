@@ -44,7 +44,7 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
 
   const requireAuth = useRequireAuth();
 
-  const slug = person ? createSlug(person) : undefined;
+  const slug = person ? person.slug : undefined;
 
   const blockPerson = useBlockPerson();
 
@@ -95,7 +95,7 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
                   await requireAuth();
                   const deferred = new Deferred();
                   alrt({
-                    message: `Block ${slug?.slug ?? "person"}`,
+                    message: `Block ${slug ?? "person"}`,
                     buttons: [
                       {
                         text: "Cancel",

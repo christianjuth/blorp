@@ -36,6 +36,7 @@ import { useAuth } from "../stores/auth";
 import z from "zod";
 import { PersonCard } from "../components/person/person-card";
 import { useLinkContext } from "../routing/link-context";
+import { createSlug } from "../lib/lemmy/utils";
 
 const EMPTY_ARR: never[] = [];
 
@@ -245,7 +246,12 @@ export default function SearchFeed({
               return (
                 <ContentGutters>
                   <CommunityCard
-                    apId={item.community.actor_id}
+                    communitySlug={
+                      createSlug({
+                        apId: item.community.actor_id,
+                        name: item.community.name,
+                      }).slug
+                    }
                     className="pt-3.5"
                   />
                   <></>
