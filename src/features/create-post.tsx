@@ -17,7 +17,6 @@ import {
   useUploadImage,
 } from "../lib/lemmy";
 import _ from "lodash";
-import { Community } from "lemmy-js-client";
 import { parseOgData } from "../lib/html-parsing";
 import {
   IonButton,
@@ -58,6 +57,8 @@ import { usePostsStore } from "../stores/posts";
 import { getAccountActorId, useAuth } from "../stores/auth";
 import { usePathname } from "../routing/hooks";
 import { Sidebar, SidebarContent } from "../components/sidebar";
+import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { useCommunitiesStore } from "../stores/communities";
 
 dayjs.extend(localizedFormat);
 
@@ -90,9 +91,7 @@ function DraftsSidebar({
       {_.entries(drafts)
         .sort(([_a, a], [_b, b]) => b.createdAt - a.createdAt)
         .map(([key, draft]) => {
-          const slug = draft.community
-            ? createSlug(draft.community)?.slug
-            : undefined;
+          const slug = draft.communitySlug;
           return (
             <div key={key} className="relative">
               <Link
@@ -119,10 +118,10 @@ function DraftsSidebar({
                 <span
                   className={cn(
                     "font-medium line-clamp-1 break-words",
-                    !draft.name && "italic",
+                    !draft.title && "italic",
                   )}
                 >
-                  {draft.name || "Untitiled"}
+                  {draft.title || "Untitiled"}
                 </span>
               </Link>
               <button
@@ -170,7 +169,7 @@ function useLoadRecentCommunity(draftId: string, draft: Draft) {
   useEffect(() => {
     if (isActive && isEmpty && mostRecentCommunity) {
       patchDraft(draftId, {
-        community: mostRecentCommunity,
+        communitySlug: mostRecentCommunity.slug,
       });
     }
   }, [draftId, isActive, patchDraft]);
@@ -202,13 +201,8 @@ export function CreatePost() {
     draft.apId ? s.posts[getCachePrefixer()(draft.apId)] : undefined,
   );
   const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
-  const canEdit =
-    isEdit &&
-    post?.data.creator.actor_id &&
-    myUserId === post.data.creator.actor_id;
-  const postOwner = post?.data.creator
-    ? createSlug(post.data.creator)?.slug
-    : undefined;
+  const canEdit = isEdit && post?.data.apId && myUserId === post.data.apId;
+  const postOwner = post?.data.creatorSlug;
 
   const uploadImage = useUploadImage();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -221,7 +215,7 @@ export function CreatePost() {
           .mutateAsync({ image: files[0] })
           .then((res) => {
             patchDraft(draftId, {
-              custom_thumbnail: res.url,
+              thumbnailUrl: res.url,
             });
           })
           .catch((err) => console.log(err));
@@ -242,11 +236,11 @@ export function CreatePost() {
           .then((body) => {
             const ogData = parseOgData(body);
             const patch: Partial<Draft> = {};
-            if (!draft.name && ogData.title) {
-              patch.name = ogData.title;
+            if (!draft.title && ogData.title) {
+              patch.title = ogData.title;
             }
             if (ogData.image) {
-              patch.custom_thumbnail = ogData.image;
+              patch.thumbnailUrl = ogData.image;
             }
             patchDraft(draftId, patch);
           });
@@ -260,7 +254,7 @@ export function CreatePost() {
       className={className}
       onClick={() => {
         try {
-          if (draft.community) {
+          if (draft.communitySlug) {
             if (isEdit) {
               editPost.mutateAsync(draft).then(() => deleteDraft(draftId));
             } else {
@@ -271,7 +265,7 @@ export function CreatePost() {
           // TODO: handle incomplete post data
         }
       }}
-      disabled={!draft.community || (isEdit && !canEdit)}
+      disabled={!draft.communitySlug || (isEdit && !canEdit)}
     >
       {isEdit ? "Update" : "Post"}
       {createPost.isPending && <LuLoaderCircle className="animate-spin" />}
@@ -331,8 +325,11 @@ export function CreatePost() {
                 className="flex flex-row items-center gap-2 h-9 self-start"
                 disabled={isEdit}
               >
-                {draft.community ? (
-                  <CommunityCard communityView={draft.community} disableLink />
+                {draft.communitySlug ? (
+                  <CommunityCard
+                    communitySlug={draft.communitySlug}
+                    disableLink
+                  />
                 ) : (
                   <span className="font-bold">Select a community</span>
                 )}
@@ -384,9 +381,9 @@ export function CreatePost() {
                     )}
                   >
                     <input id={`${id}-media`} {...getInputProps()} />
-                    {draft.custom_thumbnail && !uploadImage.isPending && (
+                    {draft.thumbnailUrl && !uploadImage.isPending && (
                       <img
-                        src={draft.custom_thumbnail}
+                        src={draft.thumbnailUrl}
                         className="h-40 rounded-md"
                       />
                     )}
@@ -400,7 +397,7 @@ export function CreatePost() {
                     ) : (
                       <p className="text-muted-foreground">
                         Drop or upload image here
-                        {draft.custom_thumbnail && " to replace"}
+                        {draft.thumbnailUrl && " to replace"}
                       </p>
                     )}
                   </div>
@@ -412,10 +409,10 @@ export function CreatePost() {
                 <Input
                   id={`${id}-title`}
                   placeholder="Title"
-                  value={draft.name ?? ""}
+                  value={draft.title ?? ""}
                   onInput={(e) =>
                     patchDraft(draftId, {
-                      name: e.currentTarget.value ?? "",
+                      title: e.currentTarget.value ?? "",
                     })
                   }
                 />
@@ -471,28 +468,34 @@ function ChooseCommunity({
   const patchDraft = useCreatePostStore((s) => s.updateDraft);
 
   const subscribedCommunitiesRes = useListCommunities({
-    type_: "Subscribed",
-    limit: 50,
+    type: "Subscribed",
   });
   const subscribedCommunities =
     subscribedCommunitiesRes.data?.pages
       .flatMap((p) => p.communities)
-      .sort((a, b) => a.community.name.localeCompare(b.community.name))
-      .map(({ community }) => community) ?? EMPTY_ARR;
+      .sort((a, b) => a.slug.localeCompare(b.slug)) ?? EMPTY_ARR;
 
   const searchResultsRes = useSearch({
     q: search,
-    type_: "Communities",
+    type: "Communities",
     sort: "TopAll",
   });
 
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const selectedCommunity = useCommunitiesStore((s) =>
+    draft.communitySlug
+      ? s.communities[getCachePrefixer()(draft.communitySlug)]?.data
+          .communityView
+      : null,
+  );
+
   const searchResultsCommunities =
     searchResultsRes.data?.pages.flatMap((p) =>
-      p.communities.map(({ community }) => community),
+      p.communities.map((slug) => ({ slug })),
     ) ?? EMPTY_ARR;
 
   let data: (
-    | Pick<Community, "name" | "title" | "icon" | "actor_id">
+    | { slug: string }
     | "Selected"
     | "Recent"
     | "Subscribed"
@@ -507,15 +510,15 @@ function ChooseCommunity({
   if (search) {
     data = ["Search results", ...searchResultsCommunities];
   }
-  if (draft.community) {
-    data = ["Selected", draft.community, ...data];
+  if (selectedCommunity) {
+    data = ["Selected", selectedCommunity, ...data];
   }
 
   data = _.uniqBy(data, (item) => {
     if (typeof item === "string") {
       return item;
     }
-    return item.actor_id;
+    return item.slug;
   });
 
   return (
@@ -561,18 +564,17 @@ function ChooseCommunity({
                 <button
                   onClick={() => {
                     patchDraft(createPostId, {
-                      community: item,
+                      communitySlug: item.slug,
                     });
                     closeModal();
                   }}
                   className="flex flex-row items-center gap-2"
                   disabled={!!draft.apId}
                 >
-                  <CommunityCard communityView={item} disableLink />
-                  {draft.community &&
-                    item.actor_id === draft.community?.actor_id && (
-                      <FaCheck className="text-brand" />
-                    )}
+                  <CommunityCard communitySlug={item.slug} disableLink />
+                  {draft.communitySlug && item.slug === draft.communitySlug && (
+                    <FaCheck className="text-brand" />
+                  )}
                 </button>
               </ContentGutters>
             );

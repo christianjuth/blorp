@@ -1,20 +1,21 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { CommunityBanner } from "./community-banner";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import { useEffect } from "react";
-import * as lemmy from "@/test-utils/lemmy";
+import * as api from "@/test-utils/api";
 import { createSlug } from "@/src/lib/lemmy/utils";
 import { useAuth } from "@/src/stores/auth";
+
+const COMMUNITY = api.getCommunity();
 
 function LoadCommunity() {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
 
   useEffect(() => {
-    const communityView = lemmy.getCommunity();
     cacheCommunity(getCachePrefixer(), {
-      communityView,
+      communityView: COMMUNITY,
     });
   }, []);
 
@@ -37,6 +38,6 @@ type Story = StoryObj<typeof CommunityBanner>;
 
 export const Banner: Story = {
   args: {
-    communityName: createSlug(lemmy.getCommunity().community, true).slug,
+    communityName: COMMUNITY.slug,
   },
 };

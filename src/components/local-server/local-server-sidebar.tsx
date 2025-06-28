@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { useAuth } from "@/src/stores/auth";
+import { getAccountSite, useAuth } from "@/src/stores/auth";
 import { MarkdownRenderer } from "@/src/components/markdown/renderer";
 import { Separator } from "@/src/components/ui/separator";
 import {
@@ -15,16 +15,19 @@ import { AggregateBadges } from "../aggregates";
 import { PersonHoverCard } from "../person/person-hover-card";
 
 function InstanceSidebar({ asPage }: { asPage?: boolean }) {
-  const site = useAuth((s) => s.getSelectedAccount().site);
-  const sidebar = site?.site_view.site.sidebar;
+  const site = useAuth((s) => getAccountSite(s.getSelectedAccount()));
+  const sidebar = site?.sidebar;
 
   const instance = useAuth((s) => s.getSelectedAccount().instance);
-  const instanceName = new URL(instance).host;
+
+  let instanceHost = "";
+  try {
+    const url = new URL(instance);
+    instanceHost = url.host;
+  } catch {}
 
   const open = useSidebarStore((s) => s.siteAboutExpanded);
   const setOpen = useSidebarStore((s) => s.setSiteAboutExpanded);
-
-  const counts = site?.site_view.counts;
 
   if (!sidebar) {
     return null;
@@ -35,24 +38,23 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
       <>
         <section className="p-3 flex flex-col gap-3">
           <h2 className="text-muted-foreground uppercase">
-            ABOUT {instanceName}
+            ABOUT {instanceHost}
           </h2>
 
           <MarkdownRenderer dim className="text-sm" markdown={sidebar} />
 
-          {counts && (
-            <AggregateBadges
-              aggregates={{
-                "Daily users": counts.users_active_day,
-                "Weekly users": counts.users_active_week,
-                "Monthly users": counts.users_active_month,
-                Posts: counts.posts,
-                Users: counts.users,
-                Communities: counts.communities,
-                Comments: counts.comments,
-              }}
-            />
-          )}
+          <AggregateBadges
+            aggregates={{
+              "users / day": site.usersActiveDayCount,
+              "users / week": site.usersActiveWeekCount,
+              "users / month": site.usersActiveMonthCount,
+              "users / 6 months": site.usersActiveHalfYearCount,
+              Posts: site.postCount,
+              Users: site.userCount,
+              Communities: site.commentCount,
+              Comments: site.commentCount,
+            }}
+          />
         </section>
         <Separator />
       </>
@@ -63,27 +65,25 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
     <>
       <Collapsible className="p-3" open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
-          <span>ABOUT {instanceName}</span>
+          <span>ABOUT {instanceHost}</span>
           <ChevronsUpDown className="h-4 w-4" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-5 pb-2">
           <MarkdownRenderer dim markdown={sidebar} />
 
-          {counts && (
-            <AggregateBadges
-              className="mt-4"
-              aggregates={{
-                "users / day": counts.users_active_day,
-                "users / week": counts.users_active_week,
-                "users / month": counts.users_active_month,
-                "users / 6 months": counts.users_active_half_year,
-                Users: counts.users,
-                Communities: counts.communities,
-                Posts: counts.posts,
-                Comments: counts.comments,
-              }}
-            />
-          )}
+          <AggregateBadges
+            className="mt-4"
+            aggregates={{
+              "users / day": site.usersActiveDayCount,
+              "users / week": site.usersActiveWeekCount,
+              "users / month": site.usersActiveMonthCount,
+              "users / 6 months": site.usersActiveHalfYearCount,
+              Posts: site.postCount,
+              Users: site.userCount,
+              Communities: site.commentCount,
+              Comments: site.commentCount,
+            }}
+          />
         </CollapsibleContent>
       </Collapsible>
       <Separator />
@@ -92,14 +92,19 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
 }
 
 function InstanceAdmins({ asPage }: { asPage?: boolean }) {
-  const site = useAuth((s) => s.getSelectedAccount().site);
+  const site = useAuth((s) => getAccountSite(s.getSelectedAccount()));
   const admins = site?.admins;
 
   const instance = useAuth((s) => s.getSelectedAccount().instance);
-  const instanceName = new URL(instance).host;
 
   const open = useSidebarStore((s) => s.siteAdminsExpanded);
   const setOpen = useSidebarStore((s) => s.setSiteAdminsExpanded);
+
+  let instanceHost = "";
+  try {
+    const url = new URL(instance);
+    instanceHost = url.host;
+  } catch {}
 
   if (!admins) {
     return null;
@@ -109,12 +114,12 @@ function InstanceAdmins({ asPage }: { asPage?: boolean }) {
     return (
       <section className="p-3 flex flex-col gap-2">
         <span className="text-muted-foreground uppercase">
-          {instanceName} ADMINS
+          {instanceHost} ADMINS
         </span>
 
-        {admins.map(({ person }) => (
-          <PersonHoverCard key={person.actor_id} actorId={person.actor_id}>
-            <PersonCard actorId={person.actor_id} size="sm" />
+        {admins.map(({ apId }) => (
+          <PersonHoverCard key={apId} actorId={apId}>
+            <PersonCard actorId={apId} size="sm" />
           </PersonHoverCard>
         ))}
       </section>
@@ -124,13 +129,13 @@ function InstanceAdmins({ asPage }: { asPage?: boolean }) {
   return (
     <Collapsible className="p-3" open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
-        <span>{instanceName} ADMINS</span>
+        <span>{instanceHost} ADMINS</span>
         <ChevronsUpDown className="h-4 w-4" />
       </CollapsibleTrigger>
       <CollapsibleContent className="pt-2 flex flex-col gap-1">
-        {admins.map(({ person }) => (
-          <PersonHoverCard key={person.actor_id} actorId={person.actor_id}>
-            <PersonCard actorId={person.actor_id} size="sm" />
+        {admins.map(({ apId }) => (
+          <PersonHoverCard key={apId} actorId={apId}>
+            <PersonCard actorId={apId} size="sm" />
           </PersonHoverCard>
         ))}
       </CollapsibleContent>

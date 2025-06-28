@@ -186,8 +186,7 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
       });
   };
 
-  const applicationQuestion =
-    site.data?.site_view.local_site.application_question;
+  const applicationQuestion = site.data?.applicationQuestion;
 
   return (
     <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
@@ -376,9 +375,9 @@ function AuthModal({
     e?.preventDefault();
     login
       .mutateAsync({
-        username_or_email: userName,
+        username: userName,
         password: password,
-        totp_2fa_token: mfaToken,
+        mfaCode: mfaToken,
       })
       .then(() => {
         onSuccess();
@@ -391,6 +390,16 @@ function AuthModal({
       submitLogin();
     }
   }, [mfaToken]);
+
+  useEffect(() => {
+    try {
+      const url = new URL(search);
+      setInstanceLocal({
+        url: `${url.protocol}//${url.host}/`,
+        baseurl: url.host,
+      });
+    } catch {}
+  }, [search]);
 
   const modal = useRef<HTMLIonModalElement>(null);
 
@@ -527,7 +536,7 @@ function AuthModal({
                 />
               </div>
 
-              {(login.needs2FA || _.isString(mfaToken)) && (
+              {(login.needsMfa || _.isString(mfaToken)) && (
                 <InputOTP
                   maxLength={6}
                   defaultValue={mfaToken}

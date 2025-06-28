@@ -29,7 +29,7 @@ import { PersonAvatar } from "@/src/components/person/person-avatar";
 import TextareaAutosize from "react-textarea-autosize";
 import { Send } from "@/src/components/icons";
 import { Button } from "@/src/components/ui/button";
-import { Person } from "lemmy-js-client";
+import { Person } from "lemmy-v3";
 import { useMedia } from "@/src/lib/hooks";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 import { PageTitle } from "@/src/components/page-title";
@@ -45,7 +45,7 @@ export default function Messages() {
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const person = useProfilesStore(
-    (s) => s.profiles[getCachePrefixer()(otherActorId)]?.data.person,
+    (s) => s.profiles[getCachePrefixer()(otherActorId)]?.data,
   );
   const [signal, setSignal] = useState(0);
   const chat = usePrivateMessages({});
@@ -112,13 +112,13 @@ export default function Messages() {
 
   return (
     <IonPage>
-      <PageTitle>{person ? createSlug(person)?.slug : null}</PageTitle>
+      <PageTitle>{person ? person.slug : null}</PageTitle>
       <IonHeader>
         <IonToolbar>
           <IonButtons className="gap-2">
             <IonBackButton text="" />
             <ToolbarTitle size="sm">
-              {(person ? createSlug(person)?.slug : null) ?? "Loading..."}
+              {(person ? person.slug : null) ?? "Loading..."}
             </ToolbarTitle>
           </IonButtons>
           <IonButtons slot="end">

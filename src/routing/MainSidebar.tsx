@@ -96,6 +96,12 @@ export function MainSidebar() {
   const moderatingOpen = useSidebarStore((s) => s.mainSidebarModerating);
   const setModeratingOpen = useSidebarStore((s) => s.setMainSidebarModerating);
 
+  let instanceHost = "";
+  try {
+    const url = new URL(instance);
+    instanceHost = url.host;
+  } catch {}
+
   return (
     <>
       <SidebarTabs />
@@ -117,7 +123,7 @@ export function MainSidebar() {
               menu={LEFT_SIDEBAR_MENU_ID}
               autoHide={false}
             >
-              <CommunityCard communityView={c} size="sm" />
+              <CommunityCard communitySlug={c.slug} size="sm" />
             </IonMenuToggle>
           ))}
         </CollapsibleContent>
@@ -138,13 +144,13 @@ export function MainSidebar() {
             </CollapsibleTrigger>
 
             <CollapsibleContent className="pt-2 flex flex-col gap-1.5">
-              {moderatingCommunities.map(({ community: c }) => (
+              {moderatingCommunities.map((c) => (
                 <IonMenuToggle
                   key={c.id}
                   menu={LEFT_SIDEBAR_MENU_ID}
                   autoHide={false}
                 >
-                  <CommunityCard communityView={c} size="sm" />
+                  <CommunityCard communitySlug={c.slug} size="sm" />
                 </IonMenuToggle>
               ))}
             </CollapsibleContent>
@@ -167,13 +173,13 @@ export function MainSidebar() {
             </CollapsibleTrigger>
 
             <CollapsibleContent className="pt-2 flex flex-col gap-1.5">
-              {subscribedCommunities.map(({ community: c }) => (
+              {subscribedCommunities.map((c) => (
                 <IonMenuToggle
                   key={c.id}
                   menu={LEFT_SIDEBAR_MENU_ID}
                   autoHide={false}
                 >
-                  <CommunityCard communityView={c} size="sm" />
+                  <CommunityCard communitySlug={c.slug} size="sm" />
                 </IonMenuToggle>
               ))}
             </CollapsibleContent>
@@ -185,7 +191,7 @@ export function MainSidebar() {
 
       <section className="md:hidden">
         <h2 className="px-4 pt-1 pb-3 text-sm text-muted-foreground uppercase">
-          {new URL(instance).host}
+          {instanceHost}
         </h2>
 
         <SidebarLink icon={<SidebarOutline />} to={`${linkCtx.root}sidebar`}>
