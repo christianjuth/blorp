@@ -1,11 +1,7 @@
 import {
-  CommentAggregates,
   CommentSortType,
-  Comment,
-  CreateCommentLike,
   GetPosts,
   LemmyHttp,
-  Login,
   Person,
   GetReplies,
   MarkCommentReplyAsRead,
@@ -59,16 +55,15 @@ import {
 } from "./infinite-query";
 import { produce } from "immer";
 import { LemmyV3Api } from "./adapters/lemmy-v3";
-import { LemmyV4Api } from "./adapters/lemmy-v4";
 import {
   Errors,
   Forms,
   INIT_PAGE_TOKEN,
   Schemas,
 } from "./adapters/api-blueprint";
-import { ListingType } from "lemmy-v4";
 import { apiClient } from "./adapters/client";
 import pTimeout from "p-timeout";
+import { SetOptional } from "type-fest";
 
 enum Errors2 {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -176,57 +171,53 @@ export function usePersonDetails({
   });
 }
 
-export function usePersonFeed({ actorId }: { actorId?: string }) {
+export function usePersonFeed({
+  apId,
+  type,
+  sort,
+}: SetOptional<Forms.GetPersonContent, "apId">) {
   const { api, queryKeyPrefix } = useLemmyClient();
 
   const postSort = useFiltersStore((s) => s.postSort);
 
-  const queryKey = [
-    ...queryKeyPrefix,
-    "getPersonFeed",
-    actorId,
-    `sort-${postSort}`,
-  ];
+  sort ??= postSort;
+
+  const queryKey = [...queryKeyPrefix, "getPersonFeed", { apId, type, sort }];
 
   const cacheComments = useCommentsStore((s) => s.cacheComments);
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
-  // const patchPost = usePostsStore((s) => s.patchPost);
-  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
-      if (!actorId) {
+      if (!apId) {
         throw new Error("person_id undefined");
       }
 
-      const feed = await (
+      const { posts, comments, nextCursor } = await (
         await api
       ).getPersonContent(
         {
-          apId: actorId,
+          apId,
           pageCursor: pageParam,
+          type,
+          sort,
         },
         { signal },
       );
 
-      //cacheProfiles(getCachePrefixer(), [_.omit(res.person_view, "is_admin")]);
-
-      cachePosts(getCachePrefixer(), feed.posts);
-
-      //const comments = res.comments.map(flattenComment);
-      //cacheComments(getCachePrefixer(), comments);
+      cachePosts(getCachePrefixer(), posts);
+      cacheComments(getCachePrefixer(), comments);
 
       return {
-        //...res,
-        posts: feed.posts.map((p) => p.apId),
-        comments: [],
-        next_page: feed.nextCursor,
+        posts: posts.map((p) => p.apId),
+        comments: comments.map((c) => c.path),
+        next_page: nextCursor,
       };
     },
-    enabled: !!actorId,
+    enabled: !!apId,
     initialPageParam: INIT_PAGE_TOKEN,
     getNextPageParam: (data) => data.next_page,
   });

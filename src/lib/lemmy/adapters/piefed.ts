@@ -826,4 +826,103 @@ export class PieFedApi implements ApiBlueprint<null> {
       nextCursor: hasNextCursor ? String(nextCursor) : null,
     };
   }
+
+  async deletePost(form: Forms.DeletePost): Promise<Schemas.Post> {
+    const json = await this.post("/post/delete", {
+      post_id: form.postId,
+      deleted: form.deleted,
+    });
+
+    const data = z
+      .object({
+        post_view: pieFedPostViewSchema,
+      })
+      .parse(json);
+
+    return convertPost(data.post_view);
+  }
+
+  async createComment(form: Forms.CreateComment): Promise<Schemas.Comment> {
+    const { post_id } = await this.resolveObjectId(form.postApId);
+
+    const json = await this.post("/comment", {
+      body: form.body,
+      post_id,
+      parent_id: form.parentId,
+    });
+
+    const { comment_view } = z
+      .object({
+        comment_view: pieFedCommentViewSchema,
+      })
+      .parse(json);
+
+    return convertComment(comment_view);
+  }
+
+  async deleteComment(form: Forms.DeleteComment): Promise<Schemas.Comment> {
+    const json = await this.post("/comment/delete", {
+      comment_id: form.id,
+      deleted: form.deleted,
+    });
+
+    const { comment_view } = z
+      .object({
+        comment_view: pieFedCommentViewSchema,
+      })
+      .parse(json);
+
+    return convertComment(comment_view);
+  }
+
+  async editComment(form: Forms.EditComment): Promise<Schemas.Comment> {
+    const json = await this.put("/comment", {
+      comment_id: form.id,
+      body: form.body,
+    });
+
+    const { comment_view } = z
+      .object({
+        comment_view: pieFedCommentViewSchema,
+      })
+      .parse(json);
+
+    return convertComment(comment_view);
+  }
+
+  async getPersonContent(
+    form: Forms.GetPersonContent,
+    options: RequestOptions,
+  ) {
+    const { person_id } = await this.resolveObjectId(form.apId);
+    const json = await this.get(
+      "/post/list",
+      {
+        limit: this.limit,
+        page_cursor:
+          form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
+        person_id,
+        type_: form.type,
+      },
+      options,
+    );
+
+    try {
+      const { posts, comments } = z
+        .object({
+          posts: z.array(pieFedPostViewSchema).optional(),
+          comments: z.array(pieFedCommentViewSchema).optional(),
+        })
+        .parse(json);
+
+      return {
+        posts: posts?.map(convertPost) ?? [],
+        comments: comments?.map(convertComment) ?? [],
+        nextCursor: null,
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
 }
