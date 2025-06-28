@@ -48,7 +48,6 @@ export function postToDraft(post: Schemas.Post): Draft {
   return {
     title: post.title,
     body: post.body ?? "",
-    communityApId: post.communityApId,
     communitySlug: post.communitySlug,
     createdAt: dayjs(post.createdAt).toDate().valueOf(),
     type: "text",
@@ -59,14 +58,14 @@ export function postToDraft(post: Schemas.Post): Draft {
 }
 
 export function draftToEditPostData(draft: Draft): Schemas.EditPost {
-  const { title, apId, communitySlug, communityApId } = draft;
+  const { title, apId, communitySlug } = draft;
   if (!title) {
     throw new Error("post name is required");
   }
   if (!apId) {
     throw new Error("apId name is required");
   }
-  if (!communityApId || !communitySlug) {
+  if (!communitySlug) {
     throw new Error("community is required");
   }
   const post: Schemas.EditPost = {
@@ -74,7 +73,6 @@ export function draftToEditPostData(draft: Draft): Schemas.EditPost {
     title,
     apId,
     communitySlug,
-    communityApId,
     thumbnailUrl: draft.thumbnailUrl ?? null,
     url: draft.url ?? null,
     body: draft.body ?? null,

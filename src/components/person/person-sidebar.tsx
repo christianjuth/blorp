@@ -150,7 +150,9 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
             />
           </div>
 
-          <span className="font-bold">{person?.slug}</span>
+          <span className="font-bold text-ellipsis overflow-hidden">
+            {person?.slug}
+          </span>
 
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <LuCakeSlice />

@@ -1606,13 +1606,14 @@ export function useSearch(form: Forms.Search) {
   const queryKey = [...queryKeyPrefix, "search", form];
 
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
+  const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cachePosts = usePostsStore((s) => s.cachePosts);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
-      const { posts, nextCursor } = await (
+      const { posts, communities, users, nextCursor } = await (
         await api
       ).search(
         {
@@ -1623,19 +1624,22 @@ export function useSearch(form: Forms.Search) {
         { signal },
       );
 
-      //cacheProfiles(getCachePrefixer(), res.users);
+      cacheCommunities(
+        getCachePrefixer(),
+        communities.map((communityView) => ({ communityView })),
+      );
+      cacheProfiles(getCachePrefixer(), users);
       cachePosts(getCachePrefixer(), posts);
 
       return {
-        communities: [],
+        communities: communities.map((c) => c.slug),
         posts: posts.map((p) => p.apId),
-        users: [],
-        //users: users.map((u) => u.person.actor_id),
+        users: users.map((u) => u.apId),
         next_page: nextCursor,
       };
     },
     getNextPageParam: (lastPage) => lastPage.next_page,
-    initialPageParam: "1",
+    initialPageParam: INIT_PAGE_TOKEN,
     notifyOnChangeProps: "all",
     staleTime: 1000 * 60 * 5,
     // refetchOnWindowFocus: false,
@@ -1799,7 +1803,7 @@ export function useCreatePost() {
   const { client, api } = useLemmyClient();
   return useMutation({
     mutationFn: async (draft: Draft) => {
-      if (!draft.communityApId) {
+      if (!draft.communitySlug) {
         throw new Error("could not find community to create post under");
       }
 

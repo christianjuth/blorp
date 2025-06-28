@@ -9,7 +9,6 @@ import {
 } from "./api-blueprint";
 import z from "zod";
 import { createSlug } from "../utils";
-import pTimeout from "p-timeout";
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -770,5 +769,61 @@ export class PieFedApi implements ApiBlueprint<null> {
       .parse(json);
 
     return convertComment(data.comment_view);
+  }
+
+  async followCommunity(
+    form: Forms.FollowCommunity,
+  ): Promise<Schemas.Community> {
+    const json = await this.post("/community/follow", {
+      community_id: form.communityId,
+      follow: form.follow,
+    });
+    const data = z
+      .object({
+        community_view: pieFedCommunityViewSchema,
+      })
+      .parse(json);
+    return convertCommunity(data.community_view);
+  }
+
+  async search(form: Forms.Search, options: RequestOptions) {
+    const json = await this.get(
+      "/search",
+      {
+        q: form.q,
+        type_: form.type,
+        page:
+          _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+            ? 1
+            : _.parseInt(form.pageCursor) + 1,
+      },
+      options,
+    );
+
+    const { posts, communities, users } = z
+      .object({
+        posts: z.array(pieFedPostViewSchema),
+        communities: z.array(pieFedCommunityViewSchema),
+        users: z.array(pieFedPersonViewSchema),
+      })
+      .parse(json);
+
+    const nextCursor =
+      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+        ? 1
+        : _.parseInt(form.pageCursor) + 1;
+
+    const hasMorePosts = posts.length > this.limit;
+    const hasMoreCommunities = communities.length > this.limit;
+    const hasMoreUsers = users.length > this.limit;
+
+    const hasNextCursor = hasMorePosts || hasMoreCommunities || hasMoreUsers;
+
+    return {
+      posts: posts.map(convertPost),
+      communities: communities.map(convertCommunity),
+      users: users.map(convertPerson),
+      nextCursor: hasNextCursor ? String(nextCursor) : null,
+    };
   }
 }
