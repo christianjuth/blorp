@@ -169,7 +169,6 @@ function useLoadRecentCommunity(draftId: string, draft: Draft) {
   useEffect(() => {
     if (isActive && isEmpty && mostRecentCommunity) {
       patchDraft(draftId, {
-        communityApId: mostRecentCommunity.apId,
         communitySlug: mostRecentCommunity.slug,
       });
     }
@@ -255,7 +254,7 @@ export function CreatePost() {
       className={className}
       onClick={() => {
         try {
-          if (draft.communityApId) {
+          if (draft.communitySlug) {
             if (isEdit) {
               editPost.mutateAsync(draft).then(() => deleteDraft(draftId));
             } else {
@@ -266,9 +265,7 @@ export function CreatePost() {
           // TODO: handle incomplete post data
         }
       }}
-      disabled={
-        !draft.communityApId || !draft.communitySlug || (isEdit && !canEdit)
-      }
+      disabled={!draft.communitySlug || (isEdit && !canEdit)}
     >
       {isEdit ? "Update" : "Post"}
       {createPost.isPending && <LuLoaderCircle className="animate-spin" />}
@@ -494,11 +491,11 @@ function ChooseCommunity({
 
   const searchResultsCommunities =
     searchResultsRes.data?.pages.flatMap((p) =>
-      p.communities.map(({ community }) => community),
+      p.communities.map((slug) => ({ slug })),
     ) ?? EMPTY_ARR;
 
   let data: (
-    | Schemas.Community
+    | { slug: string }
     | "Selected"
     | "Recent"
     | "Subscribed"
@@ -521,7 +518,7 @@ function ChooseCommunity({
     if (typeof item === "string") {
       return item;
     }
-    return item.apId;
+    return item.slug;
   });
 
   return (
@@ -567,7 +564,6 @@ function ChooseCommunity({
                 <button
                   onClick={() => {
                     patchDraft(createPostId, {
-                      communityApId: item.apId,
                       communitySlug: item.slug,
                     });
                     closeModal();
@@ -576,7 +572,7 @@ function ChooseCommunity({
                   disabled={!!draft.apId}
                 >
                   <CommunityCard communitySlug={item.slug} disableLink />
-                  {draft.communityApId && item.apId === draft.communityApId && (
+                  {draft.communitySlug && item.slug === draft.communitySlug && (
                     <FaCheck className="text-brand" />
                   )}
                 </button>

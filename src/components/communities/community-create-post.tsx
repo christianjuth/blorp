@@ -28,7 +28,7 @@ export function useCommunityCreatePost({
       return;
     }
     let createPostId = _.entries(drafts).find(
-      ([_id, { communityApId }]) => communityApId === community.apId,
+      ([_id, { communitySlug }]) => communitySlug === community.slug,
     )?.[0];
 
     if (createPostId) {
@@ -57,7 +57,6 @@ export function useCommunityCreatePost({
     createPostId ??= uuid();
 
     updateDraft(createPostId, {
-      communityApId: community.apId,
       communitySlug: community.slug,
     });
     router.push(`/create?id=${createPostId}`);

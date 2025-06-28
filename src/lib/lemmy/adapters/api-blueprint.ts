@@ -142,13 +142,7 @@ export namespace Schemas {
   export interface EditPost
     extends Pick<
       Schemas.Post,
-      | "title"
-      | "url"
-      | "body"
-      | "altText"
-      | "thumbnailUrl"
-      | "communitySlug"
-      | "communityApId"
+      "title" | "url" | "body" | "altText" | "thumbnailUrl" | "communitySlug"
     > {
     apId: string;
   }
@@ -202,7 +196,7 @@ export namespace Forms {
   export type Search = {
     q: string;
     communitySlug?: string;
-    type: SearchType;
+    type: "All" | "Posts" | "Communities" | "Users";
     sort?: string;
     pageCursor?: string;
   };
@@ -321,6 +315,8 @@ export abstract class ApiBlueprint<C> {
     options: RequestOptions,
   ): Promise<{
     posts: Schemas.Post[];
+    communities: Schemas.Community[];
+    users: Schemas.Person[];
     nextCursor: string | null;
   }>;
 

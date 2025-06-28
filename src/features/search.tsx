@@ -41,7 +41,7 @@ import { createSlug } from "../lib/lemmy/utils";
 const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = string | CommunityView;
+type Item = string;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="max-md:px-0">
@@ -231,11 +231,11 @@ export default function SearchFeed({
                 );
               }
 
-              if (_.isString(item)) {
+              if (type === "posts") {
                 return <Post apId={item} />;
               }
 
-              if (_.isString(item)) {
+              if (type === "users") {
                 return (
                   <ContentGutters>
                     <PersonCard actorId={item} />
@@ -245,15 +245,7 @@ export default function SearchFeed({
 
               return (
                 <ContentGutters>
-                  <CommunityCard
-                    communitySlug={
-                      createSlug({
-                        apId: item.community.actor_id,
-                        name: item.community.name,
-                      }).slug
-                    }
-                    className="pt-3.5"
-                  />
+                  <CommunityCard communitySlug={item} className="pt-3.5" />
                   <></>
                 </ContentGutters>
               );
