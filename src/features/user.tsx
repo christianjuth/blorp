@@ -38,7 +38,7 @@ import { PersonSidebar } from "../components/person/person-sidebar";
 import { PersonActionMenu } from "../components/person/person-action-menu";
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = string | CommentView;
+type Item = string;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
@@ -106,12 +106,14 @@ export default function User() {
 
   const [type, setType] = useUrlSearchState(
     "type",
-    "all",
-    z.enum(["posts", "comments", "all"]),
+    "Posts",
+    z.enum(["Posts", "Comments"]),
   );
 
   const postSort = useFiltersStore((s) => s.postSort);
   usePersonDetails({ actorId });
+  const query = usePersonFeed({ apId: actorId, type });
+
   const {
     hasNextPage,
     fetchNextPage,
@@ -119,7 +121,7 @@ export default function User() {
     refetch,
     data,
     isLoading,
-  } = usePersonFeed({ actorId });
+  } = query;
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const person = useProfilesStore((s) =>
@@ -133,12 +135,10 @@ export default function User() {
     const postIds = data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
     switch (type) {
-      case "posts":
+      case "Posts":
         return postIds;
-      case "comments":
+      case "Comments":
         return commentViews;
-      default:
-        return [...postIds, ...commentViews];
     }
   }, [data?.pages, type, getCachePrefixer]);
 
@@ -166,18 +166,17 @@ export default function User() {
                     size="sm"
                     value={type}
                     onValueChange={(val) =>
-                      val && setType(val as "posts" | "comments" | "all")
+                      val && setType(val as "Posts" | "Comments")
                     }
                   >
-                    <ToggleGroupItem value="all">All</ToggleGroupItem>
-                    <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                    <ToggleGroupItem value="comments">
+                    <ToggleGroupItem value="Posts">Posts</ToggleGroupItem>
+                    <ToggleGroupItem value="Comments">
                       <span>Comments</span>
                     </ToggleGroupItem>
                   </ToggleGroup>
                 </div>
 
-                {type === "posts" && (
+                {type === "Posts" && (
                   <>
                     <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
                     <PostSortButton align="start" />
@@ -194,7 +193,7 @@ export default function User() {
       <IonContent scrollY={false}>
         <PostReportProvider>
           <VirtualList<Item>
-            key={type === "comments" ? "comments" : type + postSort}
+            key={type === "Comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={listData.length === 0 && !isLoading ? [NO_ITEMS] : listData}
             header={[
@@ -210,18 +209,17 @@ export default function User() {
                       size="sm"
                       value={type}
                       onValueChange={(val) =>
-                        val && setType(val as "posts" | "comments" | "all")
+                        val && setType(val as "Posts" | "Comments")
                       }
                     >
-                      <ToggleGroupItem value="all">All</ToggleGroupItem>
-                      <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                      <ToggleGroupItem value="comments">
+                      <ToggleGroupItem value="Posts">Posts</ToggleGroupItem>
+                      <ToggleGroupItem value="Comments">
                         <span>Comments</span>
                       </ToggleGroupItem>
                     </ToggleGroup>
                   </div>
 
-                  {type === "posts" && (
+                  {type === "Posts" && (
                     <>
                       <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
                       <PostSortButton align="start" />
@@ -243,11 +241,11 @@ export default function User() {
                 );
               }
 
-              if (_.isString(item)) {
+              if (type === "Posts") {
                 return <Post apId={item} />;
               }
 
-              return <Comment path={item.comment.path} />;
+              return <Comment path={item} />;
             }}
             onEndReached={() => {
               if (hasNextPage && !isFetchingNextPage) {

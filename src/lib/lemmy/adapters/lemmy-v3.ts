@@ -40,6 +40,9 @@ export function getLemmyClient(instance: string) {
 }
 
 function cursorToInt(pageCursor: string | null | undefined) {
+  if (pageCursor === INIT_PAGE_TOKEN) {
+    return 1;
+  }
   return pageCursor ? _.parseInt(pageCursor) : undefined;
 }
 
@@ -339,7 +342,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       throw new Error("person not found");
     }
 
-    const { posts } = await this.client.getPersonDetails(
+    const { posts, comments } = await this.client.getPersonDetails(
       {
         person_id,
         limit: this.limit,
@@ -359,6 +362,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
 
     return {
       posts: posts.map(convertPost),
+      comments: comments.map(convertComment),
       nextCursor: hasNextCursor ? String(nextCursor) : null,
     };
   }

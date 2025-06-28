@@ -302,8 +302,13 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       .filter((c) => c.type_ === "Post")
       .map((c) => convertPost(c));
 
+    const comments = content.content
+      .filter((c) => c.type_ === "Comment")
+      .map((c) => convertComment(c));
+
     return {
       posts,
+      comments,
       nextCursor: content.next_page ?? null,
     };
   }

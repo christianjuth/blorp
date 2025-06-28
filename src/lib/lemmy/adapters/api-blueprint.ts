@@ -161,6 +161,8 @@ export namespace Forms {
   export type GetPersonContent = {
     apId: string;
     pageCursor?: string;
+    type: "Posts" | "Comments";
+    sort?: string;
   };
 
   export type GetPosts = {
@@ -307,6 +309,7 @@ export abstract class ApiBlueprint<C> {
     options: RequestOptions,
   ): Promise<{
     posts: Schemas.Post[];
+    comments: Schemas.Comment[];
     nextCursor: string | null;
   }>;
 
