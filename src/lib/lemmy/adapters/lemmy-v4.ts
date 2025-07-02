@@ -2,6 +2,7 @@ import { env } from "@/src/env";
 import * as lemmyV4 from "lemmy-v4";
 import {
   ApiBlueprint,
+  Errors,
   Forms,
   INIT_PAGE_TOKEN,
   RequestOptions,
@@ -9,6 +10,10 @@ import {
 } from "./api-blueprint";
 import { createSlug } from "../utils";
 import _ from "lodash";
+
+function is2faError(err?: Error | null) {
+  return err && err.message.includes("missing_totp_token");
+}
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -120,6 +125,7 @@ function convertPost({
     featuredLocal: post.featured_local,
     read: !!post_actions?.read,
     saved: !!post_actions?.saved,
+    nsfw: post.nsfw,
   };
 }
 function convertComment(commentView: lemmyV4.CommentView): Schemas.Comment {
@@ -395,7 +401,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     return convertCommunity(community_view);
   }
 
-  async editPost(form: Schemas.EditPost) {
+  async editPost(form: Forms.EditPost) {
     const { post_id } = await this.resolveObjectId(form.apId);
 
     if (_.isNil(post_id)) {
@@ -491,5 +497,42 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       content: body,
     });
     return convertComment(comment_view);
+  }
+
+  async markPostRead(form: Forms.MarkPostRead) {
+    const [firstPost] = form.postIds;
+    if (form.postIds.length === 1 && firstPost) {
+      await this.client.markPostAsRead({
+        post_id: firstPost,
+        read: form.read,
+      });
+    } else {
+      if (form.read === false) {
+        throw new Error("cant bulk mark multiple posts as unread");
+      }
+      await this.client.markManyPostAsRead({
+        post_ids: form.postIds,
+      });
+    }
+  }
+
+  async login(form: Forms.Login) {
+    try {
+      const { jwt } = await this.client.login({
+        username_or_email: form.username,
+        password: form.password,
+        totp_2fa_token: form.mfaCode,
+      });
+      if (_.isNil(jwt)) {
+        throw new Error("api did not return jwt");
+      }
+      this.setJwt(jwt);
+      return { jwt };
+    } catch (err) {
+      if (_.isError(err) && is2faError(err)) {
+        throw Errors.MFA_REQUIRED;
+      }
+      throw err;
+    }
   }
 }

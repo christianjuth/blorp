@@ -4,7 +4,7 @@ import {
   PostFeatureType,
   ListingType,
 } from "lemmy-v4";
-import z from "zod";
+import z, { string } from "zod";
 
 export const INIT_PAGE_TOKEN = "INIT_PAGE_TOKEN";
 
@@ -31,6 +31,7 @@ const postSchema = z.object({
   createdAt: z.string(),
   id: z.number(),
   apId: z.string(),
+  nsfw: z.boolean().nullable(),
   communitySlug,
   communityApId: z.string(),
   creatorId: z.number(),
@@ -178,18 +179,24 @@ const mentionSchema = z.object({
   communitySlug,
   communityApId: z.string(),
 });
+const uploadImageResponseSchema = z.object({
+  url: z.string().optional(),
+});
+const captchaSchema = z.object({
+  uuid: z.string(),
+  audioUrl: z.string(),
+  imgUrl: z.string(),
+});
+const registrationResponseSchema = z.object({
+  jwt: z.string().nullable(),
+  verifyEmailSent: z.boolean().nullable(),
+  registrationCreated: z.boolean().nullable(),
+});
 
 export namespace Schemas {
   export type Site = z.infer<typeof siteSchema>;
 
   export type Post = z.infer<typeof postSchema>;
-  export interface EditPost
-    extends Pick<
-      Schemas.Post,
-      "title" | "url" | "body" | "altText" | "thumbnailUrl" | "communitySlug"
-    > {
-    apId: string;
-  }
 
   export type Community = z.infer<typeof communitySchema>;
   export type Person = z.infer<typeof personSchema>;
@@ -200,6 +207,10 @@ export namespace Schemas {
 
   export type Reply = z.infer<typeof replySchema>;
   export type Mention = z.infer<typeof mentionSchema>;
+
+  export type UploadImageResponse = z.infer<typeof uploadImageResponseSchema>;
+  export type Captcha = z.infer<typeof captchaSchema>;
+  export type Registration = z.infer<typeof registrationResponseSchema>;
 }
 
 export namespace Forms {
@@ -230,12 +241,18 @@ export namespace Forms {
   };
 
   export type GetPosts = {
+    showNsfw?: boolean;
     showRead?: boolean;
     sort?: string;
     pageCursor?: string;
     type?: ListingType;
     communitySlug?: string;
     savedOnly?: boolean;
+  };
+
+  export type MarkPostRead = {
+    postIds: number[];
+    read: boolean;
   };
 
   export type FeaturePost = {
@@ -287,6 +304,8 @@ export namespace Forms {
     parentId?: number;
     sort?: string;
     pageCursor?: string;
+    savedOnly?: boolean;
+    type?: "All" | "Local";
   };
 
   export type CreateComment = {
@@ -323,10 +342,74 @@ export namespace Forms {
     unreadOnly?: boolean;
   };
 
+  export type MarkReplyRead = {
+    id: number;
+    read: boolean;
+  };
+
   export type GetMentions = {
     pageCursor?: string;
     sort?: string;
     unreadOnly?: boolean;
+  };
+
+  export type MarkMentionRead = {
+    id: number;
+    read: boolean;
+  };
+
+  export interface EditPost
+    extends Pick<
+      Schemas.Post,
+      "title" | "url" | "body" | "altText" | "thumbnailUrl" | "nsfw"
+    > {
+    apId: string;
+  }
+  export interface CreatePost
+    extends Pick<
+      Schemas.Post,
+      | "title"
+      | "url"
+      | "body"
+      | "altText"
+      | "thumbnailUrl"
+      | "communitySlug"
+      | "nsfw"
+    > {}
+
+  export type CreatePostReport = {
+    postId: number;
+    reason: string;
+  };
+
+  export type CreateCommentReport = {
+    commentId: number;
+    reason: string;
+  };
+
+  export type BlockPerson = {
+    personId: number;
+    block: boolean;
+  };
+
+  export type BlockCommunity = {
+    communityId: number;
+    block: boolean;
+  };
+
+  export type UploadImage = {
+    image: File;
+  };
+
+  export type Register = {
+    username: string;
+    password: string;
+    repeatPassword: string;
+    showNsfw?: boolean;
+    email?: string;
+    captchaUuid?: string;
+    captchaAnswer?: string;
+    answer?: string;
   };
 }
 
@@ -374,9 +457,11 @@ export abstract class ApiBlueprint<C> {
 
   abstract likePost(form: Forms.LikePost): Promise<Schemas.Post>;
 
+  abstract markPostRead(form: Forms.MarkPostRead): Promise<void>;
+
   abstract deletePost(form: Forms.DeletePost): Promise<Schemas.Post>;
 
-  abstract editPost(form: Schemas.EditPost): Promise<Schemas.Post>;
+  abstract editPost(form: Forms.EditPost): Promise<Schemas.Post>;
 
   abstract featurePost(form: Forms.FeaturePost): Promise<Schemas.Post>;
 
@@ -479,4 +564,28 @@ export abstract class ApiBlueprint<C> {
     profiles: Schemas.Person[];
     nextCursor: string | null;
   }>;
+
+  abstract markReplyRead(form: Forms.MarkReplyRead): Promise<Schemas.Reply>;
+
+  abstract markMentionRead(
+    form: Forms.MarkMentionRead,
+  ): Promise<Schemas.Mention>;
+
+  abstract createPost(form: Forms.CreatePost): Promise<Schemas.Post>;
+
+  abstract createPostReport(form: Forms.CreatePostReport): Promise<void>;
+
+  abstract createCommentReport(form: Forms.CreateCommentReport): Promise<void>;
+
+  abstract blockPerson(form: Forms.BlockPerson): Promise<void>;
+
+  abstract blockCommunity(form: Forms.BlockCommunity): Promise<void>;
+
+  abstract uploadImage(
+    form: Forms.UploadImage,
+  ): Promise<Schemas.UploadImageResponse>;
+
+  abstract getCaptcha(options: RequestOptions): Promise<Schemas.Captcha>;
+
+  abstract register(form: Forms.Register): Promise<Schemas.Registration>;
 }

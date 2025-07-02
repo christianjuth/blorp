@@ -170,9 +170,9 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
         email,
         username: userName,
         password: password,
-        password_verify: verifyPassword,
-        captcha_uuid: captcha.data?.ok?.uuid,
-        captcha_answer: captchaAnswer,
+        repeatPassword: verifyPassword,
+        captchaUuid: captcha.data?.uuid,
+        captchaAnswer: captchaAnswer,
         answer,
       })
       .then(() => {
@@ -254,18 +254,18 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
 
       {captcha.isPending && <LuLoaderCircle className="animate-spin" />}
 
-      {captcha.data?.ok && (
+      {captcha.data && (
         <div className="flex flex-row gap-4">
           <div className="flex flex-col justify-around items-center p-2">
             <button onClick={() => captcha.refetch()}>
               <MdOutlineRefresh size={24} />
             </button>
 
-            <AudioPlayButton src={captcha.data.ok.wav} />
+            <AudioPlayButton src={captcha.data?.audioUrl} />
           </div>
 
           <img
-            src={`data:image/png;base64,${captcha.data?.ok?.png}`}
+            src={`data:image/png;base64,${captcha.data?.imgUrl}`}
             className="h-28 aspect-video object-contain"
           />
 

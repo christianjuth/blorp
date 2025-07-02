@@ -181,7 +181,7 @@ export function PostByline({
                   });
                   await deferred.promise;
                   blockPerson.mutate({
-                    person_id: post.creatorId,
+                    personId: post.creatorId,
                     block: true,
                   });
                 } catch {}

@@ -74,7 +74,7 @@ export default function SettingsPage() {
                         message: `Unblock ${slug?.slug ?? "person"}`,
                       }).then(() =>
                         blockPerson.mutate({
-                          person_id: target.person_id,
+                          personId: target.person_id,
                           block: false,
                         }),
                       )
@@ -107,7 +107,7 @@ export default function SettingsPage() {
                         message: `Unblock ${slug?.slug ?? "community"}`,
                       }).then(() =>
                         blockCommunity.mutate({
-                          community_id: target.id,
+                          communityId: target.id,
                           block: false,
                         }),
                       )

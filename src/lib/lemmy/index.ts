@@ -1,19 +1,4 @@
-import {
-  CommentSortType,
-  GetPosts,
-  LemmyHttp,
-  GetReplies,
-  MarkCommentReplyAsRead,
-  CreatePostReport,
-  CreateCommentReport,
-  BlockPerson,
-  UploadImage,
-  MarkPostAsRead,
-  GetPersonMentions,
-  Register,
-  MarkPersonMentionAsRead,
-  BlockCommunity,
-} from "lemmy-v3";
+import { CommentSortType, LemmyHttp } from "lemmy-v3";
 import {
   useQuery,
   InfiniteData,
@@ -35,7 +20,7 @@ import { useSettingsStore } from "../../stores/settings";
 import { z } from "zod";
 import { useCommentsStore } from "../../stores/comments";
 import { useCommunitiesStore } from "../../stores/communities";
-import { createSlug, lemmyTimestamp } from "./utils";
+import { lemmyTimestamp } from "./utils";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useIonRouter } from "@ionic/react";
 import { toast } from "sonner";
@@ -50,7 +35,6 @@ import {
   useThrottledInfiniteQuery,
 } from "./infinite-query";
 import { produce } from "immer";
-import { LemmyV3Api } from "./adapters/lemmy-v3";
 import {
   Errors,
   Forms,
@@ -122,9 +106,6 @@ function useLemmyClient(account?: Partial<Account>) {
 
     return {
       api,
-      /**
-       * @deprecated use api instead of client
-       */
       //client: new LemmyV3Api({ instance, jwt }).client,
       queryKeyPrefix,
       instance,
@@ -373,37 +354,33 @@ export function useComments(form: Forms.GetComments) {
   });
 }
 
-function usePostsKey(form: GetPosts) {
+function usePostsKey(form: Forms.GetPosts) {
   const { queryKeyPrefix } = useLemmyClient();
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
-  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.show_nsfw;
+  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.showNsfw;
 
   const queryKey = [...queryKeyPrefix, "getPosts"];
 
-  if (form.saved_only) {
+  if (form.savedOnly) {
     queryKey.push("savedOnly");
   }
 
-  if (form.show_read) {
+  if (form.showRead) {
     queryKey.push("showRead");
   }
 
-  if (form.community_name) {
-    queryKey.push("community", form.community_name);
+  if (form.communitySlug) {
+    queryKey.push("community", form.communitySlug);
   }
 
-  if (form.type_) {
-    queryKey.push("type", form.type_);
+  if (form.type) {
+    queryKey.push("type", form.type);
   }
 
   if (sort) {
     queryKey.push(`sort-${sort}`);
-  }
-
-  if (form.limit) {
-    queryKey.push("limit", String(form.limit));
   }
 
   if (showNsfw) {
@@ -670,7 +647,7 @@ export function useRegister(config?: {
   addAccount?: boolean;
   instance?: string;
 }) {
-  const { client, api } = useLemmyClient({ instance: config?.instance });
+  const { api } = useLemmyClient({ instance: config?.instance });
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
@@ -678,8 +655,8 @@ export function useRegister(config?: {
   const addAccount = useAuth((s) => s.addAccount);
 
   const mutation = useMutation({
-    mutationFn: async (form: Register) => {
-      const res = await client.register(form);
+    mutationFn: async (form: Forms.Register) => {
+      const res = await (await api).register(form);
       if (res.jwt) {
         (await api).setJwt(res.jwt);
         const site = await (await api).getSite();
@@ -702,13 +679,12 @@ export function useRegister(config?: {
       }
       return res;
     },
-    onSuccess: (res) => {
-      if (!res.jwt) {
+    onSuccess: ({ jwt, registrationCreated, verifyEmailSent }) => {
+      if (!jwt) {
         toast.success(
           [
-            res.verify_email_sent &&
-              "Check your email to confirm registration.",
-            res.registration_created &&
+            verifyEmailSent && "Check your email to confirm registration.",
+            registrationCreated &&
               "Your account will be approved soon then you can login.",
           ]
             .filter(Boolean)
@@ -1433,7 +1409,7 @@ export function useMarkPriavteMessageRead() {
   });
 }
 
-export function useReplies(form: GetReplies) {
+export function useReplies(form: Forms.GetReplies) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { api, queryKeyPrefix } = useLemmyClient();
   const queryKey = [...queryKeyPrefix, "getReplies", form];
@@ -1466,7 +1442,7 @@ export function useReplies(form: GetReplies) {
   });
 }
 
-export function usePersonMentions(form: GetPersonMentions) {
+export function usePersonMentions(form: Forms.GetMentions) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { api, queryKeyPrefix } = useLemmyClient();
   const queryKey = [...queryKeyPrefix, "getPersonMentions", form];
@@ -1707,14 +1683,14 @@ export function useFollowCommunity() {
 }
 
 export function useMarkReplyRead() {
-  const { client, queryKeyPrefix } = useLemmyClient();
+  const { api, queryKeyPrefix } = useLemmyClient();
   const queryClient = useQueryClient();
 
   const notificationCountQueryKey = useNotificationCountQueryKey();
 
   return useMutation({
-    mutationFn: (form: MarkCommentReplyAsRead) =>
-      client.markCommentReplyAsRead(form),
+    mutationFn: async (form: Forms.MarkReplyRead) =>
+      (await api).markReplyRead(form),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: notificationCountQueryKey,
@@ -1734,14 +1710,14 @@ export function useMarkReplyRead() {
 }
 
 export function useMarkPersonMentionRead() {
-  const { client, queryKeyPrefix } = useLemmyClient();
+  const { api, queryKeyPrefix } = useLemmyClient();
   const queryClient = useQueryClient();
 
   const notificationCountQueryKey = useNotificationCountQueryKey();
 
   return useMutation({
-    mutationFn: (form: MarkPersonMentionAsRead) =>
-      client.markPersonMentionAsRead(form),
+    mutationFn: async (form: Forms.MarkMentionRead) =>
+      await (await api).markMentionRead(form),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: notificationCountQueryKey,
@@ -1762,7 +1738,7 @@ export function useMarkPersonMentionRead() {
 
 export function useCreatePost() {
   const router = useIonRouter();
-  const { client, api } = useLemmyClient();
+  const { api } = useLemmyClient();
   return useMutation({
     mutationFn: async (draft: Draft) => {
       if (!draft.communitySlug) {
@@ -1782,19 +1758,13 @@ export function useCreatePost() {
         throw new Error("could not find community to create post under");
       }
 
-      return await client.createPost(
-        draftToCreatePostData(draft, community.id),
-      );
+      return await (await api).createPost(draftToCreatePostData(draft));
     },
-    onSuccess: (res) => {
-      const apId = res.post_view.post.ap_id;
-      const community = res.post_view.community;
-      const slug = createSlug({
-        apId: community.actor_id,
-        name: community.name,
-      })?.slug;
-      if (slug) {
-        router.push(`/home/c/${slug}/posts/${encodeURIComponent(apId)}`);
+    onSuccess: ({ apId, communitySlug }) => {
+      if (communitySlug) {
+        router.push(
+          `/home/c/${communitySlug}/posts/${encodeURIComponent(apId)}`,
+        );
       }
     },
     onError: (err) => {
@@ -1809,19 +1779,11 @@ export function useCreatePost() {
 
 export function useEditPost(apId: string) {
   const router = useIonRouter();
-  const { client, api } = useLemmyClient();
+  const { api } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   return useMutation({
     mutationFn: async (draft: Draft) => {
-      const { post } = await client.resolveObject({
-        q: apId,
-      });
-
-      if (!post) {
-        throw new Error("Could not find post to update");
-      }
-
       return await (await api).editPost(draftToEditPostData(draft));
     },
     onSuccess: (postView) => {
@@ -1842,9 +1804,10 @@ export function useEditPost(apId: string) {
 }
 
 export function useCreatePostReport() {
-  const { client } = useLemmyClient();
+  const { api } = useLemmyClient();
   return useMutation({
-    mutationFn: (form: CreatePostReport) => client.createPostReport(form),
+    mutationFn: async (form: Forms.CreatePostReport) =>
+      (await api).createPostReport(form),
     onError: (err) => {
       if (err instanceof Error) {
         toast.error(_.capitalize(err.message.replaceAll("_", " ")));
@@ -1856,9 +1819,10 @@ export function useCreatePostReport() {
 }
 
 export function useCreateCommentReport() {
-  const { client } = useLemmyClient();
+  const { api } = useLemmyClient();
   return useMutation({
-    mutationFn: (form: CreateCommentReport) => client.createCommentReport(form),
+    mutationFn: async (form: Forms.CreateCommentReport) =>
+      (await api).createCommentReport(form),
     onError: (err) => {
       if (err instanceof Error) {
         toast.error(_.capitalize(err.message.replaceAll("_", " ")));
@@ -1871,10 +1835,11 @@ export function useCreateCommentReport() {
 
 export function useBlockPerson(account?: Account) {
   const queryClient = useQueryClient();
-  const { client } = useLemmyClient(account);
+  const { api } = useLemmyClient(account);
   const accountsQueryKey = useRefreshAuthKey();
   return useMutation({
-    mutationFn: (form: BlockPerson) => client.blockPerson(form),
+    mutationFn: async (form: Forms.BlockPerson) =>
+      (await api).blockPerson(form),
     onError: (err, { block }) => {
       if (err instanceof Error) {
         toast.error(_.capitalize(err.message.replaceAll("_", " ")));
@@ -1891,10 +1856,11 @@ export function useBlockPerson(account?: Account) {
 
 export function useBlockCommunity(account?: Account) {
   const queryClient = useQueryClient();
-  const { client } = useLemmyClient(account);
+  const { api } = useLemmyClient(account);
   const accountsQueryKey = useRefreshAuthKey();
   return useMutation({
-    mutationFn: (form: BlockCommunity) => client.blockCommunity(form),
+    mutationFn: async (form: Forms.BlockCommunity) =>
+      (await api).blockCommunity(form),
     onError: (err, { block }) => {
       if (err instanceof Error) {
         toast.error(_.capitalize(err.message.replaceAll("_", " ")));
@@ -1916,7 +1882,7 @@ export function useSavePost(apId: string) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   const postsQueryKey = usePostsKey({
-    saved_only: true,
+    savedOnly: true,
   });
 
   return useMutation({
@@ -1981,13 +1947,13 @@ export function useDeletePost(apId: string) {
 }
 
 export function useMarkPostRead(apId: string) {
-  const { client } = useLemmyClient();
+  const { api } = useLemmyClient();
   const patchPost = usePostsStore((s) => s.patchPost);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   return useMutation({
-    mutationFn: (form: MarkPostAsRead) => {
-      return client.markPostAsRead(form);
+    mutationFn: async (form: Forms.MarkPostRead) => {
+      return (await api).markPostRead(form);
     },
     onMutate: ({ read }) => {
       patchPost(apId, getCachePrefixer(), {
@@ -2046,14 +2012,10 @@ export function useFeaturePost(apId: string) {
 }
 
 export function useUploadImage() {
-  const { client, instance } = useLemmyClient();
+  const { api, instance } = useLemmyClient();
   return useMutation({
-    mutationFn: async (form: UploadImage) => {
-      const res = await client.uploadImage(form);
-      const fileId = res.files?.[0]?.file;
-      if (!res.url && fileId) {
-        res.url = `${instance}/pictrs/image/${fileId}`;
-      }
+    mutationFn: async (form: Forms.UploadImage) => {
+      const res = await (await api).uploadImage(form);
       return res;
     },
     onError: (err) => {
@@ -2075,10 +2037,10 @@ export function useCaptcha({
   instance: string;
   enabled?: boolean;
 }) {
-  const { client } = useLemmyClient({ instance });
+  const { api } = useLemmyClient({ instance });
   return useQuery({
     queryKey: ["captcha"],
-    queryFn: ({ signal }) => client.getCaptcha({ signal }),
+    queryFn: async ({ signal }) => (await api).getCaptcha({ signal }),
     staleTime: 5 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,

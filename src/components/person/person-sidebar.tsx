@@ -111,7 +111,7 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
                   });
                   await deferred.promise;
                   blockPerson.mutate({
-                    person_id: person?.id,
+                    personId: person?.id,
                     block: true,
                   });
                 } catch {}

@@ -3,8 +3,6 @@ import utcPlugin from "dayjs/plugin/utc";
 import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 import { createSlug } from "@/src/lib/lemmy/utils";
 import _ from "lodash";
-import { PartialDeep } from "type-fest";
-import { faker } from "@faker-js/faker";
 
 dayjs.extend(utcPlugin);
 
@@ -68,6 +66,7 @@ export function getPost(config?: {
     createdAt: relativeTime(),
     id: postId,
     apId: `${API_ROOT}/post/${postId}`,
+    nsfw: false,
     title: "This is a test post",
     body: BODY_TEXT,
     upvotes: 10,

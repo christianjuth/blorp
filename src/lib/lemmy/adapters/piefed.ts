@@ -280,6 +280,7 @@ function convertPost(
     featuredLocal: false,
     read: postView.read,
     saved: postView.saved,
+    nsfw: post.nsfw,
   };
 }
 

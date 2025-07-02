@@ -4,14 +4,15 @@ import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
 import dayjs from "dayjs";
-import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { Forms, Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { SetOptional } from "type-fest";
 
 export type CommunityPartial = Pick<
   Community,
   "name" | "title" | "icon" | "actor_id"
 >;
 
-export interface Draft extends Partial<Schemas.EditPost> {
+export interface Draft extends Partial<Forms.EditPost & Forms.CreatePost> {
   type: "text" | "media" | "link";
   createdAt: number;
 }
@@ -57,7 +58,7 @@ export function postToDraft(post: Schemas.Post): Draft {
   };
 }
 
-export function draftToEditPostData(draft: Draft): Schemas.EditPost {
+export function draftToEditPostData(draft: Draft): Forms.EditPost {
   const { title, apId, communitySlug } = draft;
   if (!title) {
     throw new Error("post name is required");
@@ -68,14 +69,14 @@ export function draftToEditPostData(draft: Draft): Schemas.EditPost {
   if (!communitySlug) {
     throw new Error("community is required");
   }
-  const post: Schemas.EditPost = {
+  const post: Forms.EditPost = {
     ...draft,
     title,
     apId,
-    communitySlug,
     thumbnailUrl: draft.thumbnailUrl ?? null,
     url: draft.url ?? null,
     body: draft.body ?? null,
+    nsfw: draft.nsfw ?? null,
   };
 
   switch (draft.type) {
@@ -99,37 +100,40 @@ export function draftToEditPostData(draft: Draft): Schemas.EditPost {
   return post;
 }
 
-export function draftToCreatePostData(
-  draft: Draft,
-  community_id: number,
-): CreatePost {
-  if (!draft.title) {
+export function draftToCreatePostData(draft: Draft): Forms.CreatePost {
+  const { title, communitySlug } = draft;
+  if (!title) {
     throw new Error("post name is required");
   }
-  const post: CreatePost = {
+  if (!communitySlug) {
+    throw new Error("community is required");
+  }
+  const post: Forms.CreatePost = {
     ...draft,
-    name: draft.title,
-    community_id,
-    body: draft.body ?? undefined,
-    url: draft.url ?? undefined,
+    title,
+    communitySlug,
+    body: draft.body ?? null,
+    url: draft.url ?? null,
+    nsfw: draft.nsfw ?? null,
+    thumbnailUrl: draft.thumbnailUrl ?? null,
   };
 
   switch (draft.type) {
     case "text":
-      delete post.url;
-      delete post.custom_thumbnail;
+      post.url = null;
+      post.thumbnailUrl = null;
       break;
     case "media":
-      post.url = post.custom_thumbnail;
+      post.url = post.thumbnailUrl;
       break;
     case "link":
   }
 
   if (!post.url) {
-    delete post.url;
+    post.url = null;
   }
-  if (!post.custom_thumbnail) {
-    delete post.custom_thumbnail;
+  if (!post.thumbnailUrl) {
+    post.thumbnailUrl = null;
   }
 
   return post;

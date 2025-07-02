@@ -135,6 +135,7 @@ function convertPost(postView: lemmyV3.PostView): Schemas.Post {
     featuredLocal: post.featured_local,
     read: postView.read,
     saved: postView.saved,
+    nsfw: post.nsfw,
   };
 }
 function convertComment(commentView: lemmyV3.CommentView): Schemas.Comment {
@@ -459,7 +460,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
     };
   }
 
-  async getCommunity(form: Forms.GetCommunity, options: RequestOptions) {
+  async getCommunity(form: Forms.GetCommunity, options?: RequestOptions) {
     const { community_view, moderators } = await this.client.getCommunity(
       {
         name: form.slug,
@@ -508,7 +509,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
     return convertCommunity(community_view);
   }
 
-  async editPost(form: Schemas.EditPost) {
+  async editPost(form: Forms.EditPost) {
     const { post_id } = await this.resolveObjectId(form.apId);
 
     if (_.isNil(post_id)) {
@@ -548,13 +549,14 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
     const { comments } = await this.client.getComments(
       {
         post_id,
-        type_: "All",
+        type_: form.type,
         limit: this.limit,
         max_depth: 6,
         page:
           _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
             ? 1
             : _.parseInt(form.pageCursor) + 1,
+        saved_only: form.savedOnly,
       },
       options,
     );
@@ -744,6 +746,115 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
         (p) => p.apId,
       ),
       nextCursor: hasNextCursor ? String(nextCursor) : null,
+    };
+  }
+
+  async markReplyRead(form: Forms.MarkReplyRead): Promise<Schemas.Reply> {
+    const { comment_reply_view } = await this.client.markCommentReplyAsRead({
+      comment_reply_id: form.id,
+      read: form.read,
+    });
+    return convertReply(comment_reply_view);
+  }
+
+  async markMentionRead(form: Forms.MarkMentionRead): Promise<Schemas.Reply> {
+    const { person_mention_view } = await this.client.markPersonMentionAsRead({
+      person_mention_id: form.id,
+      read: form.read,
+    });
+    return convertMention(person_mention_view);
+  }
+
+  async createPost(form: Forms.CreatePost) {
+    const community = await this.getCommunity({
+      slug: form.communitySlug,
+    });
+
+    const { post_view } = await this.client.createPost({
+      alt_text: form.altText,
+      body: form.body ?? undefined,
+      community_id: community.community.id,
+      custom_thumbnail: form.thumbnailUrl ?? undefined,
+      name: form.title,
+      nsfw: form.nsfw ?? undefined,
+      url: form.url ?? undefined,
+    });
+
+    return convertPost(post_view);
+  }
+
+  async createPostReport(form: Forms.CreatePostReport) {
+    await this.client.createPostReport({
+      post_id: form.postId,
+      reason: form.reason,
+    });
+  }
+
+  async createCommentReport(form: Forms.CreateCommentReport) {
+    await this.client.createCommentReport({
+      comment_id: form.commentId,
+      reason: form.reason,
+    });
+  }
+
+  async blockPerson(form: Forms.BlockPerson): Promise<void> {
+    await this.client.blockPerson({
+      person_id: form.personId,
+      block: form.block,
+    });
+  }
+
+  async blockCommunity(form: Forms.BlockCommunity): Promise<void> {
+    await this.client.blockCommunity({
+      community_id: form.communityId,
+      block: form.block,
+    });
+  }
+
+  async markPostRead(form: Forms.MarkPostRead) {
+    await this.client.markPostAsRead({
+      post_ids: form.postIds,
+      read: form.read,
+    });
+  }
+
+  async uploadImage(form: Forms.UploadImage) {
+    const res = await this.client.uploadImage(form);
+    const fileId = res.files?.[0]?.file;
+    if (!res.url && fileId) {
+      res.url = `${this.instance}/pictrs/image/${fileId}`;
+    }
+    return { url: res.url };
+  }
+
+  async getCaptcha(options: RequestOptions) {
+    const { ok } = await this.client.getCaptcha(options);
+    if (!ok) {
+      throw new Error("couldn't get captcha");
+    }
+    return {
+      uuid: ok.uuid,
+      audioUrl: ok.wav,
+      imgUrl: ok.png,
+    };
+  }
+
+  async register(form: Forms.Register) {
+    const { jwt, registration_created, verify_email_sent } =
+      await this.client.register({
+        username: form.username,
+        password: form.password,
+        password_verify: form.repeatPassword,
+        show_nsfw: form.showNsfw,
+        email: form.email,
+        captcha_uuid: form.captchaUuid,
+        captcha_answer: form.captchaAnswer,
+        answer: form.answer,
+      });
+    return {
+      jwt: jwt ?? null,
+      registrationCreated: registration_created,
+      verifyEmailSent: verify_email_sent,
     };
   }
 }

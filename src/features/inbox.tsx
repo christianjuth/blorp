@@ -106,7 +106,7 @@ function Mention({
               }}
               onClickCapture={() => {
                 markRead.mutate({
-                  person_mention_id: mention.id,
+                  id: mention.id,
                   read: true,
                 });
               }}
@@ -130,7 +130,7 @@ function Mention({
                     text: mention.read ? "Mark unread" : "Mark read",
                     onClick: () =>
                       markRead.mutate({
-                        person_mention_id: mention.id,
+                        id: mention.id,
                         read: !mention.read,
                       }),
                   },
@@ -188,7 +188,7 @@ function Reply({
               }}
               onClickCapture={() => {
                 markRead.mutate({
-                  comment_reply_id: replyView.id,
+                  id: replyView.id,
                   read: true,
                 });
               }}
@@ -212,7 +212,7 @@ function Reply({
                     text: replyView.read ? "Mark unread" : "Mark read",
                     onClick: () =>
                       markRead.mutate({
-                        comment_reply_id: replyView.id,
+                        id: replyView.id,
                         read: !replyView.read,
                       }),
                   },
@@ -235,10 +235,10 @@ export default function Inbox() {
   const setType = useInboxStore((s) => s.setInboxType);
 
   const replies = useReplies({
-    unread_only: type === "unread",
+    unreadOnly: type === "unread",
   });
   const mentions = usePersonMentions({
-    unread_only: type === "unread",
+    unreadOnly: type === "unread",
   });
   const isRefetching = replies.isRefetching || mentions.isRefetching;
   const isPending = replies.isPending || mentions.isPending;

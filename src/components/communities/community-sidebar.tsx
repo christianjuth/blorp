@@ -108,7 +108,7 @@ export function SmallScreenSidebar({
                   message: `Block ${communityName}`,
                 }).then(() =>
                   blockCommunity.mutate({
-                    community_id: communityView?.id,
+                    communityId: communityView?.id,
                     block: true,
                   }),
                 ),
@@ -293,7 +293,7 @@ export function CommunitySidebar({
                   message: `Block ${communityName}`,
                 }).then(() =>
                   blockCommunity.mutate({
-                    community_id: communityView.id,
+                    communityId: communityView.id,
                     block: true,
                   }),
                 ),

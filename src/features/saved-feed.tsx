@@ -86,12 +86,12 @@ export default function SavedFeed() {
 
   const [type, setType] = useUrlSearchState(
     "type",
-    "all",
-    z.enum(["posts", "comments", "all"]),
+    "posts",
+    z.enum(["posts", "comments"]),
   );
 
   const comments = useComments({
-    saved_only: true,
+    savedOnly: true,
     type: "All",
   });
 
@@ -150,10 +150,9 @@ export default function SavedFeed() {
                 size="sm"
                 value={type}
                 onValueChange={(val) =>
-                  val && setType(val as "posts" | "comments" | "all")
+                  val && setType(val as "posts" | "comments")
                 }
               >
-                <ToggleGroupItem value="all">All</ToggleGroupItem>
                 <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
                 <ToggleGroupItem value="comments">comments</ToggleGroupItem>
               </ToggleGroup>
@@ -183,10 +182,9 @@ export default function SavedFeed() {
                     size="sm"
                     value={type}
                     onValueChange={(val) =>
-                      val && setType(val as "posts" | "comments" | "all")
+                      val && setType(val as "posts" | "comments")
                     }
                   >
-                    <ToggleGroupItem value="all">All</ToggleGroupItem>
                     <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
                     <ToggleGroupItem value="comments">comments</ToggleGroupItem>
                   </ToggleGroup>

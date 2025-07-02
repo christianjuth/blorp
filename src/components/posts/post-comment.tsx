@@ -444,7 +444,7 @@ export function PostComment({
                             });
                             await deferred.promise;
                             blockPerson.mutate({
-                              person_id: commentView.creatorId,
+                              personId: commentView.creatorId,
                               block: true,
                             });
                           } catch {}

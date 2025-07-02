@@ -61,7 +61,7 @@ export function PostReportProvider({
     if (post) {
       createPostReport
         .mutateAsync({
-          post_id: post.id,
+          postId: post.id,
           reason,
         })
         .then(() => {
@@ -71,7 +71,7 @@ export function PostReportProvider({
     } else if (comment) {
       createCommentReport
         .mutateAsync({
-          comment_id: comment.data.id,
+          commentId: comment.data.id,
           reason,
         })
         .then(() => {
