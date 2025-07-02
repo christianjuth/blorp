@@ -134,6 +134,50 @@ export const commentSchema = z.object({
   optimisticDeleted: z.boolean().optional(),
   postTitle: z.string(),
 });
+const privateMessageSchema = z.object({
+  createdAt: z.string(),
+  id: z.number(),
+  creatorId: z.number(),
+  creatorApId: z.string(),
+  creatorSlug: z.string(),
+  recipientId: z.number(),
+  recipientApId: z.string(),
+  recipientSlug: z.string(),
+  read: z.boolean(),
+  body: z.string(),
+});
+const replySchema = z.object({
+  createdAt: z.string(),
+  id: z.number(),
+  commentId: z.number(),
+  body: z.string(),
+  path: z.string(),
+  creatorId: z.number(),
+  creatorApId: z.string(),
+  creatorSlug: z.string(),
+  read: z.boolean(),
+  postId: z.number(),
+  postApId: z.string(),
+  postName: z.string(),
+  communitySlug,
+  communityApId: z.string(),
+});
+const mentionSchema = z.object({
+  createdAt: z.string(),
+  id: z.number(),
+  commentId: z.number(),
+  body: z.string(),
+  path: z.string(),
+  creatorId: z.number(),
+  creatorApId: z.string(),
+  creatorSlug: z.string(),
+  read: z.boolean(),
+  postId: z.number(),
+  postApId: z.string(),
+  postName: z.string(),
+  communitySlug,
+  communityApId: z.string(),
+});
 
 export namespace Schemas {
   export type Site = z.infer<typeof siteSchema>;
@@ -151,11 +195,31 @@ export namespace Schemas {
   export type Person = z.infer<typeof personSchema>;
 
   export type Comment = z.infer<typeof commentSchema>;
+
+  export type PrivateMessage = z.infer<typeof privateMessageSchema>;
+
+  export type Reply = z.infer<typeof replySchema>;
+  export type Mention = z.infer<typeof mentionSchema>;
 }
 
 export namespace Forms {
   export type GetPerson = {
     apId: string;
+  };
+
+  export type GetPrivateMessages = {
+    pageCursor?: string;
+    unreadOnly?: boolean;
+  };
+
+  export type CreatePrivateMessage = {
+    body: string;
+    recipientId: number;
+  };
+
+  export type MarkPrivateMessageRead = {
+    id: number;
+    read: boolean;
   };
 
   export type GetPersonContent = {
@@ -251,6 +315,18 @@ export namespace Forms {
     username: string;
     password: string;
     mfaCode?: string;
+  };
+
+  export type GetReplies = {
+    pageCursor?: string;
+    sort?: string;
+    unreadOnly?: boolean;
+  };
+
+  export type GetMentions = {
+    pageCursor?: string;
+    sort?: string;
+    unreadOnly?: boolean;
   };
 }
 
@@ -368,4 +444,39 @@ export abstract class ApiBlueprint<C> {
   abstract editComment(form: Forms.EditComment): Promise<Schemas.Comment>;
 
   abstract login(form: Forms.Login): Promise<{ jwt: string }>;
+
+  abstract getPrivateMessages(
+    form: Forms.GetPrivateMessages,
+    options: RequestOptions,
+  ): Promise<{
+    privateMessages: Schemas.PrivateMessage[];
+    profiles: Schemas.Person[];
+    nextCursor: string | null;
+  }>;
+
+  abstract createPrivateMessage(
+    form: Forms.CreatePrivateMessage,
+  ): Promise<Schemas.PrivateMessage>;
+
+  abstract markPrivateMessageRead(
+    form: Forms.MarkPrivateMessageRead,
+  ): Promise<Schemas.PrivateMessage>;
+
+  abstract getReplies(
+    form: Forms.GetReplies,
+    option: RequestOptions,
+  ): Promise<{
+    replies: Schemas.Reply[];
+    profiles: Schemas.Person[];
+    nextCursor: string | null;
+  }>;
+
+  abstract getMentions(
+    form: Forms.GetMentions,
+    options: RequestOptions,
+  ): Promise<{
+    mentions: Schemas.Mention[];
+    profiles: Schemas.Person[];
+    nextCursor: string | null;
+  }>;
 }

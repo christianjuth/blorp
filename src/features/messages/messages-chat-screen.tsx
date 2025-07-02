@@ -34,6 +34,7 @@ import { useMedia } from "@/src/lib/hooks";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 import { PageTitle } from "@/src/components/page-title";
 import LoginRequired from "../login-required";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 dayjs.extend(updateLocale);
 
@@ -54,15 +55,14 @@ export default function Messages() {
     let prevDate: dayjs.Dayjs;
 
     return chat.data?.pages
-      .flatMap((p) => p.private_messages)
+      .flatMap((p) => p.privateMessages)
       .reverse()
       .filter(
         (pm) =>
-          pm.recipient?.actor_id === otherActorId ||
-          pm.creator?.actor_id === otherActorId,
+          pm.recipientApId === otherActorId || pm.creatorApId === otherActorId,
       )
       .map((pm) => {
-        const newDate = dayjs(pm.private_message.published);
+        const newDate = dayjs(pm.createdAt);
 
         let topOfDay = false;
         if (!newDate.isSame(prevDate, "date")) {
@@ -84,10 +84,10 @@ export default function Messages() {
   useEffect(() => {
     const fn = async () => {
       if (data && me) {
-        for (const { private_message } of data) {
-          if (!private_message.read && private_message.creator_id !== me?.id) {
+        for (const pm of data) {
+          if (!pm.read && pm.creatorId !== me?.id) {
             await markMessageRead.mutateAsync({
-              private_message_id: private_message.id,
+              id: pm.id,
               read: true,
             });
           }
@@ -145,25 +145,21 @@ export default function Messages() {
             }}
           >
             {data?.map((item) => {
-              const isMe = item.creator.id === me?.id;
+              const isMe = item.creatorId === me?.id;
               return (
-                <ContentGutters key={item.private_message.id}>
+                <ContentGutters key={item.id}>
                   <div className="flex-row pb-4 w-full">
                     {item.topOfDay && (
                       <span className="block pb-4 text-center text-xs text-muted-foreground">
-                        {dayjs(item.private_message.published).format("ll")}
+                        {dayjs(item.createdAt).format("ll")}
                       </span>
                     )}
                     <div className="flex gap-2">
                       {!isMe && (
-                        <PersonAvatar
-                          actorId={item.creator.actor_id}
-                          person={item.creator}
-                          size="sm"
-                        />
+                        <PersonAvatar actorId={item.creatorApId} size="sm" />
                       )}
                       <MarkdownRenderer
-                        markdown={item.private_message.content}
+                        markdown={item.body}
                         className={cn(
                           "p-2.5 rounded-xl max-w-2/3",
                           isMe
@@ -197,36 +193,36 @@ function ComposeMessage({
   recipient,
   onSubmit,
 }: {
-  recipient: Person;
+  recipient: Schemas.Person;
   onSubmit: () => void;
 }) {
   const createPrivateMessage = useCreatePrivateMessage(recipient);
-  const [content, setContent] = useState("");
+  const [body, setBody] = useState("");
   return (
     <ContentGutters>
       <form
         className="my-1 flex items-center gap-2 border rounded-2xl pr-1 focus-within:ring"
         onSubmit={(e) => {
           e.preventDefault();
-          if (content.trim().length > 0) {
+          if (body.trim().length > 0) {
             createPrivateMessage.mutateAsync({
-              content,
-              recipient_id: recipient.id,
+              body: body,
+              recipientId: recipient.id,
             });
             onSubmit();
-            setContent("");
+            setBody("");
           }
         }}
       >
         <TextareaAutosize
           placeholder="Message"
           className="pl-3 py-1 flex-1 outline-none resize-none min-h-8"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
         />
         <Button
           size="icon"
-          variant={content.length === 0 ? "secondary" : "default"}
+          variant={body.length === 0 ? "secondary" : "default"}
           className="-rotate-90 h-6.5 w-6.5"
         >
           <Send />

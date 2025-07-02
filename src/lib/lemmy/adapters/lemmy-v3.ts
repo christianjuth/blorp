@@ -164,6 +164,74 @@ function convertComment(commentView: lemmyV3.CommentView): Schemas.Comment {
     myVote: commentView.my_vote ?? null,
   };
 }
+function convertPrivateMessage(
+  pmView: lemmyV3.PrivateMessageView,
+): Schemas.PrivateMessage {
+  const { creator, recipient } = pmView;
+  return {
+    createdAt: pmView.private_message.published,
+    id: pmView.private_message.id,
+    creatorApId: creator.actor_id,
+    creatorId: creator.id,
+    creatorSlug: createSlug({ apId: recipient.actor_id, name: recipient.name })
+      .slug,
+    recipientApId: recipient.actor_id,
+    recipientId: recipient.id,
+    recipientSlug: createSlug({
+      apId: recipient.actor_id,
+      name: recipient.name,
+    }).slug,
+    body: pmView.private_message.content,
+    read: pmView.private_message.read,
+  };
+}
+function convertReply(replyView: lemmyV3.CommentReplyView): Schemas.Reply {
+  const { creator, community } = replyView;
+  return {
+    createdAt: replyView.comment_reply.published,
+    id: replyView.comment_reply.id,
+    commentId: replyView.comment.id,
+    communityApId: community.actor_id,
+    communitySlug: createSlug({
+      apId: community.actor_id,
+      name: community.name,
+    }).slug,
+    body: replyView.comment.content,
+    path: replyView.comment.path,
+    creatorId: replyView.creator.id,
+    creatorApId: replyView.creator.actor_id,
+    creatorSlug: createSlug({ apId: creator.actor_id, name: creator.name })
+      .slug,
+    read: replyView.comment_reply.read,
+    postId: replyView.post.id,
+    postApId: replyView.post.ap_id,
+    postName: replyView.post.name,
+  };
+}
+
+function convertMention(replyView: lemmyV3.PersonMentionView): Schemas.Reply {
+  const { creator, community } = replyView;
+  return {
+    createdAt: replyView.person_mention.published,
+    id: replyView.person_mention.id,
+    commentId: replyView.comment.id,
+    communityApId: community.actor_id,
+    communitySlug: createSlug({
+      apId: community.actor_id,
+      name: community.name,
+    }).slug,
+    body: replyView.comment.content,
+    path: replyView.comment.path,
+    creatorId: replyView.creator.id,
+    creatorApId: replyView.creator.actor_id,
+    creatorSlug: createSlug({ apId: creator.actor_id, name: creator.name })
+      .slug,
+    read: replyView.person_mention.read,
+    postId: replyView.post.id,
+    postApId: replyView.post.ap_id,
+    postName: replyView.post.name,
+  };
+}
 
 export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
   client: lemmyV3.LemmyHttp;
@@ -564,5 +632,118 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       }
       throw err;
     }
+  }
+
+  async getPrivateMessages(
+    form: Forms.GetPrivateMessages,
+    options: RequestOptions,
+  ) {
+    const { private_messages } = await this.client.getPrivateMessages(
+      {
+        unread_only: form.unreadOnly,
+        limit: this.limit,
+        page:
+          _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+            ? 1
+            : _.parseInt(form.pageCursor) + 1,
+      },
+      options,
+    );
+
+    const profiles = _.uniqBy(
+      [
+        ...private_messages.map((pm) => pm.creator),
+        ...private_messages.map((pm) => pm.recipient),
+      ],
+      (p) => p.actor_id,
+    ).map((person) => convertPerson({ person }));
+
+    const nextCursor =
+      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+        ? 1
+        : _.parseInt(form.pageCursor) + 1;
+    const hasNextCursor = private_messages.length >= this.limit;
+
+    return {
+      privateMessages: private_messages.map(convertPrivateMessage),
+      profiles,
+      nextCursor: hasNextCursor ? String(nextCursor) : null,
+    };
+  }
+
+  async createPrivateMessage(form: Forms.CreatePrivateMessage) {
+    const { private_message_view } = await this.client.createPrivateMessage({
+      content: form.body,
+      recipient_id: form.recipientId,
+    });
+    return convertPrivateMessage(private_message_view);
+  }
+
+  async markPrivateMessageRead(form: Forms.MarkPrivateMessageRead) {
+    const { private_message_view } = await this.client.markPrivateMessageAsRead(
+      {
+        private_message_id: form.id,
+        read: form.read,
+      },
+    );
+    return convertPrivateMessage(private_message_view);
+  }
+
+  async getReplies(form: Forms.GetReplies, options: RequestOptions) {
+    const { replies } = await this.client.getReplies(
+      {
+        unread_only: form.unreadOnly,
+        limit: this.limit,
+        page:
+          _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+            ? 1
+            : _.parseInt(form.pageCursor) + 1,
+      },
+      options,
+    );
+
+    const nextCursor =
+      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+        ? 1
+        : _.parseInt(form.pageCursor) + 1;
+    const hasNextCursor = replies.length >= this.limit;
+
+    return {
+      replies: replies.map(convertReply),
+      profiles: _.unionBy(
+        replies.map((r) => convertPerson({ person: r.creator })),
+        (p) => p.apId,
+      ),
+      nextCursor: hasNextCursor ? String(nextCursor) : null,
+    };
+  }
+
+  async getMentions(form: Forms.GetReplies, options: RequestOptions) {
+    const { mentions } = await this.client.getPersonMentions(
+      {
+        unread_only: form.unreadOnly,
+        limit: this.limit,
+        page:
+          _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+            ? 1
+            : _.parseInt(form.pageCursor) + 1,
+      },
+      options,
+    );
+
+    const nextCursor =
+      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+        ? 1
+        : _.parseInt(form.pageCursor) + 1;
+    const hasNextCursor = mentions.length >= this.limit;
+
+    return {
+      mentions: mentions.map(convertMention),
+      profiles: _.unionBy(
+        mentions.map((r) => convertPerson({ person: r.creator })),
+        (p) => p.apId,
+      ),
+      nextCursor: hasNextCursor ? String(nextCursor) : null,
+    };
   }
 }

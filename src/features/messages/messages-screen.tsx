@@ -7,7 +7,7 @@ import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 import { Separator } from "@/src/components/ui/separator";
 import { VirtualList } from "@/src/components/virtual-list";
 import { usePrivateMessages } from "@/src/lib/lemmy";
-import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/lemmy/utils";
 import { cn, isNotNil } from "@/src/lib/utils";
 import { Link } from "@/src/routing";
 import { parseAccountInfo, useAuth } from "@/src/stores/auth";
@@ -31,25 +31,18 @@ function useChats() {
   const { person: me } = parseAccountInfo(account);
 
   const chats = useMemo(() => {
-    const messages = query.data?.pages.flatMap((p) => p.private_messages);
-    const byRecipient = _.groupBy(
-      messages,
-      (m) => m.creator.id + m.recipient.id,
-    );
+    const messages = query.data?.pages.flatMap((p) => p.privateMessages);
+    const byRecipient = _.groupBy(messages, (m) => m.creatorId + m.recipientId);
     const onePerRecipient = _.values(byRecipient)
       .map((item) => {
-        const hasUnread = item.some(
-          (i) => i.creator.id !== me?.id && !i.private_message.read,
-        );
+        const hasUnread = item.some((i) => i.creatorId !== me?.id && !i.read);
         return {
           ...item[0]!,
           hasUnread,
         };
       })
       .filter(isNotNil);
-    onePerRecipient.sort((a, b) =>
-      b.private_message.published.localeCompare(a.private_message.published),
-    );
+    onePerRecipient.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     return onePerRecipient;
   }, [query.data, me?.id]);
 
@@ -65,7 +58,15 @@ export default function Messages() {
   const { person: me } = parseAccountInfo(account);
 
   const getOtherPerson = (item: (typeof chats.chats)[number]) => {
-    return item.creator.actor_id === me?.apId ? item.recipient : item.creator;
+    return item.creatorApId === me?.apId
+      ? {
+          apId: item.recipientApId,
+          slug: item.recipientSlug,
+        }
+      : {
+          apId: item.creatorApId,
+          slug: item.creatorSlug,
+        };
   };
 
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
@@ -96,7 +97,7 @@ export default function Messages() {
           renderItem={({ item }) => (
             <Link
               to="/messages/chat/:userId"
-              params={{ userId: encodeApId(getOtherPerson(item).actor_id) }}
+              params={{ userId: encodeApId(getOtherPerson(item).apId) }}
             >
               <ContentGutters className="px-0">
                 <div className="overflow-hidden">
@@ -107,22 +108,21 @@ export default function Messages() {
                     )}
                   >
                     <PersonAvatar
-                      actorId={getOtherPerson(item).actor_id}
-                      person={getOtherPerson(item)}
+                      actorId={getOtherPerson(item).apId}
                       size="sm"
                     />
                     <div className="flex flex-col gap-2 flex-1">
                       <div className="flex justify-between text-sm flex-1">
                         <span className="font-medium">
-                          {createSlug(getOtherPerson(item))?.slug}
+                          {getOtherPerson(item).slug}
                         </span>
                         <RelativeTime
-                          time={item.private_message.published}
+                          time={item.createdAt}
                           className="text-muted-foreground"
                         />
                       </div>
                       <span className="text-muted-foreground text-sm line-clamp-2">
-                        {removeMd(item.private_message.content)}
+                        {removeMd(item.body)}
                       </span>
                     </div>
                   </div>
