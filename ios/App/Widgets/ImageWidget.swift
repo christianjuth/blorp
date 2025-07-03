@@ -147,7 +147,7 @@ struct ImageProvider: AppIntentTimelineProvider {
     let sorts = ["TopDay", "TopWeek", "Hot"]
     for sort in sorts {
       logger.debug("Trying sort: \(sort)")
-      var comps = URLComponents(string: "https://lemm.ee/api/v3/post/list")
+      var comps = URLComponents(string: "https://lemmy.world/api/v3/post/list")
       comps?.queryItems = [
         URLQueryItem(name: "community_name", value: community),
         URLQueryItem(name: "sort", value: sort),
