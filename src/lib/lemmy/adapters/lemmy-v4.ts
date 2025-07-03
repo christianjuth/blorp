@@ -44,7 +44,7 @@ function convertCommunity(
 ): Schemas.Community {
   const { community } = communityView;
   return {
-    createdAt: communityView.community.published,
+    createdAt: communityView.community.published_at,
     id: communityView.community.id,
     apId: communityView.community.ap_id,
     slug: createSlug({ apId: community.ap_id, name: community.name }).slug,
@@ -83,7 +83,7 @@ function convertPerson({
     matrixUserId: person.matrix_user_id ?? null,
     slug: createSlug({ apId: person.ap_id, name: person.name }).slug,
     deleted: person.deleted,
-    createdAt: person.published,
+    createdAt: person.published_at,
     isBot: person.bot_account,
     postCount: person.post_count ?? null,
     commentCount: person?.comment_count ?? null,
@@ -101,7 +101,7 @@ function convertPost({
 >): Schemas.Post {
   return {
     id: post.id,
-    createdAt: post.published,
+    createdAt: post.published_at,
     apId: post.ap_id,
     title: post.name,
     body: post.body ?? null,
@@ -123,15 +123,15 @@ function convertPost({
     crossPosts: [],
     featuredCommunity: post.featured_community,
     featuredLocal: post.featured_local,
-    read: !!post_actions?.read,
-    saved: !!post_actions?.saved,
+    read: !!post_actions?.read_at,
+    saved: !!post_actions?.saved_at,
     nsfw: post.nsfw,
   };
 }
 function convertComment(commentView: lemmyV4.CommentView): Schemas.Comment {
   const { post, creator, comment, community } = commentView;
   return {
-    createdAt: comment.published,
+    createdAt: comment.published_at,
     id: comment.id,
     apId: comment.ap_id,
     body: comment.content,
@@ -160,6 +160,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
 
   private resolveObjectId = _.memoize(
     async (apId: string) => {
+      // @ts-expect-error
       const { post, comment, community, person } =
         await this.client.resolveObject({
           q: apId,
@@ -272,6 +273,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
   }
 
   async getPerson(form: Forms.GetPerson, options: RequestOptions) {
+    // @ts-expect-error
     const { person } = await this.client.resolveObject(
       {
         q: form.apId,
@@ -346,7 +348,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
   async search(form: Forms.Search, options: RequestOptions) {
     const { results, next_page } = await this.client.search(
       {
-        search_term: form.q,
+        q: form.q,
         page_cursor:
           form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
       },
@@ -363,7 +365,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     };
   }
 
-  async getCommunity(form: Forms.GetCommunity, options: RequestOptions) {
+  async getCommunity(form: Forms.GetCommunity, options?: RequestOptions) {
     const { community_view, moderators } = await this.client.getCommunity(
       {
         name: form.slug,
@@ -534,5 +536,135 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       }
       throw err;
     }
+  }
+
+  async getPrivateMessages(
+    form: Forms.GetPrivateMessages,
+    options: RequestOptions,
+  ) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async createPrivateMessage(
+    form: Forms.CreatePrivateMessage,
+  ): Promise<Schemas.PrivateMessage> {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async markPrivateMessageRead(form: Forms.MarkPrivateMessageRead) {
+    await this.client.markPrivateMessageAsRead({
+      private_message_id: form.id,
+      read: form.read,
+    });
+  }
+
+  async getReplies(form: Forms.GetReplies, options: RequestOptions) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async getMentions(form: Forms.GetReplies, options: RequestOptions) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async markReplyRead(form: Forms.MarkReplyRead) {
+    await this.client.markCommentReplyAsRead({
+      comment_reply_id: form.id,
+      read: form.read,
+    });
+  }
+
+  async markMentionRead(form: Forms.MarkMentionRead) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async createPost(form: Forms.CreatePost) {
+    const community = await this.getCommunity({
+      slug: form.communitySlug,
+    });
+
+    const { post_view } = await this.client.createPost({
+      alt_text: form.altText,
+      body: form.body ?? undefined,
+      community_id: community.community.id,
+      custom_thumbnail: form.thumbnailUrl ?? undefined,
+      name: form.title,
+      nsfw: form.nsfw ?? undefined,
+      url: form.url ?? undefined,
+    });
+
+    return convertPost(post_view);
+  }
+
+  async createPostReport(form: Forms.CreatePostReport) {
+    await this.client.createPostReport({
+      post_id: form.postId,
+      reason: form.reason,
+    });
+  }
+
+  async createCommentReport(form: Forms.CreateCommentReport) {
+    await this.client.createCommentReport({
+      comment_id: form.commentId,
+      reason: form.reason,
+    });
+  }
+
+  async blockPerson(form: Forms.BlockPerson): Promise<void> {
+    await this.client.blockPerson({
+      person_id: form.personId,
+      block: form.block,
+    });
+  }
+
+  async blockCommunity(form: Forms.BlockCommunity): Promise<void> {
+    await this.client.blockCommunity({
+      community_id: form.communityId,
+      block: form.block,
+    });
+  }
+
+  async uploadImage(form: Forms.UploadImage) {
+    const res = await this.client.uploadImage(form);
+    const fileId = res.filename;
+    if (!res.image_url && fileId) {
+      res.image_url = `${this.instance}/pictrs/image/${fileId}`;
+    }
+    return { url: res.image_url };
+  }
+
+  async getCaptcha(options: RequestOptions) {
+    const { ok } = await this.client.getCaptcha(options);
+    if (!ok) {
+      throw new Error("couldn't get captcha");
+    }
+    return {
+      uuid: ok.uuid,
+      audioUrl: ok.wav,
+      imgUrl: ok.png,
+    };
+  }
+
+  async register(form: Forms.Register) {
+    const { jwt, registration_created, verify_email_sent } =
+      await this.client.register({
+        username: form.username,
+        password: form.password,
+        password_verify: form.repeatPassword,
+        show_nsfw: form.showNsfw,
+        email: form.email,
+        captcha_uuid: form.captchaUuid,
+        captcha_answer: form.captchaAnswer,
+        answer: form.answer,
+      });
+    return {
+      jwt: jwt ?? null,
+      registrationCreated: registration_created,
+      verifyEmailSent: verify_email_sent,
+    };
   }
 }

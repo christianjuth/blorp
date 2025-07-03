@@ -10,6 +10,7 @@ export const INIT_PAGE_TOKEN = "INIT_PAGE_TOKEN";
 
 export const Errors = {
   MFA_REQUIRED: new Error("MFA_REQUIRED"),
+  NOT_IMPLEMENTED: new Error("NOT_IMPLEMENTED"),
 };
 
 const communitySlug = z.string();
@@ -245,7 +246,7 @@ export namespace Forms {
     showRead?: boolean;
     sort?: string;
     pageCursor?: string;
-    type?: ListingType;
+    type?: "All" | "Local" | "Subscribed" | "ModeratorView";
     communitySlug?: string;
     savedOnly?: boolean;
   };
@@ -290,7 +291,7 @@ export namespace Forms {
 
   export type GetCommunities = {
     sort?: string;
-    type?: ListingType;
+    type?: "All" | "Local" | "Subscribed" | "ModeratorView";
     pageCursor?: string;
   };
 
@@ -545,7 +546,7 @@ export abstract class ApiBlueprint<C> {
 
   abstract markPrivateMessageRead(
     form: Forms.MarkPrivateMessageRead,
-  ): Promise<Schemas.PrivateMessage>;
+  ): Promise<void>;
 
   abstract getReplies(
     form: Forms.GetReplies,
@@ -565,11 +566,9 @@ export abstract class ApiBlueprint<C> {
     nextCursor: string | null;
   }>;
 
-  abstract markReplyRead(form: Forms.MarkReplyRead): Promise<Schemas.Reply>;
+  abstract markReplyRead(form: Forms.MarkReplyRead): Promise<void>;
 
-  abstract markMentionRead(
-    form: Forms.MarkMentionRead,
-  ): Promise<Schemas.Mention>;
+  abstract markMentionRead(form: Forms.MarkMentionRead): Promise<void>;
 
   abstract createPost(form: Forms.CreatePost): Promise<Schemas.Post>;
 

@@ -682,13 +682,10 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
   }
 
   async markPrivateMessageRead(form: Forms.MarkPrivateMessageRead) {
-    const { private_message_view } = await this.client.markPrivateMessageAsRead(
-      {
-        private_message_id: form.id,
-        read: form.read,
-      },
-    );
-    return convertPrivateMessage(private_message_view);
+    await this.client.markPrivateMessageAsRead({
+      private_message_id: form.id,
+      read: form.read,
+    });
   }
 
   async getReplies(form: Forms.GetReplies, options: RequestOptions) {
@@ -749,20 +746,18 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
     };
   }
 
-  async markReplyRead(form: Forms.MarkReplyRead): Promise<Schemas.Reply> {
-    const { comment_reply_view } = await this.client.markCommentReplyAsRead({
+  async markReplyRead(form: Forms.MarkReplyRead) {
+    await this.client.markCommentReplyAsRead({
       comment_reply_id: form.id,
       read: form.read,
     });
-    return convertReply(comment_reply_view);
   }
 
-  async markMentionRead(form: Forms.MarkMentionRead): Promise<Schemas.Reply> {
-    const { person_mention_view } = await this.client.markPersonMentionAsRead({
+  async markMentionRead(form: Forms.MarkMentionRead) {
+    await this.client.markPersonMentionAsRead({
       person_mention_id: form.id,
       read: form.read,
     });
-    return convertMention(person_mention_view);
   }
 
   async createPost(form: Forms.CreatePost) {

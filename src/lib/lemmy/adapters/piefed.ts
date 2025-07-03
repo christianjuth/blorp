@@ -2,6 +2,7 @@ import _ from "lodash";
 import { env } from "@/src/env";
 import {
   ApiBlueprint,
+  Errors,
   Forms,
   INIT_PAGE_TOKEN,
   RequestOptions,
@@ -605,7 +606,7 @@ export class PieFedApi implements ApiBlueprint<null> {
     };
   }
 
-  async getCommunity(form: Forms.GetCommunity, options: RequestOptions) {
+  async getCommunity(form: Forms.GetCommunity, options?: RequestOptions) {
     if (!form.slug) {
       throw new Error("community slug required");
     }
@@ -925,5 +926,128 @@ export class PieFedApi implements ApiBlueprint<null> {
       console.log(err);
       throw err;
     }
+  }
+
+  async editPost(form: Forms.EditPost) {
+    const { post_id } = await this.resolveObjectId(form.apId);
+    const res = await this.put("/post", {
+      post_id,
+      title: form.title,
+      url: form.url,
+      body: form.body,
+      nsfw: form.nsfw,
+    });
+    const data = z.object({ post_view: pieFedPostViewSchema }).parse(res);
+    return convertPost(data.post_view);
+  }
+
+  async createPost(form: Forms.CreatePost) {
+    const { community } = await this.getCommunity({ slug: form.communitySlug });
+    const res = await this.post("/post", {
+      title: form.title,
+      community_id: community.id,
+      url: form.url,
+      body: form.body,
+      nsfw: form.nsfw,
+    });
+    const data = z.object({ post_view: pieFedPostViewSchema }).parse(res);
+    return convertPost(data.post_view);
+  }
+
+  async markPostRead(form: Forms.MarkPostRead) {
+    await this.post("/post/mark_as_read", {
+      post_ids: [form.postIds],
+      read: form.read,
+    });
+  }
+
+  async getPrivateMessages(
+    form: Forms.GetPrivateMessages,
+    options: RequestOptions,
+  ) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async createPrivateMessage(form: Forms.CreatePrivateMessage) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async markPrivateMessageRead(form: Forms.MarkPrivateMessageRead) {
+    throw Errors.NOT_IMPLEMENTED;
+  }
+
+  async featurePost(form: Forms.FeaturePost) {
+    const res = this.post("/post/feature", {
+      post_id: form.postId,
+      featured: form.featured,
+      feature_type: form.featureType,
+    });
+    const data = z.object({ post_view: pieFedPostViewSchema }).parse(res);
+    return convertPost(data.post_view);
+  }
+
+  async getReplies(form: Forms.GetReplies, option: RequestOptions) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async getMentions(form: Forms.GetMentions, options: RequestOptions) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async markReplyRead(form: Forms.MarkReplyRead) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async markMentionRead(form: Forms.MarkMentionRead) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async createPostReport(form: Forms.CreatePostReport) {
+    await this.post("/post/report", {
+      post_id: form.postId,
+      reason: form.reason,
+    });
+  }
+
+  async createCommentReport(form: Forms.CreateCommentReport) {
+    await this.post("/comment/report", {
+      comment_id: form.commentId,
+      reason: form.reason,
+    });
+  }
+
+  async blockPerson(form: Forms.BlockPerson) {
+    await this.post("/comment/report", {
+      person_id: form.personId,
+      block: form.block,
+    });
+  }
+
+  async blockCommunity(form: Forms.BlockCommunity) {
+    await this.post("/comment/report", {
+      community_id: form.communityId,
+      block: form.block,
+    });
+  }
+
+  async uploadImage(form: Forms.UploadImage) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async getCaptcha() {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
+  async register(form: Forms.Register) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
   }
 }
