@@ -44,6 +44,7 @@ import {
 import { apiClient } from "./adapters/client";
 import pTimeout from "p-timeout";
 import { SetOptional } from "type-fest";
+import { INSTANCES } from "./adapters/instances-data";
 
 enum Errors2 {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -636,9 +637,9 @@ function is2faError(err?: Error | null) {
 export function useSite({ instance }: { instance: string }) {
   return useQuery({
     queryKey: ["getSite", instance],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const api = await apiClient({ instance });
-      return await api.getSite();
+      return await api.getSite({ signal });
     },
   });
 }
@@ -1594,10 +1595,10 @@ export function useInstances() {
         "https://data.lemmyverse.net/data/instance.full.json",
         { signal },
       );
-      const data = await res.json();
+      const json = await res.json();
 
       try {
-        return z
+        const lemmy = z
           .array(
             z.object({
               name: z.string(),
@@ -1614,7 +1615,20 @@ export function useInstances() {
               nsfw: z.boolean().optional(),
             }),
           )
-          .parse(data);
+          .parse(json);
+
+        return _.uniqBy(
+          [
+            ...lemmy.map((item) => ({
+              baseUrl: item.baseurl,
+              url: item.url,
+              score: item.score,
+              software: "lemmy",
+            })),
+            ...INSTANCES,
+          ],
+          ({ url }) => url,
+        );
       } catch {
         return undefined;
       }

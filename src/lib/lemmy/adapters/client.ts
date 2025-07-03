@@ -26,7 +26,11 @@ export const apiClient = _.memoize(
     instance: string;
     jwt?: string;
   }): Promise<ApiBlueprint<any>> => {
-    instance = instance.replace(/\/$/, "");
+    instance = instance.replace(/\/$/, "").trim();
+
+    if (!instance.startsWith("https://") && !instance.startsWith("http://")) {
+      instance = "https://" + instance;
+    }
 
     const res = await fetch(`${instance}/nodeinfo/2.1`);
     const json = await res.json();

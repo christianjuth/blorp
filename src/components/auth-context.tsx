@@ -43,6 +43,7 @@ import { MdOutlineRefresh } from "react-icons/md";
 import { Textarea } from "./ui/textarea";
 import { MarkdownRenderer } from "./markdown/renderer";
 import { env } from "../env";
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 
 const AudioPlayButton = ({ src }: { src: string }) => {
   const [playing, setPlaying] = useState(false);
@@ -344,21 +345,43 @@ function AuthModal({
 
   const instances = useInstances();
 
-  const defaultSort = useMemo(
-    () =>
-      _.reverse(_.sortBy(instances.data, (i) => i.counts.users_active_month)),
-    [instances.data],
-  );
+  const [software, setSoftware] = useState<"lemmy" | "piefed">("lemmy");
+
+  const site = useSite({
+    instance: search,
+  });
+
+  const data = useMemo(() => {
+    const output = [...(instances.data ?? [])];
+    if (site.data) {
+      let url = search;
+      if (!url.startsWith("https://") && !url.startsWith("http://")) {
+        url = "https://" + url;
+      }
+      const baseUrl = new URL(url).host;
+      try {
+        output.push({
+          baseUrl,
+          url,
+          score: Infinity,
+          software: "",
+        });
+      } catch {}
+    }
+    return output.filter(
+      (item) => !item.software || item.software === software,
+    );
+  }, [instances.data, site.data, software]);
 
   const sortedInstances =
-    search && instances.data
+    search && data
       ? fuzzysort
-          .go(search, instances.data, {
+          .go(search, data, {
             keys: ["url", "name"],
             scoreFn: (r) => r.score * _.clamp(r.obj.score, 1, 10),
           })
           .map((r) => r.obj)
-      : undefined;
+      : data;
 
   const updateSelectedAccount = useAuth((a) => a.updateSelectedAccount);
   const addAccountFn = useAuth((a) => a.addAccount);
@@ -390,16 +413,6 @@ function AuthModal({
       submitLogin();
     }
   }, [mfaToken]);
-
-  useEffect(() => {
-    try {
-      const url = new URL(search);
-      setInstanceLocal({
-        url: `${url.protocol}//${url.host}/`,
-        baseurl: url.host,
-      });
-    } catch {}
-  }, [search]);
 
   const modal = useRef<HTMLIonModalElement>(null);
 
@@ -461,7 +474,7 @@ function AuthModal({
               className="px-4"
               estimatedItemSize={50}
               stickyHeaderIndices={[0]}
-              data={sortedInstances ?? defaultSort}
+              data={sortedInstances}
               header={[
                 <div
                   className="bg-background py-3 border-b-[.5px]"
@@ -471,11 +484,24 @@ function AuthModal({
                     Pick the server you created your account on
                   </IonHeader>
                   <Input
-                    placeholder="Enter URL or search for your server"
+                    placeholder="Search for your server or enter one thats not in the list"
                     onChange={(e) => setSearch(e.target.value)}
                     autoCapitalize="none"
                     autoCorrect="off"
+                    className="mb-3"
                   />
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    size="sm"
+                    value={software}
+                    onValueChange={(val) =>
+                      val && setSoftware(val as "lemmy" | "piefed")
+                    }
+                  >
+                    <ToggleGroupItem value="lemmy">Lemmy</ToggleGroupItem>
+                    <ToggleGroupItem value="piefed">PieFed</ToggleGroupItem>
+                  </ToggleGroup>
                 </div>,
               ]}
               renderItem={({ item: i }) => (
@@ -491,7 +517,7 @@ function AuthModal({
                   }}
                   className="py-2.5 text-lg border-b-[.5px] w-full text-start"
                 >
-                  <span>{i.baseurl}</span>
+                  <span>{i.baseUrl}</span>
                 </button>
               )}
             />
