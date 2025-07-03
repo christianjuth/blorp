@@ -5104,6 +5104,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tauri-apps/api@npm:^2.6.0":
+  version: 2.6.0
+  resolution: "@tauri-apps/api@npm:2.6.0"
+  checksum: 10c0/211353d951c7e3e5298f074ec762b5853ff0cdee261478c27db1e450fcf3d6f2c03a616483abbf9dfc79f13c6dfcfa7db0b790c1384c113951c0d694809f05ef
+  languageName: node
+  linkType: hard
+
 "@tauri-apps/plugin-deep-link@npm:~2":
   version: 2.2.0
   resolution: "@tauri-apps/plugin-deep-link@npm:2.2.0"
@@ -5158,12 +5165,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tauri-apps/plugin-updater@npm:~2":
-  version: 2.5.1
-  resolution: "@tauri-apps/plugin-updater@npm:2.5.1"
+"@tauri-apps/plugin-updater@npm:2.9.0":
+  version: 2.9.0
+  resolution: "@tauri-apps/plugin-updater@npm:2.9.0"
   dependencies:
-    "@tauri-apps/api": "npm:^2.0.0"
-  checksum: 10c0/d442eed03e774dcd601bc8ea6f00a24a1647c25765cfa0ea7f45b0e941587e633bc42ad38f5f1acfbcd7b82e4e69831b1088622189a4e22f3bb6da706d78e8fb
+    "@tauri-apps/api": "npm:^2.6.0"
+  checksum: 10c0/72ce83d1c241308a13b9929f0900e4d33453875877009166e3998e3e75a1003ac48c3641086b4d3230f0f18c64f475ad6c3556d1603fc641ca50dc9c18d61866
   languageName: node
   linkType: hard
 
@@ -10340,7 +10347,7 @@ __metadata:
     "@tauri-apps/plugin-opener": "npm:^2.2.5"
     "@tauri-apps/plugin-process": "npm:~2"
     "@tauri-apps/plugin-store": "npm:~2"
-    "@tauri-apps/plugin-updater": "npm:~2"
+    "@tauri-apps/plugin-updater": "npm:2.9.0"
     "@testing-library/react": "npm:^16.2.0"
     "@tiptap/core": "npm:^2.11.7"
     "@tiptap/extension-code-block-lowlight": "npm:^2.11.7"
