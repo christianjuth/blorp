@@ -10,6 +10,52 @@ import {
 } from "./api-blueprint";
 import { createSlug } from "../utils";
 import _ from "lodash";
+import z from "zod";
+
+const POST_SORTS: lemmyV4.PostSortType[] = [
+  "Hot",
+  "New",
+  "Old",
+  "Top",
+  "MostComments",
+  "NewComments",
+  "Controversial",
+  "Scaled",
+];
+const postSortSchema = z.custom<lemmyV4.PostSortType>((sort) => {
+  return _.isString(sort) && POST_SORTS.includes(sort as any);
+});
+
+const COMMENT_SORTS: lemmyV4.CommentSortType[] = [
+  "Hot",
+  "Top",
+  "New",
+  "Old",
+  "Controversial",
+];
+
+const commentSortSchema = z.custom<lemmyV4.CommentSortType>((sort) => {
+  return _.isString(sort) && COMMENT_SORTS.includes(sort as any);
+});
+
+const COMMUNITY_SORTS: lemmyV4.CommunitySortType[] = [
+  "ActiveSixMonths",
+  "ActiveMonthly",
+  "ActiveWeekly",
+  "ActiveDaily",
+  "Hot",
+  "New",
+  "Old",
+  "NameAsc",
+  "NameDesc",
+  "Comments",
+  "Posts",
+  "Subscribers",
+  "SubscribersLocal",
+] as const;
+const communitySortSchema = z.custom<lemmyV4.CommunitySortType>((sort) => {
+  return _.isString(sort) && COMMUNITY_SORTS.includes(sort as any);
+});
 
 function is2faError(err?: Error | null) {
   return err && err.message.includes("missing_totp_token");
@@ -323,10 +369,11 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
   }
 
   async getPosts(form: Forms.GetPosts, options: RequestOptions) {
+    const { data: sort } = postSortSchema.safeParse(form.sort);
     const posts = await this.client.getPosts(
       {
         show_read: form.showRead,
-        sort: form.sort as any,
+        sort,
         type_: form.type,
         page_cursor:
           form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
@@ -379,9 +426,10 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
   }
 
   async getCommunities(form: Forms.GetCommunities, options: RequestOptions) {
+    const { data: sort } = communitySortSchema.safeParse(form.sort);
     const { communities, next_page } = await this.client.listCommunities(
       {
-        sort: form.sort,
+        sort,
         type_: form.type,
         page_cursor:
           form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
@@ -440,10 +488,13 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       throw new Error("could not find post");
     }
 
+    const { data: sort } = commentSortSchema.safeParse(form.sort);
+
     const { comments, next_page } = await this.client.getComments(
       {
         post_id,
         type_: "All",
+        sort,
         limit: this.limit,
         max_depth: 6,
         page_cursor:
@@ -666,5 +717,17 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       registrationCreated: registration_created,
       verifyEmailSent: verify_email_sent,
     };
+  }
+
+  getPostSorts() {
+    return POST_SORTS;
+  }
+
+  getCommentSorts() {
+    return COMMENT_SORTS;
+  }
+
+  getCommunitySorts() {
+    return COMMUNITY_SORTS;
   }
 }

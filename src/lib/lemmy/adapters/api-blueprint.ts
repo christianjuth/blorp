@@ -587,4 +587,8 @@ export abstract class ApiBlueprint<C> {
   abstract getCaptcha(options: RequestOptions): Promise<Schemas.Captcha>;
 
   abstract register(form: Forms.Register): Promise<Schemas.Registration>;
+
+  abstract getPostSorts(): readonly string[];
+  abstract getCommentSorts(): readonly string[];
+  abstract getCommunitySorts(): readonly string[];
 }

@@ -1,10 +1,44 @@
 import { beforeEach, test, expect, describe } from "vitest";
 import * as lemmy from "@/test-utils/lemmy";
 import { createQueryClientWrapper } from "@/test-utils/tanstack-query";
-import { useComments, useCreateComment } from ".";
+import { useApiClients, useComments, useCreateComment } from ".";
 import { renderHook, waitFor } from "@testing-library/react";
 import { CommentResponse, GetCommentsResponse } from "lemmy-v3";
 import _ from "lodash";
+import { resetApiClients } from "./adapters/client";
+
+function mockNodeInfo() {
+  fetchMock.once(() =>
+    Promise.resolve({
+      status: 200,
+      body: JSON.stringify({
+        version: "2.1",
+        software: {
+          name: "lemmy",
+          version: "0.19.12-4-gd8445881a",
+          repository: "https://github.com/LemmyNet/lemmy",
+          homepage: "https://join-lemmy.org/",
+        },
+        protocols: ["activitypub"],
+        usage: {
+          users: {
+            total: 177052,
+            activeHalfyear: 29704,
+            activeMonth: 15883,
+          },
+          localPosts: 529064,
+          localComments: 5009935,
+        },
+        openRegistrations: true,
+        services: {
+          inbound: [],
+          outbound: [],
+        },
+        metadata: {},
+      }),
+    }),
+  );
+}
 
 function mockGetComments(length: number, parentId?: number) {
   const comments = Array.from({ length: length })
@@ -20,14 +54,27 @@ function mockGetComments(length: number, parentId?: number) {
       }),
     );
 
-  fetchMock.once(() =>
-    Promise.resolve({
-      status: 200,
-      body: JSON.stringify({
-        comments,
-      } satisfies GetCommentsResponse),
-    }),
-  );
+  fetchMock
+    .once(() =>
+      Promise.resolve({
+        status: 200,
+        body: JSON.stringify({
+          post: {
+            post: {
+              id: 123,
+            },
+          },
+        }),
+      }),
+    )
+    .once(() =>
+      Promise.resolve({
+        status: 200,
+        body: JSON.stringify({
+          comments,
+        } satisfies GetCommentsResponse),
+      }),
+    );
 
   return comments;
 }
@@ -51,6 +98,7 @@ function mockCreateComment(path: string) {
 }
 
 beforeEach(() => {
+  resetApiClients();
   fetchMock.resetMocks();
 });
 
@@ -59,10 +107,16 @@ describe("creating comments", () => {
     const queryClientWrapper = createQueryClientWrapper();
 
     const numComments = _.random(0, 10);
-    mockGetComments(numComments);
 
     const POST_AP_ID = "https://blorpblorp.xyz/p/123456789";
 
+    mockNodeInfo();
+    const apis = renderHook(() => useApiClients(), {
+      wrapper: queryClientWrapper,
+    });
+    await apis.result.current.api;
+
+    mockGetComments(numComments);
     const allComments = renderHook(
       () =>
         useComments({
@@ -78,9 +132,12 @@ describe("creating comments", () => {
     });
 
     await waitFor(() => {
-      expect(
-        allComments.result.current.data?.pages.flatMap((p) => p.comments),
-      ).toHaveLength(numComments);
+      if (
+        allComments.result.current.data?.pages.flatMap((p) => p.comments)
+          .length !== numComments
+      ) {
+        throw true;
+      }
     });
 
     const NEW_COMMENT_PATH = "0.1234";
@@ -106,6 +163,12 @@ describe("creating comments", () => {
   test("create reply comment", async () => {
     const queryClientWrapper = createQueryClientWrapper();
 
+    mockNodeInfo();
+    const apis = renderHook(() => useApiClients(), {
+      wrapper: queryClientWrapper,
+    });
+    await apis.result.current.api;
+
     const numComments = _.random(1, 10);
     const [parentComment] = mockGetComments(numComments);
     if (!parentComment) {
@@ -129,9 +192,12 @@ describe("creating comments", () => {
     });
 
     await waitFor(() => {
-      expect(
-        allComments.result.current.data?.pages.flatMap((p) => p.comments),
-      ).toHaveLength(numComments);
+      if (
+        allComments.result.current.data?.pages.flatMap((p) => p.comments)
+          .length !== numComments
+      ) {
+        throw true;
+      }
     });
 
     const parentPath = parentComment.comment.path;
@@ -160,6 +226,12 @@ describe("creating comments", () => {
   test("create reply comment while in thread", async () => {
     const queryClientWrapper = createQueryClientWrapper();
 
+    mockNodeInfo();
+    const apis = renderHook(() => useApiClients(), {
+      wrapper: queryClientWrapper,
+    });
+    await apis.result.current.api;
+
     const POST_AP_ID = "https://blorpblorp.xyz/p/123456789";
     const PARENT_ID = 4567;
 
@@ -186,9 +258,12 @@ describe("creating comments", () => {
     });
 
     await waitFor(() => {
-      expect(
-        allComments.result.current.data?.pages.flatMap((p) => p.comments),
-      ).toHaveLength(numComments);
+      if (
+        allComments.result.current.data?.pages.flatMap((p) => p.comments)
+          .length !== numComments
+      ) {
+        throw true;
+      }
     });
 
     const parentPath = parentComment.comment.path;

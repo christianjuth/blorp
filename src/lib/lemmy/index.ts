@@ -55,7 +55,7 @@ const DEFAULT_HEADERS = {
   "User-Agent": env.REACT_APP_NAME.toLowerCase(),
 };
 
-function useApiClients() {
+export function useApiClients() {
   const accountIndex = useAuth((s) => s.accountIndex);
   const accounts = useAuth((s) => s.accounts);
 

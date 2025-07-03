@@ -10,10 +10,75 @@ import {
 } from "./api-blueprint";
 import { createSlug } from "../utils";
 import _ from "lodash";
+import z from "zod";
 
 function is2faError(err?: Error | null) {
   return err && err.message.includes("missing_totp_token");
 }
+
+const POST_SORTS: lemmyV3.PostSortType[] = [
+  "Active",
+  "Hot",
+  "New",
+  "Old",
+  "TopDay",
+  "TopWeek",
+  "TopMonth",
+  "TopYear",
+  "TopAll",
+  "MostComments",
+  "NewComments",
+  "TopHour",
+  "TopSixHour",
+  "TopTwelveHour",
+  "TopThreeMonths",
+  "TopSixMonths",
+  "TopNineMonths",
+  "Controversial",
+  "Scaled",
+];
+const postSortSchema = z.custom<lemmyV3.PostSortType>((sort) => {
+  return _.isString(sort) && POST_SORTS.includes(sort as any);
+});
+
+const COMMENT_SORTS: lemmyV3.CommentSortType[] = [
+  "Hot",
+  "Top",
+  "New",
+  "Old",
+  "Controversial",
+];
+
+const commentSortSchema = z.custom<lemmyV3.CommentSortType>((sort) => {
+  return _.isString(sort) && COMMENT_SORTS.includes(sort as any);
+});
+
+const COMMUNITY_SORTS: lemmyV3.CommunitySortType[] = [
+  "Active",
+  "Hot",
+  "New",
+  "Old",
+  "TopDay",
+  "TopWeek",
+  "TopMonth",
+  "TopYear",
+  "TopAll",
+  "MostComments",
+  "NewComments",
+  "TopHour",
+  "TopSixHour",
+  "TopTwelveHour",
+  "TopThreeMonths",
+  "TopSixMonths",
+  "TopNineMonths",
+  "Controversial",
+  "Scaled",
+  "NameAsc",
+  "NameDesc",
+] as const;
+const communitySortSchema = z.custom<lemmyV3.CommunitySortType>((sort) => {
+  return _.isString(sort) && COMMUNITY_SORTS.includes(sort as any);
+});
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -330,10 +395,12 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
   }
 
   async getPosts(form: Forms.GetPosts, options: RequestOptions) {
+    const { data: sort } = postSortSchema.safeParse(form.sort);
+
     const posts = await this.client.getPosts(
       {
         show_read: form.showRead,
-        sort: form.sort as any,
+        sort,
         type_: form.type,
         page_cursor:
           form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
@@ -474,9 +541,10 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
   }
 
   async getCommunities(form: Forms.GetCommunities, options: RequestOptions) {
+    const { data: sort } = communitySortSchema.safeParse(form.sort);
     const { communities } = await this.client.listCommunities(
       {
-        sort: form.sort,
+        sort,
         type_: form.type,
         limit: this.limit,
         page:
@@ -546,8 +614,11 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       throw new Error("could not find post");
     }
 
+    const { data: sort } = commentSortSchema.safeParse(form.sort);
+
     const { comments } = await this.client.getComments(
       {
+        sort,
         post_id,
         type_: form.type,
         limit: this.limit,
@@ -851,5 +922,17 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       registrationCreated: registration_created,
       verifyEmailSent: verify_email_sent,
     };
+  }
+
+  getPostSorts() {
+    return POST_SORTS;
+  }
+
+  getCommentSorts() {
+    return COMMENT_SORTS;
+  }
+
+  getCommunitySorts() {
+    return COMMUNITY_SORTS;
   }
 }

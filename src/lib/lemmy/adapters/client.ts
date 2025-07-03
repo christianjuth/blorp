@@ -12,6 +12,12 @@ const nodeInfoSchema = z.object({
   }),
 });
 
+let baseKey = 0;
+
+export const resetApiClients = () => {
+  baseKey++;
+};
+
 export const apiClient = _.memoize(
   async ({
     instance,
@@ -43,6 +49,6 @@ export const apiClient = _.memoize(
     // throw new Error("no compatable api for instance");
   },
   (params) => {
-    return params.instance + params.jwt;
+    return params.instance + params.jwt + baseKey;
   },
 );

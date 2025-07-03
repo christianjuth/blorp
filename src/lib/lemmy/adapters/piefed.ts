@@ -11,6 +11,46 @@ import {
 import z from "zod";
 import { createSlug } from "../utils";
 
+const POST_SORTS = [
+  "Active",
+  "Hot",
+  "New",
+  "TopHour",
+  "TopSixHour",
+  "TopTwelveHour",
+  "TopDay",
+  "TopWeek",
+  "TopMonth",
+  "Scaled",
+] as const;
+const postSortSchema = z.custom<(typeof POST_SORTS)[number]>((sort) => {
+  return _.isString(sort) && POST_SORTS.includes(sort as any);
+});
+
+const COMMENT_SORTS = ["Hot", "Top", "New", "Old"] as const;
+
+const commentSortSchema = z.custom<(typeof COMMENT_SORTS)[number]>((sort) => {
+  return _.isString(sort) && COMMENT_SORTS.includes(sort as any);
+});
+
+const COMMUNITY_SORTS = [
+  "Active",
+  "Hot",
+  "New",
+  "TopHour",
+  "TopSixHour",
+  "TopTwelveHour",
+  "TopDay",
+  "TopWeek",
+  "TopMonth",
+  "Scaled",
+] as const;
+const communitySortSchema = z.custom<(typeof COMMUNITY_SORTS)[number]>(
+  (sort) => {
+    return _.isString(sort) && COMMUNITY_SORTS.includes(sort as any);
+  },
+);
+
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
   // User-Agent header is not present
@@ -552,13 +592,14 @@ export class PieFedApi implements ApiBlueprint<null> {
   }
 
   async getPosts(form: Forms.GetPosts, options: RequestOptions) {
+    const { data: sort } = postSortSchema.safeParse(form.sort);
     const json = await this.get(
       "/post/list",
       {
         limit: this.limit,
         page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         community_name: form.communitySlug,
-        sort: form.sort,
+        sort,
         type_: form.type,
       },
       options,
@@ -583,12 +624,13 @@ export class PieFedApi implements ApiBlueprint<null> {
   }
 
   async getCommunities(form: Forms.GetCommunities, options: RequestOptions) {
+    const { data: sort } = communitySortSchema.safeParse(form.sort);
     const json = await this.get(
       "/community/list",
       {
         limit: this.limit,
         page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
-        sort: form.sort,
+        sort,
         type_: form.type,
       },
       options,
@@ -723,6 +765,8 @@ export class PieFedApi implements ApiBlueprint<null> {
     creators: Schemas.Person[];
     nextCursor: string | null;
   }> {
+    const { data: sort } = commentSortSchema.safeParse(form.sort);
+
     const post_id = form.postApId
       ? (await this.resolveObjectId(form.postApId)).post_id
       : undefined;
@@ -731,7 +775,7 @@ export class PieFedApi implements ApiBlueprint<null> {
       "/comment/list",
       {
         limit: this.limit,
-        sort: form.sort,
+        sort,
         page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         parent_id: form.parentId,
         post_id,
@@ -1049,5 +1093,17 @@ export class PieFedApi implements ApiBlueprint<null> {
   async register(form: Forms.Register) {
     throw Errors.NOT_IMPLEMENTED;
     return {} as any;
+  }
+
+  getPostSorts() {
+    return POST_SORTS;
+  }
+
+  getCommentSorts() {
+    return COMMENT_SORTS;
+  }
+
+  getCommunitySorts() {
+    return COMMUNITY_SORTS;
   }
 }
