@@ -117,7 +117,7 @@ export const useCommentsStore = create<SortsStore>()(
     {
       name: "comments",
       storage: createStorage<SortsStore>(),
-      version: 2,
+      version: 3,
       onRehydrateStorage: () => {
         return (state) => {
           state?.cleanup();

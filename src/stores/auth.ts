@@ -220,7 +220,7 @@ export const useAuth = create<AuthStore>()(
     {
       name: "auth",
       storage: createStorage<AuthStore>(),
-      version: 1.3,
+      version: 2,
       migrate: (state) => {
         return storeSchema.parse(state) as AuthStore;
       },
