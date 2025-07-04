@@ -1,9 +1,9 @@
-import { CommentSortType, CommunitySortType, PostSortType } from "lemmy-v3";
 import { useFiltersStore } from "@/src/stores/filters";
 import { useMemo } from "react";
 import { useAuth } from "../stores/auth";
 import { useMedia } from "../lib/hooks";
 import { ActionMenu, ActionMenuProps } from "./adaptable/action-menu";
+import _ from "lodash";
 
 import { TbArrowsDownUp, TbMessageCircle } from "react-icons/tb";
 import { LuClock3, LuCalendarArrowUp } from "react-icons/lu";
@@ -19,8 +19,47 @@ import { PiFireSimpleBold } from "react-icons/pi";
 import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
+import { useAvailableSorts } from "../lib/lemmy";
 
-function getIconCommunitySort(sort: CommunitySortType) {
+function humanizeText(str: string) {
+  return str.replace(/([a-z])([A-Z])/g, "$1 $2");
+}
+
+function groupByFirstWord(arr: string[] | readonly string[]) {
+  return (
+    _.chain(arr)
+      // 1) map each string to { prefix, remainder, original }
+      .map((str) => {
+        // split just before each capital letter
+        const parts = str.split(/(?=[A-Z])/);
+        const prefix = parts[0];
+        // if there was more than one part, join the rest back together
+        const remainder = parts.length > 1 ? parts.slice(1).join("") : null;
+        return { prefix, remainder, original: str };
+      })
+      // 2) group by that first word
+      .groupBy("prefix")
+      // 3) rebuild: singletons → string, multiples → [ prefix, [remainders…] ]
+      .map((group, prefix) => {
+        if (group.length === 1 && group[0]?.remainder === null) {
+          // only one and it had no “rest” → leave it as the original
+          return group[0].original;
+        } else {
+          // multiple items (or one with a remainder) → collect the remainders
+          const items = group.map(
+            (item) =>
+              // use the remainder if it exists, otherwise fall back to the full original
+              item.remainder || item.original,
+          );
+          return [prefix, items] as const;
+        }
+      })
+      // 4) get the final array
+      .value()
+  );
+}
+
+function getIconCommunitySort(sort: string) {
   if (sort.startsWith("Top")) {
     return <LuCalendarArrowUp />;
   }
@@ -55,131 +94,31 @@ export function CommunitySortSelect() {
   const communitySort = useFiltersStore((s) => s.communitySort);
   const setCommunitySort = useFiltersStore((s) => s.setCommunitySort);
 
-  const actions: ActionMenuProps<CommunitySortType>["actions"] = useMemo(
-    () => [
-      {
-        text: "Active",
-        value: "Active",
-        onClick: () => setCommunitySort("Active"),
-      },
-      {
-        text: "Hot",
-        value: "Hot",
-        onClick: () => setCommunitySort("Hot"),
-      },
-      {
-        text: "New",
-        value: "New",
-        onClick: () => setCommunitySort("New"),
-      },
-      {
-        text: "Old",
-        value: "Old",
-        onClick: () => setCommunitySort("Old"),
-      },
-      {
-        text: "Top",
-        actions: [
-          {
-            text: "Hour",
-            value: "TopHour",
-            onClick: () => setCommunitySort("TopHour"),
-          },
-          {
-            text: "6 Hours",
-            value: "TopSixHour",
-            onClick: () => setCommunitySort("TopSixHour"),
-          },
-          {
-            text: "12 Hours",
-            value: "TopTwelveHour",
-            onClick: () => setCommunitySort("TopTwelveHour"),
-          },
-          {
-            text: "Day",
-            value: "TopDay",
-            onClick: () => setCommunitySort("TopDay"),
-          },
-          {
-            text: "Week",
-            value: "TopWeek",
-            onClick: () => setCommunitySort("TopWeek"),
-          },
-          {
-            text: "Month",
-            value: "TopMonth",
-            onClick: () => setCommunitySort("TopMonth"),
-          },
-          {
-            text: "3 Months",
-            value: "TopThreeMonths",
-            onClick: () => setCommunitySort("TopThreeMonths"),
-          },
-          {
-            text: "6 Months",
-            value: "TopSixMonths",
-            onClick: () => setCommunitySort("TopSixMonths"),
-          },
-          {
-            text: "9 Months",
-            value: "TopNineMonths",
-            onClick: () => setCommunitySort("TopNineMonths"),
-          },
-          {
-            text: "Year",
-            value: "TopYear",
-            onClick: () => setCommunitySort("TopYear"),
-          },
-          {
-            text: "All Time",
-            value: "TopAll",
-            onClick: () => setCommunitySort("TopAll"),
-          },
-        ],
-      },
-      {
-        text: "Comments",
-        actions: [
-          {
-            text: "Most",
-            value: "MostComments",
-            onClick: () => setCommunitySort("MostComments"),
-          },
-          {
-            text: "New",
-            value: "NewComments",
-            onClick: () => setCommunitySort("NewComments"),
-          },
-        ],
-      },
-      {
-        text: "Controversial",
-        value: "Controversial",
-        onClick: () => setCommunitySort("Controversial"),
-      },
-      {
-        text: "Scaled",
-        value: "Scaled",
-        onClick: () => setCommunitySort("Scaled"),
-      },
-      {
-        text: "Name",
-        actions: [
-          {
-            text: "Asc",
-            value: "NameAsc",
-            onClick: () => setCommunitySort("NameAsc"),
-          },
-          {
-            text: "Desc",
-            value: "NameDesc",
-            onClick: () => setCommunitySort("NameDesc"),
-          },
-        ],
-      },
-    ],
-    [],
-  );
+  const data = useAvailableSorts().data;
+
+  const actions: ActionMenuProps<string>["actions"] = useMemo(() => {
+    if (data) {
+      return groupByFirstWord(data.communitySorts).map((item) =>
+        _.isString(item)
+          ? {
+              text: humanizeText(item),
+              value: item,
+              onClick: () => setCommunitySort(item),
+            }
+          : {
+              text: humanizeText(item[0]),
+              value: item[0],
+              actions: item[1].map((subItem) => ({
+                text: humanizeText(subItem),
+                value: item[0] + subItem,
+                onClick: () => setCommunitySort(item[0] + subItem),
+              })),
+            },
+      );
+    }
+
+    return [];
+  }, [data]);
 
   return (
     <ActionMenu
@@ -189,14 +128,18 @@ export function CommunitySortSelect() {
       selectedValue={communitySort}
       trigger={
         <div className="text-xl text-muted-foreground">
-          {getIconCommunitySort(communitySort)}
+          {data?.communitySorts.includes(communitySort) ? (
+            getIconCommunitySort(communitySort)
+          ) : (
+            <TbArrowsDownUp />
+          )}
         </div>
       }
     />
   );
 }
 
-function getIconCommentSort(sort: CommentSortType) {
+function getIconCommentSort(sort: string) {
   switch (sort) {
     case "Top":
       return <LuCalendarArrowUp />;
@@ -217,43 +160,37 @@ export function CommentSortSelect({ className }: { className?: string }) {
   const commentSort = useFiltersStore((s) => s.commentSort);
   const setCommentSort = useFiltersStore((s) => s.setCommentSort);
 
-  const COMMENT_SORT_OPTIONS: ActionMenuProps<CommentSortType>["actions"] =
-    useMemo(
-      () => [
-        {
-          text: "Hot",
-          onClick: () => setCommentSort("Hot"),
-          value: "Hot",
-        },
-        {
-          text: "Top",
-          onClick: () => setCommentSort("Top"),
-          value: "Top",
-        },
-        {
-          text: "New",
-          onClick: () => setCommentSort("New"),
-          value: "New",
-        },
-        {
-          text: "Controversial",
-          onClick: () => setCommentSort("Controversial"),
-          value: "Controversial",
-        },
-        {
-          text: "Old",
-          onClick: () => setCommentSort("Old"),
-          value: "Old",
-        },
-      ],
-      [],
-    );
+  const data = useAvailableSorts().data;
+
+  const actions: ActionMenuProps<string>["actions"] = useMemo(() => {
+    if (data) {
+      return groupByFirstWord(data.commentSorts).map((item) =>
+        _.isString(item)
+          ? {
+              text: humanizeText(item),
+              value: item,
+              onClick: () => setCommentSort(item),
+            }
+          : {
+              text: humanizeText(item[0]),
+              value: item[0],
+              actions: item[1].map((subItem) => ({
+                text: humanizeText(subItem),
+                value: item[0] + subItem,
+                onClick: () => setCommentSort(item[0] + subItem),
+              })),
+            },
+      );
+    }
+
+    return [];
+  }, [data]);
 
   return (
     <ActionMenu
       align="start"
       header="Comment Sort"
-      actions={COMMENT_SORT_OPTIONS}
+      actions={actions}
       selectedValue={commentSort}
       trigger={
         <Button
@@ -267,7 +204,8 @@ export function CommentSortSelect({ className }: { className?: string }) {
         >
           <div>
             Sort
-            {getIconCommentSort(commentSort)}
+            {data?.commentSorts.includes(commentSort) &&
+              getIconCommentSort(commentSort)}
           </div>
         </Button>
       }
@@ -275,7 +213,7 @@ export function CommentSortSelect({ className }: { className?: string }) {
   );
 }
 
-function getIconForSort(sort: PostSortType) {
+function getIconForSort(sort: string) {
   if (sort.startsWith("Top")) {
     return <LuCalendarArrowUp />;
   }
@@ -318,115 +256,41 @@ export function PostSortButton({
 
   const media = useMedia();
 
-  const actions: ActionMenuProps<PostSortType>["actions"] = useMemo(
-    () => [
-      {
-        text: "Active",
-        value: "Active",
-        onClick: () => setPostSort("Active"),
-      },
-      {
-        text: "Hot",
-        value: "Hot",
-        onClick: () => setPostSort("Hot"),
-      },
-      {
-        text: "Top",
-        actions: [
-          {
-            text: "Hour",
-            value: "TopHour",
-            onClick: () => setPostSort("TopHour"),
-          },
-          {
-            text: "6 Hours",
-            value: "TopSixHour",
-            onClick: () => setPostSort("TopSixHour"),
-          },
-          {
-            text: "12 Hours",
-            value: "TopTwelveHour",
-            onClick: () => setPostSort("TopTwelveHour"),
-          },
-          {
-            text: "Day",
-            value: "TopDay",
-            onClick: () => setPostSort("TopDay"),
-          },
-          {
-            text: "Week",
-            value: "TopWeek",
-            onClick: () => setPostSort("TopWeek"),
-          },
-          {
-            text: "Month",
-            value: "TopMonth",
-            onClick: () => setPostSort("TopMonth"),
-          },
-          {
-            text: "3 Months",
-            value: "TopThreeMonths",
-            onClick: () => setPostSort("TopThreeMonths"),
-          },
-          {
-            text: "6 Months",
-            value: "TopSixMonths",
-            onClick: () => setPostSort("TopSixMonths"),
-          },
-          {
-            text: "9 Months",
-            value: "TopNineMonths",
-            onClick: () => setPostSort("TopNineMonths"),
-          },
-          {
-            text: "Year",
-            value: "TopYear",
-            onClick: () => setPostSort("TopYear"),
-          },
-          {
-            text: "All Time",
-            value: "TopAll",
-            onClick: () => setPostSort("TopAll"),
-          },
-        ],
-      },
-      {
-        text: "New",
-        value: "New",
-        onClick: () => setPostSort("New"),
-      },
-      {
-        text: "Controversial",
-        value: "Controversial",
-        onClick: () => setPostSort("Controversial"),
-      },
-      {
-        text: "Scaled",
-        value: "Scaled",
-        onClick: () => setPostSort("Scaled"),
-      },
-      {
-        text: "Most Comments",
-        value: "MostComments",
-        onClick: () => setPostSort("MostComments"),
-      },
-      {
-        text: "New Comments",
-        value: "NewComments",
-        onClick: () => setPostSort("NewComments"),
-      },
-      {
-        text: "Old",
-        value: "Old",
-        onClick: () => setPostSort("Old"),
-      },
-    ],
-    [],
-  );
+  const data = useAvailableSorts().data;
+
+  const actions: ActionMenuProps<string>["actions"] = useMemo(() => {
+    if (data) {
+      return groupByFirstWord(data.postSorts).map((item) =>
+        _.isString(item)
+          ? {
+              text: humanizeText(item),
+              value: item,
+              onClick: () => setPostSort(item),
+            }
+          : {
+              text: humanizeText(item[0]),
+              value: item[0],
+              actions: item[1].map((subItem) => ({
+                text: humanizeText(subItem),
+                value: item[0] + subItem,
+                onClick: () => setPostSort(item[0] + subItem),
+              })),
+            },
+      );
+    }
+
+    return [];
+  }, [data]);
 
   if (hideOnGtMd && media.md) {
     return null;
   }
+
+  const isValidSort = data?.postSorts.includes(postSort);
+
+  const sortLabel = actions.find(
+    (sort) => sort.value && postSort.startsWith(sort.value),
+  )?.text;
 
   return (
     <ActionMenu
@@ -438,12 +302,12 @@ export function PostSortButton({
       trigger={
         variant === "button" ? (
           <Button size="sm" variant="outline" className={className}>
-            {postSort}
-            {getIconForSort(postSort)}
+            {sortLabel ?? "Sort"}
+            {isValidSort && getIconForSort(postSort)}
           </Button>
         ) : (
           <div className={cn("text-xl text-muted-foreground", className)}>
-            {getIconForSort(postSort)}
+            {isValidSort && getIconForSort(postSort)}
           </div>
         )
       }

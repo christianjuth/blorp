@@ -1,20 +1,15 @@
-import {
-  CommunitySortType,
-  CommentSortType,
-  ListingType,
-  PostSortType,
-} from "lemmy-v3";
+import { ListingType, PostSortType } from "lemmy-v3";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 
 type SortsStore = {
-  communitySort: CommunitySortType;
-  setCommunitySort: (sort: CommunitySortType) => void;
-  commentSort: CommentSortType;
-  setCommentSort: (sort: CommentSortType) => void;
-  postSort: PostSortType;
-  setPostSort: (sort: PostSortType) => void;
+  communitySort: string;
+  setCommunitySort: (sort: string) => void;
+  commentSort: string;
+  setCommentSort: (sort: string) => void;
+  postSort: string;
+  setPostSort: (sort: string) => void;
   listingType: ListingType;
   setListingType: (type: ListingType) => void;
   communitiesListingType: ListingType;

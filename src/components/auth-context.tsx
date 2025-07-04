@@ -368,7 +368,7 @@ function AuthModal({
         });
       } catch {}
     }
-    return output.filter(
+    return _.uniqBy(output, ({ baseUrl }) => baseUrl).filter(
       (item) => !item.software || item.software === software,
     );
   }, [instances.data, site.data, software]);

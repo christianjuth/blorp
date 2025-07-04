@@ -1004,7 +1004,11 @@ export function useCreateComment() {
       queryKeyParentId,
       ...form
     }: CreateComment) => {
-      return await (await api).createComment(form);
+      const newComment = await (await api).createComment(form);
+      return {
+        newComment,
+        sorts: (await api).getCommentSorts(),
+      };
     },
     onMutate: ({ postApId, parentPath, body, queryKeyParentId }) => {
       const date = new Date();
@@ -1033,78 +1037,59 @@ export function useCreateComment() {
 
       cacheComments(getCachePrefixer(), [newComment]);
 
-      const SORTS = new Set<CommentSortType>([
-        commentSort,
-        "Hot",
-        "Top",
-        "New",
-        "Old",
-        "Controversial",
-      ]);
+      const form: Forms.GetComments = {
+        postApId,
+        parentId: queryKeyParentId,
+        sort: commentSort,
+      };
 
-      for (const sort of Array.from(SORTS)) {
-        const form: Forms.GetComments = {
-          postApId,
-          parentId: queryKeyParentId,
-          sort,
-        };
+      let comments = queryClient.getQueryData<
+        InfiniteData<
+          {
+            comments: {
+              path: string;
+              postId: number;
+              creatorId: number;
+              createdAt: string;
+            }[];
+            nextPage: number | null;
+          },
+          unknown
+        >
+      >(getCommentsKey(form));
 
-        let comments = queryClient.getQueryData<
-          InfiniteData<
-            {
-              comments: {
-                path: string;
-                postId: number;
-                creatorId: number;
-                createdAt: string;
-              }[];
-              nextPage: number | null;
-            },
-            unknown
-          >
-        >(getCommentsKey(form));
-
-        if (!comments) {
-          continue;
-        }
-
-        comments = _.cloneDeep(comments);
-
-        const firstPage = comments.pages[0];
-        if (firstPage) {
-          firstPage.comments.unshift({
-            path: newComment.path,
-            creatorId: newComment.creatorId,
-            postId: newComment.postId,
-            createdAt: newComment.createdAt,
-          });
-        }
-
-        queryClient.setQueryData(getCommentsKey(form), comments);
+      if (!comments) {
+        return;
       }
+
+      comments = _.cloneDeep(comments);
+
+      const firstPage = comments.pages[0];
+      if (firstPage) {
+        firstPage.comments.unshift({
+          path: newComment.path,
+          creatorId: newComment.creatorId,
+          postId: newComment.postId,
+          createdAt: newComment.createdAt,
+        });
+      }
+
+      queryClient.setQueryData(getCommentsKey(form), comments);
 
       return newComment;
     },
-    onSuccess: (res, { postApId, queryKeyParentId }, ctx) => {
+    onSuccess: ({ newComment, sorts }, { postApId, queryKeyParentId }, ctx) => {
       const settledComment = {
-        path: res.path,
-        creatorId: res.creatorId,
-        postId: res.postId,
-        createdAt: res.createdAt,
+        path: newComment.path,
+        creatorId: newComment.creatorId,
+        postId: newComment.postId,
+        createdAt: newComment.createdAt,
       };
 
-      const SORTS: CommentSortType[] = [
-        "Hot",
-        "Top",
-        "New",
-        "Old",
-        "Controversial",
-      ];
-
       markCommentForRemoval(ctx.path, getCachePrefixer());
-      cacheComments(getCachePrefixer(), [res]);
+      cacheComments(getCachePrefixer(), [newComment]);
 
-      sort: for (const sort of SORTS) {
+      sort: for (const sort of sorts) {
         const form: Forms.GetComments = {
           postApId,
           parentId: queryKeyParentId,
@@ -2081,4 +2066,18 @@ export function useModeratingCommunities() {
     () => _.sortBy(subscribedCommunities ?? [], (c) => c.slug),
     [subscribedCommunities],
   );
+}
+
+export function useAvailableSorts() {
+  const { api, queryKeyPrefix } = useLemmyClient();
+  return useQuery({
+    queryKey: [queryKeyPrefix, "availableSorts"],
+    queryFn: async () => {
+      return {
+        commentSorts: (await api).getCommentSorts(),
+        postSorts: (await api).getPostSorts(),
+        communitySorts: (await api).getCommentSorts(),
+      };
+    },
+  });
 }
