@@ -2070,7 +2070,7 @@ export function useAvailableSorts() {
       return {
         commentSorts: (await api).getCommentSorts(),
         postSorts: (await api).getPostSorts(),
-        communitySorts: (await api).getCommentSorts(),
+        communitySorts: (await api).getCommunitySorts(),
       };
     },
   });

@@ -73,7 +73,7 @@ export const pieFedCommunitySchema = z.object({
   updated: z.string(),
 });
 
-export const pieFedCountsSchema = z.object({
+export const pieFedPostCountsSchema = z.object({
   comments: z.number(),
   downvotes: z.number(),
   newest_comment_time: z.string(),
@@ -133,7 +133,7 @@ export const pieFedPostViewSchema = z.object({
   activity_alert: z.boolean(),
   banned_from_community: z.boolean(),
   community: pieFedCommunitySchema,
-  counts: pieFedCountsSchema,
+  counts: pieFedPostCountsSchema,
   creator: pieFedPersonSchema,
   creator_banned_from_community: z.boolean(),
   creator_is_admin: z.boolean(),
@@ -153,6 +153,10 @@ export const pieFedCommunityCountsSchema = z.object({
   post_reply_count: z.number(),
   published: z.string(),
   subscriptions_count: z.number(),
+  active_6monthly: z.number().optional(),
+  active_daily: z.number().optional(),
+  active_monthly: z.number().optional(),
+  active_weekly: z.number().optional(),
 });
 
 export const pieFedCommunityViewSchema = z.object({
@@ -344,6 +348,10 @@ function convertCommunity(
           commentCount: counts.post_reply_count,
           subscriberCount: counts.subscriptions_count,
           subscribersLocalCount: counts.subscriptions_count,
+          usersActiveHalfYearCount: counts.active_6monthly,
+          usersActiveDayCount: counts.active_daily,
+          usersActiveMonthCount: counts.active_monthly,
+          usersActiveWeekCount: counts.active_weekly,
         }
       : {}),
     ...(subscribed
