@@ -5,6 +5,7 @@ import _ from "lodash";
 import { env } from "../env";
 import z from "zod";
 import { siteSchema } from "../lib/lemmy/adapters/api-blueprint";
+import { v4 as uuid } from "uuid";
 
 export type CacheKey = `cache_${string}`;
 export type CachePrefixer = (cacheKey: string) => CacheKey;
@@ -26,11 +27,13 @@ const accountSchema = z.union([
   z.object({
     instance: z.string(),
     jwt: z.string().optional(),
+    uuid: z.string().optional(),
   }),
   z.object({
     instance: z.string(),
     jwt: z.string().optional(),
     site: siteSchema,
+    uuid: z.string().optional(),
   }),
 ]);
 
@@ -76,8 +79,9 @@ export function parseAccountInfo(account: Account) {
   }
 }
 
-function getNewAccount() {
+function getNewAccount(): Account {
   return {
+    uuid: uuid(),
     instance: env.REACT_APP_DEFAULT_INSTANCE,
   };
 }
@@ -116,6 +120,7 @@ export const useAuth = create<AuthStore>()(
         const accounts = [
           ...get().accounts,
           {
+            uuid: uuid(),
             instance: env.REACT_APP_DEFAULT_INSTANCE,
             ...patch,
           },
@@ -189,6 +194,7 @@ export const useAuth = create<AuthStore>()(
           i === index
             ? {
                 ...a,
+                uuid: patch.jwt ? uuid() : (a.uuid ?? uuid()),
                 ...patch,
               }
             : a,
@@ -203,6 +209,7 @@ export const useAuth = create<AuthStore>()(
           i === accountIndex
             ? {
                 ...a,
+                uuid: patch.jwt ? uuid() : (a.uuid ?? uuid()),
                 ...patch,
               }
             : a,
@@ -220,9 +227,19 @@ export const useAuth = create<AuthStore>()(
     {
       name: "auth",
       storage: createStorage<AuthStore>(),
-      version: 2,
+      version: 3,
       migrate: (state) => {
-        return storeSchema.parse(state) as AuthStore;
+        const parsed = storeSchema.parse(state) as AuthStore;
+        return {
+          ...parsed,
+          accounts: parsed.accounts.map(
+            (a) =>
+              ({
+                uuid: uuid(),
+                ...a,
+              }) satisfies Account,
+          ),
+        };
       },
     },
   ),

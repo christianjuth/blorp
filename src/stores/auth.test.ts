@@ -11,16 +11,19 @@ describe("useAuthStore", () => {
   const account1 = {
     instance: faker.internet.url(),
     jwt: faker.string.uuid(),
+    uuid: faker.string.uuid(),
   };
 
   const account2 = {
     instance: faker.internet.url(),
     jwt: faker.string.uuid(),
+    uuid: faker.string.uuid(),
   };
 
   const account3 = {
     instance: faker.internet.url(),
     jwt: faker.string.uuid(),
+    uuid: faker.string.uuid(),
   };
 
   test("default instance", () => {

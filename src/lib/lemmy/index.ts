@@ -60,27 +60,29 @@ export function useApiClients() {
   const accountIndex = useAuth((s) => s.accountIndex);
   const accounts = useAuth((s) => s.accounts);
 
-  const apis = accounts.map((a) => {
-    const site = getAccountSite(a);
-    const myUserId = site?.me?.id;
-    const { instance, jwt } = a;
-    const api = apiClient({ instance, jwt });
+  return useMemo(() => {
+    const apis = accounts.map((a) => {
+      const { instance, jwt } = a;
+      const api = apiClient({ instance, jwt });
 
-    const queryKeyPrefix: unknown[] = [`instance-${instance}`];
-    if (myUserId) {
-      queryKeyPrefix.push(`user-${myUserId}`);
-    }
+      const queryKeyPrefix: unknown[] = [
+        `instance-${instance}`,
+        `auth-${a.jwt ? "t" : "f"}`,
+        `uuid-${a.uuid}`,
+      ];
+
+      return {
+        api,
+        queryKeyPrefix,
+        isLoggedIn: !!a.jwt,
+      };
+    });
 
     return {
-      api,
-      queryKeyPrefix,
+      apis,
+      ...apis[accountIndex],
     };
-  });
-
-  return {
-    apis,
-    ...apis[accountIndex],
-  };
+  }, [accounts, accountIndex]);
 }
 
 function useLemmyClient(account?: Partial<Account>) {
@@ -650,8 +652,6 @@ export function useRegister(config?: {
 }) {
   const { api } = useLemmyClient({ instance: config?.instance });
 
-  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   const updateSelectedAccount = useAuth((s) => s.updateSelectedAccount);
   const addAccount = useAuth((s) => s.addAccount);
 
@@ -659,11 +659,7 @@ export function useRegister(config?: {
     mutationFn: async (form: Forms.Register) => {
       const res = await (await api).register(form);
       if (res.jwt) {
-        (await api).setJwt(res.jwt);
-        const site = await (await api).getSite();
-        const person = site.me;
         const payload = {
-          site,
           jwt: res.jwt,
         };
         if (config?.addAccount && config.instance) {
@@ -673,9 +669,6 @@ export function useRegister(config?: {
           });
         } else {
           updateSelectedAccount(payload);
-        }
-        if (person) {
-          cacheProfiles(getCachePrefixer(), [person]);
         }
       }
       return res;
@@ -766,8 +759,8 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
 }
 
 function useRefreshAuthKey() {
-  const accounts = useAuth((s) => s.accounts);
-  return ["refreshAuth", ...accounts.map((a) => Boolean(a.jwt))];
+  const { apis } = useApiClients();
+  return ["refreshAuth", ...apis.map((api) => api.queryKeyPrefix.join("_"))];
 }
 
 export function useRefreshAuth() {
@@ -795,12 +788,13 @@ export function useRefreshAuth() {
       );
 
       for (let i = 0; i < sites.length; i++) {
+        const api = apis[i];
         const account = accounts[i];
         const p = sites[i];
 
         if (p?.status === "fulfilled") {
           const site = p.value;
-          if (account?.jwt && site && !site.me) {
+          if (api?.isLoggedIn && site && !site.me) {
             logoutIndicies.push(i);
             continue;
           }

@@ -426,8 +426,6 @@ export abstract class ApiBlueprint<C> {
   abstract client: C;
   abstract limit: number;
 
-  abstract setJwt(jwt: string): void;
-
   abstract getSite(options?: RequestOptions): Promise<Schemas.Site>;
 
   abstract getPost(

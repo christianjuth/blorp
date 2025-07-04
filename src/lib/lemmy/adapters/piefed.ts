@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { env } from "@/src/env";
 import {
   ApiBlueprint,
   Errors,
@@ -51,11 +50,7 @@ const communitySortSchema = z.custom<(typeof COMMUNITY_SORTS)[number]>(
   },
 );
 
-const DEFAULT_HEADERS = {
-  // lemmy.ml will reject requests if
-  // User-Agent header is not present
-  "User-Agent": env.REACT_APP_NAME.toLowerCase(),
-};
+const DEFAULT_HEADERS = {};
 
 export const pieFedCommunitySchema = z.object({
   actor_id: z.string(),
@@ -303,7 +298,6 @@ function convertPost(
     upvotes: counts.upvotes,
     downvotes: counts.downvotes,
     myVote: postView.my_vote,
-    optimisticMyVote: postView.my_vote,
     commentsCount: counts.comments,
     deleted: post.deleted,
     removed: post.removed,
@@ -422,10 +416,6 @@ export class PieFedApi implements ApiBlueprint<null> {
 
   jwt?: string;
 
-  setJwt(jwt: string): void {
-    this.jwt = jwt;
-  }
-
   async get(
     endpoint: string,
     query: Record<string, any>,
@@ -450,6 +440,7 @@ export class PieFedApi implements ApiBlueprint<null> {
               }
             : {}),
         },
+        cache: "no-store",
         ...options,
       },
     );
@@ -478,6 +469,7 @@ export class PieFedApi implements ApiBlueprint<null> {
       },
       body: JSON.stringify(body),
       method: "POST",
+      cache: "no-store",
     });
     if (res.status < 200 || res.status >= 400) {
       throw new Error("unexpected error, status code " + res.status);
@@ -504,6 +496,7 @@ export class PieFedApi implements ApiBlueprint<null> {
       },
       body: JSON.stringify(body),
       method: "PUT",
+      cache: "no-store",
     });
     if (res.status < 200 || res.status >= 400) {
       throw new Error("unexpected error, status code " + res.status);
@@ -727,9 +720,7 @@ export class PieFedApi implements ApiBlueprint<null> {
       username: form.username,
       password: form.password,
     });
-    const data = z.object({ jwt: z.string() }).parse(json);
-    this.setJwt(data.jwt);
-    return data;
+    return z.object({ jwt: z.string() }).parse(json);
   }
 
   async likePost(form: Forms.LikePost) {

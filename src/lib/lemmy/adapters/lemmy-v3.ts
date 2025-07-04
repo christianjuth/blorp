@@ -86,24 +86,6 @@ const DEFAULT_HEADERS = {
   "User-Agent": env.REACT_APP_NAME.toLowerCase(),
 };
 
-export function getLemmyClient(instance: string) {
-  const client = new lemmyV3.LemmyHttp(instance.replace(/\/$/, ""), {
-    headers: DEFAULT_HEADERS,
-  });
-
-  const setJwt = (jwt: string) => {
-    client.setHeaders({
-      ...DEFAULT_HEADERS,
-      Authorization: `Bearer ${jwt}`,
-    });
-  };
-
-  return {
-    client,
-    setJwt,
-  };
-}
-
 function cursorToInt(pageCursor: string | null | undefined) {
   if (pageCursor === INIT_PAGE_TOKEN) {
     return 1;
@@ -184,7 +166,7 @@ function convertPost(postView: lemmyV3.PostView): Schemas.Post {
     thumbnailUrl: post.thumbnail_url ?? null,
     upvotes: counts.upvotes,
     downvotes: counts.downvotes,
-    optimisticMyVote: postView.my_vote,
+    myVote: postView.my_vote,
     commentsCount: counts.comments,
     deleted: post.deleted,
     removed: post.removed,
@@ -324,17 +306,19 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
     this.instance = instance;
     this.client = new lemmyV3.LemmyHttp(instance.replace(/\/$/, ""), {
       headers: DEFAULT_HEADERS,
+      fetchFunction: (arg1, arg2) =>
+        fetch(arg1, {
+          cache: "no-cache",
+          ...arg2,
+        }),
     });
     if (jwt) {
-      this.setJwt(jwt);
+      console.log(instance, "SETTING JWT");
+      this.client.setHeaders({
+        ...DEFAULT_HEADERS,
+        Authorization: `Bearer ${jwt}`,
+      });
     }
-  }
-
-  setJwt(jwt: string) {
-    this.client.setHeaders({
-      ...DEFAULT_HEADERS,
-      Authorization: `Bearer ${jwt}`,
-    });
   }
 
   async getSite(options: RequestOptions) {
@@ -697,7 +681,6 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       if (_.isNil(jwt)) {
         throw new Error("api did not return jwt");
       }
-      this.setJwt(jwt);
       return { jwt };
     } catch (err) {
       if (_.isError(err) && is2faError(err)) {

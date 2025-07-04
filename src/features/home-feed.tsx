@@ -33,6 +33,7 @@ import { dispatchScrollEvent } from "../lib/scroll-events";
 import { PostReportProvider } from "../components/posts/post-report";
 import { PageTitle } from "../components/page-title";
 import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
+import { usePostsStore } from "../stores/posts";
 
 const EMPTY_ARR: never[] = [];
 
@@ -170,12 +171,8 @@ export default function HomeFeed() {
     isRefetching,
   } = posts;
 
-  /* const firstReadPost = data.find((p) => !p.pinned); */
-  /* const firstUnreadPost = data.find((p) => !p.pinned && !p.read); */
-  const mostRecentPostId = mostRecentPost?.data?.post.apId;
-  const hasNewPost = mostRecentPostId; //&&
-  /* mostRecentPostId !== firstReadPost?.apId && */
-  /* mostRecentPostId !== firstUnreadPost?.apId; */
+  const mostRecentPostApId = mostRecentPost?.data?.post.apId;
+  const hasNewPost = mostRecentPostApId && !data.includes(mostRecentPostApId);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focused, setFocused] = useState(false);

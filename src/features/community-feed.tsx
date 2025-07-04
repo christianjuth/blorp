@@ -98,12 +98,8 @@ export default function CommunityFeed() {
     isRefetching,
   } = posts;
 
-  /* const firstReadPost = data.find((p) => !p.pinned); */
-  /* const firstUnreadPost = data.find((p) => !p.pinned && !p.read); */
-  const mostRecentPostId = mostRecentPost?.data?.post.apId;
-  const hasNewPost = mostRecentPostId; //&&
-  /* mostRecentPostId !== firstReadPost?.apId && */
-  /* mostRecentPostId !== firstUnreadPost?.apId; */
+  const mostRecentPostApId = mostRecentPost?.data?.post.apId;
+  const hasNewPost = mostRecentPostApId && !data.includes(mostRecentPostApId);
 
   return (
     <IonPage>

@@ -67,24 +67,6 @@ const DEFAULT_HEADERS = {
   "User-Agent": env.REACT_APP_NAME.toLowerCase(),
 };
 
-export function getLemmyClient(instance: string) {
-  const client = new lemmyV4.LemmyHttp(instance.replace(/\/$/, ""), {
-    headers: DEFAULT_HEADERS,
-  });
-
-  const setJwt = (jwt: string) => {
-    client.setHeaders({
-      ...DEFAULT_HEADERS,
-      Authorization: `Bearer ${jwt}`,
-    });
-  };
-
-  return {
-    client,
-    setJwt,
-  };
-}
-
 function convertCommunity(
   communityView: lemmyV4.CommunityView,
 ): Schemas.Community {
@@ -225,17 +207,18 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     this.instance = instance;
     this.client = new lemmyV4.LemmyHttp(instance.replace(/\/$/, ""), {
       headers: DEFAULT_HEADERS,
+      fetchFunction: (arg1, arg2) =>
+        fetch(arg1, {
+          cache: "no-cache",
+          ...arg2,
+        }),
     });
     if (jwt) {
-      this.setJwt(jwt);
+      this.client.setHeaders({
+        ...DEFAULT_HEADERS,
+        Authorization: `Bearer ${jwt}`,
+      });
     }
-  }
-
-  setJwt(jwt: string) {
-    this.client.setHeaders({
-      ...DEFAULT_HEADERS,
-      Authorization: `Bearer ${jwt}`,
-    });
   }
 
   async getSite(options: RequestOptions) {
@@ -579,7 +562,6 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       if (_.isNil(jwt)) {
         throw new Error("api did not return jwt");
       }
-      this.setJwt(jwt);
       return { jwt };
     } catch (err) {
       if (_.isError(err) && is2faError(err)) {
