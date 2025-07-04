@@ -73,9 +73,9 @@ export function UserDropdown() {
   const content = (
     <BadgeCount showBadge={!!count}>
       <Avatar key={person ? 0 : 1}>
-        {person && <AvatarImage src={person.avatar} />}
+        {person && <AvatarImage src={person.avatar ?? undefined} />}
         <AvatarFallback>
-          {person && person.name?.substring(0, 1).toUpperCase()}
+          {person && person.slug?.substring(0, 1).toUpperCase()}
           {!person && <IoPerson />}
         </AvatarFallback>
       </Avatar>
@@ -90,21 +90,23 @@ export function UserDropdown() {
     );
   }
 
+  const [name] = person?.slug.split("@") ?? [];
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>{content}</DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">
         <DropdownMenuLabel className="flex items-center gap-2">
           <Avatar className="h-12 w-12" key={person?.id}>
-            <AvatarImage src={person?.avatar} />
+            <AvatarImage src={person?.avatar ?? undefined} />
             <AvatarFallback className="text-xl">
-              {person && person.name?.substring(0, 1).toUpperCase()}
+              {person && person.slug?.substring(0, 1).toUpperCase()}
               {!person && <IoPerson />}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-row gap-2 items-center">
             <div className="flex flex-col">
-              <span className="text-md line-clamp-1">{person?.name}</span>
+              <span className="text-md line-clamp-1">{name}</span>
               <span className="text-xs text-muted-foreground line-clamp-1">
                 @{instance}
               </span>
@@ -126,7 +128,7 @@ export function UserDropdown() {
             <Link
               to={`${linkCtx.root}u/:userId`}
               params={{
-                userId: encodeApId(person.actor_id),
+                userId: encodeApId(person.apId),
               }}
             >
               <DropdownMenuItem>
@@ -138,7 +140,7 @@ export function UserDropdown() {
             <DropdownMenuItem
               onClick={() =>
                 getConfirmation({
-                  message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
+                  message: `Are you sure you want to logout of ${person.slug ?? "this account"}`,
                 }).then(() => logout.mutate(selectedAccount))
               }
             >
@@ -161,8 +163,9 @@ export function UserDropdown() {
             if (index === selectedAccountIndex) {
               return null;
             }
-
             const { person, instance } = parseAccountInfo(a);
+            const [name] = person?.slug.split("@") ?? [];
+
             return (
               <DropdownMenuItem
                 onClick={() => {
@@ -173,15 +176,15 @@ export function UserDropdown() {
               >
                 <AccountNotificationBadge accountIndex={index}>
                   <Avatar key={person?.id} className="h-7 w-7">
-                    <AvatarImage src={person?.avatar} />
+                    <AvatarImage src={person?.avatar ?? undefined} />
                     <AvatarFallback>
-                      {person && person.name?.substring(0, 1).toUpperCase()}
+                      {person && person.slug?.substring(0, 1).toUpperCase()}
                       {!person && <IoPerson />}
                     </AvatarFallback>
                   </Avatar>
                 </AccountNotificationBadge>
                 <div className="flex flex-col text-xs leading-4">
-                  <span>{person?.display_name ?? person?.name}</span>
+                  <span>{name}</span>
                   <span className="text-muted-foreground">@{instance}</span>
                 </div>
               </DropdownMenuItem>
@@ -226,15 +229,15 @@ export function UserSidebar() {
     <div className="flex flex-col gap-4 min-h-full pb-[var(--ion-safe-area-bottom)]">
       <div className="flex items-center gap-3">
         <Avatar className="h-12 w-12" key={person?.id}>
-          {person && <AvatarImage src={person.avatar} />}
+          {person && <AvatarImage src={person.avatar ?? undefined} />}
           <AvatarFallback className="text-xl">
-            {person && person.name?.substring(0, 1).toUpperCase()}
+            {person && person.slug?.substring(0, 1).toUpperCase()}
             {!person && <IoPerson />}
           </AvatarFallback>
         </Avatar>
 
         <div className="flex flex-col">
-          <span className="leading-snug line-clamp-1">{person?.name}</span>
+          <span className="leading-snug line-clamp-1">{person?.slug}</span>
           <span className="text-sm text-muted-foreground line-clamp-1">
             @{instance}
           </span>
@@ -257,7 +260,7 @@ export function UserSidebar() {
             <Link
               to={`${linkCtx.root}u/:userId`}
               params={{
-                userId: encodeApId(person.actor_id),
+                userId: encodeApId(person.apId),
               }}
               className="flex flex-row items-center gap-2"
             >
@@ -271,7 +274,7 @@ export function UserSidebar() {
             <button
               onClick={() =>
                 getConfirmation({
-                  message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
+                  message: `Are you sure you want to logout of ${person.slug ?? "this account"}`,
                 }).then(() => logout.mutate(selectedAccount))
               }
               className="flex flex-row items-center gap-2 w-full"
@@ -299,8 +302,8 @@ export function UserSidebar() {
         if (index === selectedAccountIndex) {
           return null;
         }
-
         const { person, instance } = parseAccountInfo(a);
+        const [name] = person?.slug.split("@") ?? [];
         return (
           <IonMenuToggle key={instance + index}>
             <button
@@ -313,15 +316,15 @@ export function UserSidebar() {
                 showBadge={!!inboxAcounts[index] || !!pmCounts[index]}
               >
                 <Avatar key={person?.id}>
-                  {person && <AvatarImage src={person.avatar} />}
+                  {person && <AvatarImage src={person.avatar ?? undefined} />}
                   <AvatarFallback>
-                    {person && person.name?.substring(0, 1).toUpperCase()}
+                    {person && person.slug?.substring(0, 1).toUpperCase()}
                     {!person && <IoPerson />}
                   </AvatarFallback>
                 </Avatar>
               </BadgeCount>
               <div className="flex flex-col">
-                <span>{person?.display_name ?? person?.name}</span>
+                <span>{name}</span>
                 <span className="text-muted-foreground text-xs">
                   @{instance}
                 </span>

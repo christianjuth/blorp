@@ -1,21 +1,20 @@
-import { Community, CreatePost, EditPost } from "lemmy-js-client";
+import { Community, CreatePost } from "lemmy-v3";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
-import { FlattenedPost } from "../lib/lemmy/utils";
 import dayjs from "dayjs";
+import { Forms, Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { SetOptional } from "type-fest";
 
 export type CommunityPartial = Pick<
   Community,
   "name" | "title" | "icon" | "actor_id"
 >;
 
-export interface Draft extends Partial<Omit<CreatePost, "community_id">> {
+export interface Draft extends Partial<Forms.EditPost & Forms.CreatePost> {
   type: "text" | "media" | "link";
   createdAt: number;
-  community?: CommunityPartial;
-  apId?: string;
 }
 
 type CreatePostStore = {
@@ -31,7 +30,13 @@ export const NEW_DRAFT: Draft = {
 };
 
 export function isEmptyDraft(draft: Draft) {
-  const fields = _.omit(draft, ["type", "apId", "createdAt", "community"]);
+  const fields = _.omit(draft, [
+    "type",
+    "apId",
+    "createdAt",
+    "communitySlug",
+    "communityApId",
+  ]);
   for (const id in fields) {
     if (fields[id as keyof typeof fields]) {
       return false;
@@ -40,82 +45,95 @@ export function isEmptyDraft(draft: Draft) {
   return true;
 }
 
-export function postToDraft(post: FlattenedPost): Draft {
+export function postToDraft(post: Schemas.Post): Draft {
   return {
-    name: post.post.name,
-    body: post.post.body,
-    community: {
-      ...post.community,
-      actor_id: post.community.actorId,
-    },
-    createdAt: dayjs(post.post.published).toDate().valueOf(),
+    title: post.title,
+    body: post.body ?? "",
+    communitySlug: post.communitySlug,
+    createdAt: dayjs(post.createdAt).toDate().valueOf(),
     type: "text",
-    apId: post.post.ap_id,
+    apId: post.apId,
+    thumbnailUrl: post.thumbnailUrl,
+    altText: post.altText,
   };
 }
 
-export function draftToEditPostData(draft: Draft, post_id: number): EditPost {
-  if (!draft.name) {
+export function draftToEditPostData(draft: Draft): Forms.EditPost {
+  const { title, apId, communitySlug } = draft;
+  if (!title) {
     throw new Error("post name is required");
   }
-  const post: EditPost = {
+  if (!apId) {
+    throw new Error("apId name is required");
+  }
+  if (!communitySlug) {
+    throw new Error("community is required");
+  }
+  const post: Forms.EditPost = {
     ...draft,
-    post_id,
-    name: draft.name,
-    body: draft.body,
+    title,
+    apId,
+    thumbnailUrl: draft.thumbnailUrl ?? null,
+    url: draft.url ?? null,
+    body: draft.body ?? null,
+    nsfw: draft.nsfw ?? null,
   };
 
   switch (draft.type) {
     case "text":
-      delete post.url;
-      delete post.custom_thumbnail;
+      post.url = null;
+      post.thumbnailUrl = null;
       break;
     case "media":
-      post.url = post.custom_thumbnail;
+      post.url = post.thumbnailUrl;
       break;
     case "link":
   }
 
   if (!post.url) {
-    delete post.url;
+    post.url = null;
   }
-  if (!post.custom_thumbnail) {
-    delete post.custom_thumbnail;
+  if (!post.thumbnailUrl) {
+    post.thumbnailUrl = null;
   }
 
   return post;
 }
 
-export function draftToCreatePostData(
-  draft: Draft,
-  community_id: number,
-): CreatePost {
-  if (!draft.name) {
+export function draftToCreatePostData(draft: Draft): Forms.CreatePost {
+  const { title, communitySlug } = draft;
+  if (!title) {
     throw new Error("post name is required");
   }
-  const post: CreatePost = {
+  if (!communitySlug) {
+    throw new Error("community is required");
+  }
+  const post: Forms.CreatePost = {
     ...draft,
-    name: draft.name,
-    community_id,
-    body: draft.body,
+    title,
+    communitySlug,
+    body: draft.body ?? null,
+    url: draft.url ?? null,
+    nsfw: draft.nsfw ?? null,
+    thumbnailUrl: draft.thumbnailUrl ?? null,
   };
 
   switch (draft.type) {
     case "text":
-      delete post.url;
-      delete post.custom_thumbnail;
+      post.url = null;
+      post.thumbnailUrl = null;
       break;
     case "media":
-      post.url = post.custom_thumbnail;
+      post.url = post.thumbnailUrl;
       break;
     case "link":
   }
 
   if (!post.url) {
-    delete post.url;
+    post.url = null;
   }
-  if (!post.custom_thumbnail) {
-    delete post.custom_thumbnail;
+  if (!post.thumbnailUrl) {
+    post.thumbnailUrl = null;
   }
 
   return post;
@@ -167,7 +185,7 @@ export const useCreatePostStore = create<CreatePostStore>()(
     {
       name: "create-post",
       storage: createStorage<CreatePostStore>(),
-      version: 4,
+      version: 5,
       onRehydrateStorage: () => {
         return (state) => {
           if (!alreadyClean) {

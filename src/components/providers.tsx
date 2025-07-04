@@ -18,7 +18,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 // List the last reason for bumping the key:
 // Caching creator profiles when fetching comments
-const REACT_QUERY_CACHE_VERSON = 6;
+const REACT_QUERY_CACHE_VERSON = 7;
 
 function pruneInfinitePages(client: PersistedClient): PersistedClient {
   const cacheState = client.clientState;

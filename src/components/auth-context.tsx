@@ -43,6 +43,7 @@ import { MdOutlineRefresh } from "react-icons/md";
 import { Textarea } from "./ui/textarea";
 import { MarkdownRenderer } from "./markdown/renderer";
 import { env } from "../env";
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 
 const AudioPlayButton = ({ src }: { src: string }) => {
   const [playing, setPlaying] = useState(false);
@@ -170,9 +171,9 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
         email,
         username: userName,
         password: password,
-        password_verify: verifyPassword,
-        captcha_uuid: captcha.data?.ok?.uuid,
-        captcha_answer: captchaAnswer,
+        repeatPassword: verifyPassword,
+        captchaUuid: captcha.data?.uuid,
+        captchaAnswer: captchaAnswer,
         answer,
       })
       .then(() => {
@@ -186,8 +187,7 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
       });
   };
 
-  const applicationQuestion =
-    site.data?.site_view.local_site.application_question;
+  const applicationQuestion = site.data?.applicationQuestion;
 
   return (
     <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
@@ -255,18 +255,18 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
 
       {captcha.isPending && <LuLoaderCircle className="animate-spin" />}
 
-      {captcha.data?.ok && (
+      {captcha.data && (
         <div className="flex flex-row gap-4">
           <div className="flex flex-col justify-around items-center p-2">
             <button onClick={() => captcha.refetch()}>
               <MdOutlineRefresh size={24} />
             </button>
 
-            <AudioPlayButton src={captcha.data.ok.wav} />
+            <AudioPlayButton src={captcha.data?.audioUrl} />
           </div>
 
           <img
-            src={`data:image/png;base64,${captcha.data?.ok?.png}`}
+            src={`data:image/png;base64,${captcha.data?.imgUrl}`}
             className="h-28 aspect-video object-contain"
           />
 
@@ -345,21 +345,43 @@ function AuthModal({
 
   const instances = useInstances();
 
-  const defaultSort = useMemo(
-    () =>
-      _.reverse(_.sortBy(instances.data, (i) => i.counts.users_active_month)),
-    [instances.data],
-  );
+  const [software, setSoftware] = useState<"lemmy" | "piefed">("lemmy");
+
+  const site = useSite({
+    instance: search,
+  });
+
+  const data = useMemo(() => {
+    const output = [...(instances.data ?? [])];
+    if (site.data) {
+      let url = search;
+      if (!url.startsWith("https://") && !url.startsWith("http://")) {
+        url = "https://" + url;
+      }
+      const baseUrl = new URL(url).host;
+      try {
+        output.push({
+          baseUrl,
+          url,
+          score: Infinity,
+          software: "",
+        });
+      } catch {}
+    }
+    return _.uniqBy(output, ({ baseUrl }) => baseUrl).filter(
+      (item) => !item.software || item.software === software,
+    );
+  }, [instances.data, site.data, software]);
 
   const sortedInstances =
-    search && instances.data
+    search && data
       ? fuzzysort
-          .go(search, instances.data, {
+          .go(search, data, {
             keys: ["url", "name"],
             scoreFn: (r) => r.score * _.clamp(r.obj.score, 1, 10),
           })
           .map((r) => r.obj)
-      : undefined;
+      : data;
 
   const updateSelectedAccount = useAuth((a) => a.updateSelectedAccount);
   const addAccountFn = useAuth((a) => a.addAccount);
@@ -376,9 +398,9 @@ function AuthModal({
     e?.preventDefault();
     login
       .mutateAsync({
-        username_or_email: userName,
+        username: userName,
         password: password,
-        totp_2fa_token: mfaToken,
+        mfaCode: mfaToken,
       })
       .then(() => {
         onSuccess();
@@ -452,7 +474,7 @@ function AuthModal({
               className="px-4"
               estimatedItemSize={50}
               stickyHeaderIndices={[0]}
-              data={sortedInstances ?? defaultSort}
+              data={sortedInstances}
               header={[
                 <div
                   className="bg-background py-3 border-b-[.5px]"
@@ -462,11 +484,24 @@ function AuthModal({
                     Pick the server you created your account on
                   </IonHeader>
                   <Input
-                    placeholder="Enter URL or search for your server"
+                    placeholder="Search for your server or enter one thats not in the list"
                     onChange={(e) => setSearch(e.target.value)}
                     autoCapitalize="none"
                     autoCorrect="off"
+                    className="mb-3"
                   />
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    size="sm"
+                    value={software}
+                    onValueChange={(val) =>
+                      val && setSoftware(val as "lemmy" | "piefed")
+                    }
+                  >
+                    <ToggleGroupItem value="lemmy">Lemmy</ToggleGroupItem>
+                    <ToggleGroupItem value="piefed">PieFed</ToggleGroupItem>
+                  </ToggleGroup>
                 </div>,
               ]}
               renderItem={({ item: i }) => (
@@ -482,7 +517,7 @@ function AuthModal({
                   }}
                   className="py-2.5 text-lg border-b-[.5px] w-full text-start"
                 >
-                  <span>{i.baseurl}</span>
+                  <span>{i.baseUrl}</span>
                 </button>
               )}
             />
@@ -527,7 +562,7 @@ function AuthModal({
                 />
               </div>
 
-              {(login.needs2FA || _.isString(mfaToken)) && (
+              {(login.needsMfa || _.isString(mfaToken)) && (
                 <InputOTP
                   maxLength={6}
                   defaultValue={mfaToken}

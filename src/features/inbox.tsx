@@ -1,4 +1,4 @@
-import { CommentReplyView, PersonMentionView } from "lemmy-js-client";
+import { CommentReplyView, PersonMentionView } from "lemmy-v3";
 import { Link } from "@/src/routing/index";
 import { VirtualList } from "@/src/components/virtual-list";
 import { ContentGutters } from "@/src/components/gutters";
@@ -36,14 +36,15 @@ import { Message, Person } from "../components/icons";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { useAuth } from "../stores/auth";
 import LoginRequired from "./login-required";
+import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item =
   | typeof NO_ITEMS
-  | { id: string; reply: CommentReplyView }
+  | { id: string; reply: Schemas.Reply }
   | {
       id: string;
-      mention: PersonMentionView;
+      mention: Schemas.Mention;
     };
 
 function Placeholder() {
@@ -67,19 +68,15 @@ function Mention({
   mention,
   noBorder = false,
 }: {
-  mention: PersonMentionView;
+  mention: Schemas.Mention;
   noBorder?: boolean;
 }) {
   const markRead = useMarkPersonMentionRead();
-  const communitySlug = createSlug(mention.community)?.slug;
-  const path = mention.comment.path.split(".");
+  const path = mention.path.split(".");
   const parent = path.at(-2);
-  const newPath = [parent !== "0" ? parent : undefined, mention.comment.id]
+  const newPath = [parent !== "0" ? parent : undefined, mention.commentId]
     .filter(Boolean)
     .join(".");
-  if (!communitySlug) {
-    return null;
-  }
   return (
     <ContentGutters className="px-0">
       <div
@@ -92,58 +89,49 @@ function Mention({
           <BadgeIcon
             icon={<Person className="h-full w-full text-muted-foreground" />}
           >
-            <PersonAvatar
-              actorId={mention.creator.actor_id}
-              person={mention.creator}
-              size="sm"
-            />
+            <PersonAvatar actorId={mention.creatorApId} size="sm" />
           </BadgeIcon>
           <div
             className={cn(
               "flex-1 text-sm leading-6 block overflow-x-hidden",
-              !mention.person_mention.read && "border-l-3 border-l-brand pl-2",
+              !mention.read && "border-l-3 border-l-brand pl-2",
             )}
           >
             <Link
               to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
               params={{
-                communityName: communitySlug,
-                post: encodeURIComponent(mention.post.ap_id),
+                communityName: mention.communitySlug,
+                post: encodeURIComponent(mention.postApId),
                 comment: newPath,
               }}
               onClickCapture={() => {
                 markRead.mutate({
-                  person_mention_id: mention.person_mention.id,
+                  id: mention.id,
                   read: true,
                 });
               }}
             >
               <div className="flex flex-row flex-wrap">
-                {mention.person_mention.read ? null : <div />}
+                {mention.read ? null : <div />}
                 <span>
-                  <span className="font-bold">{mention.creator.name}</span>
+                  <span className="font-bold">{mention.creatorSlug}</span>
                   <span> mentioned you in the post </span>
-                  <span className="font-bold">{mention.post.name}</span>
+                  <span className="font-bold">{mention.postName}</span>
                 </span>
               </div>
-              <MarkdownRenderer
-                markdown={mention.comment.content}
-                className="pb-2"
-              />
+              <MarkdownRenderer markdown={mention.body} className="pb-2" />
             </Link>
             <div className="flex flex-row justify-end gap-2 text-muted-foreground">
-              <RelativeTime time={mention.comment.published} />
+              <RelativeTime time={mention.createdAt} />
               <ActionMenu
                 align="end"
                 actions={[
                   {
-                    text: mention.person_mention.read
-                      ? "Mark unread"
-                      : "Mark read",
+                    text: mention.read ? "Mark unread" : "Mark read",
                     onClick: () =>
                       markRead.mutate({
-                        person_mention_id: mention.person_mention.id,
-                        read: !mention.person_mention.read,
+                        id: mention.id,
+                        read: !mention.read,
                       }),
                   },
                 ]}
@@ -162,19 +150,15 @@ function Reply({
   replyView,
   noBorder = false,
 }: {
-  replyView: CommentReplyView;
+  replyView: Schemas.Reply;
   noBorder?: boolean;
 }) {
   const markRead = useMarkReplyRead();
-  const communitySlug = createSlug(replyView.community)?.slug;
-  const path = replyView.comment.path.split(".");
+  const path = replyView.path.split(".");
   const parent = path.at(-2);
-  const newPath = [parent !== "0" ? parent : undefined, replyView.comment.id]
+  const newPath = [parent !== "0" ? parent : undefined, replyView.commentId]
     .filter(Boolean)
     .join(".");
-  if (!communitySlug) {
-    return null;
-  }
   return (
     <ContentGutters className="px-0">
       <div
@@ -187,58 +171,49 @@ function Reply({
           <BadgeIcon
             icon={<Message className="h-full w-full text-muted-foreground" />}
           >
-            <PersonAvatar
-              actorId={replyView.creator.actor_id}
-              person={replyView.creator}
-              size="sm"
-            />
+            <PersonAvatar actorId={replyView.creatorApId} size="sm" />
           </BadgeIcon>
           <div
             className={cn(
               "flex-1 text-sm leading-6 block overflow-x-hidden",
-              !replyView.comment_reply.read && "border-l-3 border-l-brand pl-2",
+              !replyView.read && "border-l-3 border-l-brand pl-2",
             )}
           >
             <Link
               to={`/inbox/c/:communityName/posts/:post/comments/:comment`}
               params={{
-                communityName: communitySlug,
-                post: encodeURIComponent(replyView.post.ap_id),
+                communityName: replyView.communitySlug,
+                post: encodeURIComponent(replyView.postApId),
                 comment: newPath,
               }}
               onClickCapture={() => {
                 markRead.mutate({
-                  comment_reply_id: replyView.comment_reply.id,
+                  id: replyView.id,
                   read: true,
                 });
               }}
             >
               <div className="flex flex-row flex-wrap">
-                {replyView.comment_reply.read ? null : <div />}
+                {replyView.read ? null : <div />}
                 <span>
-                  <span className="font-bold">{replyView.creator.name}</span>
+                  <span className="font-bold">{replyView.creatorSlug}</span>
                   <span> replied to your comment in </span>
-                  <span className="font-bold">{replyView.post.name}</span>
+                  <span className="font-bold">{replyView.postName}</span>
                 </span>
               </div>
-              <MarkdownRenderer
-                markdown={replyView.comment.content}
-                className="pb-2"
-              />
+              <MarkdownRenderer markdown={replyView.body} className="pb-2" />
             </Link>
             <div className="flex flex-row justify-end gap-2 text-muted-foreground">
-              <RelativeTime time={replyView.comment.published} />
+              <RelativeTime time={replyView.createdAt} />
               <ActionMenu
                 align="end"
                 actions={[
                   {
-                    text: replyView.comment_reply.read
-                      ? "Mark unread"
-                      : "Mark read",
+                    text: replyView.read ? "Mark unread" : "Mark read",
                     onClick: () =>
                       markRead.mutate({
-                        comment_reply_id: replyView.comment_reply.id,
-                        read: !replyView.comment_reply.read,
+                        id: replyView.id,
+                        read: !replyView.read,
                       }),
                   },
                 ]}
@@ -260,10 +235,10 @@ export default function Inbox() {
   const setType = useInboxStore((s) => s.setInboxType);
 
   const replies = useReplies({
-    unread_only: type === "unread",
+    unreadOnly: type === "unread",
   });
   const mentions = usePersonMentions({
-    unread_only: type === "unread",
+    unreadOnly: type === "unread",
   });
   const isRefetching = replies.isRefetching || mentions.isRefetching;
   const isPending = replies.isPending || mentions.isPending;
@@ -276,8 +251,8 @@ export default function Inbox() {
 
   const data = useMemo(() => {
     const data: (
-      | { id: string; reply: CommentReplyView }
-      | { id: string; mention: PersonMentionView }
+      | { id: string; reply: Schemas.Reply }
+      | { id: string; mention: Schemas.Mention }
     )[] = [];
 
     if (
@@ -289,7 +264,7 @@ export default function Inbox() {
           .flatMap((p) => p.replies)
           .map((reply) => ({
             reply,
-            id: `r${reply.comment_reply.id}`,
+            id: `r${reply.id}`,
           })),
       );
     }
@@ -303,20 +278,14 @@ export default function Inbox() {
           .flatMap((p) => p.mentions)
           .map((mention) => ({
             mention,
-            id: `m${mention.person_mention.id}`,
+            id: `m${mention.id}`,
           })) ?? []),
       );
     }
 
     data.sort((a, b) => {
-      const aPublished =
-        "reply" in a
-          ? a.reply.comment_reply.published
-          : a.mention.person_mention.published;
-      const bPublished =
-        "reply" in b
-          ? b.reply.comment_reply.published
-          : b.mention.person_mention.published;
+      const aPublished = "reply" in a ? a.reply.createdAt : a.mention.createdAt;
+      const bPublished = "reply" in b ? b.reply.createdAt : b.mention.createdAt;
       return bPublished.localeCompare(aPublished);
     });
 

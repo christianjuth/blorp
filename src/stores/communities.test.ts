@@ -1,18 +1,17 @@
 import { describe, test, expect } from "vitest";
-import * as lemmy from "@/test-utils/lemmy";
+import * as api from "@/test-utils/api";
 import { useCommunitiesStore } from "./communities";
 import _ from "lodash";
 import { renderHook, act } from "@testing-library/react";
-import { createSlug } from "../lib/lemmy/utils";
-import { SubscribedType } from "lemmy-js-client";
+import { SubscribedType } from "lemmy-v3";
 import { getCachePrefixer } from "./auth";
 
 const prefix = getCachePrefixer({ instance: "123" });
 
 describe("useCommunitiesStore", () => {
   describe("cacheCommunity", () => {
-    const communityView = lemmy.getCommunity();
-    const slug = createSlug(communityView.community, true).slug;
+    const communityView = api.getCommunity();
+    const slug = communityView.slug;
 
     test("load post into store", () => {
       const { result } = renderHook(() => useCommunitiesStore());
@@ -34,13 +33,14 @@ describe("useCommunitiesStore", () => {
         "Subscribed",
         "Pending",
         "NotSubscribed",
-        "ApprovalRequired",
       ] satisfies SubscribedType[]);
 
       act(() => {
         result.current.cacheCommunity(prefix, {
-          communityView,
-          optimisticSubscribed,
+          communityView: {
+            ...communityView,
+            optimisticSubscribed,
+          },
         });
       });
 
@@ -50,17 +50,18 @@ describe("useCommunitiesStore", () => {
         });
       });
 
-      expect(result.current.communities[prefix(slug)]?.data).toMatchObject({
-        optimisticSubscribed,
-      });
+      expect(
+        result.current.communities[prefix(slug)]?.data.communityView
+          .optimisticSubscribed,
+      ).toBe(optimisticSubscribed);
     });
 
     test.todo("patches do not overwrite community mod list");
   });
 
   describe("patchCommunity", () => {
-    const communityView = lemmy.getCommunity();
-    const slug = createSlug(communityView.community, true).slug;
+    const communityView = api.getCommunity();
+    const slug = communityView.slug;
 
     test("load post into store", () => {
       const { result } = renderHook(() => useCommunitiesStore());
@@ -82,13 +83,14 @@ describe("useCommunitiesStore", () => {
         "Subscribed",
         "Pending",
         "NotSubscribed",
-        "ApprovalRequired",
       ] satisfies SubscribedType[]);
 
       act(() => {
         result.current.patchCommunity(slug, prefix, {
-          communityView,
-          optimisticSubscribed,
+          communityView: {
+            ...communityView,
+            optimisticSubscribed,
+          },
         });
       });
 
@@ -98,21 +100,22 @@ describe("useCommunitiesStore", () => {
         });
       });
 
-      expect(result.current.communities[prefix(slug)]?.data).toMatchObject({
-        optimisticSubscribed,
-      });
+      expect(
+        result.current.communities[prefix(slug)]?.data.communityView
+          .optimisticSubscribed,
+      ).toBe(optimisticSubscribed);
     });
 
     test.todo("patches do not overwrite community mod list");
   });
 
   describe("cacheCommunities", () => {
-    const communityView1 = lemmy.getRandomCommunity();
-    const slug1 = createSlug(communityView1.community, true).slug;
-    const communityView2 = lemmy.getRandomCommunity();
-    const slug2 = createSlug(communityView2.community, true).slug;
+    const communityView1 = api.getCommunity({ id: 1 });
+    const slug1 = communityView1.slug;
+    const communityView2 = api.getCommunity({ id: 2 });
+    const slug2 = communityView2.slug;
 
-    test("load posts into store", () => {
+    test("load communities into store", () => {
       const { result } = renderHook(() => useCommunitiesStore());
 
       act(() => {
@@ -122,12 +125,12 @@ describe("useCommunitiesStore", () => {
         ]);
       });
 
-      expect(result.current.communities[prefix(slug1)]?.data).toMatchObject({
-        communityView: communityView1,
-      });
-      expect(result.current.communities[prefix(slug2)]?.data).toMatchObject({
-        communityView: communityView2,
-      });
+      expect(
+        result.current.communities[prefix(slug1)]?.data.communityView,
+      ).toMatchObject(communityView1);
+      expect(
+        result.current.communities[prefix(slug2)]?.data.communityView,
+      ).toMatchObject(communityView2);
     });
 
     test("does not overwrite optimistic subscribed", () => {
@@ -137,13 +140,17 @@ describe("useCommunitiesStore", () => {
         "Subscribed",
         "Pending",
         "NotSubscribed",
-        "ApprovalRequired",
       ] satisfies SubscribedType[]);
 
       act(() => {
         result.current.cacheCommunities(prefix, [
-          { communityView: communityView1, optimisticSubscribed },
-          { communityView: communityView2, optimisticSubscribed },
+          {
+            communityView: {
+              ...communityView1,
+              optimisticSubscribed,
+            },
+          },
+          { communityView: { ...communityView2, optimisticSubscribed } },
         ]);
       });
 
@@ -154,12 +161,14 @@ describe("useCommunitiesStore", () => {
         ]);
       });
 
-      expect(result.current.communities[prefix(slug1)]?.data).toMatchObject({
-        optimisticSubscribed,
-      });
-      expect(result.current.communities[prefix(slug2)]?.data).toMatchObject({
-        optimisticSubscribed,
-      });
+      expect(
+        result.current.communities[prefix(slug1)]?.data.communityView
+          .optimisticSubscribed,
+      ).toBe(optimisticSubscribed);
+      expect(
+        result.current.communities[prefix(slug2)]?.data.communityView
+          .optimisticSubscribed,
+      ).toBe(optimisticSubscribed);
     });
 
     test.todo("patches do not overwrite community mod list");

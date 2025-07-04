@@ -1,6 +1,5 @@
 import {
   FeedPostCard,
-  getPostProps,
   PostCardSkeleton,
   PostProps,
 } from "@/src/components/posts/post";
@@ -8,9 +7,7 @@ import { ContentGutters } from "../components/gutters";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFiltersStore } from "../stores/filters";
 import { useMostRecentPost, usePosts } from "../lib/lemmy";
-import { usePostsStore } from "../stores/posts";
 import _ from "lodash";
-import { isNotNull } from "../lib/utils";
 
 import { LocalSererSidebar } from "../components/local-server/local-server-sidebar";
 import {
@@ -34,19 +31,18 @@ import { FaArrowUp } from "react-icons/fa6";
 import { LuLoaderCircle } from "react-icons/lu";
 import { dispatchScrollEvent } from "../lib/scroll-events";
 import { PostReportProvider } from "../components/posts/post-report";
-import { DownloadButton } from "./download";
-import { useAuth } from "../stores/auth";
 import { PageTitle } from "../components/page-title";
 import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
+import { usePostsStore } from "../stores/posts";
 
 const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = typeof NO_ITEMS | PostProps;
+type Item = string;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
-    <FeedPostCard {...props} />
+    <FeedPostCard {...props} featuredContext="home" />
     <></>
   </ContentGutters>
 ));
@@ -154,14 +150,17 @@ export default function HomeFeed() {
   const listingType = useFiltersStore((s) => s.listingType);
 
   const posts = usePosts({
-    limit: 50,
     sort: postSort,
-    type_: listingType,
+    type: listingType,
   });
+  const data = useMemo(
+    () => posts.data?.pages.flatMap((p) => p.posts) ?? EMPTY_ARR,
+    [posts.data],
+  );
 
   const mostRecentPost = useMostRecentPost("local", {
     sort: postSort,
-    type_: listingType,
+    type: listingType,
   });
 
   const {
@@ -172,32 +171,8 @@ export default function HomeFeed() {
     isRefetching,
   } = posts;
 
-  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const postCache = usePostsStore((s) => s.posts);
-
-  const data = useMemo(() => {
-    const postIds = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
-    const postViews = _.uniq(postIds)
-      .map((apId) => {
-        const postView = postCache[getCachePrefixer()(apId)]?.data;
-        return postView
-          ? getPostProps(postView, {
-              featuredContext: "home",
-            })
-          : null;
-      })
-      .filter(isNotNull);
-
-    return postViews;
-  }, [posts.data?.pages, postCache, getCachePrefixer]);
-
-  const firstReadPost = data.find((p) => !p.pinned);
-  const firstUnreadPost = data.find((p) => !p.pinned && !p.read);
-  const mostRecentPostId = mostRecentPost?.data?.post.ap_id;
-  const hasNewPost =
-    mostRecentPostId &&
-    mostRecentPostId !== firstReadPost?.apId &&
-    mostRecentPostId !== firstUnreadPost?.apId;
+  const mostRecentPostApId = mostRecentPost?.data?.post.apId;
+  const hasNewPost = mostRecentPostApId && !data.includes(mostRecentPostApId);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focused, setFocused] = useState(false);
@@ -301,8 +276,8 @@ export default function HomeFeed() {
               }
               return (
                 <Post
-                  key={item.apId}
-                  {...item}
+                  key={item}
+                  apId={item}
                   onNavigate={scrollAnimation.reset}
                 />
               );

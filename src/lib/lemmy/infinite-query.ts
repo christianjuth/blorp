@@ -45,7 +45,6 @@ export function useThrottledInfiniteQuery<
   TQueryFnData,
   TError,
   TData,
-  TQueryFnData,
   TQueryKey,
   TPageParam
 > & {
