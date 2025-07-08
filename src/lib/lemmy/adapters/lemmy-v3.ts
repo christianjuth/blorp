@@ -313,7 +313,6 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
         }),
     });
     if (jwt) {
-      console.log(instance, "SETTING JWT");
       this.client.setHeaders({
         ...DEFAULT_HEADERS,
         Authorization: `Bearer ${jwt}`,

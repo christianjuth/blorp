@@ -36,6 +36,7 @@ const COMMUNITY_SORTS = [
   "Active",
   "Hot",
   "New",
+  "TopAll",
   "TopHour",
   "TopSixHour",
   "TopTwelveHour",
@@ -70,7 +71,7 @@ export const pieFedCommunitySchema = z.object({
   restricted_to_mods: z.boolean(),
   title: z.string(),
   description: z.string().optional(),
-  updated: z.string(),
+  updated: z.string().optional(),
 });
 
 export const pieFedPostCountsSchema = z.object({
@@ -149,14 +150,15 @@ export const pieFedPostViewSchema = z.object({
 
 export const pieFedCommunityCountsSchema = z.object({
   id: z.number(),
-  post_count: z.number(),
-  post_reply_count: z.number(),
   published: z.string(),
-  subscriptions_count: z.number(),
-  active_6monthly: z.number().optional(),
-  active_daily: z.number().optional(),
-  active_monthly: z.number().optional(),
-  active_weekly: z.number().optional(),
+  post_count: z.number().nullable().optional(),
+  post_reply_count: z.number().nullable().optional(),
+  subscriptions_count: z.number().nullable().optional(),
+  total_subscriptions_count: z.number().nullable().optional(),
+  active_6monthly: z.number().nullable().optional(),
+  active_daily: z.number().nullable().optional(),
+  active_monthly: z.number().nullable().optional(),
+  active_weekly: z.number().nullable().optional(),
 });
 
 export const pieFedCommunityViewSchema = z.object({
@@ -282,6 +284,50 @@ export const pieFedCommentViewSchema = z.object({
   subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
 });
 
+export const pieFedCommentReplySchema = z.object({
+  id: z.number(),
+  recipient_id: z.number(),
+  comment_id: z.number(),
+  read: z.boolean(),
+  published: z.string(),
+});
+
+export const pieFedReplyViewSchema = z.object({
+  comment_reply: pieFedCommentReplySchema,
+  comment: pieFedCommentSchema,
+  creator: pieFedPersonSchema,
+  post: pieFedPostSchema,
+  community: pieFedCommunitySchema,
+  recipient: pieFedPersonSchema,
+  counts: pieFedCommentCountsSchema,
+  creator_banned_from_community: z.boolean(),
+  creator_is_moderator: z.boolean(),
+  creator_is_admin: z.boolean(),
+  subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
+  saved: z.boolean(),
+  creator_blocked: z.boolean(),
+  my_vote: z.number(),
+});
+
+export const pieFedPrivateMessageSchema = z.object({
+  id: z.number(),
+  creator_id: z.number(),
+  recipient_id: z.number(),
+  content: z.string(),
+  deleted: z.boolean(),
+  read: z.boolean(),
+  published: z.string(),
+  updated: z.string().optional(),
+  ap_id: z.string(),
+  local: z.boolean(),
+});
+
+export const pieFedPrivateMessageViewSchema = z.object({
+  private_message: pieFedPrivateMessageSchema,
+  creator: pieFedPersonSchema,
+  recipient: pieFedPersonSchema,
+});
+
 function convertPost(
   postView: z.infer<typeof pieFedPostViewSchema>,
 ): Schemas.Post {
@@ -344,14 +390,14 @@ function convertCommunity(
     description: communityView.community.description ?? null,
     ...(counts
       ? {
-          postCount: counts.post_count,
-          commentCount: counts.post_reply_count,
-          subscriberCount: counts.subscriptions_count,
-          subscribersLocalCount: counts.subscriptions_count,
-          usersActiveHalfYearCount: counts.active_6monthly,
-          usersActiveDayCount: counts.active_daily,
-          usersActiveMonthCount: counts.active_monthly,
-          usersActiveWeekCount: counts.active_weekly,
+          postCount: counts.post_count ?? undefined,
+          commentCount: counts.post_reply_count ?? undefined,
+          subscriberCount: counts.total_subscriptions_count ?? undefined,
+          subscribersLocalCount: counts.subscriptions_count ?? undefined,
+          usersActiveHalfYearCount: counts.active_6monthly ?? undefined,
+          usersActiveDayCount: counts.active_daily ?? undefined,
+          usersActiveMonthCount: counts.active_monthly ?? undefined,
+          usersActiveWeekCount: counts.active_weekly ?? undefined,
         }
       : {}),
     ...(subscribed
@@ -414,6 +460,56 @@ function convertComment(
     communityApId: community.actor_id,
     postTitle: post.title,
     myVote: commentView.my_vote ?? null,
+  };
+}
+
+function convertReply(
+  replyView: z.infer<typeof pieFedReplyViewSchema>,
+): Schemas.Reply {
+  const { creator, community } = replyView;
+  return {
+    createdAt: replyView.comment_reply.published,
+    id: replyView.comment_reply.id,
+    commentId: replyView.comment.id,
+    communityApId: community.actor_id,
+    communitySlug: createSlug({
+      apId: community.actor_id,
+      name: community.name,
+    }).slug,
+    body: replyView.comment.body,
+    path: replyView.comment.path,
+    creatorId: replyView.creator.id,
+    creatorApId: replyView.creator.actor_id,
+    creatorSlug: createSlug({ apId: creator.actor_id, name: creator.user_name })
+      .slug,
+    read: replyView.comment_reply.read,
+    postId: replyView.post.id,
+    postApId: replyView.post.ap_id,
+    postName: replyView.post.title,
+  };
+}
+
+function convertPrivateMessage(
+  pmView: z.infer<typeof pieFedPrivateMessageViewSchema>,
+): Schemas.PrivateMessage {
+  const { creator, recipient } = pmView;
+  return {
+    createdAt: pmView.private_message.published,
+    id: pmView.private_message.id,
+    creatorApId: creator.actor_id,
+    creatorId: creator.id,
+    creatorSlug: createSlug({
+      apId: recipient.actor_id,
+      name: recipient.user_name,
+    }).slug,
+    recipientApId: recipient.actor_id,
+    recipientId: recipient.id,
+    recipientSlug: createSlug({
+      apId: recipient.actor_id,
+      name: recipient.user_name,
+    }).slug,
+    body: pmView.private_message.content,
+    read: pmView.private_message.read,
   };
 }
 
@@ -636,17 +732,22 @@ export class PieFedApi implements ApiBlueprint<null> {
       },
       options,
     );
-    const data = z
-      .object({
-        next_page: z.string().nullable(),
-        communities: z.array(pieFedCommunityViewSchema),
-      })
-      .parse(json);
+    try {
+      const data = z
+        .object({
+          next_page: z.string().nullable(),
+          communities: z.array(pieFedCommunityViewSchema),
+        })
+        .parse(json);
 
-    return {
-      nextCursor: data.next_page,
-      communities: data.communities.map(convertCommunity),
-    };
+      return {
+        nextCursor: data.next_page,
+        communities: data.communities.map(convertCommunity),
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async getCommunity(form: Forms.GetCommunity, options?: RequestOptions) {
@@ -1008,8 +1109,43 @@ export class PieFedApi implements ApiBlueprint<null> {
     form: Forms.GetPrivateMessages,
     options: RequestOptions,
   ) {
-    throw Errors.NOT_IMPLEMENTED;
-    return {} as any;
+    const json = await this.get(
+      "/private_message/list",
+      {
+        unread_only: form.unreadOnly ?? false,
+        page:
+          _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+            ? 1
+            : _.parseInt(form.pageCursor) + 1,
+        limit: this.limit,
+      },
+      options,
+    );
+    const { private_messages } = z
+      .object({
+        private_messages: z.array(pieFedPrivateMessageViewSchema),
+      })
+      .parse(json);
+
+    const profiles = _.uniqBy(
+      [
+        ...private_messages.map((pm) => pm.creator),
+        ...private_messages.map((pm) => pm.recipient),
+      ],
+      (p) => p.actor_id,
+    ).map((person) => convertPerson({ person }));
+
+    const nextCursor =
+      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+        ? 1
+        : _.parseInt(form.pageCursor) + 1;
+    const hasNextCursor = private_messages.length >= this.limit;
+
+    return {
+      privateMessages: private_messages.map(convertPrivateMessage),
+      profiles,
+      nextCursor: hasNextCursor ? String(nextCursor) : null,
+    };
   }
 
   async createPrivateMessage(form: Forms.CreatePrivateMessage) {
@@ -1018,7 +1154,10 @@ export class PieFedApi implements ApiBlueprint<null> {
   }
 
   async markPrivateMessageRead(form: Forms.MarkPrivateMessageRead) {
-    throw Errors.NOT_IMPLEMENTED;
+    await this.post("/private_message/mark_as_read", {
+      private_message_id: form.id,
+      read: form.read,
+    });
   }
 
   async featurePost(form: Forms.FeaturePost) {
@@ -1032,8 +1171,38 @@ export class PieFedApi implements ApiBlueprint<null> {
   }
 
   async getReplies(form: Forms.GetReplies, option: RequestOptions) {
-    throw Errors.NOT_IMPLEMENTED;
-    return {} as any;
+    const json = await this.get(
+      "/user/replies",
+      {
+        sort: form.sort,
+        page:
+          _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+            ? 1
+            : _.parseInt(form.pageCursor) + 1,
+        limit: this.limit,
+        unread_only: form.unreadOnly,
+      },
+      option,
+    );
+
+    const { replies } = z
+      .object({
+        replies: z.array(pieFedReplyViewSchema),
+      })
+      .parse(json);
+
+    const nextCursor =
+      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+        ? 1
+        : _.parseInt(form.pageCursor) + 1;
+
+    const hasNextCursor = replies.length >= this.limit;
+
+    return {
+      replies: replies.map(convertReply),
+      profiles: replies.map((r) => convertPerson({ person: r.creator })),
+      nextCursor: hasNextCursor ? String(nextCursor) : null,
+    };
   }
 
   async getMentions(form: Forms.GetMentions, options: RequestOptions) {
@@ -1042,8 +1211,10 @@ export class PieFedApi implements ApiBlueprint<null> {
   }
 
   async markReplyRead(form: Forms.MarkReplyRead) {
-    throw Errors.NOT_IMPLEMENTED;
-    return {} as any;
+    await this.post("/comment/mark_as_read", {
+      comment_reply_id: form.id,
+      read: form.read,
+    });
   }
 
   async markMentionRead(form: Forms.MarkMentionRead) {
