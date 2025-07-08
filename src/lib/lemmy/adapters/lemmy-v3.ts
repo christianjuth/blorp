@@ -7,6 +7,7 @@ import {
   Forms,
   INIT_PAGE_TOKEN,
   Errors,
+  slugSchema,
 } from "./api-blueprint";
 import { createSlug } from "../utils";
 import _ from "lodash";
@@ -221,7 +222,7 @@ function convertPrivateMessage(
     id: pmView.private_message.id,
     creatorApId: creator.actor_id,
     creatorId: creator.id,
-    creatorSlug: createSlug({ apId: recipient.actor_id, name: recipient.name })
+    creatorSlug: createSlug({ apId: creator.actor_id, name: creator.name })
       .slug,
     recipientApId: recipient.actor_id,
     recipientId: recipient.id,
@@ -437,33 +438,52 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
   }
 
   async getPerson(form: Forms.GetPerson, options: RequestOptions) {
-    const { person } = await this.client.resolveObject(
-      {
-        q: form.apId,
-      },
-      options,
-    );
+    if (z.string().url().safeParse(form.apIdOrUsername).success) {
+      const { person } = await this.client.resolveObject(
+        {
+          q: form.apIdOrUsername,
+        },
+        options,
+      );
 
-    if (!person) {
-      throw new Error("person not found");
+      if (!person) {
+        throw new Error("person not found");
+      }
+
+      return convertPerson(person);
+    } else {
+      const { person_view } = await this.client.getPersonDetails(
+        {
+          username: form.apIdOrUsername,
+        },
+        options,
+      );
+      return convertPerson(person_view);
     }
-
-    return convertPerson(person);
   }
 
   async getPersonContent(
     form: Forms.GetPersonContent,
     options: RequestOptions,
   ) {
-    const { person_id } = await this.resolveObjectId(form.apId);
+    const personOrUsername: Partial<{
+      username: string;
+      person_id: number;
+    }> = {};
 
-    if (_.isNil(person_id)) {
-      throw new Error("person not found");
+    if (z.string().url().safeParse(form.apIdOrUsername).success) {
+      const { person_id } = await this.resolveObjectId(form.apIdOrUsername);
+      if (_.isNil(person_id)) {
+        throw new Error("person not found");
+      }
+      personOrUsername.person_id = person_id;
+    } else {
+      personOrUsername.username = form.apIdOrUsername;
     }
 
     const { posts, comments } = await this.client.getPersonDetails(
       {
-        person_id,
+        ...personOrUsername,
         limit: this.limit,
         page:
           _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
@@ -603,7 +623,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
       {
         sort,
         post_id,
-        type_: form.type,
+        type_: "All",
         limit: this.limit,
         max_depth: 6,
         page:

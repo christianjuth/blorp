@@ -28,11 +28,7 @@ export default function Privacy() {
       <IonContent>
         <ContentGutters>
           {isActiveRoute && (
-            <MarkdownRenderer
-              allowUnsafeHtml
-              markdown={MD}
-              className="flex-1 py-8"
-            />
+            <MarkdownRenderer markdown={MD} className="flex-1 py-8" />
           )}
         </ContentGutters>
       </IonContent>

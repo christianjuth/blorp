@@ -138,7 +138,6 @@ def add(a, b):
 
 export const HTMLInsideMarkdown: Story = {
   args: {
-    allowUnsafeHtml: true,
     markdown: `
 You can even embed raw HTML:
 

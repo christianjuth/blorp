@@ -140,29 +140,35 @@ export function usePersonDetails({
         await api
       ).getPerson(
         {
-          apId: actorId,
+          apIdOrUsername: actorId,
         },
         { signal },
       );
       cacheProfiles(getCachePrefixer(), [person]);
-      return {};
+      return {
+        apId: person.apId,
+      };
     },
     enabled: !!actorId && enabled,
   });
 }
 
 export function usePersonFeed({
-  apId,
+  apIdOrUsername,
   type,
   sort,
-}: SetOptional<Forms.GetPersonContent, "apId">) {
+}: SetOptional<Forms.GetPersonContent, "apIdOrUsername">) {
   const { api, queryKeyPrefix } = useLemmyClient();
 
   const postSort = useFiltersStore((s) => s.postSort);
 
   sort ??= postSort;
 
-  const queryKey = [...queryKeyPrefix, "getPersonFeed", { apId, type, sort }];
+  const queryKey = [
+    ...queryKeyPrefix,
+    "getPersonFeed",
+    { apIdOrUsername, type, sort },
+  ];
 
   const cacheComments = useCommentsStore((s) => s.cacheComments);
 
@@ -172,7 +178,7 @@ export function usePersonFeed({
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
-      if (!apId) {
+      if (!apIdOrUsername) {
         throw new Error("person_id undefined");
       }
 
@@ -180,7 +186,7 @@ export function usePersonFeed({
         await api
       ).getPersonContent(
         {
-          apId,
+          apIdOrUsername,
           pageCursor: pageParam,
           type,
           sort,
@@ -197,7 +203,7 @@ export function usePersonFeed({
         next_page: nextCursor,
       };
     },
-    enabled: !!apId,
+    enabled: !!apIdOrUsername,
     initialPageParam: INIT_PAGE_TOKEN,
     getNextPageParam: (data) => data.next_page,
   });
@@ -300,8 +306,8 @@ export function useComments(form: Forms.GetComments) {
   const { api } = useLemmyClient();
 
   form = {
-    ...form,
     sort,
+    ...form,
   };
 
   const queryKey = useCommentsKey()(form);

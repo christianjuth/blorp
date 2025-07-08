@@ -513,6 +513,32 @@ function convertPrivateMessage(
   };
 }
 
+function convertMention(
+  replyView: z.infer<typeof pieFedReplyViewSchema>,
+): Schemas.Reply {
+  const { creator, community } = replyView;
+  return {
+    createdAt: replyView.comment_reply.published,
+    id: replyView.comment_reply.id,
+    commentId: replyView.comment.id,
+    communityApId: community.actor_id,
+    communitySlug: createSlug({
+      apId: community.actor_id,
+      name: community.name,
+    }).slug,
+    body: replyView.comment.body,
+    path: replyView.comment.path,
+    creatorId: replyView.creator.id,
+    creatorApId: replyView.creator.actor_id,
+    creatorSlug: createSlug({ apId: creator.actor_id, name: creator.user_name })
+      .slug,
+    read: replyView.comment_reply.read,
+    postId: replyView.post.id,
+    postApId: replyView.post.ap_id,
+    postName: replyView.post.title,
+  };
+}
+
 export class PieFedApi implements ApiBlueprint<null> {
   client = null;
   instance: string;
@@ -782,19 +808,35 @@ export class PieFedApi implements ApiBlueprint<null> {
   }
 
   async getPerson(form: Forms.GetPerson, options: RequestOptions) {
-    const { person_id } = await this.resolveObjectId(form.apId);
-    if (_.isNil(person_id)) {
-      throw new Error("person not found for apId");
+    if (z.string().url().safeParse(form.apIdOrUsername).success) {
+      const { person_id } = await this.resolveObjectId(form.apIdOrUsername);
+      if (_.isNil(person_id)) {
+        throw new Error("person not found for apId");
+      }
+      const json = await this.get(
+        "/user",
+        {
+          person_id,
+        },
+        options,
+      );
+      const data = z
+        .object({ person_view: pieFedPersonViewSchema })
+        .parse(json);
+      return convertPerson(data.person_view);
+    } else {
+      const json = await this.get(
+        "/user",
+        {
+          username: form.apIdOrUsername,
+        },
+        options,
+      );
+      const data = z
+        .object({ person_view: pieFedPersonViewSchema })
+        .parse(json);
+      return convertPerson(data.person_view);
     }
-    const json = await this.get(
-      "/user",
-      {
-        person_id,
-      },
-      options,
-    );
-    const data = z.object({ person_view: pieFedPersonViewSchema }).parse(json);
-    return convertPerson(data.person_view);
   }
 
   async getPost(form: { apId: string }, options: RequestOptions) {
@@ -875,6 +917,7 @@ export class PieFedApi implements ApiBlueprint<null> {
       "/comment/list",
       {
         limit: this.limit,
+        type_: "All",
         sort,
         page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         parent_id: form.parentId,
@@ -1040,14 +1083,28 @@ export class PieFedApi implements ApiBlueprint<null> {
     form: Forms.GetPersonContent,
     options: RequestOptions,
   ) {
-    const { person_id } = await this.resolveObjectId(form.apId);
+    const personOrUsername: Partial<{
+      username: string;
+      person_id: number;
+    }> = {};
+
+    if (z.string().url().safeParse(form.apIdOrUsername).success) {
+      const { person_id } = await this.resolveObjectId(form.apIdOrUsername);
+      if (_.isNil(person_id)) {
+        throw new Error("person not found");
+      }
+      personOrUsername.person_id = person_id;
+    } else {
+      personOrUsername.username = form.apIdOrUsername;
+    }
+
     const json = await this.get(
       "/post/list",
       {
+        ...personOrUsername,
         limit: this.limit,
         page_cursor:
           form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
-        person_id,
         type_: form.type,
       },
       options,
@@ -1113,17 +1170,15 @@ export class PieFedApi implements ApiBlueprint<null> {
       "/private_message/list",
       {
         unread_only: form.unreadOnly ?? false,
-        page:
-          _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
-            ? 1
-            : _.parseInt(form.pageCursor) + 1,
+        page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         limit: this.limit,
       },
       options,
     );
-    const { private_messages } = z
+    const { private_messages, next_page } = z
       .object({
         private_messages: z.array(pieFedPrivateMessageViewSchema),
+        next_page: z.string().nullable(),
       })
       .parse(json);
 
@@ -1135,22 +1190,26 @@ export class PieFedApi implements ApiBlueprint<null> {
       (p) => p.actor_id,
     ).map((person) => convertPerson({ person }));
 
-    const nextCursor =
-      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
-        ? 1
-        : _.parseInt(form.pageCursor) + 1;
-    const hasNextCursor = private_messages.length >= this.limit;
-
     return {
       privateMessages: private_messages.map(convertPrivateMessage),
       profiles,
-      nextCursor: hasNextCursor ? String(nextCursor) : null,
+      nextCursor: next_page,
     };
   }
 
   async createPrivateMessage(form: Forms.CreatePrivateMessage) {
-    throw Errors.NOT_IMPLEMENTED;
-    return {} as any;
+    const json = await this.post("/private_message", {
+      content: form.body,
+      recipient_id: form.recipientId,
+    });
+
+    const { private_message_view } = z
+      .object({
+        private_message_view: pieFedPrivateMessageViewSchema,
+      })
+      .parse(json);
+
+    return convertPrivateMessage(private_message_view);
   }
 
   async markPrivateMessageRead(form: Forms.MarkPrivateMessageRead) {
@@ -1175,39 +1234,53 @@ export class PieFedApi implements ApiBlueprint<null> {
       "/user/replies",
       {
         sort: form.sort,
-        page:
-          _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
-            ? 1
-            : _.parseInt(form.pageCursor) + 1,
+        page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         limit: this.limit,
         unread_only: form.unreadOnly,
       },
       option,
     );
 
-    const { replies } = z
+    const { replies, next_page } = z
       .object({
         replies: z.array(pieFedReplyViewSchema),
+        next_page: z.string().nullable(),
       })
       .parse(json);
-
-    const nextCursor =
-      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
-        ? 1
-        : _.parseInt(form.pageCursor) + 1;
-
-    const hasNextCursor = replies.length >= this.limit;
 
     return {
       replies: replies.map(convertReply),
       profiles: replies.map((r) => convertPerson({ person: r.creator })),
-      nextCursor: hasNextCursor ? String(nextCursor) : null,
+      nextCursor: next_page,
     };
   }
 
   async getMentions(form: Forms.GetMentions, options: RequestOptions) {
-    throw Errors.NOT_IMPLEMENTED;
-    return {} as any;
+    const json = await this.get(
+      "/user/mentions",
+      {
+        page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
+        limit: this.limit,
+        unread_only: form.unreadOnly,
+      },
+      options,
+    );
+
+    const { replies, next_page } = z
+      .object({
+        next_page: z.string().nullable(),
+        replies: z.array(pieFedReplyViewSchema),
+      })
+      .parse(json);
+
+    return {
+      mentions: replies.map(convertMention),
+      profiles: _.unionBy(
+        replies.map((r) => convertPerson({ person: r.creator })),
+        (p) => p.apId,
+      ),
+      nextCursor: next_page,
+    };
   }
 
   async markReplyRead(form: Forms.MarkReplyRead) {
@@ -1218,8 +1291,7 @@ export class PieFedApi implements ApiBlueprint<null> {
   }
 
   async markMentionRead(form: Forms.MarkMentionRead) {
-    throw Errors.NOT_IMPLEMENTED;
-    return {} as any;
+    await this.markReplyRead(form);
   }
 
   async createPostReport(form: Forms.CreatePostReport) {

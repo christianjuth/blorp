@@ -92,7 +92,6 @@ export default function SavedFeed() {
 
   const comments = useComments({
     savedOnly: true,
-    type: "All",
   });
 
   const postSort = useFiltersStore((s) => s.postSort);

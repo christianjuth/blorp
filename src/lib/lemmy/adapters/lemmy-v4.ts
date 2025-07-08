@@ -305,7 +305,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     // @ts-expect-error
     const { person } = await this.client.resolveObject(
       {
-        q: form.apId,
+        q: form.apIdOrUsername,
       },
       options,
     );
@@ -319,7 +319,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
     form: Forms.GetPersonContent,
     options: RequestOptions,
   ) {
-    const { person_id } = await this.resolveObjectId(form.apId);
+    const { person_id } = await this.resolveObjectId(form.apIdOrUsername);
 
     if (_.isNil(person_id)) {
       throw new Error("person not found");

@@ -1,10 +1,5 @@
-import {
-  CommunitySortType,
-  SearchType,
-  PostFeatureType,
-  ListingType,
-} from "lemmy-v4";
-import z, { string } from "zod";
+import { PostFeatureType } from "lemmy-v4";
+import z from "zod";
 
 export const INIT_PAGE_TOKEN = "INIT_PAGE_TOKEN";
 
@@ -194,6 +189,10 @@ const registrationResponseSchema = z.object({
   registrationCreated: z.boolean().nullable(),
 });
 
+export const slugSchema = z.custom<`${string}@${string}`>((val) => {
+  return /^([\w-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/.test(val);
+});
+
 export namespace Schemas {
   export type Site = z.infer<typeof siteSchema>;
 
@@ -216,7 +215,7 @@ export namespace Schemas {
 
 export namespace Forms {
   export type GetPerson = {
-    apId: string;
+    apIdOrUsername: string;
   };
 
   export type GetPrivateMessages = {
@@ -235,7 +234,7 @@ export namespace Forms {
   };
 
   export type GetPersonContent = {
-    apId: string;
+    apIdOrUsername: string;
     pageCursor?: string;
     type: "Posts" | "Comments";
     sort?: string;
@@ -306,7 +305,6 @@ export namespace Forms {
     sort?: string;
     pageCursor?: string;
     savedOnly?: boolean;
-    type?: "All" | "Local";
   };
 
   export type CreateComment = {

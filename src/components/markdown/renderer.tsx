@@ -15,6 +15,7 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { shareImage } from "@/src/lib/share";
 import { cn } from "@/src/lib/utils";
 import DOMPurify from "dompurify";
+import { slugSchema } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 const COMMUNITY_BANG =
   /^!([A-Za-z0-9_-]+)@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})$/;
@@ -153,6 +154,25 @@ function createMd(root: ReturnType<typeof useLinkContext>["root"]) {
     },
   });
 
+  md.linkify.add("@", {
+    // The validate function checks that the text starting at position pos
+    // matches our desired lemmy link pattern.
+    validate: function (text, pos) {
+      // Attempt to match the pattern: @user@host
+      const tail = text.slice(pos);
+      const { data } = slugSchema.safeParse(tail);
+      if (data) {
+        // Return the length of the matched text.
+        return data.length;
+      }
+      return 0;
+    },
+    // The normalize function lets us customize how the matched text becomes a URL.
+    normalize: function (match) {
+      match.url = `${root}u/${match.raw.substring(1)}`;
+    },
+  });
+
   md.use(markdownitContainer, "spoiler", {
     validate: function (params) {
       return /^spoiler\s+(.*)$/.test(params.trim());
@@ -185,12 +205,10 @@ const RENDERERS: Record<ReturnType<typeof useLinkContext>["root"], MarkdownIt> =
 export function MarkdownRenderer({
   markdown,
   className,
-  allowUnsafeHtml,
   dim,
 }: {
   markdown: string;
   className?: string;
-  allowUnsafeHtml?: boolean;
   dim?: boolean;
 }) {
   const root = useLinkContext().root;

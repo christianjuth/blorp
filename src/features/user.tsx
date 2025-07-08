@@ -8,16 +8,15 @@ import {
 import { MarkdownRenderer } from "../components/markdown/renderer";
 import { VirtualList } from "../components/virtual-list";
 import { PostSortButton } from "../components/lemmy-sort";
-import { memo, useMemo } from "react";
-import { createSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
+import { memo, useEffect, useMemo } from "react";
+import { decodeApId, encodeApId } from "../lib/lemmy/utils";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
 import { useLinkContext } from "../routing/link-context";
 import { useProfilesStore } from "../stores/profiles";
 import { usePostsStore } from "../stores/posts";
-import { CommentView } from "lemmy-v3";
-import { Link, useParams } from "@/src/routing/index";
+import { Link, resolveRoute, useParams } from "@/src/routing/index";
 import {
   IonBackButton,
   IonButtons,
@@ -26,6 +25,7 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
+  useIonRouter,
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
@@ -36,6 +36,7 @@ import { useAuth } from "../stores/auth";
 import z from "zod";
 import { PersonSidebar } from "../components/person/person-sidebar";
 import { PersonActionMenu } from "../components/person/person-action-menu";
+import { useHistory } from "react-router";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item = string;
@@ -111,8 +112,19 @@ export default function User() {
   );
 
   const postSort = useFiltersStore((s) => s.postSort);
-  usePersonDetails({ actorId });
-  const query = usePersonFeed({ apId: actorId, type });
+  const personQuery = usePersonDetails({ actorId });
+  const query = usePersonFeed({ apIdOrUsername: actorId, type });
+
+  const history = useHistory();
+  useEffect(() => {
+    const actualApId = personQuery.data?.apId;
+    if (actorId && actualApId && actorId !== actualApId) {
+      const newPath = resolveRoute(`${linkCtx.root}u/:userId`, {
+        userId: encodeApId(actualApId),
+      });
+      history.replace(newPath);
+    }
+  }, [actorId, personQuery.data?.apId]);
 
   const {
     hasNextPage,
