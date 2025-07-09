@@ -255,6 +255,7 @@ export default function Post() {
                     apId={post.apId}
                     featuredContext="community"
                     detailView
+                    modApIds={modApIds}
                   />
                 ) : (
                   <ContentGutters className="px-0" key="post-skeleton">

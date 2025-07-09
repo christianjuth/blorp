@@ -34,6 +34,7 @@ import { PostReportProvider } from "../components/posts/post-report";
 import { PageTitle } from "../components/page-title";
 import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
 import { usePostsStore } from "../stores/posts";
+import { getAccountSite, useAuth } from "../stores/auth";
 
 const EMPTY_ARR: never[] = [];
 
@@ -163,6 +164,10 @@ export default function HomeFeed() {
     type: listingType,
   });
 
+  const adminApIds = useAuth(
+    (s) => getAccountSite(s.getSelectedAccount())?.admins,
+  )?.map((a) => a.apId);
+
   const {
     hasNextPage,
     fetchNextPage,
@@ -279,6 +284,7 @@ export default function HomeFeed() {
                   key={item}
                   apId={item}
                   onNavigate={scrollAnimation.reset}
+                  adminApIds={adminApIds}
                 />
               );
             }}

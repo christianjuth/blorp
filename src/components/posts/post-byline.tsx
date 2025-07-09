@@ -40,16 +40,17 @@ export function PostByline({
   showCommunity,
   showCreator,
   onNavigate,
+  isMod = false,
+  isAdmin = false,
 }: {
   post: Schemas.Post;
   pinned: boolean;
   showCommunity?: boolean;
   showCreator?: boolean;
   onNavigate?: () => void;
+  isMod?: boolean;
+  isAdmin?: boolean;
 }) {
-  const isMod = false;
-  const isAdmin = false;
-
   const [alrt] = useIonAlert();
 
   const showReportModal = useShowPostReportModal();

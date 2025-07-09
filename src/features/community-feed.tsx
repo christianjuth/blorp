@@ -42,6 +42,7 @@ import { FaArrowUp } from "react-icons/fa6";
 import { useMedia, useTheme } from "../lib/hooks";
 import { CommunityFeedSortBar } from "../components/communities/community-feed-sort-bar";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
+import { getAccountSite, useAuth } from "../stores/auth";
 
 const EMPTY_ARR: never[] = [];
 
@@ -81,6 +82,11 @@ export default function CommunityFeed() {
   const community = useCommunity({
     name: communityName,
   });
+
+  const modApIds = community.data?.mods.map((m) => m.apId);
+  const adminApIds = useAuth(
+    (s) => getAccountSite(s.getSelectedAccount())?.admins,
+  )?.map((a) => a.apId);
 
   const updateRecent = useRecentCommunitiesStore((s) => s.update);
 
@@ -225,7 +231,14 @@ export default function CommunityFeed() {
                   </ContentGutters>
                 );
               }
-              return <Post apId={item} featuredContext="community" />;
+              return (
+                <Post
+                  apId={item}
+                  featuredContext="community"
+                  modApIds={modApIds}
+                  adminApIds={adminApIds}
+                />
+              );
             }}
             onEndReached={() => {
               if (hasNextPage && !isFetchingNextPage) {

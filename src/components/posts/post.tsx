@@ -34,6 +34,8 @@ export interface PostProps {
   detailView?: boolean;
   onNavigate?: () => any;
   featuredContext?: "community" | "home";
+  modApIds?: string[];
+  adminApIds?: string[];
 }
 
 export function PostCardSkeleton(props: {
@@ -177,6 +179,8 @@ export function FeedPostCard(props: PostProps) {
         showCommunity={
           props.featuredContext === "home" ? true : (props.detailView ?? false)
         }
+        isMod={props.modApIds?.includes(post.creatorApId)}
+        isAdmin={props.adminApIds?.includes(post.creatorApId)}
       />
 
       {props.detailView && post.crossPosts && post.crossPosts.length > 0 && (
