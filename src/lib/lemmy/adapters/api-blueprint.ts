@@ -107,6 +107,7 @@ export const siteSchema = z.object({
   icon: z.string().nullable(),
   title: z.string().nullable(),
   applicationQuestion: z.string().nullable(),
+  registrationMode: z.enum(["Closed", "RequireApplication", "Open"]),
 });
 export const commentSchema = z.object({
   createdAt: z.string(),
@@ -421,9 +422,11 @@ export type RequestOptions = {
   signal?: AbortSignal;
 };
 
-export abstract class ApiBlueprint<C> {
+export abstract class ApiBlueprint<C, S extends string> {
   abstract client: C;
   abstract limit: number;
+
+  abstract software: S;
 
   abstract getSite(options?: RequestOptions): Promise<Schemas.Site>;
 

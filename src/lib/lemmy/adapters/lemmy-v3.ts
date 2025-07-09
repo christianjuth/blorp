@@ -282,7 +282,9 @@ function convertMention(replyView: lemmyV3.PersonMentionView): Schemas.Reply {
   };
 }
 
-export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
+export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
+  software = "lemmy" as const;
+
   client: lemmyV3.LemmyHttp;
   instance: string;
   limit = 50;
@@ -324,6 +326,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
   async getSite(options: RequestOptions) {
     const site = await this.client.getSite(options);
     const me = site.my_user?.local_user_view.person;
+    site.site_view.local_site.registration_mode;
     return {
       instance: this.instance,
       admins: site.admins.map((p) => convertPerson(p)),
@@ -358,6 +361,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
         ) ?? null,
       applicationQuestion:
         site.site_view.local_site.application_question ?? null,
+      registrationMode: site.site_view.local_site.registration_mode,
     };
   }
 

@@ -195,7 +195,7 @@ export const pieFedSiteDetailsSchema = z.object({
   enable_downvotes: z.boolean(),
   icon: z.string().optional(),
   name: z.string(),
-  registration_mode: z.string(),
+  registration_mode: z.enum(["Closed", "RequireApplication", "Open"]),
   sidebar: z.string().optional(),
   user_count: z.number(),
 });
@@ -539,7 +539,9 @@ function convertMention(
   };
 }
 
-export class PieFedApi implements ApiBlueprint<null> {
+export class PieFedApi implements ApiBlueprint<null, "piefed"> {
+  software = "piefed" as const;
+
   client = null;
   instance: string;
   limit = 50;
@@ -707,6 +709,7 @@ export class PieFedApi implements ApiBlueprint<null> {
             convertCommunity({ community }),
           ) ?? null,
         applicationQuestion: null,
+        registrationMode: site.site.registration_mode,
       };
     } catch (err) {
       console.log(err);

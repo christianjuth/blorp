@@ -181,7 +181,9 @@ function convertComment(commentView: lemmyV4.CommentView): Schemas.Comment {
   };
 }
 
-export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
+export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
+  software = "lemmy" as const;
+
   client: lemmyV4.LemmyHttp;
   instance: string;
   limit = 50;
@@ -248,6 +250,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
       title: site.site_view.site.name,
       applicationQuestion:
         site.site_view.local_site.application_question ?? null,
+      registrationMode: site.site_view.local_site.registration_mode,
     };
   }
 

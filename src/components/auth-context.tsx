@@ -143,9 +143,19 @@ export function useRequireAuth() {
   return useContext(Context).authenticate;
 }
 
-function SignupForm({ onSuccess }: { onSuccess: () => void }) {
+function SignupForm({
+  onSuccess,
+  onCancel,
+  instance,
+}: {
+  onSuccess: () => void;
+  onCancel: () => void;
+  instance?: string;
+}) {
+  instance ??= env.REACT_APP_DEFAULT_INSTANCE;
+
   const captcha = useCaptcha({
-    instance: env.REACT_APP_DEFAULT_INSTANCE,
+    instance,
   });
 
   const [email, setEmail] = useState("");
@@ -157,11 +167,11 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
 
   const register = useRegister({
     addAccount: true,
-    instance: env.REACT_APP_DEFAULT_INSTANCE,
+    instance,
   });
 
   const site = useSite({
-    instance: env.REACT_APP_DEFAULT_INSTANCE,
+    instance,
   });
 
   const submitLogin = (e?: FormEvent) => {
@@ -188,6 +198,19 @@ function SignupForm({ onSuccess }: { onSuccess: () => void }) {
   };
 
   const applicationQuestion = site.data?.applicationQuestion;
+
+  if (site.data?.registrationMode === "Closed") {
+    return (
+      <div className="gap-4 flex flex-col p-4">
+        <div className="bg-destructive/20 p-1 rounded-md text-center">
+          This instance is not currently accepting registrations
+        </div>
+        <Button variant="ghost" onClick={() => onCancel()}>
+          Return to login
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
@@ -327,10 +350,24 @@ function AuthModal({
   const [signup, setSignup] = useState(false);
 
   const [search, setSearch] = useState("");
-  const [_instance, setInstanceLocal] = useState<{
+  const [_instance, _setInstanceLocal] = useState<{
     url?: string;
     baseurl?: string;
   }>({});
+  const setInstanceLocal = (url?: string) => {
+    if (!url) {
+      _setInstanceLocal({});
+      return;
+    }
+    let baseurl: string | undefined = undefined;
+    try {
+      baseurl = new URL(url).host;
+    } catch {}
+    _setInstanceLocal({
+      url,
+      baseurl,
+    });
+  };
   const instance = env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE
     ? DEFAULT_INSTACE
     : _instance;
@@ -390,7 +427,7 @@ function AuthModal({
     setUsername("");
     setPassword("");
     setMfaToken(undefined);
-    setInstanceLocal({});
+    setInstanceLocal();
     setSearch("");
   };
 
@@ -425,7 +462,7 @@ function AuthModal({
               onClick={() => {
                 if (instance.url && !env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE) {
                   setSignup(false);
-                  setInstanceLocal({});
+                  setInstanceLocal();
                 } else {
                   modal.current?.dismiss();
                 }
@@ -437,34 +474,29 @@ function AuthModal({
             </IonButton>
           </IonButtons>
           <IonTitle>{instance.baseurl ? instance.baseurl : "Login"}</IonTitle>
-          <IonButtons slot="end">
-            <IonButton
-              onClick={() => {
-                if (!signup) {
-                  setInstanceLocal({
-                    url: env.REACT_APP_DEFAULT_INSTANCE,
-                    baseurl: env.REACT_APP_DEFAULT_INSTANCE.replace(
-                      /^https?:\/\//,
-                      "",
-                    ),
-                  });
-                }
-                setSignup((b) => !b);
-              }}
-            >
-              {signup ? "Login" : "Sign up"}
-            </IonButton>
-          </IonButtons>
+          {software === "lemmy" && (
+            <IonButtons slot="end">
+              <IonButton
+                onClick={() => {
+                  setSignup((b) => !b);
+                }}
+              >
+                {signup ? "Login" : "Sign up"}
+              </IonButton>
+            </IonButtons>
+          )}
         </IonToolbar>
       </IonHeader>
 
       <IonContent>
         {signup && (
           <SignupForm
+            instance={instance.url}
             onSuccess={() => {
               onSuccess();
               resetForm();
             }}
+            onCancel={() => setSignup(false)}
           />
         )}
 
@@ -485,6 +517,7 @@ function AuthModal({
                   </IonHeader>
                   <Input
                     placeholder="Search for your server or enter one thats not in the list"
+                    defaultValue={search}
                     onChange={(e) => setSearch(e.target.value)}
                     autoCapitalize="none"
                     autoCorrect="off"
@@ -508,7 +541,7 @@ function AuthModal({
                 <button
                   key={i.url}
                   onClick={() => {
-                    setInstanceLocal(i);
+                    setInstanceLocal(i.url);
                     if (!addAccount) {
                       updateSelectedAccount({
                         instance: i.url,
@@ -592,16 +625,18 @@ function AuthModal({
                 {login.isPending && <LuLoaderCircle className="animate-spin" />}
               </Button>
 
-              <span className="mx-auto">
-                Need an account?
-                <Button
-                  type="button"
-                  variant="link"
-                  onClick={() => setSignup(true)}
-                >
-                  Sign up
-                </Button>
-              </span>
+              {software === "lemmy" && (
+                <span className="mx-auto">
+                  Need an account?
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setSignup(true)}
+                  >
+                    Sign up
+                  </Button>
+                </span>
+              )}
 
               <Button
                 type="button"
@@ -611,7 +646,7 @@ function AuthModal({
                   addAccountFn({
                     instance: instance.url,
                   });
-                  setInstanceLocal({});
+                  setInstanceLocal();
                   onClose();
                 }}
               >

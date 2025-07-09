@@ -59,6 +59,7 @@ import { usePathname } from "../routing/hooks";
 import { Sidebar, SidebarContent } from "../components/sidebar";
 import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 import { useCommunitiesStore } from "../stores/communities";
+import LoginRequired from "./login-required";
 
 dayjs.extend(localizedFormat);
 
@@ -248,6 +249,12 @@ export function CreatePost() {
       } catch {}
     }
   };
+
+  const isLoggedIn = useAuth((s) => s.isLoggedIn());
+
+  if (!isLoggedIn) {
+    return <LoginRequired />;
+  }
 
   const getPostButton = (className: string) => (
     <Button
