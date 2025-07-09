@@ -201,7 +201,8 @@ export function CreatePost() {
     draft.apId ? s.posts[getCachePrefixer()(draft.apId)] : undefined,
   );
   const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
-  const canEdit = isEdit && post?.data.apId && myUserId === post.data.apId;
+  const canEdit =
+    isEdit && post?.data.creatorApId && myUserId === post.data.creatorApId;
   const postOwner = post?.data.creatorSlug;
 
   const uploadImage = useUploadImage();

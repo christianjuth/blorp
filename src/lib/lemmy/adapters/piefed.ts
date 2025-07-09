@@ -1323,8 +1323,34 @@ export class PieFedApi implements ApiBlueprint<null> {
   }
 
   async uploadImage(form: Forms.UploadImage) {
-    throw Errors.NOT_IMPLEMENTED;
-    return {} as any;
+    const formData = new FormData();
+    formData.append("file", form.image);
+
+    const res = await fetch(`${this.instance}/api/alpha/upload/user_image`, {
+      method: "POST",
+      headers: {
+        ..._.omit(DEFAULT_HEADERS, "Content-Type"),
+        ...(this.jwt ? { authorization: `Bearer ${this.jwt}` } : {}),
+      },
+      body: formData,
+      cache: "no-store",
+    });
+
+    if (res.status < 200 || res.status >= 300) {
+      throw new Error(`upload failed, status code ${res.status}`);
+    }
+
+    const json = await res.json();
+
+    const { url } = z
+      .object({
+        url: z.string(),
+      })
+      .parse(json);
+
+    return {
+      url,
+    };
   }
 
   async getCaptcha() {
