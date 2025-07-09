@@ -240,14 +240,12 @@ export function PostComment({
 
   const router = useIonRouter();
 
-  if (!commentView) {
-    return null;
-  }
-
-  const hideContent = commentView.removed || commentView.deleted;
+  const hideContent = commentView?.removed || commentView?.deleted || false;
 
   const highlightComment =
-    highlightCommentId && highlightCommentId === String(commentView.id);
+    highlightCommentId &&
+    commentView &&
+    highlightCommentId === String(commentView.id);
 
   const content = (
     <div
@@ -304,47 +302,54 @@ export function PostComment({
         </div>
       )}
       <Collapsible
-        className={cn(commentView.id < 0 && "opacity-50")}
+        className={cn(commentView && commentView.id < 0 && "opacity-50")}
         defaultOpen={open}
         onOpenChange={() => {
-          setOpen(commentView.apId, !open);
-          ref.current?.dispatchEvent(
-            new CustomEvent<boolean>(COMMENT_COLLAPSE_EVENT, {
-              bubbles: true,
-            }),
-          );
+          if (commentView) {
+            setOpen(commentView.apId, !open);
+            ref.current?.dispatchEvent(
+              new CustomEvent<boolean>(COMMENT_COLLAPSE_EVENT, {
+                bubbles: true,
+              }),
+            );
+          }
         }}
       >
-        <Byline
-          className={cn(
-            open && "pb-1.5",
-            level > 0 && !open && "pb-3",
-            highlightComment && "bg-brand/10 dark:bg-brand/20",
-          )}
-          actorId={commentView.creatorApId}
-          publishedDate={commentView.createdAt}
-          authorType={
-            isAdmin
-              ? "ADMIN"
-              : isMod
-                ? "MOD"
-                : commentView.creatorId === opId
-                  ? "OP"
-                  : commentView.creatorId === myUserId
-                    ? "ME"
-                    : undefined
-          }
-        />
+        {commentView && (
+          <Byline
+            className={cn(
+              open && "pb-1.5",
+              level > 0 && !open && "pb-3",
+              highlightComment && "bg-brand/10 dark:bg-brand/20",
+            )}
+            actorId={commentView.creatorApId}
+            publishedDate={commentView.createdAt}
+            authorType={
+              isAdmin
+                ? "ADMIN"
+                : isMod
+                  ? "MOD"
+                  : commentView.creatorId === opId
+                    ? "OP"
+                    : commentView.creatorId === myUserId
+                      ? "ME"
+                      : undefined
+            }
+          />
+        )}
 
         <CollapsibleContent>
-          {commentView.deleted && (
+          {commentView?.deleted && (
             <span className="italic text-sm">deleted</span>
           )}
-          {commentView.removed && (
+          {commentView?.removed && (
             <span className="italic text-sm">removed</span>
           )}
+          {!commentView && (
+            <span className="italic text-sm">missing comment</span>
+          )}
 
-          {!hideContent && !editingState && (
+          {!hideContent && !editingState && commentView && (
             <MarkdownRenderer
               markdown={commentView.body}
               className={cn(highlightComment && "bg-brand/10 dark:bg-brand/20")}
@@ -356,123 +361,125 @@ export function PostComment({
             <InlineCommentReply state={editingState} autoFocus />
           )}
 
-          <div className="flex flex-row items-center text-sm text-muted-foreground justify-end gap-1">
-            <ActionMenu
-              actions={[
-                {
-                  text: "Share",
-                  onClick: () =>
-                    shareRoute(
-                      resolveRoute(
-                        `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
-                        {
-                          communityName,
-                          post: encodeURIComponent(postApId),
-                          comment: String(commentView.id),
-                        },
+          {commentView && (
+            <div className="flex flex-row items-center text-sm text-muted-foreground justify-end gap-1">
+              <ActionMenu
+                actions={[
+                  {
+                    text: "Share",
+                    onClick: () =>
+                      shareRoute(
+                        resolveRoute(
+                          `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
+                          {
+                            communityName,
+                            post: encodeURIComponent(postApId),
+                            comment: String(commentView.id),
+                          },
+                        ),
                       ),
-                    ),
-                } as const,
-                ...(isMyComment && !commentView.deleted
-                  ? [
-                      {
-                        text: "Edit",
-                        onClick: () => {
-                          loadCommentIntoEditor({
-                            postApId: commentView.postApId,
-                            queryKeyParentId: queryKeyParentId,
-                            comment: commentView,
-                          });
-                        },
-                      } as const,
-                    ]
-                  : []),
-                ...(isMyComment
-                  ? [
-                      {
-                        text: commentView.deleted ? "Restore" : "Delete",
-                        onClick: () => {
-                          deleteComment.mutate({
-                            id: commentView.id,
-                            path: commentView.path,
-                            deleted: !commentView.deleted,
-                          });
-                        },
-                        danger: true,
-                      } as const,
-                    ]
-                  : [
-                      {
-                        text: `Message ${commentView.creatorSlug}`,
-                        onClick: () =>
-                          requireAuth().then(() =>
-                            router.push(
-                              resolveRoute("/messages/chat/:userId", {
-                                userId: encodeApId(commentView.creatorApId),
-                              }),
+                  } as const,
+                  ...(isMyComment && !commentView.deleted
+                    ? [
+                        {
+                          text: "Edit",
+                          onClick: () => {
+                            loadCommentIntoEditor({
+                              postApId: commentView.postApId,
+                              queryKeyParentId: queryKeyParentId,
+                              comment: commentView,
+                            });
+                          },
+                        } as const,
+                      ]
+                    : []),
+                  ...(isMyComment
+                    ? [
+                        {
+                          text: commentView.deleted ? "Restore" : "Delete",
+                          onClick: () => {
+                            deleteComment.mutate({
+                              id: commentView.id,
+                              path: commentView.path,
+                              deleted: !commentView.deleted,
+                            });
+                          },
+                          danger: true,
+                        } as const,
+                      ]
+                    : [
+                        {
+                          text: `Message ${commentView.creatorSlug}`,
+                          onClick: () =>
+                            requireAuth().then(() =>
+                              router.push(
+                                resolveRoute("/messages/chat/:userId", {
+                                  userId: encodeApId(commentView.creatorApId),
+                                }),
+                              ),
                             ),
-                          ),
-                      } as const,
-                      {
-                        text: "Report",
-                        onClick: () =>
-                          requireAuth().then(() =>
-                            showReportModal(commentView.path),
-                          ),
-                        danger: true,
-                      } as const,
-                      {
-                        text: "Block person",
-                        onClick: async () => {
-                          try {
-                            await requireAuth();
-                            const deferred = new Deferred();
-                            alrt({
-                              message: `Block ${commentView.creatorSlug}`,
-                              buttons: [
-                                {
-                                  text: "Cancel",
-                                  role: "cancel",
-                                  handler: () => deferred.reject(),
-                                },
-                                {
-                                  text: "OK",
-                                  role: "confirm",
-                                  handler: () => deferred.resolve(),
-                                },
-                              ],
-                            });
-                            await deferred.promise;
-                            blockPerson.mutate({
-                              personId: commentView.creatorId,
-                              block: true,
-                            });
-                          } catch {}
-                        },
-                        danger: true,
-                      } as const,
-                    ]),
-              ]}
-              trigger={
-                <Button size="icon" variant="ghost" asChild>
-                  <div>
-                    <IoEllipsisHorizontal size={16} />
-                  </div>
-                </Button>
-              }
-            />
+                        } as const,
+                        {
+                          text: "Report",
+                          onClick: () =>
+                            requireAuth().then(() =>
+                              showReportModal(commentView.path),
+                            ),
+                          danger: true,
+                        } as const,
+                        {
+                          text: "Block person",
+                          onClick: async () => {
+                            try {
+                              await requireAuth();
+                              const deferred = new Deferred();
+                              alrt({
+                                message: `Block ${commentView.creatorSlug}`,
+                                buttons: [
+                                  {
+                                    text: "Cancel",
+                                    role: "cancel",
+                                    handler: () => deferred.reject(),
+                                  },
+                                  {
+                                    text: "OK",
+                                    role: "confirm",
+                                    handler: () => deferred.resolve(),
+                                  },
+                                ],
+                              });
+                              await deferred.promise;
+                              blockPerson.mutate({
+                                personId: commentView.creatorId,
+                                block: true,
+                              });
+                            } catch {}
+                          },
+                          danger: true,
+                        } as const,
+                      ]),
+                ]}
+                trigger={
+                  <Button size="icon" variant="ghost" asChild>
+                    <div>
+                      <IoEllipsisHorizontal size={16} />
+                    </div>
+                  </Button>
+                }
+              />
 
-            <CommentReplyButton
-              onClick={() =>
-                loadCommentIntoEditor({
-                  postApId: commentView.postApId,
-                  queryKeyParentId: queryKeyParentId,
-                  parent: commentView,
-                })
-              }
-            />
-            <CommentVoting commentView={commentView} className="-mr-2.5" />
-          </div>
+              <CommentReplyButton
+                onClick={() =>
+                  loadCommentIntoEditor({
+                    postApId: commentView.postApId,
+                    queryKeyParentId: queryKeyParentId,
+                    parent: commentView,
+                  })
+                }
+              />
+              <CommentVoting commentView={commentView} className="-mr-2.5" />
+            </div>
+          )}
 
           {(sorted.length > 0 || (replyState && media.md)) && (
             <div

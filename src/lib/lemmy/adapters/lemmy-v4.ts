@@ -479,7 +479,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp> {
         type_: "All",
         sort,
         limit: this.limit,
-        max_depth: 6,
+        max_depth: form.maxDepth,
         page_cursor:
           form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
       },

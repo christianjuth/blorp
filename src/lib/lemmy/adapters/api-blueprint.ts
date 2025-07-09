@@ -305,6 +305,7 @@ export namespace Forms {
     sort?: string;
     pageCursor?: string;
     savedOnly?: boolean;
+    maxDepth?: number;
   };
 
   export type CreateComment = {

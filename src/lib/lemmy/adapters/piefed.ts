@@ -922,6 +922,7 @@ export class PieFedApi implements ApiBlueprint<null> {
         page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         parent_id: form.parentId,
         post_id,
+        max_depth: form.maxDepth,
       },
       options,
     );

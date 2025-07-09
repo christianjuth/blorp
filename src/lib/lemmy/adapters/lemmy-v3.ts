@@ -625,7 +625,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp> {
         post_id,
         type_: "All",
         limit: this.limit,
-        max_depth: 6,
+        max_depth: form.maxDepth,
         page:
           _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
             ? 1

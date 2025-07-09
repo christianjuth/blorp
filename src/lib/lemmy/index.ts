@@ -289,6 +289,7 @@ export function useComments(form: Forms.GetComments) {
   const { api } = useApiClients();
 
   form = {
+    maxDepth: 6,
     sort,
     ...form,
   };
@@ -324,7 +325,7 @@ export function useComments(form: Forms.GetComments) {
       if (page === prevPage.current && pageParam !== prevPageParam.current) {
         return {
           comments: [],
-          nextPage: null,
+          nextCursor: null,
         };
       }
 
@@ -340,7 +341,7 @@ export function useComments(form: Forms.GetComments) {
       };
     },
     enabled: !_.isNil(form.postApId),
-    getNextPageParam: (data) => data.nextPage,
+    getNextPageParam: (data) => data.nextCursor,
     initialPageParam: INIT_PAGE_TOKEN,
     refetchOnMount: "always",
   });

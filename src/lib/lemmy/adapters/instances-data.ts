@@ -1,4 +1,5 @@
 const PIE_FED_INSTANCES = [
+  "https://piefed.world",
   "https://piefed.social",
   "https://feddit.online",
   "https://preferred.social",
