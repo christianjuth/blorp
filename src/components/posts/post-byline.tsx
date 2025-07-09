@@ -22,77 +22,63 @@ import {
 import { BsFillPinAngleFill } from "react-icons/bs";
 import { useIonAlert, useIonRouter } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
-import { Slug } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/lemmy/utils";
 import { CommunityHoverCard } from "../communities/community-hover-card";
 import { PersonHoverCard } from "../person/person-hover-card";
 import { FaBookmark } from "react-icons/fa";
 import { postToDraft, useCreatePostStore } from "@/src/stores/create-post";
-import { usePostsStore } from "@/src/stores/posts";
 import { shareRoute } from "@/src/lib/share";
 import { Shield, ShieldCheckmark } from "../icons";
 import { cn } from "@/src/lib/utils";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
+import { useProfilesStore } from "@/src/stores/profiles";
+import { useCommunitiesStore } from "@/src/stores/communities";
 
 export function PostByline({
-  id,
-  apId,
-  encodedApId,
+  post,
   pinned,
-  featuredCommunity,
-  saved,
-  deleted,
-  creatorId,
-  creatorApId,
-  creatorSlug,
-  encodedCreatorApId,
-  creatorName,
-  communitySlug,
-  communityIcon,
-  published,
+  showCommunity,
+  showCreator,
   onNavigate,
-  isMod,
-  isAdmin,
-  showCommunity = true,
-  showCreator = false,
 }: {
-  id: number;
-  apId: string;
-  encodedApId: string;
+  post: Schemas.Post;
   pinned: boolean;
-  featuredCommunity: boolean;
-  saved: boolean;
-  deleted: boolean;
-  creatorId: number;
-  creatorApId: string;
-  creatorSlug: Slug | null;
-  encodedCreatorApId: string;
-  creatorName: string;
-  communitySlug: string;
-  communityIcon?: string;
-  published: string;
-  onNavigate?: () => any;
-  isMod?: boolean;
-  isAdmin?: boolean;
   showCommunity?: boolean;
   showCreator?: boolean;
+  onNavigate?: () => void;
 }) {
+  const isMod = false;
+  const isAdmin = false;
+
   const [alrt] = useIonAlert();
 
   const showReportModal = useShowPostReportModal();
   const requireAuth = useRequireAuth();
   const blockPerson = useBlockPerson();
-  const deletePost = useDeletePost(apId);
-  const featurePost = useFeaturePost(apId);
-  const savePost = useSavePost(apId);
+  const deletePost = useDeletePost(post.apId);
+  const featurePost = useFeaturePost(post.apId);
+  const savePost = useSavePost(post.apId);
 
   const router = useIonRouter();
-  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const post = usePostsStore((s) => s.posts[getCachePrefixer()(apId)]?.data);
   const updateDraft = useCreatePostStore((s) => s.updateDraft);
 
   const linkCtx = useLinkContext();
 
   const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
-  const isMyPost = creatorApId === myUserId;
+  const isMyPost = post.creatorApId === myUserId;
+
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const creator = useProfilesStore(
+    (s) => s.profiles[getCachePrefixer()(post.creatorApId)]?.data,
+  );
+  const community = useCommunitiesStore(
+    (s) => s.communities[getCachePrefixer()(post.communitySlug)]?.data,
+  );
+
+  const encodedApId = encodeApId(post.apId);
+  const encodedCreatorApId = encodeApId(post.creatorApId);
+
+  const saved = post.optimisticSaved ?? post.saved;
 
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
@@ -102,7 +88,7 @@ export function PostByline({
         onClick: () =>
           shareRoute(
             resolveRoute(`${linkCtx.root}c/:communityName/posts/:post`, {
-              communityName: communitySlug,
+              communityName: post.communitySlug,
               post: encodedApId,
             }),
           ),
@@ -112,7 +98,7 @@ export function PostByline({
         onClick: () =>
           requireAuth().then(() => {
             savePost.mutateAsync({
-              post_id: id,
+              postId: post.id,
               save: !saved,
             });
           }),
@@ -120,14 +106,14 @@ export function PostByline({
       ...(isMyPost && isMod
         ? [
             {
-              text: featuredCommunity
+              text: post.featuredCommunity
                 ? "Unpin in community"
                 : "Pin in community",
               onClick: () =>
                 featurePost.mutate({
-                  feature_type: "Community",
-                  post_id: id,
-                  featured: !featuredCommunity,
+                  featureType: "Community",
+                  postId: post.id,
+                  featured: !post.featuredCommunity,
                 }),
             },
           ]
@@ -136,7 +122,7 @@ export function PostByline({
         text: "View source",
         onClick: async () => {
           try {
-            openUrl(apId);
+            openUrl(post.apId);
           } catch {
             // TODO: handle error
           }
@@ -148,17 +134,17 @@ export function PostByline({
               text: "Edit",
               onClick: () => {
                 if (post && communityName) {
-                  updateDraft(apId, postToDraft(post));
+                  updateDraft(post.apId, postToDraft(post));
                   router.push(`/create?id=${encodedApId}`);
                 }
               },
             },
             {
-              text: deleted ? "Restore" : "Delete",
+              text: post.deleted ? "Restore" : "Delete",
               onClick: () =>
                 deletePost.mutate({
-                  post_id: id,
-                  deleted: !deleted,
+                  postId: post.id,
+                  deleted: !post.deleted,
                 }),
               danger: true,
             },
@@ -168,7 +154,7 @@ export function PostByline({
               text: "Report",
               onClick: () =>
                 requireAuth().then(() => {
-                  showReportModal(apId);
+                  showReportModal(post.apId);
                 }),
               danger: true,
             },
@@ -179,7 +165,7 @@ export function PostByline({
                   await requireAuth();
                   const deferred = new Deferred();
                   alrt({
-                    message: `Block ${creatorName}`,
+                    message: `Block ${creator?.slug}`,
                     buttons: [
                       {
                         text: "Cancel",
@@ -195,7 +181,7 @@ export function PostByline({
                   });
                   await deferred.promise;
                   blockPerson.mutate({
-                    person_id: creatorId,
+                    personId: post.creatorId,
                     block: true,
                   });
                 } catch {}
@@ -207,13 +193,14 @@ export function PostByline({
     [openSignal],
   );
 
-  const [communityName, communityHost] = communitySlug.split("@");
+  const [communityName, communityHost] = post.communitySlug.split("@");
+  const [creatorName, creatorHost] = post.creatorSlug.split("@");
 
-  const community = (
+  const communityPart = (
     <>
       <span className="font-medium text-foreground">c/{communityName}</span>
       <i>@{communityHost}</i>
-      <RelativeTime time={published} className="ml-2" />
+      <RelativeTime time={post.createdAt} className="ml-2" />
     </>
   );
 
@@ -230,7 +217,10 @@ export function PostByline({
           showCommunity && showCreator && "h-8 w-8 text-md",
         )}
       >
-        <AvatarImage src={communityIcon} className="object-cover" />
+        <AvatarImage
+          src={community?.communityView.icon ?? undefined}
+          className="object-cover"
+        />
         <AvatarFallback>
           {communityName?.substring(0, 1).toUpperCase()}
         </AvatarFallback>
@@ -238,26 +228,26 @@ export function PostByline({
 
       <div className="flex flex-col text-muted-foreground">
         {showCommunity && (
-          <CommunityHoverCard communityName={communitySlug}>
+          <CommunityHoverCard communityName={post.communitySlug}>
             {communityName ? (
               <Link
                 to={`${linkCtx.root}c/:communityName`}
                 params={{
-                  communityName: communitySlug,
+                  communityName: post.communitySlug,
                 }}
                 className="text-xs"
                 onClickCapture={onNavigate}
               >
-                {community}
+                {communityPart}
               </Link>
             ) : (
-              <div className="text-xs">{community}</div>
+              <div className="text-xs">{communityPart}</div>
             )}
           </CommunityHoverCard>
         )}
         {showCreator && (
           <div className="flex flex-row text-xs text-muted-foreground gap-1 items-center h-5">
-            <PersonHoverCard actorId={creatorApId} asChild>
+            <PersonHoverCard actorId={post.creatorApId} asChild>
               <Link
                 to={`${linkCtx.root}u/:userId`}
                 params={{
@@ -265,8 +255,8 @@ export function PostByline({
                 }}
                 onClickCapture={onNavigate}
               >
-                {creatorSlug?.name}
-                <i>@{creatorSlug?.host}</i>
+                {creatorName}
+                <i>@{creatorHost}</i>
               </Link>
             </PersonHoverCard>
             {isMod && !isAdmin && (
@@ -282,7 +272,7 @@ export function PostByline({
               </>
             )}
             {!showCommunity && (
-              <RelativeTime time={published} className="ml-2" />
+              <RelativeTime time={post.createdAt} className="ml-2" />
             )}
           </div>
         )}

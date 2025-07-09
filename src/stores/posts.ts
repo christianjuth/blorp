@@ -1,27 +1,26 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
-import { FlattenedPost } from "../lib/lemmy/utils";
 import _ from "lodash";
 import { MAX_CACHE_MS } from "./config";
 import { CacheKey, CachePrefixer } from "./auth";
+import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 
 type CachedPost = {
-  data: FlattenedPost;
+  data: Schemas.Post;
   lastUsed: number;
 };
 
 type SortsStore = {
   posts: Record<CacheKey, CachedPost>;
   patchPost: (
-    id: FlattenedPost["post"]["ap_id"],
+    id: Schemas.Post["apId"],
     prefix: CachePrefixer,
-    post: Partial<FlattenedPost>,
+    post: Partial<Schemas.Post>,
   ) => void;
-  cachePost: (prefix: CachePrefixer, post: FlattenedPost) => FlattenedPost;
   cachePosts: (
     prefix: CachePrefixer,
-    post: FlattenedPost[],
+    post: Schemas.Post[],
   ) => Record<string, CachedPost>;
   cleanup: () => any;
 };
@@ -38,32 +37,12 @@ export const usePostsStore = create<SortsStore>()(
           console.error("failed to patch post that isn't in cache");
           return;
         }
-        const updatedPostData = {
+        const updatedPostData: Schemas.Post = {
           ...prevPostData,
           ...patch,
-          imageDetails: patch.imageDetails ?? prevPostData?.imageDetails,
-          crossPosts: patch.crossPosts ?? prevPostData?.crossPosts,
-        };
-        set({
-          posts: {
-            ...prev,
-            [cacheKey]: {
-              data: updatedPostData,
-              lastUsed: Date.now(),
-            },
-          },
-        });
-        return updatedPostData;
-      },
-      cachePost: (prefix, view) => {
-        const prev = get().posts;
-        const cacheKey = prefix(view.post.ap_id);
-        const prevPostData = prev[cacheKey]?.data;
-        const updatedPostData = {
-          ...prevPostData,
-          ...view,
-          imageDetails: view.imageDetails ?? prevPostData?.imageDetails,
-          crossPosts: view.crossPosts ?? prevPostData?.crossPosts,
+          thumbnailAspectRatio:
+            patch.thumbnailAspectRatio ?? prevPostData?.thumbnailAspectRatio,
+          crossPosts: patch.crossPosts ?? prevPostData?.crossPosts ?? null,
         };
         set({
           posts: {
@@ -82,14 +61,17 @@ export const usePostsStore = create<SortsStore>()(
         const newPosts: Record<string, CachedPost> = {};
 
         for (const view of views) {
-          const cacheKey = prefix(view.post.ap_id);
+          const cacheKey = prefix(view.apId);
           const prevPostData = prev[cacheKey]?.data;
           newPosts[cacheKey] = {
             data: {
               ...prevPostData,
               ...view,
-              imageDetails: view.imageDetails ?? prevPostData?.imageDetails,
-              crossPosts: view.crossPosts ?? prevPostData?.crossPosts,
+              thumbnailAspectRatio:
+                view.thumbnailAspectRatio ??
+                prevPostData?.thumbnailAspectRatio ??
+                null,
+              crossPosts: view.crossPosts ?? prevPostData?.crossPosts ?? null,
             },
             lastUsed: Date.now(),
           };
@@ -128,7 +110,7 @@ export const usePostsStore = create<SortsStore>()(
     {
       name: "posts",
       storage: createStorage<SortsStore>(),
-      version: 4,
+      version: 5,
       onRehydrateStorage: () => {
         return (state) => {
           state?.cleanup();

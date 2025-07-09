@@ -1,5 +1,4 @@
 import { twMerge } from "tailwind-merge";
-import { createSlug } from "@/src/lib/lemmy/utils";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import { Skeleton } from "../ui/skeleton";
 import { useState } from "react";
@@ -17,12 +16,12 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
       : null,
   );
 
-  const slug = data ? createSlug(data.communityView.community) : null;
-
-  const banner = data?.communityView.community.banner;
-  const icon = data?.communityView.community.icon;
+  const communityView = data?.communityView;
+  const banner = data?.communityView.banner ?? undefined;
 
   const hideBanner = !banner;
+
+  const [name, host] = communityView?.slug.split("@") ?? [];
 
   return (
     <div className="flex-1">
@@ -39,13 +38,13 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
             />
           </div>
 
-          {icon && (
+          {communityView?.icon && (
             <div className="absolute left-5 h-20 w-20 outline-background outline-2 -translate-y-3/5 bg-background rounded-full flex items-center justify-center">
               {!iconReady && (
                 <Skeleton className="absolute inset-0 rounded-full" />
               )}
               <img
-                src={icon}
+                src={communityView?.icon}
                 className="h-20 w-20 object-cover rounded-full relative"
                 onLoad={() => setIconReady(true)}
               />
@@ -57,14 +56,14 @@ export function CommunityBanner({ communityName }: { communityName?: string }) {
       <div
         className={twMerge(
           "mt-1.5 flex",
-          !hideBanner && icon && "pl-28",
+          !hideBanner && communityView?.icon && "pl-28",
           !hideBanner && "pb-3",
         )}
       >
-        {slug ? (
+        {communityView?.slug ? (
           <span className="font-bold text-lg h-7">
-            {slug.name}
-            <span className="italic">@{slug.host}</span>
+            {name}
+            <span className="italic">@{host}</span>
           </span>
         ) : (
           <Skeleton className="h-7 w-52" />

@@ -12,7 +12,7 @@ import {
 import { UserDropdown } from "@/src/components/nav";
 import { PageTitle } from "@/src/components/page-title";
 import { useParams } from "@/src/routing";
-import { parseAccountInfo, useAuth } from "@/src/stores/auth";
+import { getAccountSite, parseAccountInfo, useAuth } from "@/src/stores/auth";
 import NotFound from "../not-found";
 import { createSlug } from "@/src/lib/lemmy/utils";
 import { PersonCard } from "@/src/components/person/person-card";
@@ -20,6 +20,7 @@ import { CommunityCard } from "@/src/components/communities/community-card";
 import { SectionItem, Section } from "./shared-components";
 import { useBlockCommunity, useBlockPerson } from "@/src/lib/lemmy";
 import { useConfirmationAlert } from "@/src/lib/hooks/index";
+import { Community } from "lemmy-v3";
 
 export default function SettingsPage() {
   const getConfirmation = useConfirmationAlert();
@@ -36,21 +37,22 @@ export default function SettingsPage() {
     return <NotFound />;
   }
 
-  const personBlocks = account.site?.my_user?.person_blocks;
-  const community_blocks = account.site?.my_user?.community_blocks;
+  const site = getAccountSite(account);
+  const personBlocks = site?.personBlocks;
+  const community_blocks = site?.communityBlocks;
 
   const { person } = parseAccountInfo(account);
-  const slug = person ? createSlug(person) : null;
+  const slug = person?.slug;
 
   return (
     <IonPage>
-      <PageTitle>{slug?.slug ?? "Person"}</PageTitle>
+      <PageTitle>{slug ?? "Person"}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="Settings" />
           </IonButtons>
-          <IonTitle data-tauri-drag-region>{slug?.slug ?? "Person"}</IonTitle>
+          <IonTitle data-tauri-drag-region>{slug ?? "Person"}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>
@@ -72,7 +74,7 @@ export default function SettingsPage() {
                         message: `Unblock ${slug?.slug ?? "person"}`,
                       }).then(() =>
                         blockPerson.mutate({
-                          person_id: target.person_id,
+                          personId: target.person_id,
                           block: false,
                         }),
                       )
@@ -93,22 +95,29 @@ export default function SettingsPage() {
               {community_blocks?.map((c) => {
                 // @ts-expect-error
                 const target: Community = c.community;
-                const slug = createSlug(target);
+                const slug = createSlug({
+                  apId: target.actor_id,
+                  name: target.name,
+                });
                 return (
                   <SectionItem
-                    key={c.actor_id}
+                    key={c.apId}
                     onClick={() =>
                       getConfirmation({
                         message: `Unblock ${slug?.slug ?? "community"}`,
                       }).then(() =>
                         blockCommunity.mutate({
-                          community_id: target.id,
+                          communityId: target.id,
                           block: false,
                         }),
                       )
                     }
                   >
-                    <CommunityCard size="sm" communityView={c} disableLink />
+                    <CommunityCard
+                      size="sm"
+                      communitySlug={c.slug}
+                      disableLink
+                    />
                   </SectionItem>
                 );
               })}

@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
-import { GetSiteResponse } from "lemmy-js-client";
 import _ from "lodash";
 import { env } from "../env";
+import z from "zod";
+import { siteSchema } from "../lib/lemmy/adapters/api-blueprint";
+import { v4 as uuid } from "uuid";
 
 export type CacheKey = `cache_${string}`;
 export type CachePrefixer = (cacheKey: string) => CacheKey;
@@ -21,17 +23,30 @@ export function getCachePrefixer(account?: Account): CachePrefixer {
   };
 }
 
-export type Account = {
-  instance: string;
-  jwt?: string;
-  site?: GetSiteResponse;
-};
+const accountSchema = z.union([
+  z.object({
+    instance: z.string(),
+    jwt: z.string().optional(),
+    uuid: z.string().optional(),
+  }),
+  z.object({
+    instance: z.string(),
+    jwt: z.string().optional(),
+    site: siteSchema,
+    uuid: z.string().optional(),
+  }),
+]);
+
+export type Account = z.infer<typeof accountSchema>;
+
+const storeSchema = z.object({
+  accounts: z.array(accountSchema),
+  accountIndex: z.number(),
+});
 
 type AuthStore = {
-  accounts: Account[];
   getSelectedAccount: () => Account;
   isLoggedIn: () => boolean;
-  accountIndex: number;
   updateSelectedAccount: (patch: Partial<Account>) => any;
   updateAccount: (index: number | Account, patch: Partial<Account>) => any;
   addAccount: (patch?: Partial<Account>) => any;
@@ -39,22 +54,34 @@ type AuthStore = {
   logout: (index?: number | Account) => any;
   logoutMultiple: (index: number[]) => any;
   getCachePrefixer: () => CachePrefixer;
-};
+} & z.infer<typeof storeSchema>;
+
+export function getAccountSite(account: Account) {
+  return "site" in account ? account.site : undefined;
+}
 
 export function getAccountActorId(account: Account) {
-  return account?.site?.my_user?.local_user_view.person.actor_id;
+  return "site" in account ? account.site?.me?.apId : undefined;
 }
 
 export function parseAccountInfo(account: Account) {
-  const url = new URL(account.instance);
-  return {
-    person: account.site?.my_user?.local_user_view.person,
-    instance: url.host,
-  };
+  const site = "site" in account ? account.site : undefined;
+  try {
+    const url = new URL(account.instance);
+    return {
+      person: site?.me,
+      instance: url.host,
+    };
+  } catch {
+    return {
+      instance: "",
+    };
+  }
 }
 
-function getNewAccount() {
+function getNewAccount(): Account {
   return {
+    uuid: uuid(),
     instance: env.REACT_APP_DEFAULT_INSTANCE,
   };
 }
@@ -93,6 +120,7 @@ export const useAuth = create<AuthStore>()(
         const accounts = [
           ...get().accounts,
           {
+            uuid: uuid(),
             instance: env.REACT_APP_DEFAULT_INSTANCE,
             ...patch,
           },
@@ -166,6 +194,7 @@ export const useAuth = create<AuthStore>()(
           i === index
             ? {
                 ...a,
+                uuid: patch.jwt ? uuid() : (a.uuid ?? uuid()),
                 ...patch,
               }
             : a,
@@ -180,6 +209,7 @@ export const useAuth = create<AuthStore>()(
           i === accountIndex
             ? {
                 ...a,
+                uuid: patch.jwt ? uuid() : (a.uuid ?? uuid()),
                 ...patch,
               }
             : a,
@@ -197,7 +227,20 @@ export const useAuth = create<AuthStore>()(
     {
       name: "auth",
       storage: createStorage<AuthStore>(),
-      version: 1,
+      version: 3,
+      migrate: (state) => {
+        const parsed = storeSchema.parse(state) as AuthStore;
+        return {
+          ...parsed,
+          accounts: parsed.accounts.map(
+            (a) =>
+              ({
+                uuid: uuid(),
+                ...a,
+              }) satisfies Account,
+          ),
+        };
+      },
     },
   ),
 );

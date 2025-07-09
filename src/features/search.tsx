@@ -1,7 +1,6 @@
 import { useCommunity, useSearch } from "../lib/lemmy";
 import {
   FeedPostCard,
-  getPostProps,
   PostCardSkeleton,
   PostProps,
 } from "@/src/components/posts/post";
@@ -18,8 +17,7 @@ import { useFiltersStore } from "../stores/filters";
 import _ from "lodash";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { usePostsStore } from "../stores/posts";
-import { isNotNull } from "../lib/utils";
-import { CommunityView, SearchType } from "lemmy-js-client";
+import { CommunityView, SearchType } from "lemmy-v3";
 import { useParams } from "@/src/routing/index";
 import {
   IonBackButton,
@@ -38,15 +36,12 @@ import { useAuth } from "../stores/auth";
 import z from "zod";
 import { PersonCard } from "../components/person/person-card";
 import { useLinkContext } from "../routing/link-context";
+import { createSlug } from "../lib/lemmy/utils";
 
 const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = typeof NO_ITEMS | string | PostProps | CommunityView;
-
-function isPost(item: Item): item is PostProps {
-  return _.isObject(item) && "apId" in item;
-}
+type Item = string;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="max-md:px-0">
@@ -104,8 +99,8 @@ export default function SearchFeed({
   const searchResults = useSearch({
     q: search ?? "",
     sort: type === "communities" ? "TopAll" : postSort,
-    community_name: type === "posts" ? communityName : undefined,
-    type_,
+    communitySlug: type === "posts" ? communityName : undefined,
+    type: type_,
   });
 
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } =
@@ -128,17 +123,7 @@ export default function SearchFeed({
       return communities;
     }
 
-    const postIds =
-      searchResults.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
-
-    const postViews = _.uniq(postIds)
-      .map((apId) => {
-        const postView = postCache[getCachePrefixer()(apId)]?.data;
-        return postView ? getPostProps(postView) : null;
-      })
-      .filter(isNotNull);
-
-    return postViews;
+    return searchResults.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
   }, [searchResults.data?.pages, postCache, type, getCachePrefixer]);
 
   return (
@@ -246,11 +231,11 @@ export default function SearchFeed({
                 );
               }
 
-              if (isPost(item)) {
-                return <Post {...item} />;
+              if (type === "posts") {
+                return <Post apId={item} />;
               }
 
-              if (_.isString(item)) {
+              if (type === "users") {
                 return (
                   <ContentGutters>
                     <PersonCard actorId={item} />
@@ -260,7 +245,7 @@ export default function SearchFeed({
 
               return (
                 <ContentGutters>
-                  <CommunityCard communityView={item} className="pt-3.5" />
+                  <CommunityCard communitySlug={item} className="pt-3.5" />
                   <></>
                 </ContentGutters>
               );
@@ -293,7 +278,7 @@ export default function SearchFeed({
           {communityName && (
             <CommunitySidebar
               communityName={communityName}
-              actorId={community.data?.community_view.community.actor_id}
+              actorId={community.data?.community.apId}
             />
           )}
         </ContentGutters>

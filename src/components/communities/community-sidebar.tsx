@@ -41,7 +41,7 @@ export function SmallScreenSidebar({
   expanded,
 }: {
   communityName: string;
-  actorId?: string;
+  actorId?: string | null;
   expanded?: boolean;
 }) {
   const getConfirmation = useConfirmationAlert();
@@ -54,6 +54,7 @@ export function SmallScreenSidebar({
   const data = useCommunitiesStore(
     (s) => s.communities[getCachePrefixer()(communityName)]?.data,
   );
+  const communityView = data?.communityView;
 
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
 
@@ -97,7 +98,7 @@ export function SmallScreenSidebar({
             },
           ]
         : []),
-      ...(isLoggedIn
+      ...(isLoggedIn && communityView
         ? [
             {
               text: "Block community",
@@ -107,7 +108,7 @@ export function SmallScreenSidebar({
                   message: `Block ${communityName}`,
                 }).then(() =>
                   blockCommunity.mutate({
-                    community_id: community.id,
+                    communityId: communityView?.id,
                     block: true,
                   }),
                 ),
@@ -122,10 +123,6 @@ export function SmallScreenSidebar({
     return null;
   }
 
-  const communityView = data.communityView;
-  const community = communityView.community;
-  const counts = communityView.counts;
-
   return (
     <div>
       <div
@@ -135,7 +132,7 @@ export function SmallScreenSidebar({
         )}
       >
         <div className="flex flex-row items-center flex-1 -mb-1 gap-4">
-          <span className="font-bold">{community.title}</span>
+          <span className="font-bold">{data.communityView.slug}</span>
 
           <div className="flex-1" />
 
@@ -151,28 +148,28 @@ export function SmallScreenSidebar({
         </div>
         <div className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
           <LuCakeSlice />
-          <span>Created {dayjs(community.published).format("ll")}</span>
+          <span>
+            Created {dayjs(data.communityView.createdAt).format("ll")}
+          </span>
         </div>
 
-        {counts && (
-          <AggregateBadges
-            className="mt-1"
-            aggregates={{
-              ...(expanded
-                ? {
-                    "users / day": counts.users_active_day,
-                    "users / week": counts.users_active_week,
-                    "users / month": counts.users_active_month,
-                    "users / 6 months": counts.users_active_half_year,
-                    "Local subscribers": counts.subscribers_local,
-                  }
-                : {}),
-              Subscribers: counts.subscribers,
-              Posts: counts.posts,
-              Comments: counts.comments,
-            }}
-          />
-        )}
+        <AggregateBadges
+          className="mt-1"
+          aggregates={{
+            ...(expanded
+              ? {
+                  "users / day": communityView?.usersActiveDayCount,
+                  "users / week": communityView?.usersActiveWeekCount,
+                  "users / month": communityView?.usersActiveMonthCount,
+                  "users / 6 months": communityView?.usersActiveHalfYearCount,
+                  "Local subscribers": communityView?.subscribersLocalCount,
+                }
+              : {}),
+            Subscribers: communityView?.subscriberCount,
+            Posts: communityView?.postCount,
+            Comments: communityView?.commentCount,
+          }}
+        />
 
         {!expanded && (
           <Link
@@ -193,9 +190,9 @@ export function SmallScreenSidebar({
         <>
           <section className="p-3">
             <h2>ABOUT</h2>
-            {community.description && (
+            {communityView?.description && (
               <MarkdownRenderer
-                markdown={community.description}
+                markdown={communityView.description}
                 dim
                 className="pt-3"
               />
@@ -207,11 +204,7 @@ export function SmallScreenSidebar({
           <section className="p-3 flex flex-col gap-2">
             <h2>MODS</h2>
             {data.mods?.map((m) => (
-              <PersonCard
-                key={m.moderator.actor_id}
-                actorId={m.moderator.actor_id}
-                size="sm"
-              />
+              <PersonCard key={m.apId} actorId={m.apId} size="sm" />
             ))}
           </section>
         </>
@@ -300,7 +293,7 @@ export function CommunitySidebar({
                   message: `Block ${communityName}`,
                 }).then(() =>
                   blockCommunity.mutate({
-                    community_id: community.id,
+                    communityId: communityView.id,
                     block: true,
                   }),
                 ),
@@ -316,8 +309,6 @@ export function CommunitySidebar({
   }
 
   const communityView = data.communityView;
-  const community = communityView.community;
-  const counts = communityView.counts;
 
   return (
     <Sidebar>
@@ -325,7 +316,10 @@ export function CommunitySidebar({
         <div className="p-4 flex flex-col gap-3">
           <div className="flex flex-row items-start justify-between flex-1">
             <Avatar className="h-13 w-13">
-              <AvatarImage src={community.icon} className="object-cover" />
+              <AvatarImage
+                src={communityView.icon ?? undefined}
+                className="object-cover"
+              />
               <AvatarFallback className="text-xl">
                 {communityName.substring(0, 1).toUpperCase()}
               </AvatarFallback>
@@ -342,17 +336,17 @@ export function CommunitySidebar({
             />
           </div>
 
-          <span className="font-bold line-clamp-1">{community.title}</span>
+          <span className="font-bold line-clamp-1">{communityView.slug}</span>
 
           <div className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
             <LuCakeSlice />
-            <span>Created {dayjs(community.published).format("ll")}</span>
+            <span>Created {dayjs(communityView.createdAt).format("ll")}</span>
           </div>
         </div>
 
         <Separator />
 
-        {community.description && (
+        {communityView.description && (
           <Collapsible
             className="p-4"
             open={aboutOpen}
@@ -363,29 +357,27 @@ export function CommunitySidebar({
               <ChevronsUpDown className="h-4 w-4" />
             </CollapsibleTrigger>
             <CollapsibleContent className="py-1">
-              {community.description && !hideDescription && (
+              {communityView.description && !hideDescription && (
                 <MarkdownRenderer
-                  markdown={community.description}
+                  markdown={communityView.description}
                   dim
                   className="pt-3"
                 />
               )}
 
-              {counts && (
-                <AggregateBadges
-                  className="mt-4"
-                  aggregates={{
-                    "users / day": counts.users_active_day,
-                    "users / week": counts.users_active_week,
-                    "users / month": counts.users_active_month,
-                    "users / 6 months": counts.users_active_half_year,
-                    "Local subscribers": counts.subscribers_local,
-                    Subscribers: counts.subscribers,
-                    Posts: counts.posts,
-                    Comments: counts.comments,
-                  }}
-                />
-              )}
+              <AggregateBadges
+                className="mt-1"
+                aggregates={{
+                  "users / day": communityView?.usersActiveDayCount,
+                  "users / week": communityView?.usersActiveWeekCount,
+                  "users / month": communityView?.usersActiveMonthCount,
+                  "users / 6 months": communityView?.usersActiveHalfYearCount,
+                  "Local subscribers": communityView?.subscribersLocalCount,
+                  Subscribers: communityView?.subscriberCount,
+                  Posts: communityView?.postCount,
+                  Comments: communityView?.commentCount,
+                }}
+              />
             </CollapsibleContent>
           </Collapsible>
         )}
@@ -400,11 +392,7 @@ export function CommunitySidebar({
 
           <CollapsibleContent className="flex flex-col gap-2 pt-3">
             {data.mods?.map((m) => (
-              <PersonCard
-                key={m.moderator.actor_id}
-                actorId={m.moderator.actor_id}
-                size="sm"
-              />
+              <PersonCard key={m.apId} actorId={m.apId} size="sm" />
             ))}
           </CollapsibleContent>
         </Collapsible>

@@ -2,24 +2,21 @@ import { ContentGutters } from "../components/gutters";
 import { usePersonDetails, usePersonFeed } from "../lib/lemmy";
 import {
   FeedPostCard,
-  getPostProps,
   PostCardSkeleton,
   PostProps,
 } from "../components/posts/post";
 import { MarkdownRenderer } from "../components/markdown/renderer";
 import { VirtualList } from "../components/virtual-list";
 import { PostSortButton } from "../components/lemmy-sort";
-import { memo, useMemo } from "react";
-import { createSlug, decodeApId, encodeApId } from "../lib/lemmy/utils";
+import { memo, useEffect, useMemo } from "react";
+import { decodeApId, encodeApId } from "../lib/lemmy/utils";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
 import { useLinkContext } from "../routing/link-context";
 import { useProfilesStore } from "../stores/profiles";
 import { usePostsStore } from "../stores/posts";
-import { isNotNull } from "../lib/utils";
-import { CommentView } from "lemmy-js-client";
-import { Link, useParams } from "@/src/routing/index";
+import { Link, resolveRoute, useParams } from "@/src/routing/index";
 import {
   IonBackButton,
   IonButtons,
@@ -28,6 +25,7 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
+  useIonRouter,
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
@@ -38,13 +36,10 @@ import { useAuth } from "../stores/auth";
 import z from "zod";
 import { PersonSidebar } from "../components/person/person-sidebar";
 import { PersonActionMenu } from "../components/person/person-action-menu";
+import { useHistory } from "react-router";
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = typeof NO_ITEMS | PostProps | CommentView;
-
-function isPost(item: Item): item is PostProps {
-  return _.isObject(item) && "apId" in item;
-}
+type Item = string;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
@@ -59,7 +54,7 @@ const Comment = memo(function Comment({ path }: { path: string }) {
     (s) => s.comments[getCachePrefixer()(path)]?.data,
   );
   const postView = usePostsStore((s) => {
-    const postApId = commentView?.post.ap_id;
+    const postApId = commentView?.postApId;
     return postApId ? s.posts[getCachePrefixer()(postApId)]?.data : null;
   });
   const linkCtx = useLinkContext();
@@ -68,12 +63,10 @@ const Comment = memo(function Comment({ path }: { path: string }) {
     return null;
   }
 
-  const { comment, community, post } = commentView;
-
-  const postName = commentView.post.name ?? postView?.post.name;
+  const postTitle = commentView.postTitle ?? postView?.title;
 
   const parent = path.split(".").at(-2);
-  const newPath = [parent !== "0" ? parent : undefined, comment.id]
+  const newPath = [parent !== "0" ? parent : undefined, commentView.id]
     .filter(Boolean)
     .join(".");
 
@@ -82,20 +75,20 @@ const Comment = memo(function Comment({ path }: { path: string }) {
       <Link
         to={`${linkCtx.root}c/:communityName/posts/:post/comments/:comment`}
         params={{
-          communityName: community.slug,
-          post: encodeApId(post.ap_id),
+          communityName: commentView.communitySlug,
+          post: encodeApId(commentView.postApId),
           comment: newPath,
         }}
         className="py-2 border-b flex-1 overflow-hidden text-sm flex flex-col gap-1.5"
       >
         <span>
-          Replied to <b>{postName}</b> in <b>{community.slug}</b>
+          Replied to <b>{postTitle}</b> in <b>{commentView.communitySlug}</b>
         </span>
 
-        {comment.deleted ? (
+        {commentView.deleted ? (
           <span className="text-muted-foreground italic">deleted</span>
         ) : (
-          <MarkdownRenderer markdown={comment.content} />
+          <MarkdownRenderer markdown={commentView.body} />
         )}
       </Link>
       <></>
@@ -114,12 +107,25 @@ export default function User() {
 
   const [type, setType] = useUrlSearchState(
     "type",
-    "all",
-    z.enum(["posts", "comments", "all"]),
+    "Posts",
+    z.enum(["Posts", "Comments"]),
   );
 
   const postSort = useFiltersStore((s) => s.postSort);
-  usePersonDetails({ actorId });
+  const personQuery = usePersonDetails({ actorId });
+  const query = usePersonFeed({ apIdOrUsername: actorId, type });
+
+  const history = useHistory();
+  useEffect(() => {
+    const actualApId = personQuery.data?.apId;
+    if (actorId && actualApId && actorId !== actualApId) {
+      const newPath = resolveRoute(`${linkCtx.root}u/:userId`, {
+        userId: encodeApId(actualApId),
+      });
+      history.replace(newPath);
+    }
+  }, [actorId, personQuery.data?.apId]);
+
   const {
     hasNextPage,
     fetchNextPage,
@@ -127,16 +133,12 @@ export default function User() {
     refetch,
     data,
     isLoading,
-  } = usePersonFeed({ actorId });
+  } = query;
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const personView = useProfilesStore((s) =>
+  const person = useProfilesStore((s) =>
     actorId ? s.profiles[getCachePrefixer()(actorId)]?.data : undefined,
   );
-
-  const person = personView?.person;
-
-  const postCache = usePostsStore((s) => s.posts);
 
   const listData = useMemo(() => {
     const commentViews =
@@ -144,44 +146,23 @@ export default function User() {
 
     const postIds = data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
-    const postViews = _.uniq(postIds)
-      .map((apId) => {
-        const postView = postCache[getCachePrefixer()(apId)]?.data;
-        return postView ? getPostProps(postView) : null;
-      })
-      .filter(isNotNull);
-
     switch (type) {
-      case "posts":
-        return postViews;
-      case "comments":
+      case "Posts":
+        return postIds;
+      case "Comments":
         return commentViews;
-      default:
-        return [...postViews, ...commentViews].sort((a, b) => {
-          const aPublished = isPost(a)
-            ? a.published
-            : (a as CommentView).comment.published;
-          const bPublished = isPost(b)
-            ? b.published
-            : (b as CommentView).comment.published;
-          return bPublished.localeCompare(aPublished);
-        });
     }
-  }, [data?.pages, postCache, type, getCachePrefixer]);
+  }, [data?.pages, type, getCachePrefixer]);
 
   return (
     <IonPage>
-      <PageTitle>
-        {(person ? createSlug(person)?.slug : null) ?? "Person"}
-      </PageTitle>
+      <PageTitle>{person?.slug ?? "Person"}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
             <IonBackButton text="" />
           </IonButtons>
-          <IonTitle data-tauri-drag-region>
-            {(person ? createSlug(person)?.slug : null) ?? "Person"}
-          </IonTitle>
+          <IonTitle data-tauri-drag-region>{person?.slug ?? "Person"}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>
@@ -197,18 +178,17 @@ export default function User() {
                     size="sm"
                     value={type}
                     onValueChange={(val) =>
-                      val && setType(val as "posts" | "comments" | "all")
+                      val && setType(val as "Posts" | "Comments")
                     }
                   >
-                    <ToggleGroupItem value="all">All</ToggleGroupItem>
-                    <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                    <ToggleGroupItem value="comments">
+                    <ToggleGroupItem value="Posts">Posts</ToggleGroupItem>
+                    <ToggleGroupItem value="Comments">
                       <span>Comments</span>
                     </ToggleGroupItem>
                   </ToggleGroup>
                 </div>
 
-                {type === "posts" && (
+                {type === "Posts" && (
                   <>
                     <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
                     <PostSortButton align="start" />
@@ -225,7 +205,7 @@ export default function User() {
       <IonContent scrollY={false}>
         <PostReportProvider>
           <VirtualList<Item>
-            key={type === "comments" ? "comments" : type + postSort}
+            key={type === "Comments" ? "comments" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={listData.length === 0 && !isLoading ? [NO_ITEMS] : listData}
             header={[
@@ -241,18 +221,17 @@ export default function User() {
                       size="sm"
                       value={type}
                       onValueChange={(val) =>
-                        val && setType(val as "posts" | "comments" | "all")
+                        val && setType(val as "Posts" | "Comments")
                       }
                     >
-                      <ToggleGroupItem value="all">All</ToggleGroupItem>
-                      <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                      <ToggleGroupItem value="comments">
+                      <ToggleGroupItem value="Posts">Posts</ToggleGroupItem>
+                      <ToggleGroupItem value="Comments">
                         <span>Comments</span>
                       </ToggleGroupItem>
                     </ToggleGroup>
                   </div>
 
-                  {type === "posts" && (
+                  {type === "Posts" && (
                     <>
                       <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
                       <PostSortButton align="start" />
@@ -274,11 +253,11 @@ export default function User() {
                 );
               }
 
-              if (isPost(item)) {
-                return <Post {...item} />;
+              if (type === "Posts") {
+                return <Post apId={item} />;
               }
 
-              return <Comment path={item.comment.path} />;
+              return <Comment path={item} />;
             }}
             onEndReached={() => {
               if (hasNextPage && !isFetchingNextPage) {
@@ -299,7 +278,7 @@ export default function User() {
 
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0 z-10">
           <div className="flex-1" />
-          <PersonSidebar personView={personView} />
+          <PersonSidebar person={person} />
         </ContentGutters>
       </IonContent>
     </IonPage>

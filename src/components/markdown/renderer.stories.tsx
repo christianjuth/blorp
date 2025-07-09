@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { MarkdownRenderer } from "./renderer";
 
@@ -138,7 +138,6 @@ def add(a, b):
 
 export const HTMLInsideMarkdown: Story = {
   args: {
-    allowUnsafeHtml: true,
     markdown: `
 You can even embed raw HTML:
 

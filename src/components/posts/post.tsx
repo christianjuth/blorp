@@ -2,7 +2,7 @@ import { usePostsStore } from "@/src/stores/posts";
 import { useLinkContext } from "../../routing/link-context";
 import { useSettingsStore } from "@/src/stores/settings";
 import { getPostEmbed } from "@/src/lib/post";
-import { createSlug, encodeApId, FlattenedPost } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/lemmy/utils";
 import { Link } from "@/src/routing/index";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
@@ -23,103 +23,17 @@ import { shareImage } from "@/src/lib/share";
 import { useAuth } from "@/src/stores/auth";
 import removeMd from "remove-markdown";
 import { LuRepeat2 } from "react-icons/lu";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return <i className="text-muted-foreground text-sm pt-3">{children}</i>;
 }
 
-export function getPostProps(
-  postView: FlattenedPost,
-  config?: {
-    featuredContext?: "community" | "home";
-    adminApIds?: string[];
-    modApIds?: string[];
-    detailView?: boolean;
-  },
-) {
-  const { featuredContext, modApIds, adminApIds } = config ?? {};
-
-  const embed = getPostEmbed(
-    postView.post,
-    config?.detailView ? "full-resolution" : "optimized",
-  );
-
-  const imageDetails = postView.imageDetails;
-  const aspectRatio = imageDetails
-    ? imageDetails.width / imageDetails.height
-    : undefined;
-
-  const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
-  const diff =
-    typeof postView?.optimisticMyVote === "number"
-      ? postView?.optimisticMyVote - (postView?.myVote ?? 0)
-      : 0;
-  const score = postView?.counts.score + diff;
-
-  let pinned = false;
-  if (featuredContext === "community") {
-    pinned =
-      postView.optimisticFeaturedCommunity ?? postView.post.featured_community;
-  }
-  if (featuredContext === "home") {
-    pinned = postView.post.featured_local;
-  }
-
-  const crossPosts = postView.crossPosts?.map((cp) => ({
-    encodedApId: encodeApId(cp.post.ap_id),
-    communitySlug: cp.community.slug,
-  }));
-
-  let url = postView.post.url;
-  if (url && url.startsWith("https://i.imgur.com/") && url.endsWith(".gifv")) {
-    url = url.replace(/gifv$/, "mp4");
-  }
-
-  let displayUrl = url;
-  if (displayUrl) {
-    const parsedUrl = new URL(displayUrl);
-    displayUrl = `${parsedUrl.host.replace(/^www\./, "")}${parsedUrl.pathname.replace(/\/$/, "")}`;
-  }
-
-  return {
-    ...embed,
-    isMod: modApIds?.includes(postView.creator.actor_id),
-    isAdmin: adminApIds?.includes(postView.creator.actor_id),
-    id: postView.post.id,
-    apId: postView.post.ap_id,
-    encodedApId: encodeApId(postView.post.ap_id),
-    read: postView.optimisticRead ?? postView.read,
-    deleted: postView.optimisticDeleted ?? postView.post.deleted,
-    name: postView.post.name,
-    url,
-    displayUrl,
-    aspectRatio,
-    myVote,
-    score,
-    pinned,
-    featuredCommunity:
-      postView.optimisticFeaturedCommunity ?? postView.post.featured_community,
-    saved: postView.optimisticSaved ?? postView.saved,
-    creatorId: postView.creator.id,
-    creatorApId: postView.creator.actor_id,
-    creatorSlug: createSlug(postView.creator),
-    encodedCreatorApId: encodeApId(postView.creator.actor_id),
-    creatorName: postView.creator.name,
-    communitySlug: postView.community.slug,
-    communityIcon: postView.community.icon,
-    published: postView.post.published,
-    body: postView.post.body,
-    nsfw: postView.post.nsfw,
-    commentsCount: postView.counts.comments,
-    crossPosts,
-  };
-}
-
-export interface PostProps extends ReturnType<typeof getPostProps> {
+export interface PostProps {
+  apId: string;
   detailView?: boolean;
   onNavigate?: () => any;
-  showCommunity?: boolean;
-  showCreator?: boolean;
+  featuredContext?: "community" | "home";
 }
 
 export function PostCardSkeleton(props: {
@@ -162,26 +76,10 @@ export function PostCardSkeleton(props: {
 }
 
 export function FeedPostCard(props: PostProps) {
-  const {
-    apId,
-    read,
-    deleted,
-    name,
-    type,
-    url,
-    thumbnail,
-    aspectRatio,
-    myVote,
-    score,
-    communitySlug,
-    nsfw,
-    encodedApId,
-    commentsCount,
-    displayUrl,
-    body,
-    onNavigate,
-    crossPosts,
-  } = props;
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const post = usePostsStore(
+    (s) => s.posts[getCachePrefixer()(props.apId)]?.data,
+  );
 
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -190,17 +88,13 @@ export function FeedPostCard(props: PostProps) {
   const showNsfw = useSettingsStore((s) => s.setShowNsfw);
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
 
-  const showImage = type === "image" && thumbnail && !deleted;
-  const showArticle = type === "article" && !deleted;
-
-  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const patchPost = usePostsStore((s) => s.patchPost);
 
   const handlers = useLongPress(
     async () => {
-      if (thumbnail) {
+      if (post?.thumbnailUrl) {
         Haptics.impact({ style: ImpactStyle.Heavy });
-        shareImage(name, thumbnail);
+        shareImage(post.title, post.thumbnailUrl);
       }
     },
     {
@@ -219,17 +113,54 @@ export function FeedPostCard(props: PostProps) {
     },
   );
 
-  if (nsfw && !showNsfw) {
-    return props.detailView ? <Notice>Hidden due to NSFW</Notice> : null;
+  /* if (nsfw && !showNsfw) { */
+  /*   return props.detailView ? <Notice>Hidden due to NSFW</Notice> : null; */
+  /* } */
+
+  if (!post) {
+    return <PostCardSkeleton />;
   }
 
+  let displayUrl = post.url;
+  if (displayUrl) {
+    const parsedUrl = new URL(displayUrl);
+    displayUrl = `${parsedUrl.host.replace(/^www\./, "")}${parsedUrl.pathname.replace(/\/$/, "")}`;
+  }
+
+  const embed = post
+    ? getPostEmbed(post, props.detailView ? "full-resolution" : "optimized")
+    : null;
+
+  const showImage = embed?.type === "image" && embed.thumbnail && !post.deleted;
+  const showArticle = embed?.type === "article" && !post?.deleted;
+
+  const encodedApId = encodeApId(post.apId);
+
+  const featuredCommunity =
+    post.optimisticFeaturedCommunity ?? post.featuredCommunity;
+  const featuredLocal = post.optimisticFeaturedLocal ?? post.featuredLocal;
+  const pinned =
+    props.featuredContext === "community"
+      ? featuredCommunity
+      : props.featuredContext === "home"
+        ? featuredLocal
+        : false;
+
   for (const keyword of filterKeywords) {
-    if (name.toLowerCase().includes(keyword.toLowerCase())) {
+    if (post?.title.toLowerCase().includes(keyword.toLowerCase())) {
       return props.detailView ? (
         <Notice>Hidden due to keyword filter "{keyword}"</Notice>
       ) : null;
     }
   }
+
+  const diff =
+    typeof post?.optimisticMyVote === "number"
+      ? post?.optimisticMyVote - (post?.myVote ?? 0)
+      : 0;
+  const score = post.upvotes - post.downvotes + diff;
+
+  const myVote = post?.optimisticMyVote ?? post?.myVote ?? 0;
 
   return (
     <div
@@ -239,28 +170,35 @@ export function FeedPostCard(props: PostProps) {
         props.detailView ? "pb-2" : "border-b pb-4",
       )}
     >
-      <PostByline {...props} />
+      <PostByline
+        post={post}
+        pinned={pinned}
+        showCreator={props.featuredContext !== "home" || props.detailView}
+        showCommunity={
+          props.featuredContext === "home" ? true : (props.detailView ?? false)
+        }
+      />
 
-      {props.detailView && crossPosts && crossPosts.length > 0 && (
-        <CrossPosts key={apId} crossPosts={crossPosts} />
+      {props.detailView && post.crossPosts && post.crossPosts.length > 0 && (
+        <CrossPosts key={post.apId} crossPosts={post.crossPosts} />
       )}
 
       <Link
         to={`${linkCtx.root}c/:communityName/posts/:post`}
         params={{
-          communityName: communitySlug,
+          communityName: post.communitySlug,
           post: encodedApId,
         }}
-        onClickCapture={onNavigate}
+        onClickCapture={props.onNavigate}
         className="gap-2 flex flex-col"
       >
         <span
           className={twMerge(
             "text-xl font-medium",
-            !props.detailView && read && "text-muted-foreground",
+            !props.detailView && post.read && "text-muted-foreground",
           )}
         >
-          {deleted ? "deleted" : name}
+          {post.deleted ? "deleted" : post.title}
         </span>
         {showImage && (
           <div className="max-md:-mx-3 flex flex-col relative">
@@ -268,72 +206,75 @@ export function FeedPostCard(props: PostProps) {
               <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
             )}
             <img
-              src={thumbnail}
+              src={embed.thumbnail ?? undefined}
               className="md:rounded-lg object-cover relative"
               onLoad={(e) => {
                 setImageLoaded(true);
-                if (!aspectRatio) {
-                  patchPost(apId, getCachePrefixer(), {
-                    imageDetails: {
-                      height: e.currentTarget.naturalHeight,
-                      width: e.currentTarget.naturalWidth,
-                    },
+                if (!post.thumbnailAspectRatio) {
+                  patchPost(post.apId, getCachePrefixer(), {
+                    thumbnailAspectRatio:
+                      e.currentTarget.naturalWidth /
+                      e.currentTarget.naturalHeight,
                   });
                 }
               }}
               style={{
-                aspectRatio,
+                aspectRatio: post.thumbnailAspectRatio ?? undefined,
               }}
               {...handlers()}
             />
           </div>
         )}
-
-        {!props.detailView && body && !deleted && type === "text" && (
-          <p
-            className={cn(
-              "text-sm line-clamp-3 leading-relaxed",
-              read && "text-muted-foreground",
-            )}
-          >
-            {removeMd(body)}
-          </p>
-        )}
+        {!props.detailView &&
+          post.body &&
+          !post.deleted &&
+          embed?.type === "text" && (
+            <p
+              className={cn(
+                "text-sm line-clamp-3 leading-relaxed",
+                post.read && "text-muted-foreground",
+              )}
+            >
+              {removeMd(post.body)}
+            </p>
+          )}
       </Link>
 
       {showArticle && (
         <PostArticleEmbed
-          name={name}
-          url={showArticle ? url : undefined}
+          name={post.title}
+          url={showArticle ? post.url : undefined}
           displayUrl={showArticle ? displayUrl : undefined}
-          thumbnail={showArticle ? thumbnail : undefined}
+          thumbnail={showArticle ? embed.thumbnail : null}
         />
       )}
 
-      {type === "video" && !deleted && url && (
-        <PostVideoEmbed url={url} autoPlay={props.detailView} />
+      {embed?.type === "video" && !post.deleted && post.url && (
+        <PostVideoEmbed url={post.url} autoPlay={props.detailView} />
       )}
-      {type === "loops" && !deleted && url && (
+      {embed?.type === "loops" && !post.deleted && post.url && (
         <PostLoopsEmbed
-          url={url}
-          thumbnail={thumbnail}
+          url={post.url}
+          thumbnail={embed.thumbnail}
           autoPlay={props.detailView}
         />
       )}
-      {type === "youtube" && !deleted && <YouTubeVideoEmbed url={url} />}
+      {embed?.type === "youtube" && !post.deleted && (
+        <YouTubeVideoEmbed url={post.url} />
+      )}
 
-      {props.detailView && body && !deleted && (
-        <MarkdownRenderer markdown={body} className="pt-2" />
+      {props.detailView && post.body && !post.deleted && (
+        <MarkdownRenderer markdown={post.body} className="pt-2" />
       )}
       {!props.detailView && (
         <div className="flex flex-row items-center justify-end gap-1">
           <PostCommentsButton
-            commentsCount={commentsCount}
-            communityName={communitySlug}
+            commentsCount={post.commentsCount}
+            communityName={post.communitySlug}
             postApId={encodedApId}
           />
           <Voting
-            apId={apId}
+            apId={post.apId}
             score={score}
             myVote={myVote}
             className="-mr-2.5"
@@ -366,7 +307,7 @@ export function PostBottomBar({
     typeof postView?.optimisticMyVote === "number"
       ? postView?.optimisticMyVote - (postView?.myVote ?? 0)
       : 0;
-  const score = postView?.counts.score + diff;
+  const score = postView.upvotes - postView.downvotes + diff;
 
   const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
 
@@ -383,21 +324,18 @@ export function PostBottomBar({
 function CrossPosts({
   crossPosts,
 }: {
-  crossPosts: {
-    encodedApId: string;
-    communitySlug: string;
-  }[];
+  crossPosts: Schemas.Post["crossPosts"];
 }) {
   const linkCtx = useLinkContext();
   return (
     <span className="text-brand text-sm flex flex-row items-center gap-x-2 gap-y-1 flex-wrap">
       <LuRepeat2 />
-      {crossPosts.map(({ encodedApId, communitySlug }) => (
+      {crossPosts?.map(({ apId, communitySlug }) => (
         <Link
-          key={encodedApId}
+          key={apId}
           to={`${linkCtx.root}c/:communityName/posts/:post`}
           params={{
-            post: encodedApId,
+            post: encodeApId(apId),
             communityName: communitySlug,
           }}
           className="hover:underline line-clamp-1"

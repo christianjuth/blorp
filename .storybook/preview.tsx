@@ -1,7 +1,7 @@
 import * as React from "react";
 import { IonApp } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import type { Preview } from "@storybook/react";
+import type { Preview } from "@storybook/react-vite";
 import { Providers } from "../src/components/providers";
 import { setupIonicReact } from "@ionic/react";
 import "../src/styles/index.css";

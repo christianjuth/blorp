@@ -2,22 +2,13 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
-import type {
-  Community,
-  CommunityView,
-  CommunityModeratorView,
-  SubscribedType,
-} from "lemmy-js-client";
-import { createSlug } from "../lib/lemmy/utils";
 import { MAX_CACHE_MS } from "./config";
 import { CachePrefixer } from "./auth";
+import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 
 type Data = {
-  communityView:
-    | CommunityView
-    | ({ community: Community } & Partial<CommunityView>);
-  optimisticSubscribed?: SubscribedType;
-  mods?: CommunityModeratorView[];
+  communityView: Schemas.Community;
+  mods?: Schemas.Person[];
 };
 
 type CachedCommunity = {
@@ -30,7 +21,10 @@ type SortsStore = {
   patchCommunity: (
     id: string,
     prefix: CachePrefixer,
-    post: Partial<Data>,
+    post: {
+      communityView?: Partial<Schemas.Community>;
+      mods?: Schemas.Person[];
+    },
   ) => void;
   cacheCommunity: (prefix: CachePrefixer, data: Data) => void;
   cacheCommunities: (
@@ -74,7 +68,7 @@ export const useCommunitiesStore = create<SortsStore>()(
       },
       cacheCommunity: (prefix, view) => {
         const prev = get();
-        const slug = createSlug(view.communityView.community)?.slug;
+        const slug = view.communityView.slug;
         if (slug) {
           const cacheKey = prefix(slug);
           const prevCommunityData = prev.communities[cacheKey]?.data;
@@ -103,7 +97,7 @@ export const useCommunitiesStore = create<SortsStore>()(
         const newCommunities: Record<string, CachedCommunity> = {};
 
         for (const view of views) {
-          const slug = createSlug(view.communityView.community)?.slug;
+          const slug = view.communityView.slug;
           if (slug) {
             const cacheKey = prefix(slug);
             const prevCommunityData = prev[cacheKey]?.data;
@@ -153,7 +147,7 @@ export const useCommunitiesStore = create<SortsStore>()(
     {
       name: "communities",
       storage: createStorage<SortsStore>(),
-      version: 1,
+      version: 2,
       onRehydrateStorage: () => {
         return (state) => {
           state?.cleanup();

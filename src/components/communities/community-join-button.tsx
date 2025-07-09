@@ -23,7 +23,7 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
 
   const data = cache?.data;
   const subscribed =
-    data?.optimisticSubscribed ?? data?.communityView.subscribed;
+    data?.communityView.optimisticSubscribed ?? data?.communityView.subscribed;
 
   let copy = "Join";
   if (subscribed === "Pending") {
@@ -68,7 +68,7 @@ export function CommunityJoinButton({ communityName, ...props }: Props) {
           }
 
           follow.mutate({
-            community: communityView.community,
+            community: communityView,
             follow: shouldFollow ? true : false,
           });
         }

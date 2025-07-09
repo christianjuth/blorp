@@ -14,6 +14,8 @@ import { useLongPress } from "use-long-press";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { shareImage } from "@/src/lib/share";
 import { cn } from "@/src/lib/utils";
+import DOMPurify from "dompurify";
+import { slugSchema } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 const COMMUNITY_BANG =
   /^!([A-Za-z0-9_-]+)@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})$/;
@@ -126,13 +128,10 @@ const options: (
   },
 });
 
-function createMd(
-  root: ReturnType<typeof useLinkContext>["root"],
-  allowUnsafeHtml: boolean,
-) {
+function createMd(root: ReturnType<typeof useLinkContext>["root"]) {
   const md = markdownit({
     linkify: true,
-    html: allowUnsafeHtml,
+    html: true,
   });
 
   // Extend linkify for lemmy links starting with "!"
@@ -152,6 +151,25 @@ function createMd(
     // The normalize function lets us customize how the matched text becomes a URL.
     normalize: function (match) {
       match.url = `${root}c/${match.raw.substring(1)}`;
+    },
+  });
+
+  md.linkify.add("@", {
+    // The validate function checks that the text starting at position pos
+    // matches our desired lemmy link pattern.
+    validate: function (text, pos) {
+      // Attempt to match the pattern: @user@host
+      const tail = text.slice(pos);
+      const { data } = slugSchema.safeParse(tail);
+      if (data) {
+        // Return the length of the matched text.
+        return data.length;
+      }
+      return 0;
+    },
+    // The normalize function lets us customize how the matched text becomes a URL.
+    normalize: function (match) {
+      match.url = `${root}u/${match.raw.substring(1)}`;
     },
   });
 
@@ -177,33 +195,20 @@ function createMd(
   return md;
 }
 
-const RENDERERS: Record<
-  ReturnType<typeof useLinkContext>["root"],
-  { html: MarkdownIt; noHtml: MarkdownIt }
-> = {
-  "/home/": {
-    html: createMd("/home/", true),
-    noHtml: createMd("/home/", false),
-  },
-  "/inbox/": {
-    html: createMd("/inbox/", true),
-    noHtml: createMd("/inbox/", false),
-  },
-  "/communities/": {
-    html: createMd("/communities/", true),
-    noHtml: createMd("/communities/", false),
-  },
-};
+const RENDERERS: Record<ReturnType<typeof useLinkContext>["root"], MarkdownIt> =
+  {
+    "/home/": createMd("/home/"),
+    "/inbox/": createMd("/inbox/"),
+    "/communities/": createMd("/communities/"),
+  };
 
 export function MarkdownRenderer({
   markdown,
   className,
-  allowUnsafeHtml,
   dim,
 }: {
   markdown: string;
   className?: string;
-  allowUnsafeHtml?: boolean;
   dim?: boolean;
 }) {
   const root = useLinkContext().root;
@@ -212,7 +217,7 @@ export function MarkdownRenderer({
       className={cn("markdown-content", dim && "text-foreground/70", className)}
     >
       {parse(
-        RENDERERS[root][allowUnsafeHtml ? "html" : "noHtml"].render(markdown),
+        DOMPurify.sanitize(RENDERERS[root].render(markdown)),
         options(root),
       )}
     </div>

@@ -54,7 +54,7 @@ function AccountCard({
     <Section title={`ACCOUNT ${accountIndex + 1}`}>
       {person && (
         <SectionItem unstyled>
-          <PersonCard actorId={person.actor_id} person={person} size="sm" />
+          <PersonCard actorId={person.apId} person={person} size="sm" />
         </SectionItem>
       )}
 
@@ -99,7 +99,7 @@ function AccountCard({
         onClick={() => {
           if (isLoggedIn && person) {
             getConfirmation({
-              message: `Are you sure you want to logout of ${createSlug(person)?.slug ?? "this account"}`,
+              message: `Are you sure you want to logout of ${person.slug ?? "this account"}`,
             }).then(() => logout.mutate(account));
           } else if (accountIndex > 0) {
             logoutZustand(accountIndex);
@@ -110,11 +110,7 @@ function AccountCard({
       >
         {[
           isLoggedIn ? "Logout" : accountIndex > 0 ? "Remove" : "Login",
-          person
-            ? `${person.name}@${instance}`
-            : accountIndex > 0
-              ? instance
-              : null,
+          person ? person.slug : accountIndex > 0 ? instance : null,
         ]
           .filter(Boolean)
           .join(" ")}

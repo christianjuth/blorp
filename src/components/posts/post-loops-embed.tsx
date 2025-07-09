@@ -33,7 +33,7 @@ export function PostLoopsEmbed({
   autoPlay = false,
 }: {
   url: string;
-  thumbnail?: string;
+  thumbnail?: string | null;
   autoPlay?: boolean;
 }) {
   const [src, setSrc] = useState<string>();
@@ -60,7 +60,7 @@ export function PostLoopsEmbed({
             className="absolute inset-0 h-full w-full object-cover"
             autoPlay={autoPlay}
             playsInline
-            poster={thumbnail}
+            poster={thumbnail ?? undefined}
           />
         )}
       </div>

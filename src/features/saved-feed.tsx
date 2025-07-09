@@ -1,6 +1,5 @@
 import {
   FeedPostCard,
-  getPostProps,
   PostCardSkeleton,
   PostProps,
 } from "@/src/components/posts/post";
@@ -16,7 +15,6 @@ import { MarkdownRenderer } from "../components/markdown/renderer";
 import { useLinkContext } from "../routing/link-context";
 import { encodeApId } from "../lib/lemmy/utils";
 import { usePostsStore } from "../stores/posts";
-import { isNotNull } from "../lib/utils";
 import { Link } from "@/src/routing/index";
 import {
   IonBackButton,
@@ -38,17 +36,12 @@ const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
 type Item =
-  | typeof NO_ITEMS
-  | PostProps
+  | string
   | {
       path: string;
       postId: number;
       creatorId: number;
     };
-
-function isPost(item: Item): item is PostProps {
-  return _.isObject(item) && "apId" in item;
-}
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="px-0">
@@ -68,10 +61,8 @@ function Comment({ path }: { path: string }) {
     return null;
   }
 
-  const { comment, community, post } = commentView;
-
   const parent = path.split(".").at(-2);
-  const newPath = [parent !== "0" ? parent : undefined, comment.id]
+  const newPath = [parent !== "0" ? parent : undefined, commentView.id]
     .filter(Boolean)
     .join(".");
 
@@ -80,12 +71,12 @@ function Comment({ path }: { path: string }) {
       className="border-b pb-4 mt-4"
       to={`${linkCtx.root}c/:communityName/posts/:post/comments/:comment`}
       params={{
-        communityName: community.slug,
-        post: encodeApId(post.ap_id),
+        communityName: commentView.communitySlug,
+        post: encodeApId(commentView.postApId),
         comment: newPath,
       }}
     >
-      <MarkdownRenderer markdown={comment.content} />
+      <MarkdownRenderer markdown={commentView.body} />
     </Link>
   );
 }
@@ -95,21 +86,19 @@ export default function SavedFeed() {
 
   const [type, setType] = useUrlSearchState(
     "type",
-    "all",
-    z.enum(["posts", "comments", "all"]),
+    "posts",
+    z.enum(["posts", "comments"]),
   );
 
   const comments = useComments({
-    saved_only: true,
-    type_: "All",
+    savedOnly: true,
   });
 
   const postSort = useFiltersStore((s) => s.postSort);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const posts = usePosts({
-    limit: 50,
-    saved_only: true,
-    type_: "All",
+    savedOnly: true,
+    type: "All",
   });
 
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } = posts;
@@ -122,28 +111,13 @@ export default function SavedFeed() {
 
     const postIds = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
 
-    const postViews = _.uniq(postIds)
-      .map((apId) => {
-        const postView = postCache[getCachePrefixer()(apId)]?.data;
-        return postView ? getPostProps(postView) : null;
-      })
-      .filter(isNotNull);
-
     switch (type) {
       case "posts":
-        return postViews;
+        return postIds;
       case "comments":
         return commentViews;
       default:
-        return [...postViews, ...commentViews].sort((a, b) => {
-          const aPublished = isPost(a)
-            ? a.published
-            : (a as { published: string }).published;
-          const bPublished = isPost(b)
-            ? b.published
-            : (b as { published: string }).published;
-          return bPublished.localeCompare(aPublished);
-        });
+        return [...postIds, ...commentViews];
     }
   }, [
     posts.data?.pages,
@@ -175,10 +149,9 @@ export default function SavedFeed() {
                 size="sm"
                 value={type}
                 onValueChange={(val) =>
-                  val && setType(val as "posts" | "comments" | "all")
+                  val && setType(val as "posts" | "comments")
                 }
               >
-                <ToggleGroupItem value="all">All</ToggleGroupItem>
                 <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
                 <ToggleGroupItem value="comments">comments</ToggleGroupItem>
               </ToggleGroup>
@@ -208,10 +181,9 @@ export default function SavedFeed() {
                     size="sm"
                     value={type}
                     onValueChange={(val) =>
-                      val && setType(val as "posts" | "comments" | "all")
+                      val && setType(val as "posts" | "comments")
                     }
                   >
-                    <ToggleGroupItem value="all">All</ToggleGroupItem>
                     <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
                     <ToggleGroupItem value="comments">comments</ToggleGroupItem>
                   </ToggleGroup>
@@ -231,8 +203,8 @@ export default function SavedFeed() {
                 );
               }
 
-              if (isPost(item)) {
-                return <Post {...item} />;
+              if (_.isString(item)) {
+                return <Post apId={item} />;
               }
 
               return (

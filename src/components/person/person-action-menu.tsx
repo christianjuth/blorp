@@ -1,4 +1,3 @@
-import type { Person } from "lemmy-js-client";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
@@ -14,10 +13,11 @@ import { useBlockPerson } from "@/src/lib/lemmy";
 import { getAccountActorId, useAuth } from "@/src/stores/auth";
 import { shareRoute } from "@/src/lib/share";
 import { resolveRoute } from "../../routing/index";
+import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 dayjs.extend(localizedFormat);
 
-export function PersonActionMenu({ person }: { person?: Person }) {
+export function PersonActionMenu({ person }: { person?: Schemas.Person }) {
   const [alrt] = useIonAlert();
 
   const router = useIonRouter();
@@ -27,7 +27,7 @@ export function PersonActionMenu({ person }: { person?: Person }) {
 
   const requireAuth = useRequireAuth();
 
-  const slug = person ? createSlug(person) : undefined;
+  const slug = person ? person.slug : undefined;
 
   const blockPerson = useBlockPerson();
 
@@ -41,7 +41,7 @@ export function PersonActionMenu({ person }: { person?: Person }) {
               onClick: () =>
                 router.push(
                   resolveRoute("/messages/chat/:userId", {
-                    userId: encodeApId(person?.actor_id),
+                    userId: encodeApId(person?.apId),
                   }),
                 ),
             },
@@ -50,7 +50,7 @@ export function PersonActionMenu({ person }: { person?: Person }) {
               onClick: () =>
                 shareRoute(
                   resolveRoute(`${linkCtx.root}u/:userId`, {
-                    userId: encodeApId(person?.actor_id),
+                    userId: encodeApId(person?.apId),
                   }),
                 ),
             },
@@ -58,7 +58,7 @@ export function PersonActionMenu({ person }: { person?: Person }) {
               text: "View source",
               onClick: async () => {
                 try {
-                  openUrl(person.actor_id);
+                  openUrl(person.apId);
                 } catch {
                   // TODO: handle error
                 }
@@ -66,7 +66,7 @@ export function PersonActionMenu({ person }: { person?: Person }) {
             },
           ]
         : []),
-      ...(person && person.actor_id !== myUserId
+      ...(person && person.apId !== myUserId
         ? [
             {
               text: "Block person",
@@ -75,7 +75,7 @@ export function PersonActionMenu({ person }: { person?: Person }) {
                   await requireAuth();
                   const deferred = new Deferred();
                   alrt({
-                    message: `Block ${slug?.slug ?? "person"}`,
+                    message: `Block ${slug ?? "person"}`,
                     buttons: [
                       {
                         text: "Cancel",
@@ -91,7 +91,7 @@ export function PersonActionMenu({ person }: { person?: Person }) {
                   });
                   await deferred.promise;
                   blockPerson.mutate({
-                    person_id: person?.id,
+                    personId: person?.id,
                     block: true,
                   });
                 } catch {}
