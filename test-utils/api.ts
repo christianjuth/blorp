@@ -132,7 +132,7 @@ export function getCommunity(
 ): Schemas.Community {
   const communityId = overrides?.id ?? COMMUNITY_ID;
   return {
-    createdAt: relativeTime(),
+    createdAt: absoluteTime(),
     id: communityId,
     apId: `${API_ROOT}/c/${communityId}`,
     slug: `${communityId}@${HOST}`,
