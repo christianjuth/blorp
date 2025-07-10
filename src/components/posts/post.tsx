@@ -33,7 +33,7 @@ export interface PostProps {
   apId: string;
   detailView?: boolean;
   onNavigate?: () => any;
-  featuredContext?: "community" | "home";
+  featuredContext?: "community" | "home" | "user";
   modApIds?: string[];
   adminApIds?: string[];
 }
@@ -175,9 +175,15 @@ export function FeedPostCard(props: PostProps) {
       <PostByline
         post={post}
         pinned={pinned}
-        showCreator={props.featuredContext !== "home" || props.detailView}
+        showCreator={
+          (props.featuredContext !== "home" &&
+            props.featuredContext !== "user") ||
+          props.detailView
+        }
         showCommunity={
-          props.featuredContext === "home" ? true : (props.detailView ?? false)
+          props.featuredContext === "home" || props.featuredContext === "user"
+            ? true
+            : (props.detailView ?? false)
         }
         isMod={props.modApIds?.includes(post.creatorApId)}
         isAdmin={props.adminApIds?.includes(post.creatorApId)}
