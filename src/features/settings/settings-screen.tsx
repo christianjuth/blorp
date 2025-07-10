@@ -13,14 +13,12 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToggle,
   IonToolbar,
 } from "@ionic/react";
 import { MenuButton, UserDropdown } from "@/src/components/nav";
 import { PageTitle } from "@/src/components/page-title";
 import { PersonCard } from "@/src/components/person/person-card";
-import { createSlug } from "@/src/lib/lemmy/utils";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { openUrl } from "@/src/lib/linking";
@@ -37,9 +35,11 @@ const version =
 function AccountCard({
   account,
   accountIndex,
+  hasOtherAccounts,
 }: {
   account: Account;
   accountIndex: number;
+  hasOtherAccounts: boolean;
 }) {
   const modalTriggerId = useId();
 
@@ -101,7 +101,7 @@ function AccountCard({
             getConfirmation({
               message: `Are you sure you want to logout of ${person.slug ?? "this account"}`,
             }).then(() => logout.mutate(account));
-          } else if (accountIndex > 0) {
+          } else if (hasOtherAccounts) {
             logoutZustand(accountIndex);
           } else {
             requireAuth();
@@ -109,8 +109,8 @@ function AccountCard({
         }}
       >
         {[
-          isLoggedIn ? "Logout" : accountIndex > 0 ? "Remove" : "Login",
-          person ? person.slug : accountIndex > 0 ? instance : null,
+          isLoggedIn ? "Logout" : hasOtherAccounts ? "Remove" : "Login",
+          person ? person.slug : hasOtherAccounts ? instance : null,
         ]
           .filter(Boolean)
           .join(" ")}
@@ -130,6 +130,7 @@ function AccountSection() {
             key={instance + index}
             accountIndex={index}
             account={a}
+            hasOtherAccounts={accounts.length > 1}
           />
         );
       })}
