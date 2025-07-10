@@ -246,6 +246,7 @@ export default function Post() {
         <CommentReplyProvider presentingElement={pageElement.element}>
           <PostReportProvider>
             <VirtualList
+              keepMountedIndices={[0]}
               className="h-full ion-content-scroll-host"
               data={data}
               header={[
