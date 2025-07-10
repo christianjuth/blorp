@@ -33,6 +33,7 @@ import { cn } from "@/src/lib/utils";
 import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useCommunitiesStore } from "@/src/stores/communities";
+import { CakeDay } from "../cake-day";
 
 export function PostByline({
   post,
@@ -274,6 +275,9 @@ export function PostByline({
             )}
             {!showCommunity && (
               <RelativeTime time={post.createdAt} className="ml-2" />
+            )}
+            {creator && (
+              <CakeDay date={creator.createdAt} className="text-brand" />
             )}
           </div>
         )}

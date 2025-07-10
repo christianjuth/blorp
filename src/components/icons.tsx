@@ -8,6 +8,10 @@ export {
   IoPerson as Person,
   IoSend as Send,
 } from "react-icons/io5";
-export { LuScrollText as ScrollTextOutline } from "react-icons/lu";
+export {
+  LuScrollText as ScrollTextOutline,
+  LuCakeSlice as CakeSliceOutline,
+  LuBaby as BabyOutline,
+} from "react-icons/lu";
 export { FiSidebar as SidebarOutline } from "react-icons/fi";
 export { FiLogOut as LogOut } from "react-icons/fi";

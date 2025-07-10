@@ -47,7 +47,7 @@ export function PersonHoverCard({
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <LuCakeSlice />
           <span>
-            Created {personView && dayjs(personView.createdAt).format("ll")}
+            Joined {personView && dayjs(personView.createdAt).format("ll")}
           </span>
         </div>
 

@@ -42,6 +42,7 @@ import {
 import { create } from "zustand";
 import { COMMENT_COLLAPSE_EVENT } from "./config";
 import { useMedia } from "@/src/lib/hooks/index";
+import { CakeDay } from "../cake-day";
 
 type StoreState = {
   expandedDetails: Record<string, boolean>;
@@ -123,6 +124,12 @@ function Byline({
             <Badge variant="brand" size="sm" className="ml-1.5">
               Me
             </Badge>
+          )}
+          {profileView && (
+            <CakeDay
+              className="ml-1.5 text-brand"
+              date={profileView.createdAt}
+            />
           )}
         </Link>
       </PersonHoverCard>

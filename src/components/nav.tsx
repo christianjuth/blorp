@@ -224,6 +224,7 @@ export function UserSidebar() {
   const pmCounts = usePrivateMessagesCount();
 
   const { person, instance } = parseAccountInfo(selectedAccount);
+  const userName = person?.slug.split("@")[0];
 
   return (
     <div className="flex flex-col gap-4 min-h-full pb-[var(--ion-safe-area-bottom)]">
@@ -237,7 +238,7 @@ export function UserSidebar() {
         </Avatar>
 
         <div className="flex flex-col">
-          <span className="leading-snug line-clamp-1">{person?.slug}</span>
+          <span className="leading-snug line-clamp-1">{userName}</span>
           <span className="text-sm text-muted-foreground line-clamp-1">
             @{instance}
           </span>
