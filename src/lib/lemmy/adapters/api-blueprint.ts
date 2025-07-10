@@ -191,7 +191,7 @@ export const registrationResponseSchema = z.object({
 });
 
 export const slugSchema = z.custom<`${string}@${string}`>((val) => {
-  return /^([\w-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/.test(val);
+  return /^([\w-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/.test(val);
 });
 
 export namespace Schemas {

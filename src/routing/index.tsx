@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import { RouteDefs, routeDefs, RoutePath } from "./routes";
 import z from "zod";
+import { isDev } from "../lib/device";
 
 // lookup schema by path
 type DefByPath = {
@@ -78,8 +79,17 @@ export function Link<Path extends RoutePath>({
   params,
   ...rest
 }: LinkProps<Path>) {
-  const toString = compile(to, { encode: false })(params);
-  return <RRLink to={toString + (searchParams ?? "")} {...rest} />;
+  try {
+    const toString = compile(to, { encode: false })(params);
+    return <RRLink to={toString + (searchParams ?? "")} {...rest} />;
+  } catch (err) {
+    if (isDev()) {
+      throw err;
+    } else {
+      console.error(err);
+    }
+  }
+  return null;
 }
 
 interface TypedRouteProps<Path extends RoutePath>

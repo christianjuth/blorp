@@ -15,7 +15,6 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { shareImage } from "@/src/lib/share";
 import { cn } from "@/src/lib/utils";
 import DOMPurify from "dompurify";
-import { slugSchema } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 const COMMUNITY_BANG =
   /^!([A-Za-z0-9_-]+)@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})$/;
@@ -160,10 +159,10 @@ function createMd(root: ReturnType<typeof useLinkContext>["root"]) {
     validate: function (text, pos) {
       // Attempt to match the pattern: @user@host
       const tail = text.slice(pos);
-      const { data } = slugSchema.safeParse(tail);
-      if (data) {
+      const match = tail.match(/^([\w-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+      if (match) {
         // Return the length of the matched text.
-        return data.length;
+        return match[0].length;
       }
       return 0;
     },
