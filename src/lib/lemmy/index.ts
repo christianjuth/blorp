@@ -1281,36 +1281,28 @@ export function usePrivateMessagesCount() {
   const { data } = useQuery({
     queryKey,
     queryFn: async ({ signal }) => {
-      const counts: number[] = [];
+      const counts = await Promise.allSettled(
+        apis.map(async ({ api, isLoggedIn }) => {
+          if (!isLoggedIn) {
+            return 0;
+          }
 
-      for (const { api: apiP, isLoggedIn } of apis) {
-        if (!isLoggedIn) {
-          counts.push(0);
-          continue;
-        }
-
-        const api = await apiP;
-
-        const site = await api.getSite();
-        const me = site.me;
-
-        try {
-          const { privateMessages } = await api.getPrivateMessages(
+          const { privateMessages } = await (
+            await api
+          ).getPrivateMessages(
             {
               unreadOnly: true,
             },
             { signal },
           );
 
-          counts.push(
-            privateMessages.filter((pm) => pm.creatorId !== me?.id).length,
-          );
-        } catch {
-          counts.push(0);
-        }
-      }
+          return privateMessages.length;
+        }),
+      );
 
-      return counts;
+      return counts.map((count) =>
+        count.status === "fulfilled" ? count.value : 0,
+      );
     },
     enabled: isLoggedIn,
     refetchInterval: 1000 * 60,
@@ -1470,38 +1462,41 @@ export function useNotificationCount() {
   const { data } = useQuery({
     queryKey,
     queryFn: async ({ signal }) => {
-      const counts: number[] = [];
+      const counts = await Promise.allSettled(
+        apis.map(async ({ api, isLoggedIn }) => {
+          if (!isLoggedIn) {
+            return 0;
+          }
 
-      for (const { api: apiP, isLoggedIn } of apis) {
-        if (!isLoggedIn) {
-          counts.push(0);
-          continue;
-        }
+          const a = await api;
 
-        const api = await apiP;
+          const [mentions, replies] = await Promise.allSettled([
+            a.getMentions(
+              {
+                unreadOnly: true,
+              },
+              { signal },
+            ),
+            a.getReplies(
+              {
+                unreadOnly: true,
+              },
+              { signal },
+            ),
+          ]);
+          const mentionCount =
+            mentions.status === "fulfilled"
+              ? mentions.value.mentions.length
+              : 0;
+          const repliesCount =
+            replies.status === "fulfilled" ? replies.value.replies.length : 0;
+          return mentionCount + repliesCount;
+        }),
+      );
 
-        const [mentions, replies] = await Promise.allSettled([
-          api.getMentions(
-            {
-              unreadOnly: true,
-            },
-            { signal },
-          ),
-          api.getReplies(
-            {
-              unreadOnly: true,
-            },
-            { signal },
-          ),
-        ]);
-        const mentionCount =
-          mentions.status === "fulfilled" ? mentions.value.mentions.length : 0;
-        const repliesCount =
-          replies.status === "fulfilled" ? replies.value.replies.length : 0;
-        counts.push(mentionCount + repliesCount);
-      }
-
-      return counts;
+      return counts.map((count) =>
+        count.status === "fulfilled" ? count.value : 0,
+      );
     },
     enabled: isLoggedIn,
     refetchInterval: 1000 * 60,
