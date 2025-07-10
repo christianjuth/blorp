@@ -4,7 +4,6 @@ import { CommunityBanner } from "./community-banner";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import { useEffect } from "react";
 import * as api from "@/test-utils/api";
-import { createSlug } from "@/src/lib/lemmy/utils";
 import { useAuth } from "@/src/stores/auth";
 
 const COMMUNITY = api.getCommunity();

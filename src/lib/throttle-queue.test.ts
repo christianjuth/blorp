@@ -1,4 +1,3 @@
-import { Fa500Px } from "react-icons/fa6";
 import { describe, test, expect, vi } from "vitest";
 
 vi.useFakeTimers();

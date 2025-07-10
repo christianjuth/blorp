@@ -7,7 +7,6 @@ import {
   Forms,
   INIT_PAGE_TOKEN,
   Errors,
-  slugSchema,
 } from "./api-blueprint";
 import { createSlug } from "../utils";
 import _ from "lodash";

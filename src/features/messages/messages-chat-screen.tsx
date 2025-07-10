@@ -6,7 +6,7 @@ import {
   useMarkPriavteMessageRead,
   usePrivateMessages,
 } from "@/src/lib/lemmy";
-import { createSlug, decodeApId } from "@/src/lib/lemmy/utils";
+import { decodeApId } from "@/src/lib/lemmy/utils";
 import { cn } from "@/src/lib/utils";
 import { useParams } from "@/src/routing";
 import { parseAccountInfo, useAuth } from "@/src/stores/auth";
@@ -16,7 +16,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
 } from "@ionic/react";
 import _ from "lodash";
@@ -29,7 +28,6 @@ import { PersonAvatar } from "@/src/components/person/person-avatar";
 import TextareaAutosize from "react-textarea-autosize";
 import { Send } from "@/src/components/icons";
 import { Button } from "@/src/components/ui/button";
-import { Person } from "lemmy-v3";
 import { useMedia } from "@/src/lib/hooks";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 import { PageTitle } from "@/src/components/page-title";

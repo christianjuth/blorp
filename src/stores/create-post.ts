@@ -1,11 +1,10 @@
-import { Community, CreatePost } from "lemmy-v3";
+import { Community } from "lemmy-v3";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
 import dayjs from "dayjs";
 import { Forms, Schemas } from "../lib/lemmy/adapters/api-blueprint";
-import { SetOptional } from "type-fest";
 
 export type CommunityPartial = Pick<
   Community,

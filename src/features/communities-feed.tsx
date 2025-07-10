@@ -7,7 +7,6 @@ import { memo, useMemo, useState } from "react";
 import { useFiltersStore } from "@/src/stores/filters";
 import { ContentGutters } from "@/src/components/gutters";
 import { VirtualList } from "@/src/components/virtual-list";
-import { Community } from "lemmy-v3";
 import { useMedia } from "../lib/hooks";
 import {
   IonButtons,

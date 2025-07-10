@@ -33,7 +33,6 @@ import { dispatchScrollEvent } from "../lib/scroll-events";
 import { PostReportProvider } from "../components/posts/post-report";
 import { PageTitle } from "../components/page-title";
 import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
-import { usePostsStore } from "../stores/posts";
 import { getAccountSite, useAuth } from "../stores/auth";
 
 const EMPTY_ARR: never[] = [];

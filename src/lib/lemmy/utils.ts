@@ -1,5 +1,4 @@
-import dayjs from "dayjs";
-import { ImageDetails, Person, Post, PostAggregates, PostView } from "lemmy-v3";
+import { ImageDetails, Person, Post, PostAggregates } from "lemmy-v3";
 import _ from "lodash";
 
 export type Slug = {

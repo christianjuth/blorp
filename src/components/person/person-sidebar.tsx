@@ -11,7 +11,7 @@ import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import { useMemo, useState } from "react";
 import { useLinkContext } from "../../routing/link-context";
-import { createSlug, encodeApId } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/lemmy/utils";
 import { openUrl } from "@/src/lib/linking";
 import { Deferred } from "@/src/lib/deferred";
 import { useIonAlert, useIonRouter } from "@ionic/react";

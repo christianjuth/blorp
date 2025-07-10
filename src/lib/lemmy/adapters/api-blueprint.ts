@@ -23,7 +23,7 @@ const personSchema = z.object({
   commentCount: z.number().nullable(),
   postCount: z.number().nullable(),
 });
-const postSchema = z.object({
+export const postSchema = z.object({
   createdAt: z.string(),
   id: z.number(),
   apId: z.string(),
@@ -132,7 +132,7 @@ export const commentSchema = z.object({
   optimisticDeleted: z.boolean().optional(),
   postTitle: z.string(),
 });
-const privateMessageSchema = z.object({
+export const privateMessageSchema = z.object({
   createdAt: z.string(),
   id: z.number(),
   creatorId: z.number(),
@@ -144,7 +144,7 @@ const privateMessageSchema = z.object({
   read: z.boolean(),
   body: z.string(),
 });
-const replySchema = z.object({
+export const replySchema = z.object({
   createdAt: z.string(),
   id: z.number(),
   commentId: z.number(),
@@ -160,7 +160,7 @@ const replySchema = z.object({
   communitySlug,
   communityApId: z.string(),
 });
-const mentionSchema = z.object({
+export const mentionSchema = z.object({
   createdAt: z.string(),
   id: z.number(),
   commentId: z.number(),
@@ -176,15 +176,15 @@ const mentionSchema = z.object({
   communitySlug,
   communityApId: z.string(),
 });
-const uploadImageResponseSchema = z.object({
+export const uploadImageResponseSchema = z.object({
   url: z.string().optional(),
 });
-const captchaSchema = z.object({
+export const captchaSchema = z.object({
   uuid: z.string(),
   audioUrl: z.string(),
   imgUrl: z.string(),
 });
-const registrationResponseSchema = z.object({
+export const registrationResponseSchema = z.object({
   jwt: z.string().nullable(),
   verifyEmailSent: z.boolean().nullable(),
   registrationCreated: z.boolean().nullable(),

@@ -1,12 +1,10 @@
 import {
-  cog,
   notifications,
   people,
   home,
   homeOutline,
   peopleOutline,
   notificationsOutline,
-  cogOutline,
   create,
   createOutline,
   chatbubble,

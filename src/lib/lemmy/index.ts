@@ -44,6 +44,7 @@ import pTimeout from "p-timeout";
 import { SetOptional } from "type-fest";
 import { INSTANCES } from "./adapters/instances-data";
 import { env } from "@/src/env";
+import { isNotNil } from "../utils";
 
 enum Errors2 {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -210,8 +211,6 @@ export function usePost({
   );
 
   const cachePosts = usePostsStore((s) => s.cachePosts);
-  // const patchPost = usePostsStore((s) => s.patchPost);
-
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
@@ -222,7 +221,9 @@ export function usePost({
         throw new Error("ap_id undefined");
       }
 
-      const { post, creator } = await (await api).getPost({ apId }, { signal });
+      const { post, creator, community } = await (
+        await api
+      ).getPost({ apId }, { signal });
 
       cachePosts(getCachePrefixer(), [
         {
@@ -235,13 +236,12 @@ export function usePost({
         },
       ]);
 
-      /* cacheCommunities(getCachePrefixer(), [ */
-      /*   { */
-      /*     communityView: { community: post.community }, */
-      /*   }, */
-      /* ]); */
-      /**/
-      /* cacheProfiles(getCachePrefixer(), [{ person: resPost.creator }]); */
+      if (community) {
+        cacheCommunities(getCachePrefixer(), [{ communityView: community }]);
+      }
+      if (creator) {
+        cacheProfiles(getCachePrefixer(), [creator]);
+      }
 
       return post;
     },
@@ -299,7 +299,6 @@ export function useComments(form: Forms.GetComments) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cacheComments = useCommentsStore((s) => s.cacheComments);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
-  const cachePosts = usePostsStore((s) => s.cachePosts);
 
   const prevPageParam = useRef("");
   const prevPage = useRef("");
@@ -480,15 +479,18 @@ export function usePosts(form: Forms.GetPosts) {
       posts.map((p) => p.post),
     );
 
-    //cacheCommunities(
-    //  getCachePrefixer(),
-    //  res.posts.map((p) => ({ communityView: { community: p.community } })),
-    //);
+    cacheCommunities(
+      getCachePrefixer(),
+      posts
+        .map((p) => p.community)
+        .filter(isNotNil)
+        .map((communityView) => ({ communityView })),
+    );
 
-    /* cacheProfiles( */
-    /*   getCachePrefixer(), */
-    /*   res.posts.map((p) => ({ person: p.creator })), */
-    /* ); */
+    cacheProfiles(
+      getCachePrefixer(),
+      posts.map((p) => p.creator).filter(isNotNil),
+    );
 
     return {
       posts: posts.map((p) => p.post.apId),

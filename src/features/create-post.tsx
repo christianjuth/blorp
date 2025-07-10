@@ -49,7 +49,6 @@ import { Link } from "@/src/routing/index";
 import { v4 as uuid } from "uuid";
 import { MdDelete } from "react-icons/md";
 import { useMedia, useUrlSearchState } from "../lib/hooks";
-import { createSlug } from "../lib/lemmy/utils";
 import { RelativeTime } from "../components/relative-time";
 import { Deferred } from "../lib/deferred";
 import z from "zod";
@@ -57,7 +56,6 @@ import { usePostsStore } from "../stores/posts";
 import { getAccountActorId, useAuth } from "../stores/auth";
 import { usePathname } from "../routing/hooks";
 import { Sidebar, SidebarContent } from "../components/sidebar";
-import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 import { useCommunitiesStore } from "../stores/communities";
 import LoginRequired from "./login-required";
 

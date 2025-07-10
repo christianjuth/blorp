@@ -9,7 +9,7 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 import { parseAccountInfo, useAuth } from "../stores/auth";
 import { useLinkContext } from "../routing/link-context";
-import { createSlug, encodeApId } from "../lib/lemmy/utils";
+import { encodeApId } from "../lib/lemmy/utils";
 import {
   Avatar,
   AvatarFallback,

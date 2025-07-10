@@ -1,4 +1,4 @@
-import { ListingType, PostSortType } from "lemmy-v3";
+import { ListingType } from "lemmy-v3";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";

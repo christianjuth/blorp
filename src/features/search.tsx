@@ -17,7 +17,7 @@ import { useFiltersStore } from "../stores/filters";
 import _ from "lodash";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { usePostsStore } from "../stores/posts";
-import { CommunityView, SearchType } from "lemmy-v3";
+import { SearchType } from "lemmy-v3";
 import { useParams } from "@/src/routing/index";
 import {
   IonBackButton,
@@ -36,7 +36,6 @@ import { useAuth } from "../stores/auth";
 import z from "zod";
 import { PersonCard } from "../components/person/person-card";
 import { useLinkContext } from "../routing/link-context";
-import { createSlug } from "../lib/lemmy/utils";
 
 const EMPTY_ARR: never[] = [];
 

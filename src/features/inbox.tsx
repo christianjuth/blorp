@@ -1,4 +1,3 @@
-import { CommentReplyView, PersonMentionView } from "lemmy-v3";
 import { Link } from "@/src/routing/index";
 import { VirtualList } from "@/src/components/virtual-list";
 import { ContentGutters } from "@/src/components/gutters";
@@ -11,7 +10,6 @@ import {
   usePersonMentions,
   useReplies,
 } from "@/src/lib/lemmy/index";
-import { createSlug } from "@/src/lib/lemmy/utils";
 import {
   IonButtons,
   IonContent,
