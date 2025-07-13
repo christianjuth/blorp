@@ -328,8 +328,27 @@ export const pieFedPrivateMessageViewSchema = z.object({
   recipient: pieFedPersonSchema,
 });
 
+export const pieFedCrosspostSchema = z.object({
+  activity_alert: z.boolean(),
+  banned_from_community: z.boolean(),
+  community: pieFedCommunitySchema,
+  counts: pieFedPostCountsSchema,
+  creator: pieFedPersonSchema,
+  creator_banned_from_community: z.boolean(),
+  creator_is_admin: z.boolean(),
+  creator_is_moderator: z.boolean(),
+  hidden: z.boolean(),
+  my_vote: z.number(),
+  post: pieFedPostSchema,
+  read: z.boolean(),
+  saved: z.boolean(),
+  subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
+  unread_comments: z.number(),
+});
+
 function convertPost(
   postView: z.infer<typeof pieFedPostViewSchema>,
+  crossPosts?: z.infer<typeof pieFedCrosspostSchema>[],
 ): Schemas.Post {
   const { post, counts, community, creator } = postView;
   return {
@@ -358,7 +377,14 @@ function convertPost(
     }).slug,
     communityApId: community.actor_id,
     creatorApId: creator.actor_id,
-    crossPosts: [],
+    crossPosts:
+      crossPosts?.map((cp) => ({
+        apId: cp.community.actor_id,
+        communitySlug: createSlug({
+          apId: cp.community.actor_id,
+          name: cp.community.name,
+        }).slug,
+      })) ?? null,
     // TODO: see if this exists
     featuredCommunity: false,
     // TODO: see if this exists
@@ -373,11 +399,12 @@ function convertCommunity(
   communityView:
     | z.infer<typeof pieFedCommunityViewSchema>
     | { community: z.infer<typeof pieFedCommunitySchema> },
+  mode: "full" | "partial",
 ): Schemas.Community {
   const counts = "counts" in communityView ? communityView.counts : null;
   const subscribed =
     "subscribed" in communityView ? communityView.subscribed : null;
-  return {
+  const c: Schemas.Community = {
     createdAt: communityView.community.published,
     id: communityView.community.id,
     apId: communityView.community.actor_id,
@@ -387,7 +414,6 @@ function convertCommunity(
     }).slug,
     icon: communityView.community.icon ?? null,
     banner: communityView.community.banner ?? null,
-    description: communityView.community.description ?? null,
     ...(counts
       ? {
           postCount: counts.post_count ?? undefined,
@@ -406,30 +432,49 @@ function convertCommunity(
         }
       : {}),
   };
+
+  if (mode === "full" || communityView.community.description) {
+    c.description = communityView.community.description ?? null;
+  }
+
+  return c;
 }
 
-function convertPerson({
-  person,
-  counts,
-}:
-  | z.infer<typeof pieFedPersonViewSchema>
-  | {
-      person: z.infer<typeof pieFedPersonSchema>;
-      counts?: undefined;
-    }): Schemas.Person {
-  return {
+function convertPerson(
+  {
+    person,
+    counts,
+  }:
+    | z.infer<typeof pieFedPersonViewSchema>
+    | {
+        person: z.infer<typeof pieFedPersonSchema>;
+        counts?: undefined;
+      },
+  mode: "full" | "partial",
+): Schemas.Person {
+  const p: Schemas.Person = {
     apId: person.actor_id,
     id: person.id,
     avatar: person.avatar ?? null,
-    bio: person.about ?? null,
     matrixUserId: null,
     slug: createSlug({ apId: person.actor_id, name: person.user_name }).slug,
     deleted: person.deleted,
     createdAt: person.published,
     isBot: person.bot,
-    postCount: counts?.post_count ?? null,
-    commentCount: counts?.comment_count ?? null,
   };
+
+  // PieFed excludes about from some endpoints.
+  // Full means it's giving us the full person object
+  // which includes about.
+  if (mode === "full" || person.about) {
+    p.bio = person.about ?? null;
+  }
+  if (mode === "full" || counts) {
+    p.postCount = counts?.post_count ?? null;
+    p.commentCount = counts?.comment_count ?? null;
+  }
+
+  return p;
 }
 
 function convertComment(
@@ -680,8 +725,8 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       const me = site.my_user?.local_user_view?.person;
       return {
         instance: this.instance,
-        admins: site.admins.map((p) => convertPerson(p)),
-        me: me ? convertPerson({ person: me }) : null,
+        admins: site.admins.map((p) => convertPerson(p, "full")),
+        me: me ? convertPerson({ person: me }, "partial") : null,
         version: site.version,
         // TODO: get these counts
         usersActiveDayCount: null,
@@ -697,15 +742,15 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         moderates: null,
         follows:
           site.my_user?.follows?.map(({ community }) =>
-            convertCommunity({ community }),
+            convertCommunity({ community }, "partial"),
           ) ?? null,
         personBlocks:
           site.my_user?.person_blocks?.map((block) =>
-            convertPerson({ person: block }),
+            convertPerson({ person: block }, "partial"),
           ) ?? null,
         communityBlocks:
           site.my_user?.community_blocks?.map(({ community }) =>
-            convertCommunity({ community }),
+            convertCommunity({ community }, "partial"),
           ) ?? null,
         applicationQuestion: null,
         registrationMode: site.site.registration_mode,
@@ -740,6 +785,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         nextCursor: data.next_page,
         posts: data.posts.map((post) => ({
           post: convertPost(post),
+          creator: convertPerson({ person: post.creator }, "partial"),
         })),
       };
     } catch (err) {
@@ -770,7 +816,9 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
 
       return {
         nextCursor: data.next_page,
-        communities: data.communities.map(convertCommunity),
+        communities: data.communities.map((c) =>
+          convertCommunity(c, "partial"),
+        ),
       };
     } catch (err) {
       console.log(err);
@@ -804,8 +852,10 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       .parse(json);
 
     return {
-      community: convertCommunity(community_view),
-      mods: moderators.map((m) => convertPerson({ person: m.moderator })),
+      community: convertCommunity(community_view, "full"),
+      mods: moderators.map((m) =>
+        convertPerson({ person: m.moderator }, "partial"),
+      ),
     };
   }
 
@@ -825,7 +875,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       const data = z
         .object({ person_view: pieFedPersonViewSchema })
         .parse(json);
-      return convertPerson(data.person_view);
+      return convertPerson(data.person_view, "full");
     } else {
       const json = await this.get(
         "/user",
@@ -837,7 +887,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       const data = z
         .object({ person_view: pieFedPersonViewSchema })
         .parse(json);
-      return convertPerson(data.person_view);
+      return convertPerson(data.person_view, "full");
     }
   }
 
@@ -854,17 +904,18 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       options,
     );
 
-    const { post_view, community_view } = z
+    const { post_view, community_view, cross_posts } = z
       .object({
         post_view: pieFedPostViewSchema,
+        cross_posts: z.array(pieFedCrosspostSchema),
         community_view: pieFedCommunityViewSchema,
       })
       .parse(json);
 
     return {
-      post: convertPost(post_view),
-      community_view: convertCommunity(community_view),
-      creator: convertPerson({ person: post_view.creator }),
+      post: convertPost(post_view, cross_posts),
+      community_view: convertCommunity(community_view, "partial"),
+      creator: convertPerson({ person: post_view.creator }, "partial"),
     };
   }
 
@@ -941,7 +992,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     return {
       comments: data.comments.map(convertComment),
       creators: data.comments.map(({ creator }) =>
-        convertPerson({ person: creator }),
+        convertPerson({ person: creator }, "partial"),
       ),
       nextCursor: data.next_page,
     };
@@ -977,7 +1028,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         community_view: pieFedCommunityViewSchema,
       })
       .parse(json);
-    return convertCommunity(data.community_view);
+    return convertCommunity(data.community_view, "partial");
   }
 
   async search(form: Forms.Search, options: RequestOptions) {
@@ -1014,9 +1065,9 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     const hasNextCursor = hasMorePosts || hasMoreCommunities || hasMoreUsers;
 
     return {
-      posts: posts.map(convertPost),
-      communities: communities.map(convertCommunity),
-      users: users.map(convertPerson),
+      posts: posts.map((p) => convertPost(p)),
+      communities: communities.map((c) => convertCommunity(c, "partial")),
+      users: users.map((p) => convertPerson(p, "partial")),
       nextCursor: hasNextCursor ? String(nextCursor) : null,
     };
   }
@@ -1142,7 +1193,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         .parse(json);
 
       return {
-        posts: posts?.map(convertPost) ?? [],
+        posts: posts?.map((p) => convertPost(p)) ?? [],
         comments: comments?.map(convertComment) ?? [],
         nextCursor: next_page,
       };
@@ -1211,7 +1262,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         ...private_messages.map((pm) => pm.recipient),
       ],
       (p) => p.actor_id,
-    ).map((person) => convertPerson({ person }));
+    ).map((person) => convertPerson({ person }, "partial"));
 
     return {
       privateMessages: private_messages.map(convertPrivateMessage),
@@ -1273,7 +1324,9 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
 
     return {
       replies: replies.map(convertReply),
-      profiles: replies.map((r) => convertPerson({ person: r.creator })),
+      profiles: replies.map((r) =>
+        convertPerson({ person: r.creator }, "partial"),
+      ),
       nextCursor: next_page,
     };
   }
@@ -1299,7 +1352,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     return {
       mentions: replies.map(convertMention),
       profiles: _.unionBy(
-        replies.map((r) => convertPerson({ person: r.creator })),
+        replies.map((r) => convertPerson({ person: r.creator }, "partial")),
         (p) => p.apId,
       ),
       nextCursor: next_page,

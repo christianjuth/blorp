@@ -17,11 +17,13 @@ const personSchema = z.object({
   avatar: z.string().nullable(),
   slug: z.string(),
   matrixUserId: z.string().nullable(),
-  bio: z.string().nullable(),
   deleted: z.boolean(),
   isBot: z.boolean(),
-  commentCount: z.number().nullable(),
-  postCount: z.number().nullable(),
+  // PieFed sometimes sends these fields
+  // depending on the endpoint
+  bio: z.string().nullable().optional(),
+  commentCount: z.number().nullable().optional(),
+  postCount: z.number().nullable().optional(),
 });
 export const postSchema = z.object({
   createdAt: z.string(),
@@ -72,7 +74,7 @@ const communitySchema = z.object({
   apId: z.string(),
   slug: communitySlug,
   icon: z.string().nullable(),
-  description: z.string().nullable(),
+  description: z.string().nullable().optional(),
   banner: z.string().nullable(),
   usersActiveDayCount: z.number().optional(),
   usersActiveWeekCount: z.number().optional(),

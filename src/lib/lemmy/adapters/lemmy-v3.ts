@@ -150,7 +150,10 @@ function convertPerson({
   };
 }
 
-function convertPost(postView: lemmyV3.PostView): Schemas.Post {
+function convertPost(
+  postView: lemmyV3.PostView,
+  crossPosts?: lemmyV3.PostView[],
+): Schemas.Post {
   const { post, counts, community, creator } = postView;
   return {
     creatorSlug: createSlug({ apId: creator.actor_id, name: creator.name })
@@ -177,7 +180,14 @@ function convertPost(postView: lemmyV3.PostView): Schemas.Post {
     }).slug,
     communityApId: community.actor_id,
     creatorApId: creator.actor_id,
-    crossPosts: [],
+    crossPosts:
+      crossPosts?.map((cp) => ({
+        apId: cp.post.ap_id,
+        communitySlug: createSlug({
+          apId: cp.community.actor_id,
+          name: cp.community.name,
+        }).slug,
+      })) ?? null,
     featuredCommunity: post.featured_community,
     featuredLocal: post.featured_local,
     read: postView.read,
@@ -376,7 +386,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
       options,
     );
     return {
-      post: convertPost(fullPost.post_view),
+      post: convertPost(fullPost.post_view, fullPost.cross_posts),
       creator: convertPerson({ person: fullPost.post_view.creator }),
     };
   }
@@ -503,7 +513,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
     const hasNextCursor = posts.length >= this.limit;
 
     return {
-      posts: posts.map(convertPost),
+      posts: posts.map((p) => convertPost(p)),
       comments: comments.map(convertComment),
       nextCursor: hasNextCursor ? String(nextCursor) : null,
     };
@@ -526,7 +536,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
         ? `${cursor + 1}`
         : null;
     return {
-      posts: posts.map(convertPost),
+      posts: posts.map((p) => convertPost(p)),
       communities: communities.map(convertCommunity),
       users: users.map(convertPerson),
       nextCursor,
