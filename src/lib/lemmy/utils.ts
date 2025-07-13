@@ -1,4 +1,3 @@
-import { ImageDetails, Person, Post, PostAggregates } from "lemmy-v3";
 import _ from "lodash";
 
 export type Slug = {
@@ -25,33 +24,6 @@ export function createSlug({
     slug: `${name}@${host}`,
   } satisfies Slug;
 }
-
-export type FlattenedPost = {
-  optimisticMyVote?: number;
-  myVote?: number;
-  optimisticSaved?: boolean;
-  saved: boolean;
-  optimisticDeleted?: boolean;
-  read: boolean;
-  optimisticRead?: boolean;
-  post: Post;
-  optimisticFeaturedCommunity?: boolean;
-  optimisticFeaturedLocal?: boolean;
-  community: {
-    name: string;
-    title: string;
-    icon?: string;
-    slug: string;
-    actorId: string;
-  };
-  creator: Pick<Person, "id" | "name" | "avatar" | "actor_id">;
-  counts: Pick<PostAggregates, "score" | "comments">;
-  imageDetails?: Pick<ImageDetails, "height" | "width">;
-  crossPosts?: Array<Omit<FlattenedPost, "crossPosts">>;
-};
-export type FlattenedGetPostResponse = {
-  posts: FlattenedPost[];
-};
 
 export function encodeApId(id: string) {
   return encodeURIComponent(id);

@@ -494,7 +494,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
       creators: comments.map(({ creator }) =>
         convertPerson({ person: creator }),
       ),
-      nextCursor: next_page ?? null,
+      nextCursor: _.isNil(form.maxDepth) ? (next_page ?? null) : null,
     };
   }
 

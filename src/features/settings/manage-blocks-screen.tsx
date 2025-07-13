@@ -20,7 +20,6 @@ import { CommunityCard } from "@/src/components/communities/community-card";
 import { SectionItem, Section } from "./shared-components";
 import { useBlockCommunity, useBlockPerson } from "@/src/lib/lemmy";
 import { useConfirmationAlert } from "@/src/lib/hooks/index";
-import { Community } from "lemmy-v3";
 
 export default function SettingsPage() {
   const getConfirmation = useConfirmationAlert();
