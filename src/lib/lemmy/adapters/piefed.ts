@@ -427,7 +427,6 @@ function convertPerson({
     deleted: person.deleted,
     createdAt: person.published,
     isBot: person.bot,
-    // TODO: add thses counts
     postCount: counts?.post_count ?? null,
     commentCount: counts?.comment_count ?? null,
   };
@@ -926,6 +925,8 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         parent_id: form.parentId,
         post_id,
         max_depth: form.maxDepth,
+        // See https://codeberg.org/rimu/pyfedi/issues/884
+        depth_first: true,
       },
       options,
     );
@@ -1102,30 +1103,48 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       personOrUsername.username = form.apIdOrUsername;
     }
 
-    const json = await this.get(
-      "/post/list",
-      {
-        ...personOrUsername,
-        limit: this.limit,
-        page_cursor:
-          form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
-        type_: form.type,
-      },
-      options,
-    );
+    const json =
+      form.type === "Posts"
+        ? await this.get(
+            "/post/list",
+            {
+              ...personOrUsername,
+              limit: this.limit,
+              page_cursor:
+                form.pageCursor === INIT_PAGE_TOKEN
+                  ? undefined
+                  : form.pageCursor,
+              type_: "All",
+            },
+            options,
+          )
+        : await this.get(
+            "/comment/list",
+            {
+              ...personOrUsername,
+              limit: this.limit,
+              page_cursor:
+                form.pageCursor === INIT_PAGE_TOKEN
+                  ? undefined
+                  : form.pageCursor,
+              type_: "All",
+            },
+            options,
+          );
 
     try {
-      const { posts, comments } = z
+      const { posts, comments, next_page } = z
         .object({
           posts: z.array(pieFedPostViewSchema).optional(),
           comments: z.array(pieFedCommentViewSchema).optional(),
+          next_page: z.string().nullable(),
         })
         .parse(json);
 
       return {
         posts: posts?.map(convertPost) ?? [],
         comments: comments?.map(convertComment) ?? [],
-        nextCursor: null,
+        nextCursor: next_page,
       };
     } catch (err) {
       console.log(err);

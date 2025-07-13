@@ -273,11 +273,11 @@ export function PostByline({
                 <span className="text-xs ml-1 text-brand">ADMIN</span>
               </>
             )}
-            {!showCommunity && (
-              <RelativeTime time={post.createdAt} className="ml-2" />
-            )}
             {creator && (
               <CakeDay date={creator.createdAt} className="text-brand" />
+            )}
+            {!showCommunity && (
+              <RelativeTime time={post.createdAt} className="ml-2" />
             )}
           </div>
         )}

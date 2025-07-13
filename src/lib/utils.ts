@@ -6,7 +6,7 @@ export function isNotNull<T extends Record<any, any>>(obj: T | null): obj is T {
   return !_.isNull(obj);
 }
 
-export function isNotNil<T extends Record<any, any>>(
+export function isNotNil<T extends Record<any, any> | string | number>(
   obj: T | null | undefined,
 ): obj is T {
   return !_.isNil(obj);

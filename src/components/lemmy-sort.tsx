@@ -308,6 +308,7 @@ export function PostSortButton({
         ) : (
           <div className={cn("text-xl text-muted-foreground", className)}>
             {isValidSort && getIconForSort(postSort)}
+            {!isValidSort && <TbArrowsDownUp />}
           </div>
         )
       }
