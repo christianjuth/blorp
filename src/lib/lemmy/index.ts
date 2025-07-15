@@ -688,8 +688,6 @@ export function useRegister(config?: {
 export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
   const { api } = useApiClients(config);
 
-  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
   const updateSelectedAccount = useAuth((s) => s.updateSelectedAccount);
   const addAccount = useAuth((s) => s.addAccount);
 
@@ -697,10 +695,7 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
     mutationFn: async (form: Forms.Login) => {
       const res = await (await api).login(form);
       if (res.jwt) {
-        const site = await (await api).getSite();
-        const person = site.me;
         const payload = {
-          site,
           jwt: res.jwt,
         };
         if (config?.addAccount && config.instance) {
@@ -710,9 +705,6 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
           });
         } else {
           updateSelectedAccount(payload);
-        }
-        if (person) {
-          cacheProfiles(getCachePrefixer(), [person]);
         }
       }
       return res;
@@ -772,13 +764,13 @@ export function useRefreshAuth() {
 
         if (p?.status === "fulfilled") {
           const site = p.value;
+
           if (api?.isLoggedIn && site && !site.me) {
             logoutIndicies.push(i);
             continue;
           }
 
-          const me = account ? getAccountSite(account)?.me : null;
-
+          const me = site.me;
           if (me) {
             cacheProfiles(getCachePrefixer(account), [me]);
             cacheCommunities(
