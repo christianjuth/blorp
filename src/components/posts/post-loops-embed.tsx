@@ -46,7 +46,7 @@ export function PostLoopsEmbed({
 
   const content = (
     <div className="bg-muted max-md:contents relative">
-      <div className="aspect-[9/16] md:max-w-xs mx-auto relative max-md:-mx-3">
+      <div className="aspect-[9/16] md:max-w-xs mx-auto relative max-md:-mx-3.5">
         {!src && thumbnail && (
           <img
             src={thumbnail}

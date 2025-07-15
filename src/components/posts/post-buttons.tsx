@@ -52,16 +52,20 @@ export function Voting({
         //disabled={vote.isPending}
         className={cn(
           "hover:text-brand hover:bg-brand/10",
-          "pl-2 pr-1.5 flex items-center space-x-1 text-left",
+          "flex items-center space-x-1 text-left",
           isUpvoted && "text-brand",
         )}
       >
-        {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
+        {isUpvoted ? (
+          <PiArrowFatUpFill className="scale-115" />
+        ) : (
+          <PiArrowFatUpBold className="scale-115" />
+        )}
       </Button>
       <label
         htmlFor={id}
         className={cn(
-          "-mx-0.5 cursor-pointer text-md",
+          "-mx-px cursor-pointer text-md",
           isUpvoted && "text-brand",
           isDownvoted && "text-brand-secondary",
         )}
@@ -84,7 +88,11 @@ export function Voting({
           isDownvoted && "text-brand-secondary",
         )}
       >
-        {isDownvoted ? <PiArrowFatDownFill /> : <PiArrowFatDownBold />}
+        {isDownvoted ? (
+          <PiArrowFatDownFill className="scale-115" />
+        ) : (
+          <PiArrowFatDownBold className="scale-115" />
+        )}
       </Button>
     </div>
   );

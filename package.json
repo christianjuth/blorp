@@ -1,6 +1,6 @@
 {
   "name": "lemmy",
-  "version": "1.9.2",
+  "version": "1.9.3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -35,6 +35,7 @@
     "@capacitor/keyboard": "^7.0.1",
     "@capacitor/share": "^7.0.1",
     "@capacitor/status-bar": "^7.0.1",
+    "@capacitor/text-zoom": "^7.0.1",
     "@ionic/core": "8.5.7",
     "@ionic/react": "8.5.7",
     "@ionic/react-router": "^8.5.7",

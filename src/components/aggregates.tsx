@@ -11,6 +11,12 @@ export function AggregateBadges({
   className?: string;
 }) {
   const entries = Object.entries(aggregates);
+  const isEmpty = entries.findIndex(([_key, val]) => _.isNumber(val)) < 0;
+
+  if (isEmpty) {
+    return null;
+  }
+
   return (
     <div className={cn("flex flex-wrap gap-1", className)}>
       {entries.map(([label, value]) =>

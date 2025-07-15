@@ -6,11 +6,11 @@ import _ from "lodash";
 import Router from "./routing/Router";
 
 import { Providers } from "@/src/components/providers";
-import { registerSafeArea } from "./lib/android";
+import { applyCapacitorFixes } from "./lib/capacitor";
 
 import "remove-focus-outline";
 
-registerSafeArea();
+applyCapacitorFixes();
 
 setupIonicReact({
   mode: "ios",

@@ -11,6 +11,7 @@
 
 <p align="center">
 &nbsp;<a href="https://apps.apple.com/us/app/blorp-for-lemmy/id6739925430"><img src="public/badges/ios.svg" height="45"></a>&nbsp;
+&nbsp;<a href="https://play.google.com/store/apps/details?id=xyz.blorpblorp.app"><img src="public/badges/play.svg" height="45"></a>&nbsp;
 </p>
 <p align="center">
   <a href="https://matrix.to/#/#blorp:matrix.org"><img src="https://img.shields.io/badge/chat-matrix-blue?style=flat-square&logo=matrix" alt="matrix chat"></a>
@@ -34,10 +35,7 @@
 
 * [iOS](https://apps.apple.com/us/app/blorp-for-lemmy/id6739925430)
 * [macOS](https://github.com/christianjuth/blorp/releases/latest)
-* Android Beta
-
-  * Google requires me to do some closed beta testing before I can open it to the public
-  * DM [moseschrute@lemmy.ml](mailto:moseschrute@lemmy.ml) with the email associated with your Google account for access (this is temporary)
+* [Android](https://play.google.com/store/apps/details?id=xyz.blorpblorp.app)
 
 ## Beta Testing
 
