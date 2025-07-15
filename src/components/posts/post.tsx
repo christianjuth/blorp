@@ -20,13 +20,17 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useLongPress } from "use-long-press";
 import _ from "lodash";
 import { shareImage } from "@/src/lib/share";
-import { useAuth } from "@/src/stores/auth";
+import { getAccountSite, useAuth } from "@/src/stores/auth";
 import removeMd from "remove-markdown";
 import { LuRepeat2 } from "react-icons/lu";
 import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 function Notice({ children }: { children: React.ReactNode }) {
-  return <i className="text-muted-foreground text-sm pt-3">{children}</i>;
+  return (
+    <i className="text-muted-foreground text-sm py-3 md:pt-6 max-md:px-3">
+      {children}
+    </i>
+  );
 }
 
 export interface PostProps {
@@ -78,6 +82,11 @@ export function PostCardSkeleton(props: {
 }
 
 export function FeedPostCard(props: PostProps) {
+  const showNsfw =
+    useAuth((s) => getAccountSite(s.getSelectedAccount())?.showNsfw) ?? false;
+  const blurNsfw =
+    useAuth((s) => getAccountSite(s.getSelectedAccount())?.blurNsfw) ?? true;
+
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore(
     (s) => s.posts[getCachePrefixer()(props.apId)]?.data,
@@ -87,7 +96,6 @@ export function FeedPostCard(props: PostProps) {
 
   const linkCtx = useLinkContext();
 
-  const showNsfw = useSettingsStore((s) => s.setShowNsfw);
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
 
   const patchPost = usePostsStore((s) => s.patchPost);
@@ -115,9 +123,9 @@ export function FeedPostCard(props: PostProps) {
     },
   );
 
-  /* if (nsfw && !showNsfw) { */
-  /*   return props.detailView ? <Notice>Hidden due to NSFW</Notice> : null; */
-  /* } */
+  if (post?.nsfw === true && !showNsfw) {
+    return props.detailView ? <Notice>Hidden due to NSFW</Notice> : null;
+  }
 
   if (!post) {
     return <PostCardSkeleton />;
@@ -211,13 +219,16 @@ export function FeedPostCard(props: PostProps) {
           {post.deleted ? "deleted" : post.title}
         </span>
         {showImage && (
-          <div className="max-md:-mx-3 flex flex-col relative">
+          <div className="max-md:-mx-3 flex flex-col relative overflow-hidden">
             {!imageLoaded && (
               <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
             )}
             <img
               src={embed.thumbnail ?? undefined}
-              className="md:rounded-lg object-cover relative"
+              className={cn(
+                "md:rounded-lg object-cover relative",
+                post.nsfw && blurNsfw && "blur-3xl",
+              )}
               onLoad={(e) => {
                 setImageLoaded(true);
                 if (!post.thumbnailAspectRatio) {
@@ -233,6 +244,11 @@ export function FeedPostCard(props: PostProps) {
               }}
               {...handlers()}
             />
+            {post.nsfw && (
+              <div className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-xl">
+                NSFW
+              </div>
+            )}
           </div>
         )}
         {!props.detailView &&

@@ -153,7 +153,7 @@ function convertPost({
     featuredLocal: post.featured_local,
     read: !!post_actions?.read_at,
     saved: !!post_actions?.saved_at,
-    nsfw: post.nsfw,
+    nsfw: post.nsfw || community.nsfw,
   };
 }
 function convertComment(commentView: lemmyV4.CommentView): Schemas.Comment {
@@ -251,6 +251,8 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
       applicationQuestion:
         site.site_view.local_site.application_question ?? null,
       registrationMode: site.site_view.local_site.registration_mode,
+      showNsfw: false,
+      blurNsfw: true,
     };
   }
 

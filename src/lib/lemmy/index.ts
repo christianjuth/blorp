@@ -351,7 +351,6 @@ function usePostsKey(form: Forms.GetPosts) {
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
-  const showNsfw = useSettingsStore((s) => s.showNsfw) || form.showNsfw;
 
   const queryKey = [...queryKeyPrefix, "getPosts"];
 
@@ -375,10 +374,6 @@ function usePostsKey(form: Forms.GetPosts) {
     queryKey.push(`sort-${sort}`);
   }
 
-  if (showNsfw) {
-    queryKey.push(`nsfw-${showNsfw ? "t" : "f"}`);
-  }
-
   return queryKey;
 }
 
@@ -387,8 +382,6 @@ export function useMostRecentPost(
   form: Forms.GetPosts,
 ) {
   const { api } = useApiClients();
-
-  const showNsfw = useSettingsStore((s) => s.showNsfw);
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
@@ -433,8 +426,6 @@ export function useMostRecentPost(
 export function usePosts(form: Forms.GetPosts) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { api, queryKeyPrefix } = useApiClients();
-
-  const showNsfw = useSettingsStore((s) => s.showNsfw);
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
@@ -529,7 +520,6 @@ export function useListCommunities(form: Forms.GetCommunities) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
   const { api, queryKeyPrefix } = useApiClients();
 
-  const showNsfw = useSettingsStore((s) => s.showNsfw);
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
   const queryKey = [...queryKeyPrefix, "listCommunities"];
@@ -540,10 +530,6 @@ export function useListCommunities(form: Forms.GetCommunities) {
 
   if (form.type) {
     queryKey.push("type", form.type);
-  }
-
-  if (showNsfw) {
-    queryKey.push(`nsfw-${showNsfw ? "t" : "f"}`);
   }
 
   const cacheCommunities = useCommunitiesStore((s) => s.cacheCommunities);

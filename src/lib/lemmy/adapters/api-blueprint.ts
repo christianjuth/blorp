@@ -110,6 +110,8 @@ export const siteSchema = z.object({
   title: z.string().nullable(),
   applicationQuestion: z.string().nullable(),
   registrationMode: z.enum(["Closed", "RequireApplication", "Open"]),
+  showNsfw: z.boolean(),
+  blurNsfw: z.boolean(),
 });
 export const commentSchema = z.object({
   createdAt: z.string(),

@@ -192,7 +192,7 @@ function convertPost(
     featuredLocal: post.featured_local,
     read: postView.read,
     saved: postView.saved,
-    nsfw: post.nsfw,
+    nsfw: post.nsfw || community.nsfw,
   };
 }
 function convertComment(commentView: lemmyV3.CommentView): Schemas.Comment {
@@ -371,6 +371,9 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
       applicationQuestion:
         site.site_view.local_site.application_question ?? null,
       registrationMode: site.site_view.local_site.registration_mode,
+      showNsfw: site.my_user?.local_user_view.local_user.show_nsfw ?? false,
+      blurNsfw: site.my_user?.local_user_view.local_user.blur_nsfw ?? true,
+      hideDownvotes: site.site_view.local_site.post_downvotes ?? true,
     };
   }
 

@@ -10,6 +10,7 @@
     "lint": "yarn oxlint",
     "build": "vite build && cap sync",
     "build:tauri": "tauri build",
+    "build:docker": "docker build . --tag blorp",
     "test": "vitest --coverage",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --watch --coverage --ui",

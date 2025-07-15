@@ -4,15 +4,24 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
+  IonBackButton,
+  IonButtons,
 } from "@ionic/react";
 import { ContentGutters } from "../components/gutters";
+import { UserDropdown } from "../components/nav";
 
 export function NotFound() {
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          <IonButtons slot="start">
+            <IonBackButton />
+          </IonButtons>
           <IonTitle>Not found</IonTitle>
+          <IonButtons slot="end">
+            <UserDropdown />
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
 

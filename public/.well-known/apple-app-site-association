@@ -20,6 +20,10 @@
             "exclude": true
           },
           {
+            "/": "/support*",
+            "exclude": true
+          },
+          {
             "/": "*",
             "comment": "Matches all routes"
           }

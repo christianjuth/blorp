@@ -391,7 +391,7 @@ function convertPost(
     featuredLocal: false,
     read: postView.read,
     saved: postView.saved,
-    nsfw: post.nsfw,
+    nsfw: post.nsfw || community.nsfw,
   };
 }
 
@@ -754,6 +754,8 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
           ) ?? null,
         applicationQuestion: null,
         registrationMode: site.site.registration_mode,
+        showNsfw: site.my_user?.local_user_view?.local_user.show_nsfw ?? false,
+        blurNsfw: site.my_user?.local_user_view?.local_user.show_nsfw !== true,
       };
     } catch (err) {
       console.log(err);

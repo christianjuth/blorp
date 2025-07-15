@@ -1,6 +1,12 @@
 const PIE_FED_INSTANCES = [
-  "https://piefed.world",
   "https://piefed.social",
+  "https://feddit.online",
+  "https://link.fossdle.org",
+  "https://piefed.au",
+  "https://feddit.fr",
+  "https://tarte.nuage-libre.fr",
+  "https://pf.korako.me",
+  "https://piefed.world",
   "https://feddit.online",
   "https://preferred.social",
   "https://pythag.net",
