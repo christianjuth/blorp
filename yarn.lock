@@ -1625,6 +1625,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/text-zoom@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "@capacitor/text-zoom@npm:7.0.1"
+  peerDependencies:
+    "@capacitor/core": ">=7.0.0"
+  checksum: 10c0/7ef44863dd3bf07431c999164af6824ac14997d33f2e2bcbed57c94146acbf3d1014d00fc253abbd920f051618e13f8404ed62a767c2f320aaa39700295846d2
+  languageName: node
+  linkType: hard
+
 "@chromatic-com/storybook@npm:^4.0.1":
   version: 4.0.1
   resolution: "@chromatic-com/storybook@npm:4.0.1"
@@ -10410,6 +10419,7 @@ __metadata:
     "@capacitor/keyboard": "npm:^7.0.1"
     "@capacitor/share": "npm:^7.0.1"
     "@capacitor/status-bar": "npm:^7.0.1"
+    "@capacitor/text-zoom": "npm:^7.0.1"
     "@chromatic-com/storybook": "npm:^4.0.1"
     "@commitlint/cli": "npm:^19.7.1"
     "@commitlint/config-conventional": "npm:^19.7.1"

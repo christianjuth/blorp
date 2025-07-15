@@ -366,7 +366,7 @@ export function CommunitySidebar({
               )}
 
               <AggregateBadges
-                className="mt-1"
+                className="mt-5"
                 aggregates={{
                   "users / day": communityView?.usersActiveDayCount,
                   "users / week": communityView?.usersActiveWeekCount,

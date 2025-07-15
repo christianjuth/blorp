@@ -11,10 +11,10 @@ NEW_VER=$2
 ROOT=${3:-.}
 
 # 0) Ensure no uncommitted changes
-if ! git -C "$ROOT" diff-index --quiet HEAD --; then
-  echo "✖ You have uncommitted changes in $ROOT. Please commit or stash them before running this script."
-  exit 1
-fi
+# if ! git -C "$ROOT" diff-index --quiet HEAD --; then
+#   echo "✖ You have uncommitted changes in $ROOT. Please commit or stash them before running this script."
+#   exit 1
+# fi
 
 echo "Bumping version from $OLD_VER → $NEW_VER in $ROOT …"
 

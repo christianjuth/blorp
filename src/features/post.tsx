@@ -67,11 +67,12 @@ function ReplyToPost({ postApId }: { postApId: string }) {
     postApId,
   });
   const loadCommentIntoEditor = useLoadCommentIntoEditor();
+  const media = useMedia();
   return (
     <ContentGutters className="md:py-3" key="post-reply">
       <div className="flex-1">
         {postReplyState ? (
-          <InlineCommentReply state={postReplyState} />
+          <InlineCommentReply state={postReplyState} autoFocus={media.md} />
         ) : (
           <button
             className="py-2 px-3 my-4 border rounded-2xl w-full text-left shadow-xs text-muted-foreground text-sm"
