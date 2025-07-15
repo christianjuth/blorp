@@ -71,7 +71,7 @@ function ReplyToPost({ postApId }: { postApId: string }) {
   return (
     <ContentGutters className="md:py-3" key="post-reply">
       <div className="flex-1">
-        {postReplyState ? (
+        {postReplyState && media.md ? (
           <InlineCommentReply state={postReplyState} autoFocus={media.md} />
         ) : (
           <button

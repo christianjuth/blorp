@@ -10,10 +10,12 @@ import {
   PiArrowFatDownFill,
   PiArrowFatUpFill,
 } from "react-icons/pi";
+import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import { Button } from "../ui/button";
 import { abbriviateNumber } from "@/src/lib/format";
 import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 import _ from "lodash";
+import { getAccountSite, useAuth } from "@/src/stores/auth";
 
 export function CommentVoting({
   commentView,
@@ -22,6 +24,11 @@ export function CommentVoting({
   commentView: Schemas.Comment;
   className?: string;
 }) {
+  const enableDownvotes =
+    useAuth(
+      (s) => getAccountSite(s.getSelectedAccount())?.enableCommentDownvotes,
+    ) ?? true;
+
   const id = useId();
 
   const requireAuth = useRequireAuth();
@@ -38,6 +45,31 @@ export function CommentVoting({
     : 0;
 
   const score = commentView.upvotes - commentView.downvotes + diff;
+
+  if (!enableDownvotes) {
+    return (
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={async () => {
+          const newVote = isUpvoted ? 0 : 1;
+          voteHaptics(newVote);
+          requireAuth().then(() => {
+            vote.mutate({
+              postId: commentView.postId,
+              id: commentView.id,
+              score: newVote,
+              path: commentView.path,
+            });
+          });
+        }}
+        className={cn("text-md font-normal -mr-2", isUpvoted && "text-brand")}
+      >
+        {isUpvoted ? <FaHeart /> : <FaRegHeart />}
+        {abbriviateNumber(score)}
+      </Button>
+    );
+  }
 
   return (
     <div className={cn("flex flex-row items-center", className)}>

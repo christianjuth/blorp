@@ -303,7 +303,7 @@ export function FeedPostCard(props: PostProps) {
             apId={post.apId}
             score={score}
             myVote={myVote}
-            className="-mr-2.5"
+            //className="-mr-2.5"
           />
         </div>
       )}
@@ -342,7 +342,7 @@ export function PostBottomBar({
       <CommentSortSelect className="-ml-2.5" />
       <div className="flex-1" />
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
-      <Voting apId={apId} score={score} myVote={myVote} className="-mr-2.5" />
+      <Voting apId={apId} score={score} myVote={myVote} />
     </div>
   );
 }

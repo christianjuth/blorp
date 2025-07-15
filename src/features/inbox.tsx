@@ -79,7 +79,7 @@ function Mention({
     <ContentGutters className="px-0">
       <div
         className={cn(
-          "flex-1 max-md:px-2.5",
+          "flex-1 max-md:px-3.5",
           !noBorder && "border-b-8 max-md:border-border/50 md:border-b",
         )}
       >
@@ -161,7 +161,7 @@ function Reply({
     <ContentGutters className="px-0">
       <div
         className={cn(
-          "flex-1 max-md:px-2.5",
+          "flex-1 max-md:px-3.5",
           !noBorder && "border-b-8 max-md:border-border/50 md:border-b",
         )}
       >

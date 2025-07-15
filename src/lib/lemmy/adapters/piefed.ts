@@ -756,6 +756,8 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         registrationMode: site.site.registration_mode,
         showNsfw: site.my_user?.local_user_view?.local_user.show_nsfw ?? false,
         blurNsfw: site.my_user?.local_user_view?.local_user.show_nsfw !== true,
+        enablePostDownvotes: site.site.enable_downvotes,
+        enableCommentDownvotes: site.site.enable_downvotes,
       };
     } catch (err) {
       console.log(err);

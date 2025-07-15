@@ -112,6 +112,8 @@ export const siteSchema = z.object({
   registrationMode: z.enum(["Closed", "RequireApplication", "Open"]),
   showNsfw: z.boolean(),
   blurNsfw: z.boolean(),
+  enablePostDownvotes: z.boolean(),
+  enableCommentDownvotes: z.boolean(),
 });
 export const commentSchema = z.object({
   createdAt: z.string(),
