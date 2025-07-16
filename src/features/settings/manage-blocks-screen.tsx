@@ -58,7 +58,7 @@ export default function SettingsPage() {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>
-        <ContentGutters className="pt-4 max-md:px-2.5">
+        <ContentGutters className="pt-4 max-md:px-3.5">
           <div className="flex flex-col gap-8">
             <Section title="BLOCKED USERS">
               {personBlocks?.map((p) => {

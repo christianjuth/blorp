@@ -27,7 +27,7 @@ import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
-    <i className="text-muted-foreground text-sm py-3 md:pt-6 max-md:px-3">
+    <i className="text-muted-foreground text-sm py-3 md:pt-6 max-md:px-3.5">
       {children}
     </i>
   );
@@ -48,7 +48,7 @@ export function PostCardSkeleton(props: {
 }) {
   const hideImage = useRef(Math.random()).current < 0.4;
   return (
-    <div className="flex-1 pt-4 gap-2 flex flex-col max-md:px-3 pb-4">
+    <div className="flex-1 pt-4 gap-2 flex flex-col max-md:px-3.5 pb-4">
       {props.detailView ? (
         <div className="flex flex-row items-center gap-2 h-9">
           <Skeleton className="h-8 w-8 rounded-full" />
@@ -68,7 +68,7 @@ export function PostCardSkeleton(props: {
       <Skeleton className="h-7" />
 
       {(!hideImage || props.hideImage === false) && (
-        <Skeleton className="aspect-video max-md:-mx-3 max-md:rounded-none" />
+        <Skeleton className="aspect-video max-md:-mx-4 max-md:rounded-none" />
       )}
 
       <div className="flex flex-row justify-end gap-2">
@@ -76,7 +76,7 @@ export function PostCardSkeleton(props: {
         <Skeleton className="h-7 w-16 rounded-full" />
       </div>
 
-      <Skeleton className="h-[.5px] w-full rounded-full max-md:-mx-3" />
+      <Skeleton className="h-[.5px] w-full rounded-full max-md:-mx-4" />
     </div>
   );
 }
@@ -93,6 +93,8 @@ export function FeedPostCard(props: PostProps) {
   );
 
   const [imageLoaded, setImageLoaded] = useState(false);
+
+  const [removeBlur, setRemoveBlur] = useState(false);
 
   const linkCtx = useLinkContext();
 
@@ -143,6 +145,7 @@ export function FeedPostCard(props: PostProps) {
 
   const showImage = embed?.type === "image" && embed.thumbnail && !post.deleted;
   const showArticle = embed?.type === "article" && !post?.deleted;
+  const blurImg = post.nsfw && !removeBlur ? blurNsfw : false;
 
   const encodedApId = encodeApId(post.apId);
 
@@ -176,7 +179,7 @@ export function FeedPostCard(props: PostProps) {
     <div
       data-testid="post-card"
       className={cn(
-        "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 max-md:px-3 overflow-x-hidden",
+        "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 max-md:px-3.5 overflow-x-hidden",
         props.detailView ? "pb-2" : "border-b pb-4",
       )}
     >
@@ -219,7 +222,14 @@ export function FeedPostCard(props: PostProps) {
           {post.deleted ? "deleted" : post.title}
         </span>
         {showImage && (
-          <div className="max-md:-mx-3 flex flex-col relative overflow-hidden">
+          <div
+            className="max-md:-mx-4 flex flex-col relative overflow-hidden"
+            onClick={() => {
+              if (!removeBlur && props.detailView) {
+                setRemoveBlur(true);
+              }
+            }}
+          >
             {!imageLoaded && (
               <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
             )}
@@ -227,7 +237,7 @@ export function FeedPostCard(props: PostProps) {
               src={embed.thumbnail ?? undefined}
               className={cn(
                 "md:rounded-lg object-cover relative",
-                post.nsfw && blurNsfw && "blur-3xl",
+                blurImg && "blur-3xl",
               )}
               onLoad={(e) => {
                 setImageLoaded(true);
@@ -244,7 +254,7 @@ export function FeedPostCard(props: PostProps) {
               }}
               {...handlers()}
             />
-            {post.nsfw && (
+            {blurImg && !removeBlur && (
               <div className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-xl">
                 NSFW
               </div>
@@ -272,17 +282,23 @@ export function FeedPostCard(props: PostProps) {
           url={showArticle ? post.url : undefined}
           displayUrl={showArticle ? displayUrl : undefined}
           thumbnail={showArticle ? embed.thumbnail : null}
+          blurNsfw={blurImg}
         />
       )}
 
       {embed?.type === "video" && !post.deleted && post.url && (
-        <PostVideoEmbed url={post.url} autoPlay={props.detailView} />
+        <PostVideoEmbed
+          url={post.url}
+          autoPlay={props.detailView}
+          blurNsfw={blurImg}
+        />
       )}
       {embed?.type === "loops" && !post.deleted && post.url && (
         <PostLoopsEmbed
           url={post.url}
           thumbnail={embed.thumbnail}
           autoPlay={props.detailView}
+          blurNsfw={blurImg}
         />
       )}
       {embed?.type === "youtube" && !post.deleted && (
@@ -299,12 +315,7 @@ export function FeedPostCard(props: PostProps) {
             communityName={post.communitySlug}
             postApId={encodedApId}
           />
-          <Voting
-            apId={post.apId}
-            score={score}
-            myVote={myVote}
-            className="-mr-2.5"
-          />
+          <Voting apId={post.apId} score={score} myVote={myVote} />
         </div>
       )}
     </div>
@@ -338,11 +349,11 @@ export function PostBottomBar({
   const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
 
   return (
-    <div className="py-1 md:py-2 flex flex-row items-center gap-1 bg-background border-b-[.5px] max-md:px-3">
+    <div className="py-1 md:py-2 flex flex-row items-center gap-1 bg-background border-b-[.5px] max-md:px-3.5">
       <CommentSortSelect className="-ml-2.5" />
       <div className="flex-1" />
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
-      <Voting apId={apId} score={score} myVote={myVote} className="-mr-2.5" />
+      <Voting apId={apId} score={score} myVote={myVote} />
     </div>
   );
 }

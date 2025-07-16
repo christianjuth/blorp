@@ -9,3 +9,9 @@
 .spoiler [data-node-view-content-react] > *:first-child::before {
   content: "▼ ";
 }
+
+/* Fix text scaling */
+.ProseMirror {
+  -webkit-text-size-adjust: inherit !important;
+  text-size-adjust: inherit !important;
+}

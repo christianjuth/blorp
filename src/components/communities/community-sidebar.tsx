@@ -127,7 +127,7 @@ export function SmallScreenSidebar({
     <div>
       <div
         className={cn(
-          "flex flex-col gap-3 py-4 flex-1 px-3",
+          "flex flex-col gap-3 py-4 flex-1 px-3.5",
           !expanded && "md:hidden",
         )}
       >
@@ -366,7 +366,7 @@ export function CommunitySidebar({
               )}
 
               <AggregateBadges
-                className="mt-1"
+                className="mt-5"
                 aggregates={{
                   "users / day": communityView?.usersActiveDayCount,
                   "users / week": communityView?.usersActiveWeekCount,

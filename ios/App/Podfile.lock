@@ -25,6 +25,8 @@ PODS:
     - Capacitor
   - CapacitorStatusBar (7.0.1):
     - Capacitor
+  - CapacitorTextZoom (7.0.1):
+    - Capacitor
   - OSInAppBrowserLib (2.0.0)
   - SQLCipher (4.6.1):
     - SQLCipher/standard (= 4.6.1)
@@ -46,6 +48,7 @@ DEPENDENCIES:
   - CapacitorPluginSafeArea (from `../../node_modules/capacitor-plugin-safe-area`)
   - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
+  - "CapacitorTextZoom (from `../../node_modules/@capacitor/text-zoom`)"
 
 SPEC REPOS:
   trunk:
@@ -78,6 +81,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/share"
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
+  CapacitorTextZoom:
+    :path: "../../node_modules/@capacitor/text-zoom"
 
 SPEC CHECKSUMS:
   Capacitor: 10feab36396883c55373328124a677f118cd4b5f
@@ -92,10 +97,11 @@ SPEC CHECKSUMS:
   CapacitorPluginSafeArea: 22031c3436269ca80fac90ec2c94bc7c1e59a81d
   CapacitorShare: e573823f511f260f598d0423c33b1e3d7bbe5fd1
   CapacitorStatusBar: 6e7af040d8fc4dd655999819625cae9c2d74c36f
+  CapacitorTextZoom: ccb82513c95a64bd9d4de4fc2399c2690a8705de
   OSInAppBrowserLib: 232c74691cffb9959aa07b1d5ff57d96fca2af7f
   SQLCipher: 77fbe633cd84db04b07876dd50766b4924b57d61
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
-PODFILE CHECKSUM: 63511ae8f1937730c17fec3d2922b1b921833642
+PODFILE CHECKSUM: eced9df84d83b1ed114cf4b49058cccaf31f5fe6
 
 COCOAPODS: 1.16.2

@@ -263,7 +263,7 @@ export default function SettingsPage() {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>
-        <ContentGutters className="pt-4 pb-12 max-md:px-2.5">
+        <ContentGutters className="pt-4 pb-12 max-md:px-3.5">
           <div className="flex-1 gap-9 flex flex-col">
             <AccountSection />
 

@@ -173,6 +173,8 @@ body {
    * dropdown menu opens
    **/
   min-height: 100svh;
+
+  /*-webkit-text-size-adjust: 150%;*/
 }
 
 /**

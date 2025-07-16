@@ -21,6 +21,9 @@ const config: CapacitorConfig = {
       resizeOnFullScreen: true,
     },
   },
+  ios: {
+    preferredContentMode: "mobile",
+  },
 };
 
 export default config;

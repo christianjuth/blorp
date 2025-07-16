@@ -225,6 +225,10 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
 
   async getSite(options: RequestOptions) {
     const site = await this.client.getSite(options);
+    // TODO: figure out why lemmy types are broken here
+    const enableDownvotes =
+      "enable_downvotes" in site.site_view.local_site &&
+      site.site_view.local_site.enable_downvotes === true;
     // TODO: uncomment once the below is implemented
     // const account = await this.client.getAccount();
     return {
@@ -253,6 +257,8 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
       registrationMode: site.site_view.local_site.registration_mode,
       showNsfw: false,
       blurNsfw: true,
+      enablePostDownvotes: enableDownvotes,
+      enableCommentDownvotes: enableDownvotes,
     };
   }
 

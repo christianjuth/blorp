@@ -2,9 +2,11 @@ import { Keyboard } from "@capacitor/keyboard";
 import { StatusBar } from "@capacitor/status-bar";
 import { SafeArea, SafeAreaInsets } from "capacitor-plugin-safe-area";
 import { Capacitor } from "@capacitor/core";
+import { TextZoom } from "@capacitor/text-zoom";
 import { isAndroid } from "./device";
+import _ from "lodash";
 
-export function registerSafeArea() {
+function registerSafeArea() {
   let keyboardShowing = false;
 
   const updateInsets = ({ insets }: SafeAreaInsets) => {
@@ -57,4 +59,27 @@ export function registerSafeArea() {
       SafeArea.getSafeAreaInsets().then(updateInsets);
     });
   }
+}
+
+async function accesibleTextSize() {
+  const pref = await TextZoom.getPreferred();
+  await TextZoom.set({ value: pref.value });
+}
+
+export function applyCapacitorFixes() {
+  registerSafeArea();
+
+  const mightChange = () => {
+    accesibleTextSize();
+  };
+
+  mightChange();
+  const debouncedRehydrate = _.debounce(mightChange, 50);
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      debouncedRehydrate();
+    }
+  });
+  window.addEventListener("focus", debouncedRehydrate);
 }

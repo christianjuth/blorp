@@ -335,7 +335,11 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
   async getSite(options: RequestOptions) {
     const site = await this.client.getSite(options);
     const me = site.my_user?.local_user_view.person;
-    site.site_view.local_site.registration_mode;
+    // TODO: figure out why lemmy types are broken here
+    const enableDownvotes =
+      "enable_downvotes" in site.site_view.local_site &&
+      site.site_view.local_site.enable_downvotes === true;
+
     return {
       instance: this.instance,
       admins: site.admins.map((p) => convertPerson(p)),
@@ -374,6 +378,8 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
       showNsfw: site.my_user?.local_user_view.local_user.show_nsfw ?? false,
       blurNsfw: site.my_user?.local_user_view.local_user.blur_nsfw ?? true,
       hideDownvotes: site.site_view.local_site.post_downvotes ?? true,
+      enablePostDownvotes: enableDownvotes,
+      enableCommentDownvotes: enableDownvotes,
     };
   }
 

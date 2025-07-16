@@ -16,6 +16,8 @@ import { Button } from "../ui/button";
 import { useId } from "react";
 import { abbriviateNumber } from "@/src/lib/format";
 import { useLinkContext } from "../../routing/link-context";
+import { getAccountSite, useAuth } from "@/src/stores/auth";
+import { FaHeart, FaRegHeart } from "react-icons/fa6";
 
 export function Voting({
   apId,
@@ -28,6 +30,11 @@ export function Voting({
   score: number;
   className?: string;
 }) {
+  const enableDownvotes =
+    useAuth(
+      (s) => getAccountSite(s.getSelectedAccount())?.enablePostDownvotes,
+    ) ?? true;
+
   const id = useId();
   const requireAuth = useRequireAuth();
 
@@ -36,8 +43,28 @@ export function Voting({
   const isUpvoted = myVote > 0;
   const isDownvoted = myVote < 0;
 
+  if (!enableDownvotes) {
+    return (
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={async () => {
+          const newVote = isUpvoted ? 0 : 1;
+          voteHaptics(newVote);
+          requireAuth().then(() => {
+            vote.mutate(newVote);
+          });
+        }}
+        className={cn("text-md font-normal -mr-2", isUpvoted && "text-brand")}
+      >
+        {isUpvoted ? <FaHeart /> : <FaRegHeart />}
+        {abbriviateNumber(score)}
+      </Button>
+    );
+  }
+
   return (
-    <div className={cn("flex flex-row items-center h-7", className)}>
+    <div className={cn("flex flex-row items-center h-7 -mr-2", className)}>
       <Button
         id={id}
         size="icon"
@@ -52,16 +79,20 @@ export function Voting({
         //disabled={vote.isPending}
         className={cn(
           "hover:text-brand hover:bg-brand/10",
-          "pl-2 pr-1.5 flex items-center space-x-1 text-left",
+          "flex items-center space-x-1 text-left",
           isUpvoted && "text-brand",
         )}
       >
-        {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
+        {isUpvoted ? (
+          <PiArrowFatUpFill className="scale-115" />
+        ) : (
+          <PiArrowFatUpBold className="scale-115" />
+        )}
       </Button>
       <label
         htmlFor={id}
         className={cn(
-          "-mx-0.5 cursor-pointer text-md",
+          "-mx-px cursor-pointer text-md",
           isUpvoted && "text-brand",
           isDownvoted && "text-brand-secondary",
         )}
@@ -84,7 +115,11 @@ export function Voting({
           isDownvoted && "text-brand-secondary",
         )}
       >
-        {isDownvoted ? <PiArrowFatDownFill /> : <PiArrowFatDownBold />}
+        {isDownvoted ? (
+          <PiArrowFatDownFill className="scale-115" />
+        ) : (
+          <PiArrowFatDownBold className="scale-115" />
+        )}
       </Button>
     </div>
   );

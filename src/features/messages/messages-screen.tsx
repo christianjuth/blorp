@@ -103,7 +103,7 @@ export default function Messages() {
                 <div className="overflow-hidden">
                   <div
                     className={cn(
-                      "flex gap-3 my-4 max-md:px-2.5",
+                      "flex gap-3 my-4 max-md:px-3.5",
                       item.hasUnread &&
                         "border-l-3 border-l-brand md:pl-2.5 max-md:ml-2.5",
                     )}
