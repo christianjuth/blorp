@@ -94,6 +94,8 @@ export function FeedPostCard(props: PostProps) {
 
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  const [removeBlur, setRemoveBlur] = useState(false);
+
   const linkCtx = useLinkContext();
 
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
@@ -143,6 +145,7 @@ export function FeedPostCard(props: PostProps) {
 
   const showImage = embed?.type === "image" && embed.thumbnail && !post.deleted;
   const showArticle = embed?.type === "article" && !post?.deleted;
+  const blurImg = post.nsfw && !removeBlur ? blurNsfw : false;
 
   const encodedApId = encodeApId(post.apId);
 
@@ -219,7 +222,14 @@ export function FeedPostCard(props: PostProps) {
           {post.deleted ? "deleted" : post.title}
         </span>
         {showImage && (
-          <div className="max-md:-mx-4 flex flex-col relative overflow-hidden">
+          <div
+            className="max-md:-mx-4 flex flex-col relative overflow-hidden"
+            onClick={() => {
+              if (!removeBlur && props.detailView) {
+                setRemoveBlur(true);
+              }
+            }}
+          >
             {!imageLoaded && (
               <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
             )}
@@ -227,7 +237,7 @@ export function FeedPostCard(props: PostProps) {
               src={embed.thumbnail ?? undefined}
               className={cn(
                 "md:rounded-lg object-cover relative",
-                post.nsfw && blurNsfw && "blur-3xl",
+                blurImg && "blur-3xl",
               )}
               onLoad={(e) => {
                 setImageLoaded(true);
@@ -244,7 +254,7 @@ export function FeedPostCard(props: PostProps) {
               }}
               {...handlers()}
             />
-            {post.nsfw && (
+            {blurImg && !removeBlur && (
               <div className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-xl">
                 NSFW
               </div>
@@ -272,17 +282,23 @@ export function FeedPostCard(props: PostProps) {
           url={showArticle ? post.url : undefined}
           displayUrl={showArticle ? displayUrl : undefined}
           thumbnail={showArticle ? embed.thumbnail : null}
+          blurNsfw={blurImg}
         />
       )}
 
       {embed?.type === "video" && !post.deleted && post.url && (
-        <PostVideoEmbed url={post.url} autoPlay={props.detailView} />
+        <PostVideoEmbed
+          url={post.url}
+          autoPlay={props.detailView}
+          blurNsfw={blurImg}
+        />
       )}
       {embed?.type === "loops" && !post.deleted && post.url && (
         <PostLoopsEmbed
           url={post.url}
           thumbnail={embed.thumbnail}
           autoPlay={props.detailView}
+          blurNsfw={blurImg}
         />
       )}
       {embed?.type === "youtube" && !post.deleted && (
@@ -299,12 +315,7 @@ export function FeedPostCard(props: PostProps) {
             communityName={post.communitySlug}
             postApId={encodedApId}
           />
-          <Voting
-            apId={post.apId}
-            score={score}
-            myVote={myVote}
-            //className="-mr-2.5"
-          />
+          <Voting apId={post.apId} score={score} myVote={myVote} />
         </div>
       )}
     </div>

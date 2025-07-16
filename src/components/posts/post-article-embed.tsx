@@ -17,11 +17,13 @@ export function PostArticleEmbed({
   url,
   displayUrl,
   thumbnail,
+  blurNsfw,
 }: {
   name: string;
   url?: string | null;
   displayUrl?: string | null;
   thumbnail?: string | null;
+  blurNsfw: boolean;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -88,9 +90,17 @@ export function PostArticleEmbed({
           )}
           <img
             src={thumbnail}
-            className="absolute inset-0 object-cover w-full h-full aspect-video rounded-t-xl"
+            className={cn(
+              "absolute inset-0 object-cover w-full h-full aspect-video rounded-t-xl",
+              blurNsfw && "blur-3xl",
+            )}
             onLoad={() => setImageLoaded(true)}
           />
+          {blurNsfw && (
+            <div className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-xl">
+              NSFW
+            </div>
+          )}
         </div>
       )}
       {url && (

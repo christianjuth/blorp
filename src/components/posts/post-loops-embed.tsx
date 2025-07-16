@@ -4,6 +4,7 @@ import { isTauri } from "@/src/lib/device";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { FiPlay } from "react-icons/fi";
+import { cn } from "@/src/lib/utils";
 
 const getVideo = async (url: string) => {
   if (isTauri()) {
@@ -31,10 +32,12 @@ export function PostLoopsEmbed({
   url,
   thumbnail,
   autoPlay = false,
+  blurNsfw,
 }: {
   url: string;
   thumbnail?: string | null;
   autoPlay?: boolean;
+  blurNsfw: boolean;
 }) {
   const [src, setSrc] = useState<string>();
 
@@ -50,14 +53,20 @@ export function PostLoopsEmbed({
         {!src && thumbnail && (
           <img
             src={thumbnail}
-            className="absolute inset-0 w-full h-full object-cover"
+            className={cn(
+              "absolute inset-0 w-full h-full object-cover",
+              blurNsfw && "blur-3xl",
+            )}
           />
         )}
         {!linkOut && src && (
           <video
             src={src}
             controls
-            className="absolute inset-0 h-full w-full object-cover"
+            className={cn(
+              "absolute inset-0 h-full w-full object-cover",
+              blurNsfw && "blur-3xl",
+            )}
             autoPlay={autoPlay}
             playsInline
             poster={thumbnail ?? undefined}
@@ -68,6 +77,12 @@ export function PostLoopsEmbed({
       {linkOut && (
         <div className="absolute top-1/2 left-1/2 text-4xl bg-black/50 p-5 rounded-full aspect-square -translate-x-1/2 -translate-y-1/2">
           <FiPlay color="white" className="m-auto translate-x-0.5" />
+        </div>
+      )}
+
+      {blurNsfw && (
+        <div className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-xl">
+          NSFW
         </div>
       )}
     </div>

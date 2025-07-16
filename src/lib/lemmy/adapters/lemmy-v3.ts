@@ -335,6 +335,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
   async getSite(options: RequestOptions) {
     const site = await this.client.getSite(options);
     const me = site.my_user?.local_user_view.person;
+    // TODO: figure out why lemmy types are broken here
     const enableDownvotes =
       "enable_downvotes" in site.site_view.local_site &&
       site.site_view.local_site.enable_downvotes === true;
