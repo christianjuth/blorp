@@ -44,7 +44,7 @@ type Item = string;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="max-md:px-0">
-    <FeedPostCard {...props} />
+    <FeedPostCard {...props} featuredContext="search" />
     <></>
   </ContentGutters>
 ));

@@ -107,9 +107,11 @@ export default function SavedFeed() {
 
   const data = useMemo(() => {
     const commentViews =
-      comments.data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR;
+      _.uniq(comments.data?.pages.map((res) => res.comments).flat()) ??
+      EMPTY_ARR;
 
-    const postIds = posts.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+    const postIds =
+      _.uniq(posts.data?.pages.flatMap((res) => res.posts)) ?? EMPTY_ARR;
 
     switch (type) {
       case "posts":

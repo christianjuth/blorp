@@ -71,7 +71,7 @@ export default function CommunityFeed() {
     communitySlug: communityName,
   });
   const data = useMemo(
-    () => posts.data?.pages.flatMap((p) => p.posts) ?? EMPTY_ARR,
+    () => _.uniq(posts.data?.pages.flatMap((p) => p.posts)) ?? EMPTY_ARR,
     [posts.data],
   );
 

@@ -37,7 +37,7 @@ export interface PostProps {
   apId: string;
   detailView?: boolean;
   onNavigate?: () => any;
-  featuredContext?: "community" | "home" | "user";
+  featuredContext?: "community" | "home" | "user" | "search";
   modApIds?: string[];
   adminApIds?: string[];
 }
@@ -188,11 +188,14 @@ export function FeedPostCard(props: PostProps) {
         pinned={pinned}
         showCreator={
           (props.featuredContext !== "home" &&
-            props.featuredContext !== "user") ||
+            props.featuredContext !== "user" &&
+            props.featuredContext !== "search") ||
           props.detailView
         }
         showCommunity={
-          props.featuredContext === "home" || props.featuredContext === "user"
+          props.featuredContext === "home" ||
+          props.featuredContext === "user" ||
+          props.featuredContext === "search"
             ? true
             : (props.detailView ?? false)
         }

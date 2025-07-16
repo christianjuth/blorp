@@ -154,7 +154,7 @@ export default function HomeFeed() {
     type: listingType,
   });
   const data = useMemo(
-    () => posts.data?.pages.flatMap((p) => p.posts) ?? EMPTY_ARR,
+    () => _.uniq(posts.data?.pages.flatMap((p) => p.posts)) ?? EMPTY_ARR,
     [posts.data],
   );
 

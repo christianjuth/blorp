@@ -141,9 +141,10 @@ export default function User() {
 
   const listData = useMemo(() => {
     const commentViews =
-      data?.pages.map((res) => res.comments).flat() ?? EMPTY_ARR;
+      _.uniq(data?.pages.map((res) => res.comments).flat()) ?? EMPTY_ARR;
 
-    const postIds = data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
+    const postIds =
+      _.uniq(data?.pages.flatMap((res) => res.posts)) ?? EMPTY_ARR;
 
     switch (type) {
       case "Posts":
