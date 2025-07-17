@@ -11,6 +11,8 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    timeout-minutes: 30
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -37,3 +39,5 @@ jobs:
           tags: |
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blorp:${{ github.ref_name }}
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blorp:latest
+          cache-from: type=registry,ref=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blorp:cache
+          cache-to:   type=registry,ref=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blorp:cache,mode=max
