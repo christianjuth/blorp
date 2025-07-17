@@ -1,11 +1,9 @@
-# .github/workflows/docker-on-tag.yml
 name: Build & Push Docker Image on Tag
 
 on:
   push:
-    # Trigger only on tags like "v1.2.3"
-    # tags:
-    #   - 'v*'
+    tags:
+      - 'v*'
 
 jobs:
   build-and-push:
@@ -39,5 +37,3 @@ jobs:
           tags: |
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blorp:${{ github.ref_name }}
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blorp:latest
-          cache-from: type=registry,ref=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blorp:cache
-          cache-to:   type=registry,ref=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/blorp:cache,mode=max
