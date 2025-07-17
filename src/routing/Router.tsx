@@ -55,6 +55,8 @@ const User = lazy(() => import("@/src/features/user"));
 const SavedFeed = lazy(() => import("@/src/features/saved-feed"));
 const Search = lazy(() => import("@/src/features/search"));
 
+const Instance = lazy(() => import("@/src/features/instance"));
+
 const HOME_STACK = [
   <Route key="/home/*" path="/home/*" component={NotFound} />,
   <Route key="/home" exact path="/home" component={HomeFeed} />,
@@ -327,6 +329,7 @@ function Tabs() {
                 to="/home/u/:userId"
               />
 
+              <Route exact path="/instance" component={Instance} />
               <Route exact path="/download" component={Download} />
               <Route exact path="/support" component={Support} />
               <Route exact path="/privacy" component={Privacy} />

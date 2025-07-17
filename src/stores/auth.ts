@@ -7,6 +7,31 @@ import z from "zod";
 import { siteSchema } from "../lib/lemmy/adapters/api-blueprint";
 import { v4 as uuid } from "uuid";
 
+function normaliseInstance(instance: string) {
+  // Trim whitespace
+  let url = instance.trim();
+
+  // Prepend http:// if no protocol is found
+  if (!/^https?:\/\//i.test(url)) {
+    url = "https://" + url;
+  }
+
+  // Use the URL API for parsing and formatting
+  try {
+    const urlObj = new URL(url);
+
+    // Ensure pathname ends with a slash
+    if (!urlObj.pathname.endsWith("/")) {
+      urlObj.pathname += "/";
+    }
+
+    // toString() will include protocol, host, pathname, search, and hash
+    return urlObj.toString();
+  } catch {
+    throw new Error(`Invalid URL: "${instance}"`);
+  }
+}
+
 export type CacheKey = `cache_${string}`;
 export type CachePrefixer = (cacheKey: string) => CacheKey;
 
@@ -117,12 +142,13 @@ export const useAuth = create<AuthStore>()(
       },
       accountIndex: 0,
       addAccount: (patch) => {
+        const instance = patch?.instance ?? env.REACT_APP_DEFAULT_INSTANCE;
         const accounts = [
           ...get().accounts,
           {
             uuid: uuid(),
-            instance: env.REACT_APP_DEFAULT_INSTANCE,
             ...patch,
+            instance: normaliseInstance(instance),
           },
         ];
         set({
