@@ -19,14 +19,8 @@ function normaliseInstance(instance: string) {
   // Use the URL API for parsing and formatting
   try {
     const urlObj = new URL(url);
-
-    // Ensure pathname ends with a slash
-    if (!urlObj.pathname.endsWith("/")) {
-      urlObj.pathname += "/";
-    }
-
     // toString() will include protocol, host, pathname, search, and hash
-    return urlObj.toString();
+    return `${urlObj.protocol}//${urlObj.host}`;
   } catch {
     throw new Error(`Invalid URL: "${instance}"`);
   }
