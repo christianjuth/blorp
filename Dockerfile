@@ -1,4 +1,3 @@
-# ─── Build stage ─────────────────────────────
 ARG NODE_VERSION=20
 FROM node:${NODE_VERSION}-alpine AS builder
 WORKDIR /app
@@ -11,7 +10,7 @@ COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 RUN yarn install --immutable --frozen-lockfile
 
-# Build app (injecting any REACT_APP_* build-args)
+# Build app (inject build‑time args if you like)
 COPY . .
 ARG REACT_APP_NAME
 ARG REACT_APP_DEFAULT_INSTANCE
@@ -26,7 +25,16 @@ RUN yarn build \
 # ─── Runtime stage ───────────────────────────
 FROM nginx:alpine AS runtime
 
-# Embed nginx config with a HEREDOC
+# install envsubst
+RUN apk add --no-cache gettext
+
+# copy built files
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# rename the real index.html so we can template it
+RUN mv /usr/share/nginx/html/index.html /usr/share/nginx/html/index.html.tmpl
+
+# write our custom nginx config (all routes → index.html)
 RUN printf '%s\n' \
   'server {' \
   '    listen       80;' \
@@ -35,10 +43,12 @@ RUN printf '%s\n' \
   '    root   /usr/share/nginx/html;' \
   '    index  index.html;' \
   '' \
+  '    # React Router support: serve index.html for any path' \
   '    location / {' \
   '        try_files $uri $uri/ /index.html;' \
   '    }' \
   '' \
+  '    # long‑term caching for static assets' \
   '    location ~* \.(?:js|css|png|jpg|jpeg|gif|svg|ico)$ {' \
   '        expires 1y;' \
   '        add_header Cache-Control "public, immutable";' \
@@ -51,8 +61,32 @@ RUN printf '%s\n' \
   '}' \
 > /etc/nginx/conf.d/default.conf
 
-# Copy built static files
-COPY --from=builder /app/dist /usr/share/nginx/html
+# embed entrypoint script via heredoc
+RUN cat << 'EOF' > /usr/local/bin/docker-entrypoint.sh
+#!/bin/sh
+set -e
+
+# assemble a small JS snippet from runtime ENV
+cat << JS > /tmp/env-block.js
+window.REACT_APP_DEFAULT_INSTANCE = "${REACT_APP_DEFAULT_INSTANCE}";
+window.REACT_APP_NAME             = "${REACT_APP_NAME}";
+window.REACT_APP_LOCK_TO_DEFAULT_INSTANCE = "${REACT_APP_LOCK_TO_DEFAULT_INSTANCE}";
+JS
+
+# merge template → final index.html, splicing in our JS snippet
+envsubst '$REACT_APP_DEFAULT_INSTANCE $REACT_APP_NAME $REACT_APP_LOCK_TO_DEFAULT_INSTANCE' \
+  < /usr/share/nginx/html/index.html.tmpl \
+  | sed -e '/REPLACE_ENV_VARS/ {
+      r /tmp/env-block.js
+      d
+    }' \
+  > /usr/share/nginx/html/index.html
+
+# hand off to nginx
+exec "$@"
+EOF
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

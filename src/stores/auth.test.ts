@@ -9,19 +9,19 @@ describe("useAuthStore", () => {
   const { result } = renderHook(() => useAuth());
 
   const account1 = {
-    instance: faker.internet.url(),
+    instance: faker.internet.url().replace(/\/$/, ""),
     jwt: faker.string.uuid(),
     uuid: faker.string.uuid(),
   };
 
   const account2 = {
-    instance: faker.internet.url(),
+    instance: faker.internet.url().replace(/\/$/, ""),
     jwt: faker.string.uuid(),
     uuid: faker.string.uuid(),
   };
 
   const account3 = {
-    instance: faker.internet.url(),
+    instance: faker.internet.url().replace(/\/$/, ""),
     jwt: faker.string.uuid(),
     uuid: faker.string.uuid(),
   };

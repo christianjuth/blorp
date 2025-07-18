@@ -37,9 +37,31 @@
 * [macOS](https://github.com/christianjuth/blorp/releases/latest)
 * [Android](https://play.google.com/store/apps/details?id=xyz.blorpblorp.app)
 
-## Beta Testing
+## 🧪 Beta Testing
 
 * [Join iOS TestFlight Beta](https://testflight.apple.com/join/T2pYyShr)
+* [Join Google Play Beta](https://play.google.com/apps/testing/xyz.blorpblorp.app)
+
+## 🐳 Self host via Docker
+
+```bash
+# pull the latest Blorp image
+docker pull christianjuth/blorp:latest
+
+# run it on port 8080 (host → container), passing any runtime env‑vars you need
+docker run -d \
+  --name blorp \
+  -p 8080:80 \
+  -e REACT_APP_DEFAULT_INSTANCE="https://lemmy.zip" \
+  -e REACT_APP_NAME="Blorp" \
+  -e REACT_APP_LOCK_TO_DEFAULT_INSTANCE="false" \
+  christianjuth/blorp:latest
+```
+
+## 💬 Blorp Community
+
+Want to ask questions, share feedback, or just chat with other Blorp users? Head over to our community at  
+[lemmy.ml/c/blorp](https://lemmy.ml/c/blorp).
 
 ## 📚 Stack
 

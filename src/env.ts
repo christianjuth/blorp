@@ -1,5 +1,23 @@
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
+import _ from "lodash";
+
+const WINDOW_REACT_APP_DEFAULT_INSTANCE =
+  "REACT_APP_DEFAULT_INSTANCE" in window &&
+  _.isString(window.REACT_APP_DEFAULT_INSTANCE)
+    ? window.REACT_APP_DEFAULT_INSTANCE
+    : null;
+
+const WINDOW_REACT_APP_NAME =
+  "REACT_APP_NAME" in window && _.isString(window.REACT_APP_NAME)
+    ? window.REACT_APP_NAME
+    : null;
+
+const WINDOW_REACT_APP_LOCK_TO_DEFAULT_INSTANCE =
+  "REACT_APP_LOCK_TO_DEFAULT_INSTANCE" in window &&
+  _.isString(window.REACT_APP_LOCK_TO_DEFAULT_INSTANCE)
+    ? window.REACT_APP_LOCK_TO_DEFAULT_INSTANCE
+    : null;
 
 function parseBoolean(bool?: string) {
   switch (bool?.toLowerCase()) {
@@ -27,11 +45,15 @@ export const env = createEnv({
     REACT_APP_LOCK_TO_DEFAULT_INSTANCE: z.boolean(),
   },
   runtimeEnv: {
-    REACT_APP_NAME: import.meta.env["REACT_APP_NAME"] || "Blorp",
+    REACT_APP_NAME:
+      WINDOW_REACT_APP_NAME || import.meta.env["REACT_APP_NAME"] || "Blorp",
     REACT_APP_DEFAULT_INSTANCE:
-      import.meta.env["REACT_APP_DEFAULT_INSTANCE"] || "https://lemmy.zip",
+      WINDOW_REACT_APP_DEFAULT_INSTANCE ||
+      import.meta.env["REACT_APP_DEFAULT_INSTANCE"] ||
+      "https://lemmy.zip",
     REACT_APP_LOCK_TO_DEFAULT_INSTANCE: parseBoolean(
-      import.meta.env["REACT_APP_LOCK_TO_DEFAULT_INSTANCE"],
+      WINDOW_REACT_APP_LOCK_TO_DEFAULT_INSTANCE ||
+        import.meta.env["REACT_APP_LOCK_TO_DEFAULT_INSTANCE"],
     ),
   },
   onValidationError: (issues) => {

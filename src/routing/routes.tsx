@@ -22,6 +22,7 @@ const manageAccountSchema = z.object({
 });
 
 export const routeDefs = {
+  ...buildRoute("/instance"),
   // Home
   ...buildRoute("/home"),
   ...buildRoute("/home/*"),
