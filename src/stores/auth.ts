@@ -216,6 +216,11 @@ export const useAuth = create<AuthStore>()(
                 ...a,
                 uuid: patch.jwt ? uuid() : (a.uuid ?? uuid()),
                 ...patch,
+                ...(patch.instance
+                  ? {
+                      instance: normaliseInstance(patch.instance),
+                    }
+                  : null),
               }
             : a,
         );

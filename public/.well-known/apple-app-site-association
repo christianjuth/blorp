@@ -24,6 +24,10 @@
             "exclude": true
           },
           {
+            "/": "/instance*",
+            "exclude": true
+          },
+          {
             "/": "*",
             "comment": "Matches all routes"
           }

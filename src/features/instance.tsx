@@ -1,11 +1,5 @@
 import { ContentGutters } from "@/src/components/gutters";
-import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { PageTitle } from "../components/page-title";
 import z from "zod";
 import { useConfirmationAlert, useUrlSearchState } from "../lib/hooks";
@@ -39,6 +33,7 @@ export default function Instance() {
   const accounts = useAuth((s) => s.accounts);
   const setAccountIndex = useAuth((s) => s.setAccountIndex);
   const addAccount = useAuth((s) => s.addAccount);
+  const updateSelectedAccount = useAuth((s) => s.updateSelectedAccount);
 
   useEffect(() => {
     if (env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE) {
@@ -52,11 +47,11 @@ export default function Instance() {
       }, 5000);
       return () => clearTimeout(id);
     } else if (siteInstance) {
-      const notLoggedIn = accounts.findIndex((a) => a.jwt) === -1;
+      const notLoggedIn = accounts.length <= 1 && !accounts[0]?.jwt;
 
       if (notLoggedIn) {
-        addAccount({
-          instance,
+        updateSelectedAccount({
+          instance: siteInstance,
         });
         history.replace(resolveRoute("/home"));
         return;
@@ -79,7 +74,7 @@ export default function Instance() {
       })
         .then(() => {
           addAccount({
-            instance,
+            instance: siteInstance,
           });
         })
         .finally(() => {
@@ -88,10 +83,11 @@ export default function Instance() {
     }
   }, [
     env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE,
-    instance,
     accounts,
     site.data,
     site.error,
+    addAccount,
+    updateSelectedAccount,
   ]);
 
   if (env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE) {
