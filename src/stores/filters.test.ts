@@ -1,5 +1,5 @@
 import { renderHook, act } from "@testing-library/react";
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 import { useFiltersStore } from "./filters";
 import _ from "lodash";
 import {
@@ -8,6 +8,13 @@ import {
   ListingType,
   PostSortType,
 } from "lemmy-v3";
+
+afterEach(() => {
+  const { result } = renderHook(() => useFiltersStore());
+  act(() => {
+    result.current.reset();
+  });
+});
 
 describe("useFiltersStore", () => {
   describe("communitySort", () => {

@@ -1,9 +1,16 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 import { useAuth } from "./auth";
 import _ from "lodash";
 import { renderHook, act } from "@testing-library/react";
 import { faker } from "@faker-js/faker";
 import { env } from "../env";
+
+afterEach(() => {
+  const { result } = renderHook(() => useAuth());
+  act(() => {
+    result.current.reset();
+  });
+});
 
 describe("useAuthStore", () => {
   const { result } = renderHook(() => useAuth());
@@ -59,6 +66,11 @@ describe("useAuthStore", () => {
   });
 
   test("logout of account 3 of 3", () => {
+    act(() => {
+      result.current.updateAccount(0, account1);
+      result.current.addAccount(account2);
+      result.current.addAccount(account3);
+    });
     expect(result.current.accounts).toHaveLength(3);
     act(() => {
       result.current.logout();
@@ -68,6 +80,12 @@ describe("useAuthStore", () => {
   });
 
   test("change account selection", () => {
+    act(() => {
+      result.current.updateAccount(0, account1);
+      result.current.addAccount(account2);
+      result.current.addAccount(account3);
+    });
+    expect(result.current.getSelectedAccount()).toEqual(account3);
     let account: any;
     act(() => {
       account = result.current.setAccountIndex(0);
@@ -77,6 +95,11 @@ describe("useAuthStore", () => {
   });
 
   test("setAccountIndex protects against invalid account index", () => {
+    act(() => {
+      result.current.updateAccount(0, account1);
+      result.current.addAccount(account2);
+      result.current.addAccount(account3);
+    });
     const newAccountIndex = result.current.accounts.length * 2;
     act(() => {
       result.current.setAccountIndex(newAccountIndex);
@@ -85,15 +108,35 @@ describe("useAuthStore", () => {
   });
 
   test("logout of account 1 of 2", () => {
+    act(() => {
+      result.current.updateAccount(0, account1);
+      result.current.addAccount(account2);
+    });
     expect(result.current.accounts).toHaveLength(2);
     act(() => {
-      result.current.logout();
+      result.current.logout(0);
     });
     expect(result.current.accounts).toHaveLength(1);
     expect(result.current.getSelectedAccount()).toEqual(account2);
   });
 
+  test("logout of account 2 of 2", () => {
+    act(() => {
+      result.current.updateAccount(0, account1);
+      result.current.addAccount(account2);
+    });
+    expect(result.current.accounts).toHaveLength(2);
+    act(() => {
+      result.current.logout(1);
+    });
+    expect(result.current.accounts).toHaveLength(1);
+    expect(result.current.getSelectedAccount()).toEqual(account1);
+  });
+
   test("logout of last account", () => {
+    act(() => {
+      result.current.updateAccount(0, account1);
+    });
     expect(result.current.accounts).toHaveLength(1);
     act(() => {
       result.current.logout();
@@ -101,6 +144,17 @@ describe("useAuthStore", () => {
     expect(result.current.accounts).toHaveLength(1);
     expect(result.current.getSelectedAccount()).toEqual({
       instance: env.REACT_APP_DEFAULT_INSTANCE,
+    });
+  });
+
+  test("normalizes instance", () => {
+    act(() => {
+      result.current.addAccount({
+        instance: "https://fakelemmyinstance.com/",
+      });
+    });
+    expect(result.current.getSelectedAccount()).toMatchObject({
+      instance: "https://fakelemmyinstance.com",
     });
   });
 });

@@ -21,6 +21,14 @@ export function isDev() {
   return MODE === "development";
 }
 
+export function isTest() {
+  return MODE === "test";
+}
+
+export function isProd() {
+  return MODE === "production";
+}
+
 export function isNative() {
   return Capacitor.isNativePlatform();
 }

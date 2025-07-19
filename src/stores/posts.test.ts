@@ -1,5 +1,5 @@
 import { renderHook, act } from "@testing-library/react";
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 import * as api from "@/test-utils/api";
 import { usePostsStore } from "./posts";
 import _ from "lodash";
@@ -7,6 +7,13 @@ import { getCachePrefixer } from "./auth";
 import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
 
 const prefix = getCachePrefixer({ instance: "123" });
+
+afterEach(() => {
+  const { result } = renderHook(() => usePostsStore());
+  act(() => {
+    result.current.reset();
+  });
+});
 
 describe("usePostsStore", () => {
   describe("cachePosts", () => {

@@ -2,6 +2,7 @@ import { ListingType } from "lemmy-v3";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
+import { isTest } from "../lib/device";
 
 type SortsStore = {
   communitySort: string;
@@ -14,18 +15,23 @@ type SortsStore = {
   setListingType: (type: ListingType) => void;
   communitiesListingType: ListingType;
   setCommunitiesListingType: (type: ListingType) => void;
+  reset: () => void;
 };
+
+const INIT_STATE = {
+  communitySort: "TopAll",
+  commentSort: "Hot",
+  postSort: "Active",
+  listingType: "All",
+} as const;
 
 export const useFiltersStore = create<SortsStore>()(
   persist(
     (set) => ({
-      communitySort: "TopAll",
+      ...INIT_STATE,
       setCommunitySort: (communitySort) => set({ communitySort }),
-      commentSort: "Hot",
       setCommentSort: (commentSort) => set({ commentSort }),
-      postSort: "Active",
       setPostSort: (postSort) => set({ postSort }),
-      listingType: "All",
       setListingType: (listingType) =>
         set({
           listingType,
@@ -35,6 +41,11 @@ export const useFiltersStore = create<SortsStore>()(
         set({
           communitiesListingType,
         }),
+      reset: () => {
+        if (isTest()) {
+          set(INIT_STATE);
+        }
+      },
     }),
     {
       name: "filters",

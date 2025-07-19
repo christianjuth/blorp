@@ -3,18 +3,24 @@ import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
 import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { isTest } from "../lib/device";
 
 type RecentCommunityStore = {
   recentlyVisited: Schemas.Community[];
   update: (c: Schemas.Community) => void;
+  reset: () => void;
 };
 
 export const MAX_VISITED = 100;
 
+const INIT_STATE = {
+  recentlyVisited: [],
+};
+
 export const useRecentCommunitiesStore = create<RecentCommunityStore>()(
   persist(
     (set, get) => ({
-      recentlyVisited: [],
+      ...INIT_STATE,
       update: (comunity) => {
         const prev = get().recentlyVisited;
         const update = _.slice(
@@ -25,6 +31,11 @@ export const useRecentCommunitiesStore = create<RecentCommunityStore>()(
         set({
           recentlyVisited: update,
         });
+      },
+      reset: () => {
+        if (isTest()) {
+          set(INIT_STATE);
+        }
       },
     }),
     {
