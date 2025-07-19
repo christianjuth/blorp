@@ -533,7 +533,10 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
     const { posts, communities, users } = await this.client.search(
       {
         q: form.q,
+        community_name: form.communitySlug,
         page: cursor,
+        type_: form.type,
+        limit: this.limit,
       },
       options,
     );

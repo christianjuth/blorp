@@ -50,8 +50,10 @@ const Post = memo((props: PostProps) => (
 ));
 
 export default function SearchFeed({
+  scope = "global",
   defaultType = "posts",
 }: {
+  scope?: "community" | "global";
   defaultType?: "posts" | "communities" | "users";
 }) {
   const media = useMedia();
@@ -98,7 +100,8 @@ export default function SearchFeed({
   const searchResults = useSearch({
     q: search ?? "",
     sort: type === "communities" ? "TopAll" : postSort,
-    communitySlug: type === "posts" ? communityName : undefined,
+    communitySlug:
+      scope === "community" || type === "posts" ? communityName : undefined,
     type: type_,
   });
 
@@ -166,8 +169,14 @@ export default function SearchFeed({
               }
             >
               <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-              <ToggleGroupItem value="communities">Communities</ToggleGroupItem>
-              <ToggleGroupItem value="users">Users</ToggleGroupItem>
+              {scope === "global" && (
+                <ToggleGroupItem value="communities">
+                  Communities
+                </ToggleGroupItem>
+              )}
+              {scope === "global" && (
+                <ToggleGroupItem value="users">Users</ToggleGroupItem>
+              )}
             </ToggleGroup>
           </IonToolbar>
         )}
@@ -201,10 +210,14 @@ export default function SearchFeed({
                       }
                     >
                       <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                      <ToggleGroupItem value="communities">
-                        Communities
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="users">Users</ToggleGroupItem>
+                      {scope === "global" && (
+                        <ToggleGroupItem value="communities">
+                          Communities
+                        </ToggleGroupItem>
+                      )}
+                      {scope === "global" && (
+                        <ToggleGroupItem value="users">Users</ToggleGroupItem>
+                      )}
                     </ToggleGroup>
                   </div>
 

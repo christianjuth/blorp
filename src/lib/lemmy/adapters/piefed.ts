@@ -1040,11 +1040,13 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       "/search",
       {
         q: form.q,
-        type_: form.type,
+        community_name: form.communitySlug,
         page:
           _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
             ? 1
             : _.parseInt(form.pageCursor) + 1,
+        type_: form.type,
+        limit: this.limit,
       },
       options,
     );

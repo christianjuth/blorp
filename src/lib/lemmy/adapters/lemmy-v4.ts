@@ -390,8 +390,11 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
     const { results, next_page } = await this.client.search(
       {
         q: form.q,
+        community_name: form.communitySlug,
         page_cursor:
           form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
+        type_: form.type,
+        limit: this.limit,
       },
       options,
     );
