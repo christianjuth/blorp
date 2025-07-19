@@ -51,7 +51,7 @@ function SidebarTabs() {
               }
             }}
             className={twMerge(
-              "relative max-md:hidden text-md flex flex-row items-center py-2 px-3 rounded-xl",
+              "relative max-md:hidden text-md flex flex-row items-center py-2 px-3 rounded-xl hover:bg-secondary",
               isActive ? "bg-secondary" : "text-muted-foreground",
             )}
           >
@@ -109,23 +109,27 @@ export function MainSidebar() {
       {recentCommunities.length > 0 && (
         <>
           <Collapsible
-            className="px-4 py-1"
+            className="py-1"
             open={recentOpen}
             onOpenChange={setRecentOpen}
           >
-            <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
+            <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full px-4">
               <span>RECENT</span>
               <ChevronsUpDown className="h-4 w-4" />
             </CollapsibleTrigger>
 
-            <CollapsibleContent className="pt-2 flex flex-col gap-1.5">
+            <CollapsibleContent className="pt-2 flex flex-col gap-1">
               {recentCommunities.slice(0, 5).map((c) => (
                 <IonMenuToggle
                   key={c.id}
                   menu={LEFT_SIDEBAR_MENU_ID}
                   autoHide={false}
                 >
-                  <CommunityCard communitySlug={c.slug} size="sm" />
+                  <CommunityCard
+                    communitySlug={c.slug}
+                    size="sm"
+                    className="hover:bg-secondary px-4 h-10 md:rounded-xl"
+                  />
                 </IonMenuToggle>
               ))}
             </CollapsibleContent>
@@ -137,23 +141,27 @@ export function MainSidebar() {
       {isLoggedIn && moderatingCommunities.length > 0 && (
         <>
           <Collapsible
-            className="px-4 py-1"
+            className="py-1"
             open={moderatingOpen}
             onOpenChange={setModeratingOpen}
           >
-            <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
+            <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full px-4">
               <span>MODERATING</span>
               <ChevronsUpDown className="h-4 w-4" />
             </CollapsibleTrigger>
 
-            <CollapsibleContent className="pt-2 flex flex-col gap-1.5">
+            <CollapsibleContent className="pt-2 flex flex-col gap-1">
               {moderatingCommunities.map((c) => (
                 <IonMenuToggle
                   key={c.id}
                   menu={LEFT_SIDEBAR_MENU_ID}
                   autoHide={false}
                 >
-                  <CommunityCard communitySlug={c.slug} size="sm" />
+                  <CommunityCard
+                    communitySlug={c.slug}
+                    size="sm"
+                    className="hover:bg-secondary px-4 h-10 md:rounded-xl"
+                  />
                 </IonMenuToggle>
               ))}
             </CollapsibleContent>
@@ -166,23 +174,27 @@ export function MainSidebar() {
       {isLoggedIn && subscribedCommunities.length > 0 && (
         <>
           <Collapsible
-            className="px-4 py-1"
+            className="py-1"
             open={subscribedOpen}
             onOpenChange={setSubscribedOpen}
           >
-            <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
+            <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full px-4">
               <span>SUBSCRIBED</span>
               <ChevronsUpDown className="h-4 w-4" />
             </CollapsibleTrigger>
 
-            <CollapsibleContent className="pt-2 flex flex-col gap-1.5">
+            <CollapsibleContent className="pt-2 flex flex-col gap-1">
               {subscribedCommunities.map((c) => (
                 <IonMenuToggle
                   key={c.id}
                   menu={LEFT_SIDEBAR_MENU_ID}
                   autoHide={false}
                 >
-                  <CommunityCard communitySlug={c.slug} size="sm" />
+                  <CommunityCard
+                    communitySlug={c.slug}
+                    size="sm"
+                    className="hover:bg-secondary px-4 h-10 md:rounded-xl"
+                  />
                 </IonMenuToggle>
               ))}
             </CollapsibleContent>
