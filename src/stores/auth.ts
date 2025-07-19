@@ -6,25 +6,8 @@ import { env } from "../env";
 import z from "zod";
 import { siteSchema } from "../lib/lemmy/adapters/api-blueprint";
 import { v4 as uuid } from "uuid";
-
-function normaliseInstance(instance: string) {
-  // Trim whitespace
-  let url = instance.trim();
-
-  // Prepend http:// if no protocol is found
-  if (!/^https?:\/\//i.test(url)) {
-    url = "https://" + url;
-  }
-
-  // Use the URL API for parsing and formatting
-  try {
-    const urlObj = new URL(url);
-    // toString() will include protocol, host, pathname, search, and hash
-    return `${urlObj.protocol}//${urlObj.host}`;
-  } catch {
-    throw new Error(`Invalid URL: "${instance}"`);
-  }
-}
+import { isTest } from "../lib/device";
+import { normalizeInstance } from "../lib/utils";
 
 export type CacheKey = `cache_${string}`;
 export type CachePrefixer = (cacheKey: string) => CacheKey;
@@ -73,6 +56,7 @@ type AuthStore = {
   logout: (index?: number | Account) => any;
   logoutMultiple: (index: number[]) => any;
   getCachePrefixer: () => CachePrefixer;
+  reset: () => void;
 } & z.infer<typeof storeSchema>;
 
 export function getAccountSite(account: Account) {
@@ -105,10 +89,14 @@ function getNewAccount(): Account {
   };
 }
 
+const INIT_STATE = {
+  accounts: [getNewAccount()],
+};
+
 export const useAuth = create<AuthStore>()(
   persist(
     (set, get) => ({
-      accounts: [getNewAccount()],
+      ...INIT_STATE,
       getSelectedAccount: () => {
         const state = get();
         const account = state.accounts[state.accountIndex];
@@ -142,7 +130,7 @@ export const useAuth = create<AuthStore>()(
           {
             uuid: uuid(),
             ...patch,
-            instance: normaliseInstance(instance),
+            instance: normalizeInstance(instance),
           },
         ];
         set({
@@ -218,7 +206,7 @@ export const useAuth = create<AuthStore>()(
                 ...patch,
                 ...(patch.instance
                   ? {
-                      instance: normaliseInstance(patch.instance),
+                      instance: normalizeInstance(patch.instance),
                     }
                   : null),
               }
@@ -247,6 +235,11 @@ export const useAuth = create<AuthStore>()(
         let { accounts, accountIndex } = get();
         const selectedAccount = accounts[accountIndex];
         return getCachePrefixer(selectedAccount);
+      },
+      reset: () => {
+        if (isTest()) {
+          set(INIT_STATE);
+        }
       },
     }),
     {

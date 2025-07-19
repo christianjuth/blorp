@@ -2476,6 +2476,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fetch-mock/vitest@npm:^0.2.14":
+  version: 0.2.14
+  resolution: "@fetch-mock/vitest@npm:0.2.14"
+  dependencies:
+    fetch-mock: "npm:^12.5.3"
+  peerDependencies:
+    vitest: "*"
+  checksum: 10c0/2d8a04717ec4d18d93b961c059c9334fbb409f245ee60538bf4c510f2c987416e21539079e8fafb2cc2f9126d4fcbefbaaca703b33799041248186d02aa625bf
+  languageName: node
+  linkType: hard
+
 "@floating-ui/core@npm:^1.6.0":
   version: 1.6.9
   resolution: "@floating-ui/core@npm:1.6.9"
@@ -5973,6 +5984,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/glob-to-regexp@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "@types/glob-to-regexp@npm:0.4.4"
+  checksum: 10c0/7288ff853850d8302a8770a3698b187fc3970ad12ee6427f0b3758a3e7a0ebb0bd993abc6ebaaa979d09695b4194157d2bfaa7601b0fb9ed72c688b4c1298b88
+  languageName: node
+  linkType: hard
+
 "@types/hast@npm:^3.0.0":
   version: 3.0.4
   resolution: "@types/hast@npm:3.0.4"
@@ -8999,6 +9017,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fetch-mock@npm:^12.5.3":
+  version: 12.5.3
+  resolution: "fetch-mock@npm:12.5.3"
+  dependencies:
+    "@types/glob-to-regexp": "npm:^0.4.4"
+    dequal: "npm:^2.0.3"
+    glob-to-regexp: "npm:^0.4.1"
+    regexparam: "npm:^3.0.0"
+  checksum: 10c0/820c5b66d855c4b48698d57f7b46861515eb05a0511f98f648c05573e3b891e1a693c8f5e2db603cac32167e28673799251268a78bcd178d06e6457151f92616
+  languageName: node
+  linkType: hard
+
 "fflate@npm:^0.8.2":
   version: 0.8.2
   resolution: "fflate@npm:0.8.2"
@@ -9414,6 +9444,13 @@ __metadata:
   dependencies:
     is-glob: "npm:^4.0.1"
   checksum: 10c0/cab87638e2112bee3f839ef5f6e0765057163d39c66be8ec1602f3823da4692297ad4e972de876ea17c44d652978638d2fd583c6713d0eb6591706825020c9ee
+  languageName: node
+  linkType: hard
+
+"glob-to-regexp@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "glob-to-regexp@npm:0.4.1"
+  checksum: 10c0/0486925072d7a916f052842772b61c3e86247f0a80cc0deb9b5a3e8a1a9faad5b04fb6f58986a09f34d3e96cd2a22a24b7e9882fb1cf904c31e9a310de96c429
   languageName: node
   linkType: hard
 
@@ -10424,6 +10461,7 @@ __metadata:
     "@commitlint/cli": "npm:^19.7.1"
     "@commitlint/config-conventional": "npm:^19.7.1"
     "@faker-js/faker": "npm:9.4.0"
+    "@fetch-mock/vitest": "npm:^0.2.14"
     "@ionic/core": "npm:8.5.7"
     "@ionic/react": "npm:8.5.7"
     "@ionic/react-router": "npm:^8.5.7"
@@ -10492,6 +10530,7 @@ __metadata:
     dayjs: "npm:^1.11.13"
     dompurify: "npm:^3.2.6"
     express: "npm:^4.21.2"
+    fetch-mock: "npm:^12.5.3"
     franc: "npm:^6.2.0"
     fuzzysort: "npm:^3.1.0"
     history: "npm:~4"
@@ -10546,7 +10585,6 @@ __metadata:
     vite-plugin-checker: "npm:^0.8.0"
     vite-plugin-circular-dependency: "npm:^0.5.0"
     vitest: "npm:3.2.4"
-    vitest-fetch-mock: "npm:^0.4.5"
     zod: "npm:^3.24.1"
     zustand: "npm:^5.0.2"
   languageName: unknown
@@ -13202,6 +13240,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"regexparam@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "regexparam@npm:3.0.0"
+  checksum: 10c0/a6430d7b97d5a7d5518f37a850b6b73aab479029d02f46af4fa0e8e4a1d7aad05b7a0d2d10c86ded21a14d5f0fa4c68525f873a5fca2efeefcccd93c36627459
+  languageName: node
+  linkType: hard
+
 "regexpu-core@npm:^6.2.0":
   version: 6.2.0
   resolution: "regexpu-core@npm:6.2.0"
@@ -15473,15 +15518,6 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10c0/2cd51b6749171e255e478329c3f5c6fad9a3de0f36731396d1bebd77411bd93b5d835d0d8549fe707ddf5fb0e0c2f562e29b04d095d73408e4d340464182d140
-  languageName: node
-  linkType: hard
-
-"vitest-fetch-mock@npm:^0.4.5":
-  version: 0.4.5
-  resolution: "vitest-fetch-mock@npm:0.4.5"
-  peerDependencies:
-    vitest: ">=2.0.0"
-  checksum: 10c0/c877ae9e1769481dd0c955ce311651030b6eee0bb1d8f9c9388f33a0d8f7f2b6e451268e0ed171d5a26b4390dd887656caa366d2152b1d552bc09b27c2dd8792
   languageName: node
   linkType: hard
 

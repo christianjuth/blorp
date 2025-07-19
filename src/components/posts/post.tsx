@@ -24,6 +24,7 @@ import { getAccountSite, useAuth } from "@/src/stores/auth";
 import removeMd from "remove-markdown";
 import { LuRepeat2 } from "react-icons/lu";
 import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
+import { Separator } from "../ui/separator";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -76,7 +77,7 @@ export function PostCardSkeleton(props: {
         <Skeleton className="h-7 w-16 rounded-full" />
       </div>
 
-      <Skeleton className="h-[.5px] w-full rounded-full max-md:-mx-4" />
+      <Separator className="max-md:-mx-3.5 w-auto!" />
     </div>
   );
 }

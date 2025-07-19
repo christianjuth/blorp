@@ -67,12 +67,9 @@ const HOME_STACK = [
     path="/home/c/:communityName"
     component={CommunityFeed}
   />,
-  <Route
-    key="/home/c/:communityName/s"
-    exact
-    path="/home/c/:communityName/s"
-    component={Search}
-  />,
+  <Route key="/home/c/:communityName/s" exact path="/home/c/:communityName/s">
+    <Search scope="community" />
+  </Route>,
   <Route
     key="/home/sidebar"
     exact
@@ -133,8 +130,9 @@ const COMMUNITIES_STACK = [
     key="/communities/c/:communityName/s"
     exact
     path="/communities/c/:communityName/s"
-    component={Search}
-  />,
+  >
+    <Search scope="community" />
+  </Route>,
   <Route
     key="/communities/c/:communityName/sidebar"
     exact
@@ -171,12 +169,9 @@ const INBOX_STACK = [
     path="/inbox/c/:communityName"
     component={CommunityFeed}
   />,
-  <Route
-    key="/inbox/c/:communityName/s"
-    exact
-    path="/inbox/c/:communityName/s"
-    component={Search}
-  />,
+  <Route key="/inbox/c/:communityName/s" exact path="/inbox/c/:communityName/s">
+    <Search scope="community" />
+  </Route>,
   <Route
     key="/inbox/sidebar"
     exact

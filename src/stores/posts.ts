@@ -5,6 +5,7 @@ import _ from "lodash";
 import { MAX_CACHE_MS } from "./config";
 import { CacheKey, CachePrefixer } from "./auth";
 import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { isTest } from "../lib/device";
 
 type CachedPost = {
   data: Schemas.Post;
@@ -23,12 +24,17 @@ type SortsStore = {
     post: Schemas.Post[],
   ) => Record<string, CachedPost>;
   cleanup: () => any;
+  reset: () => void;
+};
+
+const INIT_STATE = {
+  posts: {},
 };
 
 export const usePostsStore = create<SortsStore>()(
   persist(
     (set, get) => ({
-      posts: {},
+      ...INIT_STATE,
       patchPost: (apId, prefix, patch) => {
         const prev = get().posts;
         const cacheKey = prefix(apId);
@@ -105,6 +111,11 @@ export const usePostsStore = create<SortsStore>()(
         }
 
         return posts;
+      },
+      reset: () => {
+        if (isTest()) {
+          set(INIT_STATE);
+        }
       },
     }),
     {

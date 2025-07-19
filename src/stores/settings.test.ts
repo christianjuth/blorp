@@ -1,29 +1,44 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 import { useSettingsStore } from "./settings";
 import { renderHook, act } from "@testing-library/react";
 import _ from "lodash";
 
+afterEach(() => {
+  const { result } = renderHook(() => useSettingsStore());
+  act(() => {
+    result.current.reset();
+  });
+});
+
 describe("useSettingsStore", () => {
-  describe("image cache", () => {
-    test("should not cache by default", () => {
-      const { result } = renderHook(() => useSettingsStore());
-      expect(result.current.cacheImages).toBe(false);
+  test("setFilterKeywords", () => {
+    const { result } = renderHook(() => useSettingsStore());
+
+    act(() => {
+      result.current.setFilterKeywords({ index: 0, keyword: "one" });
+      result.current.setFilterKeywords({ index: 1, keyword: "two" });
+      result.current.setFilterKeywords({ index: 2, keyword: "three" });
     });
 
-    test("enable", () => {
-      const { result } = renderHook(() => useSettingsStore());
-      act(() => {
-        result.current.setCacheImages(true);
-      });
-      expect(result.current.cacheImages).toBe(true);
+    expect(result.current.filterKeywords).toEqual(["one", "two", "three"]);
+  });
+
+  test("pruneFilterKeywords", () => {
+    const { result } = renderHook(() => useSettingsStore());
+
+    act(() => {
+      result.current.setFilterKeywords({ index: 0, keyword: "one" });
+      result.current.setFilterKeywords({ index: 1, keyword: "two" });
+      result.current.setFilterKeywords({ index: 2, keyword: "three" });
+      result.current.setFilterKeywords({ index: 3, keyword: "" });
     });
 
-    test("disable", () => {
-      const { result } = renderHook(() => useSettingsStore());
-      act(() => {
-        result.current.setCacheImages(true);
-      });
-      expect(result.current.cacheImages).toBe(true);
+    expect(result.current.filterKeywords).toHaveLength(4);
+
+    act(() => {
+      result.current.pruneFiltersKeywords();
     });
+
+    expect(result.current.filterKeywords).toHaveLength(3);
   });
 });
