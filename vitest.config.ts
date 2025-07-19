@@ -17,6 +17,5 @@ export default defineConfig({
       include: ["src/**"],
     },
     exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**"],
-    setupFiles: ["test-utils/setup-fetch-mock.ts"],
   },
 });

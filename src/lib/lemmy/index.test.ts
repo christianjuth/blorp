@@ -1,4 +1,4 @@
-import { beforeEach, test, expect, describe } from "vitest";
+import { beforeEach, test, expect, describe, vi } from "vitest";
 import * as lemmy from "@/test-utils/lemmy";
 import { createQueryClientWrapper } from "@/test-utils/tanstack-query";
 import { useApiClients, useComments, useCreateComment } from ".";
@@ -6,36 +6,36 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { CommentResponse, GetCommentsResponse } from "lemmy-v3";
 import _ from "lodash";
 import { resetApiClients } from "./adapters/client";
+import fetchMock, { manageFetchMockGlobally } from "@fetch-mock/vitest";
+manageFetchMockGlobally();
 
 function mockNodeInfo() {
-  fetchMock.once(() =>
-    Promise.resolve({
-      status: 200,
-      body: JSON.stringify({
-        version: "2.1",
-        software: {
-          name: "lemmy",
-          version: "0.19.12-4-gd8445881a",
-          repository: "https://github.com/LemmyNet/lemmy",
-          homepage: "https://join-lemmy.org/",
+  fetchMock.mockGlobal().route(
+    ({ url }) => url.includes("/nodeinfo/2.1"),
+    JSON.stringify({
+      version: "2.1",
+      software: {
+        name: "lemmy",
+        version: "0.19.12-4-gd8445881a",
+        repository: "https://github.com/LemmyNet/lemmy",
+        homepage: "https://join-lemmy.org/",
+      },
+      protocols: ["activitypub"],
+      usage: {
+        users: {
+          total: 177052,
+          activeHalfyear: 29704,
+          activeMonth: 15883,
         },
-        protocols: ["activitypub"],
-        usage: {
-          users: {
-            total: 177052,
-            activeHalfyear: 29704,
-            activeMonth: 15883,
-          },
-          localPosts: 529064,
-          localComments: 5009935,
-        },
-        openRegistrations: true,
-        services: {
-          inbound: [],
-          outbound: [],
-        },
-        metadata: {},
-      }),
+        localPosts: 529064,
+        localComments: 5009935,
+      },
+      openRegistrations: true,
+      services: {
+        inbound: [],
+        outbound: [],
+      },
+      metadata: {},
     }),
   );
 }
@@ -55,51 +55,46 @@ function mockGetComments(length: number, parentId?: number) {
     );
 
   fetchMock
-    .once(() =>
-      Promise.resolve({
-        status: 200,
-        body: JSON.stringify({
+    .mockGlobal()
+    .route(
+      ({ url }) => url.includes("/resolve_object"),
+      JSON.stringify({
+        post: {
           post: {
-            post: {
-              id: 123,
-            },
+            id: 123,
           },
-        }),
+        },
       }),
     )
-    .once(() =>
-      Promise.resolve({
-        status: 200,
-        body: JSON.stringify({
-          comments,
-        } satisfies GetCommentsResponse),
-      }),
+    .route(
+      ({ url }) => url.includes("/comment/list"),
+      JSON.stringify({
+        comments,
+      } satisfies GetCommentsResponse),
     );
 
   return comments;
 }
 
 function mockCreateComment(path: string) {
-  fetchMock.once(() =>
-    Promise.resolve({
-      status: 200,
-      body: JSON.stringify({
-        comment_view: lemmy.getComment({
-          commentView: {
-            comment: {
-              path,
-            },
+  fetchMock.mockGlobal().route(
+    ({ url, options }) => url.includes("/comment") && options.method === "post",
+    JSON.stringify({
+      comment_view: lemmy.getComment({
+        commentView: {
+          comment: {
+            path,
           },
-        }),
-        recipient_ids: [],
-      } satisfies CommentResponse),
-    }),
+        },
+      }),
+      recipient_ids: [],
+    } satisfies CommentResponse),
   );
 }
 
 beforeEach(() => {
   resetApiClients();
-  fetchMock.resetMocks();
+  vi.resetAllMocks();
 });
 
 describe("creating comments", () => {

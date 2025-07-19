@@ -10,4 +10,35 @@ afterEach(() => {
   });
 });
 
-describe("useSettingsStore", () => {});
+describe("useSettingsStore", () => {
+  test("setFilterKeywords", () => {
+    const { result } = renderHook(() => useSettingsStore());
+
+    act(() => {
+      result.current.setFilterKeywords({ index: 0, keyword: "one" });
+      result.current.setFilterKeywords({ index: 1, keyword: "two" });
+      result.current.setFilterKeywords({ index: 2, keyword: "three" });
+    });
+
+    expect(result.current.filterKeywords).toEqual(["one", "two", "three"]);
+  });
+
+  test("pruneFilterKeywords", () => {
+    const { result } = renderHook(() => useSettingsStore());
+
+    act(() => {
+      result.current.setFilterKeywords({ index: 0, keyword: "one" });
+      result.current.setFilterKeywords({ index: 1, keyword: "two" });
+      result.current.setFilterKeywords({ index: 2, keyword: "three" });
+      result.current.setFilterKeywords({ index: 3, keyword: "" });
+    });
+
+    expect(result.current.filterKeywords).toHaveLength(4);
+
+    act(() => {
+      result.current.pruneFiltersKeywords();
+    });
+
+    expect(result.current.filterKeywords).toHaveLength(3);
+  });
+});
