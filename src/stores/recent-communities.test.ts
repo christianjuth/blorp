@@ -1,8 +1,15 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 import { useRecentCommunitiesStore, MAX_VISITED } from "./recent-communities";
 import * as api from "@/test-utils/api";
 import { renderHook, act } from "@testing-library/react";
 import _ from "lodash";
+
+afterEach(() => {
+  const { result } = renderHook(() => useRecentCommunitiesStore());
+  act(() => {
+    result.current.reset();
+  });
+});
 
 describe("useRecentCommunitiesStore", () => {
   test("omits duplicate communities", () => {

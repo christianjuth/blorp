@@ -1,6 +1,7 @@
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 import _ from "lodash";
+import { normalizeInstance } from "./lib/utils";
 
 const WINDOW_REACT_APP_DEFAULT_INSTANCE =
   "REACT_APP_DEFAULT_INSTANCE" in window &&
@@ -47,10 +48,11 @@ export const env = createEnv({
   runtimeEnv: {
     REACT_APP_NAME:
       WINDOW_REACT_APP_NAME || import.meta.env["REACT_APP_NAME"] || "Blorp",
-    REACT_APP_DEFAULT_INSTANCE:
+    REACT_APP_DEFAULT_INSTANCE: normalizeInstance(
       WINDOW_REACT_APP_DEFAULT_INSTANCE ||
-      import.meta.env["REACT_APP_DEFAULT_INSTANCE"] ||
-      "https://lemmy.zip",
+        import.meta.env["REACT_APP_DEFAULT_INSTANCE"] ||
+        "https://lemmy.zip",
+    ),
     REACT_APP_LOCK_TO_DEFAULT_INSTANCE: parseBoolean(
       WINDOW_REACT_APP_LOCK_TO_DEFAULT_INSTANCE ||
         import.meta.env["REACT_APP_LOCK_TO_DEFAULT_INSTANCE"],

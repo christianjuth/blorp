@@ -5,6 +5,7 @@ import _ from "lodash";
 import { MAX_CACHE_MS } from "./config";
 import { CachePrefixer } from "./auth";
 import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { isTest } from "../lib/device";
 
 type Data = {
   communityView: Schemas.Community;
@@ -32,12 +33,17 @@ type SortsStore = {
     data: Data[],
   ) => Record<string, CachedCommunity>;
   cleanup: () => any;
+  reset: () => any;
+};
+
+const INIT_STATE = {
+  communities: {},
 };
 
 export const useCommunitiesStore = create<SortsStore>()(
   persist(
     (set, get) => ({
-      communities: {},
+      ...INIT_STATE,
       patchCommunity: (slug, prefix, patch) => {
         const communities = get().communities;
         const cacheKey = prefix(slug);
@@ -142,6 +148,11 @@ export const useCommunitiesStore = create<SortsStore>()(
         }
 
         return communities;
+      },
+      reset: () => {
+        if (isTest()) {
+          set(INIT_STATE);
+        }
       },
     }),
     {

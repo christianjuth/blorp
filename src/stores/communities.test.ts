@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 import * as api from "@/test-utils/api";
 import { useCommunitiesStore } from "./communities";
 import _ from "lodash";
@@ -7,6 +7,13 @@ import { SubscribedType } from "lemmy-v3";
 import { getCachePrefixer } from "./auth";
 
 const prefix = getCachePrefixer({ instance: "123" });
+
+afterEach(() => {
+  const { result } = renderHook(() => useCommunitiesStore());
+  act(() => {
+    result.current.reset();
+  });
+});
 
 describe("useCommunitiesStore", () => {
   describe("cacheCommunity", () => {
@@ -63,7 +70,7 @@ describe("useCommunitiesStore", () => {
     const communityView = api.getCommunity();
     const slug = communityView.slug;
 
-    test("load post into store", () => {
+    test("does not patch post that is not already in the store", () => {
       const { result } = renderHook(() => useCommunitiesStore());
 
       act(() => {
@@ -72,13 +79,18 @@ describe("useCommunitiesStore", () => {
         });
       });
 
-      expect(result.current.communities[prefix(slug)]?.data).toMatchObject({
-        communityView,
-      });
+      expect(result.current.communities[prefix(slug)]?.data).toBeUndefined();
     });
 
     test("does not overwrite optimistic subscribed", () => {
       const { result } = renderHook(() => useCommunitiesStore());
+
+      act(() => {
+        result.current.cacheCommunity(prefix, {
+          communityView,
+        });
+      });
+
       const optimisticSubscribed = _.sample([
         "Subscribed",
         "Pending",

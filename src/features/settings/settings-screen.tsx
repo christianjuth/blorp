@@ -173,7 +173,6 @@ function CacheSection() {
           <div className="flex-1 flex flex-col gap-2">
             <span className="text-sm text-muted-foreground">
               Cache {formatSize(totalSize)}
-              {settings.cacheImages ? " (excludes images)" : ""}
             </span>
 
             {totalSize > 0 && (
