@@ -29,7 +29,9 @@
 
 ## Try it!
 
-* [Web](https://blorpblorp.xyz/)
+* [blorpblorp.xyz](https://blorpblorp.xyz/) – Official instance updated multiple times a week
+* [blorp.lemmy.zip](https://blorp.piefed.zip)
+* [blorp.piefed.zip](https://blorp.piefed.zip)
 
 ## 🚀 Download
 
