@@ -6,7 +6,7 @@ import {
 import { ContentGutters } from "../components/gutters";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFiltersStore } from "../stores/filters";
-import { useMostRecentPost, usePosts } from "../lib/lemmy";
+import { useMostRecentPost, usePosts } from "../lib/api";
 import _ from "lodash";
 
 import { LocalSererSidebar } from "../components/local-server/local-server-sidebar";

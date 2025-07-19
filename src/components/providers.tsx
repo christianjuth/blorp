@@ -5,7 +5,7 @@ import {
   PersistQueryClientProvider,
 } from "@tanstack/react-query-persist-client";
 import _ from "lodash";
-import { useNotificationCount } from "../lib/lemmy";
+import { useNotificationCount } from "../lib/api";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { updateTauri } from "../lib/tauri";
 import { isTauri } from "../lib/device";

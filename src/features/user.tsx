@@ -1,5 +1,5 @@
 import { ContentGutters } from "../components/gutters";
-import { usePersonDetails, usePersonFeed } from "../lib/lemmy";
+import { usePersonDetails, usePersonFeed } from "../lib/api";
 import {
   FeedPostCard,
   PostCardSkeleton,
@@ -9,7 +9,7 @@ import { MarkdownRenderer } from "../components/markdown/renderer";
 import { VirtualList } from "../components/virtual-list";
 import { PostSortButton } from "../components/lemmy-sort";
 import { memo, useEffect, useMemo } from "react";
-import { decodeApId, encodeApId } from "../lib/lemmy/utils";
+import { decodeApId, encodeApId } from "../lib/api/utils";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";

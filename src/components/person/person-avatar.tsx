@@ -6,8 +6,8 @@ import {
 import { cn } from "@/src/lib/utils";
 import { useAuth } from "@/src/stores/auth";
 import { useProfilesStore } from "@/src/stores/profiles";
-import { usePersonDetails } from "@/src/lib/lemmy";
-import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
+import { usePersonDetails } from "@/src/lib/api";
+import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 
 export function PersonAvatar({
   actorId,

@@ -1,7 +1,7 @@
 import { PostComment } from "@/src/components/posts/post-comment";
 import { buildCommentTree } from "../lib/comment-tree";
 import { Fragment, useEffect } from "react";
-import { usePost, useComments, useCommunity } from "@/src/lib/lemmy/index";
+import { usePost, useComments, useCommunity } from "@/src/lib/api/index";
 import {
   PostBottomBar,
   FeedPostCard,

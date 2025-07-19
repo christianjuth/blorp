@@ -286,7 +286,7 @@ export namespace Forms {
   export type Search = {
     q: string;
     communitySlug?: string;
-    type: "All" | "Posts" | "Communities" | "Users";
+    type: "Posts" | "Communities" | "Users" | "Comments";
     sort?: string;
     pageCursor?: string;
   };
@@ -487,6 +487,7 @@ export abstract class ApiBlueprint<C, S extends string> {
   ): Promise<{
     posts: Schemas.Post[];
     communities: Schemas.Community[];
+    comments: Schemas.Comment[];
     users: Schemas.Person[];
     nextCursor: string | null;
   }>;

@@ -1,4 +1,4 @@
-import { useListCommunities } from "@/src/lib/lemmy/index";
+import { useListCommunities } from "@/src/lib/api/index";
 import {
   CommunityCard,
   CommunityCardSkeleton,

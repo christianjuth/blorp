@@ -19,7 +19,7 @@ import { PiFireSimpleBold } from "react-icons/pi";
 import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
-import { useAvailableSorts } from "../lib/lemmy";
+import { useAvailableSorts } from "../lib/api";
 
 function humanizeText(str: string) {
   return str.replace(/([a-z])([A-Z])/g, "$1 $2");

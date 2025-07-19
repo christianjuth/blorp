@@ -15,7 +15,7 @@ import { IonReactRouter } from "@ionic/react-router";
 import { Route, Redirect } from "@/src/routing/index";
 import _ from "lodash";
 import { useMedia } from "@/src/lib/hooks/index";
-import { useNotificationCount, usePrivateMessagesCount } from "@/src/lib/lemmy";
+import { useNotificationCount, usePrivateMessagesCount } from "@/src/lib/api";
 import { lazy } from "react";
 import { dispatchScrollEvent } from "@/src/lib/scroll-events";
 import { isTauri } from "@/src/lib/device";

@@ -10,7 +10,7 @@ import {
 import { ContentGutters } from "../components/gutters";
 import { Fragment, memo, useEffect, useMemo, useState } from "react";
 import { VirtualList } from "../components/virtual-list";
-import { useCommunity, useMostRecentPost, usePosts } from "../lib/lemmy";
+import { useCommunity, useMostRecentPost, usePosts } from "../lib/api";
 import { PostReportProvider } from "../components/posts/post-report";
 import _ from "lodash";
 import {

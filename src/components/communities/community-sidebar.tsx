@@ -1,4 +1,4 @@
-import { useBlockCommunity, useCommunity } from "@/src/lib/lemmy/index";
+import { useBlockCommunity, useCommunity } from "@/src/lib/api/index";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { MarkdownRenderer } from "../markdown/renderer";

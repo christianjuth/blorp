@@ -1,5 +1,5 @@
 import { isYouTubeVideoUrl } from "./youtube";
-import { Schemas } from "./lemmy/adapters/api-blueprint";
+import { Schemas } from "./api/adapters/api-blueprint";
 
 export function getPostEmbed(
   post: Schemas.Post,

@@ -14,11 +14,11 @@ import { PageTitle } from "@/src/components/page-title";
 import { useParams } from "@/src/routing";
 import { getAccountSite, parseAccountInfo, useAuth } from "@/src/stores/auth";
 import NotFound from "../not-found";
-import { createSlug } from "@/src/lib/lemmy/utils";
+import { createSlug } from "@/src/lib/api/utils";
 import { PersonCard } from "@/src/components/person/person-card";
 import { CommunityCard } from "@/src/components/communities/community-card";
 import { SectionItem, Section } from "./shared-components";
-import { useBlockCommunity, useBlockPerson } from "@/src/lib/lemmy";
+import { useBlockCommunity, useBlockPerson } from "@/src/lib/api";
 import { useConfirmationAlert } from "@/src/lib/hooks/index";
 
 export default function SettingsPage() {

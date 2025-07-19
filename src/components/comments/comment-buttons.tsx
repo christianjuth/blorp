@@ -1,4 +1,4 @@
-import { useLikeComment } from "@/src/lib/lemmy/index";
+import { useLikeComment } from "@/src/lib/api/index";
 import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 import { ButtonHTMLAttributes, DetailedHTMLProps, useId } from "react";
@@ -13,7 +13,7 @@ import {
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import { Button } from "../ui/button";
 import { abbriviateNumber } from "@/src/lib/format";
-import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
+import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import _ from "lodash";
 import { getAccountSite, useAuth } from "@/src/stores/auth";
 

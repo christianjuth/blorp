@@ -9,7 +9,7 @@ import {
   useNotificationCount,
   usePersonMentions,
   useReplies,
-} from "@/src/lib/lemmy/index";
+} from "@/src/lib/api/index";
 import {
   IonButtons,
   IonContent,
@@ -34,7 +34,7 @@ import { Message, Person } from "../components/icons";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { useAuth } from "../stores/auth";
 import LoginRequired from "./login-required";
-import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { Schemas } from "../lib/api/adapters/api-blueprint";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item =

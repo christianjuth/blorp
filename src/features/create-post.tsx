@@ -15,7 +15,7 @@ import {
   useListCommunities,
   useSearch,
   useUploadImage,
-} from "../lib/lemmy";
+} from "../lib/api";
 import _ from "lodash";
 import { parseOgData } from "../lib/html-parsing";
 import {

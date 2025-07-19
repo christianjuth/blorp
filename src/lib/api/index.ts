@@ -31,7 +31,7 @@ import {
 import {
   isInfiniteQueryData,
   useThrottledInfiniteQuery,
-} from "./infinite-query";
+} from "./throttled-infinite-query";
 import { produce } from "immer";
 import {
   Errors,
@@ -1504,7 +1504,7 @@ export function useSearch(form: Forms.Search) {
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
-      const { posts, communities, users, nextCursor } = await (
+      const { posts, communities, comments, users, nextCursor } = await (
         await api
       ).search(
         {
@@ -1525,6 +1525,7 @@ export function useSearch(form: Forms.Search) {
       return {
         communities: communities.map((c) => c.slug),
         posts: posts.map((p) => p.apId),
+        comments,
         users: users.map((u) => u.apId),
         next_page: nextCursor,
       };

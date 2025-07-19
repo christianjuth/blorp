@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { useSettingsStore } from "@/src/stores/settings";
-import { useLogout } from "@/src/lib/lemmy/index";
+import { useLogout } from "@/src/lib/api/index";
 import { Account, parseAccountInfo, useAuth } from "@/src/stores/auth";
 import { useRequireAuth } from "@/src/components/auth-context";
 import { ContentGutters } from "@/src/components/gutters";

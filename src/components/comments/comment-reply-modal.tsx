@@ -1,5 +1,5 @@
 import { createContext, useContext, useId, useState } from "react";
-import { useCreateComment, useEditComment } from "@/src/lib/lemmy/index";
+import { useCreateComment, useEditComment } from "@/src/lib/api/index";
 import _ from "lodash";
 import { useMedia } from "@/src/lib/hooks/index";
 import { MarkdownEditor } from "../markdown/editor";
@@ -14,7 +14,7 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { Button } from "@/src/components/ui/button";
-import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
+import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 
 export function useCommentEditingState({
   parent,

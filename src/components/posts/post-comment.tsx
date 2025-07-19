@@ -8,12 +8,12 @@ import {
 } from "../comments/comment-reply-modal";
 import { useCommentsStore } from "@/src/stores/comments";
 import { RelativeTime } from "../relative-time";
-import { useBlockPerson, useDeleteComment } from "@/src/lib/lemmy/index";
+import { useBlockPerson, useDeleteComment } from "@/src/lib/api/index";
 import { CommentTree } from "@/src/lib/comment-tree";
 import { useShowCommentReportModal } from "./post-report";
 import { useRequireAuth } from "../auth-context";
 import { useLinkContext } from "../../routing/link-context";
-import { encodeApId } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/api/utils";
 import { Link, resolveRoute } from "../../routing/index";
 import {
   Avatar,

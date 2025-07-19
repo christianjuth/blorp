@@ -2,7 +2,7 @@ import { usePostsStore } from "@/src/stores/posts";
 import { useLinkContext } from "../../routing/link-context";
 import { useSettingsStore } from "@/src/stores/settings";
 import { getPostEmbed } from "@/src/lib/post";
-import { encodeApId } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/api/utils";
 import { Link } from "@/src/routing/index";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
@@ -23,7 +23,7 @@ import { shareImage } from "@/src/lib/share";
 import { getAccountSite, useAuth } from "@/src/stores/auth";
 import removeMd from "remove-markdown";
 import { LuRepeat2 } from "react-icons/lu";
-import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
+import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import { Separator } from "../ui/separator";
 
 function Notice({ children }: { children: React.ReactNode }) {

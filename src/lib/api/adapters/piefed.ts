@@ -1073,6 +1073,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     return {
       posts: posts.map((p) => convertPost(p)),
       communities: communities.map((c) => convertCommunity(c, "partial")),
+      comments: [],
       users: users.map((p) => convertPerson(p, "partial")),
       nextCursor: hasNextCursor ? String(nextCursor) : null,
     };

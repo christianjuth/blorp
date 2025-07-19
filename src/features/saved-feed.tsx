@@ -6,14 +6,14 @@ import {
 import { ContentGutters } from "../components/gutters";
 import { memo, useMemo } from "react";
 import { VirtualList } from "../components/virtual-list";
-import { useComments, usePosts } from "../lib/lemmy";
+import { useComments, usePosts } from "../lib/api";
 import { PostReportProvider } from "../components/posts/post-report";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import _ from "lodash";
 import { useCommentsStore } from "../stores/comments";
 import { MarkdownRenderer } from "../components/markdown/renderer";
 import { useLinkContext } from "../routing/link-context";
-import { encodeApId } from "../lib/lemmy/utils";
+import { encodeApId } from "../lib/api/utils";
 import { usePostsStore } from "../stores/posts";
 import { Link } from "@/src/routing/index";
 import {

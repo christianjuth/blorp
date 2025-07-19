@@ -1,4 +1,4 @@
-import { useCommunity } from "@/src/lib/lemmy/index";
+import { useCommunity } from "@/src/lib/api/index";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { useCommunitiesStore } from "@/src/stores/communities";

@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import utcPlugin from "dayjs/plugin/utc";
-import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
-import { createSlug } from "@/src/lib/lemmy/utils";
+import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
+import { createSlug } from "@/src/lib/api/utils";
 import _ from "lodash";
 
 dayjs.extend(utcPlugin);

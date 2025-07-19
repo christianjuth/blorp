@@ -11,12 +11,12 @@ import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import { useMemo, useState } from "react";
 import { useLinkContext } from "../../routing/link-context";
-import { encodeApId } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/api/utils";
 import { openUrl } from "@/src/lib/linking";
 import { Deferred } from "@/src/lib/deferred";
 import { useIonAlert, useIonRouter } from "@ionic/react";
 import { useRequireAuth } from "../auth-context";
-import { useBlockPerson } from "@/src/lib/lemmy";
+import { useBlockPerson } from "@/src/lib/api";
 import { getAccountActorId, useAuth } from "@/src/stores/auth";
 import { shareRoute } from "@/src/lib/share";
 import { resolveRoute } from "../../routing/index";
@@ -30,7 +30,7 @@ import {
 import { ChevronsUpDown } from "lucide-react";
 import { useSidebarStore } from "@/src/stores/sidebars";
 import { AggregateBadges } from "../aggregates";
-import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
+import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 
 dayjs.extend(localizedFormat);
 

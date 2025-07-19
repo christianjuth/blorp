@@ -16,7 +16,7 @@ import {
   useRefreshAuth,
   useRegister,
   useSite,
-} from "../lib/lemmy";
+} from "../lib/api";
 import fuzzysort from "fuzzysort";
 import _ from "lodash";
 import {

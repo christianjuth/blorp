@@ -3,7 +3,7 @@ import {
   useDeletePost,
   useFeaturePost,
   useSavePost,
-} from "@/src/lib/lemmy/index";
+} from "@/src/lib/api/index";
 import { useLinkContext } from "../../routing/link-context";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
@@ -22,7 +22,7 @@ import {
 import { BsFillPinAngleFill } from "react-icons/bs";
 import { useIonAlert, useIonRouter } from "@ionic/react";
 import { Deferred } from "@/src/lib/deferred";
-import { encodeApId } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/api/utils";
 import { CommunityHoverCard } from "../communities/community-hover-card";
 import { PersonHoverCard } from "../person/person-hover-card";
 import { FaBookmark } from "react-icons/fa";
@@ -30,7 +30,7 @@ import { postToDraft, useCreatePostStore } from "@/src/stores/create-post";
 import { shareRoute } from "@/src/lib/share";
 import { Shield, ShieldCheckmark } from "../icons";
 import { cn } from "@/src/lib/utils";
-import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
+import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import { CakeDay } from "../cake-day";

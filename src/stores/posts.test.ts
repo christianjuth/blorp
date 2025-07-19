@@ -4,7 +4,7 @@ import * as api from "@/test-utils/api";
 import { usePostsStore } from "./posts";
 import _ from "lodash";
 import { getCachePrefixer } from "./auth";
-import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { Schemas } from "../lib/api/adapters/api-blueprint";
 
 const prefix = getCachePrefixer({ instance: "123" });
 

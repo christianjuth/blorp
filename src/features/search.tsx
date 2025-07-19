@@ -1,4 +1,4 @@
-import { useCommunity, useSearch } from "../lib/lemmy";
+import { useCommunity, useSearch } from "../lib/api";
 import {
   FeedPostCard,
   PostCardSkeleton,
@@ -18,7 +18,7 @@ import _ from "lodash";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { usePostsStore } from "../stores/posts";
 import { SearchType } from "lemmy-v3";
-import { useParams } from "@/src/routing/index";
+import { Link, useParams } from "@/src/routing/index";
 import {
   IonBackButton,
   IonButtons,
@@ -36,11 +36,18 @@ import { useAuth } from "../stores/auth";
 import z from "zod";
 import { PersonCard } from "../components/person/person-card";
 import { useLinkContext } from "../routing/link-context";
+import { Schemas } from "../lib/api/adapters/api-blueprint";
+import { BadgeIcon } from "../components/badge-count";
+import { PersonAvatar } from "../components/person/person-avatar";
+import { MarkdownRenderer } from "../components/markdown/renderer";
+import { RelativeTime } from "../components/relative-time";
+import { Message, Person } from "../components/icons";
+import { Separator } from "../components/ui/separator";
 
 const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
-type Item = string;
+type Item = string | Schemas.Comment;
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="max-md:px-0">
@@ -48,6 +55,52 @@ const Post = memo((props: PostProps) => (
     <></>
   </ContentGutters>
 ));
+
+function Comment({ comment }: { comment: Schemas.Comment }) {
+  const linkCtx = useLinkContext();
+  const path = comment.path.split(".");
+  const parent = path.at(-2);
+  const newPath = [parent !== "0" ? parent : undefined, comment.id]
+    .filter(Boolean)
+    .join(".");
+  return (
+    <ContentGutters className="px-0">
+      <div className="flex-1">
+        <div className="flex my-2.5 gap-3 items-start max-md:px-3.5">
+          <BadgeIcon
+            icon={<Message className="h-full w-full text-muted-foreground" />}
+          >
+            <PersonAvatar actorId={comment.creatorApId} size="sm" />
+          </BadgeIcon>
+          <div className={"flex-1 text-sm leading-6 block overflow-x-hidden"}>
+            <Link
+              to={`${linkCtx.root}c/:communityName/posts/:post/comments/:comment`}
+              params={{
+                communityName: comment.communitySlug,
+                post: encodeURIComponent(comment.postApId),
+                comment: newPath,
+              }}
+            >
+              <div className="flex flex-row flex-wrap">
+                <span>
+                  <span className="font-bold">{comment.creatorSlug}</span>
+                  <span> commented in </span>
+                  <span className="font-bold">{comment.postTitle}</span>
+                </span>
+              </div>
+              <MarkdownRenderer markdown={comment.body} className="pb-2" />
+            </Link>
+            <div className="flex flex-row justify-end gap-2 text-muted-foreground">
+              <RelativeTime time={comment.createdAt} />
+            </div>
+          </div>
+        </div>
+        <Separator />
+      </div>
+      <></>
+    </ContentGutters>
+  );
+}
 
 export default function SearchFeed({
   scope = "global",
@@ -75,7 +128,7 @@ export default function SearchFeed({
   const [type, setType] = useUrlSearchState(
     "type",
     defaultType,
-    z.enum(["posts", "communities", "users"]),
+    z.enum(["posts", "communities", "users", "comments"]),
   );
 
   const postSort = useFiltersStore((s) => s.postSort);
@@ -94,6 +147,9 @@ export default function SearchFeed({
       break;
     case "users":
       type_ = "Users";
+      break;
+    case "comments":
+      type_ = "Comments";
       break;
   }
 
@@ -123,6 +179,13 @@ export default function SearchFeed({
         searchResults.data?.pages.map((res) => res.communities).flat() ??
         EMPTY_ARR;
       return communities;
+    }
+
+    if (type === "comments") {
+      const comments =
+        searchResults.data?.pages.map((res) => res.comments).flat() ??
+        EMPTY_ARR;
+      return comments;
     }
 
     return searchResults.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
@@ -165,7 +228,8 @@ export default function SearchFeed({
               size="sm"
               value={type}
               onValueChange={(val) =>
-                val && setType(val as "posts" | "communities" | "users")
+                val &&
+                setType(val as "posts" | "communities" | "users" | "comments")
               }
             >
               <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
@@ -177,6 +241,7 @@ export default function SearchFeed({
               {scope === "global" && (
                 <ToggleGroupItem value="users">Users</ToggleGroupItem>
               )}
+              <ToggleGroupItem value="comments">Comments</ToggleGroupItem>
             </ToggleGroup>
           </IonToolbar>
         )}
@@ -206,7 +271,10 @@ export default function SearchFeed({
                       size="sm"
                       value={type}
                       onValueChange={(val) =>
-                        val && setType(val as "posts" | "communities" | "users")
+                        val &&
+                        setType(
+                          val as "posts" | "communities" | "users" | "comments",
+                        )
                       }
                     >
                       <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
@@ -218,6 +286,9 @@ export default function SearchFeed({
                       {scope === "global" && (
                         <ToggleGroupItem value="users">Users</ToggleGroupItem>
                       )}
+                      <ToggleGroupItem value="comments">
+                        Comments
+                      </ToggleGroupItem>
                     </ToggleGroup>
                   </div>
 
@@ -232,6 +303,10 @@ export default function SearchFeed({
               </ContentGutters>,
             ]}
             renderItem={({ item }) => {
+              if (!_.isString(item)) {
+                return <Comment comment={item} />;
+              }
+
               if (item === NO_ITEMS) {
                 return (
                   <ContentGutters>

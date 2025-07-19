@@ -530,7 +530,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
 
   async search(form: Forms.Search, options: RequestOptions) {
     const cursor = cursorToInt(form.pageCursor) ?? 1;
-    const { posts, communities, users } = await this.client.search(
+    const { posts, communities, users, comments } = await this.client.search(
       {
         q: form.q,
         community_name: form.communitySlug,
@@ -543,13 +543,15 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
     const hasMorePosts = posts.length > this.limit;
     const hasMoreCommunities = communities.length > this.limit;
     const hasMoreUsers = users.length > this.limit;
+    const hasMoreComments = comments.length > this.limit;
     const nextCursor =
-      hasMorePosts || hasMoreCommunities || hasMoreUsers
+      hasMorePosts || hasMoreCommunities || hasMoreUsers || hasMoreComments
         ? `${cursor + 1}`
         : null;
     return {
       posts: posts.map((p) => convertPost(p)),
       communities: communities.map(convertCommunity),
+      comments: comments.map(convertComment),
       users: users.map(convertPerson),
       nextCursor,
     };

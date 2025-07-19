@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import _ from "lodash";
-import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { Schemas } from "../lib/api/adapters/api-blueprint";
 import { isTest } from "../lib/device";
 
 type RecentCommunityStore = {

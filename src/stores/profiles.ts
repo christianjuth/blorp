@@ -4,7 +4,7 @@ import { createStorage, sync } from "./storage";
 import _ from "lodash";
 import { MAX_CACHE_MS } from "./config";
 import { CacheKey, CachePrefixer } from "./auth";
-import { Schemas } from "../lib/lemmy/adapters/api-blueprint";
+import { Schemas } from "../lib/api/adapters/api-blueprint";
 
 type CachedProfile = {
   data: Schemas.Person;

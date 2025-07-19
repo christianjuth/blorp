@@ -9,7 +9,7 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 import { parseAccountInfo, useAuth } from "../stores/auth";
 import { useLinkContext } from "../routing/link-context";
-import { encodeApId } from "../lib/lemmy/utils";
+import { encodeApId } from "../lib/api/utils";
 import {
   Avatar,
   AvatarFallback,
@@ -22,7 +22,7 @@ import {
   useLogout,
   useNotificationCount,
   usePrivateMessagesCount,
-} from "../lib/lemmy";
+} from "../lib/api";
 import { LuMenu } from "react-icons/lu";
 import { useConfirmationAlert, useMedia } from "../lib/hooks";
 import {

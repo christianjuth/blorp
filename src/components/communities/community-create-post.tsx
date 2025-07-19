@@ -4,7 +4,7 @@ import { v4 as uuid } from "uuid";
 import _ from "lodash";
 import { Deferred } from "@/src/lib/deferred";
 import { useAuth } from "@/src/stores/auth";
-import { useCommunity } from "@/src/lib/lemmy";
+import { useCommunity } from "@/src/lib/api";
 
 export function useCommunityCreatePost({
   communityName,

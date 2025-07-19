@@ -3,7 +3,7 @@ import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { PageTitle } from "../components/page-title";
 import z from "zod";
 import { useConfirmationAlert, useUrlSearchState } from "../lib/hooks";
-import { useSite } from "../lib/lemmy";
+import { useSite } from "../lib/api";
 import { useEffect } from "react";
 import { useAuth } from "../stores/auth";
 import { useHistory } from "react-router";

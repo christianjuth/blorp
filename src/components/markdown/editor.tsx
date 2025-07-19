@@ -34,7 +34,7 @@ import {
   IoLink,
   IoEllipsisHorizontal,
 } from "react-icons/io5";
-import { useUploadImage } from "@/src/lib/lemmy";
+import { useUploadImage } from "@/src/lib/api";
 import { LuImageUp } from "react-icons/lu";
 import _ from "lodash";
 import { useIonAlert } from "@ionic/react";

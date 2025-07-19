@@ -1,4 +1,4 @@
-import { useLikePost } from "@/src/lib/lemmy/index";
+import { useLikePost } from "@/src/lib/api/index";
 import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 

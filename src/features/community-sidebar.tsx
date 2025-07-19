@@ -1,6 +1,6 @@
 import { SmallScreenSidebar } from "@/src/components/communities/community-sidebar";
 import { useEffect } from "react";
-import { useCommunity } from "../lib/lemmy";
+import { useCommunity } from "../lib/api";
 import _ from "lodash";
 import {
   IonBackButton,

@@ -5,8 +5,8 @@ import {
   useCreatePrivateMessage,
   useMarkPriavteMessageRead,
   usePrivateMessages,
-} from "@/src/lib/lemmy";
-import { decodeApId } from "@/src/lib/lemmy/utils";
+} from "@/src/lib/api";
+import { decodeApId } from "@/src/lib/api/utils";
 import { cn } from "@/src/lib/utils";
 import { useParams } from "@/src/routing";
 import { parseAccountInfo, useAuth } from "@/src/stores/auth";
@@ -32,7 +32,7 @@ import { useMedia } from "@/src/lib/hooks";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 import { PageTitle } from "@/src/components/page-title";
 import LoginRequired from "../login-required";
-import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
+import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 
 dayjs.extend(updateLocale);
 

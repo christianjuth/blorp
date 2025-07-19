@@ -8,10 +8,10 @@ import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/src/stores/auth";
 import { useProfilesStore } from "@/src/stores/profiles";
-import { encodeApId } from "@/src/lib/lemmy/utils";
+import { encodeApId } from "@/src/lib/api/utils";
 import { useLinkContext } from "../../routing/link-context";
-import { usePersonDetails } from "@/src/lib/lemmy";
-import { Schemas } from "@/src/lib/lemmy/adapters/api-blueprint";
+import { usePersonDetails } from "@/src/lib/api";
+import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 
 export function PersonCard({
   actorId,
