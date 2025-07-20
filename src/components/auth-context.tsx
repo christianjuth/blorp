@@ -44,6 +44,7 @@ import { Textarea } from "./ui/textarea";
 import { MarkdownRenderer } from "./markdown/renderer";
 import { env } from "../env";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
+import { normalizeInstance } from "../lib/utils";
 
 const AudioPlayButton = ({ src }: { src: string }) => {
   const [playing, setPlaying] = useState(false);
@@ -213,7 +214,11 @@ function SignupForm({
   }
 
   return (
-    <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
+    <form
+      onSubmit={submitLogin}
+      className="gap-4 flex flex-col p-4"
+      data-testid="signup-form"
+    >
       <div className="flex flex-col gap-1">
         <label className="text-muted-foreground text-sm">Email</label>
         <Input
@@ -230,7 +235,9 @@ function SignupForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-muted-foreground text-sm">Username</label>
+        <label className="text-muted-foreground text-sm" htmlFor="username">
+          Username
+        </label>
         <Input
           placeholder="Username"
           id="username"
@@ -245,7 +252,9 @@ function SignupForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-muted-foreground text-sm">Password</label>
+        <label className="text-muted-foreground text-sm" htmlFor="password">
+          Password
+        </label>
         <Input
           placeholder="Enter password"
           type="password"
@@ -391,12 +400,9 @@ function AuthModal({
   const data = useMemo(() => {
     const output = [...(instances.data ?? [])];
     if (site.data) {
-      let url = search;
-      if (!url.startsWith("https://") && !url.startsWith("http://")) {
-        url = "https://" + url;
-      }
-      const baseUrl = new URL(url).host;
       try {
+        const url = normalizeInstance(site.data.instance);
+        const baseUrl = new URL(url).host;
         output.push({
           baseUrl,
           url,
@@ -454,7 +460,12 @@ function AuthModal({
   const modal = useRef<HTMLIonModalElement>(null);
 
   return (
-    <IonModal isOpen={open} onDidDismiss={onClose} ref={modal}>
+    <IonModal
+      isOpen={open}
+      onDidDismiss={onClose}
+      ref={modal}
+      data-testid="auth-modal"
+    >
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
@@ -559,7 +570,11 @@ function AuthModal({
 
         {!signup && !!instance.url && (
           <>
-            <form onSubmit={submitLogin} className="gap-4 flex flex-col p-4">
+            <form
+              onSubmit={submitLogin}
+              className="gap-4 flex flex-col p-4"
+              data-testid="login-form"
+            >
               <div className="flex flex-col gap-1">
                 <label className="text-muted-foreground text-sm">
                   Username
