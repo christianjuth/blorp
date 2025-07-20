@@ -69,8 +69,9 @@ export function getAccountActorId(account: Account) {
 
 export function parseAccountInfo(account: Account) {
   const site = "site" in account ? account.site : undefined;
+  const instance = normalizeInstance(site?.instance ?? account.instance);
   try {
-    const url = new URL(account.instance);
+    const url = new URL(instance);
     return {
       person: site?.me,
       instance: url.host,
