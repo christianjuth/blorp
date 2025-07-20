@@ -84,7 +84,11 @@ export function UserDropdown() {
 
   if (media.maxMd) {
     return (
-      <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
+      <IonMenuToggle
+        menu={RIGHT_SIDEBAR_MENU_ID}
+        autoHide={false}
+        data-testid="user-sidebar-trigger"
+      >
         {content}
       </IonMenuToggle>
     );
@@ -94,8 +98,14 @@ export function UserDropdown() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>{content}</DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
+      <DropdownMenuTrigger data-testid="user-dropdown-trigger">
+        {content}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="w-60"
+        data-testid="user-dropdown-content"
+      >
         <DropdownMenuLabel className="flex items-center gap-2">
           <Avatar className="h-12 w-12" key={person?.id}>
             <AvatarImage src={person?.avatar ?? undefined} />
@@ -148,7 +158,10 @@ export function UserDropdown() {
               Logout
             </DropdownMenuItem>
           ) : (
-            <DropdownMenuItem onClick={() => requireAuth()}>
+            <DropdownMenuItem
+              onClick={() => requireAuth()}
+              data-testid="user-dropdown-login"
+            >
               Login
             </DropdownMenuItem>
           )}
@@ -227,7 +240,10 @@ export function UserSidebar() {
   const userName = person?.slug.split("@")[0];
 
   return (
-    <div className="flex flex-col gap-4 min-h-full pb-[var(--ion-safe-area-bottom)]">
+    <div
+      className="flex flex-col gap-4 min-h-full pb-[var(--ion-safe-area-bottom)]"
+      data-testid="user-sidebar-content"
+    >
       <div className="flex items-center gap-3">
         <Avatar className="h-12 w-12" key={person?.id}>
           {person && <AvatarImage src={person.avatar ?? undefined} />}
@@ -288,6 +304,7 @@ export function UserSidebar() {
             <button
               onClick={() => requireAuth()}
               className="flex flex-row items-center gap-2 w-full"
+              data-testid="user-sidebar-login"
             >
               Login
             </button>
