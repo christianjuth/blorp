@@ -28,10 +28,11 @@
 <br/>
 
 ## Try it!
-
-* [blorpblorp.xyz](https://blorpblorp.xyz/) – Official instance updated multiple times a week
-* [blorp.lemmy.zip](https://blorp.piefed.zip)
-* [blorp.piefed.zip](https://blorp.piefed.zip)
+| Url | Description |
+|-----|-----|
+| [blorpblorp.xyz](https://blorpblorp.xyz/) | ✅  Official site updated multiple times a week |
+| [blorp.lemmy.zip](https://blorp.lemmy.zip) | Blorp hosted by the lemmy.zip team |
+| [blorp.piefed.zip](https://blorp.piefed.zip) | Blorp hosted by the piefed.zip team |
 
 ## 🚀 Download
 
