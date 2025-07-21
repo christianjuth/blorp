@@ -1,6 +1,6 @@
 import { PostComment } from "@/src/components/posts/post-comment";
 import { buildCommentTree } from "../lib/comment-tree";
-import { Fragment, useEffect } from "react";
+import { useEffect } from "react";
 import { usePost, useComments, useCommunity } from "@/src/lib/api/index";
 import {
   PostBottomBar,
@@ -41,6 +41,7 @@ import { NotFound } from "./not-found";
 import { CommentSkeleton } from "../components/comments/comment-skeleton";
 import { useLinkContext } from "../routing/link-context";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
+import { CommentSortSelect } from "../components/lemmy-sort";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -62,6 +63,32 @@ const MemoedPostCard = memo((props: PostProps) => (
   </ContentGutters>
 ));
 
+function PostBottomBarWithCtx({
+  postApId,
+  commentCount,
+}: {
+  postApId: string;
+  commentCount: number;
+}) {
+  const loadCommentIntoEditor = useLoadCommentIntoEditor();
+  return (
+    <>
+      <ContentGutters className="px-0">
+        <PostBottomBar
+          apId={postApId}
+          commentsCount={commentCount}
+          onReply={() =>
+            loadCommentIntoEditor({
+              postApId: postApId,
+            })
+          }
+        />
+        <></>
+      </ContentGutters>
+    </>
+  );
+}
+
 function ReplyToPost({ postApId }: { postApId: string }) {
   const postReplyState = useCommentEditingState({
     postApId,
@@ -69,13 +96,13 @@ function ReplyToPost({ postApId }: { postApId: string }) {
   const loadCommentIntoEditor = useLoadCommentIntoEditor();
   const media = useMedia();
   return (
-    <ContentGutters className="md:py-3" key="post-reply">
+    <ContentGutters className="md:pb-3 md:pt-5" key="post-reply">
       <div className="flex-1">
         {postReplyState && media.md ? (
           <InlineCommentReply state={postReplyState} autoFocus={media.md} />
         ) : (
           <button
-            className="py-2 px-3 my-4 border rounded-2xl w-full text-left shadow-xs text-muted-foreground text-sm"
+            className="py-2 px-3 border rounded-2xl w-full text-left shadow-xs text-muted-foreground text-sm max-md:my-3"
             onClick={() =>
               loadCommentIntoEditor({
                 postApId,
@@ -87,6 +114,17 @@ function ReplyToPost({ postApId }: { postApId: string }) {
         )}
       </div>
       <></>
+    </ContentGutters>
+  );
+}
+
+function CommentSortBar() {
+  return (
+    <ContentGutters className="max-md:hidden">
+      <div className="flex-1 pb-3">
+        <span className="text-sm">Comment sort: </span>
+        <CommentSortSelect variant="button" />
+      </div>
     </ContentGutters>
   );
 }
@@ -238,7 +276,8 @@ export default function Post() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end">
+          <IonButtons slot="end" className="gap-3.5">
+            <CommentSortSelect variant="icon" />
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
@@ -266,20 +305,16 @@ export default function Post() {
                   </ContentGutters>
                 ),
                 post && (
-                  <Fragment key="post-bottom-bar">
-                    <ContentGutters className="px-0">
-                      <PostBottomBar
-                        apId={decodedApId}
-                        commentsCount={post.commentsCount}
-                        onReply={() => {}}
-                      />
-                      <></>
-                    </ContentGutters>
-                  </Fragment>
+                  <PostBottomBarWithCtx
+                    key="post-bottom-bar"
+                    postApId={post.apId}
+                    commentCount={post.commentsCount}
+                  />
                 ),
                 post && !commentPath && (
                   <ReplyToPost key="reply-to-post" postApId={post.apId} />
                 ),
+                <CommentSortBar key="comment-sort-bar" />,
               ]}
               renderItem={({ item }) => (
                 <MemoedPostComment

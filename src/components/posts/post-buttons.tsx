@@ -2,7 +2,7 @@ import { useLikePost } from "@/src/lib/api/index";
 import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
 
-import { Link } from "@/src/routing/index";
+import { Link, resolveRoute } from "@/src/routing/index";
 
 import {
   PiArrowFatUpBold,
@@ -10,14 +10,19 @@ import {
   PiArrowFatDownFill,
   PiArrowFatUpFill,
 } from "react-icons/pi";
-import { TbMessageCircle } from "react-icons/tb";
+import { TbMessageCircle, TbMessageCirclePlus } from "react-icons/tb";
 import { cn } from "@/src/lib/utils";
 import { Button } from "../ui/button";
-import { useId } from "react";
+import { useId, useMemo } from "react";
 import { abbriviateNumber } from "@/src/lib/format";
 import { useLinkContext } from "../../routing/link-context";
 import { getAccountSite, useAuth } from "@/src/stores/auth";
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
+import { Share } from "../icons";
+import { usePostsStore } from "@/src/stores/posts";
+import { shareImage, shareRoute } from "@/src/lib/share";
+import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
+import { encodeApId } from "@/src/lib/api/utils";
 
 export function Voting({
   apId,
@@ -47,7 +52,7 @@ export function Voting({
     return (
       <Button
         size="sm"
-        variant="ghost"
+        variant="outline"
         onClick={async () => {
           const newVote = isUpvoted ? 0 : 1;
           voteHaptics(newVote);
@@ -55,7 +60,7 @@ export function Voting({
             vote.mutate(newVote);
           });
         }}
-        className={cn("text-md font-normal -mr-2", isUpvoted && "text-brand")}
+        className={cn("text-md font-normal", isUpvoted && "text-brand")}
       >
         {isUpvoted ? <FaHeart /> : <FaRegHeart />}
         {abbriviateNumber(score)}
@@ -64,7 +69,12 @@ export function Voting({
   }
 
   return (
-    <div className={cn("flex flex-row items-center h-7 -mr-2", className)}>
+    <div
+      className={cn(
+        "flex flex-row items-center border rounded-full",
+        className,
+      )}
+    >
       <Button
         id={id}
         size="icon"
@@ -155,7 +165,12 @@ export function PostCommentsButton({
   const linkCtx = useLinkContext();
   if (!onClick && communityName && postApId) {
     return (
-      <Button size="sm" variant="ghost" className="text-md font-normal" asChild>
+      <Button
+        size="sm"
+        variant="outline"
+        className="text-md font-normal"
+        asChild
+      >
         <Link
           to={`${linkCtx.root}c/:communityName/posts/:post`}
           params={{
@@ -173,14 +188,81 @@ export function PostCommentsButton({
     return (
       <Button
         size="sm"
-        variant="ghost"
+        variant="outline"
         onClick={onClick}
         className="text-md font-normal"
       >
-        <TbMessageCircle className="scale-115" />
+        <TbMessageCirclePlus className="scale-115" />
         {commentsCount}
       </Button>
     );
   }
   return null;
+}
+
+export function PostShareButton({
+  postApId,
+}: {
+  postApId: string;
+}): React.ReactNode {
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const post = usePostsStore(
+    (s) => s.posts[getCachePrefixer()(postApId)]?.data,
+  );
+
+  const linkCtx = useLinkContext();
+
+  const actions: ActionMenuProps<string>["actions"] = useMemo(() => {
+    if (post) {
+      const thumbnailUrl = post.thumbnailUrl;
+      return [
+        {
+          text: "Link to post",
+          onClick: () =>
+            shareRoute(
+              resolveRoute(`${linkCtx.root}c/:communityName/posts/:post`, {
+                communityName: post.communitySlug,
+                post: encodeApId(post.apId),
+              }),
+            ),
+        },
+        ...(thumbnailUrl
+          ? [
+              {
+                text: "Image",
+                onClick: () => shareImage(post.title, thumbnailUrl),
+              },
+            ]
+          : []),
+      ];
+    }
+
+    return [];
+  }, [post]);
+
+  return (
+    <ActionMenu
+      align="start"
+      header="Share"
+      actions={actions}
+      trigger={
+        <Button
+          size="sm"
+          variant="outline"
+          //onClick={() => {
+          //  if (post && post.thumbnailUrl) {
+          //    shareImage(post.title, post.thumbnailUrl);
+          //  }
+          //}}
+          className="text-md font-normal"
+          asChild
+        >
+          <div>
+            <Share className="scale-110" />
+            Share
+          </div>
+        </Button>
+      }
+    />
+  );
 }

@@ -27,7 +27,6 @@ import { CommunityHoverCard } from "../communities/community-hover-card";
 import { PersonHoverCard } from "../person/person-hover-card";
 import { FaBookmark } from "react-icons/fa";
 import { postToDraft, useCreatePostStore } from "@/src/stores/create-post";
-import { shareRoute } from "@/src/lib/share";
 import { Shield, ShieldCheckmark } from "../icons";
 import { cn } from "@/src/lib/utils";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
@@ -85,16 +84,6 @@ export function PostByline({
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
     () => [
-      {
-        text: "Share",
-        onClick: () =>
-          shareRoute(
-            resolveRoute(`${linkCtx.root}c/:communityName/posts/:post`, {
-              communityName: post.communitySlug,
-              post: encodedApId,
-            }),
-          ),
-      },
       {
         text: saved ? "Unsave" : "Save",
         onClick: () =>

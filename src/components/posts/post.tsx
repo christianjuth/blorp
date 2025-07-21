@@ -6,7 +6,7 @@ import { encodeApId } from "@/src/lib/api/utils";
 import { Link } from "@/src/routing/index";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
-import { PostCommentsButton, Voting } from "./post-buttons";
+import { PostCommentsButton, PostShareButton, Voting } from "./post-buttons";
 import { MarkdownRenderer } from "../markdown/renderer";
 import { twMerge } from "tailwind-merge";
 import { PostLoopsEmbed } from "./post-loops-embed";
@@ -313,7 +313,9 @@ export function FeedPostCard(props: PostProps) {
         <MarkdownRenderer markdown={post.body} className="pt-2" />
       )}
       {!props.detailView && (
-        <div className="flex flex-row items-center justify-end gap-1">
+        <div className="flex flex-row items-center justify-end gap-1 pt-1">
+          <PostShareButton postApId={props.apId} />
+          <div className="flex-1" />
           <PostCommentsButton
             commentsCount={post.commentsCount}
             communityName={post.communitySlug}
@@ -353,8 +355,8 @@ export function PostBottomBar({
   const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
 
   return (
-    <div className="py-1 md:py-2 flex flex-row items-center gap-1 bg-background border-b-[.5px] max-md:px-3.5">
-      <CommentSortSelect className="-ml-2.5" />
+    <div className="py-2 flex flex-row items-center gap-1 bg-background border-b-[.5px] max-md:px-3.5">
+      <PostShareButton postApId={apId} />
       <div className="flex-1" />
       <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
       <Voting apId={apId} score={score} myVote={myVote} />
