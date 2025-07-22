@@ -15,7 +15,6 @@ import { PostVideoEmbed } from "./post-video-embed";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useRef, useState } from "react";
-import { CommentSortSelect } from "../lemmy-sort";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useLongPress } from "use-long-press";
 import _ from "lodash";

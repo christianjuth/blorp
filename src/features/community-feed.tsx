@@ -43,6 +43,7 @@ import { useMedia, useTheme } from "../lib/hooks";
 import { CommunityFeedSortBar } from "../components/communities/community-feed-sort-bar";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { getAccountSite, useAuth } from "../stores/auth";
+import { usePostsStore } from "../stores/posts";
 
 const EMPTY_ARR: never[] = [];
 
@@ -105,7 +106,12 @@ export default function CommunityFeed() {
   } = posts;
 
   const mostRecentPostApId = mostRecentPost?.data?.post.apId;
-  const hasNewPost = mostRecentPostApId && !data.includes(mostRecentPostApId);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const hasNewPost = usePostsStore((s) =>
+    mostRecentPostApId
+      ? !(getCachePrefixer()(mostRecentPostApId) in s.posts)
+      : false,
+  );
 
   return (
     <IonPage>
