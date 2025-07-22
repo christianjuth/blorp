@@ -4,6 +4,7 @@
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
+import { privilegedFetch } from "./privileged-fetch";
 
 function blobToString(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -24,7 +25,7 @@ function blobToString(blob: Blob): Promise<string> {
 
 export async function shareImage(name: string, imageUrl: string) {
   // Fetch the image as a blob.
-  const response = await fetch(imageUrl);
+  const response = await privilegedFetch(imageUrl);
   if (!response.ok) {
     throw new Error(`Failed to fetch image from ${imageUrl}`);
   }

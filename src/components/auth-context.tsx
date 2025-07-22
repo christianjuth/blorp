@@ -148,10 +148,12 @@ function SignupForm({
   onSuccess,
   onCancel,
   instance,
+  addAccount,
 }: {
   onSuccess: () => void;
   onCancel: () => void;
   instance?: string;
+  addAccount: boolean;
 }) {
   instance ??= env.REACT_APP_DEFAULT_INSTANCE;
 
@@ -167,7 +169,7 @@ function SignupForm({
   const [captchaAnswer, setCaptchaAnswer] = useState("");
 
   const register = useRegister({
-    addAccount: true,
+    addAccount,
     instance,
   });
 
@@ -508,6 +510,7 @@ function AuthModal({
               resetForm();
             }}
             onCancel={() => setSignup(false)}
+            addAccount={addAccount}
           />
         )}
 
@@ -658,9 +661,15 @@ function AuthModal({
                 className="mx-auto"
                 variant="ghost"
                 onClick={() => {
-                  addAccountFn({
-                    instance: instance.url,
-                  });
+                  if (addAccount) {
+                    addAccountFn({
+                      instance: instance.url,
+                    });
+                  } else {
+                    updateSelectedAccount({
+                      instance: instance.url,
+                    });
+                  }
                   setInstanceLocal();
                   onClose();
                 }}

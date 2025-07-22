@@ -20,6 +20,9 @@ const config: CapacitorConfig = {
       style: KeyboardStyle.Dark,
       resizeOnFullScreen: true,
     },
+    CapacitorHttp: {
+      enabled: true,
+    },
   },
   ios: {
     preferredContentMode: "mobile",

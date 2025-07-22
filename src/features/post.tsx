@@ -277,7 +277,7 @@ export default function Post() {
             />
           </form>
           <IonButtons slot="end" className="gap-3.5">
-            <CommentSortSelect variant="icon" />
+            <CommentSortSelect variant="icon" className="md:hidden" />
             <UserDropdown />
           </IonButtons>
         </IonToolbar>

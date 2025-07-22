@@ -23,6 +23,8 @@ import { usePostsStore } from "@/src/stores/posts";
 import { shareImage, shareRoute } from "@/src/lib/share";
 import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { encodeApId } from "@/src/lib/api/utils";
+import { getPostEmbed } from "@/src/lib/post";
+import { isWeb } from "@/src/lib/device";
 
 export function Voting({
   apId,
@@ -210,11 +212,13 @@ export function PostShareButton({
     (s) => s.posts[getCachePrefixer()(postApId)]?.data,
   );
 
+  const embed = post ? getPostEmbed(post, "full-resolution") : null;
+
   const linkCtx = useLinkContext();
 
   const actions: ActionMenuProps<string>["actions"] = useMemo(() => {
     if (post) {
-      const thumbnailUrl = post.thumbnailUrl;
+      const thumbnailUrl = embed?.thumbnail;
       return [
         {
           text: "Link to post",
@@ -226,7 +230,7 @@ export function PostShareButton({
               }),
             ),
         },
-        ...(thumbnailUrl
+        ...(thumbnailUrl && embed.type === "image" && !isWeb()
           ? [
               {
                 text: "Image",

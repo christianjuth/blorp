@@ -583,6 +583,10 @@ function convertMention(
   };
 }
 
+const errorResponseSchema = z.object({
+  error: z.string(),
+});
+
 export class PieFedApi implements ApiBlueprint<null, "piefed"> {
   software = "piefed" as const;
 
@@ -592,7 +596,19 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
 
   jwt?: string;
 
-  async get(
+  private async parseResponse(res: Response) {
+    const json = await res.json();
+    if (res.status < 200 || res.status >= 300) {
+      const { data } = errorResponseSchema.safeParse(json);
+      throw new Error(
+        data?.error ?? `unexpected error, status code ${res.status}`,
+      );
+    } else {
+      return json;
+    }
+  }
+
+  private async get(
     endpoint: string,
     query: Record<string, any>,
     options?: RequestOptions,
@@ -620,13 +636,10 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         ...options,
       },
     );
-    if (res.status < 200 || res.status >= 300) {
-      throw new Error("unexpected error, status code " + res.status);
-    }
-    return await res.json();
+    return await this.parseResponse(res);
   }
 
-  async post(endpoint: string, body: Record<string, any>) {
+  private async post(endpoint: string, body: Record<string, any>) {
     body = { ...body };
     for (const key in body) {
       if (_.isNil(body[key])) {
@@ -647,13 +660,10 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       method: "POST",
       cache: "no-store",
     });
-    if (res.status < 200 || res.status >= 400) {
-      throw new Error("unexpected error, status code " + res.status);
-    }
-    return await res.json();
+    return await this.parseResponse(res);
   }
 
-  async put(endpoint: string, body: Record<string, any>) {
+  private async put(endpoint: string, body: Record<string, any>) {
     body = { ...body };
     for (const key in body) {
       if (_.isNil(body[key])) {
@@ -674,10 +684,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       method: "PUT",
       cache: "no-store",
     });
-    if (res.status < 200 || res.status >= 400) {
-      throw new Error("unexpected error, status code " + res.status);
-    }
-    return await res.json();
+    return await this.parseResponse(res);
   }
 
   private resolveObjectId = _.memoize(
