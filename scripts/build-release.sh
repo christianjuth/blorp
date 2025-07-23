@@ -3,6 +3,9 @@ set -a  # Automatically export all variables
 source .env
 set +a  # Stop automatic export
 
+export REACT_APP_DEFAULT_INSTANCE="https://lemmy.zip"
+export REACT_APP_LOCK_TO_DEFAULT_INSTANCE=0EACT_APP_LOCK_TO_DEFAULT_INSTANCE=0
+
 # 0) Clean release folder
 rm -rf release
 mkdir release

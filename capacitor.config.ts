@@ -21,7 +21,7 @@ const config: CapacitorConfig = {
       resizeOnFullScreen: true,
     },
     CapacitorHttp: {
-      enabled: true,
+      enabled: false,
     },
   },
   ios: {

@@ -5,6 +5,13 @@ import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 import { privilegedFetch } from "./privileged-fetch";
+import { env } from "../env";
+
+const DEFAULT_HEADERS = {
+  // lemmy.ml will reject requests if
+  // User-Agent header is not present
+  "User-Agent": env.REACT_APP_NAME.toLowerCase(),
+};
 
 function blobToString(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -25,7 +32,9 @@ function blobToString(blob: Blob): Promise<string> {
 
 export async function shareImage(name: string, imageUrl: string) {
   // Fetch the image as a blob.
-  const response = await privilegedFetch(imageUrl);
+  const response = await privilegedFetch(imageUrl, {
+    headers: DEFAULT_HEADERS,
+  });
   if (!response.ok) {
     throw new Error(`Failed to fetch image from ${imageUrl}`);
   }
