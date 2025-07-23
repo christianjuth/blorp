@@ -49,7 +49,7 @@ function groupByFirstWord(arr: string[] | readonly string[]) {
           const items = group.map(
             (item) =>
               // use the remainder if it exists, otherwise fall back to the full original
-              item.remainder || item.original,
+              item.remainder || "",
           );
           return [prefix, items] as const;
         }
@@ -156,11 +156,18 @@ function getIconCommentSort(sort: string) {
   }
 }
 
-export function CommentSortSelect({ className }: { className?: string }) {
+export function CommentSortSelect({
+  className,
+  variant,
+}: {
+  className?: string;
+  variant?: "button" | "icon";
+}) {
   const commentSort = useFiltersStore((s) => s.commentSort);
   const setCommentSort = useFiltersStore((s) => s.setCommentSort);
 
   const data = useAvailableSorts().data;
+  const isValidSort = data?.commentSorts.includes(commentSort);
 
   const actions: ActionMenuProps<string>["actions"] = useMemo(() => {
     if (data) {
@@ -192,22 +199,30 @@ export function CommentSortSelect({ className }: { className?: string }) {
       header="Comment Sort"
       actions={actions}
       selectedValue={commentSort}
+      triggerAsChild={variant === "button"}
       trigger={
-        <Button
-          size="sm"
-          variant="ghost"
-          className={cn(
-            "text-md font-normal text-muted-foreground hover:text-brand",
-            className,
-          )}
-          asChild
-        >
-          <div>
-            Sort
-            {data?.commentSorts.includes(commentSort) &&
-              getIconCommentSort(commentSort)}
+        variant === "button" ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            className={cn(
+              "text-sm font-medium text-muted-foreground hover:text-brand",
+              className,
+            )}
+            asChild
+          >
+            <div>
+              {humanizeText(commentSort)}
+              {data?.commentSorts.includes(commentSort) &&
+                getIconCommentSort(commentSort)}
+            </div>
+          </Button>
+        ) : (
+          <div className={cn("text-xl text-brand", className)}>
+            {isValidSort && getIconForSort(commentSort)}
+            {!isValidSort && <TbArrowsDownUp />}
           </div>
-        </Button>
+        )
       }
     />
   );
@@ -271,7 +286,7 @@ export function PostSortButton({
               text: humanizeText(item[0]),
               value: item[0],
               actions: item[1].map((subItem) => ({
-                text: humanizeText(subItem),
+                text: humanizeText(subItem || "Post"),
                 value: item[0] + subItem,
                 onClick: () => setPostSort(item[0] + subItem),
               })),

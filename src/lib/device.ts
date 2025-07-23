@@ -29,6 +29,10 @@ export function isProd() {
   return MODE === "production";
 }
 
-export function isNative() {
+export function isCapacitor() {
   return Capacitor.isNativePlatform();
+}
+
+export function isWeb() {
+  return !isCapacitor() && !isTauri();
 }

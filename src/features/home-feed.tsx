@@ -34,6 +34,7 @@ import { PostReportProvider } from "../components/posts/post-report";
 import { PageTitle } from "../components/page-title";
 import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
 import { getAccountSite, useAuth } from "../stores/auth";
+import { usePostsStore } from "../stores/posts";
 
 const EMPTY_ARR: never[] = [];
 
@@ -176,7 +177,12 @@ export default function HomeFeed() {
   } = posts;
 
   const mostRecentPostApId = mostRecentPost?.data?.post.apId;
-  const hasNewPost = mostRecentPostApId && !data.includes(mostRecentPostApId);
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const hasNewPost = usePostsStore((s) =>
+    mostRecentPostApId
+      ? !(getCachePrefixer()(mostRecentPostApId) in s.posts)
+      : false,
+  );
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [focused, setFocused] = useState(false);

@@ -15,3 +15,4 @@ export {
 } from "react-icons/lu";
 export { FiSidebar as SidebarOutline } from "react-icons/fi";
 export { FiLogOut as LogOut } from "react-icons/fi";
+export { PiShareFat as Share } from "react-icons/pi";
