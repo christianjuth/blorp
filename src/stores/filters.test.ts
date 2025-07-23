@@ -2,12 +2,7 @@ import { renderHook, act } from "@testing-library/react";
 import { describe, test, expect, afterEach } from "vitest";
 import { useFiltersStore } from "./filters";
 import _ from "lodash";
-import {
-  CommentSortType,
-  CommunitySortType,
-  ListingType,
-  PostSortType,
-} from "lemmy-v3";
+import { CommentSortType, ListingType, SortType } from "lemmy-v3";
 
 afterEach(() => {
   const { result } = renderHook(() => useFiltersStore());
@@ -24,14 +19,15 @@ describe("useFiltersStore", () => {
       expect(result.current.communitySort).toBe("TopAll");
     });
 
-    test.each([["Active"], ["Hot"], ["New"], ["Old"]] satisfies [
-      CommunitySortType,
-    ][])("change sort %s", (sort) => {
-      act(() => {
-        result.current.setCommunitySort(sort);
-      });
-      expect(result.current.communitySort).toBe(sort);
-    });
+    test.each([["Active"], ["Hot"], ["New"], ["Old"]] satisfies [SortType][])(
+      "change sort %s",
+      (sort) => {
+        act(() => {
+          result.current.setCommunitySort(sort);
+        });
+        expect(result.current.communitySort).toBe(sort);
+      },
+    );
   });
 
   describe("commentSort", () => {
@@ -58,14 +54,15 @@ describe("useFiltersStore", () => {
       expect(result.current.postSort).toBe("Active");
     });
 
-    test.each([["Active"], ["Hot"], ["New"], ["Old"]] satisfies [
-      PostSortType,
-    ][])("change sort %s", (sort) => {
-      act(() => {
-        result.current.setPostSort(sort);
-      });
-      expect(result.current.postSort).toBe(sort);
-    });
+    test.each([["Active"], ["Hot"], ["New"], ["Old"]] satisfies [SortType][])(
+      "change sort %s",
+      (sort) => {
+        act(() => {
+          result.current.setPostSort(sort);
+        });
+        expect(result.current.postSort).toBe(sort);
+      },
+    );
   });
 
   describe("listingType", () => {

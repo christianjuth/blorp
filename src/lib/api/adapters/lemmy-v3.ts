@@ -16,7 +16,7 @@ function is2faError(err?: Error | null) {
   return err && err.message.includes("missing_totp_token");
 }
 
-const POST_SORTS: lemmyV3.PostSortType[] = [
+const POST_SORTS: lemmyV3.SortType[] = [
   "Active",
   "Hot",
   "New",
@@ -37,7 +37,7 @@ const POST_SORTS: lemmyV3.PostSortType[] = [
   "Controversial",
   "Scaled",
 ];
-const postSortSchema = z.custom<lemmyV3.PostSortType>((sort) => {
+const postSortSchema = z.custom<lemmyV3.SortType>((sort) => {
   return _.isString(sort) && POST_SORTS.includes(sort as any);
 });
 
@@ -53,7 +53,7 @@ const commentSortSchema = z.custom<lemmyV3.CommentSortType>((sort) => {
   return _.isString(sort) && COMMENT_SORTS.includes(sort as any);
 });
 
-const COMMUNITY_SORTS: lemmyV3.CommunitySortType[] = [
+const COMMUNITY_SORTS: lemmyV3.SortType[] = [
   "Active",
   "Hot",
   "New",
@@ -73,10 +73,8 @@ const COMMUNITY_SORTS: lemmyV3.CommunitySortType[] = [
   "NewComments",
   "Controversial",
   "Scaled",
-  "NameAsc",
-  "NameDesc",
 ] as const;
-const communitySortSchema = z.custom<lemmyV3.CommunitySortType>((sort) => {
+const communitySortSchema = z.custom<lemmyV3.SortType>((sort) => {
   return _.isString(sort) && COMMUNITY_SORTS.includes(sort as any);
 });
 
@@ -122,8 +120,7 @@ function convertCommunity(
       : {}),
     ...(subscribed
       ? {
-          subscribed:
-            subscribed === "ApprovalRequired" ? "Pending" : subscribed,
+          subscribed,
         }
       : {}),
   };
@@ -365,11 +362,10 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
         ) ?? null,
       personBlocks:
         site.my_user?.person_blocks.map((block) =>
-          // @ts-expect-error
           convertPerson({ person: block.target }),
         ) ?? null,
       communityBlocks:
-        site.my_user?.community_blocks.map((community) =>
+        site.my_user?.community_blocks.map(({ community }) =>
           convertCommunity({ community }),
         ) ?? null,
       applicationQuestion:
@@ -377,7 +373,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
       registrationMode: site.site_view.local_site.registration_mode,
       showNsfw: site.my_user?.local_user_view.local_user.show_nsfw ?? false,
       blurNsfw: site.my_user?.local_user_view.local_user.blur_nsfw ?? true,
-      hideDownvotes: site.site_view.local_site.post_downvotes ?? true,
+      hideDownvotes: site.site_view.local_site.enable_downvotes === false,
       enablePostDownvotes: enableDownvotes,
       enableCommentDownvotes: enableDownvotes,
     };
