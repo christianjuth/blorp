@@ -982,13 +982,13 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     const json = await this.get(
       "/comment/list",
       {
-        limit: this.limit,
+        limit: 100,
         type_: "All",
         sort,
         page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         parent_id: form.parentId,
         post_id,
-        max_depth: form.maxDepth,
+        max_depth: _.isNil(form.parentId) ? form.maxDepth : 100,
         // See https://codeberg.org/rimu/pyfedi/issues/884
         depth_first: true,
       },
