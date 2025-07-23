@@ -32,7 +32,11 @@ export const apiClient = _.memoize(
       instance = "https://" + instance;
     }
 
-    const res = await fetch(`${instance}/nodeinfo/2.1`);
+    const res = await fetch(`${instance}/nodeinfo/2.1`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     const json = await res.json();
 
     const nodeInfo = nodeInfoSchema.parse(json);

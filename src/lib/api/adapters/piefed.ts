@@ -51,7 +51,9 @@ const communitySortSchema = z.custom<(typeof COMMUNITY_SORTS)[number]>(
   },
 );
 
-const DEFAULT_HEADERS = {};
+const DEFAULT_HEADERS = {
+  "Content-Type": "application/json",
+};
 
 export const pieFedCommunitySchema = z.object({
   actor_id: z.string(),
@@ -592,7 +594,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
 
   client = null;
   instance: string;
-  limit = 50;
+  limit = 25;
 
   jwt?: string;
 
