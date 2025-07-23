@@ -64,7 +64,7 @@ fi
 # 5) Regenerate Cargo.lock
 if [ -d "$ROOT/src-tauri" ]; then
   pushd "$ROOT/src-tauri" >/dev/null
-    cargo generate-lockfile
+    cargo update -p Blorp --precise "$NEW_VER"
   popd >/dev/null
   echo "  ✔ regenerated Cargo.lock"
 fi
