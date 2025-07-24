@@ -34,3 +34,18 @@ export function normalizeInstance(instance: string) {
     throw new Error(`Invalid URL: "${instance}"`);
   }
 }
+
+export function formatOrdinal(n: number) {
+  const abs = Math.abs(n); // handle negatives if you want
+  const rem100 = abs % 100;
+  const rem10 = abs % 10;
+  let suffix = "th";
+
+  if (rem100 < 11 || rem100 > 13) {
+    if (rem10 === 1) suffix = "st";
+    else if (rem10 === 2) suffix = "nd";
+    else if (rem10 === 3) suffix = "rd";
+  }
+
+  return `${n}${suffix}`;
+}
