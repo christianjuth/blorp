@@ -68,7 +68,7 @@ export function PostCardSkeleton(props: {
       <Skeleton className="h-7" />
 
       {(!hideImage || props.hideImage === false) && (
-        <Skeleton className="aspect-video max-md:-mx-4 max-md:rounded-none" />
+        <Skeleton className="aspect-video max-md:-mx-3.5 max-md:rounded-none" />
       )}
 
       <div className="flex flex-row justify-end gap-2">
@@ -226,7 +226,7 @@ export function FeedPostCard(props: PostProps) {
         </span>
         {showImage && (
           <div
-            className="max-md:-mx-4 flex flex-col relative overflow-hidden"
+            className="max-md:-mx-3.5 flex flex-col relative overflow-hidden"
             onClick={() => {
               if (!removeBlur && props.detailView) {
                 setRemoveBlur(true);
