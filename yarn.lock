@@ -10422,10 +10422,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lemmy-v3@npm:@fedihosting-foundation-forks/lemmy-js-client@0.19.9-5-g8fc23e7":
-  version: 0.19.9-5-g8fc23e7
-  resolution: "@fedihosting-foundation-forks/lemmy-js-client@npm:0.19.9-5-g8fc23e7"
-  checksum: 10c0/877ccd9e639f9e4a3375594e5e4f3b87de0b80871f9e558b9b1c300d67ccc1cf0a90f7b6019fb001404de8efae29f9f392abef793eddf4df596587db54bb63ce
+"lemmy-v3@npm:lemmy-js-client@0.19.13-beta.1":
+  version: 0.19.13-beta.1
+  resolution: "lemmy-js-client@npm:0.19.13-beta.1"
+  checksum: 10c0/450444395f2df97b085492729d1348123b15616f804a189c294558cdd9f564a64af6fef0808eb1f94cc6e824f92a4b51d564d136709327b9930977223f62abd2
   languageName: node
   linkType: hard
 
@@ -10540,7 +10540,7 @@ __metadata:
     immer: "npm:^10.1.1"
     input-otp: "npm:^1.4.2"
     jsdom: "npm:^26.1.0"
-    lemmy-v3: "npm:@fedihosting-foundation-forks/lemmy-js-client@0.19.9-5-g8fc23e7"
+    lemmy-v3: "npm:lemmy-js-client@0.19.13-beta.1"
     lemmy-v4: "npm:lemmy-js-client@1.0.0-vote-view.0"
     license-checker: "npm:^25.0.1"
     lint-staged: "npm:^15.3.0"
