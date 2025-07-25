@@ -32,6 +32,7 @@ import { useSidebarStore } from "@/src/stores/sidebars";
 import { cn } from "@/src/lib/utils";
 import { AggregateBadges } from "../aggregates";
 import { useConfirmationAlert } from "@/src/lib/hooks/index";
+import { Skeleton } from "../ui/skeleton";
 
 dayjs.extend(localizedFormat);
 
@@ -119,10 +120,6 @@ export function SmallScreenSidebar({
     [openSignal],
   );
 
-  if (!data) {
-    return null;
-  }
-
   return (
     <div>
       <div
@@ -132,9 +129,11 @@ export function SmallScreenSidebar({
         )}
       >
         <div className="flex flex-row items-center flex-1 -mb-1 gap-4">
-          <span className="font-bold">{data.communityView.slug}</span>
-
-          <div className="flex-1" />
+          <div className="font-bold h-7 flex-1">
+            {data?.communityView.slug ?? (
+              <Skeleton className="h-7 flex-1 max-w-56" />
+            )}
+          </div>
 
           <CommunityJoinButton communityName={communityName} />
 
@@ -146,11 +145,15 @@ export function SmallScreenSidebar({
             onOpen={() => setOpenSignal((s) => s + 1)}
           />
         </div>
-        <div className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+        <div className="flex items-center gap-1.5 text-sm h-5 text-muted-foreground">
           <LuCakeSlice />
-          <span>
-            Created {dayjs(data.communityView.createdAt).format("ll")}
-          </span>
+          {data ? (
+            <span>
+              Created {dayjs(data.communityView.createdAt).format("ll")}
+            </span>
+          ) : (
+            <Skeleton className="h-5 flex-1 max-w-32" />
+          )}
         </div>
 
         <AggregateBadges
@@ -203,7 +206,7 @@ export function SmallScreenSidebar({
 
           <section className="p-3 flex flex-col gap-2">
             <h2>MODS</h2>
-            {data.mods?.map((m) => (
+            {data?.mods?.map((m) => (
               <PersonCard key={m.apId} actorId={m.apId} size="sm" />
             ))}
           </section>

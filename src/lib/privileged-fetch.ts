@@ -24,11 +24,19 @@ export function toHttpHeaders(init?: HeadersInit): HttpHeaders {
   return headers;
 }
 
+type CustomFetch = (
+  input: RequestInfo | URL,
+  init?: RequestInit,
+) => Promise<{
+  blob: () => Promise<Blob>;
+  ok: boolean;
+}>;
+
 /**
  * A bare-minimum privileged fetch for images (iOS & Android only).
  * Signature matches `typeof fetch`.
  */
-export const capacitorFetch: typeof fetch = async (...args) => {
+export const capacitorFetch: CustomFetch = async (...args) => {
   // Normalize inputs into a Request
   const [input, init] = args as [RequestInfo, RequestInit?];
   const request = new Request(input, init);
@@ -56,13 +64,15 @@ export const capacitorFetch: typeof fetch = async (...args) => {
   const blob = new Blob([bytes], { type: contentType });
 
   // Wrap in a Fetch-like Response (cast as any to satisfy signature)
-  return new Response(blob, {
+  const res = new Response(blob, {
     status: pluginRes.status,
     headers: pluginRes.headers as Record<string, string>,
-  }) as any;
+  });
+
+  return res;
 };
 
-export const privilegedFetch: typeof fetch = async (...args) => {
+export const privilegedFetch: CustomFetch = async (...args) => {
   if (isCapacitor()) {
     return capacitorFetch(...args);
   }

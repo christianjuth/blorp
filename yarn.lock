@@ -10422,10 +10422,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lemmy-v3@npm:lemmy-js-client@0.20.0-alpha.18":
-  version: 0.20.0-alpha.18
-  resolution: "lemmy-js-client@npm:0.20.0-alpha.18"
-  checksum: 10c0/35cb1358e92f7095ee84850bd294362557cac039daacf7006d3855baea9f2c28b4e6e4125e04c5a333959bbe743de511aae46878bb4c1615d962bd5c168a0396
+"lemmy-v3@npm:lemmy-js-client@0.19.13-beta.1":
+  version: 0.19.13-beta.1
+  resolution: "lemmy-js-client@npm:0.19.13-beta.1"
+  checksum: 10c0/450444395f2df97b085492729d1348123b15616f804a189c294558cdd9f564a64af6fef0808eb1f94cc6e824f92a4b51d564d136709327b9930977223f62abd2
   languageName: node
   linkType: hard
 
@@ -10540,7 +10540,7 @@ __metadata:
     immer: "npm:^10.1.1"
     input-otp: "npm:^1.4.2"
     jsdom: "npm:^26.1.0"
-    lemmy-v3: "npm:lemmy-js-client@0.20.0-alpha.18"
+    lemmy-v3: "npm:lemmy-js-client@0.19.13-beta.1"
     lemmy-v4: "npm:lemmy-js-client@1.0.0-vote-view.0"
     license-checker: "npm:^25.0.1"
     lint-staged: "npm:^15.3.0"
