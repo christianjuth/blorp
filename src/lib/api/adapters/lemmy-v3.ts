@@ -417,7 +417,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
       posts: posts.posts.map((p) => ({
         post: convertPost(p),
         creator: convertPerson({ person: p.creator }),
-        /* community:  */
+        community: convertCommunity({ community: p.community }),
       })),
     };
   }

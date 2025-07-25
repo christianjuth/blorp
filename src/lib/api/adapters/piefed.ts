@@ -799,6 +799,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         posts: data.posts.map((post) => ({
           post: convertPost(post),
           creator: convertPerson({ person: post.creator }, "partial"),
+          community: convertCommunity({ community: post.community }, "partial"),
         })),
       };
     } catch (err) {

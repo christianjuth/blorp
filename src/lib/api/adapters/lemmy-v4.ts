@@ -68,25 +68,25 @@ const DEFAULT_HEADERS = {
 };
 
 function convertCommunity(
-  communityView: lemmyV4.CommunityView,
+  communityView: Pick<lemmyV4.CommunityView, "community" | "community_actions">,
 ): Schemas.Community {
   const { community } = communityView;
   return {
-    createdAt: communityView.community.published_at,
-    id: communityView.community.id,
-    apId: communityView.community.ap_id,
+    createdAt: community.published_at,
+    id: community.id,
+    apId: community.ap_id,
     slug: createSlug({ apId: community.ap_id, name: community.name }).slug,
-    icon: communityView.community.icon ?? null,
-    banner: communityView.community.banner ?? null,
-    description: communityView.community.description ?? null,
-    usersActiveDayCount: communityView.community.users_active_day,
-    usersActiveWeekCount: communityView.community.users_active_week,
-    usersActiveMonthCount: communityView.community.users_active_month,
-    usersActiveHalfYearCount: communityView.community.users_active_half_year,
-    postCount: communityView.community.posts,
-    commentCount: communityView.community.comments,
-    subscriberCount: communityView.community.subscribers,
-    subscribersLocalCount: communityView.community.subscribers_local,
+    icon: community.icon ?? null,
+    banner: community.banner ?? null,
+    description: community.description ?? null,
+    usersActiveDayCount: community.users_active_day,
+    usersActiveWeekCount: community.users_active_week,
+    usersActiveMonthCount: community.users_active_month,
+    usersActiveHalfYearCount: community.users_active_half_year,
+    postCount: community.posts,
+    commentCount: community.comments,
+    subscriberCount: community.subscribers,
+    subscribersLocalCount: community.subscribers_local,
     subscribed: (() => {
       switch (communityView.community_actions?.follow_state) {
         case "Pending":
@@ -382,6 +382,10 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
       posts: posts.posts.map((p) => ({
         post: convertPost(p),
         creator: convertPerson({ person: p.creator }),
+        community: convertCommunity({
+          community: p.community,
+          community_actions: p.community_actions,
+        }),
       })),
     };
   }

@@ -210,12 +210,10 @@ export default function CommunityFeed() {
             stickyHeaderIndices={[1]}
             header={[
               <Fragment key="community-header">
-                {communityName && (
-                  <SmallScreenSidebar
-                    communityName={communityName}
-                    actorId={community.data?.community.apId}
-                  />
-                )}
+                <SmallScreenSidebar
+                  communityName={communityName}
+                  actorId={community.data?.community.apId}
+                />
                 <ContentGutters className="max-md:hidden pt-4">
                   <CommunityBanner communityName={communityName} />
                   <></>
