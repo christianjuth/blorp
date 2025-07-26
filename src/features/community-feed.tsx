@@ -14,11 +14,9 @@ import { useCommunity, useMostRecentPost, usePosts } from "../lib/api";
 import { PostReportProvider } from "../components/posts/post-report";
 import _ from "lodash";
 import {
-  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
-  IonIcon,
   IonPage,
   IonSearchbar,
   IonToolbar,
@@ -33,7 +31,6 @@ import { PostSortButton } from "../components/lemmy-sort";
 import { PageTitle } from "../components/page-title";
 import { useLinkContext } from "../routing/link-context";
 import { Link } from "@/src/routing/index";
-import { searchOutline } from "ionicons/icons";
 import { useFiltersStore } from "../stores/filters";
 import { Button } from "../components/ui/button";
 import { dispatchScrollEvent } from "../lib/scroll-events";
@@ -44,6 +41,8 @@ import { CommunityFeedSortBar } from "../components/communities/community-feed-s
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { getAccountSite, useAuth } from "../stores/auth";
 import { usePostsStore } from "../stores/posts";
+import { Search } from "../components/icons";
+import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 
 const EMPTY_ARR: never[] = [];
 
@@ -129,7 +128,7 @@ export default function CommunityFeed() {
           }
         >
           <IonButtons slot="start" className="gap-2">
-            <IonBackButton text="" />
+            <ToolbarBackButton />
             <ToolbarTitle size="sm" className="md:hidden max-md:text-white">
               {communityName}
             </ToolbarTitle>
@@ -157,10 +156,7 @@ export default function CommunityFeed() {
               }}
               className="text-2xl contents md:hidden"
             >
-              <IonIcon
-                icon={searchOutline}
-                className="text-brand dark:text-muted-foreground"
-              />
+              <Search className="text-brand scale-110 dark:text-muted-foreground" />
             </Link>
             <div className="md:hidden contents">
               <PostSortButton

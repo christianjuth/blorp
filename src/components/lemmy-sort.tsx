@@ -127,7 +127,7 @@ export function CommunitySortSelect() {
       actions={actions}
       selectedValue={communitySort}
       trigger={
-        <div className="text-xl text-muted-foreground">
+        <div className="text-2xl text-muted-foreground">
           {data?.communitySorts.includes(communitySort) ? (
             getIconCommunitySort(communitySort)
           ) : (
@@ -218,7 +218,7 @@ export function CommentSortSelect({
             </div>
           </Button>
         ) : (
-          <div className={cn("text-xl text-brand", className)}>
+          <div className={cn("text-2xl text-muted-foreground", className)}>
             {isValidSort && getIconForSort(commentSort)}
             {!isValidSort && <TbArrowsDownUp />}
           </div>
@@ -321,7 +321,7 @@ export function PostSortButton({
             {isValidSort && getIconForSort(postSort)}
           </Button>
         ) : (
-          <div className={cn("text-xl text-muted-foreground", className)}>
+          <div className={cn("text-2xl text-muted-foreground", className)}>
             {isValidSort && getIconForSort(postSort)}
             {!isValidSort && <TbArrowsDownUp />}
           </div>

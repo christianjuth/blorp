@@ -1,12 +1,10 @@
 import { ContentGutters } from "@/src/components/gutters";
 import _, { parseInt } from "lodash";
 import {
-  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
 } from "@ionic/react";
 import { UserDropdown } from "@/src/components/nav";
@@ -14,12 +12,13 @@ import { PageTitle } from "@/src/components/page-title";
 import { useParams } from "@/src/routing";
 import { getAccountSite, parseAccountInfo, useAuth } from "@/src/stores/auth";
 import NotFound from "../not-found";
-import { createSlug } from "@/src/lib/api/utils";
 import { PersonCard } from "@/src/components/person/person-card";
 import { CommunityCard } from "@/src/components/communities/community-card";
 import { SectionItem, Section } from "./shared-components";
 import { useBlockCommunity, useBlockPerson } from "@/src/lib/api";
 import { useConfirmationAlert } from "@/src/lib/hooks/index";
+import { ToolbarBackButton } from "@/src/components/toolbar/toolbar-back-button";
+import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 
 export default function SettingsPage() {
   const getConfirmation = useConfirmationAlert();
@@ -48,10 +47,10 @@ export default function SettingsPage() {
       <PageTitle>{slug ?? "Person"}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start">
-            <IonBackButton text="Settings" />
+          <IonButtons slot="start" className="gap-2">
+            <ToolbarBackButton />
+            <ToolbarTitle size="sm">{slug ?? "Person"}</ToolbarTitle>
           </IonButtons>
-          <IonTitle data-tauri-drag-region>{slug ?? "Person"}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>
@@ -62,26 +61,23 @@ export default function SettingsPage() {
           <div className="flex flex-col gap-8">
             <Section title="BLOCKED USERS">
               {personBlocks?.map((p) => {
-                // @ts-expect-error
-                const target: Person = p.target;
-                const slug = createSlug(target);
                 return (
                   <SectionItem
-                    key={target.actorId}
+                    key={p.apId}
                     onClick={() =>
                       getConfirmation({
-                        message: `Unblock ${slug?.slug ?? "person"}`,
+                        message: `Unblock ${p.slug}`,
                       }).then(() =>
                         blockPerson.mutate({
-                          personId: target.person_id,
+                          personId: p.id,
                           block: false,
                         }),
                       )
                     }
                   >
                     <PersonCard
-                      actorId={target.actor_id}
-                      person={target}
+                      actorId={p.apId}
+                      person={p}
                       size="sm"
                       disableLink
                     />
@@ -92,21 +88,15 @@ export default function SettingsPage() {
 
             <Section title="BLOCKED COMMUNITIES">
               {community_blocks?.map((c) => {
-                // @ts-expect-error
-                const target: Community = c.community;
-                const slug = createSlug({
-                  apId: target.actor_id,
-                  name: target.name,
-                });
                 return (
                   <SectionItem
                     key={c.apId}
                     onClick={() =>
                       getConfirmation({
-                        message: `Unblock ${slug?.slug ?? "community"}`,
+                        message: `Unblock ${c.slug}`,
                       }).then(() =>
                         blockCommunity.mutate({
-                          communityId: target.id,
+                          communityId: c.id,
                           block: false,
                         }),
                       )

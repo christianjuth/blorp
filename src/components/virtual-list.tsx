@@ -221,6 +221,7 @@ function VirtualListInternal<T>({
           <div
             key={virtualItem.key}
             data-index={virtualItem.index}
+            data-is-sticky-header={isStuck}
             ref={rowVirtualizer.measureElement}
             className={cn(isStuck && "max-md:bg-background")}
             style={

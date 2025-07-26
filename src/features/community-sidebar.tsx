@@ -3,12 +3,10 @@ import { useEffect } from "react";
 import { useCommunity } from "../lib/api";
 import _ from "lodash";
 import {
-  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
 } from "@ionic/react";
 import { useParams } from "@/src/routing/index";
@@ -18,6 +16,8 @@ import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
 import { useLinkContext } from "../routing/link-context";
 import { ContentGutters } from "../components/gutters";
+import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
+import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 export default function CommunityFeed() {
   const linkCtx = useLinkContext();
   const { communityName } = useParams(
@@ -41,10 +41,10 @@ export default function CommunityFeed() {
       <PageTitle>{communityName}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start">
-            <IonBackButton text="" />
+          <IonButtons slot="start" className="gap-2">
+            <ToolbarBackButton />
+            <ToolbarTitle size="sm">{communityName}</ToolbarTitle>
           </IonButtons>
-          <IonTitle data-tauri-drag-region>{communityName}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>
