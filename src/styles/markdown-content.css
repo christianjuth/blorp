@@ -83,7 +83,7 @@
 }
 
 .markdown-content hr {
-  @apply border-border border-t-1 my-3;
+  @apply border-border border-t my-3;
 }
 
 .markdown-content table {

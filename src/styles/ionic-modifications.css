@@ -21,7 +21,7 @@ ion-content#main {
 }
 
 ion-back-button {
-  --color: var(--brand);
+  --color: var(--color-foreground);
 }
 
 ion-toggle {

@@ -77,12 +77,7 @@ function Mention({
     .join(".");
   return (
     <ContentGutters className="px-0">
-      <div
-        className={cn(
-          "flex-1 max-md:px-3.5",
-          !noBorder && "border-b-8 max-md:border-border/50 md:border-b",
-        )}
-      >
+      <div className={cn("flex-1 max-md:px-3.5", !noBorder && "border-b")}>
         <div className="flex my-2.5 gap-3 items-start">
           <BadgeIcon
             icon={<Person className="h-full w-full text-muted-foreground" />}
@@ -159,12 +154,7 @@ function Reply({
     .join(".");
   return (
     <ContentGutters className="px-0">
-      <div
-        className={cn(
-          "flex-1 max-md:px-3.5",
-          !noBorder && "border-b-8 max-md:border-border/50 md:border-b",
-        )}
-      >
+      <div className={cn("flex-1 max-md:px-3.5", !noBorder && "border-b")}>
         <div className="flex my-2.5 gap-3 items-start">
           <BadgeIcon
             icon={<Message className="h-full w-full text-muted-foreground" />}

@@ -237,7 +237,12 @@ export function PostByline({
           </CommunityHoverCard>
         )}
         {showCreator && (
-          <div className="flex flex-row text-xs text-muted-foreground gap-1 items-center h-5">
+          <div
+            className={cn(
+              "flex flex-row text-xs text-muted-foreground gap-1 items-center h-5",
+              !showCommunity && "text-white",
+            )}
+          >
             <PersonHoverCard actorId={post.creatorApId} asChild>
               <Link
                 to={`${linkCtx.root}u/:userId`}
@@ -247,7 +252,7 @@ export function PostByline({
                 onClickCapture={onNavigate}
               >
                 {creatorName}
-                <i>@{creatorHost}</i>
+                <i className="text-muted-foreground">@{creatorHost}</i>
               </Link>
             </PersonHoverCard>
             {isMod && !isAdmin && (
@@ -266,7 +271,10 @@ export function PostByline({
               <CakeDay date={creator.createdAt} className="text-brand" />
             )}
             {!showCommunity && (
-              <RelativeTime time={post.createdAt} className="ml-2" />
+              <RelativeTime
+                time={post.createdAt}
+                className="ml-2 text-muted-foreground"
+              />
             )}
           </div>
         )}

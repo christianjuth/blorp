@@ -11,7 +11,6 @@ import { cn } from "@/src/lib/utils";
 import { useParams } from "@/src/routing";
 import { parseAccountInfo, useAuth } from "@/src/stores/auth";
 import {
-  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
@@ -33,6 +32,7 @@ import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 import { PageTitle } from "@/src/components/page-title";
 import LoginRequired from "../login-required";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
+import { ToolbarBackButton } from "@/src/components/toolbar/toolbar-back-button";
 
 dayjs.extend(updateLocale);
 
@@ -114,7 +114,7 @@ export default function Messages() {
       <IonHeader>
         <IonToolbar>
           <IonButtons className="gap-2">
-            <IonBackButton text="" />
+            <ToolbarBackButton />
             <ToolbarTitle size="sm">
               {(person ? person.slug : null) ?? "Loading..."}
             </ToolbarTitle>

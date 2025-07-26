@@ -18,7 +18,6 @@ import { useProfilesStore } from "../stores/profiles";
 import { usePostsStore } from "../stores/posts";
 import { Link, resolveRoute, useParams } from "@/src/routing/index";
 import {
-  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
@@ -36,6 +35,8 @@ import z from "zod";
 import { PersonSidebar } from "../components/person/person-sidebar";
 import { PersonActionMenu } from "../components/person/person-action-menu";
 import { useHistory } from "react-router";
+import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
+import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item = string;
@@ -159,10 +160,10 @@ export default function User() {
       <PageTitle>{person?.slug ?? "Person"}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start">
-            <IonBackButton text="" />
+          <IonButtons slot="start" className="gap-2">
+            <ToolbarBackButton />
+            <ToolbarTitle>{person?.slug ?? "Person"}</ToolbarTitle>
           </IonButtons>
-          <IonTitle data-tauri-drag-region>{person?.slug ?? "Person"}</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

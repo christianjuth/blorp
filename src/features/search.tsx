@@ -20,7 +20,6 @@ import { usePostsStore } from "../stores/posts";
 import { SearchType } from "lemmy-v3";
 import { Link, useParams } from "@/src/routing/index";
 import {
-  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
@@ -43,6 +42,7 @@ import { MarkdownRenderer } from "../components/markdown/renderer";
 import { RelativeTime } from "../components/relative-time";
 import { Message, Person } from "../components/icons";
 import { Separator } from "../components/ui/separator";
+import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 
 const EMPTY_ARR: never[] = [];
 
@@ -199,7 +199,7 @@ export default function SearchFeed({
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
           <IonButtons slot="start">
-            <IonBackButton text="" />
+            <ToolbarBackButton />
           </IonButtons>
           <IonSearchbar
             mode="ios"

@@ -179,8 +179,8 @@ export function FeedPostCard(props: PostProps) {
     <div
       data-testid="post-card"
       className={cn(
-        "flex-1 pt-4 gap-2 flex flex-col dark:border-zinc-800 max-md:px-3.5 overflow-x-hidden",
-        props.detailView ? "pb-2" : "border-b pb-4",
+        "flex-1 py-4 gap-2 flex flex-col max-md:px-3.5 overflow-x-hidden",
+        props.detailView ? "max-md:bg-background" : "border-b",
       )}
     >
       <PostByline
@@ -197,7 +197,7 @@ export function FeedPostCard(props: PostProps) {
           props.featuredContext === "user" ||
           props.featuredContext === "search"
             ? true
-            : (props.detailView ?? false)
+            : false
         }
         isMod={props.modApIds?.includes(post.creatorApId)}
         isAdmin={props.adminApIds?.includes(post.creatorApId)}
@@ -311,26 +311,22 @@ export function FeedPostCard(props: PostProps) {
       {props.detailView && post.body && !post.deleted && (
         <MarkdownRenderer markdown={post.body} className="pt-2" />
       )}
-      {!props.detailView && (
-        <div className="flex flex-row items-center justify-end gap-1 pt-1">
-          <PostShareButton postApId={props.apId} />
-          <div className="flex-1" />
-          <PostCommentsButton
-            commentsCount={post.commentsCount}
-            communityName={post.communitySlug}
-            postApId={encodedApId}
-          />
-          <Voting apId={post.apId} score={score} myVote={myVote} />
-        </div>
-      )}
+      <div className="flex flex-row items-center justify-end gap-2.5 pt-1">
+        <PostShareButton postApId={props.apId} />
+        <div className="flex-1" />
+        <PostCommentsButton
+          commentsCount={post.commentsCount}
+          communityName={post.communitySlug}
+          postApId={encodedApId}
+        />
+        <Voting apId={post.apId} score={score} myVote={myVote} />
+      </div>
     </div>
   );
 }
 
 export function PostBottomBar({
   apId,
-  commentsCount,
-  onReply,
 }: {
   apId: string;
   commentsCount: number;
@@ -344,21 +340,17 @@ export function PostBottomBar({
   if (!postView) {
     return null;
   }
-
-  const diff =
-    typeof postView?.optimisticMyVote === "number"
-      ? postView?.optimisticMyVote - (postView?.myVote ?? 0)
-      : 0;
-  const score = postView.upvotes - postView.downvotes + diff;
-
-  const myVote = postView?.optimisticMyVote ?? postView?.myVote ?? 0;
-
   return (
-    <div className="py-1.5 md:py-2 flex flex-row items-center gap-1 bg-background border-b-[.5px] max-md:px-3.5">
-      <PostShareButton postApId={apId} />
-      <div className="flex-1" />
-      <PostCommentsButton commentsCount={commentsCount} onClick={onReply} />
-      <Voting apId={apId} score={score} myVote={myVote} />
+    <div className="flex flex-row gap-3 bg-background border-b max-md:border-b-[.5px] opacity-0 [[data-is-sticky-header=true]_&]:opacity-100 max-md: max-md:pl-3.5 absolute top-0 inset-x-0 transition-opacity">
+      <span className="flex-1 py-2 font-semibold line-clamp-2 overflow-hidden text-sm">
+        {postView.title}
+      </span>
+      {postView.thumbnailUrl && (
+        <img
+          src={postView.thumbnailUrl}
+          className="w-[58px] aspect-square object-cover"
+        />
+      )}
     </div>
   );
 }
