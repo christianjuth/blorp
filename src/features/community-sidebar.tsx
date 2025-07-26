@@ -9,7 +9,7 @@ import {
   IonPage,
   IonToolbar,
 } from "@ionic/react";
-import { useParams } from "@/src/routing/index";
+import { Link, useParams } from "@/src/routing/index";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
 import { UserDropdown } from "../components/nav";
@@ -19,6 +19,7 @@ import { ContentGutters } from "../components/gutters";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { useMedia } from "../lib/hooks";
+import { Search } from "../components/icons";
 
 export default function CommunityFeed() {
   const media = useMedia();
@@ -58,7 +59,16 @@ export default function CommunityFeed() {
             <ToolbarBackButton />
             <ToolbarTitle size="sm">{communityName}</ToolbarTitle>
           </IonButtons>
-          <IonButtons slot="end">
+          <IonButtons slot="end" className="gap-3.5 md:gap-4.5">
+            <Link
+              to={`${linkCtx.root}c/:communityName/s`}
+              params={{
+                communityName,
+              }}
+              className="text-2xl contents md:hidden"
+            >
+              <Search className="text-brand scale-110 dark:text-muted-foreground" />
+            </Link>
             <UserDropdown />
           </IonButtons>
         </IonToolbar>

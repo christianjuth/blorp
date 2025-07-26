@@ -24,6 +24,7 @@ import removeMd from "remove-markdown";
 import { LuRepeat2 } from "react-icons/lu";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import { Separator } from "../ui/separator";
+import { useMedia } from "@/src/lib/hooks";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -82,6 +83,8 @@ export function PostCardSkeleton(props: {
 }
 
 export function FeedPostCard(props: PostProps) {
+  const media = useMedia();
+
   const showNsfw =
     useAuth((s) => getAccountSite(s.getSelectedAccount())?.showNsfw) ?? false;
   const blurNsfw =
@@ -197,7 +200,7 @@ export function FeedPostCard(props: PostProps) {
           props.featuredContext === "user" ||
           props.featuredContext === "search"
             ? true
-            : false
+            : props.detailView && media.md
         }
         isMod={props.modApIds?.includes(post.creatorApId)}
         isAdmin={props.adminApIds?.includes(post.creatorApId)}
@@ -341,10 +344,10 @@ export function PostBottomBar({
     return null;
   }
   return (
-    <div className="flex flex-row gap-3 bg-background border-b max-md:border-b-[.5px] opacity-0 [[data-is-sticky-header=true]_&]:opacity-100 max-md: max-md:pl-3.5 absolute top-0 inset-x-0 transition-opacity">
-      <span className="flex-1 py-2 font-semibold line-clamp-2 overflow-hidden text-sm">
+    <div className="md:hidden flex flex-row gap-3 bg-background border-b max-md:border-b-[.5px] opacity-0 [[data-is-sticky-header=true]_&]:opacity-100 max-md: max-md:pl-3.5 absolute top-0 inset-x-0 transition-opacity">
+      <div className="flex-1 my-2 font-semibold line-clamp-2 text-sm overflow-hidden">
         {postView.title}
-      </span>
+      </div>
       {postView.thumbnailUrl && (
         <img
           src={postView.thumbnailUrl}

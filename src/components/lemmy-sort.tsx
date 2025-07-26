@@ -209,13 +209,10 @@ export function CommentSortSelect({
               "text-sm font-medium text-muted-foreground hover:text-brand",
               className,
             )}
-            asChild
           >
-            <div>
-              {humanizeText(commentSort)}
-              {data?.commentSorts.includes(commentSort) &&
-                getIconCommentSort(commentSort)}
-            </div>
+            {humanizeText(commentSort)}
+            {data?.commentSorts.includes(commentSort) &&
+              getIconCommentSort(commentSort)}
           </Button>
         ) : (
           <div className={cn("text-2xl text-muted-foreground", className)}>
