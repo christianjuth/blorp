@@ -72,8 +72,30 @@ export async function shareImage(name: string, imageUrl: string) {
   }
 }
 
-export function shareRoute(route: string) {
-  return Share.share({
-    url: `https://blorpblorp.xyz${route}`,
-  });
+export async function shareRoute(route: string) {
+  const url = `https://blorpblorp.xyz${route}`;
+  const canShare = await Share.canShare();
+  console.log(navigator.share);
+
+  if (canShare.value) {
+    try {
+      await Share.share({ url });
+      return;
+    } catch (e) {
+      console.error("Error sharing URL:", e);
+    }
+  }
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ url });
+      return;
+    } catch (e) {
+      console.error("Error sharing URL:", e);
+    }
+  }
+
+  // Fallback to clipboard copy
+  await navigator.clipboard.writeText(url);
+  console.log("URL copied to clipboard");
 }
