@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 import { useAuth } from "@/src/stores/auth";
 import { AggregateBadges } from "../aggregates";
+import { CommunityJoinButton } from "./community-join-button";
 
 dayjs.extend(localizedFormat);
 
@@ -59,6 +60,7 @@ export function CommunityHoverCard({
             Comments: community?.commentCount,
           }}
         />
+        {community && <CommunityJoinButton communityName={communityName} />}
       </HoverCardContent>
     </HoverCard>
   );
