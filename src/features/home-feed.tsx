@@ -35,6 +35,8 @@ import { PageTitle } from "../components/page-title";
 import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
 import { getAccountSite, useAuth } from "../stores/auth";
 import { usePostsStore } from "../stores/posts";
+import { Search } from "../components/icons";
+import { usePathname } from "../routing/hooks";
 
 const EMPTY_ARR: never[] = [];
 
@@ -111,7 +113,8 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
         header.style.transform = `translate(0, -${
           headerAnimateRef.current * headerHeight
         }px)`;
-        toolbar.style.opacity = String((1 - headerAnimateRef.current) ** 3);
+        header.style.opacity = String(1 - headerAnimateRef.current);
+        toolbar.style.opacity = String(1 - headerAnimateRef.current);
         tabBar.style.transform = `translate(0, ${
           tabBarAnimateRef.current * 100
         }%)`;
@@ -127,6 +130,7 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
       tabBarAnimateRef.current = 0;
       if (header && tabBar && toolbar) {
         header.style.transform = `translate(0)`;
+        header.style.opacity = "1";
         toolbar.style.opacity = "1";
         tabBar.style.transform = `translate(0)`;
       }
@@ -222,7 +226,7 @@ export default function HomeFeed() {
               to="/home/s"
               className="text-2xl contents text-muted-foreground md:hidden"
             >
-              <IonIcon icon={searchOutline} />
+              <Search className="scale-110" />
             </Link>
             <div className="md:hidden contents">
               <PostSortButton align="end" />

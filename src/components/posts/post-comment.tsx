@@ -259,10 +259,8 @@ export function PostComment({
       ref={ref}
       className={cn(
         "flex-1 pt-2",
-        level === 0 && "max-md:px-3.5 py-3",
-        level === 0 &&
-          !singleCommentThread &&
-          "border-t-8 max-md:border-border/50 md:border-t",
+        level === 0 && "max-md:px-3.5 py-3 bg-background",
+        level === 0 && !singleCommentThread && "mt-2 md:border-t",
       )}
     >
       {singleCommentThread && level === 0 && (

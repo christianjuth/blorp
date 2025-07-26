@@ -3,7 +3,7 @@ import { StatusBar } from "@capacitor/status-bar";
 import { SafeArea, SafeAreaInsets } from "capacitor-plugin-safe-area";
 import { Capacitor } from "@capacitor/core";
 import { TextZoom } from "@capacitor/text-zoom";
-import { isAndroid } from "./device";
+import { isAndroid, isCapacitor } from "./device";
 import _ from "lodash";
 
 function registerSafeArea() {
@@ -67,19 +67,23 @@ async function accesibleTextSize() {
 }
 
 export function applyCapacitorFixes() {
+  // This one is special in that we call
+  // is even when were not a native app
   registerSafeArea();
 
-  const mightChange = () => {
-    accesibleTextSize();
-  };
+  if (isCapacitor()) {
+    const mightChange = () => {
+      accesibleTextSize();
+    };
 
-  mightChange();
-  const debouncedRehydrate = _.debounce(mightChange, 50);
+    mightChange();
+    const debouncedRehydrate = _.debounce(mightChange, 50);
 
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) {
-      debouncedRehydrate();
-    }
-  });
-  window.addEventListener("focus", debouncedRehydrate);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        debouncedRehydrate();
+      }
+    });
+    window.addEventListener("focus", debouncedRehydrate);
+  }
 }

@@ -11,7 +11,7 @@ export function CommunityFeedSortBar({
 }) {
   return (
     <ContentGutters className="max-md:hidden">
-      <div className="flex flex-row md:h-12 md:border-b-[0.5px] md:bg-background flex-1 items-center gap-2">
+      <div className="flex flex-row md:h-12 md:border-b md:bg-background flex-1 items-center gap-2">
         <PostSortButton align="start" variant="button" />
         <div className="flex-1" />
         <CommunityCreatePost
