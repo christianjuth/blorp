@@ -105,7 +105,7 @@ function ReplyToPost({ postApId }: { postApId: string }) {
           <InlineCommentReply state={postReplyState} autoFocus={media.md} />
         ) : (
           <button
-            className="py-2 max-md:py-4.5 px-3 md:border md:rounded-2xl w-full text-left shadow-xs text-muted-foreground md:text-sm"
+            className="py-2 max-md:py-4.5 md:px-3 md:border md:rounded-2xl w-full text-left text-muted-foreground md:text-sm"
             onClick={() =>
               loadCommentIntoEditor({
                 postApId,
@@ -280,7 +280,10 @@ export default function Post() {
             />
           </form>
           <IonButtons slot="end" className="gap-3.5">
-            <CommentSortSelect variant="icon" className="md:hidden" />
+            <CommentSortSelect
+              variant="icon"
+              className="text-white dark:text-muted-foreground md:hidden"
+            />
             <UserDropdown />
           </IonButtons>
         </IonToolbar>

@@ -240,7 +240,7 @@ export function PostByline({
           <div
             className={cn(
               "flex flex-row text-xs text-muted-foreground gap-1 items-center h-5",
-              !showCommunity && "text-white",
+              !showCommunity && "text-foreground",
             )}
           >
             <PersonHoverCard actorId={post.creatorApId} asChild>

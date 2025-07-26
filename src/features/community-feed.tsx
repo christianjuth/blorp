@@ -128,7 +128,7 @@ export default function CommunityFeed() {
         >
           <IonButtons slot="start" className="gap-2">
             <ToolbarBackButton />
-            <ToolbarTitle size="sm" className="md:hidden max-md:text-white">
+            <ToolbarTitle size="sm" className="md:hidden">
               {communityName}
             </ToolbarTitle>
           </IonButtons>
@@ -220,7 +220,7 @@ export default function CommunityFeed() {
               />,
               <Separator
                 key="separator"
-                className="[[data-is-sticky-header=false]_&]:opacity-1"
+                className="[[data-is-sticky-header=false]_&]:opacity-1 data-[orientation=horizontal]:h-[0.5px]"
               />,
             ]}
             renderItem={({ item }) => {

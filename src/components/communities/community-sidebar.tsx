@@ -135,12 +135,11 @@ export function SmallScreenSidebar({
     <div>
       <div
         className={cn(
-          "flex flex-col gap-3 pb-4 flex-1 px-3.5",
+          "flex flex-col gap-3.5 pt-1.5 pb-2 flex-1 px-3.5",
           !expanded && "md:hidden",
         )}
       >
         <AggregateBadges
-          className="mt-1"
           aggregates={{
             ...(expanded
               ? {
@@ -159,7 +158,12 @@ export function SmallScreenSidebar({
 
         {!expanded && createdAt}
 
-        <div className="flex flex-row items-center flex-1 -mb-1 gap-5">
+        <div
+          className={cn(
+            "flex flex-row items-center flex-1 gap-5",
+            !expanded && "-mt-2",
+          )}
+        >
           {expanded ? (
             createdAt
           ) : (
@@ -168,7 +172,7 @@ export function SmallScreenSidebar({
               params={{
                 communityName,
               }}
-              className="text-brand"
+              className="text-brand self-end"
             >
               Show more
             </Link>
@@ -188,7 +192,12 @@ export function SmallScreenSidebar({
         </div>
       </div>
 
-      <Separator className={cn(!expanded && "md:hidden")} />
+      <Separator
+        className={cn(
+          "data-[orientation=horizontal]:h-[0.5px]",
+          !expanded && "md:hidden",
+        )}
+      />
 
       {expanded && (
         <>
