@@ -18,7 +18,11 @@ import { useLinkContext } from "../routing/link-context";
 import { ContentGutters } from "../components/gutters";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
+import { useMedia } from "../lib/hooks";
+
 export default function CommunityFeed() {
+  const media = useMedia();
+
   const linkCtx = useLinkContext();
   const { communityName } = useParams(
     `${linkCtx.root}c/:communityName/sidebar`,
@@ -40,7 +44,16 @@ export default function CommunityFeed() {
     <IonPage>
       <PageTitle>{communityName}</PageTitle>
       <IonHeader>
-        <IonToolbar data-tauri-drag-region>
+        <IonToolbar
+          data-tauri-drag-region
+          style={
+            media.maxMd
+              ? {
+                  "--border-color": "var(--color-background)",
+                }
+              : undefined
+          }
+        >
           <IonButtons slot="start" className="gap-2">
             <ToolbarBackButton />
             <ToolbarTitle size="sm">{communityName}</ToolbarTitle>

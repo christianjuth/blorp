@@ -36,13 +36,14 @@ import { Button } from "../components/ui/button";
 import { dispatchScrollEvent } from "../lib/scroll-events";
 import { LuLoaderCircle } from "react-icons/lu";
 import { FaArrowUp } from "react-icons/fa6";
-import { useMedia, useTheme } from "../lib/hooks";
+import { useMedia } from "../lib/hooks";
 import { CommunityFeedSortBar } from "../components/communities/community-feed-sort-bar";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { getAccountSite, useAuth } from "../stores/auth";
 import { usePostsStore } from "../stores/posts";
 import { Search } from "../components/icons";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
+import { Separator } from "../components/ui/separator";
 
 const EMPTY_ARR: never[] = [];
 
@@ -57,7 +58,6 @@ const Post = memo((props: PostProps) => (
 ));
 
 export default function CommunityFeed() {
-  const theme = useTheme();
   const media = useMedia();
 
   const linkCtx = useLinkContext();
@@ -119,10 +119,9 @@ export default function CommunityFeed() {
         <IonToolbar
           data-tauri-drag-region
           style={
-            media.maxMd && theme === "light"
+            media.maxMd
               ? {
-                  "--background": "var(--color-brand-secondary)",
-                  "--border-color": "var(--color-brand-secondary)",
+                  "--border-color": "var(--color-background)",
                 }
               : undefined
           }
@@ -203,7 +202,7 @@ export default function CommunityFeed() {
                 ? [NO_ITEMS]
                 : data
             }
-            stickyHeaderIndices={[1]}
+            stickyHeaderIndices={[1, 2]}
             header={[
               <Fragment key="community-header">
                 <SmallScreenSidebar
@@ -218,6 +217,10 @@ export default function CommunityFeed() {
               <CommunityFeedSortBar
                 communityName={communityName}
                 key="community-sort-bar"
+              />,
+              <Separator
+                key="separator"
+                className="[[data-is-sticky-header=false]_&]:opacity-1"
               />,
             ]}
             renderItem={({ item }) => {
