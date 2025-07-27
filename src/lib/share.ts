@@ -6,6 +6,8 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 import { privilegedFetch } from "./privileged-fetch";
 import { env } from "../env";
+import _ from "lodash";
+import { useEffect, useState } from "react";
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -72,30 +74,42 @@ export async function shareImage(name: string, imageUrl: string) {
   }
 }
 
+const canShare = _.memoize(async () => {
+  return _.isFunction(navigator.share) || (await Share.canShare()).value;
+});
+
+export function useCanShare() {
+  const [share, setShare] = useState(false);
+  useEffect(() => {
+    canShare().then(setShare);
+  }, []);
+  return share;
+}
+
+async function copyToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (e) {
+    console.error("Error copying URL:", e);
+  }
+}
+
+export async function copyRouteToClipboard(route: string) {
+  const url = `https://blorpblorp.xyz${route}`;
+  copyToClipboard(url);
+}
+
 export async function shareRoute(route: string) {
   const url = `https://blorpblorp.xyz${route}`;
-  const canShare = await Share.canShare();
-  console.log(navigator.share);
-
-  if (canShare.value) {
-    try {
+  try {
+    const canShare = await Share.canShare();
+    if (canShare.value) {
       await Share.share({ url });
-      return;
-    } catch (e) {
-      console.error("Error sharing URL:", e);
-    }
-  }
-
-  if (navigator.share) {
-    try {
+    } else if (_.isFunction(navigator.share)) {
+      // Probably unnecessary since Share.share uses navigator.share
       await navigator.share({ url });
-      return;
-    } catch (e) {
-      console.error("Error sharing URL:", e);
     }
+  } catch (e) {
+    console.error("Error sharing URL:", e);
   }
-
-  // Fallback to clipboard copy
-  await navigator.clipboard.writeText(url);
-  console.log("URL copied to clipboard");
 }

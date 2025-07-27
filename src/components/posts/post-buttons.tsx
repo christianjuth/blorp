@@ -20,7 +20,12 @@ import { getAccountSite, useAuth } from "@/src/stores/auth";
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import { Share } from "../icons";
 import { usePostsStore } from "@/src/stores/posts";
-import { shareImage, shareRoute } from "@/src/lib/share";
+import {
+  copyRouteToClipboard,
+  shareImage,
+  shareRoute,
+  useCanShare,
+} from "@/src/lib/share";
 import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { encodeApId } from "@/src/lib/api/utils";
 import { getPostEmbed } from "@/src/lib/post";
@@ -216,24 +221,36 @@ export function PostShareButton({
 
   const linkCtx = useLinkContext();
 
+  const canShare = useCanShare();
+
   const actions: ActionMenuProps<string>["actions"] = useMemo(() => {
     if (post) {
+      const route = resolveRoute(
+        `${linkCtx.root}c/:communityName/posts/:post`,
+        {
+          communityName: post.communitySlug,
+          post: encodeApId(post.apId),
+        },
+      );
+
       const thumbnailUrl = embed?.thumbnail;
       return [
+        ...(canShare
+          ? [
+              {
+                text: "Share link to post",
+                onClick: () => shareRoute(route),
+              },
+            ]
+          : []),
         {
-          text: "Link to post",
-          onClick: () =>
-            shareRoute(
-              resolveRoute(`${linkCtx.root}c/:communityName/posts/:post`, {
-                communityName: post.communitySlug,
-                post: encodeApId(post.apId),
-              }),
-            ),
+          text: "Copy link to post",
+          onClick: () => copyRouteToClipboard(route),
         },
         ...(thumbnailUrl && embed.type === "image" && !isWeb()
           ? [
               {
-                text: "Image",
+                text: "Share image",
                 onClick: () => shareImage(post.title, thumbnailUrl),
               },
             ]
@@ -242,7 +259,7 @@ export function PostShareButton({
     }
 
     return [];
-  }, [post]);
+  }, [post, canShare]);
 
   return (
     <ActionMenu
