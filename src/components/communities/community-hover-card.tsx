@@ -40,7 +40,7 @@ export function CommunityHoverCard({
       <HoverCardTrigger asChild>{children}</HoverCardTrigger>
       <HoverCardContent
         align="start"
-        className="flex flex-col gap-3 py-4 flex-1"
+        className="flex flex-col gap-2.5 py-4 flex-1"
       >
         <span className="font-semibold text-sm">{community?.slug}</span>
 
@@ -60,7 +60,12 @@ export function CommunityHoverCard({
             Comments: community?.commentCount,
           }}
         />
-        {community && <CommunityJoinButton communityName={communityName} />}
+        {community && (
+          <CommunityJoinButton
+            communityName={communityName}
+            className="mt-1.5"
+          />
+        )}
       </HoverCardContent>
     </HoverCard>
   );
