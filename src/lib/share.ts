@@ -78,6 +78,8 @@ const canShare = _.memoize(async () => {
   return _.isFunction(navigator.share) || (await Share.canShare()).value;
 });
 
+const origin = window.location.origin || "https://blorpblorp.xyz";
+
 export function useCanShare() {
   const [share, setShare] = useState(false);
   useEffect(() => {
@@ -95,12 +97,12 @@ async function copyToClipboard(text: string) {
 }
 
 export async function copyRouteToClipboard(route: string) {
-  const url = `https://blorpblorp.xyz${route}`;
+  const url = `${origin}${route}`;
   copyToClipboard(url);
 }
 
 export async function shareRoute(route: string) {
-  const url = `https://blorpblorp.xyz${route}`;
+  const url = `${origin}${route}`;
   try {
     const canShare = await Share.canShare();
     if (canShare.value) {
