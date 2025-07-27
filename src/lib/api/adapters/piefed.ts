@@ -57,32 +57,32 @@ const DEFAULT_HEADERS = {
 
 export const pieFedCommunitySchema = z.object({
   actor_id: z.string(),
-  ap_domain: z.string(),
-  banned: z.boolean(),
-  deleted: z.boolean(),
-  hidden: z.boolean(),
+  //ap_domain: z.string(),
+  //banned: z.boolean(),
+  //deleted: z.boolean(),
+  //hidden: z.boolean(),
   icon: z.string().optional(),
   banner: z.string().optional(),
   id: z.number(),
-  instance_id: z.number(),
-  local: z.boolean(),
+  //instance_id: z.number(),
+  //local: z.boolean(),
   name: z.string(),
   nsfw: z.boolean(),
   published: z.string(),
-  removed: z.boolean(),
-  restricted_to_mods: z.boolean(),
-  title: z.string(),
+  //removed: z.boolean(),
+  //restricted_to_mods: z.boolean(),
+  //title: z.string(),
   description: z.string().optional(),
-  updated: z.string().optional(),
+  //updated: z.string().optional(),
 });
 
 export const pieFedPostCountsSchema = z.object({
   comments: z.number(),
   downvotes: z.number(),
-  newest_comment_time: z.string(),
-  post_id: z.number(),
-  published: z.string(),
-  score: z.number(),
+  //newest_comment_time: z.string(),
+  //post_id: z.number(),
+  //published: z.string(),
+  //score: z.number(),
   upvotes: z.number(),
 });
 
@@ -90,22 +90,22 @@ export const pieFedPersonSchema = z.object({
   about: z.string().optional(),
   actor_id: z.string(),
   avatar: z.string().nullable().optional(),
-  banner: z.string().nullable().optional(),
-  banned: z.boolean(),
+  //banner: z.string().nullable().optional(),
+  //banned: z.boolean(),
   bot: z.boolean(),
   deleted: z.boolean(),
   id: z.number(),
-  instance_id: z.number(),
-  local: z.boolean(),
+  //instance_id: z.number(),
+  //local: z.boolean(),
   published: z.string(),
-  title: z.string().nullable(),
+  //title: z.string().nullable(),
   user_name: z.string(),
 });
 
 const pieFedPersonViewSchema = z.object({
   person: pieFedPersonSchema,
   counts: z.object({
-    person_id: z.number(),
+    //person_id: z.number(),
     comment_count: z.number(),
     post_count: z.number(),
   }),
@@ -114,45 +114,45 @@ const pieFedPersonViewSchema = z.object({
 export const pieFedPostSchema = z.object({
   ap_id: z.string(),
   body: z.string().optional(),
-  community_id: z.number(),
+  //community_id: z.number(),
   deleted: z.boolean(),
-  edited_at: z.string().optional(),
+  //edited_at: z.string().optional(),
   id: z.number(),
-  language_id: z.number(),
-  local: z.boolean(),
-  locked: z.boolean(),
+  //language_id: z.number(),
+  //local: z.boolean(),
+  //locked: z.boolean(),
   nsfw: z.boolean(),
   published: z.string(),
   removed: z.boolean(),
-  small_thumbnail_url: z.string().optional(),
-  sticky: z.boolean(),
+  //small_thumbnail_url: z.string().optional(),
+  //sticky: z.boolean(),
   thumbnail_url: z.string().optional(),
   title: z.string(),
   url: z.string().optional(),
-  user_id: z.number(),
+  //user_id: z.number(),
 });
 
 export const pieFedPostViewSchema = z.object({
-  activity_alert: z.boolean(),
-  banned_from_community: z.boolean(),
+  //activity_alert: z.boolean(),
+  //banned_from_community: z.boolean(),
   community: pieFedCommunitySchema,
   counts: pieFedPostCountsSchema,
   creator: pieFedPersonSchema,
-  creator_banned_from_community: z.boolean(),
-  creator_is_admin: z.boolean(),
-  creator_is_moderator: z.boolean(),
-  hidden: z.boolean(),
+  //creator_banned_from_community: z.boolean(),
+  //creator_is_admin: z.boolean(),
+  //creator_is_moderator: z.boolean(),
+  //hidden: z.boolean(),
   my_vote: z.number(),
   post: pieFedPostSchema,
   read: z.boolean(),
   saved: z.boolean(),
-  subscribed: z.string(),
-  unread_comments: z.number(),
+  //subscribed: z.string(),
+  //unread_comments: z.number(),
 });
 
 export const pieFedCommunityCountsSchema = z.object({
-  id: z.number(),
-  published: z.string(),
+  //id: z.number(),
+  //published: z.string(),
   post_count: z.number().nullable().optional(),
   post_reply_count: z.number().nullable().optional(),
   subscriptions_count: z.number().nullable().optional(),
@@ -164,36 +164,36 @@ export const pieFedCommunityCountsSchema = z.object({
 });
 
 export const pieFedCommunityViewSchema = z.object({
-  activity_alert: z.boolean(),
-  blocked: z.boolean(),
+  //activity_alert: z.boolean(),
+  //blocked: z.boolean(),
   community: pieFedCommunitySchema,
   counts: pieFedCommunityCountsSchema,
   subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
 });
 
-export const pieFedAdminCountsSchema = z.object({
-  comment_count: z.number(),
-  person_id: z.number(),
-  post_count: z.number(),
-});
+//export const pieFedAdminCountsSchema = z.object({
+//  comment_count: z.number(),
+//  person_id: z.number(),
+//  post_count: z.number(),
+//});
 
 export const pieFedAdminSchema = z.object({
-  activity_alert: z.boolean(),
-  counts: pieFedAdminCountsSchema,
-  is_admin: z.boolean(),
+  //activity_alert: z.boolean(),
+  //counts: pieFedAdminCountsSchema,
+  //is_admin: z.boolean(),
   person: pieFedPersonSchema,
 });
 
-export const pieFedLanguageSchema = z.object({
-  code: z.string(),
-  id: z.number(),
-  name: z.string(),
-});
+//export const pieFedLanguageSchema = z.object({
+//  code: z.string(),
+//  id: z.number(),
+//  name: z.string(),
+//});
 
 export const pieFedSiteDetailsSchema = z.object({
-  actor_id: z.string(),
-  all_languages: z.array(pieFedLanguageSchema),
-  description: z.string(),
+  //actor_id: z.string(),
+  //all_languages: z.array(pieFedLanguageSchema),
+  //description: z.string(),
   enable_downvotes: z.boolean(),
   icon: z.string().optional(),
   name: z.string(),
@@ -204,33 +204,33 @@ export const pieFedSiteDetailsSchema = z.object({
 
 export const pieFedFollowSchema = z.object({
   community: pieFedCommunitySchema,
-  follower: pieFedPersonSchema,
+  //follower: pieFedPersonSchema,
 });
 
 export const pieFedLocalUserSchema = z.object({
-  default_listing_type: z.string(),
-  default_sort_type: z.string(),
-  show_bot_accounts: z.boolean(),
+  //default_listing_type: z.string(),
+  //default_sort_type: z.string(),
+  //show_bot_accounts: z.boolean(),
   show_nsfw: z.boolean(),
-  show_read_posts: z.boolean(),
-  show_scores: z.boolean(),
+  //show_read_posts: z.boolean(),
+  //show_scores: z.boolean(),
 });
 
 export const pieFedLocalUserViewSchema = z.object({
-  counts: z.object({
-    comment_count: z.number(),
-    person_id: z.number(),
-    post_count: z.number(),
-  }),
+  //counts: z.object({
+  //  comment_count: z.number(),
+  //  person_id: z.number(),
+  //  post_count: z.number(),
+  //}),
   local_user: pieFedLocalUserSchema,
   person: pieFedPersonSchema,
 });
 
 export const pieFedMyUserSchema = z.object({
   community_blocks: z.array(pieFedCommunityViewSchema).optional(),
-  discussion_languages: z.array(pieFedLanguageSchema).optional(),
+  //discussion_languages: z.array(pieFedLanguageSchema).optional(),
   follows: z.array(pieFedFollowSchema).optional(),
-  instance_blocks: z.array(z.any()).optional(),
+  //instance_blocks: z.array(z.any()).optional(),
   local_user_view: pieFedLocalUserViewSchema.optional(),
   moderates: z.array(pieFedCommunityViewSchema).optional(),
   person_blocks: z.array(pieFedPersonSchema).optional(),
@@ -247,49 +247,49 @@ export const pieFedCommentSchema = z.object({
   ap_id: z.string(),
   body: z.string(),
   deleted: z.boolean(),
-  distinguished: z.boolean(),
-  edited_at: z.string().optional(),
+  //distinguished: z.boolean(),
+  //edited_at: z.string().optional(),
   id: z.number(),
-  language_id: z.number(),
-  local: z.boolean(),
+  //language_id: z.number(),
+  //local: z.boolean(),
   path: z.string(),
-  post_id: z.number(),
+  //post_id: z.number(),
   published: z.string(),
   removed: z.boolean(),
-  user_id: z.number(),
+  //user_id: z.number(),
 });
 
 export const pieFedCommentCountsSchema = z.object({
-  child_count: z.number(),
-  comment_id: z.number(),
+  //child_count: z.number(),
+  //comment_id: z.number(),
   downvotes: z.number(),
-  published: z.string(),
-  score: z.number(),
+  //published: z.string(),
+  //score: z.number(),
   upvotes: z.number(),
 });
 
 export const pieFedCommentViewSchema = z.object({
-  activity_alert: z.boolean(),
-  banned_from_community: z.boolean(),
-  canAuthUserModerate: z.boolean(),
+  //activity_alert: z.boolean(),
+  //banned_from_community: z.boolean(),
+  //can_auth_user_moderate: z.boolean().optional(),
   comment: pieFedCommentSchema,
   community: pieFedCommunitySchema,
   counts: pieFedCommentCountsSchema,
   creator: pieFedPersonSchema,
-  creator_banned_from_community: z.boolean(),
-  creator_blocked: z.boolean(),
-  creator_is_admin: z.boolean(),
-  creator_is_moderator: z.boolean(),
+  //creator_banned_from_community: z.boolean(),
+  //creator_blocked: z.boolean(),
+  //creator_is_admin: z.boolean(),
+  //creator_is_moderator: z.boolean(),
   my_vote: z.number(),
   post: pieFedPostSchema,
-  saved: z.boolean(),
-  subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
+  //saved: z.boolean(),
+  //subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
 });
 
 export const pieFedCommentReplySchema = z.object({
   id: z.number(),
-  recipient_id: z.number(),
-  comment_id: z.number(),
+  //recipient_id: z.number(),
+  //comment_id: z.number(),
   read: z.boolean(),
   published: z.string(),
 });
@@ -300,28 +300,28 @@ export const pieFedReplyViewSchema = z.object({
   creator: pieFedPersonSchema,
   post: pieFedPostSchema,
   community: pieFedCommunitySchema,
-  recipient: pieFedPersonSchema,
-  counts: pieFedCommentCountsSchema,
-  creator_banned_from_community: z.boolean(),
-  creator_is_moderator: z.boolean(),
-  creator_is_admin: z.boolean(),
-  subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
-  saved: z.boolean(),
-  creator_blocked: z.boolean(),
-  my_vote: z.number(),
+  //recipient: pieFedPersonSchema,
+  //counts: pieFedCommentCountsSchema,
+  //creator_banned_from_community: z.boolean(),
+  //creator_is_moderator: z.boolean(),
+  //creator_is_admin: z.boolean(),
+  //subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
+  //saved: z.boolean(),
+  //creator_blocked: z.boolean(),
+  //my_vote: z.number(),
 });
 
 export const pieFedPrivateMessageSchema = z.object({
   id: z.number(),
-  creator_id: z.number(),
-  recipient_id: z.number(),
+  //creator_id: z.number(),
+  //recipient_id: z.number(),
   content: z.string(),
-  deleted: z.boolean(),
+  //deleted: z.boolean(),
   read: z.boolean(),
   published: z.string(),
-  updated: z.string().optional(),
-  ap_id: z.string(),
-  local: z.boolean(),
+  //updated: z.string().optional(),
+  //ap_id: z.string(),
+  //local: z.boolean(),
 });
 
 export const pieFedPrivateMessageViewSchema = z.object({
@@ -331,21 +331,21 @@ export const pieFedPrivateMessageViewSchema = z.object({
 });
 
 export const pieFedCrosspostSchema = z.object({
-  activity_alert: z.boolean(),
-  banned_from_community: z.boolean(),
+  //activity_alert: z.boolean(),
+  //banned_from_community: z.boolean(),
   community: pieFedCommunitySchema,
-  counts: pieFedPostCountsSchema,
-  creator: pieFedPersonSchema,
-  creator_banned_from_community: z.boolean(),
-  creator_is_admin: z.boolean(),
-  creator_is_moderator: z.boolean(),
-  hidden: z.boolean(),
-  my_vote: z.number(),
-  post: pieFedPostSchema,
-  read: z.boolean(),
-  saved: z.boolean(),
-  subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
-  unread_comments: z.number(),
+  //counts: pieFedPostCountsSchema,
+  //creator: pieFedPersonSchema,
+  //creator_banned_from_community: z.boolean(),
+  //creator_is_admin: z.boolean(),
+  //creator_is_moderator: z.boolean(),
+  //hidden: z.boolean(),
+  //my_vote: z.number(),
+  //post: pieFedPostSchema,
+  //read: z.boolean(),
+  //saved: z.boolean(),
+  //subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
+  //unread_comments: z.number(),
 });
 
 function convertPost(
@@ -748,7 +748,10 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         sidebar: site.site.sidebar ?? null,
         icon: site.site.icon ?? null,
         title: site.site.name,
-        moderates: null,
+        moderates:
+          site.my_user?.moderates?.map(({ community }) =>
+            convertCommunity({ community }, "partial"),
+          ) ?? null,
         follows:
           site.my_user?.follows?.map(({ community }) =>
             convertCommunity({ community }, "partial"),
@@ -974,42 +977,48 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     creators: Schemas.Person[];
     nextCursor: string | null;
   }> {
-    const { data: sort } = commentSortSchema.safeParse(form.sort);
+    try {
+      const { data: sort } = commentSortSchema.safeParse(form.sort);
 
-    const post_id = form.postApId
-      ? (await this.resolveObjectId(form.postApId)).post_id
-      : undefined;
+      const post_id = form.postApId
+        ? (await this.resolveObjectId(form.postApId)).post_id
+        : undefined;
 
-    const json = await this.get(
-      "/comment/list",
-      {
-        limit: 100,
-        type_: "All",
-        sort,
-        page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
-        parent_id: form.parentId,
-        post_id,
-        max_depth: _.isNil(form.parentId) ? form.maxDepth : 100,
-        // See https://codeberg.org/rimu/pyfedi/issues/884
-        depth_first: true,
-      },
-      options,
-    );
+      const json = await this.get(
+        "/comment/list",
+        {
+          limit: 100,
+          type_: "All",
+          sort,
+          page:
+            form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
+          parent_id: form.parentId,
+          post_id,
+          max_depth: _.isNil(form.parentId) ? form.maxDepth : 100,
+          // See https://codeberg.org/rimu/pyfedi/issues/884
+          depth_first: true,
+        },
+        options,
+      );
 
-    const data = z
-      .object({
-        comments: z.array(pieFedCommentViewSchema),
-        next_page: z.string().nullable(),
-      })
-      .parse(json);
+      const data = z
+        .object({
+          comments: z.array(pieFedCommentViewSchema),
+          next_page: z.string().nullable(),
+        })
+        .parse(json);
 
-    return {
-      comments: data.comments.map(convertComment),
-      creators: data.comments.map(({ creator }) =>
-        convertPerson({ person: creator }, "partial"),
-      ),
-      nextCursor: data.next_page,
-    };
+      return {
+        comments: data.comments.map(convertComment),
+        creators: data.comments.map(({ creator }) =>
+          convertPerson({ person: creator }, "partial"),
+        ),
+        nextCursor: data.next_page,
+      };
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async likeComment(form: Forms.LikeComment) {

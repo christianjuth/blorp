@@ -1286,6 +1286,7 @@ export function usePrivateMessagesCount() {
     },
     enabled: isLoggedIn,
     refetchInterval: 1000 * 60,
+    staleTime: 1000 * 60,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: "always",
   });
@@ -1480,6 +1481,7 @@ export function useNotificationCount() {
     },
     enabled: isLoggedIn,
     refetchInterval: 1000 * 60,
+    staleTime: 1000 * 60,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: "always",
   });
