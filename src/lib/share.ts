@@ -8,6 +8,7 @@ import { privilegedFetch } from "./privileged-fetch";
 import { env } from "../env";
 import _ from "lodash";
 import { useEffect, useState } from "react";
+import { isCapacitor } from "./device";
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -78,7 +79,9 @@ const canShare = _.memoize(async () => {
   return _.isFunction(navigator.share) || (await Share.canShare()).value;
 });
 
-const origin = window.location.origin || "https://blorpblorp.xyz";
+const origin = isCapacitor()
+  ? "https://blorpblorp.xyz"
+  : window.location.origin || "https://blorpblorp.xyz";
 
 export function useCanShare() {
   const [share, setShare] = useState(false);
