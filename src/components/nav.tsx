@@ -107,7 +107,7 @@ export function UserDropdown() {
         className="w-60"
         data-testid="user-dropdown-content"
       >
-        <DropdownMenuLabel className="flex items-center gap-2">
+        <DropdownMenuLabel className="flex items-center gap-2 mb-1">
           <Avatar className="h-12 w-12" key={person?.id}>
             <AvatarImage src={person?.avatar ?? undefined} />
             <AvatarFallback className="text-xl">
@@ -124,8 +124,6 @@ export function UserDropdown() {
             </div>
           </div>
         </DropdownMenuLabel>
-
-        <DropdownMenuSeparator />
 
         <>
           {person && (
@@ -245,7 +243,7 @@ export function UserSidebar() {
       className="flex flex-col gap-4 min-h-full pb-[var(--ion-safe-area-bottom)]"
       data-testid="user-sidebar-content"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 my-1">
         <Avatar className="h-12 w-12" key={person?.id}>
           {person && <AvatarImage src={person.avatar ?? undefined} />}
           <AvatarFallback className="text-xl">
@@ -261,8 +259,6 @@ export function UserSidebar() {
           </span>
         </div>
       </div>
-
-      <Separator />
 
       <>
         {person && (
