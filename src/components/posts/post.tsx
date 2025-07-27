@@ -49,7 +49,12 @@ export function PostCardSkeleton(props: {
 }) {
   const hideImage = useRef(Math.random()).current < 0.4;
   return (
-    <div className="flex-1 pt-4 gap-2 flex flex-col max-md:px-3.5 pb-4">
+    <div
+      className={cn(
+        "flex-1 pt-4 gap-2 flex flex-col max-md:px-3.5 pb-4",
+        props.detailView && "bg-background",
+      )}
+    >
       {props.detailView ? (
         <div className="flex flex-row items-center gap-2 h-9">
           <Skeleton className="h-8 w-8 rounded-full" />
