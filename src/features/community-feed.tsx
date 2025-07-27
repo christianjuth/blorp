@@ -155,13 +155,10 @@ export default function CommunityFeed() {
               }}
               className="text-2xl contents md:hidden"
             >
-              <Search className="text-brand scale-110 dark:text-muted-foreground" />
+              <Search className="scale-110 text-muted-foreground" />
             </Link>
             <div className="md:hidden contents">
-              <PostSortButton
-                align="end"
-                className="text-brand dark:text-muted-foreground"
-              />
+              <PostSortButton align="end" className="text-muted-foreground" />
             </div>
             <UserDropdown />
           </IonButtons>

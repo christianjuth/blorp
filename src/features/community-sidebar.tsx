@@ -67,7 +67,7 @@ export default function CommunityFeed() {
               }}
               className="text-2xl contents md:hidden"
             >
-              <Search className="text-brand scale-110 dark:text-muted-foreground" />
+              <Search className="scale-110 text-muted-foreground" />
             </Link>
             <UserDropdown />
           </IonButtons>

@@ -161,7 +161,7 @@ export function SmallScreenSidebar({
         <div
           className={cn(
             "flex flex-row items-center flex-1 gap-5",
-            !expanded && "-mt-2",
+            !expanded && "-mt-1.5",
           )}
         >
           {expanded ? (
@@ -172,7 +172,7 @@ export function SmallScreenSidebar({
               params={{
                 communityName,
               }}
-              className="text-brand self-end"
+              className="text-brand"
             >
               Show more
             </Link>
