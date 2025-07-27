@@ -205,7 +205,7 @@ export function FeedPostCard(props: PostProps) {
           props.featuredContext === "user" ||
           props.featuredContext === "search"
             ? true
-            : props.detailView && media.md
+            : props.detailView
         }
         isMod={props.modApIds?.includes(post.creatorApId)}
         isAdmin={props.adminApIds?.includes(post.creatorApId)}
@@ -349,7 +349,12 @@ export function PostBottomBar({
     return null;
   }
   return (
-    <div className="md:hidden flex flex-row gap-3 bg-background border-b max-md:border-b-[.5px] opacity-0 [[data-is-sticky-header=true]_&]:opacity-100 max-md: max-md:pl-3.5 absolute top-0 inset-x-0 transition-opacity">
+    <div
+      className={cn(
+        "md:hidden flex flex-row gap-3 bg-background border-b max-md:border-b-[.5px] opacity-0 [[data-is-sticky-header=true]_&]:opacity-100 max-md: max-md:px-3.5 absolute top-0 inset-x-0 transition-opacity",
+        postView.thumbnailUrl && "max-md:pr-0",
+      )}
+    >
       <div className="flex-1 my-2 font-semibold line-clamp-2 text-sm overflow-hidden">
         {postView.title}
       </div>
