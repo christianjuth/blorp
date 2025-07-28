@@ -662,6 +662,8 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
       _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
         ? 1
         : _.parseInt(form.pageCursor) + 1;
+    // Lemmy next cursor is broken when maxDepth is present.
+    // It will page out to infinity until we get rate limited
     const hasNextCursor =
       _.isNil(form.maxDepth) && comments.length >= this.limit;
 

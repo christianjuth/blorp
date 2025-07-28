@@ -511,6 +511,8 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
       creators: comments.map(({ creator }) =>
         convertPerson({ person: creator }),
       ),
+      // Lemmy next cursor is broken when maxDepth is present.
+      // It will page out to infinity until we get rate limited
       nextCursor: _.isNil(form.maxDepth) ? (next_page ?? null) : null,
     };
   }

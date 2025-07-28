@@ -1038,9 +1038,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
             form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
           parent_id: form.parentId,
           post_id,
-          max_depth: _.isNil(form.parentId) ? form.maxDepth : 100,
-          // See https://codeberg.org/rimu/pyfedi/issues/884
-          depth_first: true,
+          max_depth: form.maxDepth,
         },
         options,
       );
@@ -1056,7 +1054,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
 
       return {
         comments: flattenedComments.map(convertComment),
-        creators: data.comments.map(({ creator }) =>
+        creators: flattenedComments.map(({ creator }) =>
           convertPerson({ person: creator }, "partial"),
         ),
         nextCursor: data.next_page,
