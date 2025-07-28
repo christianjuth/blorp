@@ -24,7 +24,6 @@ import removeMd from "remove-markdown";
 import { LuRepeat2 } from "react-icons/lu";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import { Separator } from "../ui/separator";
-import { useMedia } from "@/src/lib/hooks";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -88,8 +87,6 @@ export function PostCardSkeleton(props: {
 }
 
 export function FeedPostCard(props: PostProps) {
-  const media = useMedia();
-
   const showNsfw =
     useAuth((s) => getAccountSite(s.getSelectedAccount())?.showNsfw) ?? false;
   const blurNsfw =

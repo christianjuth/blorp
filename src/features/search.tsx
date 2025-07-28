@@ -40,7 +40,7 @@ import { BadgeIcon } from "../components/badge-count";
 import { PersonAvatar } from "../components/person/person-avatar";
 import { MarkdownRenderer } from "../components/markdown/renderer";
 import { RelativeTime } from "../components/relative-time";
-import { Message, Person } from "../components/icons";
+import { Message } from "../components/icons";
 import { Separator } from "../components/ui/separator";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 
