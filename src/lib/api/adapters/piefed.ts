@@ -268,7 +268,25 @@ export const pieFedCommentCountsSchema = z.object({
   upvotes: z.number(),
 });
 
-export const pieFedCommentViewSchema = z.object({
+type PieFedCommentChildView = {
+  comment: z.infer<typeof pieFedCommentSchema>;
+  counts: z.infer<typeof pieFedCommentCountsSchema>;
+  creator: z.infer<typeof pieFedPersonSchema>;
+  my_vote: number;
+  replies: PieFedCommentChildView[];
+};
+
+const pieFedCommentChildSchema: z.ZodType<PieFedCommentChildView> = z.lazy(() =>
+  z.object({
+    comment: pieFedCommentSchema,
+    counts: pieFedCommentCountsSchema,
+    creator: pieFedPersonSchema,
+    my_vote: z.number(),
+    replies: z.array(pieFedCommentChildSchema),
+  }),
+);
+
+const pieFedCommentViewSchema = z.object({
   //activity_alert: z.boolean(),
   //banned_from_community: z.boolean(),
   //can_auth_user_moderate: z.boolean().optional(),
@@ -284,6 +302,7 @@ export const pieFedCommentViewSchema = z.object({
   post: pieFedPostSchema,
   //saved: z.boolean(),
   //subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
+  replies: z.array(pieFedCommentChildSchema),
 });
 
 export const pieFedCommentReplySchema = z.object({
@@ -588,6 +607,31 @@ function convertMention(
 const errorResponseSchema = z.object({
   error: z.string(),
 });
+
+export function flattenCommentViews(
+  comments: z.infer<typeof pieFedCommentViewSchema>[],
+): z.infer<typeof pieFedCommentViewSchema>[] {
+  const result: z.infer<typeof pieFedCommentViewSchema>[] = [];
+
+  function recurse(nodes: z.infer<typeof pieFedCommentViewSchema>[]) {
+    for (const node of nodes) {
+      const { community, post } = node;
+      result.push(node);
+      if (node.replies?.length) {
+        recurse(
+          node.replies.map((reply) => ({
+            ...reply,
+            community,
+            post,
+          })),
+        );
+      }
+    }
+  }
+
+  recurse(comments);
+  return result;
+}
 
 export class PieFedApi implements ApiBlueprint<null, "piefed"> {
   software = "piefed" as const;
@@ -985,7 +1029,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         : undefined;
 
       const json = await this.get(
-        "/comment/list",
+        "/post/replies",
         {
           limit: 100,
           type_: "All",
@@ -1008,8 +1052,10 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         })
         .parse(json);
 
+      const flattenedComments = flattenCommentViews(data.comments);
+
       return {
-        comments: data.comments.map(convertComment),
+        comments: flattenedComments.map(convertComment),
         creators: data.comments.map(({ creator }) =>
           convertPerson({ person: creator }, "partial"),
         ),
