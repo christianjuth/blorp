@@ -10,7 +10,7 @@ import { useShowPostReportModal } from "./post-report";
 import { useAuth, getAccountActorId } from "@/src/stores/auth";
 import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
-import { Link, resolveRoute } from "@/src/routing/index";
+import { Link } from "@/src/routing/index";
 import { RelativeTime } from "../relative-time";
 import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
@@ -237,7 +237,12 @@ export function PostByline({
           </CommunityHoverCard>
         )}
         {showCreator && (
-          <div className="flex flex-row text-xs text-muted-foreground gap-1 items-center h-5">
+          <div
+            className={cn(
+              "flex flex-row text-xs text-muted-foreground gap-1 items-center h-5",
+              !showCommunity && "text-foreground",
+            )}
+          >
             <PersonHoverCard actorId={post.creatorApId} asChild>
               <Link
                 to={`${linkCtx.root}u/:userId`}
@@ -247,7 +252,7 @@ export function PostByline({
                 onClickCapture={onNavigate}
               >
                 {creatorName}
-                <i>@{creatorHost}</i>
+                <i className="text-muted-foreground">@{creatorHost}</i>
               </Link>
             </PersonHoverCard>
             {isMod && !isAdmin && (
@@ -266,7 +271,10 @@ export function PostByline({
               <CakeDay date={creator.createdAt} className="text-brand" />
             )}
             {!showCommunity && (
-              <RelativeTime time={post.createdAt} className="ml-2" />
+              <RelativeTime
+                time={post.createdAt}
+                className="ml-2 text-muted-foreground"
+              />
             )}
           </div>
         )}

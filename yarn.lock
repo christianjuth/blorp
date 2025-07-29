@@ -3225,6 +3225,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@number-flow/react@npm:^0.5.10":
+  version: 0.5.10
+  resolution: "@number-flow/react@npm:0.5.10"
+  dependencies:
+    esm-env: "npm:^1.1.4"
+    number-flow: "npm:0.5.8"
+  peerDependencies:
+    react: ^18 || ^19
+    react-dom: ^18 || ^19
+  checksum: 10c0/d89f18ba778d517e07d1fc959dd3e5465ecee360bf5761ef8b5b9d1ae566ee4c4ccd9f1d4734e3f19f66d502fe7552ee4ace5bd1b0f5b0c3205a03246272417c
+  languageName: node
+  linkType: hard
+
 "@oxlint/darwin-arm64@npm:0.16.10":
   version: 0.16.10
   resolution: "@oxlint/darwin-arm64@npm:0.16.10"
@@ -8822,6 +8835,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esm-env@npm:^1.1.4":
+  version: 1.2.2
+  resolution: "esm-env@npm:1.2.2"
+  checksum: 10c0/3d25c973f2fd69c25ffff29c964399cea573fe10795ecc1d26f6f957ce0483d3254e1cceddb34bf3296a0d7b0f1d53a28992f064ba509dfe6366751e752c4166
+  languageName: node
+  linkType: hard
+
 "esprima@npm:~4.0.0":
   version: 4.0.1
   resolution: "esprima@npm:4.0.1"
@@ -10465,6 +10485,7 @@ __metadata:
     "@ionic/core": "npm:8.5.7"
     "@ionic/react": "npm:8.5.7"
     "@ionic/react-router": "npm:^8.5.7"
+    "@number-flow/react": "npm:^0.5.10"
     "@playwright/test": "npm:^1.50.1"
     "@radix-ui/react-avatar": "npm:^1.1.3"
     "@radix-ui/react-collapsible": "npm:^1.1.10"
@@ -11780,6 +11801,15 @@ __metadata:
   dependencies:
     boolbase: "npm:^1.0.0"
   checksum: 10c0/5fee7ff309727763689cfad844d979aedd2204a817fbaaf0e1603794a7c20db28548d7b024692f953557df6ce4a0ee4ae46cd8ebd9b36cfb300b9226b567c479
+  languageName: node
+  linkType: hard
+
+"number-flow@npm:0.5.8":
+  version: 0.5.8
+  resolution: "number-flow@npm:0.5.8"
+  dependencies:
+    esm-env: "npm:^1.1.4"
+  checksum: 10c0/e114ddca72a82c2d9650307600e0583212af422d074e7650e40e30f650e3671563323c198c08ff18a66c8f8be323361ea28839a1671b4f94ee5539e1941d6bdc
   languageName: node
   linkType: hard
 

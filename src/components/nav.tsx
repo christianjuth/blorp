@@ -107,7 +107,7 @@ export function UserDropdown() {
         className="w-60"
         data-testid="user-dropdown-content"
       >
-        <DropdownMenuLabel className="flex items-center gap-2">
+        <DropdownMenuLabel className="flex items-center gap-2 mb-1">
           <Avatar className="h-12 w-12" key={person?.id}>
             <AvatarImage src={person?.avatar ?? undefined} />
             <AvatarFallback className="text-xl">
@@ -124,8 +124,6 @@ export function UserDropdown() {
             </div>
           </div>
         </DropdownMenuLabel>
-
-        <DropdownMenuSeparator />
 
         <>
           {person && (
@@ -245,7 +243,7 @@ export function UserSidebar() {
       className="flex flex-col gap-4 min-h-full pb-[var(--ion-safe-area-bottom)]"
       data-testid="user-sidebar-content"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 my-1">
         <Avatar className="h-12 w-12" key={person?.id}>
           {person && <AvatarImage src={person.avatar ?? undefined} />}
           <AvatarFallback className="text-xl">
@@ -262,12 +260,13 @@ export function UserSidebar() {
         </div>
       </div>
 
-      <Separator />
-
       <>
         {person && (
           <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
-            <Link to="/home/saved" className="flex flex-row items-center gap-2">
+            <Link
+              to="/home/saved"
+              className="flex flex-row items-center gap-2 text-lg"
+            >
               <IoBookmarksOutline className="text-muted-foreground" />
               Saved
             </Link>
@@ -280,7 +279,7 @@ export function UserSidebar() {
               params={{
                 userId: encodeApId(person.apId),
               }}
-              className="flex flex-row items-center gap-2"
+              className="flex flex-row items-center gap-2 text-lg"
             >
               <IoPersonOutline className="text-muted-foreground" /> Profile
             </Link>
@@ -295,7 +294,7 @@ export function UserSidebar() {
                   message: `Are you sure you want to logout of ${person.slug ?? "this account"}`,
                 }).then(() => logout.mutate(selectedAccount))
               }
-              className="flex flex-row items-center gap-2 w-full"
+              className="flex flex-row items-center gap-2 w-full text-lg"
             >
               <LogOut className="text-muted-foreground" /> Logout
             </button>
@@ -304,7 +303,7 @@ export function UserSidebar() {
           <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
             <button
               onClick={() => requireAuth()}
-              className="flex flex-row items-center gap-2 w-full"
+              className="flex flex-row items-center gap-2 w-full text-lg"
               data-testid="user-sidebar-login"
             >
               Login / Change instance
@@ -371,7 +370,10 @@ export function UserSidebar() {
       <div className="flex-1" />
 
       <IonMenuToggle menu={RIGHT_SIDEBAR_MENU_ID} autoHide={false}>
-        <Link to={`/settings`} className="flex flex-row items-center gap-2">
+        <Link
+          to={`/settings`}
+          className="flex flex-row items-center gap-2 text-lg"
+        >
           <IoSettingsOutline className="text-muted-foreground" /> Settings
         </Link>
       </IonMenuToggle>
@@ -387,7 +389,7 @@ export function MenuButton() {
       autoHide={false}
       className="lg:hidden"
     >
-      <LuMenu className="text-[1.4rem] -ml-[7px]" />
+      <LuMenu className="text-2xl scale-110 -ml-[7px]" />
     </IonMenuButton>
   );
 }

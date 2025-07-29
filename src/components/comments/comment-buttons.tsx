@@ -12,10 +12,11 @@ import {
 } from "react-icons/pi";
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import { Button } from "../ui/button";
-import { abbriviateNumber } from "@/src/lib/format";
+import { abbriviateNumber, abbriviateNumberParts } from "@/src/lib/format";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import _ from "lodash";
 import { getAccountSite, useAuth } from "@/src/stores/auth";
+import NumberFlow from "@number-flow/react";
 
 export function CommentVoting({
   commentView,
@@ -45,6 +46,8 @@ export function CommentVoting({
     : 0;
 
   const score = commentView.upvotes - commentView.downvotes + diff;
+
+  const abbriviatedScore = abbriviateNumberParts(score);
 
   if (!enableDownvotes) {
     return (
@@ -98,16 +101,16 @@ export function CommentVoting({
       >
         {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
       </Button>
-      <label
-        htmlFor={id}
+      <NumberFlow
+        //htmlFor={id}
         className={cn(
           "-mx-0.5 cursor-pointer",
           isUpvoted && "text-brand",
           isDownvoted && "text-brand-secondary",
         )}
-      >
-        {abbriviateNumber(score)}
-      </label>
+        suffix={abbriviatedScore.suffix}
+        value={abbriviatedScore.number}
+      />
       <Button
         size="icon"
         variant="ghost"

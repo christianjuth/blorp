@@ -14,7 +14,6 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
-  IonIcon,
   IonPage,
   IonSearchbar,
   IonToolbar,
@@ -25,7 +24,6 @@ import { MenuButton, UserDropdown } from "../components/nav";
 import { HomeFilter, PostSortButton } from "../components/lemmy-sort";
 import { useMedia } from "../lib/hooks";
 import { Link } from "@/src/routing/index";
-import { searchOutline } from "ionicons/icons";
 import { Button } from "../components/ui/button";
 import { FaArrowUp } from "react-icons/fa6";
 import { LuLoaderCircle } from "react-icons/lu";
@@ -35,6 +33,7 @@ import { PageTitle } from "../components/page-title";
 import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
 import { getAccountSite, useAuth } from "../stores/auth";
 import { usePostsStore } from "../stores/posts";
+import { Search } from "../components/icons";
 
 const EMPTY_ARR: never[] = [];
 
@@ -58,7 +57,7 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
     setEnabled(active);
   }, [active]);
 
-  const { tabBar, header, toolbar } = useMemo(() => {
+  const { tabBar, header, toolbar, newPostButton } = useMemo(() => {
     const tabBar = document.querySelector("ion-tab-bar");
 
     const header = document.querySelector<HTMLIonHeaderElement>(
@@ -68,10 +67,14 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
       "ion-toolbar.dismissable",
     );
 
+    const newPostButton =
+      document.querySelector<HTMLButtonElement>(".new-post-button");
+
     return {
       tabBar,
       header,
       toolbar,
+      newPostButton,
     };
   }, [enabled]);
 
@@ -88,7 +91,7 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
         10,
       );
 
-      if (header && toolbar && tabBar) {
+      if (header && toolbar && tabBar && newPostButton) {
         const headerHeight = _.isNumber(safeAreaTop)
           ? header.offsetHeight - safeAreaTop
           : header.offsetHeight;
@@ -111,13 +114,15 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
         header.style.transform = `translate(0, -${
           headerAnimateRef.current * headerHeight
         }px)`;
-        toolbar.style.opacity = String((1 - headerAnimateRef.current) ** 3);
+        toolbar.style.opacity = String(1 - headerAnimateRef.current);
         tabBar.style.transform = `translate(0, ${
           tabBarAnimateRef.current * 100
         }%)`;
+
+        newPostButton.style.opacity = String(1 - headerAnimateRef.current);
       }
     },
-    [header, toolbar, tabBar],
+    [header, toolbar, tabBar, newPostButton],
   );
 
   useEffect(() => {
@@ -125,10 +130,11 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
       prevOffsetRef.current = null;
       headerAnimateRef.current = 0;
       tabBarAnimateRef.current = 0;
-      if (header && tabBar && toolbar) {
+      if (header && tabBar && toolbar && newPostButton) {
         header.style.transform = `translate(0)`;
         toolbar.style.opacity = "1";
         tabBar.style.transform = `translate(0)`;
+        newPostButton.style.opacity = "1";
       }
     } else {
       prevOffsetRef.current = div?.scrollTop ?? 0;
@@ -196,7 +202,7 @@ export default function HomeFeed() {
   return (
     <IonPage>
       <PageTitle />
-      <IonHeader className="bg-background dismissable">
+      <IonHeader className="backdrop-blur-xs bg-gradient-to-b from-20% from-background to-background/30 dismissable">
         <IonToolbar data-tauri-drag-region className="dismissable">
           <IonButtons slot="start" className="gap-2">
             <MenuButton />
@@ -222,7 +228,7 @@ export default function HomeFeed() {
               to="/home/s"
               className="text-2xl contents text-muted-foreground md:hidden"
             >
-              <IonIcon icon={searchOutline} />
+              <Search className="scale-110" />
             </Link>
             <div className="md:hidden contents">
               <PostSortButton align="end" />
@@ -231,9 +237,9 @@ export default function HomeFeed() {
           </IonButtons>
         </IonToolbar>
 
-        {hasNewPost && (
-          <ContentGutters className="absolute mt-2 inset-x-0">
-            <div className="flex flex-row justify-center flex-1">
+        <ContentGutters className="absolute mt-2 inset-x-0 new-post-button">
+          <div className="flex flex-row justify-center flex-1">
+            {hasNewPost && (
               <Button
                 variant="outline"
                 size="sm"
@@ -249,10 +255,10 @@ export default function HomeFeed() {
                   <FaArrowUp />
                 )}
               </Button>
-            </div>
-            <></>
-          </ContentGutters>
-        )}
+            )}
+          </div>
+          <></>
+        </ContentGutters>
       </IonHeader>
       <IonContent scrollY={false} fullscreen={media.maxMd}>
         <PostReportProvider>

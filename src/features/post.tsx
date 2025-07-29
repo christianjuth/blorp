@@ -24,7 +24,6 @@ import { VirtualList } from "../components/virtual-list";
 import { PostReportProvider } from "../components/posts/post-report";
 import { usePostsStore } from "../stores/posts";
 import {
-  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
@@ -42,6 +41,7 @@ import { CommentSkeleton } from "../components/comments/comment-skeleton";
 import { useLinkContext } from "../routing/link-context";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { CommentSortSelect } from "../components/lemmy-sort";
+import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -96,13 +96,16 @@ function ReplyToPost({ postApId }: { postApId: string }) {
   const loadCommentIntoEditor = useLoadCommentIntoEditor();
   const media = useMedia();
   return (
-    <ContentGutters className="md:pb-3 md:pt-5" key="post-reply">
+    <ContentGutters
+      className="max-md:mt-2 md:pb-2 md:pt-5 bg-background"
+      key="post-reply"
+    >
       <div className="flex-1">
         {postReplyState && media.md ? (
           <InlineCommentReply state={postReplyState} autoFocus={media.md} />
         ) : (
           <button
-            className="py-2 px-3 border rounded-2xl w-full text-left shadow-xs text-muted-foreground text-sm max-md:my-3"
+            className="py-2 max-md:py-4.5 md:px-3 md:border md:rounded-2xl w-full text-left text-muted-foreground md:text-sm"
             onClick={() =>
               loadCommentIntoEditor({
                 postApId,
@@ -248,7 +251,7 @@ export default function Post() {
           }
         >
           <IonButtons slot="start" className="gap-2">
-            <IonBackButton text="" />
+            <ToolbarBackButton className="max-md:text-white max-md:dark:text-muted-foreground" />
             <ToolbarTitle className="md:hidden" size="sm">
               {communityName}
             </ToolbarTitle>
@@ -277,7 +280,10 @@ export default function Post() {
             />
           </form>
           <IonButtons slot="end" className="gap-3.5">
-            <CommentSortSelect variant="icon" className="md:hidden" />
+            <CommentSortSelect
+              variant="icon"
+              className="text-white dark:text-muted-foreground md:hidden"
+            />
             <UserDropdown />
           </IonButtons>
         </IonToolbar>
@@ -287,7 +293,7 @@ export default function Post() {
           <PostReportProvider>
             <VirtualList
               keepMountedIndices={[0]}
-              className="h-full ion-content-scroll-host"
+              className="h-full ion-content-scroll-host max-md:bg-border/40"
               data={data}
               header={[
                 post ? (

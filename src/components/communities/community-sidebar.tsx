@@ -120,44 +120,26 @@ export function SmallScreenSidebar({
     [openSignal],
   );
 
+  const createdAt = (
+    <div className="flex items-center gap-1.5 text-sm h-5 text-muted-foreground">
+      <LuCakeSlice />
+      {data ? (
+        <span>Created {dayjs(data.communityView.createdAt).format("ll")}</span>
+      ) : (
+        <Skeleton className="h-5 flex-1 max-w-32" />
+      )}
+    </div>
+  );
+
   return (
     <div>
       <div
         className={cn(
-          "flex flex-col gap-3 py-4 flex-1 px-3.5",
+          "flex flex-col gap-3.5 pt-1.5 pb-2 flex-1 px-3.5",
           !expanded && "md:hidden",
         )}
       >
-        <div className="flex flex-row items-center flex-1 -mb-1 gap-4">
-          <div className="font-bold h-7 flex-1">
-            {data?.communityView.slug ?? (
-              <Skeleton className="h-7 flex-1 max-w-56" />
-            )}
-          </div>
-
-          <CommunityJoinButton communityName={communityName} />
-
-          <ActionMenu
-            header="Community"
-            align="end"
-            actions={actions}
-            trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
-            onOpen={() => setOpenSignal((s) => s + 1)}
-          />
-        </div>
-        <div className="flex items-center gap-1.5 text-sm h-5 text-muted-foreground">
-          <LuCakeSlice />
-          {data ? (
-            <span>
-              Created {dayjs(data.communityView.createdAt).format("ll")}
-            </span>
-          ) : (
-            <Skeleton className="h-5 flex-1 max-w-32" />
-          )}
-        </div>
-
         <AggregateBadges
-          className="mt-1"
           aggregates={{
             ...(expanded
               ? {
@@ -174,20 +156,48 @@ export function SmallScreenSidebar({
           }}
         />
 
-        {!expanded && (
-          <Link
-            to={`${linkCtx.root}c/:communityName/sidebar`}
-            params={{
-              communityName,
-            }}
-            className="text-brand"
-          >
-            Show more
-          </Link>
-        )}
+        {!expanded && createdAt}
+
+        <div
+          className={cn(
+            "flex flex-row items-center flex-1 gap-5",
+            !expanded && "-mt-1.5",
+          )}
+        >
+          {expanded ? (
+            createdAt
+          ) : (
+            <Link
+              to={`${linkCtx.root}c/:communityName/sidebar`}
+              params={{
+                communityName,
+              }}
+              className="text-brand"
+            >
+              Show more
+            </Link>
+          )}
+
+          <div className="flex-1" />
+
+          <ActionMenu
+            header="Community"
+            align="end"
+            actions={actions}
+            trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
+            onOpen={() => setOpenSignal((s) => s + 1)}
+          />
+
+          <CommunityJoinButton communityName={communityName} />
+        </div>
       </div>
 
-      <Separator className={cn(!expanded && "md:hidden")} />
+      <Separator
+        className={cn(
+          "data-[orientation=horizontal]:h-[0.5px]",
+          !expanded && "md:hidden",
+        )}
+      />
 
       {expanded && (
         <>

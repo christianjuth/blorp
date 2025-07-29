@@ -1,6 +1,7 @@
 import { useLikePost } from "@/src/lib/api/index";
 import { voteHaptics } from "@/src/lib/voting";
 import { useRequireAuth } from "../auth-context";
+import NumberFlow from "@number-flow/react";
 
 import { Link, resolveRoute } from "@/src/routing/index";
 
@@ -14,7 +15,7 @@ import { TbMessageCircle, TbMessageCirclePlus } from "react-icons/tb";
 import { cn } from "@/src/lib/utils";
 import { Button } from "../ui/button";
 import { useId, useMemo } from "react";
-import { abbriviateNumber } from "@/src/lib/format";
+import { abbriviateNumber, abbriviateNumberParts } from "@/src/lib/format";
 import { useLinkContext } from "../../routing/link-context";
 import { getAccountSite, useAuth } from "@/src/stores/auth";
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
@@ -55,6 +56,8 @@ export function Voting({
   const isUpvoted = myVote > 0;
   const isDownvoted = myVote < 0;
 
+  const abbriviatedScore = abbriviateNumberParts(score);
+
   if (!enableDownvotes) {
     return (
       <Button
@@ -78,7 +81,7 @@ export function Voting({
   return (
     <div
       className={cn(
-        "flex flex-row items-center border rounded-full",
+        "flex flex-row items-center border-1 rounded-full",
         className,
       )}
     >
@@ -106,16 +109,16 @@ export function Voting({
           <PiArrowFatUpBold className="scale-115" />
         )}
       </Button>
-      <label
-        htmlFor={id}
+      <NumberFlow
+        //htmlFor={id}
         className={cn(
           "-mx-px cursor-pointer text-md",
           isUpvoted && "text-brand",
           isDownvoted && "text-brand-secondary",
         )}
-      >
-        {abbriviateNumber(score)}
-      </label>
+        suffix={abbriviatedScore.suffix}
+        value={abbriviatedScore.number}
+      />
       <Button
         size="icon"
         variant="ghost"

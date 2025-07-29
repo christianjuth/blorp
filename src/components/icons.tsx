@@ -16,3 +16,4 @@ export {
 export { FiSidebar as SidebarOutline } from "react-icons/fi";
 export { FiLogOut as LogOut } from "react-icons/fi";
 export { PiShareFat as Share } from "react-icons/pi";
+export { CgSearch as Search } from "react-icons/cg";

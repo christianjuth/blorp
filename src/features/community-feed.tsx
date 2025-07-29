@@ -14,11 +14,9 @@ import { useCommunity, useMostRecentPost, usePosts } from "../lib/api";
 import { PostReportProvider } from "../components/posts/post-report";
 import _ from "lodash";
 import {
-  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
-  IonIcon,
   IonPage,
   IonSearchbar,
   IonToolbar,
@@ -33,17 +31,19 @@ import { PostSortButton } from "../components/lemmy-sort";
 import { PageTitle } from "../components/page-title";
 import { useLinkContext } from "../routing/link-context";
 import { Link } from "@/src/routing/index";
-import { searchOutline } from "ionicons/icons";
 import { useFiltersStore } from "../stores/filters";
 import { Button } from "../components/ui/button";
 import { dispatchScrollEvent } from "../lib/scroll-events";
 import { LuLoaderCircle } from "react-icons/lu";
 import { FaArrowUp } from "react-icons/fa6";
-import { useMedia, useTheme } from "../lib/hooks";
+import { useMedia } from "../lib/hooks";
 import { CommunityFeedSortBar } from "../components/communities/community-feed-sort-bar";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { getAccountSite, useAuth } from "../stores/auth";
 import { usePostsStore } from "../stores/posts";
+import { Search } from "../components/icons";
+import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
+import { Separator } from "../components/ui/separator";
 
 const EMPTY_ARR: never[] = [];
 
@@ -58,7 +58,6 @@ const Post = memo((props: PostProps) => (
 ));
 
 export default function CommunityFeed() {
-  const theme = useTheme();
   const media = useMedia();
 
   const linkCtx = useLinkContext();
@@ -120,17 +119,16 @@ export default function CommunityFeed() {
         <IonToolbar
           data-tauri-drag-region
           style={
-            media.maxMd && theme === "light"
+            media.maxMd
               ? {
-                  "--background": "var(--color-brand-secondary)",
-                  "--border-color": "var(--color-brand-secondary)",
+                  "--border-color": "var(--color-background)",
                 }
               : undefined
           }
         >
           <IonButtons slot="start" className="gap-2">
-            <IonBackButton text="" />
-            <ToolbarTitle size="sm" className="md:hidden max-md:text-white">
+            <ToolbarBackButton />
+            <ToolbarTitle size="sm" className="md:hidden">
               {communityName}
             </ToolbarTitle>
           </IonButtons>
@@ -157,16 +155,10 @@ export default function CommunityFeed() {
               }}
               className="text-2xl contents md:hidden"
             >
-              <IonIcon
-                icon={searchOutline}
-                className="text-brand dark:text-muted-foreground"
-              />
+              <Search className="scale-110 text-muted-foreground" />
             </Link>
             <div className="md:hidden contents">
-              <PostSortButton
-                align="end"
-                className="text-brand dark:text-muted-foreground"
-              />
+              <PostSortButton align="end" className="text-muted-foreground" />
             </div>
             <UserDropdown />
           </IonButtons>
@@ -207,7 +199,7 @@ export default function CommunityFeed() {
                 ? [NO_ITEMS]
                 : data
             }
-            stickyHeaderIndices={[1]}
+            stickyHeaderIndices={[1, 2]}
             header={[
               <Fragment key="community-header">
                 <SmallScreenSidebar
@@ -222,6 +214,10 @@ export default function CommunityFeed() {
               <CommunityFeedSortBar
                 communityName={communityName}
                 key="community-sort-bar"
+              />,
+              <Separator
+                key="separator"
+                className="[[data-is-sticky-header=false]_&]:opacity-1 data-[orientation=horizontal]:h-[0.5px]"
               />,
             ]}
             renderItem={({ item }) => {

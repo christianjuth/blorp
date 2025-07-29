@@ -17,12 +17,10 @@ import { encodeApId } from "../lib/api/utils";
 import { usePostsStore } from "../stores/posts";
 import { Link } from "@/src/routing/index";
 import {
-  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
 } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
@@ -31,6 +29,8 @@ import { useFiltersStore } from "../stores/filters";
 import { useAuth } from "../stores/auth";
 import { useMedia, useUrlSearchState } from "../lib/hooks";
 import z from "zod";
+import { ToolbarTitle } from "../components/toolbar/toolbar-title";
+import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 
 const EMPTY_ARR: never[] = [];
 
@@ -134,10 +134,10 @@ export default function SavedFeed() {
       <PageTitle>Saved</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start">
-            <IonBackButton text="" />
+          <IonButtons slot="start" className="gap-2">
+            <ToolbarBackButton />
+            <ToolbarTitle>Saved</ToolbarTitle>
           </IonButtons>
-          <IonTitle data-tauri-drag-region>Saved</IonTitle>
           <IonButtons slot="end">
             <UserDropdown />
           </IonButtons>

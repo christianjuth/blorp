@@ -3,22 +3,27 @@ import { useEffect } from "react";
 import { useCommunity } from "../lib/api";
 import _ from "lodash";
 import {
-  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { useParams } from "@/src/routing/index";
+import { Link, useParams } from "@/src/routing/index";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
 import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
 import { useLinkContext } from "../routing/link-context";
 import { ContentGutters } from "../components/gutters";
+import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
+import { ToolbarTitle } from "../components/toolbar/toolbar-title";
+import { useMedia } from "../lib/hooks";
+import { Search } from "../components/icons";
+
 export default function CommunityFeed() {
+  const media = useMedia();
+
   const linkCtx = useLinkContext();
   const { communityName } = useParams(
     `${linkCtx.root}c/:communityName/sidebar`,
@@ -40,12 +45,30 @@ export default function CommunityFeed() {
     <IonPage>
       <PageTitle>{communityName}</PageTitle>
       <IonHeader>
-        <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start">
-            <IonBackButton text="" />
+        <IonToolbar
+          data-tauri-drag-region
+          style={
+            media.maxMd
+              ? {
+                  "--border-color": "var(--color-background)",
+                }
+              : undefined
+          }
+        >
+          <IonButtons slot="start" className="gap-2">
+            <ToolbarBackButton />
+            <ToolbarTitle size="sm">{communityName}</ToolbarTitle>
           </IonButtons>
-          <IonTitle data-tauri-drag-region>{communityName}</IonTitle>
-          <IonButtons slot="end">
+          <IonButtons slot="end" className="gap-3.5 md:gap-4.5">
+            <Link
+              to={`${linkCtx.root}c/:communityName/s`}
+              params={{
+                communityName,
+              }}
+              className="text-2xl contents md:hidden"
+            >
+              <Search className="scale-110 text-muted-foreground" />
+            </Link>
             <UserDropdown />
           </IonButtons>
         </IonToolbar>

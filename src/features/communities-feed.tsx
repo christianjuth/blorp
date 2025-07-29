@@ -15,15 +15,14 @@ import {
   IonPage,
   IonSearchbar,
   IonToolbar,
-  IonIcon,
   useIonRouter,
 } from "@ionic/react";
 import { MenuButton, UserDropdown } from "../components/nav";
 import { CommunityFilter, CommunitySortSelect } from "../components/lemmy-sort";
 import { PageTitle } from "../components/page-title";
 import { Link } from "@/src/routing/index";
-import { searchOutline } from "ionicons/icons";
 import { getAccountSite, useAuth } from "../stores/auth";
+import { Search } from "../components/icons";
 
 const MemoedListItem = memo(function ListItem(props: {
   communitySlug: string;
@@ -103,7 +102,7 @@ export default function Communities() {
           </form>
           <IonButtons slot="end" className="gap-3.5 md:gap-4.t">
             <Link to="/communities/s" className="text-2xl contents md:hidden">
-              <IonIcon icon={searchOutline} className="text-muted-foreground" />
+              <Search className="text-muted-foreground scale-110" />
             </Link>
             <CommunitySortSelect />
             <UserDropdown />
