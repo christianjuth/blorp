@@ -642,13 +642,31 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
 
     const { data: sort } = commentSortSchema.safeParse(form.sort);
 
-    const { comments } = await this.client.getComments(
+    const comments: lemmyV3.CommentView[] = [];
+
+    const isFirstPage =
+      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN;
+    if (form.maxDepth && isFirstPage) {
+      const depthComments = await this.client.getComments(
+        {
+          sort,
+          post_id,
+          type_: "All",
+          limit: 300,
+          max_depth: form.maxDepth,
+          saved_only: form.savedOnly,
+        },
+        options,
+      );
+      comments.push(...depthComments.comments);
+    }
+
+    const breathComments = await this.client.getComments(
       {
         sort,
         post_id,
         type_: "All",
         limit: this.limit,
-        max_depth: form.maxDepth,
         page:
           _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
             ? 1
@@ -657,6 +675,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
       },
       options,
     );
+    comments.push(...breathComments.comments);
 
     const nextCursor =
       _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
@@ -664,11 +683,10 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
         : _.parseInt(form.pageCursor) + 1;
     // Lemmy next cursor is broken when maxDepth is present.
     // It will page out to infinity until we get rate limited
-    const hasNextCursor =
-      _.isNil(form.maxDepth) && comments.length >= this.limit;
+    const hasNextCursor = breathComments.comments.length >= this.limit;
 
     return {
-      comments: comments.map(convertComment),
+      comments: _.uniqBy(comments, (c) => c.comment.id).map(convertComment),
       creators: comments.map(({ creator }) =>
         convertPerson({ person: creator }),
       ),
