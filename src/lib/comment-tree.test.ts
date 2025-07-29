@@ -1,30 +1,60 @@
 import { describe, test, expect } from "vitest";
 import { buildCommentTree, CommentTreeTopLevel } from "./comment-tree";
 
+const communitySlug = "memes@blorpblorp.xyz";
+const postApId = `https://blorpblorp.xyz/p/123456`;
+
 describe("buildCommentTree", () => {
   test.each([
     [
       "top level comments",
       [
-        { path: "0.1234" },
-        { path: "0.1234.5678" },
-        { path: "0.1234.5678.9101112" },
+        { path: "0.1234", childCount: 2, communitySlug, postApId, id: 1234 },
+        {
+          path: "0.1234.5678",
+          childCount: 1,
+          communitySlug,
+          postApId,
+          id: 5678,
+        },
+        {
+          path: "0.1234.5678.9101112",
+          childCount: 0,
+          communitySlug,
+          postApId,
+          id: 9101112,
+        },
       ],
       {
         1234: {
           sort: 0,
+          imediateChildren: 1,
           comment: {
+            id: 1234,
             path: "0.1234",
+            childCount: 2,
+            communitySlug,
+            postApId,
           },
           5678: {
             sort: 1,
+            imediateChildren: 1,
             comment: {
+              id: 5678,
               path: "0.1234.5678",
+              childCount: 1,
+              communitySlug,
+              postApId,
             },
             9101112: {
               sort: 2,
+              imediateChildren: 0,
               comment: {
+                id: 9101112,
                 path: "0.1234.5678.9101112",
+                childCount: 0,
+                communitySlug,
+                postApId,
               },
             },
           },
@@ -34,18 +64,44 @@ describe("buildCommentTree", () => {
     ],
     [
       "subtree of comments",
-      [{ path: "0.1234.5678" }, { path: "0.1234.5678.9101112" }],
+      [
+        {
+          path: "0.1234.5678",
+          childCount: 1,
+          communitySlug,
+          postApId,
+          id: 5678,
+        },
+        {
+          path: "0.1234.5678.9101112",
+          childCount: 0,
+          communitySlug,
+          postApId,
+          id: 9101112,
+        },
+      ],
       {
         1234: {
+          imediateChildren: 0,
           5678: {
+            imediateChildren: 1,
             9101112: {
+              imediateChildren: 0,
               comment: {
+                id: 9101112,
                 path: "0.1234.5678.9101112",
+                childCount: 0,
+                communitySlug,
+                postApId,
               },
               sort: 1,
             },
             comment: {
+              id: 5678,
               path: "0.1234.5678",
+              childCount: 1,
+              communitySlug,
+              postApId,
             },
             sort: 0,
           },

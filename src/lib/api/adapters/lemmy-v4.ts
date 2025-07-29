@@ -178,6 +178,7 @@ function convertComment(commentView: lemmyV4.CommentView): Schemas.Comment {
     communityApId: community.ap_id,
     postTitle: post.name,
     myVote: commentView.comment_actions?.like_score ?? null,
+    childCount: comment.child_count,
   };
 }
 

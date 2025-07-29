@@ -217,6 +217,7 @@ function convertComment(commentView: lemmyV3.CommentView): Schemas.Comment {
     communityApId: community.actor_id,
     postTitle: post.name,
     myVote: commentView.my_vote ?? null,
+    childCount: counts.child_count,
   };
 }
 function convertPrivateMessage(
@@ -655,6 +656,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
           limit: 300,
           max_depth: form.maxDepth,
           saved_only: form.savedOnly,
+          parent_id: form.parentId,
         },
         options,
       );
@@ -672,6 +674,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
             ? 1
             : _.parseInt(form.pageCursor) + 1,
         saved_only: form.savedOnly,
+        parent_id: form.parentId,
       },
       options,
     );

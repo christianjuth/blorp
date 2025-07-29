@@ -178,13 +178,11 @@ export function PostComment({
 
   const blockPerson = useBlockPerson();
 
-  const { comment: commentPath, ...rest } = commentTree;
+  const { comment, ...rest } = commentTree;
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const commentView = useCommentsStore((s) =>
-    commentPath
-      ? s.comments[getCachePrefixer()(commentPath.path)]?.data
-      : undefined,
+    comment ? s.comments[getCachePrefixer()(comment.path)]?.data : undefined,
   );
   const isAdmin = commentView && adminApIds?.includes(commentView?.creatorApId);
   const isMod = commentView && modApIds?.includes(commentView?.creatorApId);
@@ -193,7 +191,7 @@ export function PostComment({
 
   const isMyComment = commentView?.creatorId === myUserId;
 
-  const sorted = _.entries(_.omit(rest, "sort")).sort(
+  const sorted = _.entries(_.omit(rest, ["sort", "imediateChildren"])).sort(
     ([_id1, a], [_id2, b]) => a.sort - b.sort,
   );
 
@@ -220,15 +218,15 @@ export function PostComment({
   }
 
   const parentLink = useMemo(() => {
-    if (level > 0 || !commentPath || !singleCommentThread) {
+    if (level > 0 || !comment || !singleCommentThread) {
       return undefined;
     }
-    const parent = commentPath.path.split(".").slice(-2);
+    const parent = comment.path.split(".").slice(-2);
     if (parent.length < 1 || parent?.includes("0")) {
       return undefined;
     }
     return parent.join(".");
-  }, [level, commentPath, singleCommentThread]);
+  }, [level, comment, singleCommentThread]);
 
   const open =
     useDetailsStore((s) =>
@@ -486,7 +484,9 @@ export function PostComment({
             </div>
           )}
 
-          {(sorted.length > 0 || (replyState && media.md)) && (
+          {(sorted.length > 0 ||
+            rest.imediateChildren > 0 ||
+            (replyState && media.md)) && (
             <div
               className="border-l-[1.5px] border-b-[1.5px] pl-3 md:pl-3.5 rounded-bl-xl mb-2"
               style={{ borderColor: color }}
@@ -511,7 +511,21 @@ export function PostComment({
                 />
               ))}
 
-              <div className="h-1 -mt-1 w-full bg-background translate-y-0.5" />
+              {comment && sorted.length < rest.imediateChildren ? (
+                <Link
+                  to={`${linkCtx.root}c/:communityName/posts/:post/comments/:comment`}
+                  params={{
+                    communityName: comment.communitySlug,
+                    post: encodeURIComponent(comment.postApId),
+                    comment: String(comment.id),
+                  }}
+                  className="translate-y-1/2 pl-2 bg-background block"
+                >
+                  View more
+                </Link>
+              ) : (
+                <div className="h-1 -mt-1 w-full bg-background translate-y-0.5" />
+              )}
             </div>
           )}
         </CollapsibleContent>

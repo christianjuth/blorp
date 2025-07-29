@@ -260,7 +260,7 @@ export const pieFedCommentSchema = z.object({
 });
 
 export const pieFedCommentCountsSchema = z.object({
-  //child_count: z.number(),
+  child_count: z.number(),
   //comment_id: z.number(),
   downvotes: z.number(),
   //published: z.string(),
@@ -525,6 +525,7 @@ function convertComment(
     communityApId: community.actor_id,
     postTitle: post.title,
     myVote: commentView.my_vote ?? null,
+    childCount: counts.child_count,
   };
 }
 

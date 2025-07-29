@@ -982,6 +982,7 @@ export function useCreateComment() {
         communityApId: "",
         postTitle: "",
         myVote: 1,
+        childCount: 0,
       };
 
       cacheComments(getCachePrefixer(), [newComment]);
