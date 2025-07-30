@@ -302,7 +302,7 @@ const pieFedCommentViewSchema = z.object({
   post: pieFedPostSchema,
   //saved: z.boolean(),
   //subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
-  replies: z.array(pieFedCommentChildSchema),
+  replies: z.array(pieFedCommentChildSchema).optional(),
 });
 
 export const pieFedCommentReplySchema = z.object({
@@ -1159,21 +1159,26 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
   }
 
   async createComment(form: Forms.CreateComment): Promise<Schemas.Comment> {
-    const { post_id } = await this.resolveObjectId(form.postApId);
+    try {
+      const { post_id } = await this.resolveObjectId(form.postApId);
 
-    const json = await this.post("/comment", {
-      body: form.body,
-      post_id,
-      parent_id: form.parentId,
-    });
+      const json = await this.post("/comment", {
+        body: form.body,
+        post_id,
+        parent_id: form.parentId,
+      });
 
-    const { comment_view } = z
-      .object({
-        comment_view: pieFedCommentViewSchema,
-      })
-      .parse(json);
+      const { comment_view } = z
+        .object({
+          comment_view: pieFedCommentViewSchema,
+        })
+        .parse(json);
 
-    return convertComment(comment_view);
+      return convertComment(comment_view);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async deleteComment(form: Forms.DeleteComment): Promise<Schemas.Comment> {
