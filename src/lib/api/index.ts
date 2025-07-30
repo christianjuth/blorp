@@ -614,7 +614,7 @@ export function useSite({ instance }: { instance: string }) {
   });
 }
 
-export function useRegister(config?: {
+export function useRegister(config: {
   addAccount?: boolean;
   instance?: string;
 }) {
@@ -626,17 +626,20 @@ export function useRegister(config?: {
   const mutation = useMutation({
     mutationFn: async (form: Forms.Register) => {
       const res = await (await api).register(form);
-      if (res.jwt) {
+      if (res.jwt && config.instance) {
         const payload = {
           jwt: res.jwt,
         };
-        if (config?.addAccount && config.instance) {
+        if (config?.addAccount) {
           addAccount({
             ...payload,
             instance: config.instance,
           });
         } else {
-          updateSelectedAccount(payload);
+          updateSelectedAccount({
+            ...payload,
+            instance: config.instance,
+          });
         }
       }
       return res;
@@ -671,7 +674,7 @@ export function useRegister(config?: {
   };
 }
 
-export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
+export function useLogin(config: { addAccount?: boolean; instance?: string }) {
   const { api } = useApiClients(config);
 
   const updateSelectedAccount = useAuth((s) => s.updateSelectedAccount);
@@ -680,17 +683,20 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
   const mutation = useMutation({
     mutationFn: async (form: Forms.Login) => {
       const res = await (await api).login(form);
-      if (res.jwt) {
+      if (res.jwt && config.instance) {
         const payload = {
           jwt: res.jwt,
         };
-        if (config?.addAccount && config.instance) {
+        if (config?.addAccount) {
           addAccount({
             ...payload,
             instance: config.instance,
           });
         } else {
-          updateSelectedAccount(payload);
+          updateSelectedAccount({
+            ...payload,
+            instance: config?.instance,
+          });
         }
       }
       return res;

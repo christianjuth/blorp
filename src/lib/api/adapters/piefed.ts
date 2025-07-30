@@ -782,6 +782,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         instance: this.instance,
         admins: site.admins.map((p) => convertPerson(p, "full")),
         me: me ? convertPerson({ person: me }, "partial") : null,
+        myEmail: null,
         version: site.version,
         // TODO: get these counts
         usersActiveDayCount: null,

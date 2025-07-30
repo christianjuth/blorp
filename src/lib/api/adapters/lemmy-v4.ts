@@ -238,6 +238,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
       instance: this.instance,
       admins: site.admins.map((p) => convertPerson(p)),
       me: null,
+      myEmail: null,
       version: site.version,
       /* me: me ? convertPerson(me) : null, */
       moderates: [],

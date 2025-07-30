@@ -352,6 +352,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
       instance: this.instance,
       admins: site.admins.map((p) => convertPerson(p)),
       me: me ? convertPerson({ person: me }) : null,
+      myEmail: site.my_user?.local_user_view.local_user.email ?? null,
       version: site.version,
       usersActiveDayCount: site.site_view.counts.users_active_day,
       usersActiveWeekCount: site.site_view.counts.users_active_week,

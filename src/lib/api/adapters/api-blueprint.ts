@@ -93,6 +93,7 @@ export const siteSchema = z.object({
   privateInstance: z.boolean(),
   instance: z.string(),
   me: personSchema.nullable(),
+  myEmail: z.string().nullable(),
   admins: z.array(personSchema),
   moderates: z.array(communitySchema).nullable(),
   follows: z.array(communitySchema).nullable(),

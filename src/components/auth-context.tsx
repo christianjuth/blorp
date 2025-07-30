@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { getAccountSite, parseAccountInfo, useAuth } from "@/src/stores/auth";
+import { getAccountSite, useAuth } from "@/src/stores/auth";
 import {
   useCaptcha,
   useInstances,
