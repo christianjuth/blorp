@@ -12,7 +12,7 @@ import {
   parseAccountInfo,
   useAuth,
 } from "../../stores/auth";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
 import { useSettingsStore } from "../../stores/settings";
@@ -1613,12 +1613,14 @@ export function useInstances() {
 
         return _.uniqBy(
           [
-            ...lemmy.map((item) => ({
-              baseUrl: item.baseurl,
-              url: item.url,
-              score: item.score,
-              software: "lemmy",
-            })),
+            ...lemmy
+              .filter((item) => item.private !== true)
+              .map((item) => ({
+                baseUrl: item.baseurl,
+                url: item.url,
+                score: item.score,
+                software: "lemmy",
+              })),
             ...INSTANCES,
           ],
           ({ url }) => url,
