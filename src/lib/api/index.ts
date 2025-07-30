@@ -12,7 +12,7 @@ import {
   parseAccountInfo,
   useAuth,
 } from "../../stores/auth";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import _ from "lodash";
 import { usePostsStore } from "../../stores/posts";
 import { useSettingsStore } from "../../stores/settings";
@@ -44,10 +44,15 @@ import pTimeout from "p-timeout";
 import { SetOptional } from "type-fest";
 import { INSTANCES } from "./adapters/instances-data";
 import { env } from "@/src/env";
-import { isNotNil } from "../utils";
+import { isErrorLike, isNotNil } from "../utils";
 
 enum Errors2 {
   OBJECT_NOT_FOUND = "couldnt_find_object",
+}
+
+function extractErrorContent(err: Error) {
+  const content = err.message || err.name;
+  return content ? _.capitalize(content.replaceAll("_", " ")) : "Unknown error";
 }
 
 export function useApiClients(config?: { instance?: string }) {
@@ -609,7 +614,7 @@ export function useSite({ instance }: { instance: string }) {
   });
 }
 
-export function useRegister(config?: {
+export function useRegister(config: {
   addAccount?: boolean;
   instance?: string;
 }) {
@@ -621,17 +626,20 @@ export function useRegister(config?: {
   const mutation = useMutation({
     mutationFn: async (form: Forms.Register) => {
       const res = await (await api).register(form);
-      if (res.jwt) {
+      if (res.jwt && config.instance) {
         const payload = {
           jwt: res.jwt,
         };
-        if (config?.addAccount && config.instance) {
+        if (config?.addAccount) {
           addAccount({
             ...payload,
             instance: config.instance,
           });
         } else {
-          updateSelectedAccount(payload);
+          updateSelectedAccount({
+            ...payload,
+            instance: config.instance,
+          });
         }
       }
       return res;
@@ -654,12 +662,8 @@ export function useRegister(config?: {
     },
     onError: (err) => {
       if (err !== Errors.MFA_REQUIRED) {
-        let errorMsg = "Unkown error";
-        if (err.message) {
-          errorMsg = _.capitalize(err?.message?.replaceAll("_", " "));
-        }
-        toast.error(errorMsg);
-        console.error(errorMsg);
+        toast.error(extractErrorContent(err));
+        console.error(extractErrorContent(err));
       }
     },
   });
@@ -670,7 +674,7 @@ export function useRegister(config?: {
   };
 }
 
-export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
+export function useLogin(config: { addAccount?: boolean; instance?: string }) {
   const { api } = useApiClients(config);
 
   const updateSelectedAccount = useAuth((s) => s.updateSelectedAccount);
@@ -679,17 +683,20 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
   const mutation = useMutation({
     mutationFn: async (form: Forms.Login) => {
       const res = await (await api).login(form);
-      if (res.jwt) {
+      if (res.jwt && config.instance) {
         const payload = {
           jwt: res.jwt,
         };
-        if (config?.addAccount && config.instance) {
+        if (config?.addAccount) {
           addAccount({
             ...payload,
             instance: config.instance,
           });
         } else {
-          updateSelectedAccount(payload);
+          updateSelectedAccount({
+            ...payload,
+            instance: config?.instance,
+          });
         }
       }
       return res;
@@ -697,12 +704,8 @@ export function useLogin(config?: { addAccount?: boolean; instance?: string }) {
     onMutate: () => {},
     onError: (err) => {
       if (err !== Errors.MFA_REQUIRED) {
-        let errorMsg = "Unkown error";
-        if (err.message) {
-          errorMsg = _.capitalize(err?.message?.replaceAll("_", " "));
-        }
-        toast.error(errorMsg);
-        console.error(errorMsg);
+        toast.error(extractErrorContent(err));
+        console.error(err);
       }
     },
   });
@@ -831,6 +834,62 @@ export function useLogout() {
   return mut;
 }
 
+export function useUpdateUserSettings() {
+  const queryClient = useQueryClient();
+  const queryKey = useRefreshAuthKey();
+
+  return useMutation({
+    mutationFn: async ({
+      account,
+      form,
+    }: {
+      account: Account;
+      form: Forms.SaveUserSettings;
+    }) => {
+      const api = await apiClient(account);
+      await api.saveUserSettings(form);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey,
+      });
+    },
+    onError: (err) => {
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
+      } else {
+        toast.error("An unexpected error occured");
+      }
+      console.error(err);
+    },
+  });
+}
+
+export function useRemoveUserAvatar() {
+  const queryClient = useQueryClient();
+  const queryKey = useRefreshAuthKey();
+
+  return useMutation({
+    mutationFn: async (account: Account) => {
+      const api = await apiClient(account);
+      await api.removeUserAvatar();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey,
+      });
+    },
+    onError: (err) => {
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
+      } else {
+        toast.error("An unexpected error occured");
+      }
+      console.error(err);
+    },
+  });
+}
+
 export function useLikePost(apId: string) {
   const { api } = useApiClients();
 
@@ -862,8 +921,8 @@ export function useLikePost(apId: string) {
       patchPost(apId, getCachePrefixer(), {
         optimisticMyVote: undefined,
       });
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         let verb = "";
         switch (vote) {
@@ -910,8 +969,8 @@ export function useLikeComment() {
       patchComment(path, getCachePrefixer(), () => ({
         optimisticMyVote: undefined,
       }));
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         let verb = "";
         switch (score) {
@@ -1336,8 +1395,8 @@ export function useMarkPriavteMessageRead() {
       });
     },
     onError: (err, { read }) => {
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error(`Couldn't mark message ${read ? "read" : "unread"}`);
       }
@@ -1560,12 +1619,14 @@ export function useInstances() {
 
         return _.uniqBy(
           [
-            ...lemmy.map((item) => ({
-              baseUrl: item.baseurl,
-              url: item.url,
-              score: item.score,
-              software: "lemmy",
-            })),
+            ...lemmy
+              .filter((item) => item.private !== true)
+              .map((item) => ({
+                baseUrl: item.baseurl,
+                url: item.url,
+                score: item.score,
+                software: "lemmy",
+              })),
             ...INSTANCES,
           ],
           ({ url }) => url,
@@ -1623,8 +1684,8 @@ export function useFollowCommunity() {
           },
         });
       }
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error("Couldn't follow community");
       }
@@ -1655,8 +1716,8 @@ export function useMarkReplyRead() {
       });
     },
     onError: (err, { read }) => {
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error(`Couldn't mark post ${read ? "read" : "unread"}`);
       }
@@ -1682,8 +1743,8 @@ export function useMarkPersonMentionRead() {
       });
     },
     onError: (err, { read }) => {
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error(`Couldn't mark mention ${read ? "read" : "unread"}`);
       }
@@ -1723,8 +1784,8 @@ export function useCreatePost() {
       }
     },
     onError: (err) => {
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error("Couldn't create post");
       }
@@ -1749,8 +1810,8 @@ export function useEditPost(apId: string) {
       }
     },
     onError: (err) => {
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error("Couldn't update post");
       }
@@ -1764,8 +1825,8 @@ export function useCreatePostReport() {
     mutationFn: async (form: Forms.CreatePostReport) =>
       (await api).createPostReport(form),
     onError: (err) => {
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error("Couldn't create post report");
       }
@@ -1779,8 +1840,8 @@ export function useCreateCommentReport() {
     mutationFn: async (form: Forms.CreateCommentReport) =>
       (await api).createCommentReport(form),
     onError: (err) => {
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error("Couldn't create comment report");
       }
@@ -1796,8 +1857,8 @@ export function useBlockPerson(account?: Account) {
     mutationFn: async (form: Forms.BlockPerson) =>
       (await api).blockPerson(form),
     onError: (err, { block }) => {
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error(`Couldn't ${block ? "block" : "unblock"} person`);
       }
@@ -1817,8 +1878,8 @@ export function useBlockCommunity(account?: Account) {
     mutationFn: async (form: Forms.BlockCommunity) =>
       (await api).blockCommunity(form),
     onError: (err, { block }) => {
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error(`Couldn't ${block ? "block" : "unblock"} community`);
       }
@@ -1861,8 +1922,8 @@ export function useSavePost(apId: string) {
       patchPost(apId, getCachePrefixer(), {
         optimisticSaved: undefined,
       });
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error(`Couldn't ${save ? "save" : "unsave"} post`);
       }
@@ -1892,8 +1953,8 @@ export function useDeletePost(apId: string) {
       patchPost(apId, getCachePrefixer(), {
         optimisticDeleted: undefined,
       });
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error(`Couldn't ${deleted ? "delete" : "restore"} post`);
       }
@@ -1925,8 +1986,8 @@ export function useMarkPostRead(apId: string) {
       patchPost(apId, getCachePrefixer(), {
         optimisticRead: undefined,
       });
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error(`Couldn't mark post ${read ? "read" : "unread"}`);
       }
@@ -1957,8 +2018,8 @@ export function useFeaturePost(apId: string) {
       patchPost(apId, getCachePrefixer(), {
         optimisticFeaturedCommunity: undefined,
       });
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error(`Couldn't ${featured ? "pin" : "unpin"} post`);
       }
@@ -1976,8 +2037,8 @@ export function useUploadImage() {
     onError: (err) => {
       // TOOD: find a way to determin if the request
       // failed because the image was too large
-      if (err instanceof Error) {
-        toast.error(_.capitalize(err.message.replaceAll("_", " ")));
+      if (isErrorLike(err)) {
+        toast.error(extractErrorContent(err));
       } else {
         toast.error("Failed to upload image");
       }

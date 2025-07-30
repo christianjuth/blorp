@@ -11,6 +11,7 @@ import {
 import { createSlug } from "../utils";
 import _ from "lodash";
 import z from "zod";
+import { isErrorLike } from "../../utils";
 
 const POST_SORTS: lemmyV4.PostSortType[] = [
   "Hot",
@@ -233,9 +234,11 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
     // TODO: uncomment once the below is implemented
     // const account = await this.client.getAccount();
     return {
+      privateInstance: site.site_view.local_site.private_instance,
       instance: this.instance,
       admins: site.admins.map((p) => convertPerson(p)),
       me: null,
+      myEmail: null,
       version: site.version,
       /* me: me ? convertPerson(me) : null, */
       moderates: [],
@@ -587,7 +590,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
       }
       return { jwt };
     } catch (err) {
-      if (_.isError(err) && is2faError(err)) {
+      if (isErrorLike(err) && is2faError(err)) {
         throw Errors.MFA_REQUIRED;
       }
       throw err;
@@ -722,6 +725,20 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
       registrationCreated: registration_created,
       verifyEmailSent: verify_email_sent,
     };
+  }
+
+  async saveUserSettings(form: Forms.SaveUserSettings) {
+    await this.client.saveUserSettings({
+      //avatar: form.avatar,
+      //banner: form.banner,
+      bio: form.bio,
+      display_name: form.displayName,
+      email: form.email,
+    });
+  }
+
+  async removeUserAvatar() {
+    await this.client.deleteUserAvatar();
   }
 
   getPostSorts() {

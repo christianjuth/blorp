@@ -61,6 +61,15 @@ function AccountCard({
       {isLoggedIn && (
         <>
           <SectionItem
+            to={resolveRoute("/settings/update-profile/:index", {
+              index: String(accountIndex),
+            })}
+          >
+            Update Profile
+            <FiChevronRight className="text-xl" />
+          </SectionItem>
+
+          <SectionItem
             to={resolveRoute("/settings/manage-blocks/:index", {
               index: String(accountIndex),
             })}

@@ -9,6 +9,7 @@ import { Providers } from "@/src/components/providers";
 import { applyCapacitorFixes } from "./lib/capacitor";
 
 import "remove-focus-outline";
+import { InstanceFavicon } from "./components/instance-favicon";
 
 applyCapacitorFixes();
 
@@ -22,6 +23,7 @@ export default function App() {
   return (
     <IonApp>
       <Providers>
+        <InstanceFavicon />
         <Router />
       </Providers>
     </IonApp>

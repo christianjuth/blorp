@@ -36,6 +36,7 @@ import { BadgeCount } from "./badge-count";
 import _ from "lodash";
 import { Separator } from "./ui/separator";
 import { formatOrdinal } from "../lib/utils";
+import { env } from "../env";
 
 function AccountNotificationBadge({
   accountIndex,
@@ -74,7 +75,12 @@ export function UserDropdown() {
   const content = (
     <BadgeCount showBadge={!!count}>
       <Avatar key={person ? 0 : 1}>
-        {person && <AvatarImage src={person.avatar ?? undefined} />}
+        {person && (
+          <AvatarImage
+            src={person.avatar ?? undefined}
+            className="object-cover"
+          />
+        )}
         <AvatarFallback>
           {person && person.slug?.substring(0, 1).toUpperCase()}
           {!person && <IoPerson />}
@@ -161,7 +167,10 @@ export function UserDropdown() {
               onClick={() => requireAuth()}
               data-testid="user-dropdown-login"
             >
-              Login / Change instance
+              Login
+              {env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE
+                ? ""
+                : " / Change instance"}
             </DropdownMenuItem>
           )}
         </>
@@ -306,7 +315,10 @@ export function UserSidebar() {
               className="flex flex-row items-center gap-2 w-full text-lg"
               data-testid="user-sidebar-login"
             >
-              Login / Change instance
+              Login
+              {env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE
+                ? ""
+                : " / Change instance"}
             </button>
           </IonMenuToggle>
         )}

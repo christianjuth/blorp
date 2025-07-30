@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useAuth } from "@/src/stores/auth";
+import { getAccountSite, useAuth } from "@/src/stores/auth";
 import {
   useCaptcha,
   useInstances,
@@ -88,9 +88,10 @@ const Context = createContext<{
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  useRefreshAuth();
+  const refresh = useRefreshAuth();
 
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
+  const site = useAuth((s) => getAccountSite(s.getSelectedAccount()));
 
   const [promise, setPromise] = useState<{
     resolve: (value: void) => any;
@@ -122,6 +123,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     [isLoggedIn],
   );
+
+  useEffect(() => {
+    if (refresh.isSuccess && !isLoggedIn && site?.privateInstance) {
+      authenticate();
+    }
+  }, [refresh.isSuccess, isLoggedIn, site, authenticate]);
 
   return (
     <Context.Provider
@@ -181,7 +188,7 @@ function SignupForm({
     e?.preventDefault();
     register
       .mutateAsync({
-        email,
+        email: email || undefined,
         username: userName,
         password: password,
         repeatPassword: verifyPassword,
@@ -232,7 +239,6 @@ function SignupForm({
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
-          required
         />
       </div>
 
@@ -292,7 +298,7 @@ function SignupForm({
       {captcha.data && (
         <div className="flex flex-row gap-4">
           <div className="flex flex-col justify-around items-center p-2">
-            <button onClick={() => captcha.refetch()}>
+            <button onClick={() => captcha.refetch()} type="button">
               <MdOutlineRefresh size={24} />
             </button>
 
@@ -556,11 +562,6 @@ function AuthModal({
                   key={i.url}
                   onClick={() => {
                     setInstanceLocal(i.url);
-                    if (!addAccount) {
-                      updateSelectedAccount({
-                        instance: i.url,
-                      });
-                    }
                   }}
                   className="py-2.5 text-lg border-b-[.5px] w-full text-start"
                 >
@@ -615,6 +616,7 @@ function AuthModal({
 
               {(login.needsMfa || _.isString(mfaToken)) && (
                 <InputOTP
+                  data-testid="otp-input"
                   maxLength={6}
                   defaultValue={mfaToken}
                   onChange={(newVal) => setMfaToken(newVal)}
@@ -656,26 +658,28 @@ function AuthModal({
                 </span>
               )}
 
-              <Button
-                type="button"
-                className="mx-auto"
-                variant="ghost"
-                onClick={() => {
-                  if (addAccount) {
-                    addAccountFn({
-                      instance: instance.url,
-                    });
-                  } else {
-                    updateSelectedAccount({
-                      instance: instance.url,
-                    });
-                  }
-                  setInstanceLocal();
-                  onClose();
-                }}
-              >
-                Continue as Guest
-              </Button>
+              {site.data?.privateInstance === false && (
+                <Button
+                  type="button"
+                  className="mx-auto"
+                  variant="ghost"
+                  onClick={() => {
+                    if (addAccount) {
+                      addAccountFn({
+                        instance: instance.url,
+                      });
+                    } else {
+                      updateSelectedAccount({
+                        instance: instance.url,
+                      });
+                    }
+                    setInstanceLocal();
+                    onClose();
+                  }}
+                >
+                  Continue as Guest
+                </Button>
+              )}
 
               <span className="mx-auto text-muted-foreground text-sm">
                 By logging in you agree to{" "}

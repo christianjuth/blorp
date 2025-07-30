@@ -90,8 +90,10 @@ const communitySchema = z.object({
     .optional(),
 });
 export const siteSchema = z.object({
+  privateInstance: z.boolean(),
   instance: z.string(),
   me: personSchema.nullable(),
+  myEmail: z.string().nullable(),
   admins: z.array(personSchema),
   moderates: z.array(communitySchema).nullable(),
   follows: z.array(communitySchema).nullable(),
@@ -419,6 +421,14 @@ export namespace Forms {
     captchaAnswer?: string;
     answer?: string;
   };
+
+  export type SaveUserSettings = {
+    avatar?: File;
+    banner?: File;
+    bio?: string;
+    displayName?: string;
+    email?: string;
+  };
 }
 
 type Paginated = {
@@ -595,6 +605,10 @@ export abstract class ApiBlueprint<C, S extends string> {
   abstract getCaptcha(options: RequestOptions): Promise<Schemas.Captcha>;
 
   abstract register(form: Forms.Register): Promise<Schemas.Registration>;
+
+  abstract saveUserSettings(form: Forms.SaveUserSettings): Promise<void>;
+
+  abstract removeUserAvatar(): Promise<void>;
 
   abstract getPostSorts(): readonly string[];
   abstract getCommentSorts(): readonly string[];

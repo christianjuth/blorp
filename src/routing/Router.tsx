@@ -48,6 +48,9 @@ const SettingsPage = lazy(
 const ManageBlocks = lazy(
   () => import("@/src/features/settings/manage-blocks-screen"),
 );
+const UpdateProfile = lazy(
+  () => import("@/src/features/settings/update-profile-screen"),
+);
 const CommunityFeed = lazy(() => import("@/src/features/community-feed"));
 const CommunitySidebar = lazy(() => import("@/src/features/community-sidebar"));
 const CommunitiesFeed = lazy(() => import("@/src/features/communities-feed"));
@@ -224,6 +227,12 @@ const SETTINGS = [
     path="/settings/manage-blocks/:index"
     component={ManageBlocks}
   />,
+  <Route
+    key="/settings/UpdateProfile/:index"
+    exact
+    path="/settings/update-profile/:index"
+    component={UpdateProfile}
+  />,
 ];
 
 function Tabs() {
@@ -287,7 +296,12 @@ function Tabs() {
                   }
                 }}
               >
-                {icon && <img src={icon} className="h-7.5 mr-1.5" />}
+                {icon && (
+                  <img
+                    src={icon}
+                    className="h-7.5 mr-1.5 aspect-square object-cover rounded-sm"
+                  />
+                )}
                 <span className="font-jersey text-3xl">
                   {siteTitle ?? "Loading..."}
                 </span>

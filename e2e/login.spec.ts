@@ -1,10 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { faker } from "@faker-js/faker";
+import z from "zod";
 
 const USERNAME = faker.internet.username();
 const JWT = "sdfkhsdkfjhsdfkjshdfksjdhfskjdhfskjhsfsdfsdkjfhs";
 
-test("loads post", async ({ page }, testInfo) => {
+test("login", async ({ page }, testInfo) => {
   await page.route("**/data/instance.full.json", async (route) => {
     const mockPayload = [
       {
@@ -70,7 +71,26 @@ test("loads post", async ({ page }, testInfo) => {
     });
   });
 
-  await page.route("**/api/**/user/login", async (route) => {
+  await page.route("**/api/**/user/login", async (route, request) => {
+    const body = request.postDataJSON();
+    const { totp_2fa_token } = z
+      .object({
+        totp_2fa_token: z.string().optional(),
+      })
+      .parse(body);
+
+    if (!totp_2fa_token) {
+      return await route.fulfill({
+        status: 400,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "missing_totp_token" }),
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+        },
+      });
+    }
+
     const mockPayload = {
       jwt: JWT,
       registration_created: false,
@@ -282,6 +302,10 @@ test("loads post", async ({ page }, testInfo) => {
   await authModal.getByPlaceholder("Password").fill("password");
 
   await page.getByText("Sign In").click();
+
+  await expect(page.getByText(USERNAME).first()).not.toBeAttached();
+
+  await authModal.getByTestId("otp-input").fill("123456");
 
   await expect(page.getByText(USERNAME).first()).toBeAttached();
 
