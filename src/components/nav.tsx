@@ -75,7 +75,12 @@ export function UserDropdown() {
   const content = (
     <BadgeCount showBadge={!!count}>
       <Avatar key={person ? 0 : 1}>
-        {person && <AvatarImage src={person.avatar ?? undefined} />}
+        {person && (
+          <AvatarImage
+            src={person.avatar ?? undefined}
+            className="object-cover"
+          />
+        )}
         <AvatarFallback>
           {person && person.slug?.substring(0, 1).toUpperCase()}
           {!person && <IoPerson />}
