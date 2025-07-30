@@ -78,6 +78,7 @@ export const routeDefs = {
   // Settings
   ...buildRoute("/settings"),
   ...buildRoute("/settings/manage-blocks/:index", manageAccountSchema),
+  ...buildRoute("/settings/update-profile/:index", manageAccountSchema),
   ...buildRoute("/settings/*"),
   // Other
   ...buildRoute("/download"),

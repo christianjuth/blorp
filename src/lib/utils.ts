@@ -49,3 +49,24 @@ export function formatOrdinal(n: number) {
 
   return `${n}${suffix}`;
 }
+
+interface ErrorLike {
+  name: string;
+  message: string;
+}
+
+export function isErrorLike(value: unknown): value is ErrorLike {
+  // real Error (and subclasses) get caught here:
+  if (_.isError(value)) {
+    return true;
+  }
+
+  // then check for object‑shape { name: string; message: string }
+  return (
+    _.isObjectLike(value) &&
+    _.has(value, "name") &&
+    _.has(value, "message") &&
+    _.isString(_.get(value, "name")) &&
+    _.isString(_.get(value, "message"))
+  );
+}

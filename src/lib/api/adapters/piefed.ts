@@ -778,6 +778,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       const site = pieFedSiteSchema.parse(json);
       const me = site.my_user?.local_user_view?.person;
       return {
+        privateInstance: false,
         instance: this.instance,
         admins: site.admins.map((p) => convertPerson(p, "full")),
         me: me ? convertPerson({ person: me }, "partial") : null,
@@ -1503,6 +1504,21 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     return {
       url,
     };
+  }
+
+  async saveUserSettings(form: Forms.SaveUserSettings) {
+    await this.put("/user/save_user_settings", {
+      avatar: form.avatar,
+      banner: form.banner,
+      bio: form.bio,
+      display_name: form.displayName,
+      email: form.email,
+    });
+  }
+
+  async removeUserAvatar() {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
   }
 
   async getCaptcha() {

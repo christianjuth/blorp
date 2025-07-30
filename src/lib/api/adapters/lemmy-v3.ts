@@ -11,9 +11,17 @@ import {
 import { createSlug } from "../utils";
 import _ from "lodash";
 import z from "zod";
+import { isErrorLike } from "../../utils";
 
 function is2faError(err?: Error | null) {
-  return err && err.message.includes("missing_totp_token");
+  if (!err) {
+    return false;
+  }
+  const msg = err.message.toLowerCase();
+  const name = err.name.toLowerCase();
+  return (
+    msg.includes("missing_totp_token") || name.includes("missing_totp_token")
+  );
 }
 
 const POST_SORTS: lemmyV3.SortType[] = [
@@ -339,6 +347,8 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
       site.site_view.local_site.enable_downvotes === true;
 
     return {
+      privateInstance: site.site_view.local_site.private_instance,
+      public: site,
       instance: this.instance,
       admins: site.admins.map((p) => convertPerson(p)),
       me: me ? convertPerson({ person: me }) : null,
@@ -751,7 +761,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
       }
       return { jwt };
     } catch (err) {
-      if (_.isError(err) && is2faError(err)) {
+      if (isErrorLike(err) && is2faError(err)) {
         throw Errors.MFA_REQUIRED;
       }
       throw err;
@@ -973,6 +983,33 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
       registrationCreated: registration_created,
       verifyEmailSent: verify_email_sent,
     };
+  }
+
+  async saveUserSettings(form: Forms.SaveUserSettings) {
+    let avatar: string | undefined = undefined;
+    let banner: string | undefined = undefined;
+
+    if (form.avatar) {
+      avatar = (await this.uploadImage({ image: form.avatar })).url;
+    }
+
+    if (form.banner) {
+      banner = (await this.uploadImage({ image: form.banner })).url;
+    }
+
+    await this.client.saveUserSettings({
+      avatar,
+      banner,
+      bio: form.bio,
+      display_name: form.displayName,
+      email: form.email,
+    });
+  }
+
+  async removeUserAvatar() {
+    await this.client.saveUserSettings({
+      avatar: "",
+    });
   }
 
   getPostSorts() {
