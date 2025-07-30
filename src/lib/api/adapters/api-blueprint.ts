@@ -137,6 +137,7 @@ export const commentSchema = z.object({
   deleted: z.boolean(),
   optimisticDeleted: z.boolean().optional(),
   postTitle: z.string(),
+  childCount: z.number(),
 });
 export const privateMessageSchema = z.object({
   createdAt: z.string(),

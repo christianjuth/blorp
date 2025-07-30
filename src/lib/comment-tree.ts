@@ -1,7 +1,14 @@
+import _ from "lodash";
+
 export interface CommentTree {
   comment?: {
+    id: number;
+    communitySlug: string;
+    postApId: string;
+    childCount: number;
     path: string;
   };
+  imediateChildren: number;
   sort: number;
   [key: number]: CommentTree;
 }
@@ -25,9 +32,14 @@ export interface CommentTreeTopLevel {
  */
 export function buildCommentTree(
   commentViews: {
+    id: number;
+    communitySlug: string;
+    postApId: string;
+    childCount: number;
     path: string;
   }[],
   commentPath?: string,
+  maxDepth = 6,
 ) {
   const map: CommentTreeTopLevel = {};
 
@@ -36,7 +48,8 @@ export function buildCommentTree(
   let i = 0;
 
   for (const view of commentViews) {
-    let loc = map;
+    let loc: CommentTreeTopLevel | CommentTree = map;
+
     let viewPath = view.path;
 
     if (firstCommentInPath && viewPath.indexOf(firstCommentInPath) > -1) {
@@ -51,11 +64,15 @@ export function buildCommentTree(
     }
 
     const [_, ...path] = viewPath.split(".");
+    if (path.length > maxDepth) {
+      continue;
+    }
 
     while (path.length > 1) {
-      const front: keyof typeof loc = path.shift()! as any;
+      const front = +path.shift()!;
       loc[front] = loc[front] ?? {
         sort: 0,
+        imediateChildren: 0,
       };
       loc = loc[front];
     }
@@ -66,9 +83,28 @@ export function buildCommentTree(
       ...loc[front],
       sort: i,
       comment: view,
+      imediateChildren: 0,
     };
     i++;
   }
 
+  countImediateChildre(map);
+
   return map;
+}
+
+function countImediateChildre(node: CommentTree | CommentTreeTopLevel) {
+  const children = _.values(
+    _.omit(node as CommentTree, ["sort", "comment", "imediateChildren"]),
+  );
+  let grandChildren = 0;
+  for (const child of children) {
+    if (child.comment) {
+      grandChildren += child.comment.childCount;
+    }
+    countImediateChildre(child);
+  }
+  if ("comment" in node && node.comment) {
+    node.imediateChildren = node.comment.childCount - grandChildren;
+  }
 }

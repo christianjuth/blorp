@@ -217,6 +217,7 @@ function convertComment(commentView: lemmyV3.CommentView): Schemas.Comment {
     communityApId: community.actor_id,
     postTitle: post.name,
     myVote: commentView.my_vote ?? null,
+    childCount: counts.child_count,
   };
 }
 function convertPrivateMessage(
@@ -642,31 +643,55 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
 
     const { data: sort } = commentSortSchema.safeParse(form.sort);
 
-    const { comments } = await this.client.getComments(
+    const comments: lemmyV3.CommentView[] = [];
+
+    const breath = this.client.getComments(
       {
         sort,
         post_id,
         type_: "All",
         limit: this.limit,
-        max_depth: form.maxDepth,
         page:
           _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
             ? 1
             : _.parseInt(form.pageCursor) + 1,
         saved_only: form.savedOnly,
+        parent_id: form.parentId,
       },
       options,
     );
+
+    const isFirstPage =
+      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN;
+    if (form.maxDepth && isFirstPage) {
+      const depth = await this.client.getComments(
+        {
+          sort,
+          post_id,
+          type_: "All",
+          limit: 300,
+          max_depth: form.maxDepth,
+          saved_only: form.savedOnly,
+          parent_id: form.parentId,
+        },
+        options,
+      );
+      comments.push(...depth.comments);
+    }
+
+    const breathComments = (await breath).comments;
+    comments.push(...breathComments);
 
     const nextCursor =
       _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
         ? 1
         : _.parseInt(form.pageCursor) + 1;
-    const hasNextCursor =
-      _.isNil(form.maxDepth) && comments.length >= this.limit;
+    // Lemmy next cursor is broken when maxDepth is present.
+    // It will page out to infinity until we get rate limited
+    const hasNextCursor = breathComments.length >= this.limit;
 
     return {
-      comments: comments.map(convertComment),
+      comments: _.uniqBy(comments, (c) => c.comment.id).map(convertComment),
       creators: comments.map(({ creator }) =>
         convertPerson({ person: creator }),
       ),

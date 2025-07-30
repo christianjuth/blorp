@@ -300,9 +300,6 @@ export function useComments(form: Forms.GetComments) {
   const cacheComments = useCommentsStore((s) => s.cacheComments);
   const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
-  const prevPageParam = useRef("");
-  const prevPage = useRef("");
-
   return useThrottledInfiniteQuery({
     queryKey,
     queryFn: async ({ pageParam, signal }) => {
@@ -318,18 +315,6 @@ export function useComments(form: Forms.GetComments) {
           signal,
         },
       );
-
-      const page = queryKey.join() + comments.map((c) => c.apId).join();
-
-      if (page === prevPage.current && pageParam !== prevPageParam.current) {
-        return {
-          comments: [],
-          nextCursor: null,
-        };
-      }
-
-      prevPage.current = page;
-      prevPageParam.current = pageParam;
 
       cacheComments(getCachePrefixer(), comments);
       cacheProfiles(getCachePrefixer(), creators);
@@ -997,6 +982,7 @@ export function useCreateComment() {
         communityApId: "",
         postTitle: "",
         myVote: 1,
+        childCount: 0,
       };
 
       cacheComments(getCachePrefixer(), [newComment]);
