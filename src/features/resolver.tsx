@@ -16,8 +16,6 @@ const origin = (() => {
   }
 })();
 
-console.log(origin);
-
 export default function ApResolver() {
   const location = useLocation();
   const history = useHistory();
