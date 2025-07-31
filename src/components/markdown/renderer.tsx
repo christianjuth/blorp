@@ -179,7 +179,7 @@ function createMd(root: ReturnType<typeof useLinkContext>["root"]) {
 
     render: function (tokens, idx) {
       const m = tokens[idx]!.info.trim().match(/^spoiler\s+(.*)$/);
-      const summary = m?.[0] ? md.utils.escapeHtml(m[0]) : "";
+      const summary = m?.[1] ? md.utils.escapeHtml(m[1]) : "";
 
       if (tokens[idx]!.nesting === 1) {
         // opening tag

@@ -2525,6 +2525,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@frsource/is-animated@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "@frsource/is-animated@npm:1.0.5"
+  checksum: 10c0/17756a58f97fa20b3ef21163a56852b5d112e3c209d8301df5f3814808a1e60186c884f9b15ee017fb57e5ae2ca886fe786aa09f53d1a92b3f8c6ac9133b32be
+  languageName: node
+  linkType: hard
+
 "@hapi/accept@npm:^6.0.3":
   version: 6.0.3
   resolution: "@hapi/accept@npm:6.0.3"
@@ -7112,6 +7119,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"browser-image-compression@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "browser-image-compression@npm:2.0.2"
+  dependencies:
+    uzip: "npm:0.20201231.0"
+  checksum: 10c0/32be07f8849f2de501a71f6dd07e691c085fc7a2055456eb120fe5d765e3fcf7de00696915a8d614527d4df10f34c31526304b7d18aae036bb1c58d801e3fcbd
+  languageName: node
+  linkType: hard
+
 "browserslist-to-esbuild@npm:^2.1.1":
   version: 2.1.1
   resolution: "browserslist-to-esbuild@npm:2.1.1"
@@ -10482,6 +10498,7 @@ __metadata:
     "@commitlint/config-conventional": "npm:^19.7.1"
     "@faker-js/faker": "npm:9.4.0"
     "@fetch-mock/vitest": "npm:^0.2.14"
+    "@frsource/is-animated": "npm:^1.0.5"
     "@ionic/core": "npm:8.5.7"
     "@ionic/react": "npm:8.5.7"
     "@ionic/react-router": "npm:^8.5.7"
@@ -10543,6 +10560,7 @@ __metadata:
     "@vitest/coverage-v8": "npm:3.2.4"
     "@vitest/ui": "npm:3.2.4"
     bowser: "npm:^2.11.0"
+    browser-image-compression: "npm:^2.0.2"
     capacitor-plugin-safe-area: "npm:^4.0.0"
     chromatic: "npm:^11.25.1"
     class-variance-authority: "npm:^0.7.1"
@@ -15302,6 +15320,13 @@ __metadata:
   bin:
     uuid: dist/bin/uuid
   checksum: 10c0/2eee5723b0fcce8256f5bfd3112af6c453b5471db00af9c3533e3d5a6e57de83513f9a145a570890457bd7abf2c2aa05797291d950ac666e5a074895dc63168b
+  languageName: node
+  linkType: hard
+
+"uzip@npm:0.20201231.0":
+  version: 0.20201231.0
+  resolution: "uzip@npm:0.20201231.0"
+  checksum: 10c0/44b261b20ac7e4d71e7099d7a7c4885626044be61cd246e76cf548fa444a4a37c301d1a683679168bc29c91d2ec81d62b8c1c75217a26b37f6ce35223866c2d2
   languageName: node
   linkType: hard
 

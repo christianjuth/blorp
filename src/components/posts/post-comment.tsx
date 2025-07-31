@@ -129,6 +129,7 @@ function Byline({
             <CakeDay
               className="ml-1.5 text-brand"
               date={profileView.createdAt}
+              isNewAccount={authorType === "ADMIN" ? false : undefined}
             />
           )}
         </Link>

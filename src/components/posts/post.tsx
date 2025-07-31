@@ -24,6 +24,9 @@ import removeMd from "remove-markdown";
 import { LuRepeat2 } from "react-icons/lu";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import { Separator } from "../ui/separator";
+import { SpotifyEmbed } from "./embeds/post-spotify-embed";
+import { SoundCloudEmbed } from "./embeds/soundcloud-embed";
+import { PeerTubeEmbed } from "./embeds/peertube-embed";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -292,6 +295,15 @@ export function FeedPostCard(props: PostProps) {
         />
       )}
 
+      {embed?.type === "peertube" && !post.deleted && post.url && (
+        <PeerTubeEmbed url={post.url} />
+      )}
+      {embed?.type === "soundcloud" && !post.deleted && post.url && (
+        <SoundCloudEmbed url={post.url} />
+      )}
+      {embed?.type === "spotify" && !post.deleted && post.url && (
+        <SpotifyEmbed url={post.url} />
+      )}
       {embed?.type === "video" && !post.deleted && post.url && (
         <PostVideoEmbed
           url={post.url}

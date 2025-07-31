@@ -45,6 +45,7 @@ import { SetOptional } from "type-fest";
 import { INSTANCES } from "./adapters/instances-data";
 import { env } from "@/src/env";
 import { isErrorLike, isNotNil } from "../utils";
+import { compressImage } from "../image";
 
 enum Errors2 {
   OBJECT_NOT_FOUND = "couldnt_find_object",
@@ -336,32 +337,15 @@ export function useComments(form: Forms.GetComments) {
   });
 }
 
-function usePostsKey(form: Forms.GetPosts) {
+function usePostsKey(form?: Forms.GetPosts) {
   const { queryKeyPrefix } = useApiClients();
 
   const postSort = useFiltersStore((s) => s.postSort);
-  const sort = form.sort ?? postSort;
+  const sort = form?.sort ?? postSort;
 
-  const queryKey = [...queryKeyPrefix, "getPosts"];
-
-  if (form.savedOnly) {
-    queryKey.push("savedOnly");
-  }
-
-  if (form.showRead) {
-    queryKey.push("showRead");
-  }
-
-  if (form.communitySlug) {
-    queryKey.push("community", form.communitySlug);
-  }
-
-  if (form.type) {
-    queryKey.push("type", form.type);
-  }
-
-  if (sort) {
-    queryKey.push(`sort-${sort}`);
+  const queryKey = [...queryKeyPrefix, sort];
+  if (form) {
+    queryKey.push(form);
   }
 
   return queryKey;
@@ -431,6 +415,8 @@ export function usePosts(form: Forms.GetPosts) {
     ...form,
   };
 
+  const queryKey = usePostsKey(form);
+
   const cachePosts = usePostsStore((s) => s.cachePosts);
   // const patchPost = usePostsStore((s) => s.patchPost);
 
@@ -478,8 +464,6 @@ export function usePosts(form: Forms.GetPosts) {
       nextCursor,
     };
   };
-
-  const queryKey = [...queryKeyPrefix, "getPosts", form];
 
   const query = useThrottledInfiniteQuery({
     queryKey,
@@ -846,6 +830,12 @@ export function useUpdateUserSettings() {
       account: Account;
       form: Forms.SaveUserSettings;
     }) => {
+      if (form.avatar) {
+        form.avatar = await compressImage(form.avatar);
+      }
+      if (form.banner) {
+        form.banner = await compressImage(form.banner);
+      }
       const api = await apiClient(account);
       await api.saveUserSettings(form);
     },
@@ -1755,6 +1745,8 @@ export function useMarkPersonMentionRead() {
 export function useCreatePost() {
   const router = useIonRouter();
   const { api } = useApiClients();
+  const queryClient = useQueryClient();
+  const getPostsQueryKey = usePostsKey();
   return useMutation({
     mutationFn: async (draft: Draft) => {
       if (!draft.communitySlug) {
@@ -1782,6 +1774,9 @@ export function useCreatePost() {
           `/home/c/${communitySlug}/posts/${encodeURIComponent(apId)}`,
         );
       }
+      queryClient.invalidateQueries({
+        queryKey: getPostsQueryKey,
+      });
     },
     onError: (err) => {
       if (isErrorLike(err)) {
@@ -2030,8 +2025,9 @@ export function useFeaturePost(apId: string) {
 export function useUploadImage() {
   const { api } = useApiClients();
   return useMutation({
-    mutationFn: async (form: Forms.UploadImage) => {
-      const res = await (await api).uploadImage(form);
+    mutationFn: async ({ image }: Forms.UploadImage) => {
+      const compressedImg = await compressImage(image);
+      const res = await (await api).uploadImage({ image: compressedImg });
       return res;
     },
     onError: (err) => {
