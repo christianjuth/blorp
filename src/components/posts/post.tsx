@@ -39,7 +39,6 @@ export interface PostProps {
   onNavigate?: () => any;
   featuredContext?: "community" | "home" | "user" | "search";
   modApIds?: string[];
-  adminApIds?: string[];
 }
 
 export function PostCardSkeleton(props: {
@@ -205,7 +204,6 @@ export function FeedPostCard(props: PostProps) {
             : props.detailView
         }
         isMod={props.modApIds?.includes(post.creatorApId)}
-        isAdmin={props.adminApIds?.includes(post.creatorApId)}
       />
 
       {props.detailView && post.crossPosts && post.crossPosts.length > 0 && (

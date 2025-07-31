@@ -31,7 +31,7 @@ import { dispatchScrollEvent } from "../lib/scroll-events";
 import { PostReportProvider } from "../components/posts/post-report";
 import { PageTitle } from "../components/page-title";
 import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
-import { getAccountSite, useAuth } from "../stores/auth";
+import { useAuth } from "../stores/auth";
 import { usePostsStore } from "../stores/posts";
 import { Search } from "../components/icons";
 
@@ -170,10 +170,6 @@ export default function HomeFeed() {
     type: listingType,
   });
 
-  const adminApIds = useAuth(
-    (s) => getAccountSite(s.getSelectedAccount())?.admins,
-  )?.map((a) => a.apId);
-
   const {
     hasNextPage,
     fetchNextPage,
@@ -295,7 +291,6 @@ export default function HomeFeed() {
                   key={item}
                   apId={item}
                   onNavigate={scrollAnimation.reset}
-                  adminApIds={adminApIds}
                 />
               );
             }}

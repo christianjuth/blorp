@@ -5,6 +5,7 @@ import { CakeSliceOutline, BabyOutline } from "./icons";
 interface Props {
   date: string;
   className?: string;
+  isNewAccount?: boolean;
 }
 
 function isWithinLast30Days(date: dayjs.Dayjs) {
@@ -22,7 +23,7 @@ const today = dayjs();
 export const CakeDay = memo(function CakeDay({ date, ...rest }: Props) {
   const createdAt = dayjs(date);
 
-  const isNewAccount = isWithinLast30Days(createdAt);
+  const isNewAccount = rest.isNewAccount ?? isWithinLast30Days(createdAt);
 
   if (isNewAccount) {
     return <BabyOutline {...rest} />;

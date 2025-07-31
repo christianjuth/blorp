@@ -7,7 +7,7 @@ import {
 import { useLinkContext } from "../../routing/link-context";
 import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
-import { useAuth, getAccountActorId } from "@/src/stores/auth";
+import { useAuth, getAccountActorId, getAccountSite } from "@/src/stores/auth";
 import { openUrl } from "@/src/lib/linking";
 import { useMemo, useState } from "react";
 import { Link } from "@/src/routing/index";
@@ -41,7 +41,6 @@ export function PostByline({
   showCreator,
   onNavigate,
   isMod = false,
-  isAdmin = false,
 }: {
   post: Schemas.Post;
   pinned: boolean;
@@ -49,7 +48,6 @@ export function PostByline({
   showCreator?: boolean;
   onNavigate?: () => void;
   isMod?: boolean;
-  isAdmin?: boolean;
 }) {
   const [alrt] = useIonAlert();
 
@@ -75,6 +73,11 @@ export function PostByline({
   const community = useCommunitiesStore(
     (s) => s.communities[getCachePrefixer()(post.communitySlug)]?.data,
   );
+
+  const adminApIds = useAuth(
+    (s) => getAccountSite(s.getSelectedAccount())?.admins,
+  )?.map((a) => a.apId);
+  const isAdmin = adminApIds?.includes(post.creatorApId) ?? false;
 
   const encodedApId = encodeApId(post.apId);
   const encodedCreatorApId = encodeApId(post.creatorApId);
@@ -219,22 +222,30 @@ export function PostByline({
 
       <div className="flex flex-col text-muted-foreground">
         {showCommunity && (
-          <CommunityHoverCard communityName={post.communitySlug}>
-            {communityName ? (
-              <Link
-                to={`${linkCtx.root}c/:communityName`}
-                params={{
-                  communityName: post.communitySlug,
-                }}
-                className="text-xs"
-                onClickCapture={onNavigate}
-              >
-                {communityPart}
-              </Link>
-            ) : (
-              <div className="text-xs">{communityPart}</div>
+          <div className="flex flex-row gap-1 items-center">
+            <CommunityHoverCard communityName={post.communitySlug}>
+              {communityName ? (
+                <Link
+                  to={`${linkCtx.root}c/:communityName`}
+                  params={{
+                    communityName: post.communitySlug,
+                  }}
+                  className="text-xs"
+                  onClickCapture={onNavigate}
+                >
+                  {communityPart}
+                </Link>
+              ) : (
+                <div className="text-xs">{communityPart}</div>
+              )}
+            </CommunityHoverCard>
+            {isAdmin && !showCreator && (
+              <>
+                <ShieldCheckmark className="text-brand ml-2 text-base" />
+                <span className="text-xs ml-1 text-brand">ADMIN</span>
+              </>
             )}
-          </CommunityHoverCard>
+          </div>
         )}
         {showCreator && (
           <div
@@ -268,7 +279,11 @@ export function PostByline({
               </>
             )}
             {creator && (
-              <CakeDay date={creator.createdAt} className="text-brand" />
+              <CakeDay
+                date={creator.createdAt}
+                className="text-brand"
+                isNewAccount={isAdmin ? false : undefined}
+              />
             )}
             {!showCommunity && (
               <RelativeTime
