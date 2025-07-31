@@ -30,6 +30,7 @@ import { getAccountSite, useAuth } from "../stores/auth";
 
 const CSAE = lazy(() => import("@/src/features/csae"));
 const NotFound = lazy(() => import("@/src/features/not-found"));
+const ApResolver = lazy(() => import("@/src/features/resolver"));
 const Download = lazy(() => import("@/src/features/download"));
 const Inbox = lazy(() => import("@/src/features/inbox"));
 const Messages = lazy(() => import("@/src/features/messages/messages-screen"));
@@ -339,6 +340,9 @@ function Tabs() {
               />
 
               <Route exact path="/instance" component={Instance} />
+              <Route exact path="/post/:id" component={ApResolver} />
+              <Route exact path="/user/:id" component={ApResolver} />
+              <Route exact path="/c/:id" component={ApResolver} />
               <Route exact path="/download" component={Download} />
               <Route exact path="/support" component={Support} />
               <Route exact path="/privacy" component={Privacy} />

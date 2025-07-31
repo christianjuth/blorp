@@ -2098,3 +2098,12 @@ export function useAvailableSorts() {
     },
   });
 }
+
+export function useResolveObject(query: string) {
+  const { api, queryKeyPrefix } = useApiClients();
+  return useQuery({
+    queryKey: [queryKeyPrefix, "resolveObject" + query],
+    queryFn: async ({ signal }) =>
+      await (await api).resolveObject({ q: query }, { signal }),
+  });
+}

@@ -1532,6 +1532,30 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     return {} as any;
   }
 
+  async resolveObject(form: Forms.ResolveObject, options: RequestOptions) {
+    const json = await this.get(
+      "/resolve_object",
+      {
+        q: form.q,
+      },
+      options,
+    );
+
+    const { post, community, person } = z
+      .object({
+        post: pieFedPostViewSchema.optional(),
+        community: pieFedCommentViewSchema.optional(),
+        person: pieFedPersonViewSchema.optional(),
+      })
+      .parse(json);
+
+    return {
+      post: post ? convertPost(post) : null,
+      community: community ? convertCommunity(community, "partial") : null,
+      user: person ? convertPerson(person, "partial") : null,
+    };
+  }
+
   getPostSorts() {
     return POST_SORTS;
   }
