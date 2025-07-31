@@ -121,7 +121,7 @@ function convertCommunity(
           usersActiveMonthCount: counts.users_active_month,
           usersActiveHalfYearCount: counts.users_active_half_year,
           postCount: counts.posts,
-          commentCount: counts.posts,
+          commentCount: counts.comments,
           subscriberCount: counts.subscribers,
           subscribersLocalCount: counts.subscribers_local,
         }
@@ -949,6 +949,9 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
   async uploadImage(form: Forms.UploadImage) {
     const res = await this.client.uploadImage(form);
     const fileId = res.files?.[0]?.file;
+    if (!fileId && res.msg !== "ok") {
+      throw new Error(res.msg);
+    }
     if (!res.url && fileId) {
       res.url = `${this.instance}/pictrs/image/${fileId}`;
     }
@@ -1011,6 +1014,20 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
     await this.client.saveUserSettings({
       avatar: "",
     });
+  }
+
+  async resolveObject(form: Forms.ResolveObject, options: RequestOptions) {
+    const { post, community, person } = await this.client.resolveObject(
+      {
+        q: form.q,
+      },
+      options,
+    );
+    return {
+      post: post ? convertPost(post) : null,
+      community: community ? convertCommunity(community) : null,
+      user: person ? convertPerson(person) : null,
+    };
   }
 
   getPostSorts() {

@@ -467,6 +467,7 @@ function ChooseCommunity({
 }) {
   const recentCommunities = useRecentCommunitiesStore();
 
+  const [searchFocused, setSeachFocused] = useState(false);
   const [search, setSearch] = useState("");
   const debouncedSetSearch = useCallback(_.debounce(setSearch, 500), []);
 
@@ -506,18 +507,25 @@ function ChooseCommunity({
     | "Recent"
     | "Subscribed"
     | "Search results"
-  )[] = [
-    "Recent",
-    ...recentCommunities.recentlyVisited.slice(0, 5),
-    "Subscribed",
-    ...subscribedCommunities,
-  ];
+  )[] = [];
 
-  if (search) {
-    data = ["Search results", ...searchResultsCommunities];
+  if (recentCommunities.recentlyVisited.length > 0) {
+    data.push("Recent", ...recentCommunities.recentlyVisited.slice(0, 5));
   }
+
+  if (recentCommunities.recentlyVisited.length > 0) {
+    data.push("Subscribed", ...subscribedCommunities);
+  }
+
+  if (search || searchFocused) {
+    data = ["Search results", ...searchResultsCommunities];
+  } else if (data.length === 0) {
+    // If the list is empty, we should this
+    data.push("Search results", ...searchResultsCommunities);
+  }
+
   if (selectedCommunity) {
-    data = ["Selected", selectedCommunity, ...data];
+    data.unshift("Selected", selectedCommunity);
   }
 
   data = _.uniqBy(data, (item) => {
@@ -552,6 +560,8 @@ function ChooseCommunity({
                   placeholder="Search communities"
                   defaultValue={search}
                   onChange={(e) => debouncedSetSearch(e.target.value)}
+                  onFocus={() => setSeachFocused(true)}
+                  onBlur={() => setSeachFocused(false)}
                 />
               </div>
             </ContentGutters>,

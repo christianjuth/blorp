@@ -236,7 +236,6 @@ export default function CommunityFeed() {
                   apId={item}
                   featuredContext="community"
                   modApIds={modApIds}
-                  adminApIds={adminApIds}
                 />
               );
             }}

@@ -203,6 +203,12 @@ export const slugSchema = z.custom<`${string}@${string}`>((val) => {
   return /^([\w-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/.test(val);
 });
 
+export const resolveObjectResponseSchema = z.object({
+  post: postSchema.nullable(),
+  community: communitySchema.nullable(),
+  user: personSchema.nullable(),
+});
+
 export namespace Schemas {
   export type Site = z.infer<typeof siteSchema>;
 
@@ -221,6 +227,8 @@ export namespace Schemas {
   export type UploadImageResponse = z.infer<typeof uploadImageResponseSchema>;
   export type Captcha = z.infer<typeof captchaSchema>;
   export type Registration = z.infer<typeof registrationResponseSchema>;
+
+  export type ResolveObject = z.infer<typeof resolveObjectResponseSchema>;
 }
 
 export namespace Forms {
@@ -429,6 +437,10 @@ export namespace Forms {
     displayName?: string;
     email?: string;
   };
+
+  export type ResolveObject = {
+    q: string;
+  };
 }
 
 type Paginated = {
@@ -609,6 +621,11 @@ export abstract class ApiBlueprint<C, S extends string> {
   abstract saveUserSettings(form: Forms.SaveUserSettings): Promise<void>;
 
   abstract removeUserAvatar(): Promise<void>;
+
+  abstract resolveObject(
+    form: Forms.ResolveObject,
+    options?: RequestOptions,
+  ): Promise<Schemas.ResolveObject>;
 
   abstract getPostSorts(): readonly string[];
   abstract getCommentSorts(): readonly string[];

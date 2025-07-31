@@ -20,9 +20,16 @@ const searchSchema = z.object({
 const manageAccountSchema = z.object({
   index: z.string(),
 });
+const idSchema = z.object({
+  id: z.string(),
+});
 
 export const routeDefs = {
   ...buildRoute("/instance"),
+  // activity pub resolver
+  ...buildRoute("/post/:id", idSchema),
+  ...buildRoute("/user/:id", idSchema),
+  ...buildRoute("/c/:id", idSchema),
   // Home
   ...buildRoute("/home"),
   ...buildRoute("/home/*"),

@@ -741,6 +741,11 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
     await this.client.deleteUserAvatar();
   }
 
+  async resolveObject(form: Forms.ResolveObject, options?: RequestOptions) {
+    throw Errors.NOT_IMPLEMENTED;
+    return {} as any;
+  }
+
   getPostSorts() {
     return POST_SORTS;
   }

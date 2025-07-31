@@ -359,41 +359,39 @@ export function CommunitySidebar({
 
         <Separator />
 
-        {communityView.description && (
-          <Collapsible
-            className="p-4"
-            open={aboutOpen}
-            onOpenChange={setAboutOpen}
-          >
-            <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
-              <span>ABOUT</span>
-              <ChevronsUpDown className="h-4 w-4" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="py-1">
-              {communityView.description && !hideDescription && (
-                <MarkdownRenderer
-                  markdown={communityView.description}
-                  dim
-                  className="pt-3"
-                />
-              )}
-
-              <AggregateBadges
-                className="mt-5"
-                aggregates={{
-                  "users / day": communityView?.usersActiveDayCount,
-                  "users / week": communityView?.usersActiveWeekCount,
-                  "users / month": communityView?.usersActiveMonthCount,
-                  "users / 6 months": communityView?.usersActiveHalfYearCount,
-                  "Local subscribers": communityView?.subscribersLocalCount,
-                  Subscribers: communityView?.subscriberCount,
-                  Posts: communityView?.postCount,
-                  Comments: communityView?.commentCount,
-                }}
+        <Collapsible
+          className="p-4"
+          open={aboutOpen}
+          onOpenChange={setAboutOpen}
+        >
+          <CollapsibleTrigger className="uppercase text-xs font-medium text-muted-foreground flex items-center justify-between w-full">
+            <span>ABOUT</span>
+            <ChevronsUpDown className="h-4 w-4" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="py-1">
+            {communityView.description && !hideDescription && (
+              <MarkdownRenderer
+                markdown={communityView.description}
+                dim
+                className="py-3"
               />
-            </CollapsibleContent>
-          </Collapsible>
-        )}
+            )}
+
+            <AggregateBadges
+              className="mt-2"
+              aggregates={{
+                "users / day": communityView?.usersActiveDayCount,
+                "users / week": communityView?.usersActiveWeekCount,
+                "users / month": communityView?.usersActiveMonthCount,
+                "users / 6 months": communityView?.usersActiveHalfYearCount,
+                "Local subscribers": communityView?.subscribersLocalCount,
+                Subscribers: communityView?.subscriberCount,
+                Posts: communityView?.postCount,
+                Comments: communityView?.commentCount,
+              }}
+            />
+          </CollapsibleContent>
+        </Collapsible>
 
         <Separator />
 
