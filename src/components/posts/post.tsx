@@ -194,8 +194,7 @@ export function FeedPostCard(props: PostProps) {
         post={post}
         pinned={pinned}
         showCreator={
-          (props.featuredContext !== "home" &&
-            props.featuredContext !== "user" &&
+          (props.featuredContext !== "user" &&
             props.featuredContext !== "search") ||
           props.detailView
         }

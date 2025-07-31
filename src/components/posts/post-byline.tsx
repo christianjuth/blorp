@@ -222,30 +222,22 @@ export function PostByline({
 
       <div className="flex flex-col text-muted-foreground">
         {showCommunity && (
-          <div className="flex flex-row gap-1 items-center">
-            <CommunityHoverCard communityName={post.communitySlug}>
-              {communityName ? (
-                <Link
-                  to={`${linkCtx.root}c/:communityName`}
-                  params={{
-                    communityName: post.communitySlug,
-                  }}
-                  className="text-xs"
-                  onClickCapture={onNavigate}
-                >
-                  {communityPart}
-                </Link>
-              ) : (
-                <div className="text-xs">{communityPart}</div>
-              )}
-            </CommunityHoverCard>
-            {isAdmin && !showCreator && (
-              <>
-                <ShieldCheckmark className="text-brand ml-2 text-base" />
-                <span className="text-xs ml-1 text-brand">ADMIN</span>
-              </>
+          <CommunityHoverCard communityName={post.communitySlug}>
+            {communityName ? (
+              <Link
+                to={`${linkCtx.root}c/:communityName`}
+                params={{
+                  communityName: post.communitySlug,
+                }}
+                className="text-xs"
+                onClickCapture={onNavigate}
+              >
+                {communityPart}
+              </Link>
+            ) : (
+              <div className="text-xs">{communityPart}</div>
             )}
-          </div>
+          </CommunityHoverCard>
         )}
         {showCreator && (
           <div
