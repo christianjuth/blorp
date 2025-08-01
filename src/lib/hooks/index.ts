@@ -9,7 +9,7 @@ import {
 import { InAppBrowser } from "@capacitor/inappbrowser";
 import { useHistory, useLocation } from "react-router-dom";
 import type z from "zod";
-import { useIonAlert } from "@ionic/react";
+import { AlertInput, useIonAlert } from "@ionic/react";
 import { Deferred } from "../deferred";
 export { useMedia } from "./use-media";
 export { useTheme } from "./use-theme";
@@ -128,35 +128,51 @@ export function useUrlSearchState<S extends z.ZodSchema>(
 export function useConfirmationAlert() {
   const [alrt] = useIonAlert();
 
-  return async ({
+  return async <Z extends z.AnyZodObject>({
     header,
     message,
     cancelText = "Cancel",
     confirmText = "OK",
     danger,
+    inputs,
+    schema,
   }: {
     header?: string;
     message: string;
     cancelText?: string;
     confirmText?: string;
     danger?: boolean;
+    inputs?: AlertInput[];
+    schema?: Z;
   }) => {
-    const deferred = new Deferred();
+    const deferred = new Deferred<z.infer<Z>>();
     alrt({
       header,
       message,
+      inputs,
       buttons: [
         {
           text: cancelText,
           role: "cancel",
-          handler: () => deferred.reject(),
         },
         {
           text: confirmText,
           role: danger ? "destructive" : "confirm",
-          handler: () => deferred.resolve(),
         },
       ],
+      onDidDismiss: (e) => {
+        if (e.detail.role === "cancel") {
+          deferred.reject();
+        } else {
+          try {
+            const data = schema?.parse(e.detail.data.values);
+            deferred.resolve(data);
+          } catch (err) {
+            console.error(err);
+            deferred.reject();
+          }
+        }
+      },
     });
     return await deferred.promise;
   };

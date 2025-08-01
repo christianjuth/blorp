@@ -385,6 +385,8 @@ function convertPost(
     title: post.title,
     body: post.body ?? null,
     thumbnailUrl: post.thumbnail_url ?? null,
+    // TODO: add this
+    embedVideoUrl: null,
     upvotes: counts.upvotes,
     downvotes: counts.downvotes,
     myVote: postView.my_vote,

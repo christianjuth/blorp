@@ -27,6 +27,8 @@ import { Separator } from "../ui/separator";
 import { SpotifyEmbed } from "./embeds/post-spotify-embed";
 import { SoundCloudEmbed } from "./embeds/soundcloud-embed";
 import { PeerTubeEmbed } from "./embeds/peertube-embed";
+import { VimeoEmbed } from "./embeds/vimeo-embed";
+import { GenericVideoEmbed } from "./embeds/generic-video-embed";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -287,39 +289,41 @@ export function FeedPostCard(props: PostProps) {
       {showArticle && (
         <PostArticleEmbed
           name={post.title}
-          url={showArticle ? post.url : undefined}
+          url={showArticle ? embed.embedUrl : undefined}
           displayUrl={showArticle ? displayUrl : undefined}
           thumbnail={showArticle ? embed.thumbnail : null}
           blurNsfw={blurImg}
         />
       )}
 
-      {embed?.type === "peertube" && !post.deleted && post.url && (
-        <PeerTubeEmbed url={post.url} />
+      {embed?.type === "generic-video" && !post.deleted && embed.embedUrl && (
+        <GenericVideoEmbed embedVideoUrl={embed.embedUrl} />
       )}
-      {embed?.type === "soundcloud" && !post.deleted && post.url && (
-        <SoundCloudEmbed url={post.url} />
+      {embed?.type === "vimeo" && !post.deleted && embed.embedUrl && (
+        <VimeoEmbed url={embed.embedUrl} />
       )}
-      {embed?.type === "spotify" && !post.deleted && post.url && (
-        <SpotifyEmbed url={post.url} />
+      {embed?.type === "peertube" && !post.deleted && embed.embedUrl && (
+        <PeerTubeEmbed url={embed.embedUrl} />
       )}
-      {embed?.type === "video" && !post.deleted && post.url && (
-        <PostVideoEmbed
-          url={post.url}
-          autoPlay={props.detailView}
-          blurNsfw={blurImg}
-        />
+      {embed?.type === "soundcloud" && !post.deleted && embed.embedUrl && (
+        <SoundCloudEmbed url={embed.embedUrl} />
       )}
-      {embed?.type === "loops" && !post.deleted && post.url && (
+      {embed?.type === "spotify" && !post.deleted && embed.embedUrl && (
+        <SpotifyEmbed url={embed.embedUrl} />
+      )}
+      {embed?.type === "video" && !post.deleted && embed.embedUrl && (
+        <PostVideoEmbed url={embed.embedUrl} blurNsfw={blurImg} />
+      )}
+      {embed?.type === "loops" && !post.deleted && embed.embedUrl && (
         <PostLoopsEmbed
-          url={post.url}
+          url={embed.embedUrl}
           thumbnail={embed.thumbnail}
           autoPlay={props.detailView}
           blurNsfw={blurImg}
         />
       )}
       {embed?.type === "youtube" && !post.deleted && (
-        <YouTubeVideoEmbed url={post.url} />
+        <YouTubeVideoEmbed url={embed.embedUrl} />
       )}
 
       {props.detailView && post.body && !post.deleted && (

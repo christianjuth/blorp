@@ -2,11 +2,9 @@ import { cn } from "@/src/lib/utils";
 
 export function PostVideoEmbed({
   url,
-  autoPlay = false,
   blurNsfw,
 }: {
   url: string;
-  autoPlay?: boolean;
   blurNsfw: boolean;
 }) {
   return (
@@ -18,7 +16,6 @@ export function PostVideoEmbed({
         )}
         src={url}
         controls
-        autoPlay={autoPlay}
         playsInline
       />
       {blurNsfw && (

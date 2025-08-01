@@ -38,6 +38,7 @@ export const postSchema = z.object({
   title: z.string(),
   body: z.string().nullable(),
   thumbnailUrl: z.string().nullable(),
+  embedVideoUrl: z.string().nullable(),
   thumbnailAspectRatio: z.number().nullable(),
   downvotes: z.number(),
   upvotes: z.number(),

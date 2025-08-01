@@ -81,6 +81,7 @@ export function getPost(config?: {
     communityApId: community.apId,
     thumbnailUrl: null,
     thumbnailAspectRatio: null,
+    embedVideoUrl: null,
     url: null,
     urlContentType: null,
     removed: false,

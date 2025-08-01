@@ -71,19 +71,19 @@ export function applyCapacitorFixes() {
   // is even when were not a native app
   registerSafeArea();
 
-  if (isCapacitor()) {
-    const mightChange = () => {
+  const mightChange = () => {
+    if (isCapacitor()) {
       accesibleTextSize();
-    };
+    }
+  };
 
-    mightChange();
-    const debouncedRehydrate = _.debounce(mightChange, 50);
+  mightChange();
+  const debouncedRehydrate = _.debounce(mightChange, 50);
 
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) {
-        debouncedRehydrate();
-      }
-    });
-    window.addEventListener("focus", debouncedRehydrate);
-  }
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      debouncedRehydrate();
+    }
+  });
+  window.addEventListener("focus", debouncedRehydrate);
 }

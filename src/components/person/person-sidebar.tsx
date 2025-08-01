@@ -31,6 +31,8 @@ import { ChevronsUpDown } from "lucide-react";
 import { useSidebarStore } from "@/src/stores/sidebars";
 import { AggregateBadges } from "../aggregates";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
+import { useTagUser, useTagUserStore } from "@/src/stores/user-tags";
+import { Badge } from "../ui/badge";
 
 dayjs.extend(localizedFormat);
 
@@ -51,13 +53,18 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
   const open = useSidebarStore((s) => s.personBioExpanded);
   const setOpen = useSidebarStore((s) => s.setPersonBioExpanded);
 
+  const tag = useTagUserStore((s) =>
+    person ? s.userTags[person.slug] : undefined,
+  );
+  const tagUser = useTagUser();
+
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
     () => [
       ...(person
         ? [
             {
-              text: "Message",
+              text: "Message user",
               onClick: () =>
                 router.push(
                   resolveRoute("/messages/chat/:userId", {
@@ -66,7 +73,7 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
                 ),
             },
             {
-              text: "Share",
+              text: "Share user",
               onClick: () =>
                 shareRoute(
                   resolveRoute(`${linkCtx.root}u/:userId`, {
@@ -75,7 +82,13 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
                 ),
             },
             {
-              text: "View source",
+              text: "Tag user",
+              onClick: async () => {
+                tagUser(person.slug, tag);
+              },
+            },
+            {
+              text: "View user source",
               onClick: async () => {
                 try {
                   openUrl(person.apId);
@@ -89,7 +102,7 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
       ...(person && person.apId !== myUserId
         ? [
             {
-              text: "Block person",
+              text: "Block user",
               onClick: async () => {
                 try {
                   await requireAuth();
@@ -124,6 +137,8 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
     [openSignal],
   );
 
+  const [name, host] = person ? person.slug.split("@") : [];
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -140,7 +155,7 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
             </Avatar>
 
             <ActionMenu
-              header="User actions"
+              header="User"
               align="end"
               actions={actions}
               trigger={
@@ -150,8 +165,15 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
             />
           </div>
 
-          <span className="font-bold text-ellipsis overflow-hidden">
-            {person?.slug}
+          <span className="flex items-center text-ellipsis overflow-hidden">
+            <b>{name}</b>
+            {tag ? (
+              <Badge size="sm" variant="brand" className="ml-2">
+                {tag}
+              </Badge>
+            ) : (
+              <i className="text-muted-foreground">@{host}</i>
+            )}
           </span>
 
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">

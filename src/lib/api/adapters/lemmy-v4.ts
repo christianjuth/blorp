@@ -124,10 +124,12 @@ function convertPost({
   community,
   creator,
   post_actions,
+  image_details,
 }: Pick<
   lemmyV4.PostView,
-  "post" | "community" | "creator" | "post_actions"
+  "post" | "community" | "creator" | "post_actions" | "image_details"
 >): Schemas.Post {
+  const ar = image_details ? image_details.width / image_details.height : null;
   return {
     id: post.id,
     createdAt: post.published_at,
@@ -135,6 +137,7 @@ function convertPost({
     title: post.name,
     body: post.body ?? null,
     thumbnailUrl: post.thumbnail_url ?? null,
+    embedVideoUrl: post.embed_video_url ?? null,
     upvotes: post.upvotes,
     downvotes: post.downvotes,
     commentsCount: post.comments,
@@ -146,7 +149,7 @@ function convertPost({
     creatorId: creator.id,
     creatorApId: creator.ap_id,
     creatorSlug: createSlug({ apId: creator.ap_id, name: creator.name }).slug,
-    thumbnailAspectRatio: null,
+    thumbnailAspectRatio: ar,
     url: post.url ?? null,
     urlContentType: post.url_content_type ?? null,
     crossPosts: [],

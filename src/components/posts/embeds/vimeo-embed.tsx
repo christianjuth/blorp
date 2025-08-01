@@ -1,10 +1,8 @@
 import { useMemo } from "react";
 
-export function PeerTubeEmbed({ url }: { url: string }) {
+export function VimeoEmbed({ url }: { url: string }) {
   const embedUrl = useMemo(() => {
-    return url
-      .replace("/videos/watch/", "/videos/embed/")
-      .replace("/w/", "/videos/embed/");
+    return url.replace("://vimeo.com/", "://player.vimeo.com/video/");
   }, [url]);
   return (
     <iframe
