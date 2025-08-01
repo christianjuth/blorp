@@ -33,6 +33,8 @@ import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import { CakeDay } from "../cake-day";
+import { useTagUser, useTagUserStore } from "@/src/stores/user-tags";
+import { Badge } from "../ui/badge";
 
 export function PostByline({
   post,
@@ -66,6 +68,8 @@ export function PostByline({
   const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
   const isMyPost = post.creatorApId === myUserId;
 
+  const tag = useTagUserStore((s) => s.userTags[post.creatorSlug]);
+
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const creator = useProfilesStore(
     (s) => s.profiles[getCachePrefixer()(post.creatorApId)]?.data,
@@ -84,11 +88,13 @@ export function PostByline({
 
   const saved = post.optimisticSaved ?? post.saved;
 
+  const tagUser = useTagUser();
+
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
     () => [
       {
-        text: saved ? "Unsave" : "Save",
+        text: saved ? "Unsave post" : "Save post",
         onClick: () =>
           requireAuth().then(() => {
             savePost.mutateAsync({
@@ -100,20 +106,25 @@ export function PostByline({
       ...(isMyPost && isMod
         ? [
             {
-              text: post.featuredCommunity
-                ? "Unpin in community"
-                : "Pin in community",
-              onClick: () =>
-                featurePost.mutate({
-                  featureType: "Community",
-                  postId: post.id,
-                  featured: !post.featuredCommunity,
-                }),
+              text: "Feature post",
+              actions: [
+                {
+                  text: post.featuredCommunity
+                    ? "Unfeature in community"
+                    : "Feature in community",
+                  onClick: () =>
+                    featurePost.mutate({
+                      featureType: "Community",
+                      postId: post.id,
+                      featured: !post.featuredCommunity,
+                    }),
+                },
+              ],
             },
           ]
         : []),
       {
-        text: "View source",
+        text: "View post source",
         onClick: async () => {
           try {
             openUrl(post.apId);
@@ -122,10 +133,16 @@ export function PostByline({
           }
         },
       },
+      {
+        text: "Tag creator",
+        onClick: async () => {
+          tagUser(post.creatorSlug, tag);
+        },
+      },
       ...(isMyPost
         ? [
             {
-              text: "Edit",
+              text: "Edit post",
               onClick: () => {
                 if (post && communityName) {
                   updateDraft(post.apId, postToDraft(post));
@@ -134,7 +151,7 @@ export function PostByline({
               },
             },
             {
-              text: post.deleted ? "Restore" : "Delete",
+              text: post.deleted ? "Restore post" : "Delete post",
               onClick: () =>
                 deletePost.mutate({
                   postId: post.id,
@@ -222,35 +239,27 @@ export function PostByline({
 
       <div className="flex flex-col text-muted-foreground">
         {showCommunity && (
-          <div className="flex flex-row gap-1 items-center">
-            <CommunityHoverCard communityName={post.communitySlug}>
-              {communityName ? (
-                <Link
-                  to={`${linkCtx.root}c/:communityName`}
-                  params={{
-                    communityName: post.communitySlug,
-                  }}
-                  className="text-xs"
-                  onClickCapture={onNavigate}
-                >
-                  {communityPart}
-                </Link>
-              ) : (
-                <div className="text-xs">{communityPart}</div>
-              )}
-            </CommunityHoverCard>
-            {isAdmin && !showCreator && (
-              <>
-                <ShieldCheckmark className="text-brand ml-2 text-base" />
-                <span className="text-xs ml-1 text-brand">ADMIN</span>
-              </>
+          <CommunityHoverCard communityName={post.communitySlug}>
+            {communityName ? (
+              <Link
+                to={`${linkCtx.root}c/:communityName`}
+                params={{
+                  communityName: post.communitySlug,
+                }}
+                className="text-xs"
+                onClickCapture={onNavigate}
+              >
+                {communityPart}
+              </Link>
+            ) : (
+              <div className="text-xs">{communityPart}</div>
             )}
-          </div>
+          </CommunityHoverCard>
         )}
         {showCreator && (
           <div
             className={cn(
-              "flex flex-row text-xs text-muted-foreground gap-1 items-center h-5",
+              "flex flex-row text-xs text-muted-foreground gap-2 items-center h-5",
               !showCommunity && "text-foreground",
             )}
           >
@@ -263,20 +272,26 @@ export function PostByline({
                 onClickCapture={onNavigate}
               >
                 {creatorName}
-                <i className="text-muted-foreground">@{creatorHost}</i>
+                {tag ? (
+                  <Badge size="sm" variant="brand" className="ml-2">
+                    {tag}
+                  </Badge>
+                ) : (
+                  <i className="text-muted-foreground">@{creatorHost}</i>
+                )}
               </Link>
             </PersonHoverCard>
             {isMod && !isAdmin && (
-              <>
-                <Shield className="text-green-500 ml-2 text-base" />
-                <span className="text-xs ml-1 text-green-500">MOD</span>
-              </>
+              <div className="flex gap-0.5">
+                <Shield className="text-green-500 text-base" />
+                <span className="text-xs text-green-500">MOD</span>
+              </div>
             )}
             {isAdmin && (
-              <>
-                <ShieldCheckmark className="text-brand ml-2 text-base" />
-                <span className="text-xs ml-1 text-brand">ADMIN</span>
-              </>
+              <div className="flex gap-0.5">
+                <ShieldCheckmark className="text-brand text-base" />
+                <span className="text-xs text-brand">ADMIN</span>
+              </div>
             )}
             {creator && (
               <CakeDay
@@ -288,7 +303,7 @@ export function PostByline({
             {!showCommunity && (
               <RelativeTime
                 time={post.createdAt}
-                className="ml-2 text-muted-foreground"
+                className="text-muted-foreground"
               />
             )}
           </div>
