@@ -95,7 +95,11 @@ function ResponsiveImage({ img }: { img: string }) {
               setImageNaturalHeight(e.currentTarget.naturalHeight);
             }}
             style={{
+              minWidth: imageNaturalWidth,
+              width: imageNaturalWidth,
               maxWidth: imageNaturalWidth,
+              minHeight: imageNaturalHeight,
+              height: imageNaturalHeight,
               maxHeight: imageNaturalHeight,
             }}
           />

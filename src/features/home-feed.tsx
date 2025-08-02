@@ -34,6 +34,7 @@ import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
 import { useAuth } from "../stores/auth";
 import { usePostsStore } from "../stores/posts";
 import { Search } from "../components/icons";
+import { usePathname } from "../routing/hooks";
 
 const EMPTY_ARR: never[] = [];
 
@@ -127,7 +128,7 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
 
   useEffect(() => {
     if (!enabled) {
-      prevOffsetRef.current = null;
+      prevOffsetRef.current = 0;
       headerAnimateRef.current = 0;
       tabBarAnimateRef.current = 0;
       if (header && tabBar && toolbar && newPostButton) {

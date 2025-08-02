@@ -9,8 +9,9 @@ import {
 import { InAppBrowser } from "@capacitor/inappbrowser";
 import { useHistory, useLocation } from "react-router-dom";
 import type z from "zod";
-import { AlertInput, useIonAlert } from "@ionic/react";
+import { AlertInput, useIonAlert, useIonRouter } from "@ionic/react";
 import { Deferred } from "../deferred";
+import { usePathname } from "@/src/routing/hooks";
 export { useMedia } from "./use-media";
 export { useTheme } from "./use-theme";
 
@@ -198,14 +199,23 @@ export function useIonPageElement() {
   };
 }
 
+function useIsActiveRoute() {
+  const pathname = usePathname();
+  const snapshot = useRef(pathname);
+  return snapshot.current === pathname;
+}
+
 export function useHideTabBarOnMount() {
+  const isActive = useIsActiveRoute();
   useEffect(() => {
-    const tabBar = () => document.querySelector("ion-tab-bar");
-    // add a CSS class to the root element
-    tabBar()?.classList.add("hidden");
-    return () => {
-      // clean up when this component unmounts
-      tabBar()?.classList.remove("hidden");
-    };
-  }, []);
+    if (isActive) {
+      const tabBar = () => document.querySelector("ion-tab-bar");
+      // add a CSS class to the root element
+      tabBar()?.classList.add("hidden");
+      return () => {
+        // clean up when this component unmounts
+        tabBar()?.classList.remove("hidden");
+      };
+    }
+  }, [isActive]);
 }
