@@ -111,29 +111,6 @@ export function FeedPostCard(props: PostProps) {
 
   const patchPost = usePostsStore((s) => s.patchPost);
 
-  const handlers = useLongPress(
-    async () => {
-      if (post?.thumbnailUrl) {
-        Haptics.impact({ style: ImpactStyle.Heavy });
-        shareImage(post.title, post.thumbnailUrl);
-      }
-    },
-    {
-      cancelOnMovement: 15,
-      onStart: (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      },
-      filterEvents: (event) => {
-        if ("button" in event) {
-          // Ignore mouse right click
-          return event.button !== 2;
-        }
-        return true;
-      },
-    },
-  );
-
   if (post?.nsfw === true && !showNsfw) {
     return props.detailView ? <Notice>Hidden due to NSFW</Notice> : null;
   }
@@ -152,7 +129,7 @@ export function FeedPostCard(props: PostProps) {
     ? getPostEmbed(post, props.detailView ? "full-resolution" : "optimized")
     : null;
 
-  const showImage = embed?.type === "image" && embed.thumbnail && !post.deleted;
+  const showImage = embed?.type === "image" && !post.deleted;
   const showArticle = embed?.type === "article" && !post?.deleted;
   const blurImg = post.nsfw && !removeBlur ? blurNsfw : false;
 
@@ -231,46 +208,6 @@ export function FeedPostCard(props: PostProps) {
         >
           {post.deleted ? "deleted" : post.title}
         </span>
-        {showImage && (
-          <div
-            className="max-md:-mx-3.5 flex flex-col relative overflow-hidden"
-            onClick={() => {
-              if (!removeBlur && props.detailView) {
-                setRemoveBlur(true);
-              }
-            }}
-          >
-            {!imageLoaded && (
-              <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
-            )}
-            <img
-              src={embed.thumbnail ?? undefined}
-              className={cn(
-                "md:rounded-lg object-cover relative",
-                blurImg && "blur-3xl",
-              )}
-              onLoad={(e) => {
-                setImageLoaded(true);
-                if (!post.thumbnailAspectRatio) {
-                  patchPost(post.apId, getCachePrefixer(), {
-                    thumbnailAspectRatio:
-                      e.currentTarget.naturalWidth /
-                      e.currentTarget.naturalHeight,
-                  });
-                }
-              }}
-              style={{
-                aspectRatio: post.thumbnailAspectRatio ?? undefined,
-              }}
-              {...handlers()}
-            />
-            {blurImg && !removeBlur && (
-              <div className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-xl">
-                NSFW
-              </div>
-            )}
-          </div>
-        )}
         {!props.detailView &&
           post.body &&
           !post.deleted &&
@@ -285,6 +222,50 @@ export function FeedPostCard(props: PostProps) {
             </p>
           )}
       </Link>
+
+      {showImage && embed.thumbnail && (
+        <Link
+          to={`${linkCtx.root}lightbox/:imgUrl`}
+          params={{
+            imgUrl: encodeURIComponent(embed.thumbnail),
+          }}
+          className="max-md:-mx-3.5 flex flex-col relative overflow-hidden"
+          onClick={() => {
+            if (!removeBlur && props.detailView) {
+              setRemoveBlur(true);
+            }
+          }}
+        >
+          {!imageLoaded && (
+            <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
+          )}
+          <img
+            src={embed.thumbnail ?? undefined}
+            className={cn(
+              "md:rounded-lg object-cover relative",
+              blurImg && "blur-3xl",
+            )}
+            onLoad={(e) => {
+              setImageLoaded(true);
+              if (!post.thumbnailAspectRatio) {
+                patchPost(post.apId, getCachePrefixer(), {
+                  thumbnailAspectRatio:
+                    e.currentTarget.naturalWidth /
+                    e.currentTarget.naturalHeight,
+                });
+              }
+            }}
+            style={{
+              aspectRatio: post.thumbnailAspectRatio ?? undefined,
+            }}
+          />
+          {blurImg && !removeBlur && (
+            <div className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-xl">
+              NSFW
+            </div>
+          )}
+        </Link>
+      )}
 
       {showArticle && (
         <PostArticleEmbed

@@ -6,6 +6,7 @@ import * as api from "@/test-utils/api";
 import { usePostsStore } from "@/src/stores/posts";
 import { useEffect } from "react";
 import { useAuth } from "@/src/stores/auth";
+import { useProfilesStore } from "@/src/stores/profiles";
 
 const textPost = api.getPost({
   variant: "text",
@@ -23,18 +24,43 @@ const youtubePost = api.getPost({
   variant: "youtube",
   post: { id: api.randomDbId() },
 });
+const soundcloudPost = api.getPost({
+  variant: "soundcloud",
+  post: { id: api.randomDbId() },
+});
+const videoPost = api.getPost({
+  variant: "video",
+  post: { id: api.randomDbId() },
+});
+const loopsPost = api.getPost({
+  variant: "loops",
+  post: { id: api.randomDbId() },
+});
+
+const POSTS = [
+  textPost,
+  imgPost,
+  articlePost,
+  youtubePost,
+  soundcloudPost,
+  videoPost,
+  loopsPost,
+];
 
 function LoadData() {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const cachePosts = usePostsStore((s) => s.cachePosts);
+  const cacheProfiles = useProfilesStore((s) => s.cacheProfiles);
 
   useEffect(() => {
-    cachePosts(getCachePrefixer(), [
-      textPost.post,
-      imgPost.post,
-      articlePost.post,
-      youtubePost.post,
-    ]);
+    cacheProfiles(
+      getCachePrefixer(),
+      POSTS.map((p) => p.creator),
+    );
+    cachePosts(
+      getCachePrefixer(),
+      POSTS.map((p) => p.post),
+    );
   }, []);
 
   return null;
@@ -77,5 +103,23 @@ export const Article: Story = {
 export const YouTube: Story = {
   args: {
     apId: youtubePost.post.apId,
+  },
+};
+
+export const SoundCloud: Story = {
+  args: {
+    apId: soundcloudPost.post.apId,
+  },
+};
+
+export const VideoPost: Story = {
+  args: {
+    apId: videoPost.post.apId,
+  },
+};
+
+export const LoopsPost: Story = {
+  args: {
+    apId: loopsPost.post.apId,
   },
 };

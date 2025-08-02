@@ -35,7 +35,12 @@ import {
 import { resolveRoute, useParams } from "@/src/routing/index";
 import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
-import { useIonPageElement, useMedia, useTheme } from "../lib/hooks";
+import {
+  useHideTabBarOnMount,
+  useIonPageElement,
+  useMedia,
+  useTheme,
+} from "../lib/hooks";
 import { NotFound } from "./not-found";
 import { CommentSkeleton } from "../components/comments/comment-skeleton";
 import { useLinkContext } from "../routing/link-context";
@@ -133,6 +138,8 @@ function CommentSortBar() {
 }
 
 export default function Post() {
+  useHideTabBarOnMount();
+
   const theme = useTheme();
   const media = useMedia();
   const linkCtx = useLinkContext();

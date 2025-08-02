@@ -197,3 +197,15 @@ export function useIonPageElement() {
     element: element ?? undefined,
   };
 }
+
+export function useHideTabBarOnMount() {
+  useEffect(() => {
+    const tabBar = () => document.querySelector("ion-tab-bar");
+    // add a CSS class to the root element
+    tabBar()?.classList.add("hidden");
+    return () => {
+      // clean up when this component unmounts
+      tabBar()?.classList.remove("hidden");
+    };
+  }, []);
+}

@@ -23,6 +23,9 @@ const manageAccountSchema = z.object({
 const idSchema = z.object({
   id: z.string(),
 });
+const lightBoxSchema = z.object({
+  imgUrl: z.string(),
+});
 
 export const routeDefs = {
   ...buildRoute("/instance"),
@@ -39,6 +42,7 @@ export const routeDefs = {
   ...buildRoute("/home/c/:communityName/s", searchSchema),
   ...buildRoute("/home/c/:communityName/sidebar", communityNameSchema),
   ...buildRoute("/home/c/:communityName/posts/:post", postCommentSchema),
+  ...buildRoute("/home/lightbox/:imgUrl", lightBoxSchema),
   ...buildRoute(
     "/home/c/:communityName/posts/:post/comments/:comment",
     postCommentSchema,
@@ -60,6 +64,7 @@ export const routeDefs = {
   ),
   ...buildRoute("/communities/u/:userId", userSchema),
   ...buildRoute("/communities/saved"),
+  ...buildRoute("/communities/lightbox/:imgUrl", lightBoxSchema),
   // Messages
   ...buildRoute("/messages/*"),
   ...buildRoute("/messages"),
@@ -79,6 +84,7 @@ export const routeDefs = {
   ),
   ...buildRoute("/inbox/u/:userId", userSchema),
   ...buildRoute("/inbox/saved"),
+  ...buildRoute("/inbox/lightbox/:imgUrl", lightBoxSchema),
   // Create
   ...buildRoute("/create"),
   ...buildRoute("/create/*"),
