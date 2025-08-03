@@ -34,7 +34,6 @@ import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
 import { useAuth } from "../stores/auth";
 import { usePostsStore } from "../stores/posts";
 import { Search } from "../components/icons";
-import { usePathname } from "../routing/hooks";
 
 const EMPTY_ARR: never[] = [];
 

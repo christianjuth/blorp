@@ -199,7 +199,7 @@ export function useIonPageElement() {
   };
 }
 
-function useIsActiveRoute() {
+export function useIsActiveRoute() {
   const pathname = usePathname();
   const snapshot = useRef(pathname);
   return snapshot.current === pathname;

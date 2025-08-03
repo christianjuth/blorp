@@ -12,10 +12,69 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { UserDropdown } from "../components/nav";
-import { useHideTabBarOnMount } from "../lib/hooks";
+import {
+  useHideTabBarOnMount,
+  useIsActiveRoute,
+  useMedia,
+  useUrlSearchState,
+} from "../lib/hooks";
+import z from "zod";
+import { ToolbarTitle } from "../components/toolbar/toolbar-title";
+import { cn } from "../lib/utils";
+import {
+  PostCommentsButton,
+  PostShareButton,
+  Voting,
+} from "../components/posts/post-buttons";
+import { ContentGutters } from "../components/gutters";
 
-function ResponsiveImage({ img }: { img: string }) {
-  const alt = "example";
+function useSafeAreaInsets() {
+  return useMemo(() => {
+    const top = parseInt(
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--ion-safe-area-top")
+        .trim(),
+      10,
+    );
+
+    const bottom = parseInt(
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--ion-safe-area-bottom")
+        .trim(),
+      10,
+    );
+
+    return {
+      top,
+      bottom,
+    };
+  }, []);
+}
+
+function useNavbarHeight() {
+  const media = useMedia();
+  const height = media.md ? 60 : 55;
+  const safeAreaTop = parseInt(
+    getComputedStyle(document.documentElement)
+      .getPropertyValue("--ion-safe-area-top")
+      .trim(),
+    10,
+  );
+  return {
+    height,
+    inset: safeAreaTop,
+  };
+}
+
+function ResponsiveImage({
+  img,
+  onZoom,
+  paddingY = 0,
+}: {
+  paddingY?: number;
+  img: string;
+  onZoom: (scale: number) => void;
+}) {
   const backgroundColor = "black";
   const zoomFactor = 8;
 
@@ -49,7 +108,7 @@ function ResponsiveImage({ img }: { img: string }) {
         if (container !== null) {
           const rect = container.getBoundingClientRect();
           setContainerWidth(rect.width);
-          setContainerHeight(rect.height);
+          setContainerHeight(rect.height - paddingY);
         } else {
           setContainerWidth(0);
           setContainerHeight(0);
@@ -63,7 +122,7 @@ function ResponsiveImage({ img }: { img: string }) {
 
       resizeObserver.observe(container);
     }
-  }, []);
+  }, [paddingY]);
 
   return (
     <div
@@ -72,6 +131,7 @@ function ResponsiveImage({ img }: { img: string }) {
         height: "100%",
         backgroundColor,
       }}
+      className="ion-content-scroll-host"
       ref={containerRef}
     >
       <TransformWrapper
@@ -80,6 +140,9 @@ function ResponsiveImage({ img }: { img: string }) {
         minScale={imageScale}
         maxScale={imageScale * zoomFactor}
         centerOnInit
+        onZoom={(z) => {
+          onZoom(z.state.scale / imageScale);
+        }}
       >
         <TransformComponent
           wrapperStyle={{
@@ -88,7 +151,6 @@ function ResponsiveImage({ img }: { img: string }) {
           }}
         >
           <img
-            alt={alt}
             src={img}
             onLoad={(e) => {
               setImageNaturalWidth(e.currentTarget.naturalWidth);
@@ -110,22 +172,39 @@ function ResponsiveImage({ img }: { img: string }) {
 }
 
 export default function LightBox() {
+  useHideTabBarOnMount();
+
   const linkCtx = useLinkContext();
   const { imgUrl } = useParams(`${linkCtx.root}lightbox/:imgUrl`);
   const src = decodeURIComponent(imgUrl);
-  useHideTabBarOnMount();
+  const [title] = useUrlSearchState("title", "", z.string());
+  const [hideNav, setHideNav] = useState(false);
+  const navbar = useNavbarHeight();
+  const isActive = useIsActiveRoute();
+
+  const insets = useSafeAreaInsets();
+  const tabbar = {
+    height: navbar.height,
+    inset: insets.bottom,
+  };
+
   return (
-    <IonPage>
+    <IonPage className="dark">
       <PageTitle>Image</PageTitle>
       <IonHeader translucent={true}>
         <IonToolbar
           style={{
             "--ion-toolbar-background": "transparent",
-            "--ion-toolbar-border-color": "#ffffff50",
+            "--ion-toolbar-border-color": "var(--shad-border)",
           }}
+          className={cn(
+            isActive && "absolute backdrop-blur-2xl",
+            hideNav && "opacity-0",
+          )}
         >
-          <IonButtons slot="start">
-            <ToolbarBackButton className="text-white dark:text-white" />
+          <IonButtons slot="start" className="gap-2">
+            <ToolbarBackButton />
+            {title && <ToolbarTitle size="sm">{title}</ToolbarTitle>}
           </IonButtons>
           <IonButtons slot="end">
             <UserDropdown />
@@ -139,8 +218,38 @@ export default function LightBox() {
         }}
         scrollY={false}
       >
-        <ResponsiveImage img={src} />
+        <ResponsiveImage
+          img={src}
+          onZoom={(scale) => {
+            setHideNav(scale > 1.05);
+          }}
+          paddingY={navbar.height + navbar.inset + tabbar.height + tabbar.inset}
+        />
       </IonContent>
+      <div
+        className={cn(
+          "border-t-[.5px] z-10 absolute bottom-0 inset-x-0 backdrop-blur-2xl",
+          hideNav && "opacity-0",
+          !isActive && "hidden",
+        )}
+        style={{
+          height: tabbar.height + tabbar.inset,
+          paddingBottom: tabbar.inset,
+        }}
+      >
+        <ContentGutters>
+          <div className="h-[60px] flex flex-row items-center">
+            <PostShareButton postApId="" />
+            <div className="flex-1" />
+            <PostCommentsButton
+              commentsCount={0}
+              communityName={""}
+              postApId={""}
+            />
+            <Voting apId={""} score={100} myVote={0} />
+          </div>
+        </ContentGutters>
+      </div>
     </IonPage>
   );
 }

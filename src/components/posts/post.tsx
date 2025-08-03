@@ -229,6 +229,7 @@ export function FeedPostCard(props: PostProps) {
           params={{
             imgUrl: encodeURIComponent(embed.thumbnail),
           }}
+          searchParams={`?title=${post.title}`}
           className="max-md:-mx-3.5 flex flex-col relative overflow-hidden"
           onClick={() => {
             if (!removeBlur && props.detailView) {
