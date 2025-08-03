@@ -15,10 +15,7 @@ import { PostVideoEmbed } from "./post-video-embed";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useRef, useState } from "react";
-import { Haptics, ImpactStyle } from "@capacitor/haptics";
-import { useLongPress } from "use-long-press";
 import _ from "lodash";
-import { shareImage } from "@/src/lib/share";
 import { getAccountSite, useAuth } from "@/src/stores/auth";
 import removeMd from "remove-markdown";
 import { LuRepeat2 } from "react-icons/lu";
@@ -152,14 +149,6 @@ export function FeedPostCard(props: PostProps) {
       ) : null;
     }
   }
-
-  const diff =
-    typeof post?.optimisticMyVote === "number"
-      ? post?.optimisticMyVote - (post?.myVote ?? 0)
-      : 0;
-  const score = post.upvotes - post.downvotes + diff;
-
-  const myVote = post?.optimisticMyVote ?? post?.myVote ?? 0;
 
   return (
     <div
@@ -316,7 +305,7 @@ export function FeedPostCard(props: PostProps) {
           communityName={post.communitySlug}
           postApId={encodedApId}
         />
-        <Voting apId={post.apId} score={score} myVote={myVote} />
+        <Voting apId={post.apId} />
       </div>
     </div>
   );

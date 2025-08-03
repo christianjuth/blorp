@@ -19,7 +19,6 @@ import { UserDropdown } from "../../components/nav";
 import {
   useHideTabBarOnMount,
   useIsActiveRoute,
-  useMedia,
   useNavbarHeight,
   useSafeAreaInsets,
   useUrlSearchState,
@@ -27,11 +26,6 @@ import {
 import z from "zod";
 import { ToolbarTitle } from "../../components/toolbar/toolbar-title";
 import { cn } from "../../lib/utils";
-import {
-  PostCommentsButton,
-  PostShareButton,
-  Voting,
-} from "../../components/posts/post-buttons";
 import { ContentGutters } from "../../components/gutters";
 
 const Controls = () => {
@@ -226,16 +220,7 @@ export default function LightBox() {
         }}
       >
         <ContentGutters>
-          <div className="h-[60px] flex flex-row items-center">
-            <PostShareButton postApId="" />
-            <div className="flex-1" />
-            <PostCommentsButton
-              commentsCount={0}
-              communityName={""}
-              postApId={""}
-            />
-            <Voting apId={""} score={100} myVote={0} />
-          </div>
+          <div className="h-[60px] flex flex-row items-center"></div>
         </ContentGutters>
       </div>
     </IonPage>

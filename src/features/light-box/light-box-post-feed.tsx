@@ -1,12 +1,5 @@
 import { ContentGutters } from "@/src/components/gutters";
-import {
-  memo,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useCommunity, usePosts } from "@/src/lib/api";
 import _ from "lodash";
 import {
@@ -50,10 +43,12 @@ function HorizontalVirtualizer<T>({
   data,
   renderItem,
   initIndex = 0,
+  onIndexChange,
 }: {
   data?: T[] | readonly T[];
   renderItem: (params: { item: T; index: number }) => React.ReactNode;
   initIndex?: number;
+  onIndexChange: (index: number) => void;
 }) {
   const count = data?.length ?? 0;
 
@@ -88,13 +83,54 @@ function HorizontalVirtualizer<T>({
       width: itemWidth,
       height: window.innerHeight,
     },
+    onChange: (v) => {
+      const firstVisible = v
+        .getVirtualItems()
+        .find(
+          (item) =>
+            Math.abs(item.start - (rowVirtualizer.scrollOffset ?? 0)) <= 5,
+        );
+      if (firstVisible) {
+        onIndexChange(firstVisible?.index);
+      }
+    },
   });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowLeft":
+        case "h":
+        case "j":
+          rowVirtualizer.scrollBy(-itemWidth, {
+            behavior: "auto",
+            align: "start",
+          });
+          break;
+        case "k":
+        case "l":
+        case "ArrowRight":
+          rowVirtualizer.scrollBy(itemWidth, {
+            behavior: "auto",
+            align: "start",
+          });
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [itemWidth, rowVirtualizer]);
 
   return (
     <div
       ref={scrollRef}
       className={cn(
-        "overflow-x-scroll overflow-y-hidden snap-x snap-mandatory h-full w-full relative",
+        "overflow-x-scroll overflow-y-hidden hide-scrollbars snap-x snap-mandatory snap-always h-full w-full relative",
       )}
     >
       {rowVirtualizer.getVirtualItems().map((virtualItem) => {
@@ -174,6 +210,9 @@ export default function LightBoxPostFeed() {
   );
 
   const initIndex = data.findIndex((apId) => apId === decodedApId);
+  const [activeIndex, setActiveIndex] = useState(initIndex);
+
+  const postApId = data[activeIndex];
 
   const community = useCommunity({
     name: "",
@@ -227,6 +266,7 @@ export default function LightBoxPostFeed() {
       >
         <ContentGutters className="h-full max-md:px-0">
           <HorizontalVirtualizer
+            onIndexChange={setActiveIndex}
             initIndex={initIndex}
             data={data}
             renderItem={(item) => (
@@ -249,19 +289,21 @@ export default function LightBoxPostFeed() {
         )}
         style={{
           height: tabbar.height + tabbar.inset,
-          paddingBottom: tabbar.inset,
+          //paddingBottom: tabbar.inset,
         }}
       >
         <ContentGutters>
           <div className="h-[60px] flex flex-row items-center">
-            <PostShareButton postApId="" />
+            {postApId && <PostShareButton postApId={postApId} />}
             <div className="flex-1" />
-            <PostCommentsButton
-              commentsCount={0}
-              communityName={""}
-              postApId={""}
-            />
-            <Voting apId={""} score={100} myVote={0} />
+            {postApId && (
+              <PostCommentsButton
+                commentsCount={0}
+                communityName={""}
+                postApId={postApId}
+              />
+            )}
+            {postApId && <Voting key={postApId} apId={postApId} />}
           </div>
         </ContentGutters>
       </div>

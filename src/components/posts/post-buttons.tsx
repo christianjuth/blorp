@@ -34,15 +34,16 @@ import { isWeb } from "@/src/lib/device";
 
 export function Voting({
   apId,
-  myVote,
-  score,
   className,
 }: {
   apId: string;
-  myVote: number;
-  score: number;
   className?: string;
 }) {
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const postView = usePostsStore(
+    (s) => s.posts[getCachePrefixer()(apId)]?.data,
+  );
+
   const enableDownvotes =
     useAuth(
       (s) => getAccountSite(s.getSelectedAccount())?.enablePostDownvotes,
@@ -53,8 +54,18 @@ export function Voting({
 
   const vote = useLikePost(apId);
 
-  const isUpvoted = myVote > 0;
-  const isDownvoted = myVote < 0;
+  if (!postView) {
+    return null;
+  }
+
+  const diff =
+    typeof postView?.optimisticMyVote === "number"
+      ? postView.optimisticMyVote - (postView.myVote ?? 0)
+      : 0;
+  const score = postView.upvotes - postView.downvotes + diff;
+
+  const isUpvoted = (postView.myVote ?? 0) > 0;
+  const isDownvoted = (postView.myVote ?? 0) < 0;
 
   const abbriviatedScore = abbriviateNumberParts(score);
 
