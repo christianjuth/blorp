@@ -146,6 +146,8 @@ export function getPost(config?: {
         "https://lemmy.world/pictrs/image/53222559-aac6-4936-a1ad-4ca28fd94713.jpeg";
       break;
     }
+    case "vimeo": {
+    }
   }
 
   return {

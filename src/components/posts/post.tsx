@@ -225,11 +225,8 @@ export function FeedPostCard(props: PostProps) {
 
       {showImage && embed.thumbnail && (
         <Link
-          to={`${linkCtx.root}lightbox/:imgUrl`}
-          params={{
-            imgUrl: encodeURIComponent(embed.thumbnail),
-          }}
-          searchParams={`?title=${post.title}`}
+          to={`${linkCtx.root}lightbox`}
+          searchParams={`?apId=${encodeApId(post.apId)}`}
           className="max-md:-mx-3.5 flex flex-col relative overflow-hidden"
           onClick={() => {
             if (!removeBlur && props.detailView) {

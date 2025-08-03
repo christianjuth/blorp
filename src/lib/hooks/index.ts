@@ -12,6 +12,7 @@ import type z from "zod";
 import { AlertInput, useIonAlert, useIonRouter } from "@ionic/react";
 import { Deferred } from "../deferred";
 import { usePathname } from "@/src/routing/hooks";
+import { useMedia } from "./use-media";
 export { useMedia } from "./use-media";
 export { useTheme } from "./use-theme";
 
@@ -218,4 +219,42 @@ export function useHideTabBarOnMount() {
       };
     }
   }, [isActive]);
+}
+
+export function useSafeAreaInsets() {
+  return useMemo(() => {
+    const top = parseInt(
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--ion-safe-area-top")
+        .trim(),
+      10,
+    );
+
+    const bottom = parseInt(
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--ion-safe-area-bottom")
+        .trim(),
+      10,
+    );
+
+    return {
+      top,
+      bottom,
+    };
+  }, []);
+}
+
+export function useNavbarHeight() {
+  const media = useMedia();
+  const height = media.md ? 60 : 55;
+  const safeAreaTop = parseInt(
+    getComputedStyle(document.documentElement)
+      .getPropertyValue("--ion-safe-area-top")
+      .trim(),
+    10,
+  );
+  return {
+    height,
+    inset: safeAreaTop,
+  };
 }

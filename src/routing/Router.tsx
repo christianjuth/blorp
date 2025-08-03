@@ -58,7 +58,10 @@ const CommunitiesFeed = lazy(() => import("@/src/features/communities-feed"));
 const User = lazy(() => import("@/src/features/user"));
 const SavedFeed = lazy(() => import("@/src/features/saved-feed"));
 const Search = lazy(() => import("@/src/features/search"));
-const LightBox = lazy(() => import("@/src/features/light-box"));
+const LightBoxPostFeed = lazy(
+  () => import("@/src/features/light-box/light-box-post-feed"),
+);
+const LightBox = lazy(() => import("@/src/features/light-box/light-box"));
 
 const Instance = lazy(() => import("@/src/features/instance"));
 
@@ -103,6 +106,12 @@ const HOME_STACK = [
   <Route key="/home/saved" exact path="/home/saved" component={SavedFeed} />,
   <Route
     key="/home/lightbox"
+    exact
+    path="/home/lightbox"
+    component={LightBoxPostFeed}
+  />,
+  <Route
+    key="/home/lightbox/:imgUrl"
     exact
     path="/home/lightbox/:imgUrl"
     component={LightBox}
@@ -169,7 +178,7 @@ const COMMUNITIES_STACK = [
     component={User}
   />,
   <Route
-    key="/communities/lightbox"
+    key="/communities/lightbox/:imgUrl"
     exact
     path="/communities/lightbox/:imgUrl"
     component={LightBox}

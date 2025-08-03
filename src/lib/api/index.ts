@@ -461,6 +461,9 @@ export function usePosts(form: Forms.GetPosts) {
 
     return {
       posts: posts.map((p) => p.post.apId),
+      imagePosts: posts
+        .filter((p) => !!p.post.thumbnailUrl)
+        .map((p) => p.post.apId),
       nextCursor,
     };
   };

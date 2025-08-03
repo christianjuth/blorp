@@ -514,7 +514,7 @@ export function PostComment({
             rest.imediateChildren > 0 ||
             (replyState && media.md)) && (
             <div
-              className="border-l-[1.5px] border-b-[1.5px] pl-3 md:pl-3.5 rounded-bl-xl mb-2"
+              className="border-l-[2px] border-b-[2px] pl-3 md:pl-3.5 rounded-bl-xl mb-2"
               style={{ borderColor: color }}
             >
               {replyState && (
@@ -545,7 +545,7 @@ export function PostComment({
                     post: encodeURIComponent(comment.postApId),
                     comment: String(comment.id),
                   }}
-                  className="translate-y-1/2 pl-2 bg-background block"
+                  className="translate-y-1/2 pl-2 bg-background block text-muted-foreground"
                 >
                   View more
                 </Link>

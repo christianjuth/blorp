@@ -5,68 +5,48 @@ import {
   IonPage,
   IonToolbar,
 } from "@ionic/react";
-import { PageTitle } from "../components/page-title";
-import { useParams } from "../routing";
-import { useLinkContext } from "../routing/link-context";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { PageTitle } from "@/src/components/page-title";
+import { useParams } from "../../routing";
+import { useLinkContext } from "@/src/routing/link-context";
+import {
+  TransformWrapper,
+  TransformComponent,
+  useControls,
+} from "react-zoom-pan-pinch";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
-import { UserDropdown } from "../components/nav";
+import { ToolbarBackButton } from "../../components/toolbar/toolbar-back-button";
+import { UserDropdown } from "../../components/nav";
 import {
   useHideTabBarOnMount,
   useIsActiveRoute,
   useMedia,
+  useNavbarHeight,
+  useSafeAreaInsets,
   useUrlSearchState,
-} from "../lib/hooks";
+} from "../../lib/hooks";
 import z from "zod";
-import { ToolbarTitle } from "../components/toolbar/toolbar-title";
-import { cn } from "../lib/utils";
+import { ToolbarTitle } from "../../components/toolbar/toolbar-title";
+import { cn } from "../../lib/utils";
 import {
   PostCommentsButton,
   PostShareButton,
   Voting,
-} from "../components/posts/post-buttons";
-import { ContentGutters } from "../components/gutters";
+} from "../../components/posts/post-buttons";
+import { ContentGutters } from "../../components/gutters";
 
-function useSafeAreaInsets() {
-  return useMemo(() => {
-    const top = parseInt(
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--ion-safe-area-top")
-        .trim(),
-      10,
-    );
+const Controls = () => {
+  const { zoomIn, zoomOut, resetTransform } = useControls();
 
-    const bottom = parseInt(
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--ion-safe-area-bottom")
-        .trim(),
-      10,
-    );
-
-    return {
-      top,
-      bottom,
-    };
-  }, []);
-}
-
-function useNavbarHeight() {
-  const media = useMedia();
-  const height = media.md ? 60 : 55;
-  const safeAreaTop = parseInt(
-    getComputedStyle(document.documentElement)
-      .getPropertyValue("--ion-safe-area-top")
-      .trim(),
-    10,
+  return (
+    <div className="absolute">
+      <button onClick={() => zoomIn()}>+</button>
+      <button onClick={() => zoomOut()}>-</button>
+      <button onClick={() => resetTransform()}>x</button>
+    </div>
   );
-  return {
-    height,
-    inset: safeAreaTop,
-  };
-}
+};
 
-function ResponsiveImage({
+export function ResponsiveImage({
   img,
   onZoom,
   paddingY = 0,
@@ -75,6 +55,7 @@ function ResponsiveImage({
   img: string;
   onZoom: (scale: number) => void;
 }) {
+  const [allowPan, setAllowPan] = useState(false);
   const backgroundColor = "black";
   const zoomFactor = 8;
 
@@ -141,7 +122,13 @@ function ResponsiveImage({
         maxScale={imageScale * zoomFactor}
         centerOnInit
         onZoom={(z) => {
-          onZoom(z.state.scale / imageScale);
+          const scale = z.state.scale / imageScale;
+          setAllowPan(scale > 1.05);
+          onZoom(scale);
+        }}
+        panning={{ disabled: !allowPan }}
+        wheel={{
+          disabled: true,
         }}
       >
         <TransformComponent
@@ -166,6 +153,7 @@ function ResponsiveImage({
             }}
           />
         </TransformComponent>
+        <Controls />
       </TransformWrapper>
     </div>
   );
