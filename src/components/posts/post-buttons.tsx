@@ -32,16 +32,10 @@ import { encodeApId } from "@/src/lib/api/utils";
 import { getPostEmbed } from "@/src/lib/post";
 import { isWeb } from "@/src/lib/device";
 
-export function Voting({
-  apId,
-  className,
-}: {
-  apId: string;
-  className?: string;
-}) {
+export function usePostVoting(apId?: string) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const postView = usePostsStore(
-    (s) => s.posts[getCachePrefixer()(apId)]?.data,
+  const postView = usePostsStore((s) =>
+    apId ? s.posts[getCachePrefixer()(apId)]?.data : null,
   );
 
   const enableDownvotes =
@@ -49,14 +43,9 @@ export function Voting({
       (s) => getAccountSite(s.getSelectedAccount())?.enablePostDownvotes,
     ) ?? true;
 
-  const id = useId();
-  const requireAuth = useRequireAuth();
-
   const vote = useLikePost(apId);
 
-  if (!postView) {
-    return null;
-  }
+  if (!postView) return null;
 
   const diff =
     typeof postView?.optimisticMyVote === "number"
@@ -64,8 +53,38 @@ export function Voting({
       : 0;
   const score = postView.upvotes - postView.downvotes + diff;
 
-  const isUpvoted = (postView.myVote ?? 0) > 0;
-  const isDownvoted = (postView.myVote ?? 0) < 0;
+  const myVote = postView.optimisticMyVote ?? postView.myVote ?? 0;
+  const isUpvoted = myVote > 0;
+  const isDownvoted = myVote < 0;
+
+  return {
+    score,
+    isUpvoted,
+    isDownvoted,
+    enableDownvotes,
+    vote,
+    postId: postView.id,
+  };
+}
+
+export function PostVoting({
+  apId,
+  className,
+}: {
+  apId: string;
+  className?: string;
+}) {
+  const id = useId();
+  const requireAuth = useRequireAuth();
+
+  const voting = usePostVoting(apId);
+
+  if (!voting) {
+    return null;
+  }
+
+  const { score, isUpvoted, isDownvoted, enableDownvotes, vote, postId } =
+    voting;
 
   const abbriviatedScore = abbriviateNumberParts(score);
 
@@ -78,7 +97,11 @@ export function Voting({
           const newVote = isUpvoted ? 0 : 1;
           voteHaptics(newVote);
           requireAuth().then(() => {
-            vote.mutate(newVote);
+            vote.mutate({
+              score: newVote,
+              postApId: apId,
+              postId,
+            });
           });
         }}
         className={cn("text-md font-normal", isUpvoted && "text-brand")}
@@ -104,7 +127,11 @@ export function Voting({
           const newVote = isUpvoted ? 0 : 1;
           voteHaptics(newVote);
           requireAuth().then(() => {
-            vote.mutate(newVote);
+            vote.mutate({
+              score: newVote,
+              postApId: apId,
+              postId,
+            });
           });
         }}
         //disabled={vote.isPending}
@@ -137,7 +164,11 @@ export function Voting({
           const newVote = isDownvoted ? 0 : -1;
           voteHaptics(newVote);
           requireAuth().then(() => {
-            vote.mutate(newVote);
+            vote.mutate({
+              score: newVote,
+              postApId: apId,
+              postId,
+            });
           });
         }}
         //disabled={vote.isPending}
@@ -157,34 +188,19 @@ export function Voting({
 }
 
 export function PostCommentsButton({
-  communityName,
   postApId,
-  commentsCount,
+  onClick,
 }: {
-  communityName: string;
   postApId: string;
-  commentsCount: number;
-}): React.ReactNode;
-export function PostCommentsButton({
-  onClick,
-  commentsCount,
-}: {
-  onClick?: () => void;
-  commentsCount: number;
-}): React.ReactNode;
-export function PostCommentsButton({
-  communityName,
-  postApId,
-  commentsCount,
-  onClick,
-}: {
-  communityName?: string;
-  postApId?: string;
-  commentsCount: number;
   onClick?: () => void;
 }): React.ReactNode {
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const postView = usePostsStore(
+    (s) => s.posts[getCachePrefixer()(postApId)]?.data,
+  );
+
   const linkCtx = useLinkContext();
-  if (!onClick && communityName && postApId) {
+  if (!onClick && postView?.communitySlug && postApId) {
     return (
       <Button
         size="sm"
@@ -195,12 +211,12 @@ export function PostCommentsButton({
         <Link
           to={`${linkCtx.root}c/:communityName/posts/:post`}
           params={{
-            communityName,
-            post: postApId,
+            communityName: postView.communitySlug,
+            post: encodeApId(postApId),
           }}
         >
           <TbMessageCircle className="scale-115" />
-          <span>{abbriviateNumber(commentsCount)}</span>
+          <span>{abbriviateNumber(postView.commentsCount)}</span>
         </Link>
       </Button>
     );
@@ -214,7 +230,7 @@ export function PostCommentsButton({
         className="text-md font-normal"
       >
         <TbMessageCirclePlus className="scale-115" />
-        {commentsCount}
+        {postView?.commentsCount}
       </Button>
     );
   }

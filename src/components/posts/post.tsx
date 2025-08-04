@@ -6,7 +6,11 @@ import { encodeApId } from "@/src/lib/api/utils";
 import { Link } from "@/src/routing/index";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
-import { PostCommentsButton, PostShareButton, Voting } from "./post-buttons";
+import {
+  PostCommentsButton,
+  PostShareButton,
+  PostVoting,
+} from "./post-buttons";
 import { MarkdownRenderer } from "../markdown/renderer";
 import { twMerge } from "tailwind-merge";
 import { PostLoopsEmbed } from "./post-loops-embed";
@@ -214,7 +218,14 @@ export function FeedPostCard(props: PostProps) {
 
       {showImage && embed.thumbnail && (
         <Link
-          to={`${linkCtx.root}lightbox`}
+          to={
+            props.featuredContext === "home"
+              ? "/home/lightbox"
+              : `${linkCtx.root}c/:communityName/lightbox`
+          }
+          params={{
+            communityName: post.communitySlug,
+          }}
           searchParams={`?apId=${encodeApId(post.apId)}`}
           className="max-md:-mx-3.5 flex flex-col relative overflow-hidden"
           onClick={() => {
@@ -300,12 +311,8 @@ export function FeedPostCard(props: PostProps) {
       <div className="flex flex-row items-center justify-end gap-2.5 pt-1">
         <PostShareButton postApId={props.apId} />
         <div className="flex-1" />
-        <PostCommentsButton
-          commentsCount={post.commentsCount}
-          communityName={post.communitySlug}
-          postApId={encodedApId}
-        />
-        <Voting apId={post.apId} />
+        <PostCommentsButton postApId={encodedApId} />
+        <PostVoting apId={post.apId} />
       </div>
     </div>
   );

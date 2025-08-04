@@ -1,5 +1,5 @@
 import { ContentGutters } from "@/src/components/gutters";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCommunity, usePosts } from "@/src/lib/api";
 import _ from "lodash";
 import {
@@ -30,12 +30,15 @@ import { ResponsiveImage } from "./light-box";
 import {
   PostCommentsButton,
   PostShareButton,
-  Voting,
+  PostVoting,
+  usePostVoting,
 } from "@/src/components/posts/post-buttons";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { usePostsStore } from "@/src/stores/posts";
 import z from "zod";
-import { decodeApId } from "@/src/lib/api/utils";
+import { decodeApId, encodeApId } from "@/src/lib/api/utils";
+import { useLinkContext } from "@/src/routing/link-context";
+import { useParams } from "@/src/routing";
 
 const EMPTY_ARR: never[] = [];
 
@@ -44,11 +47,13 @@ function HorizontalVirtualizer<T>({
   renderItem,
   initIndex = 0,
   onIndexChange,
+  onEndReached,
 }: {
   data?: T[] | readonly T[];
   renderItem: (params: { item: T; index: number }) => React.ReactNode;
   initIndex?: number;
   onIndexChange: (index: number) => void;
+  onEndReached?: () => any;
 }) {
   const count = data?.length ?? 0;
 
@@ -62,6 +67,7 @@ function HorizontalVirtualizer<T>({
 
   const rowVirtualizer = useVirtualizer({
     count,
+    overscan: 2,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => itemWidth,
     horizontal: true,
@@ -83,37 +89,108 @@ function HorizontalVirtualizer<T>({
       width: itemWidth,
       height: window.innerHeight,
     },
-    onChange: (v) => {
-      const firstVisible = v
-        .getVirtualItems()
-        .find(
-          (item) =>
-            Math.abs(item.start - (rowVirtualizer.scrollOffset ?? 0)) <= 5,
-        );
-      if (firstVisible) {
-        onIndexChange(firstVisible?.index);
-      }
-    },
   });
 
+  useEffect(() => {
+    const [lastItem] = [...rowVirtualizer.getVirtualItems()].reverse();
+    if (!lastItem || _.isNil(count)) {
+      return;
+    }
+    if (lastItem.index >= count - 1) {
+      onEndReached?.();
+    }
+  }, [count, rowVirtualizer.getVirtualItems(), onEndReached]);
+
+  const isReady = rowVirtualizer.getVirtualIndexes().includes(initIndex);
+
+  const updateIndex = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el || !isReady) return;
+    const offset = rowVirtualizer.scrollOffset ?? 0;
+    const cache = rowVirtualizer.measurementsCache;
+
+    let bestIndex = -1;
+    let bestDistance = Infinity;
+
+    for (let i = 0; i < cache.length; i++) {
+      const item = cache[i];
+      if (_.isNil(item)) {
+        continue;
+      }
+      const start = item.start;
+      const distance = Math.abs(offset - start);
+
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestIndex = i;
+      } else {
+        // Since cache is sorted by `start`, once distance grows
+        // beyond the minimum we've seen, it will only increase.
+        break;
+      }
+    }
+
+    if (bestIndex > -1) {
+      onIndexChange(bestIndex);
+    }
+  }, [isReady, rowVirtualizer.measurementsCache]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    let frame = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        updateIndex();
+      });
+    };
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, [updateIndex]);
+
+  const [snap, setSnap] = useState(false);
+
+  const timerRef = useRef<number>(-1);
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case "ArrowLeft":
-        case "h":
+        case "a":
         case "j":
+          window.clearTimeout(timerRef.current);
+          e.preventDefault();
+          e.stopPropagation();
+          setSnap(false);
           rowVirtualizer.scrollBy(-itemWidth, {
             behavior: "auto",
             align: "start",
           });
+          updateIndex();
+          timerRef.current = window.setTimeout(() => {
+            setSnap(true);
+          }, 50);
           break;
+        case "d":
         case "k":
-        case "l":
         case "ArrowRight":
+          window.clearTimeout(timerRef.current);
+          e.preventDefault();
+          e.stopPropagation();
+          setSnap(false);
           rowVirtualizer.scrollBy(itemWidth, {
             behavior: "auto",
             align: "start",
           });
+          updateIndex();
+          timerRef.current = window.setTimeout(() => {
+            setSnap(true);
+          }, 50);
           break;
         default:
           break;
@@ -124,13 +201,14 @@ function HorizontalVirtualizer<T>({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [itemWidth, rowVirtualizer]);
+  }, [itemWidth, rowVirtualizer.scrollBy, updateIndex]);
 
   return (
     <div
       ref={scrollRef}
       className={cn(
-        "overflow-x-scroll overflow-y-hidden hide-scrollbars snap-x snap-mandatory snap-always h-full w-full relative",
+        "overflow-x-scroll overflow-y-hidden hide-scrollbars h-full w-full relative",
+        snap && "snap-x snap-mandatory",
       )}
     >
       {rowVirtualizer.getVirtualItems().map((virtualItem) => {
@@ -148,7 +226,7 @@ function HorizontalVirtualizer<T>({
               inset: 0,
               transform: `translateX(${virtualItem.start}px)`,
             }}
-            className="relative snap-start"
+            className="relative snap-start snap-always"
           >
             {renderItem?.({
               item,
@@ -164,11 +242,13 @@ function HorizontalVirtualizer<T>({
 const Post = memo(
   ({
     apId,
-    paddingY,
+    paddingT,
+    paddingB,
     onZoom,
   }: {
     apId: string;
-    paddingY: number;
+    paddingT: number;
+    paddingB: number;
     onZoom: (scale: number) => void;
   }) => {
     const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -177,7 +257,13 @@ const Post = memo(
     );
     const img = postView?.thumbnailUrl;
     return img ? (
-      <ResponsiveImage img={img} onZoom={onZoom} paddingY={paddingY} />
+      <ResponsiveImage
+        img={img}
+        onZoom={onZoom}
+        paddingT={paddingT}
+        paddingB={paddingB}
+        className="border-x border-background -mx-px"
+      />
     ) : null;
   },
 );
@@ -185,8 +271,17 @@ const Post = memo(
 export default function LightBoxPostFeed() {
   useHideTabBarOnMount();
 
-  const [initApId] = useUrlSearchState("apId", "", z.string());
-  const decodedApId = decodeApId(initApId);
+  const linkCtx = useLinkContext();
+  const { communityName } = useParams(
+    `${linkCtx.root}c/:communityName/lightbox`,
+  );
+
+  const [encodedApId, setEncodedApId] = useUrlSearchState(
+    "apId",
+    "",
+    z.string(),
+  );
+  const decodedApId = decodeApId(encodedApId);
 
   const [hideNav, setHideNav] = useState(false);
   const navbar = useNavbarHeight();
@@ -198,24 +293,31 @@ export default function LightBoxPostFeed() {
     inset: insets.bottom,
   };
 
-  const postSort = useFiltersStore((s) => s.postSort);
   const listingType = useFiltersStore((s) => s.listingType);
-  const posts = usePosts({
-    sort: postSort,
-    type: listingType,
-  });
+  const posts = usePosts(
+    communityName
+      ? {
+          communitySlug: communityName,
+        }
+      : {
+          type: listingType,
+        },
+  );
   const data = useMemo(
     () => _.uniq(posts.data?.pages.flatMap((p) => p.imagePosts)) ?? EMPTY_ARR,
     [posts.data],
   );
 
   const initIndex = data.findIndex((apId) => apId === decodedApId);
-  const [activeIndex, setActiveIndex] = useState(initIndex);
 
-  const postApId = data[activeIndex];
+  const postApId = data[initIndex];
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const post = usePostsStore((s) =>
+    postApId ? s.posts[getCachePrefixer()(postApId)]?.data : null,
+  );
 
   const community = useCommunity({
-    name: "",
+    name: communityName,
   });
 
   const updateRecent = useRecentCommunitiesStore((s) => s.update);
@@ -226,13 +328,45 @@ export default function LightBoxPostFeed() {
     }
   }, [community.data]);
 
-  const {
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    refetch,
-    isRefetching,
-  } = posts;
+  const voting = usePostVoting(postApId);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (post) {
+        switch (e.key) {
+          case "ArrowUp":
+          case "w":
+          case "h":
+            e.preventDefault();
+            e.stopPropagation();
+            voting?.vote.mutate({
+              score: voting.isUpvoted ? 0 : 1,
+              postApId: post.apId,
+              postId: post.id,
+            });
+            break;
+          case "ArrowDown":
+          case "s":
+          case "l":
+            e.preventDefault();
+            e.stopPropagation();
+            voting?.vote.mutate({
+              score: voting.isDownvoted ? 0 : -1,
+              postApId: post.apId,
+              postId: post.id,
+            });
+            break;
+          default:
+            break;
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [voting?.vote]);
 
   return (
     <IonPage className="dark">
@@ -244,13 +378,14 @@ export default function LightBoxPostFeed() {
             "--ion-toolbar-border-color": "var(--shad-border)",
           }}
           className={cn(
+            "dark",
             isActive && "absolute backdrop-blur-2xl",
             hideNav && "opacity-0",
           )}
         >
           <IonButtons slot="start" className="gap-2">
             <ToolbarBackButton />
-            <ToolbarTitle size="sm">Posts</ToolbarTitle>
+            <ToolbarTitle size="sm">{post?.title ?? "Loading..."}</ToolbarTitle>
           </IonButtons>
           <IonButtons slot="end">
             <UserDropdown />
@@ -264,22 +399,30 @@ export default function LightBoxPostFeed() {
         }}
         scrollY={false}
       >
-        <ContentGutters className="h-full max-md:px-0">
-          <HorizontalVirtualizer
-            onIndexChange={setActiveIndex}
-            initIndex={initIndex}
-            data={data}
-            renderItem={(item) => (
-              <Post
-                apId={item.item}
-                paddingY={
-                  navbar.height + navbar.inset + tabbar.height + tabbar.inset
-                }
-                onZoom={(scale) => setHideNav(scale > 1.05)}
-              />
-            )}
-          />
-        </ContentGutters>
+        <HorizontalVirtualizer
+          key={posts.isPending ? "pending" : "loaded"}
+          onIndexChange={(newIndex) => {
+            const newApId = data[newIndex];
+            if (newApId && !posts.isPending) {
+              setEncodedApId(encodeApId(newApId));
+            }
+          }}
+          initIndex={initIndex}
+          data={data}
+          renderItem={(item) => (
+            <Post
+              apId={item.item}
+              paddingT={navbar.height + navbar.inset}
+              paddingB={tabbar.height + tabbar.inset}
+              onZoom={(scale) => setHideNav(scale > 1.05)}
+            />
+          )}
+          onEndReached={() => {
+            if (posts.hasNextPage && !posts.isFetchingNextPage) {
+              posts.fetchNextPage();
+            }
+          }}
+        />
       </IonContent>
       <div
         className={cn(
@@ -289,21 +432,15 @@ export default function LightBoxPostFeed() {
         )}
         style={{
           height: tabbar.height + tabbar.inset,
-          //paddingBottom: tabbar.inset,
+          paddingBottom: tabbar.inset,
         }}
       >
         <ContentGutters>
-          <div className="h-[60px] flex flex-row items-center">
+          <div className="h-[60px] flex flex-row items-center gap-3">
             {postApId && <PostShareButton postApId={postApId} />}
             <div className="flex-1" />
-            {postApId && (
-              <PostCommentsButton
-                commentsCount={0}
-                communityName={""}
-                postApId={postApId}
-              />
-            )}
-            {postApId && <Voting key={postApId} apId={postApId} />}
+            {postApId && <PostCommentsButton postApId={postApId} />}
+            {postApId && <PostVoting key={postApId} apId={postApId} />}
           </div>
         </ContentGutters>
       </div>

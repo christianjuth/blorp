@@ -2,7 +2,7 @@ import { cn } from "@/src/lib/utils";
 import { cva, VariantProps } from "class-variance-authority";
 
 const titleVariants = cva(
-  "font-bold max-w-[calc(100vw-180px)] overflow-hidden overflow-ellipsis line-clamp-1",
+  "font-bold max-w-[calc(100vw-180px)] md:max-w-lg overflow-hidden overflow-ellipsis text-nowrap whitespace-nowrap",
   {
     variants: {
       size: {
@@ -25,7 +25,7 @@ export function ToolbarTitle({
   return (
     <span
       data-tauri-drag-region
-      className={cn("text-foreground", titleVariants({ size }), className)}
+      className={cn(titleVariants({ size }), className)}
     >
       {children}
     </span>

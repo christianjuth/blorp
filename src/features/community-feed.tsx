@@ -39,7 +39,7 @@ import { FaArrowUp } from "react-icons/fa6";
 import { useMedia } from "../lib/hooks";
 import { CommunityFeedSortBar } from "../components/communities/community-feed-sort-bar";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
-import { getAccountSite, useAuth } from "../stores/auth";
+import { useAuth } from "../stores/auth";
 import { usePostsStore } from "../stores/posts";
 import { Search } from "../components/icons";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
@@ -84,9 +84,6 @@ export default function CommunityFeed() {
   });
 
   const modApIds = community.data?.mods.map((m) => m.apId);
-  const adminApIds = useAuth(
-    (s) => getAccountSite(s.getSelectedAccount())?.admins,
-  )?.map((a) => a.apId);
 
   const updateRecent = useRecentCommunitiesStore((s) => s.update);
 

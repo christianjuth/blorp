@@ -111,6 +111,12 @@ const HOME_STACK = [
     component={LightBoxPostFeed}
   />,
   <Route
+    key="/home/lightbox/c/:communityName"
+    exact
+    path="/home/c/:communityName/lightbox"
+    component={LightBoxPostFeed}
+  />,
+  <Route
     key="/home/lightbox/:imgUrl"
     exact
     path="/home/lightbox/:imgUrl"
@@ -178,6 +184,12 @@ const COMMUNITIES_STACK = [
     component={User}
   />,
   <Route
+    key="/communities/lightbox/c/:communityName"
+    exact
+    path="/communities/c/:communityName/lightbox"
+    component={LightBoxPostFeed}
+  />,
+  <Route
     key="/communities/lightbox/:imgUrl"
     exact
     path="/communities/lightbox/:imgUrl"
@@ -229,9 +241,15 @@ const INBOX_STACK = [
     component={User}
   />,
   <Route
+    key="/inbox/lightbox/c/:communityName"
+    exact
+    path="/inbox/c/:communityName/lightbox"
+    component={LightBoxPostFeed}
+  />,
+  <Route
     key="/inbox/lightbox"
     exact
-    path="/home/lightbox/:imgUrl"
+    path="/inbox/lightbox/:imgUrl"
     component={LightBox}
   />,
 ];

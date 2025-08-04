@@ -13,7 +13,7 @@ import {
   TransformComponent,
   useControls,
 } from "react-zoom-pan-pinch";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { ToolbarBackButton } from "../../components/toolbar/toolbar-back-button";
 import { UserDropdown } from "../../components/nav";
 import {
@@ -27,15 +27,41 @@ import z from "zod";
 import { ToolbarTitle } from "../../components/toolbar/toolbar-title";
 import { cn } from "../../lib/utils";
 import { ContentGutters } from "../../components/gutters";
+import { Button } from "@/src/components/ui/button";
+import { FaPlus, FaMinus } from "react-icons/fa";
+import { MdZoomInMap } from "react-icons/md";
 
-const Controls = () => {
+const Controls = ({
+  style,
+  isZoomedIn,
+}: {
+  style?: CSSProperties;
+  isZoomedIn: boolean;
+}) => {
   const { zoomIn, zoomOut, resetTransform } = useControls();
 
   return (
-    <div className="absolute">
-      <button onClick={() => zoomIn()}>+</button>
-      <button onClick={() => zoomOut()}>-</button>
-      <button onClick={() => resetTransform()}>x</button>
+    <div
+      className="absolute right-0 dark flex flex-col mr-9 gap-2.5"
+      style={style}
+    >
+      <Button variant="secondary" size="icon" onClick={() => zoomIn()}>
+        <FaPlus />
+      </Button>
+      <Button variant="secondary" size="icon" onClick={() => zoomOut()}>
+        <FaMinus />
+      </Button>
+      <Button
+        size="icon"
+        variant="secondary"
+        className={cn(
+          "transition-opacity",
+          !isZoomedIn && "opacity-0 pointer-events-none",
+        )}
+        onClick={() => resetTransform()}
+      >
+        <MdZoomInMap />
+      </Button>
     </div>
   );
 };
@@ -43,13 +69,17 @@ const Controls = () => {
 export function ResponsiveImage({
   img,
   onZoom,
-  paddingY = 0,
+  paddingT = 0,
+  paddingB = 0,
+  className,
 }: {
-  paddingY?: number;
+  paddingT?: number;
+  paddingB?: number;
   img: string;
   onZoom: (scale: number) => void;
+  className?: string;
 }) {
-  const [allowPan, setAllowPan] = useState(false);
+  const [isZoomedIn, setIsZoomedIn] = useState(false);
   const backgroundColor = "black";
   const zoomFactor = 8;
 
@@ -83,7 +113,7 @@ export function ResponsiveImage({
         if (container !== null) {
           const rect = container.getBoundingClientRect();
           setContainerWidth(rect.width);
-          setContainerHeight(rect.height - paddingY);
+          setContainerHeight(rect.height - paddingT - paddingB);
         } else {
           setContainerWidth(0);
           setContainerHeight(0);
@@ -97,7 +127,7 @@ export function ResponsiveImage({
 
       resizeObserver.observe(container);
     }
-  }, [paddingY]);
+  }, [paddingT, paddingB]);
 
   return (
     <div
@@ -106,7 +136,7 @@ export function ResponsiveImage({
         height: "100%",
         backgroundColor,
       }}
-      className="ion-content-scroll-host"
+      className={className}
       ref={containerRef}
     >
       <TransformWrapper
@@ -115,14 +145,16 @@ export function ResponsiveImage({
         minScale={imageScale}
         maxScale={imageScale * zoomFactor}
         centerOnInit
-        onZoom={(z) => {
+        onTransformed={(z) => {
           const scale = z.state.scale / imageScale;
-          setAllowPan(scale > 1.05);
+          setIsZoomedIn(scale > 1.05);
           onZoom(scale);
         }}
-        panning={{ disabled: !allowPan }}
-        wheel={{
-          disabled: true,
+        panning={{ disabled: !isZoomedIn }}
+        wheel={{ smoothStep: 0.15 }}
+        doubleClick={{
+          mode: isZoomedIn ? "reset" : "zoomIn",
+          step: 0.75,
         }}
       >
         <TransformComponent
@@ -132,6 +164,7 @@ export function ResponsiveImage({
           }}
         >
           <img
+            className="bg-muted"
             src={img}
             onLoad={(e) => {
               setImageNaturalWidth(e.currentTarget.naturalWidth);
@@ -147,7 +180,7 @@ export function ResponsiveImage({
             }}
           />
         </TransformComponent>
-        <Controls />
+        <Controls isZoomedIn={isZoomedIn} style={{ bottom: paddingB }} />
       </TransformWrapper>
     </div>
   );
@@ -205,24 +238,10 @@ export default function LightBox() {
           onZoom={(scale) => {
             setHideNav(scale > 1.05);
           }}
-          paddingY={navbar.height + navbar.inset + tabbar.height + tabbar.inset}
+          paddingT={navbar.height + navbar.inset}
+          paddingB={tabbar.height + tabbar.inset}
         />
       </IonContent>
-      <div
-        className={cn(
-          "border-t-[.5px] z-10 absolute bottom-0 inset-x-0 backdrop-blur-2xl",
-          hideNav && "opacity-0",
-          !isActive && "hidden",
-        )}
-        style={{
-          height: tabbar.height + tabbar.inset,
-          paddingBottom: tabbar.inset,
-        }}
-      >
-        <ContentGutters>
-          <div className="h-[60px] flex flex-row items-center"></div>
-        </ContentGutters>
-      </div>
     </IonPage>
   );
 }

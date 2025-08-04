@@ -883,42 +883,47 @@ export function useRemoveUserAvatar() {
   });
 }
 
-export function useLikePost(apId: string) {
+export function useLikePost(apId?: string) {
   const { api } = useApiClients();
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const post = usePostsStore((s) => s.posts[getCachePrefixer()(apId)]?.data);
   const patchPost = usePostsStore((s) => s.patchPost);
 
   return useMutation({
     mutationKey: ["likePost", apId],
-    mutationFn: async (score: -1 | 0 | 1) => {
-      if (!post) {
-        throw new Error("post not found");
-      }
+    mutationFn: async ({
+      postId,
+      score,
+    }: {
+      postApId: string;
+      postId: number;
+      score: -1 | 0 | 1;
+    }) => {
       return (await api).likePost({
-        postId: post.id,
+        postId,
         score,
       });
     },
-    onMutate: (myVote) =>
-      patchPost(apId, getCachePrefixer(), {
-        optimisticMyVote: myVote,
-      }),
-    onSuccess: (data) =>
-      patchPost(apId, getCachePrefixer(), {
+    onMutate: ({ postApId, score }) => {
+      patchPost(postApId, getCachePrefixer(), {
+        optimisticMyVote: score,
+      });
+    },
+    onSuccess: (data) => {
+      patchPost(data.apId, getCachePrefixer(), {
         optimisticMyVote: undefined,
         ...data,
-      }),
-    onError: (err, vote) => {
-      patchPost(apId, getCachePrefixer(), {
+      });
+    },
+    onError: (err, { postApId, score }) => {
+      patchPost(postApId, getCachePrefixer(), {
         optimisticMyVote: undefined,
       });
       if (isErrorLike(err)) {
         toast.error(extractErrorContent(err));
       } else {
         let verb = "";
-        switch (vote) {
+        switch (score) {
           case 0:
             verb = "upvote";
           case 1:
