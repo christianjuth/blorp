@@ -398,6 +398,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
   }
 
   async search(form: Forms.Search, options: RequestOptions) {
+    const topSort = form.type === "Communities" || form.type === "Users";
     const { results, next_page } = await this.client.search(
       {
         q: form.q,
@@ -406,6 +407,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
           form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         type_: form.type,
         limit: this.limit,
+        sort: topSort ? "Top" : "New",
       },
       options,
     );

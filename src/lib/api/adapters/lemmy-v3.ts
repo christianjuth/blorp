@@ -30,10 +30,10 @@ const POST_SORTS: lemmyV3.SortType[] = [
   "New",
   "Old",
   "TopAll",
-  "TopDay",
   "TopHour",
   "TopSixHour",
   "TopTwelveHour",
+  "TopDay",
   "TopWeek",
   "TopMonth",
   "TopThreeMonths",
@@ -542,6 +542,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
 
   async search(form: Forms.Search, options: RequestOptions) {
     const cursor = cursorToInt(form.pageCursor) ?? 1;
+    const topSort = form.type === "Communities" || form.type === "Users";
     const { posts, communities, users, comments } = await this.client.search(
       {
         q: form.q,
@@ -549,6 +550,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
         page: cursor,
         type_: form.type,
         limit: this.limit,
+        sort: topSort ? "TopAll" : "Active",
       },
       options,
     );
