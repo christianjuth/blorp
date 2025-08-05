@@ -130,10 +130,10 @@ function HorizontalVirtualizer<T>({
       }
     }
 
-    if (bestIndex > -1) {
+    if (bestIndex > -1 && bestIndex !== initIndex) {
       onIndexChange(bestIndex);
     }
-  }, [isReady, rowVirtualizer.measurementsCache]);
+  }, [isReady, rowVirtualizer.measurementsCache, initIndex]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -154,7 +154,7 @@ function HorizontalVirtualizer<T>({
     };
   }, [updateIndex]);
 
-  const [snap, setSnap] = useState(false);
+  const [snap, setSnap] = useState(true);
 
   const timerRef = useRef<number>(-1);
   useEffect(() => {

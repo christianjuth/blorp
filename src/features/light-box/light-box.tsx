@@ -26,7 +26,6 @@ import {
 import z from "zod";
 import { ToolbarTitle } from "../../components/toolbar/toolbar-title";
 import { cn } from "../../lib/utils";
-import { ContentGutters } from "../../components/gutters";
 import { Button } from "@/src/components/ui/button";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { MdZoomInMap } from "react-icons/md";
@@ -42,7 +41,7 @@ const Controls = ({
 
   return (
     <div
-      className="absolute right-0 dark flex flex-col mr-9 gap-2.5"
+      className="absolute right-0 dark flex flex-col mr-9 gap-2.5 max-md:hidden"
       style={style}
     >
       <Button variant="secondary" size="icon" onClick={() => zoomIn()}>
