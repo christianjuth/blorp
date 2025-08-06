@@ -29,15 +29,16 @@ import { cn } from "../../lib/utils";
 import { Button } from "@/src/components/ui/button";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { MdZoomInMap } from "react-icons/md";
-import { MdOutlineImageNotSupported } from "react-icons/md";
-import { setEngine } from "crypto";
+import { Spinner, NoImage } from "@/src/components/icons";
 
 const Controls = ({
   style,
   isZoomedIn,
+  disabled,
 }: {
   style?: CSSProperties;
   isZoomedIn: boolean;
+  disabled?: boolean;
 }) => {
   const { zoomIn, zoomOut, resetTransform } = useControls();
 
@@ -46,10 +47,20 @@ const Controls = ({
       className="absolute right-0 dark flex flex-col mr-9 gap-2.5 max-md:hidden"
       style={style}
     >
-      <Button variant="secondary" size="icon" onClick={() => zoomIn()}>
+      <Button
+        variant="secondary"
+        size="icon"
+        onClick={() => zoomIn()}
+        tabIndex={disabled ? -1 : undefined}
+      >
         <FaPlus />
       </Button>
-      <Button variant="secondary" size="icon" onClick={() => zoomOut()}>
+      <Button
+        variant="secondary"
+        size="icon"
+        onClick={() => zoomOut()}
+        tabIndex={disabled ? -1 : undefined}
+      >
         <FaMinus />
       </Button>
       <Button
@@ -60,6 +71,8 @@ const Controls = ({
           !isZoomedIn && "opacity-0 pointer-events-none",
         )}
         onClick={() => resetTransform()}
+        disabled={isZoomedIn}
+        tabIndex={!isZoomedIn || disabled ? -1 : undefined}
       >
         <MdZoomInMap />
       </Button>
@@ -75,12 +88,14 @@ export function ResponsiveImage({
   paddingT = 0,
   paddingB = 0,
   className,
+  disabled,
 }: {
   paddingT?: number;
   paddingB?: number;
   img: string;
   onZoom: (scale: number) => void;
   className?: string;
+  disabled?: boolean;
 }) {
   const [isZoomedIn, setIsZoomedIn] = useState(false);
 
@@ -131,6 +146,7 @@ export function ResponsiveImage({
   }, [paddingT, paddingB]);
 
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   return (
     <div className={cn("h-full w-full bg-black", className)} ref={containerRef}>
@@ -162,6 +178,7 @@ export function ResponsiveImage({
             className={cn("bg-muted", error && "opacity-0")}
             src={img}
             onLoad={(e) => {
+              setLoading(false);
               setImageNaturalWidth(e.currentTarget.naturalWidth);
               setImageNaturalHeight(e.currentTarget.naturalHeight);
             }}
@@ -176,11 +193,18 @@ export function ResponsiveImage({
             }}
           />
         </TransformComponent>
-        <Controls isZoomedIn={isZoomedIn} style={{ bottom: paddingB }} />
+        <Controls
+          isZoomedIn={isZoomedIn}
+          style={{ bottom: paddingB }}
+          disabled={disabled}
+        />
       </TransformWrapper>
 
+      {loading && (
+        <Spinner className="absolute top-1/2 left-1/2 text-4xl -translate-1/2 text-white animate-spin" />
+      )}
       {error && (
-        <MdOutlineImageNotSupported className="absolute top-1/2 left-1/2 h-40 w-40 -translate-1/2" />
+        <NoImage className="absolute top-1/2 left-1/2 h-40 w-40 -translate-1/2 text-white" />
       )}
     </div>
   );

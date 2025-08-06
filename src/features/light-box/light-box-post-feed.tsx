@@ -46,14 +46,14 @@ const EMPTY_ARR: never[] = [];
 function HorizontalVirtualizer<T>({
   data,
   renderItem,
-  initIndex = 0,
+  activeIndex = 0,
   onIndexChange,
   onEndReached,
   className,
 }: {
   data?: T[] | readonly T[];
   renderItem: (params: { item: T; index: number }) => React.ReactNode;
-  initIndex?: number;
+  activeIndex?: number;
   onIndexChange: (index: number) => void;
   onEndReached?: () => any;
   className?: string;
@@ -64,13 +64,13 @@ function HorizontalVirtualizer<T>({
 
   const itemWidth = scrollRef.current?.clientWidth ?? window.innerWidth;
 
-  const initialOffset = initIndex * itemWidth;
+  const initialOffset = activeIndex * itemWidth;
 
   const focused = useElementHadFocus(scrollRef);
 
   const rowVirtualizer = useVirtualizer({
     count,
-    overscan: 2,
+    overscan: 3,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => itemWidth,
     horizontal: true,
@@ -104,7 +104,7 @@ function HorizontalVirtualizer<T>({
     }
   }, [count, rowVirtualizer.getVirtualItems(), onEndReached]);
 
-  const isReady = rowVirtualizer.getVirtualIndexes().includes(initIndex);
+  const isReady = rowVirtualizer.getVirtualIndexes().includes(activeIndex);
 
   const updateIndex = useCallback(() => {
     const el = scrollRef.current;
@@ -133,14 +133,14 @@ function HorizontalVirtualizer<T>({
       }
     }
 
-    if (bestIndex > -1 && bestIndex !== initIndex) {
+    if (bestIndex > -1 && bestIndex !== activeIndex) {
       onIndexChange(bestIndex);
     }
-  }, [isReady, rowVirtualizer.measurementsCache, initIndex]);
+  }, [isReady, rowVirtualizer.measurementsCache, activeIndex]);
 
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el) return;
+    if (!el || !focused) return;
 
     let frame = 0;
     const onScroll = () => {
@@ -155,7 +155,7 @@ function HorizontalVirtualizer<T>({
       el.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(frame);
     };
-  }, [updateIndex]);
+  }, [updateIndex, focused]);
 
   const [snap, setSnap] = useState(true);
 
@@ -251,11 +251,13 @@ const Post = memo(
     paddingT,
     paddingB,
     onZoom,
+    disabled,
   }: {
     apId: string;
     paddingT: number;
     paddingB: number;
     onZoom: (scale: number) => void;
+    disabled?: boolean;
   }) => {
     const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
     const postView = usePostsStore(
@@ -269,6 +271,7 @@ const Post = memo(
         paddingT={paddingT}
         paddingB={paddingB}
         className="border-x border-background -mx-px"
+        disabled={disabled}
       />
     ) : null;
   },
@@ -310,9 +313,9 @@ export default function LightBoxPostFeed() {
     [posts.data],
   );
 
-  const initIndex = data.findIndex((apId) => apId === decodedApId);
+  const activeIndex = data.findIndex((apId) => apId === decodedApId);
 
-  const postApId = data[initIndex];
+  const postApId = data[activeIndex];
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore((s) =>
     postApId ? s.posts[getCachePrefixer()(postApId)]?.data : null,
@@ -383,11 +386,7 @@ export default function LightBoxPostFeed() {
               : "var(--shad-background)",
             "--ion-toolbar-border-color": "var(--shad-border)",
           }}
-          className={cn(
-            "dark",
-            isActive && "backdrop-blur-2xl",
-            hideNav && "opacity-0",
-          )}
+          className={cn("dark", hideNav && "opacity-0")}
         >
           <IonButtons slot="start" className="gap-2">
             <ToolbarBackButton />
@@ -414,7 +413,7 @@ export default function LightBoxPostFeed() {
               setEncodedApId(encodeApId(newApId));
             }
           }}
-          initIndex={initIndex}
+          activeIndex={activeIndex}
           data={data}
           renderItem={(item) => (
             <Post
@@ -422,6 +421,7 @@ export default function LightBoxPostFeed() {
               paddingT={navbar.height + navbar.inset}
               paddingB={tabbar.height + tabbar.inset}
               onZoom={(scale) => setHideNav(scale > 1.05)}
+              disabled={item.index !== activeIndex}
             />
           )}
           onEndReached={() => {
@@ -433,7 +433,7 @@ export default function LightBoxPostFeed() {
       </IonContent>
       <div
         className={cn(
-          "border-t-[.5px] z-10 absolute bottom-0 inset-x-0 backdrop-blur-2xl",
+          "border-t-[.5px] z-10 absolute bottom-0 inset-x-0 bg-black/20 backdrop-blur-lg",
           hideNav && "opacity-0",
           !isActive && "hidden",
         )}
@@ -449,9 +449,16 @@ export default function LightBoxPostFeed() {
       >
         <ContentGutters className="h-full">
           <div className="flex flex-row items-center gap-3">
-            {postApId && <PostShareButton postApId={postApId} />}
+            {postApId && (
+              <PostShareButton postApId={postApId} className="bg-transparent" />
+            )}
             <div className="flex-1" />
-            {postApId && <PostCommentsButton postApId={postApId} />}
+            {postApId && (
+              <PostCommentsButton
+                postApId={postApId}
+                className="bg-transparent"
+              />
+            )}
             {postApId && <PostVoting key={postApId} apId={postApId} />}
           </div>
         </ContentGutters>

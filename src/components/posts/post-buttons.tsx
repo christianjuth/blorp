@@ -190,9 +190,11 @@ export function PostVoting({
 export function PostCommentsButton({
   postApId,
   onClick,
+  className,
 }: {
   postApId: string;
   onClick?: () => void;
+  className?: string;
 }): React.ReactNode {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const postView = usePostsStore(
@@ -205,7 +207,7 @@ export function PostCommentsButton({
       <Button
         size="sm"
         variant="outline"
-        className="text-md font-normal"
+        className={cn("text-md font-normal", className)}
         asChild
       >
         <Link
@@ -227,7 +229,7 @@ export function PostCommentsButton({
         size="sm"
         variant="outline"
         onClick={onClick}
-        className="text-md font-normal"
+        className={cn("text-md font-normal", className)}
       >
         <TbMessageCirclePlus className="scale-115" />
         {postView?.commentsCount}
@@ -239,8 +241,10 @@ export function PostCommentsButton({
 
 export function PostShareButton({
   postApId,
+  className,
 }: {
   postApId: string;
+  className?: string;
 }): React.ReactNode {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore(
@@ -300,12 +304,7 @@ export function PostShareButton({
         <Button
           size="sm"
           variant="outline"
-          //onClick={() => {
-          //  if (post && post.thumbnailUrl) {
-          //    shareImage(post.title, post.thumbnailUrl);
-          //  }
-          //}}
-          className="text-md font-normal"
+          className={cn("text-md font-normal", className)}
           asChild
         >
           <div>
