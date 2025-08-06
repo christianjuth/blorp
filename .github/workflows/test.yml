@@ -1,9 +1,11 @@
 name: Run tests
 
 on:
-  push:
   pull_request:
-    types: [synchronize]
+    types: [opened, reopened, synchronize]
+  push:
+    branches:
+      - main
 
 concurrency:
   group: "tests-${{ github.event.pull_request.head.sha || github.sha }}"
