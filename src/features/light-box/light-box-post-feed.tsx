@@ -18,6 +18,7 @@ import {
   useElementHadFocus,
   useHideTabBarOnMount,
   useIsActiveRoute,
+  useMedia,
   useNavbarHeight,
   useTabbarHeight,
   useUrlSearchState,
@@ -160,6 +161,8 @@ function HorizontalVirtualizer<T>({
 
   const timerRef = useRef<number>(-1);
   useEffect(() => {
+    if (!focused) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case "ArrowLeft":
@@ -203,7 +206,7 @@ function HorizontalVirtualizer<T>({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [itemWidth, rowVirtualizer.scrollBy, updateIndex]);
+  }, [itemWidth, rowVirtualizer.scrollBy, updateIndex, focused]);
 
   return (
     <div
@@ -287,10 +290,10 @@ export default function LightBoxPostFeed() {
   const decodedApId = decodeApId(encodedApId);
 
   const [hideNav, setHideNav] = useState(false);
+  const media = useMedia();
   const navbar = useNavbarHeight();
-  const isActive = useIsActiveRoute();
-
   const tabbar = useTabbarHeight();
+  const isActive = useIsActiveRoute();
 
   const listingType = useFiltersStore((s) => s.listingType);
   const posts = usePosts(
@@ -330,6 +333,8 @@ export default function LightBoxPostFeed() {
   const voting = usePostVoting(postApId);
 
   useEffect(() => {
+    if (!isActive) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (post) {
         switch (e.key) {
@@ -365,7 +370,7 @@ export default function LightBoxPostFeed() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [voting?.vote]);
+  }, [voting?.vote, isActive]);
 
   return (
     <IonPage className="dark">
@@ -433,7 +438,12 @@ export default function LightBoxPostFeed() {
           !isActive && "hidden",
         )}
         style={{
-          height: tabbar.height + tabbar.inset,
+          // This is kinda weird, but I thought it looked
+          // better if the bottom controls height mated the
+          // toolbar height on desktop.
+          height: media.md
+            ? Math.max(navbar.height, tabbar.height + tabbar.inset)
+            : tabbar.height + tabbar.inset,
           paddingBottom: tabbar.inset,
         }}
       >

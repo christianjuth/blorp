@@ -29,6 +29,8 @@ import { cn } from "../../lib/utils";
 import { Button } from "@/src/components/ui/button";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { MdZoomInMap } from "react-icons/md";
+import { MdOutlineImageNotSupported } from "react-icons/md";
+import { setEngine } from "crypto";
 
 const Controls = ({
   style,
@@ -65,6 +67,8 @@ const Controls = ({
   );
 };
 
+const ZOOM_FACTOR = 8;
+
 export function ResponsiveImage({
   img,
   onZoom,
@@ -79,8 +83,6 @@ export function ResponsiveImage({
   className?: string;
 }) {
   const [isZoomedIn, setIsZoomedIn] = useState(false);
-  const backgroundColor = "black";
-  const zoomFactor = 8;
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -128,21 +130,15 @@ export function ResponsiveImage({
     }
   }, [paddingT, paddingB]);
 
+  const [error, setError] = useState(false);
+
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        backgroundColor,
-      }}
-      className={className}
-      ref={containerRef}
-    >
+    <div className={cn("h-full w-full bg-black", className)} ref={containerRef}>
       <TransformWrapper
         key={`${containerWidth}x${containerHeight}-${imageScale}`}
         initialScale={imageScale}
         minScale={imageScale}
-        maxScale={imageScale * zoomFactor}
+        maxScale={imageScale * ZOOM_FACTOR}
         centerOnInit
         onTransformed={(z) => {
           const scale = z.state.scale / imageScale;
@@ -163,12 +159,13 @@ export function ResponsiveImage({
           }}
         >
           <img
-            className="bg-muted"
+            className={cn("bg-muted", error && "opacity-0")}
             src={img}
             onLoad={(e) => {
               setImageNaturalWidth(e.currentTarget.naturalWidth);
               setImageNaturalHeight(e.currentTarget.naturalHeight);
             }}
+            onError={() => setError(true)}
             style={{
               minWidth: imageNaturalWidth,
               width: imageNaturalWidth,
@@ -181,6 +178,10 @@ export function ResponsiveImage({
         </TransformComponent>
         <Controls isZoomedIn={isZoomedIn} style={{ bottom: paddingB }} />
       </TransformWrapper>
+
+      {error && (
+        <MdOutlineImageNotSupported className="absolute top-1/2 left-1/2 h-40 w-40 -translate-1/2" />
+      )}
     </div>
   );
 }
