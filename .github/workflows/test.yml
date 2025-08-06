@@ -6,7 +6,7 @@ on:
     types: [synchronize]
 
 concurrency:
-  group: "tests-${{ github.sha }}"
+  group: "tests-${{ github.event.pull_request.head.sha || github.sha }}"
   cancel-in-progress: true
 
 jobs:
