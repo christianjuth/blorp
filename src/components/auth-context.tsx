@@ -402,7 +402,7 @@ function AuthModal({
   const [software, setSoftware] = useState<"lemmy" | "piefed">("lemmy");
 
   const site = useSite({
-    instance: search,
+    instance: instance.baseurl ?? search,
   });
 
   const data = useMemo(() => {
