@@ -232,7 +232,7 @@ export function FeedPostCard(props: PostProps) {
         </span>
         {showImage && (
           <div
-            className="max-md:-mx-3.5 flex items-center justify-center relative overflow-hidden max-h-[70vh]"
+            className="max-md:-mx-3.5 flex items-center justify-center relative overflow-hidden"
             onClick={() => {
               if (!removeBlur && props.detailView) {
                 setRemoveBlur(true);
@@ -240,7 +240,7 @@ export function FeedPostCard(props: PostProps) {
             }}
           >
             {!imageLoaded && (
-              <Skeleton className="absolute inset-0 rounded-none md:rounded-lg max-h-[70vh] w-full" />
+              <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
             )}
             <img
               src={embed.thumbnail ?? undefined}
