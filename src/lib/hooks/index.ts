@@ -81,12 +81,21 @@ export function useUrlSearchState<S extends z.ZodSchema>(
   schema: S,
 ): [z.infer<S>, SetUrlSearchParam<z.infer<S>>] {
   const history = useHistory();
+  const router = useIonRouter();
   const location = useLocation();
+  const frozenLocation = useRef(location);
 
   const frozenDefaultValue = useRef(defaultValue);
+  const currentValueRef = useRef(defaultValue);
+
+  const isActive = useIsActiveRoute();
 
   // parse & validate the raw URL param, fallback to default
   const value = useMemo<z.infer<S>>(() => {
+    if (!isActive) {
+      return currentValueRef.current;
+    }
+
     const params = new URLSearchParams(location.search);
     const raw = params.get(key);
     if (raw == null) return frozenDefaultValue.current;
@@ -96,8 +105,10 @@ export function useUrlSearchState<S extends z.ZodSchema>(
     }
 
     const parsed = schema.safeParse(raw);
-    return parsed.success ? parsed.data : frozenDefaultValue.current;
-  }, [location.search, key, frozenDefaultValue.current, schema]);
+    const newValue = parsed.success ? parsed.data : frozenDefaultValue.current;
+    currentValueRef.current = newValue;
+    return newValue;
+  }, [location.search, key, frozenDefaultValue.current, schema, isActive]);
 
   // setter that validates and pushes/replaces the URL
   const setValue = useCallback<SetUrlSearchParam<z.infer<S>>>(
@@ -115,12 +126,18 @@ export function useUrlSearchState<S extends z.ZodSchema>(
       const params = new URLSearchParams(location.search);
       params.set(key, newVal);
       const newSearch = params.toString();
-      const to = { ...location, search: newSearch ? `?${newSearch}` : "" };
+      const to = {
+        // Idk why but location is getting out of sync with
+        // browser location. So we just freeze the intial value
+        // and that seems to work.
+        ...frozenLocation.current,
+        search: newSearch ? `?${newSearch}` : "",
+      };
       replace ? history.replace(to) : history.push(to);
 
       frozenDefaultValue.current = defaultValue;
     },
-    [history, location, key, schema, value, defaultValue],
+    [history, router, key, schema, value, defaultValue],
   );
 
   return [value, setValue];
@@ -246,14 +263,17 @@ export function useSafeAreaInsets() {
 export function useNavbarHeight() {
   const media = useMedia();
   const height = media.md ? 60 : 55;
-  const safeAreaTop = parseInt(
-    getComputedStyle(document.documentElement)
-      .getPropertyValue("--ion-safe-area-top")
-      .trim(),
-    10,
-  );
+  const { top } = useSafeAreaInsets();
   return {
     height,
-    inset: safeAreaTop,
+    inset: top,
+  };
+}
+
+export function useTabbarHeight() {
+  const { bottom } = useSafeAreaInsets();
+  return {
+    height: 50.5,
+    inset: bottom,
   };
 }

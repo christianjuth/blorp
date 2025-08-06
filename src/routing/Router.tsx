@@ -295,6 +295,7 @@ function Tabs() {
   return (
     <>
       <IonMenu
+        swipeGesture={false}
         menuId={RIGHT_SIDEBAR_MENU_ID}
         contentId="main"
         side="end"
@@ -315,6 +316,7 @@ function Tabs() {
 
       <IonSplitPane when="lg" contentId="main">
         <IonMenu
+          swipeGesture={false}
           type="push"
           contentId="main"
           menuId={LEFT_SIDEBAR_MENU_ID}

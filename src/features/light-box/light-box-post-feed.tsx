@@ -19,7 +19,7 @@ import {
   useHideTabBarOnMount,
   useIsActiveRoute,
   useNavbarHeight,
-  useSafeAreaInsets,
+  useTabbarHeight,
   useUrlSearchState,
 } from "@/src/lib/hooks";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
@@ -48,12 +48,14 @@ function HorizontalVirtualizer<T>({
   initIndex = 0,
   onIndexChange,
   onEndReached,
+  className,
 }: {
   data?: T[] | readonly T[];
   renderItem: (params: { item: T; index: number }) => React.ReactNode;
   initIndex?: number;
   onIndexChange: (index: number) => void;
   onEndReached?: () => any;
+  className?: string;
 }) {
   const count = data?.length ?? 0;
 
@@ -209,6 +211,7 @@ function HorizontalVirtualizer<T>({
       className={cn(
         "overflow-x-scroll overflow-y-hidden hide-scrollbars h-full w-full relative",
         snap && "snap-x snap-mandatory",
+        className,
       )}
     >
       {rowVirtualizer.getVirtualItems().map((virtualItem) => {
@@ -287,11 +290,7 @@ export default function LightBoxPostFeed() {
   const navbar = useNavbarHeight();
   const isActive = useIsActiveRoute();
 
-  const insets = useSafeAreaInsets();
-  const tabbar = {
-    height: navbar.height,
-    inset: insets.bottom,
-  };
+  const tabbar = useTabbarHeight();
 
   const listingType = useFiltersStore((s) => s.listingType);
   const posts = usePosts(
@@ -371,15 +370,17 @@ export default function LightBoxPostFeed() {
   return (
     <IonPage className="dark">
       <PageTitle>Image</PageTitle>
-      <IonHeader translucent={true}>
+      <IonHeader>
         <IonToolbar
           style={{
-            "--ion-toolbar-background": "transparent",
+            "--ion-toolbar-background": hideNav
+              ? "transparent"
+              : "var(--shad-background)",
             "--ion-toolbar-border-color": "var(--shad-border)",
           }}
           className={cn(
             "dark",
-            isActive && "absolute backdrop-blur-2xl",
+            isActive && "backdrop-blur-2xl",
             hideNav && "opacity-0",
           )}
         >
@@ -393,11 +394,12 @@ export default function LightBoxPostFeed() {
         </IonToolbar>
       </IonHeader>
       <IonContent
-        fullscreen={true}
+        fullscreen
         style={{
           "--ion-background-color": "black",
         }}
         scrollY={false}
+        className="absolute inset-0"
       >
         <HorizontalVirtualizer
           key={posts.isPending ? "pending" : "loaded"}
@@ -435,8 +437,8 @@ export default function LightBoxPostFeed() {
           paddingBottom: tabbar.inset,
         }}
       >
-        <ContentGutters>
-          <div className="h-[60px] flex flex-row items-center gap-3">
+        <ContentGutters className="h-full">
+          <div className="flex flex-row items-center gap-3">
             {postApId && <PostShareButton postApId={postApId} />}
             <div className="flex-1" />
             {postApId && <PostCommentsButton postApId={postApId} />}
