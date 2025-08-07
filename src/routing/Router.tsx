@@ -27,6 +27,7 @@ import { MainSidebar } from "./MainSidebar";
 import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID, TABS } from "./config";
 import InstanceSidebar from "../features/instance-sidebar";
 import { getAccountSite, useAuth } from "../stores/auth";
+import { usePathname } from "./hooks";
 
 const CSAE = lazy(() => import("@/src/features/csae"));
 const NotFound = lazy(() => import("@/src/features/not-found"));
@@ -64,6 +65,26 @@ const LightBoxPostFeed = lazy(
 const LightBox = lazy(() => import("@/src/features/light-box/light-box"));
 
 const Instance = lazy(() => import("@/src/features/instance"));
+
+function useMenuSwipeEnabled(side: "right" | "left") {
+  const path = usePathname();
+  if (side === "left") {
+    switch (path) {
+      case "/home":
+      case "/communities":
+      case "/create":
+      case "/inbox":
+      case "/messages":
+        return true;
+      default:
+        return false;
+    }
+  } else {
+    // I wanted to prevent this from matching
+    // communities named lightbox
+    return !/\/lightbox(\/|\?|$)/.test(path);
+  }
+}
 
 const HOME_STACK = [
   <Route key="/home/*" path="/home/*" component={NotFound} />,
@@ -283,6 +304,8 @@ const SETTINGS = [
 ];
 
 function Tabs() {
+  const leftSwipeEnabled = useMenuSwipeEnabled("left");
+  const rightSwipeEnabled = useMenuSwipeEnabled("right");
   const selectedAccountIndex = useAuth((s) => s.accountIndex);
   const inboxCount = useNotificationCount()[selectedAccountIndex];
   const messageCount = usePrivateMessagesCount()[selectedAccountIndex];
@@ -295,7 +318,7 @@ function Tabs() {
   return (
     <>
       <IonMenu
-        swipeGesture={false}
+        swipeGesture={rightSwipeEnabled}
         menuId={RIGHT_SIDEBAR_MENU_ID}
         contentId="main"
         side="end"
@@ -316,7 +339,7 @@ function Tabs() {
 
       <IonSplitPane when="lg" contentId="main">
         <IonMenu
-          swipeGesture={false}
+          swipeGesture={leftSwipeEnabled}
           type="push"
           contentId="main"
           menuId={LEFT_SIDEBAR_MENU_ID}
