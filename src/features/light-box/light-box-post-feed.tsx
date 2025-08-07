@@ -1,6 +1,6 @@
 import { ContentGutters } from "@/src/components/gutters";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useCommunity, usePosts } from "@/src/lib/api";
+import { useCommunity, usePost, usePosts } from "@/src/lib/api";
 import _ from "lodash";
 import {
   IonButtons,
@@ -10,6 +10,7 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
+import { Spinner } from "@/src/components/icons";
 
 import { UserDropdown } from "@/src/components/nav";
 import { PageTitle } from "@/src/components/page-title";
@@ -290,7 +291,7 @@ export default function LightBoxPostFeed() {
     "",
     z.string(),
   );
-  const decodedApId = decodeApId(encodedApId);
+  const decodedApId = encodedApId ? decodeApId(encodedApId) : null;
 
   const [hideNav, setHideNav] = useState(false);
   const media = useMedia();
@@ -299,6 +300,21 @@ export default function LightBoxPostFeed() {
   const isActive = useIsActiveRoute();
 
   const listingType = useFiltersStore((s) => s.listingType);
+
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+
+  // Lookup init post just to make sure it exists in the cache
+  const initPostApId = useRef(decodedApId).current || undefined;
+  const initPost = usePost({
+    ap_id: initPostApId,
+  });
+
+  useEffect(() => {
+    if (initPost.isError) {
+      setEncodedApId("");
+    }
+  }, [initPost.isError]);
+
   const posts = usePosts(
     communityName
       ? {
@@ -308,15 +324,29 @@ export default function LightBoxPostFeed() {
           type: listingType,
         },
   );
-  const data = useMemo(
-    () => _.uniq(posts.data?.pages.flatMap((p) => p.imagePosts)) ?? EMPTY_ARR,
-    [posts.data],
+
+  const data = useMemo(() => {
+    const feedPosts =
+      posts.data?.pages.flatMap((p) => p.imagePosts) ?? EMPTY_ARR;
+    const missingInitPost =
+      initPostApId && !feedPosts.includes(initPostApId) && initPost.isPending;
+
+    if (missingInitPost) {
+      return [];
+    }
+
+    return _.uniq([
+      ...(initPost.data ? [initPost.data.apId] : []),
+      ...feedPosts,
+    ]);
+  }, [initPostApId, initPost.data, initPost.isPending, posts.data]);
+
+  const activeIndex = Math.max(
+    data.findIndex((apId) => apId === decodedApId),
+    0,
   );
 
-  const activeIndex = data.findIndex((apId) => apId === decodedApId);
-
   const postApId = data[activeIndex];
-  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore((s) =>
     postApId ? s.posts[getCachePrefixer()(postApId)]?.data : null,
   );
@@ -430,10 +460,14 @@ export default function LightBoxPostFeed() {
             }
           }}
         />
+
+        {data.length === 0 && (initPost.isPending || posts.isPending) && (
+          <Spinner className="absolute top-1/2 left-1/2 text-4xl -translate-1/2 text-white animate-spin" />
+        )}
       </IonContent>
       <div
         className={cn(
-          "border-t-[.5px] z-10 absolute bottom-0 inset-x-0 bg-black/20 backdrop-blur-lg",
+          "border-t-[.5px] z-10 absolute bottom-0 inset-x-0 bg-black/50",
           hideNav && "opacity-0",
           !isActive && "hidden",
         )}
@@ -450,16 +484,25 @@ export default function LightBoxPostFeed() {
         <ContentGutters className="h-full">
           <div className="flex flex-row items-center gap-3">
             {postApId && (
-              <PostShareButton postApId={postApId} className="bg-transparent" />
+              <PostShareButton
+                postApId={postApId}
+                className="bg-transparent backdrop-blur-xs"
+              />
             )}
             <div className="flex-1" />
             {postApId && (
               <PostCommentsButton
                 postApId={postApId}
-                className="bg-transparent"
+                className="bg-transparent backdrop-blur-xs"
               />
             )}
-            {postApId && <PostVoting key={postApId} apId={postApId} />}
+            {postApId && (
+              <PostVoting
+                key={postApId}
+                apId={postApId}
+                className="backdrop-blur-xs"
+              />
+            )}
           </div>
         </ContentGutters>
       </div>
