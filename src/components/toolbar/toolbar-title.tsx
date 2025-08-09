@@ -2,7 +2,7 @@ import { cn } from "@/src/lib/utils";
 import { cva, VariantProps } from "class-variance-authority";
 
 const titleVariants = cva(
-  "font-bold max-w-[calc(100vw-180px)] overflow-hidden overflow-ellipsis",
+  "font-bold max-w-[calc(100vw-180px)] md:max-w-lg overflow-hidden overflow-ellipsis text-nowrap whitespace-nowrap",
   {
     variants: {
       size: {

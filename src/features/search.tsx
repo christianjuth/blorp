@@ -7,7 +7,6 @@ import {
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 import { memo, useMemo, useState } from "react";
-import { PostSortButton } from "../components/lemmy-sort";
 import { VirtualList } from "../components/virtual-list";
 import {
   CommunityCard,
@@ -264,40 +263,29 @@ export default function SearchFeed({
                 key="header-type-toggle"
               >
                 <div className="flex flex-row h-12 md:border-b md:bg-background flex-1 items-center">
-                  <div>
-                    <ToggleGroup
-                      type="single"
-                      variant="outline"
-                      size="sm"
-                      value={type}
-                      onValueChange={(val) =>
-                        val &&
-                        setType(
-                          val as "posts" | "communities" | "users" | "comments",
-                        )
-                      }
-                    >
-                      <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                      {scope === "global" && (
-                        <ToggleGroupItem value="communities">
-                          Communities
-                        </ToggleGroupItem>
-                      )}
-                      {scope === "global" && (
-                        <ToggleGroupItem value="users">Users</ToggleGroupItem>
-                      )}
-                      <ToggleGroupItem value="comments">
-                        Comments
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    size="sm"
+                    value={type}
+                    onValueChange={(val) =>
+                      val &&
+                      setType(
+                        val as "posts" | "communities" | "users" | "comments",
+                      )
+                    }
+                  >
+                    <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                    {scope === "global" && (
+                      <ToggleGroupItem value="communities">
+                        Communities
                       </ToggleGroupItem>
-                    </ToggleGroup>
-                  </div>
-
-                  {type === "posts" && (
-                    <>
-                      <div className="w-[.5px] h-2/3 bg-border mx-3 my-auto" />
-                      <PostSortButton align="start" />
-                    </>
-                  )}
+                    )}
+                    {scope === "global" && (
+                      <ToggleGroupItem value="users">Users</ToggleGroupItem>
+                    )}
+                    <ToggleGroupItem value="comments">Comments</ToggleGroupItem>
+                  </ToggleGroup>
                 </div>
                 <></>
               </ContentGutters>,

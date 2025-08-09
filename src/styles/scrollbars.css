@@ -21,3 +21,16 @@
     border-radius: 12px;
   }
 }
+
+.hide-scrollbars {
+  /* IE 10+ */
+  -ms-overflow-style: none;
+  /* Firefox */
+  scrollbar-width: none;
+}
+
+/* Chrome, Safari, Edge */
+.hide-scrollbars::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+}

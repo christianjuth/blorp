@@ -30,10 +30,10 @@ const POST_SORTS: lemmyV3.SortType[] = [
   "New",
   "Old",
   "TopAll",
-  "TopDay",
   "TopHour",
   "TopSixHour",
   "TopTwelveHour",
+  "TopDay",
   "TopWeek",
   "TopMonth",
   "TopThreeMonths",
@@ -160,6 +160,9 @@ function convertPost(
   crossPosts?: lemmyV3.PostView[],
 ): Schemas.Post {
   const { post, counts, community, creator } = postView;
+  const ar = postView.image_details
+    ? postView.image_details.width / postView.image_details.height
+    : null;
   return {
     creatorSlug: createSlug({ apId: creator.actor_id, name: creator.name })
       .slug,
@@ -172,13 +175,14 @@ function convertPost(
     title: post.name,
     body: post.body ?? null,
     thumbnailUrl: post.thumbnail_url ?? null,
+    embedVideoUrl: post.embed_video_url ?? null,
     upvotes: counts.upvotes,
     downvotes: counts.downvotes,
     myVote: postView.my_vote,
     commentsCount: counts.comments,
     deleted: post.deleted,
     removed: post.removed,
-    thumbnailAspectRatio: null,
+    thumbnailAspectRatio: ar,
     communitySlug: createSlug({
       apId: community.actor_id,
       name: community.name,
@@ -538,6 +542,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
 
   async search(form: Forms.Search, options: RequestOptions) {
     const cursor = cursorToInt(form.pageCursor) ?? 1;
+    const topSort = form.type === "Communities" || form.type === "Users";
     const { posts, communities, users, comments } = await this.client.search(
       {
         q: form.q,
@@ -545,6 +550,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
         page: cursor,
         type_: form.type,
         limit: this.limit,
+        sort: topSort ? "TopAll" : "Active",
       },
       options,
     );
