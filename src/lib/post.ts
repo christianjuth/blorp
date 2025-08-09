@@ -52,6 +52,7 @@ export function getPostEmbed(
     embedType = "image";
   } else if (
     post.embedVideoUrl?.endsWith(".mp4") ||
+    post.embedVideoUrl?.endsWith(".m3u8") ||
     post.embedVideoUrl?.endsWith(".gifv")
   ) {
     embedType = "video";

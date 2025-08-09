@@ -15,7 +15,7 @@ import { MarkdownRenderer } from "../markdown/renderer";
 import { twMerge } from "tailwind-merge";
 import { PostLoopsEmbed } from "./post-loops-embed";
 import { YouTubeVideoEmbed } from "../youtube";
-import { PostVideoEmbed } from "./post-video-embed";
+import { PostVideoEmbed } from "./embeds/post-video-embed";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useRef, useState } from "react";
@@ -28,8 +28,7 @@ import { Separator } from "../ui/separator";
 import { SpotifyEmbed } from "./embeds/post-spotify-embed";
 import { SoundCloudEmbed } from "./embeds/soundcloud-embed";
 import { PeerTubeEmbed } from "./embeds/peertube-embed";
-import { VimeoEmbed } from "./embeds/vimeo-embed";
-import { GenericVideoEmbed } from "./embeds/generic-video-embed";
+import { IFramePostEmbed } from "./embeds/generic-video-embed";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -276,10 +275,7 @@ export function FeedPostCard(props: PostProps) {
       )}
 
       {embed?.type === "generic-video" && !post.deleted && embed.embedUrl && (
-        <GenericVideoEmbed embedVideoUrl={embed.embedUrl} />
-      )}
-      {embed?.type === "vimeo" && !post.deleted && embed.embedUrl && (
-        <VimeoEmbed url={embed.embedUrl} />
+        <IFramePostEmbed embedVideoUrl={embed.embedUrl} />
       )}
       {embed?.type === "peertube" && !post.deleted && embed.embedUrl && (
         <PeerTubeEmbed url={embed.embedUrl} />
@@ -290,9 +286,12 @@ export function FeedPostCard(props: PostProps) {
       {embed?.type === "spotify" && !post.deleted && embed.embedUrl && (
         <SpotifyEmbed url={embed.embedUrl} />
       )}
-      {embed?.type === "video" && !post.deleted && embed.embedUrl && (
-        <PostVideoEmbed url={embed.embedUrl} blurNsfw={blurImg} />
-      )}
+      {embed?.type &&
+        PostVideoEmbed.embedTypes.includes(embed?.type) &&
+        !post.deleted &&
+        embed.embedUrl && (
+          <PostVideoEmbed url={embed.embedUrl} blurNsfw={blurImg} />
+        )}
       {embed?.type === "loops" && !post.deleted && embed.embedUrl && (
         <PostLoopsEmbed
           url={embed.embedUrl}

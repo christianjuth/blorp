@@ -175,7 +175,7 @@ export function ResponsiveImage({
           }}
         >
           <img
-            className={cn("bg-muted", error && "opacity-0")}
+            className={cn(error && "opacity-0")}
             src={img}
             onLoad={(e) => {
               setLoading(false);

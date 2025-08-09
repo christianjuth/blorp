@@ -147,6 +147,10 @@ export function getPost(config?: {
       break;
     }
     case "vimeo": {
+      post.url = "https://vimeo.com/279580150";
+      post.thumbnailUrl =
+        "https://lemmy.world/pictrs/image/56252b3c-61b4-4fb9-910c-ca273f6d0593.webp";
+      break;
     }
   }
 

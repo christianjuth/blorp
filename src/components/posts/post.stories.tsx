@@ -36,6 +36,10 @@ const loopsPost = api.getPost({
   variant: "loops",
   post: { id: api.randomDbId() },
 });
+const vimeoPost = api.getPost({
+  variant: "vimeo",
+  post: { id: api.randomDbId() },
+});
 
 const POSTS = [
   textPost,
@@ -45,6 +49,7 @@ const POSTS = [
   soundcloudPost,
   videoPost,
   loopsPost,
+  vimeoPost,
 ];
 
 function LoadData() {
@@ -121,5 +126,11 @@ export const VideoPost: Story = {
 export const LoopsPost: Story = {
   args: {
     apId: loopsPost.post.apId,
+  },
+};
+
+export const VimeoPost: Story = {
+  args: {
+    apId: vimeoPost.post.apId,
   },
 };
