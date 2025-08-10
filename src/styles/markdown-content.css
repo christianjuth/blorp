@@ -43,7 +43,17 @@
 }
 
 .markdown-content blockquote {
-  @apply ps-1.5 pe-7 py-2 border-s-4 font-light text-sm italic relative rounded-se-md rounded-ee-md break-all;
+  @apply ps-1.5 py-2 border-s-4 font-light text-sm italic relative rounded-se-md rounded-ee-md;
+}
+
+.markdown-content blockquote p,
+.markdown-content blockquote h1,
+.markdown-content blockquote h2,
+.markdown-content blockquote h3,
+.markdown-content blockquote h4,
+.markdown-content blockquote h5,
+.markdown-content blockquote h6 {
+  @apply overflow-hidden text-ellipsis;
 }
 
 .markdown-content blockquote code {
