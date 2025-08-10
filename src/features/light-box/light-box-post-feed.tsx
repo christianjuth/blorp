@@ -42,6 +42,7 @@ import { decodeApId, encodeApId } from "@/src/lib/api/utils";
 import { useLinkContext } from "@/src/routing/link-context";
 import { useParams } from "@/src/routing";
 import { Forms } from "@/src/lib/api/adapters/api-blueprint";
+import { useRequireAuth } from "@/src/components/auth-context";
 
 const EMPTY_ARR: never[] = [];
 
@@ -407,6 +408,8 @@ export default function LightBoxPostFeed() {
     }
   }, [community.data, updateRecent]);
 
+  const requireAuth = useRequireAuth();
+
   const voting = usePostVoting(postApId);
   const { vote, isUpvoted, isDownvoted } = voting ?? {};
 
@@ -421,10 +424,12 @@ export default function LightBoxPostFeed() {
           case "h":
             e.preventDefault();
             e.stopPropagation();
-            vote?.mutate({
-              score: isUpvoted ? 0 : 1,
-              postApId: post.apId,
-              postId: post.id,
+            requireAuth().then(() => {
+              vote?.mutate({
+                score: isUpvoted ? 0 : 1,
+                postApId: post.apId,
+                postId: post.id,
+              });
             });
             break;
           case "ArrowDown":
@@ -432,10 +437,12 @@ export default function LightBoxPostFeed() {
           case "l":
             e.preventDefault();
             e.stopPropagation();
-            vote?.mutate({
-              score: isDownvoted ? 0 : -1,
-              postApId: post.apId,
-              postId: post.id,
+            requireAuth().then(() => {
+              vote?.mutate({
+                score: isDownvoted ? 0 : -1,
+                postApId: post.apId,
+                postId: post.id,
+              });
             });
             break;
           default:
@@ -448,7 +455,7 @@ export default function LightBoxPostFeed() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [vote, isUpvoted, isDownvoted, post, isActive]);
+  }, [vote, isUpvoted, isDownvoted, post, isActive, requireAuth]);
 
   const onIndexChange = useCallback(
     (newIndex: number) => {
