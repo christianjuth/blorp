@@ -515,46 +515,31 @@ export default function LightBoxPostFeed() {
         {data.length === 0 && isPending && (
           <Spinner className="absolute top-1/2 left-1/2 text-4xl -translate-1/2 text-white animate-spin" />
         )}
+
+        <div
+          className={cn(
+            "border-t-[.5px] z-10 absolute bottom-0 inset-x-0",
+            hideNav && "opacity-0",
+            !isActive && "hidden",
+          )}
+          style={{
+            // This is kinda weird, but I thought it looked
+            // better if the bottom controls height mated the
+            // toolbar height on desktop.
+            height: bottomBarHeight,
+            paddingBottom: tabbar.inset,
+          }}
+        >
+          <ContentGutters className="h-full">
+            <div className="flex flex-row items-center gap-3">
+              {postApId && <PostShareButton postApId={postApId} />}
+              <div className="flex-1" />
+              {postApId && <PostCommentsButton postApId={postApId} />}
+              {postApId && <PostVoting key={postApId} apId={postApId} />}
+            </div>
+          </ContentGutters>
+        </div>
       </IonContent>
-      <div
-        className={cn(
-          "border-t-[.5px] z-10 absolute bottom-0 inset-x-0 bg-black/50",
-          hideNav && "opacity-0",
-          !isActive && "hidden",
-        )}
-        style={{
-          // This is kinda weird, but I thought it looked
-          // better if the bottom controls height mated the
-          // toolbar height on desktop.
-          height: bottomBarHeight,
-          paddingBottom: tabbar.inset,
-        }}
-      >
-        <ContentGutters className="h-full">
-          <div className="flex flex-row items-center gap-3">
-            {postApId && (
-              <PostShareButton
-                postApId={postApId}
-                className="bg-transparent backdrop-blur-xs"
-              />
-            )}
-            <div className="flex-1" />
-            {postApId && (
-              <PostCommentsButton
-                postApId={postApId}
-                className="bg-transparent backdrop-blur-xs"
-              />
-            )}
-            {postApId && (
-              <PostVoting
-                key={postApId}
-                apId={postApId}
-                className="backdrop-blur-xs"
-              />
-            )}
-          </div>
-        </ContentGutters>
-      </div>
     </IonPage>
   );
 }

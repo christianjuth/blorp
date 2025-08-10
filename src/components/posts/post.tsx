@@ -310,7 +310,7 @@ export function FeedPostCard(props: PostProps) {
       <div className="flex flex-row items-center justify-end gap-2.5 pt-1">
         <PostShareButton postApId={props.apId} />
         <div className="flex-1" />
-        <PostCommentsButton postApId={encodedApId} />
+        <PostCommentsButton postApId={post.apId} />
         <PostVoting apId={post.apId} />
       </div>
     </div>
