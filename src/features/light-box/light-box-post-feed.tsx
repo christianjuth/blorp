@@ -107,13 +107,10 @@ function HorizontalVirtualizer<T>({
 
   const isReady = rowVirtualizer.getVirtualIndexes().includes(activeIndex);
 
-  const scrollOffset = useRef(rowVirtualizer.scrollOffset);
-  scrollOffset.current = rowVirtualizer.scrollOffset;
-
   const updateIndex = useCallback(() => {
     const el = scrollRef.current;
     if (!el || !isReady) return;
-    const offset = scrollOffset.current ?? 0;
+    const offset = rowVirtualizer.scrollOffset ?? 0;
     const cache = rowVirtualizer.measurementsCache;
 
     let bestIndex = -1;
