@@ -41,6 +41,7 @@ import z from "zod";
 import { decodeApId, encodeApId } from "@/src/lib/api/utils";
 import { useLinkContext } from "@/src/routing/link-context";
 import { useParams } from "@/src/routing";
+import { Forms } from "@/src/lib/api/adapters/api-blueprint";
 
 const EMPTY_ARR: never[] = [];
 
@@ -95,22 +96,28 @@ function HorizontalVirtualizer<T>({
     },
   });
 
+  const virtualItems = rowVirtualizer.getVirtualItems();
+  const { scrollBy } = rowVirtualizer;
+
   useEffect(() => {
-    const [lastItem] = [...rowVirtualizer.getVirtualItems()].reverse();
+    const [lastItem] = [...virtualItems].reverse();
     if (!lastItem || _.isNil(count)) {
       return;
     }
     if (lastItem.index >= count - 1) {
       onEndReached?.();
     }
-  }, [count, rowVirtualizer.getVirtualItems(), onEndReached]);
+  }, [count, virtualItems, onEndReached]);
 
   const isReady = rowVirtualizer.getVirtualIndexes().includes(activeIndex);
+
+  const scrollOffset = useRef(rowVirtualizer.scrollOffset);
+  scrollOffset.current = rowVirtualizer.scrollOffset;
 
   const updateIndex = useCallback(() => {
     const el = scrollRef.current;
     if (!el || !isReady) return;
-    const offset = rowVirtualizer.scrollOffset ?? 0;
+    const offset = scrollOffset.current ?? 0;
     const cache = rowVirtualizer.measurementsCache;
 
     let bestIndex = -1;
@@ -137,7 +144,7 @@ function HorizontalVirtualizer<T>({
     if (bestIndex > -1 && bestIndex !== activeIndex) {
       onIndexChange(bestIndex);
     }
-  }, [isReady, rowVirtualizer.measurementsCache, activeIndex]);
+  }, [isReady, rowVirtualizer.measurementsCache, activeIndex, onIndexChange]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -173,7 +180,7 @@ function HorizontalVirtualizer<T>({
           e.preventDefault();
           e.stopPropagation();
           setSnap(false);
-          rowVirtualizer.scrollBy(-itemWidth, {
+          scrollBy(-itemWidth, {
             behavior: "auto",
             align: "start",
           });
@@ -189,7 +196,7 @@ function HorizontalVirtualizer<T>({
           e.preventDefault();
           e.stopPropagation();
           setSnap(false);
-          rowVirtualizer.scrollBy(itemWidth, {
+          scrollBy(itemWidth, {
             behavior: "auto",
             align: "start",
           });
@@ -207,7 +214,7 @@ function HorizontalVirtualizer<T>({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [itemWidth, rowVirtualizer.scrollBy, updateIndex, focused]);
+  }, [itemWidth, scrollBy, updateIndex, focused]);
 
   return (
     <div
@@ -278,6 +285,63 @@ const Post = memo(
   },
 );
 
+function useLightboxPostFeedData({
+  communityName,
+  listingType,
+  activePostApId,
+}: {
+  communityName?: string;
+  listingType: Forms.GetPosts["type"];
+  activePostApId?: string | null;
+}) {
+  const postsQuery = usePosts(
+    communityName
+      ? {
+          communitySlug: communityName,
+        }
+      : {
+          type: listingType,
+        },
+  );
+
+  const posts = useMemo(
+    () =>
+      _.uniq(postsQuery.data?.pages.flatMap((p) => p.imagePosts) ?? EMPTY_ARR),
+    [postsQuery.data],
+  );
+
+  const initPostApId = useRef(activePostApId).current ?? undefined;
+  const missingPost = useMemo(() => {
+    return !!initPostApId && !posts.includes(initPostApId);
+  }, [posts, initPostApId]);
+
+  const initPostQuery = usePost({
+    ap_id: initPostApId,
+    enabled: missingPost,
+  });
+
+  const data = useMemo(() => {
+    if (missingPost && initPostQuery.isPending) {
+      return [];
+    }
+
+    if (missingPost) {
+      return [
+        ...(initPostQuery.data ? [initPostQuery.data.apId] : []),
+        ...posts,
+      ];
+    }
+
+    return posts;
+  }, [missingPost, initPostQuery.data, initPostQuery.isPending, posts]);
+
+  return {
+    data,
+    initPostQuery,
+    postsQuery,
+  };
+}
+
 export default function LightBoxPostFeed() {
   useHideTabBarOnMount();
 
@@ -299,47 +363,27 @@ export default function LightBoxPostFeed() {
   const tabbar = useTabbarHeight();
   const isActive = useIsActiveRoute();
 
+  const bottomBarHeight = media.md
+    ? Math.max(navbar.height, tabbar.height + tabbar.inset)
+    : tabbar.height + tabbar.inset;
+
   const listingType = useFiltersStore((s) => s.listingType);
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
 
-  // Lookup init post just to make sure it exists in the cache
-  const initPostApId = useRef(decodedApId).current || undefined;
-  const initPost = usePost({
-    ap_id: initPostApId,
+  const { data, initPostQuery, postsQuery } = useLightboxPostFeedData({
+    communityName,
+    listingType,
+    activePostApId: decodedApId,
   });
 
+  const isPending = initPostQuery.isPending || postsQuery.isPending;
+
   useEffect(() => {
-    if (initPost.isError) {
+    if (initPostQuery.isError) {
       setEncodedApId("");
     }
-  }, [initPost.isError]);
-
-  const posts = usePosts(
-    communityName
-      ? {
-          communitySlug: communityName,
-        }
-      : {
-          type: listingType,
-        },
-  );
-
-  const data = useMemo(() => {
-    const feedPosts =
-      posts.data?.pages.flatMap((p) => p.imagePosts) ?? EMPTY_ARR;
-    const missingInitPost =
-      initPostApId && !feedPosts.includes(initPostApId) && initPost.isPending;
-
-    if (missingInitPost) {
-      return [];
-    }
-
-    return _.uniq([
-      ...(initPost.data ? [initPost.data.apId] : []),
-      ...feedPosts,
-    ]);
-  }, [initPostApId, initPost.data, initPost.isPending, posts.data]);
+  }, [initPostQuery.isError, setEncodedApId]);
 
   const activeIndex = Math.max(
     data.findIndex((apId) => apId === decodedApId),
@@ -361,9 +405,10 @@ export default function LightBoxPostFeed() {
     if (community.data) {
       updateRecent(community.data.community);
     }
-  }, [community.data]);
+  }, [community.data, updateRecent]);
 
   const voting = usePostVoting(postApId);
+  const { vote, isUpvoted, isDownvoted } = voting ?? {};
 
   useEffect(() => {
     if (!isActive) return;
@@ -376,8 +421,8 @@ export default function LightBoxPostFeed() {
           case "h":
             e.preventDefault();
             e.stopPropagation();
-            voting?.vote.mutate({
-              score: voting.isUpvoted ? 0 : 1,
+            vote?.mutate({
+              score: isUpvoted ? 0 : 1,
               postApId: post.apId,
               postId: post.id,
             });
@@ -387,8 +432,8 @@ export default function LightBoxPostFeed() {
           case "l":
             e.preventDefault();
             e.stopPropagation();
-            voting?.vote.mutate({
-              score: voting.isDownvoted ? 0 : -1,
+            vote?.mutate({
+              score: isDownvoted ? 0 : -1,
               postApId: post.apId,
               postId: post.id,
             });
@@ -403,7 +448,17 @@ export default function LightBoxPostFeed() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [voting?.vote, isActive]);
+  }, [vote, isUpvoted, isDownvoted, post, isActive]);
+
+  const onIndexChange = useCallback(
+    (newIndex: number) => {
+      const newApId = data[newIndex];
+      if (newApId && !isPending) {
+        setEncodedApId(encodeApId(newApId));
+      }
+    },
+    [data, isPending, setEncodedApId],
+  );
 
   return (
     <IonPage className="dark">
@@ -436,32 +491,27 @@ export default function LightBoxPostFeed() {
         className="absolute inset-0"
       >
         <HorizontalVirtualizer
-          key={posts.isPending ? "pending" : "loaded"}
-          onIndexChange={(newIndex) => {
-            const newApId = data[newIndex];
-            if (newApId && !posts.isPending) {
-              setEncodedApId(encodeApId(newApId));
-            }
-          }}
+          key={isPending ? "pending" : "loaded"}
+          onIndexChange={onIndexChange}
           activeIndex={activeIndex}
           data={data}
           renderItem={(item) => (
             <Post
               apId={item.item}
               paddingT={navbar.height + navbar.inset}
-              paddingB={tabbar.height + tabbar.inset}
+              paddingB={bottomBarHeight}
               onZoom={(scale) => setHideNav(scale > 1.05)}
               disabled={item.index !== activeIndex}
             />
           )}
           onEndReached={() => {
-            if (posts.hasNextPage && !posts.isFetchingNextPage) {
-              posts.fetchNextPage();
+            if (postsQuery.hasNextPage && !postsQuery.isFetchingNextPage) {
+              postsQuery.fetchNextPage();
             }
           }}
         />
 
-        {data.length === 0 && (initPost.isPending || posts.isPending) && (
+        {data.length === 0 && isPending && (
           <Spinner className="absolute top-1/2 left-1/2 text-4xl -translate-1/2 text-white animate-spin" />
         )}
       </IonContent>
@@ -475,9 +525,7 @@ export default function LightBoxPostFeed() {
           // This is kinda weird, but I thought it looked
           // better if the bottom controls height mated the
           // toolbar height on desktop.
-          height: media.md
-            ? Math.max(navbar.height, tabbar.height + tabbar.inset)
-            : tabbar.height + tabbar.inset,
+          height: bottomBarHeight,
           paddingBottom: tabbar.inset,
         }}
       >

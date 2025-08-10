@@ -200,7 +200,7 @@ export function ResponsiveImage({
         />
       </TransformWrapper>
 
-      {loading && (
+      {loading && !error && (
         <Spinner className="absolute top-1/2 left-1/2 text-4xl -translate-1/2 text-white animate-spin" />
       )}
       {error && (

@@ -9,22 +9,15 @@ import {
 import { InAppBrowser } from "@capacitor/inappbrowser";
 import { useHistory, useLocation } from "react-router-dom";
 import type z from "zod";
-import { AlertInput, useIonAlert, useIonRouter } from "@ionic/react";
+import { AlertInput, useIonAlert } from "@ionic/react";
 import { Deferred } from "../deferred";
 import { usePathname } from "@/src/routing/hooks";
 import { useMedia } from "./use-media";
 export { useMedia } from "./use-media";
 export { useTheme } from "./use-theme";
 
-interface ObserverOptions {
-  root?: Element | null;
-  rootMargin?: string;
-  threshold?: number | number[];
-}
-
 export function useElementHadFocus<T extends HTMLElement | null>(
   ref: RefObject<T>,
-  options: ObserverOptions = { root: null, rootMargin: "0px", threshold: 0.1 },
 ): boolean {
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
@@ -34,14 +27,14 @@ export function useElementHadFocus<T extends HTMLElement | null>(
 
     const observer = new IntersectionObserver(([entry]) => {
       entry && setIsVisible(entry.isIntersecting);
-    }, options);
+    });
 
     observer.observe(element);
 
     return () => {
       observer.disconnect();
     };
-  }, [ref, options.root, options.rootMargin, options.threshold]);
+  }, [ref]);
 
   return isVisible;
 }
@@ -81,8 +74,8 @@ export function useUrlSearchState<S extends z.ZodSchema>(
   schema: S,
 ): [z.infer<S>, SetUrlSearchParam<z.infer<S>>] {
   const history = useHistory();
-  const router = useIonRouter();
   const location = useLocation();
+  const search = location.search;
   const frozenLocation = useRef(location);
 
   const frozenDefaultValue = useRef(defaultValue);
@@ -108,7 +101,7 @@ export function useUrlSearchState<S extends z.ZodSchema>(
     const newValue = parsed.success ? parsed.data : frozenDefaultValue.current;
     currentValueRef.current = newValue;
     return newValue;
-  }, [location.search, key, frozenDefaultValue.current, schema, isActive]);
+  }, [location.search, key, defaultValue, schema, isActive]);
 
   // setter that validates and pushes/replaces the URL
   const setValue = useCallback<SetUrlSearchParam<z.infer<S>>>(
@@ -123,7 +116,7 @@ export function useUrlSearchState<S extends z.ZodSchema>(
         schema.parse(newVal);
       }
 
-      const params = new URLSearchParams(location.search);
+      const params = new URLSearchParams(search);
       params.set(key, newVal);
       const newSearch = params.toString();
       const to = {
@@ -137,7 +130,7 @@ export function useUrlSearchState<S extends z.ZodSchema>(
 
       frozenDefaultValue.current = defaultValue;
     },
-    [history, router, key, schema, value, defaultValue],
+    [history, key, schema, value, defaultValue, search],
   );
 
   return [value, setValue];
