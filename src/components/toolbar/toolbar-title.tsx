@@ -33,7 +33,7 @@ export function ToolbarTitle({
       data-tauri-drag-region
       className={cn(titleVariants({ size }), className)}
       style={{
-        maxWidth: media.md
+        maxWidth: media.maxMd
           ? `calc(100vw - 65px - ${35 * numRightIcons}px)`
           : 500,
       }}
