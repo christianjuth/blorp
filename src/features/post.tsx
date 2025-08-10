@@ -259,7 +259,7 @@ export default function Post() {
         >
           <ToolbarButtons side="left">
             <ToolbarBackButton className="max-md:text-white max-md:dark:text-muted-foreground" />
-            <ToolbarTitle className="md:hidden" size="sm">
+            <ToolbarTitle className="md:hidden" size="sm" numRightIcons={2}>
               {communityName}
             </ToolbarTitle>
           </ToolbarButtons>

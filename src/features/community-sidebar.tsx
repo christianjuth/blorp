@@ -52,7 +52,9 @@ export default function CommunityFeed() {
         >
           <ToolbarButtons side="left">
             <ToolbarBackButton />
-            <ToolbarTitle size="sm">{communityName}</ToolbarTitle>
+            <ToolbarTitle size="sm" numRightIcons={2}>
+              {communityName}
+            </ToolbarTitle>
           </ToolbarButtons>
           <ToolbarButtons side="right">
             <Link

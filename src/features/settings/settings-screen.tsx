@@ -263,7 +263,7 @@ export default function SettingsPage() {
         <IonToolbar data-tauri-drag-region>
           <ToolbarButtons side="left">
             <MenuButton />
-            <ToolbarTitle>Settings</ToolbarTitle>
+            <ToolbarTitle numRightIcons={1}>Settings</ToolbarTitle>
           </ToolbarButtons>
           <ToolbarButtons side="right">
             <UserDropdown />

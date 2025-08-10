@@ -105,7 +105,9 @@ export default function SettingsPage() {
         <IonToolbar data-tauri-drag-region>
           <ToolbarButtons side="left">
             <ToolbarBackButton />
-            <ToolbarTitle size="sm">{slug ?? "Person"}</ToolbarTitle>
+            <ToolbarTitle size="sm" numRightIcons={1}>
+              {slug ?? "Person"}
+            </ToolbarTitle>
           </ToolbarButtons>
           <ToolbarButtons side="right">
             <UserDropdown />

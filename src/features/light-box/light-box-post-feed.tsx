@@ -477,7 +477,9 @@ export default function LightBoxPostFeed() {
         >
           <ToolbarButtons side="left">
             <ToolbarBackButton />
-            <ToolbarTitle size="sm">{post?.title ?? "Loading..."}</ToolbarTitle>
+            <ToolbarTitle size="sm" numRightIcons={1}>
+              {post?.title ?? "Loading..."}
+            </ToolbarTitle>
           </ToolbarButtons>
           <ToolbarButtons side="right">
             <UserDropdown />

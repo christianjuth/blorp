@@ -77,7 +77,7 @@ export default function Messages() {
         <IonToolbar>
           <ToolbarButtons side="left">
             <MenuButton />
-            <ToolbarTitle>Chats</ToolbarTitle>
+            <ToolbarTitle numRightIcons={1}>Chats</ToolbarTitle>
           </ToolbarButtons>
           <ToolbarButtons side="right">
             <UserDropdown />

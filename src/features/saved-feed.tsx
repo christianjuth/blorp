@@ -131,7 +131,7 @@ export default function SavedFeed() {
         <IonToolbar data-tauri-drag-region>
           <ToolbarButtons side="left">
             <ToolbarBackButton />
-            <ToolbarTitle>Saved</ToolbarTitle>
+            <ToolbarTitle numRightIcons={1}>Saved</ToolbarTitle>
           </ToolbarButtons>
           <ToolbarButtons side="right">
             <UserDropdown />

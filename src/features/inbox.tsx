@@ -294,7 +294,7 @@ export default function Inbox() {
         <IonToolbar data-tauri-drag-region>
           <ToolbarButtons side="left">
             <MenuButton />
-            <ToolbarTitle>Inbox</ToolbarTitle>
+            <ToolbarTitle numRightIcons={1}>Inbox</ToolbarTitle>
           </ToolbarButtons>
           <ToolbarButtons side="right">
             <UserDropdown />

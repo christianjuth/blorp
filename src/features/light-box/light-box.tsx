@@ -238,7 +238,11 @@ export default function LightBox() {
         >
           <ToolbarButtons side="left">
             <ToolbarBackButton />
-            {title && <ToolbarTitle size="sm">{title}</ToolbarTitle>}
+            {title && (
+              <ToolbarTitle size="sm" numRightIcons={1}>
+                {title}
+              </ToolbarTitle>
+            )}
           </ToolbarButtons>
           <ToolbarButtons side="right">
             <UserDropdown />

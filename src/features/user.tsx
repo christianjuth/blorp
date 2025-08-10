@@ -156,7 +156,9 @@ export default function User() {
         <IonToolbar data-tauri-drag-region>
           <ToolbarButtons side="left">
             <ToolbarBackButton />
-            <ToolbarTitle>{person?.slug ?? "Person"}</ToolbarTitle>
+            <ToolbarTitle numRightIcons={1}>
+              {person?.slug ?? "Person"}
+            </ToolbarTitle>
           </ToolbarButtons>
           <ToolbarButtons side="right">
             <UserDropdown />

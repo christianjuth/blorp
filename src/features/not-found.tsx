@@ -12,7 +12,7 @@ export function NotFound() {
         <IonToolbar>
           <ToolbarButtons side="left">
             <ToolbarBackButton />
-            <ToolbarTitle>Not found</ToolbarTitle>
+            <ToolbarTitle numRightIcons={1}>Not found</ToolbarTitle>
           </ToolbarButtons>
           <ToolbarButtons side="right">
             <UserDropdown />

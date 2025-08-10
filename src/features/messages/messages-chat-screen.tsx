@@ -110,7 +110,7 @@ export default function Messages() {
         <IonToolbar>
           <ToolbarButtons side="left">
             <ToolbarBackButton />
-            <ToolbarTitle size="sm">
+            <ToolbarTitle size="sm" numRightIcons={1}>
               {(person ? person.slug : null) ?? "Loading..."}
             </ToolbarTitle>
           </ToolbarButtons>

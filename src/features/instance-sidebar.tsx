@@ -13,7 +13,7 @@ export default function InstanceSidebar() {
         <IonToolbar>
           <ToolbarButtons side="left">
             <ToolbarBackButton />
-            <ToolbarTitle>Instance Sidebar</ToolbarTitle>
+            <ToolbarTitle numRightIcons={1}>Instance Sidebar</ToolbarTitle>
           </ToolbarButtons>
           <ToolbarButtons side="right">
             <UserDropdown />
