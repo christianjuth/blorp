@@ -2,13 +2,7 @@ import { SmallScreenSidebar } from "@/src/components/communities/community-sideb
 import { useEffect } from "react";
 import { useCommunity } from "../lib/api";
 import _ from "lodash";
-import {
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { Link, useParams } from "@/src/routing/index";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
@@ -20,6 +14,7 @@ import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { useMedia } from "../lib/hooks";
 import { Search } from "../components/icons";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 export default function CommunityFeed() {
   const media = useMedia();
@@ -55,11 +50,11 @@ export default function CommunityFeed() {
               : undefined
           }
         >
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
             <ToolbarTitle size="sm">{communityName}</ToolbarTitle>
-          </IonButtons>
-          <IonButtons slot="end" className="gap-3.5 md:gap-4.5">
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <Link
               to={`${linkCtx.root}c/:communityName/s`}
               params={{
@@ -70,7 +65,7 @@ export default function CommunityFeed() {
               <Search className="scale-110 text-muted-foreground" />
             </Link>
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>

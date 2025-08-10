@@ -11,17 +11,12 @@ import { encodeApId } from "@/src/lib/api/utils";
 import { cn, isNotNil } from "@/src/lib/utils";
 import { Link } from "@/src/routing";
 import { parseAccountInfo, useAuth } from "@/src/stores/auth";
-import {
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import _ from "lodash";
 import { useMemo } from "react";
 import removeMd from "remove-markdown";
 import LoginRequired from "../login-required";
+import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
 
 const EMPTY_ARR: never[] = [];
 
@@ -80,13 +75,13 @@ export default function Messages() {
       <PageTitle>Chats</PageTitle>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <MenuButton />
             <ToolbarTitle>Chats</ToolbarTitle>
-          </IonButtons>
-          <IonButtons slot="end">
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>

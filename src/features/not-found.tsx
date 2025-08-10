@@ -1,27 +1,22 @@
-import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonToolbar,
-  IonButtons,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { ContentGutters } from "../components/gutters";
 import { UserDropdown } from "../components/nav";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 export function NotFound() {
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
             <ToolbarTitle>Not found</ToolbarTitle>
-          </IonButtons>
-          <IonButtons slot="end">
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
 

@@ -14,7 +14,6 @@ import { useCommunity, useMostRecentPost, usePosts } from "../lib/api";
 import { PostReportProvider } from "../components/posts/post-report";
 import _ from "lodash";
 import {
-  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -44,6 +43,7 @@ import { usePostsStore } from "../stores/posts";
 import { Search } from "../components/icons";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { Separator } from "../components/ui/separator";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 const EMPTY_ARR: never[] = [];
 
@@ -123,12 +123,12 @@ export default function CommunityFeed() {
               : undefined
           }
         >
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
             <ToolbarTitle size="sm" className="md:hidden">
               {communityName}
             </ToolbarTitle>
-          </IonButtons>
+          </ToolbarButtons>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -144,7 +144,7 @@ export default function CommunityFeed() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3.5 md:gap-4.5">
+          <ToolbarButtons side="right">
             <Link
               to={`${linkCtx.root}c/:communityName/s`}
               params={{
@@ -158,7 +158,7 @@ export default function CommunityFeed() {
               <PostSortButton align="end" className="text-muted-foreground" />
             </div>
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
 
         {hasNewPost && (

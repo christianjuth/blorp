@@ -19,7 +19,6 @@ import { usePostsStore } from "../stores/posts";
 import { SearchType } from "lemmy-v3";
 import { Link, useParams } from "@/src/routing/index";
 import {
-  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -42,6 +41,7 @@ import { RelativeTime } from "../components/relative-time";
 import { Message } from "../components/icons";
 import { Separator } from "../components/ui/separator";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 const EMPTY_ARR: never[] = [];
 
@@ -197,9 +197,9 @@ export default function SearchFeed({
       </PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
-          </IonButtons>
+          </ToolbarButtons>
           <IonSearchbar
             mode="ios"
             className="max-w-md mx-auto h-3"
@@ -214,9 +214,9 @@ export default function SearchFeed({
                 : undefined
             }
           />
-          <IonButtons slot="end">
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
         {media.maxMd && (
           <IonToolbar>

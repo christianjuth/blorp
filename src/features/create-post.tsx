@@ -20,7 +20,6 @@ import _ from "lodash";
 import { parseOgData } from "../lib/html-parsing";
 import {
   IonButton,
-  IonButtons,
   IonContent,
   IonHeader,
   IonIcon,
@@ -58,6 +57,7 @@ import { usePathname } from "../routing/hooks";
 import { Sidebar, SidebarContent } from "../components/sidebar";
 import { useCommunitiesStore } from "../stores/communities";
 import LoginRequired from "./login-required";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 dayjs.extend(localizedFormat);
 
@@ -282,7 +282,7 @@ export function CreatePost() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start" className="md:gap-4.5 gap-3.5">
+          <ToolbarButtons side="left">
             <Button
               size="sm"
               variant="secondary"
@@ -293,14 +293,14 @@ export function CreatePost() {
                 ? "Back"
                 : `Drafts${numDrafts > 0 ? ` (${numDrafts})` : ""}`}
             </Button>
-          </IonButtons>
+          </ToolbarButtons>
 
           <IonTitle>{isEdit ? "Edit" : "Create"} post</IonTitle>
 
-          <IonButtons slot="end" className="md:gap-4.5 gap-3.5">
+          <ToolbarButtons side="right">
             {getPostButton(cn("md:hidden", showDrafts && "max-md:hidden"))}
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -539,11 +539,11 @@ function ChooseCommunity({
     <IonModal isOpen={isOpen} onWillDismiss={closeModal}>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
+          <ToolbarButtons side="left">
             <IonButton onClick={closeModal}>
               <IonIcon icon={close} />
             </IonButton>
-          </IonButtons>
+          </ToolbarButtons>
 
           <IonTitle>Choose Community</IonTitle>
         </IonToolbar>

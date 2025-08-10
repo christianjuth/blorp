@@ -11,7 +11,6 @@ import _ from "lodash";
 
 import { LocalSererSidebar } from "../components/local-server/local-server-sidebar";
 import {
-  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -34,6 +33,7 @@ import { PostFeedSortBar } from "../components/posts/post-feed-sort-bar";
 import { useAuth } from "../stores/auth";
 import { usePostsStore } from "../stores/posts";
 import { Search } from "../components/icons";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 const EMPTY_ARR: never[] = [];
 
@@ -200,10 +200,10 @@ export default function HomeFeed() {
       <PageTitle />
       <IonHeader className="backdrop-blur-xs bg-gradient-to-b from-20% from-background to-background/30 dismissable">
         <IonToolbar data-tauri-drag-region className="dismissable">
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <MenuButton />
             <HomeFilter />
-          </IonButtons>
+          </ToolbarButtons>
           <form
             className="max-md:hidden"
             onSubmit={(e) => {
@@ -218,7 +218,7 @@ export default function HomeFeed() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3.5 md:gap-4.5">
+          <ToolbarButtons side="right">
             {/* <DownloadButton /> */}
             <Link
               to="/home/s"
@@ -230,7 +230,7 @@ export default function HomeFeed() {
               <PostSortButton align="end" />
             </div>
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
 
         <ContentGutters className="absolute mt-2 inset-x-0 new-post-button">

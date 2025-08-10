@@ -10,13 +10,7 @@ import { decodeApId } from "@/src/lib/api/utils";
 import { cn } from "@/src/lib/utils";
 import { useParams } from "@/src/routing";
 import { parseAccountInfo, useAuth } from "@/src/stores/auth";
-import {
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import _ from "lodash";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { VList, VListHandle } from "virtua";
@@ -33,6 +27,7 @@ import { PageTitle } from "@/src/components/page-title";
 import LoginRequired from "../login-required";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import { ToolbarBackButton } from "@/src/components/toolbar/toolbar-back-button";
+import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
 
 dayjs.extend(updateLocale);
 
@@ -113,15 +108,15 @@ export default function Messages() {
       <PageTitle>{person ? person.slug : null}</PageTitle>
       <IonHeader>
         <IonToolbar>
-          <IonButtons className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
             <ToolbarTitle size="sm">
               {(person ? person.slug : null) ?? "Loading..."}
             </ToolbarTitle>
-          </IonButtons>
-          <IonButtons slot="end">
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>

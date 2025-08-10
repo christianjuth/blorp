@@ -24,7 +24,6 @@ import { VirtualList } from "../components/virtual-list";
 import { PostReportProvider } from "../components/posts/post-report";
 import { usePostsStore } from "../stores/posts";
 import {
-  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -47,6 +46,7 @@ import { useLinkContext } from "../routing/link-context";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { CommentSortSelect } from "../components/lemmy-sort";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -257,12 +257,12 @@ export default function Post() {
               : undefined
           }
         >
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton className="max-md:text-white max-md:dark:text-muted-foreground" />
             <ToolbarTitle className="md:hidden" size="sm">
               {communityName}
             </ToolbarTitle>
-          </IonButtons>
+          </ToolbarButtons>
           <form
             className="max-md:hidden"
             onSubmit={(e) => {
@@ -286,13 +286,13 @@ export default function Post() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3.5">
+          <ToolbarButtons side="right">
             <CommentSortSelect
               variant="icon"
               className="text-white dark:text-muted-foreground md:hidden"
             />
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>

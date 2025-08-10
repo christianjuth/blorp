@@ -6,7 +6,6 @@ import { MarkdownEditor } from "../markdown/editor";
 import { useCommentRepliesStore } from "@/src/stores/comment-replies";
 import {
   IonButton,
-  IonButtons,
   IonContent,
   IonHeader,
   IonModal,
@@ -15,6 +14,7 @@ import {
 } from "@ionic/react";
 import { Button } from "@/src/components/ui/button";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
+import { ToolbarButtons } from "../toolbar/toolbar-buttons";
 
 export function useCommentEditingState({
   parent,
@@ -190,15 +190,15 @@ export function CommentReplyProvider({
       >
         <IonHeader>
           <IonToolbar>
-            <IonButtons slot="start">
+            <ToolbarButtons side="left">
               <IonButton onClick={() => setState(null)}>Cancel</IonButton>
-            </IonButtons>
+            </ToolbarButtons>
             <IonTitle>{parent ? "Reply to comment" : "Add comment"}</IonTitle>
-            <IonButtons slot="end">
+            <ToolbarButtons side="right">
               <IonButton strong={true} onClick={handleSubmit}>
                 Confirm
               </IonButton>
-            </IonButtons>
+            </ToolbarButtons>
           </IonToolbar>
         </IonHeader>
         <IonContent>

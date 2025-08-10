@@ -2,13 +2,7 @@ import { ContentGutters } from "@/src/components/gutters";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCommunity, usePost, usePosts } from "@/src/lib/api";
 import _ from "lodash";
-import {
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
 import { Spinner } from "@/src/components/icons";
 
@@ -43,6 +37,7 @@ import { useLinkContext } from "@/src/routing/link-context";
 import { useParams } from "@/src/routing";
 import { Forms } from "@/src/lib/api/adapters/api-blueprint";
 import { useRequireAuth } from "@/src/components/auth-context";
+import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
 
 const EMPTY_ARR: never[] = [];
 
@@ -480,13 +475,13 @@ export default function LightBoxPostFeed() {
           }}
           className={cn("dark", hideNav && "opacity-0")}
         >
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
             <ToolbarTitle size="sm">{post?.title ?? "Loading..."}</ToolbarTitle>
-          </IonButtons>
-          <IonButtons slot="end">
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent

@@ -5,7 +5,6 @@ import { useCreatePostReport, useCreateCommentReport } from "@/src/lib/api";
 import { useCommentsStore } from "@/src/stores/comments";
 import {
   IonButton,
-  IonButtons,
   IonContent,
   IonHeader,
   IonModal,
@@ -16,6 +15,7 @@ import { Button } from "../ui/button";
 import { MarkdownRenderer } from "../markdown/renderer";
 import { Textarea } from "../ui/textarea";
 import { useAuth } from "@/src/stores/auth";
+import { ToolbarButtons } from "../toolbar/toolbar-buttons";
 
 const Context = createContext<{
   apId?: string;
@@ -97,16 +97,16 @@ export function PostReportProvider({
       >
         <IonHeader>
           <IonToolbar>
-            <IonButtons slot="start" className="md:hidden">
+            <ToolbarButtons side="left" className="md:hidden">
               <IonButton onClick={cancel}>Cancel</IonButton>
-            </IonButtons>
+            </ToolbarButtons>
             <IonTitle>
               Report {post && "Post"}
               {comment && "Comment"}
             </IonTitle>
-            <IonButtons slot="end" className="md:hidden">
+            <ToolbarButtons side="right" className="md:hidden">
               <IonButton onClick={submit}>Submit</IonButton>
-            </IonButtons>
+            </ToolbarButtons>
           </IonToolbar>
         </IonHeader>
         <IonContent>

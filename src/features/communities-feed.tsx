@@ -9,7 +9,6 @@ import { ContentGutters } from "@/src/components/gutters";
 import { VirtualList } from "@/src/components/virtual-list";
 import { useMedia } from "../lib/hooks";
 import {
-  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -23,6 +22,7 @@ import { PageTitle } from "../components/page-title";
 import { Link } from "@/src/routing/index";
 import { getAccountSite, useAuth } from "../stores/auth";
 import { Search } from "../components/icons";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 const MemoedListItem = memo(function ListItem(props: {
   communitySlug: string;
@@ -81,10 +81,10 @@ export default function Communities() {
       <PageTitle>Communities</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <MenuButton />
             <CommunityFilter />
-          </IonButtons>
+          </ToolbarButtons>
           <form
             className="max-md:hidden"
             onSubmit={(e) => {
@@ -100,13 +100,13 @@ export default function Communities() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3.5 md:gap-4.t">
+          <ToolbarButtons side="right">
             <Link to="/communities/s" className="text-2xl contents md:hidden">
               <Search className="text-muted-foreground scale-110" />
             </Link>
             <CommunitySortSelect />
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>

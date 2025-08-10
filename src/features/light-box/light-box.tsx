@@ -1,10 +1,4 @@
-import {
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { PageTitle } from "@/src/components/page-title";
 import { useParams } from "../../routing";
 import { useLinkContext } from "@/src/routing/link-context";
@@ -30,6 +24,7 @@ import { Button } from "@/src/components/ui/button";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { MdZoomInMap } from "react-icons/md";
 import { Spinner, NoImage } from "@/src/components/icons";
+import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
 
 const Controls = ({
   style,
@@ -241,13 +236,13 @@ export default function LightBox() {
             hideNav && "opacity-0",
           )}
         >
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
             {title && <ToolbarTitle size="sm">{title}</ToolbarTitle>}
-          </IonButtons>
-          <IonButtons slot="end">
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent

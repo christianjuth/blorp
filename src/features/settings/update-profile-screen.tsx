@@ -1,12 +1,6 @@
 import { ContentGutters } from "@/src/components/gutters";
 import _, { parseInt } from "lodash";
-import {
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { UserDropdown } from "@/src/components/nav";
 import { PageTitle } from "@/src/components/page-title";
 import { useParams } from "@/src/routing";
@@ -22,6 +16,7 @@ import { useHistory } from "react-router";
 import { useDropzone } from "react-dropzone";
 import { cn } from "@/src/lib/utils";
 import { Input } from "@/src/components/ui/input";
+import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
 
 function FileUpload({
   placeholder,
@@ -108,13 +103,13 @@ export default function SettingsPage() {
       <PageTitle>{slug ?? "Person"}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
             <ToolbarTitle size="sm">{slug ?? "Person"}</ToolbarTitle>
-          </IonButtons>
-          <IonButtons slot="end">
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>

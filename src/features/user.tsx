@@ -17,13 +17,7 @@ import { useLinkContext } from "../routing/link-context";
 import { useProfilesStore } from "../stores/profiles";
 import { usePostsStore } from "../stores/posts";
 import { Link, resolveRoute, useParams } from "@/src/routing/index";
-import {
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
 import { useMedia, useUrlSearchState } from "../lib/hooks";
@@ -36,6 +30,7 @@ import { PersonActionMenu } from "../components/person/person-action-menu";
 import { useHistory } from "react-router";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item = string;
@@ -159,17 +154,17 @@ export default function User() {
       <PageTitle>{person?.slug ?? "Person"}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
             <ToolbarTitle>{person?.slug ?? "Person"}</ToolbarTitle>
-          </IonButtons>
-          <IonButtons slot="end">
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
         {media.maxMd && (
           <IonToolbar>
-            <IonButtons slot="start">
+            <ToolbarButtons side="left">
               <div className="flex flex-row items-center">
                 <div>
                   <ToggleGroup
@@ -195,10 +190,10 @@ export default function User() {
                   </>
                 )}
               </div>
-            </IonButtons>
-            <IonButtons slot="end">
+            </ToolbarButtons>
+            <ToolbarButtons side="right">
               <PersonActionMenu person={person} />
-            </IonButtons>
+            </ToolbarButtons>
           </IonToolbar>
         )}
       </IonHeader>
