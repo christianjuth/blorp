@@ -518,7 +518,7 @@ export default function LightBoxPostFeed() {
 
         <div
           className={cn(
-            "border-t-[.5px] z-10 absolute bottom-0 inset-x-0",
+            "border-t-[.5px] z-10 absolute bottom-0 inset-x-0 dark",
             hideNav && "opacity-0",
             !isActive && "hidden",
           )}
