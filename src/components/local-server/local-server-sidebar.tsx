@@ -69,6 +69,10 @@ function InstanceSidebar({ asPage }: { asPage?: boolean }) {
           <ChevronsUpDown className="h-4 w-4" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-5 pb-2">
+          <p className="text-sm mb-4 text-muted-foreground font-medium">
+            {site.description}
+          </p>
+
           <MarkdownRenderer dim markdown={sidebar} />
 
           <AggregateBadges

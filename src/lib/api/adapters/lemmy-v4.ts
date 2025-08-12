@@ -238,6 +238,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
     // const account = await this.client.getAccount();
     return {
       privateInstance: site.site_view.local_site.private_instance,
+      description: site.site_view.site.description ?? null,
       instance: this.instance,
       admins: site.admins.map((p) => convertPerson(p)),
       me: null,

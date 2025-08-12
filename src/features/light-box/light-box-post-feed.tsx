@@ -5,7 +5,7 @@ import _ from "lodash";
 import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
 import { Spinner } from "@/src/components/icons";
-
+import { BiHelpCircle } from "react-icons/bi";
 import { UserDropdown } from "@/src/components/nav";
 import { PageTitle } from "@/src/components/page-title";
 import { useFiltersStore } from "@/src/stores/filters";
@@ -38,8 +38,58 @@ import { useParams } from "@/src/routing";
 import { Forms } from "@/src/lib/api/adapters/api-blueprint";
 import { useRequireAuth } from "@/src/components/auth-context";
 import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
+import { Button } from "@/src/components/ui/button";
+import { IonButtons, IonButton, IonModal, IonTitle } from "@ionic/react";
+import { MarkdownRenderer } from "@/src/components/markdown/renderer";
 
 const EMPTY_ARR: never[] = [];
+
+function KeyboardShortcutHelpModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <IonModal isOpen={isOpen} onDidDismiss={onClose}>
+      <IonHeader>
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonButton onClick={onClose}>Close</IonButton>
+          </IonButtons>
+          <IonTitle>Keyboard shortcuts</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent className="ion-padding">
+        <MarkdownRenderer
+          markdown={`
+**Option 1: Arrow keys**
+
+* Left arrow - previous post
+* Right arrow - next post
+* Up arrow - toggle upvote
+* Down arrow - toggle downvote
+
+**Option 2: For the gamers**
+
+* A - previous post
+* D - next post
+* W - toggle upvote
+* S - toggle downvote
+
+**Option 3: Vim (god's editor)**
+
+* j - previous post
+* k - next post
+* h - toggle upvote
+* l - toggle downvote
+`}
+        />
+      </IonContent>
+    </IonModal>
+  );
+}
 
 function HorizontalVirtualizer<T>({
   data,
@@ -64,6 +114,7 @@ function HorizontalVirtualizer<T>({
 
   const initialOffset = activeIndex * itemWidth;
 
+  const isActive = useIsActiveRoute();
   const focused = useElementHadFocus(scrollRef);
 
   const rowVirtualizer = useVirtualizer({
@@ -105,11 +156,9 @@ function HorizontalVirtualizer<T>({
     }
   }, [count, virtualItems, onEndReached]);
 
-  const isReady = rowVirtualizer.getVirtualIndexes().includes(activeIndex);
-
   const updateIndex = useCallback(() => {
     const el = scrollRef.current;
-    if (!el || !isReady) return;
+    if (!el) return;
     const offset = rowVirtualizer.scrollOffset ?? 0;
     const cache = rowVirtualizer.measurementsCache;
 
@@ -137,7 +186,7 @@ function HorizontalVirtualizer<T>({
     if (bestIndex > -1 && bestIndex !== activeIndex) {
       onIndexChange(bestIndex);
     }
-  }, [isReady, rowVirtualizer.measurementsCache, activeIndex, onIndexChange]);
+  }, [rowVirtualizer.measurementsCache, activeIndex, onIndexChange]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -145,6 +194,7 @@ function HorizontalVirtualizer<T>({
 
     let frame = 0;
     const onScroll = () => {
+      console.log("scroll");
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         updateIndex();
@@ -162,7 +212,7 @@ function HorizontalVirtualizer<T>({
 
   const timerRef = useRef<number>(-1);
   useEffect(() => {
-    if (!focused) return;
+    if (!focused || !isActive) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
@@ -207,7 +257,7 @@ function HorizontalVirtualizer<T>({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [itemWidth, scrollBy, updateIndex, focused]);
+  }, [itemWidth, scrollBy, updateIndex, focused, isActive]);
 
   return (
     <div
@@ -349,6 +399,7 @@ export default function LightBoxPostFeed() {
     z.string(),
   );
   const decodedApId = encodedApId ? decodeApId(encodedApId) : null;
+  const initPostApId = useRef(decodedApId).current ?? undefined;
 
   const [hideNav, setHideNav] = useState(false);
   const media = useMedia();
@@ -459,6 +510,8 @@ export default function LightBoxPostFeed() {
     [data, isPending, setEncodedApId],
   );
 
+  const [keyboardHelpModal, setKeyboardHelpModal] = useState(false);
+
   return (
     <IonPage className="dark">
       <PageTitle>Image</PageTitle>
@@ -491,6 +544,11 @@ export default function LightBoxPostFeed() {
         scrollY={false}
         className="absolute inset-0"
       >
+        <KeyboardShortcutHelpModal
+          isOpen={keyboardHelpModal}
+          onClose={() => setKeyboardHelpModal(false)}
+        />
+
         <HorizontalVirtualizer
           key={isPending ? "pending" : "loaded"}
           onIndexChange={onIndexChange}
@@ -533,6 +591,21 @@ export default function LightBoxPostFeed() {
           <ContentGutters className="h-full">
             <div className="flex flex-row items-center gap-3">
               {postApId && <PostShareButton postApId={postApId} />}
+              <div className="flex-1" />
+              <Button
+                variant="ghost"
+                className={cn(
+                  "text-muted-foreground max-md:hidden",
+                  (initPostApId
+                    ? postApId !== initPostApId
+                    : activeIndex > 0) &&
+                    "opacity-0 hover:opacity-100 focus:opacity-100",
+                )}
+                onClick={() => setKeyboardHelpModal(true)}
+              >
+                Keyboard shortcuts
+                <BiHelpCircle />
+              </Button>
               <div className="flex-1" />
               {postApId && <PostCommentsButton postApId={postApId} />}
               {postApId && <PostVoting key={postApId} apId={postApId} />}

@@ -66,6 +66,18 @@ const LightBox = lazy(() => import("@/src/features/light-box/light-box"));
 
 const Instance = lazy(() => import("@/src/features/instance"));
 
+const SKIP_NAV_ID = "#main";
+function SkipNav() {
+  return (
+    <a
+      className="transition left-0 bg-brand text-brand-foreground absolute p-3 z-50 opacity-0 pointer-events-none focus:opacity-100 focus:pointer-events-auto"
+      href={SKIP_NAV_ID}
+    >
+      Skip Navigation
+    </a>
+  );
+}
+
 function useMenuSwipeEnabled(side: "right" | "left") {
   const path = usePathname();
   if (side === "left") {
@@ -317,6 +329,7 @@ function Tabs() {
 
   return (
     <>
+      <SkipNav />
       <IonMenu
         swipeGesture={rightSwipeEnabled}
         menuId={RIGHT_SIDEBAR_MENU_ID}

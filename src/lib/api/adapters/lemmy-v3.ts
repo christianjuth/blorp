@@ -353,6 +353,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
     return {
       privateInstance: site.site_view.local_site.private_instance,
       public: site,
+      description: site.site_view.site.description ?? null,
       instance: this.instance,
       admins: site.admins.map((p) => convertPerson(p)),
       me: me ? convertPerson({ person: me }) : null,

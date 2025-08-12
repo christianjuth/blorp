@@ -214,7 +214,7 @@ export default function CommunityFeed() {
               />,
               <Separator
                 key="separator"
-                className="[[data-is-sticky-header=false]_&]:opacity-1 data-[orientation=horizontal]:h-[0.5px]"
+                className="[[data-is-sticky-header=false]_&]:opacity-1 data-[orientation=horizontal]:h-[0.5px] md:hidden"
               />,
             ]}
             renderItem={({ item }) => {

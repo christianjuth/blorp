@@ -186,7 +186,7 @@ export const pieFedAdminSchema = z.object({
 export const pieFedSiteDetailsSchema = z.object({
   //actor_id: z.string(),
   //all_languages: z.array(pieFedLanguageSchema),
-  //description: z.string(),
+  description: z.string().nullable().optional(),
   enable_downvotes: z.boolean(),
   icon: z.string().optional(),
   name: z.string(),
@@ -774,6 +774,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       const me = site.my_user?.local_user_view?.person;
       return {
         privateInstance: false,
+        description: site.site.description ?? null,
         instance: this.instance,
         admins: site.admins.map((p) => convertPerson(p, "full")),
         me: me ? convertPerson({ person: me }, "partial") : null,
