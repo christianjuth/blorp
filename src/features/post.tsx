@@ -1,6 +1,6 @@
 import { PostComment } from "@/src/components/posts/post-comment";
 import { buildCommentTree } from "../lib/comment-tree";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import { usePost, useComments, useCommunity } from "@/src/lib/api/index";
 import {
   PostBottomBar,
@@ -108,9 +108,7 @@ function ReplyToPost({
   const loadCommentIntoEditor = useLoadCommentIntoEditor();
   const media = useMedia();
   return (
-    <ContentGutters
-      className={cn("max-md:mt-2 md:pb-2 md:pt-5 bg-background", className)}
-    >
+    <ContentGutters className={cn("md:pb-2 md:pt-5 bg-background", className)}>
       <div className="flex-1">
         {postReplyState && media.md ? (
           <InlineCommentReply state={postReplyState} autoFocus={media.md} />
@@ -341,11 +339,13 @@ export default function Post() {
               ]}
               footer={[
                 post && !commentPath && (
-                  <ReplyToPost
-                    key="reply-to-post"
-                    postApId={post.apId}
-                    className="md:hidden border-t-[.5px]"
-                  />
+                  <Fragment key="reply-to-post">
+                    <div className="h-2" />
+                    <ReplyToPost
+                      postApId={post.apId}
+                      className="md:hidden border-t-[.5px]"
+                    />
+                  </Fragment>
                 ),
               ]}
               renderItem={({ item }) => (

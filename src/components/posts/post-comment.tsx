@@ -550,7 +550,7 @@ export function PostComment({
                   View more
                 </Link>
               ) : (
-                <div className="h-1 -mt-1 w-full bg-background translate-y-0.5" />
+                <div className="h-2 -mt-2 w-full bg-background translate-y-1" />
               )}
             </div>
           )}

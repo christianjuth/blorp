@@ -25,6 +25,33 @@ import { useAuth } from "../stores/auth";
 import { cn } from "../lib/utils";
 import { COMMENT_COLLAPSE_EVENT } from "./posts/config";
 
+function useElementHeight<T extends HTMLElement>(
+  ref: React.RefObject<T | null>,
+  initHeight = 0,
+): number {
+  const [height, setHeight] = useState(initHeight);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    // Set initial height
+    setHeight(el.clientHeight);
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        // Use contentRect for height
+        setHeight(entry.contentRect.height);
+      }
+    });
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return height;
+}
+
 /**
  * This is a hack that prevents the virtualizer from shifting the
  * scroll for 50ms after a comment is expanded/collapsed
@@ -221,6 +248,8 @@ function VirtualListInternal<T>({
     }
   }, [dataLen, rowVirtualizer.getVirtualItems(), onEndReached]);
 
+  const containerHeight = useElementHeight(scrollRef, window.innerHeight);
+
   const colWidth = 100 / (numColumns ?? 1);
 
   return (
@@ -271,11 +300,12 @@ function VirtualListInternal<T>({
                   }
                 : isStuckFooter
                   ? {
-                      position: "fixed",
+                      position: "sticky",
                       zIndex: 1,
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
+                      top: 0,
+                      transform: `translateY(${
+                        containerHeight - virtualItem.size
+                      }px)`,
                     }
                   : {
                       position: "absolute",
