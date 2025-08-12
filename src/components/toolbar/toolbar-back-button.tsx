@@ -7,7 +7,7 @@ export function ToolbarBackButton({ className }: { className?: string }) {
   return (
     <IonBackButton
       text=""
-      className={cn("text-muted-foreground -ml-1 focus:ring", className)}
+      className={cn("text-muted-foreground -ml-1", className)}
       defaultHref={root}
     />
   );

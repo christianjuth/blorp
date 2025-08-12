@@ -47,6 +47,7 @@ import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { CommentSortSelect } from "../components/lemmy-sort";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
+import { cn } from "../lib/utils";
 
 const MemoedPostComment = memo(PostComment);
 
@@ -94,7 +95,13 @@ function PostBottomBarWithCtx({
   );
 }
 
-function ReplyToPost({ postApId }: { postApId: string }) {
+function ReplyToPost({
+  postApId,
+  className,
+}: {
+  postApId: string;
+  className?: string;
+}) {
   const postReplyState = useCommentEditingState({
     postApId,
   });
@@ -102,8 +109,7 @@ function ReplyToPost({ postApId }: { postApId: string }) {
   const media = useMedia();
   return (
     <ContentGutters
-      className="max-md:mt-2 md:pb-2 md:pt-5 bg-background"
-      key="post-reply"
+      className={cn("max-md:mt-2 md:pb-2 md:pt-5 bg-background", className)}
     >
       <div className="flex-1">
         {postReplyState && media.md ? (
@@ -325,9 +331,22 @@ export default function Post() {
                   />
                 ),
                 post && !commentPath && (
-                  <ReplyToPost key="reply-to-post" postApId={post.apId} />
+                  <ReplyToPost
+                    key="reply-to-post"
+                    postApId={post.apId}
+                    className="max-md:hidden"
+                  />
                 ),
                 <CommentSortBar key="comment-sort-bar" />,
+              ]}
+              footer={[
+                post && !commentPath && (
+                  <ReplyToPost
+                    key="reply-to-post"
+                    postApId={post.apId}
+                    className="md:hidden border-t-[.5px]"
+                  />
+                ),
               ]}
               renderItem={({ item }) => (
                 <MemoedPostComment
@@ -360,6 +379,7 @@ export default function Post() {
               onEndReached={loadMore}
               estimatedItemSize={450}
               stickyHeaderIndices={[1]}
+              stickyFooterIndices={[-1]}
               refresh={refresh}
             />
           </PostReportProvider>
