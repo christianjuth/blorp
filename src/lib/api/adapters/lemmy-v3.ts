@@ -150,8 +150,12 @@ function convertPerson({
     deleted: person.deleted,
     createdAt: person.published,
     isBot: person.bot_account,
-    postCount: counts?.post_count ?? null,
-    commentCount: counts?.comment_count ?? null,
+    ...(counts
+      ? {
+          postCount: counts?.post_count ?? null,
+          commentCount: counts?.comment_count ?? null,
+        }
+      : {}),
   };
 }
 

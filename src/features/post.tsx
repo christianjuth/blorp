@@ -1,6 +1,6 @@
 import { PostComment } from "@/src/components/posts/post-comment";
 import { buildCommentTree } from "../lib/comment-tree";
-import { Fragment, useEffect } from "react";
+import { useEffect } from "react";
 import { usePost, useComments, useCommunity } from "@/src/lib/api/index";
 import {
   PostBottomBar,
@@ -48,6 +48,10 @@ import { CommentSortSelect } from "../components/lemmy-sort";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 import { cn } from "../lib/utils";
+
+function SafeAreaBottom() {
+  return <div className="h-safe-area-bottom bg-background" />;
+}
 
 const MemoedPostComment = memo(PostComment);
 
@@ -303,13 +307,16 @@ export default function Post() {
         <CommentReplyProvider presentingElement={pageElement.element}>
           <PostReportProvider>
             <div className="flex flex-col-reverse h-full">
+              {/* Reversing these might be a bad idea, but I didn't */}
+              {/* want keyboard users to have to tab through all comments */}
+              {/* to reach the reply field */}
               {post && !commentPath && (
                 <div key="reply-to-post">
                   <ReplyToPost
                     postApId={post.apId}
                     className="md:hidden border-t"
                   />
-                  <div className="h-[var(--ion-safe-area-bottom)] bg-background" />
+                  <SafeAreaBottom />
                 </div>
               )}
               <VirtualList
@@ -348,19 +355,22 @@ export default function Post() {
                   <CommentSortBar key="comment-sort-bar" />,
                 ]}
                 renderItem={({ item }) => (
-                  <MemoedPostComment
-                    highlightCommentId={highlightCommentId}
-                    postApId={decodedApId}
-                    queryKeyParentId={parentId}
-                    commentTree={item[1]}
-                    level={0}
-                    opId={opId}
-                    myUserId={myUserId}
-                    communityName={communityName}
-                    modApIds={modApIds}
-                    adminApIds={adminApIds}
-                    singleCommentThread={!!commentPath}
-                  />
+                  <>
+                    <MemoedPostComment
+                      highlightCommentId={highlightCommentId}
+                      postApId={decodedApId}
+                      queryKeyParentId={parentId}
+                      commentTree={item[1]}
+                      level={0}
+                      opId={opId}
+                      myUserId={myUserId}
+                      communityName={communityName}
+                      modApIds={modApIds}
+                      adminApIds={adminApIds}
+                      singleCommentThread={!!commentPath}
+                    />
+                    {commentPath && <SafeAreaBottom />}
+                  </>
                 )}
                 placeholder={
                   comments.isPending || !isReady ? (
