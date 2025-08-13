@@ -302,86 +302,85 @@ export default function Post() {
       <IonContent scrollY={false}>
         <CommentReplyProvider presentingElement={pageElement.element}>
           <PostReportProvider>
-            <VirtualList
-              keepMountedIndices={[0]}
-              className="h-full ion-content-scroll-host max-md:bg-border/40"
-              data={data}
-              header={[
-                post ? (
-                  <MemoedPostCard
-                    key="post-details"
-                    apId={post.apId}
-                    featuredContext="community"
-                    detailView
-                    modApIds={modApIds}
-                  />
-                ) : (
-                  <ContentGutters className="px-0" key="post-skeleton">
-                    <PostCardSkeleton hideImage={false} detailView />
-                    <></>
-                  </ContentGutters>
-                ),
-                post && (
-                  <PostBottomBarWithCtx
-                    key="post-bottom-bar"
-                    postApId={post.apId}
-                    commentCount={post.commentsCount}
-                  />
-                ),
-                post && !commentPath && (
+            <div className="flex flex-col-reverse h-full">
+              {post && !commentPath && (
+                <div key="reply-to-post">
                   <ReplyToPost
-                    key="reply-to-post"
                     postApId={post.apId}
-                    className="max-md:hidden"
+                    className="md:hidden border-t"
                   />
-                ),
-                <CommentSortBar key="comment-sort-bar" />,
-              ]}
-              footer={[
-                post && !commentPath && (
-                  <Fragment key="reply-to-post">
-                    <div className="h-2" />
-                    <ReplyToPost
-                      postApId={post.apId}
-                      className="md:hidden border-t-[.5px]"
-                    />
-                  </Fragment>
-                ),
-              ]}
-              renderItem={({ item }) => (
-                <MemoedPostComment
-                  highlightCommentId={highlightCommentId}
-                  postApId={decodedApId}
-                  queryKeyParentId={parentId}
-                  commentTree={item[1]}
-                  level={0}
-                  opId={opId}
-                  myUserId={myUserId}
-                  communityName={communityName}
-                  modApIds={modApIds}
-                  adminApIds={adminApIds}
-                  singleCommentThread={!!commentPath}
-                />
+                  <div className="h-[var(--ion-safe-area-bottom)] bg-background" />
+                </div>
               )}
-              placeholder={
-                comments.isPending || !isReady ? (
-                  <ContentGutters className="px-0">
-                    <CommentSkeleton />
-                    <></>
-                  </ContentGutters>
-                ) : undefined
-              }
-              numPlaceholders={
-                _.isNumber(post?.commentsCount)
-                  ? Math.max(1, post.commentsCount)
-                  : undefined
-              }
-              onEndReached={loadMore}
-              estimatedItemSize={450}
-              stickyHeaderIndices={[1]}
-              stickyFooterIndices={[-1]}
-              refresh={refresh}
-            />
+              <VirtualList
+                keepMountedIndices={[0]}
+                className="h-full ion-content-scroll-host max-md:bg-border/40"
+                data={data}
+                header={[
+                  post ? (
+                    <MemoedPostCard
+                      key="post-details"
+                      apId={post.apId}
+                      featuredContext="community"
+                      detailView
+                      modApIds={modApIds}
+                    />
+                  ) : (
+                    <ContentGutters className="px-0" key="post-skeleton">
+                      <PostCardSkeleton hideImage={false} detailView />
+                      <></>
+                    </ContentGutters>
+                  ),
+                  post && (
+                    <PostBottomBarWithCtx
+                      key="post-bottom-bar"
+                      postApId={post.apId}
+                      commentCount={post.commentsCount}
+                    />
+                  ),
+                  post && !commentPath && (
+                    <ReplyToPost
+                      key="reply-to-post"
+                      postApId={post.apId}
+                      className="max-md:hidden"
+                    />
+                  ),
+                  <CommentSortBar key="comment-sort-bar" />,
+                ]}
+                renderItem={({ item }) => (
+                  <MemoedPostComment
+                    highlightCommentId={highlightCommentId}
+                    postApId={decodedApId}
+                    queryKeyParentId={parentId}
+                    commentTree={item[1]}
+                    level={0}
+                    opId={opId}
+                    myUserId={myUserId}
+                    communityName={communityName}
+                    modApIds={modApIds}
+                    adminApIds={adminApIds}
+                    singleCommentThread={!!commentPath}
+                  />
+                )}
+                placeholder={
+                  comments.isPending || !isReady ? (
+                    <ContentGutters className="px-0">
+                      <CommentSkeleton />
+                      <></>
+                    </ContentGutters>
+                  ) : undefined
+                }
+                numPlaceholders={
+                  _.isNumber(post?.commentsCount)
+                    ? Math.max(1, post.commentsCount)
+                    : undefined
+                }
+                onEndReached={loadMore}
+                estimatedItemSize={450}
+                stickyHeaderIndices={[1]}
+                refresh={refresh}
+              />
+            </div>
           </PostReportProvider>
         </CommentReplyProvider>
 

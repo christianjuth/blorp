@@ -25,33 +25,6 @@ import { useAuth } from "../stores/auth";
 import { cn } from "../lib/utils";
 import { COMMENT_COLLAPSE_EVENT } from "./posts/config";
 
-function useElementHeight<T extends HTMLElement>(
-  ref: React.RefObject<T | null>,
-  initHeight = 0,
-): number {
-  const [height, setHeight] = useState(initHeight);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    // Set initial height
-    setHeight(el.clientHeight);
-
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        // Use contentRect for height
-        setHeight(entry.contentRect.height);
-      }
-    });
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [ref]);
-
-  return height;
-}
-
 /**
  * This is a hack that prevents the virtualizer from shifting the
  * scroll for 50ms after a comment is expanded/collapsed
@@ -109,7 +82,6 @@ function VirtualListInternal<T>({
   onEndReached,
   renderItem,
   stickyHeaderIndices,
-  stickyFooterIndices,
   keepMountedIndices,
   ref,
   drawDistance,
@@ -118,7 +90,6 @@ function VirtualListInternal<T>({
   placeholder,
   numPlaceholders = 25,
   header,
-  footer,
 }: {
   data?: T[] | readonly T[];
   estimatedItemSize: number;
@@ -126,7 +97,6 @@ function VirtualListInternal<T>({
   renderItem: (params: { item: T; index: number }) => React.ReactNode;
   keepMountedIndices?: number[];
   stickyHeaderIndices?: number[];
-  stickyFooterIndices?: number[];
   ref: React.RefObject<HTMLDivElement | null>;
   drawDistance?: number;
   numColumns?: number;
@@ -134,7 +104,6 @@ function VirtualListInternal<T>({
   placeholder?: ReactNode;
   numPlaceholders?: number;
   header?: ReactNode[];
-  footer?: ReactNode[];
 }) {
   const index = useRef(0);
   const offset = useRef(0);
@@ -146,14 +115,10 @@ function VirtualListInternal<T>({
 
   const dataLen = data?.length;
 
-  const activeStickyHeaderIndexRef = useRef(-1);
-  const activeStickyFooterIndexRef = useRef(-1);
+  const activeStickyIndexRef = useRef(-1);
 
-  const isActiveStickyHeader = (index: number) =>
-    activeStickyHeaderIndexRef.current === index;
-
-  const isActiveStickyFooter = (index: number) =>
-    activeStickyFooterIndexRef.current === index;
+  const isActiveSticky = (index: number) =>
+    activeStickyIndexRef.current === index;
 
   const overscan =
     drawDistance && estimatedItemSize
@@ -167,9 +132,6 @@ function VirtualListInternal<T>({
   let count = dataLen || (placeholder ? numPlaceholders : 0);
   if (header) {
     count += header.length;
-  }
-  if (footer) {
-    count += footer.length;
   }
   const rowVirtualizer = useVirtualizer({
     count,
@@ -197,39 +159,24 @@ function VirtualListInternal<T>({
     enabled: focused,
     rangeExtractor: useCallback(
       (range: Range) => {
-        const normalizedStickyFooterIndicies = stickyFooterIndices?.map(
-          (index) => {
-            if (index < 0) {
-              return count + index;
-            }
-            return index;
-          },
-        );
+        if (!stickyHeaderIndices) {
+          return defaultRangeExtractor(range);
+        }
 
-        activeStickyHeaderIndexRef.current = stickyHeaderIndices
-          ? ([...stickyHeaderIndices]
-              .reverse()
-              .find((index) => range.startIndex >= index) ?? -1)
-          : -1;
-
-        console.log(range);
-
-        activeStickyFooterIndexRef.current = normalizedStickyFooterIndicies
-          ? ([...normalizedStickyFooterIndicies].find((index) => {
-              return index >= range.endIndex;
-            }) ?? -1)
-          : -1;
+        activeStickyIndexRef.current =
+          [...stickyHeaderIndices]
+            .reverse()
+            .find((index) => range.startIndex >= index) ?? -1;
 
         const all = new Set<number>([
           ...(stickyHeaderIndices ?? []),
           ...(keepMountedIndices ?? []),
           ...defaultRangeExtractor(range),
-          ...(normalizedStickyFooterIndicies ?? []),
         ]);
 
         return Array.from(all).sort((a, b) => a - b);
       },
-      [stickyHeaderIndices, stickyFooterIndices, keepMountedIndices, count],
+      [stickyHeaderIndices, keepMountedIndices],
     ),
   });
 
@@ -248,8 +195,6 @@ function VirtualListInternal<T>({
     }
   }, [dataLen, rowVirtualizer.getVirtualItems(), onEndReached]);
 
-  const containerHeight = useElementHeight(scrollRef, window.innerHeight);
-
   const colWidth = 100 / (numColumns ?? 1);
 
   return (
@@ -262,13 +207,6 @@ function VirtualListInternal<T>({
     >
       {/* Only the visible items in the virtualizer, manually positioned to be in view */}
       {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-        if (!virtualItem) {
-          console.warn("Attempted to stick an item index that doesn't exist");
-          // This can be triggered if sticky item is set to an
-          // index that does not exist
-          return null;
-        }
-
         let index = virtualItem.index;
         if (header) {
           index -= header.length;
@@ -277,43 +215,29 @@ function VirtualListInternal<T>({
 
         const showHeader = header && virtualItem.index < header?.length;
 
-        const distanceFromEnd = count - virtualItem.index;
-        const footerIndex = footer ? footer.length - distanceFromEnd : -1;
-
-        const isStuckHeader = isActiveStickyHeader(virtualItem.index);
-        const isStuckFooter = isActiveStickyFooter(virtualItem.index);
+        const isStuck = isActiveSticky(virtualItem.index);
 
         return (
           <div
             key={virtualItem.key}
             data-index={virtualItem.index}
-            data-is-sticky-header={isStuckHeader}
-            data-is-sticky-footer={isStuckFooter}
+            data-is-sticky-header={isStuck}
             ref={rowVirtualizer.measureElement}
-            className={cn(isStuckHeader && "max-md:bg-background")}
+            className={cn(isStuck && "max-md:bg-background")}
             style={
-              isStuckHeader
+              isStuck
                 ? {
                     position: "sticky",
                     zIndex: 1,
                     top: 0,
                   }
-                : isStuckFooter
-                  ? {
-                      position: "sticky",
-                      zIndex: 1,
-                      top: 0,
-                      transform: `translateY(${
-                        containerHeight - virtualItem.size
-                      }px)`,
-                    }
-                  : {
-                      position: "absolute",
-                      top: 0,
-                      left: `${colWidth * virtualItem.lane}%`,
-                      width: `${colWidth}%`,
-                      transform: `translateY(${virtualItem.start}px)`,
-                    }
+                : {
+                    position: "absolute",
+                    top: 0,
+                    left: `${colWidth * virtualItem.lane}%`,
+                    width: `${colWidth}%`,
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }
             }
           >
             {item
@@ -323,7 +247,7 @@ function VirtualListInternal<T>({
                 })
               : showHeader
                 ? header[virtualItem.index]
-                : (footer?.[footerIndex] ?? placeholder)}
+                : placeholder}
           </div>
         );
       })}
@@ -345,7 +269,6 @@ export function VirtualList<T>({
   renderItem: (params: { item: T; index: number }) => React.ReactNode;
   keepMountedIndices?: number[];
   stickyHeaderIndices?: number[];
-  stickyFooterIndices?: number[];
   ref?: React.RefObject<HTMLDivElement | null>;
   drawDistance?: number;
   numColumns?: number;
@@ -356,7 +279,6 @@ export function VirtualList<T>({
   placeholder?: ReactNode;
   numPlaceholders?: number;
   header?: ReactNode[];
-  footer?: ReactNode[];
 }) {
   const media = useMedia();
   const [key, setKey] = useState(0);
