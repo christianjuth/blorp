@@ -13,7 +13,7 @@
 # - PRODUCTBUILD_SIGNING_IDENTITY, APPLE_API_KEY_PATH, APPLE_API_ISSUER, APPLE_API_KEY in env (Make imports them)
 
 SHELL := /bin/bash
-# .ONESHELL:  # not required
+.ONESHELL:
 
 # -------- Load .env and export for all recipes --------
 ifneq (,$(wildcard .env))
@@ -22,8 +22,8 @@ ifneq (,$(wildcard .env))
 endif
 
 # -------- React env --------
-REACT_APP_DEFAULT_INSTANCE ?= https://lemmy.zip
-REACT_APP_LOCK_TO_DEFAULT_INSTANCE ?= 0
+override REACT_APP_DEFAULT_INSTANCE := https://lemmy.zip
+override REACT_APP_LOCK_TO_DEFAULT_INSTANCE := 0
 export REACT_APP_DEFAULT_INSTANCE REACT_APP_LOCK_TO_DEFAULT_INSTANCE
 
 # -------- Paths / constants --------
@@ -36,8 +36,8 @@ APP_SIG            := $(APP_TAR).sig
 RELEASE_DIR        := release
 PKG_PATH           := $(RELEASE_DIR)/Mac-Installer.pkg
 RELEASE_TAR_OUT    := $(RELEASE_DIR)/Mac-$(APP_NAME).app.tar.gz
-ANDROID_AAB_SRC    := android/app/build/outputs/bundle/release/app-release.aab
-ANDROID_AAB_OUT    := $(RELEASE_DIR)/android-release.aab
+ANDROID_APK_SRC    := android/app/release/app-release.apk
+ANDROID_APK_OUT    := $(RELEASE_DIR)/blorp-android.apk
 LOCKFILE           := src-tauri/Cargo.lock
 PKGJSON            := ./package.json
 
@@ -74,7 +74,7 @@ validate:
 	[ -f "${LOCKFILE}" ]   || { echo "error: ${LOCKFILE} not found" >&2; exit 1; }
 	[ -f "${PKGJSON}" ]    || { echo "error: ${PKGJSON} not found" >&2; exit 1; }
 	@while read -r plugin_name pkg_ver_raw; do \
-		pkg_ver="$${pkg_ver_raw#[\^~]}"; \
+		pkg_ver="$${pkg_ver_raw}"; \
 		crate="tauri-$$plugin_name"; \
 		lock_ver=$$( \
 			awk -v crate="$$crate" ' \
@@ -108,63 +108,65 @@ tauri: tauri_build tauri_pkg tauri_notarize tauri_staple tauri_release_files
 	printf "\n✅ Tauri pipeline complete\n"
 
 tauri_build: yarn_build | $(RELEASE_DIR)
-	tauri build --bundles app --target $(UNIVERSAL_TARGET)
+	tauri build --no-bundle --target $(UNIVERSAL_TARGET)
 
 tauri_pkg: tauri_build | $(RELEASE_DIR)
-	xcrun productbuild --sign "$(PRODUCTBUILD_SIGNING_IDENTITY)" \
-	    --component "$(APP_BUNDLE)" /Applications \
-	    "$(PKG_PATH)"
+	xcrun productbuild --sign $(PRODUCTBUILD_SIGNING_IDENTITY) \
+		--component "$(APP_BUNDLE)" /Applications \
+		"$(PKG_PATH)"
 
 tauri_notarize: tauri_pkg
-	xcrun notarytool submit "$(PKG_PATH)" \
-	    --key "$(APPLE_API_KEY_PATH)" --issuer "$(APPLE_API_ISSUER)" --key-id "$(APPLE_API_KEY)" --wait
+	xcrun notarytool submit ${PKG_PATH} --key ${APPLE_API_KEY_PATH} --issuer ${APPLE_API_ISSUER} --key-id ${APPLE_API_KEY} --wait
 
 tauri_staple: tauri_notarize
 	xcrun stapler staple "$(PKG_PATH)"
 
+test_here:
+	cat > t.json <<-EOF
+	{ "ok": true }
+	EOF
+
 tauri_release_files: tauri_staple
 	version=$$(jq -r .version $(PKGJSON))
 	sig=$$(< "$(APP_SIG)")
-	cat > "$(RELEASE_DIR)/latest.json" <<EOF
-	{
-	  "version": "$$version",
-	  "platforms": {
-	    "darwin-aarch64": {
-	      "signature": "$$sig",
-	      "url": "https://github.com/christianjuth/blorp/releases/download/v$$version/Mac-$(APP_NAME).app.tar.gz"
-	    },
-	    "darwin-x86_64": {
-	      "signature": "$$sig",
-	      "url": "https://github.com/christianjuth/blorp/releases/download/v$$version/Mac-$(APP_NAME).app.tar.gz"
-	    }
-	  }
-	}
-	EOF
+	{ printf '{\n'; \
+	  printf '  "version": "%s",\n' "$$(jq -r .version $(PKGJSON))"; \
+	  printf '  "platforms": {\n'; \
+	  printf '    "darwin-aarch64": {\n'; \
+	  printf '      "signature": "%s",\n' "$$(cat "$(APP_SIG)")"; \
+	  printf '      "url": "https://github.com/christianjuth/blorp/releases/download/v%s/Mac-%s.app.tar.gz"\n' \
+	    "$$(jq -r .version $(PKGJSON))" "$(APP_NAME)"; \
+	  printf '    },\n'; \
+	  printf '    "darwin-x86_64": {\n'; \
+	  printf '      "signature": "%s",\n' "$$(cat "$(APP_SIG)")"; \
+	  printf '      "url": "https://github.com/christianjuth/blorp/releases/download/v%s/Mac-%s.app.tar.gz"\n' \
+	    "$$(jq -r .version $(PKGJSON))" "$(APP_NAME)"; \
+	  printf '    }\n'; \
+	  printf '  }\n'; \
+	  printf '}\n'; } >"$(RELEASE_DIR)/latest.json"
 	cp "$(APP_TAR)" "$(RELEASE_TAR_OUT)"
 
-# -------- Android pipeline (placeholder) --------
-.PHONY: android
-android: yarn_build | $(RELEASE_DIR)
-	pushd android >/dev/null
-	./gradlew bundleRelease
-	popd >/dev/null
-	cp "$(ANDROID_AAB_SRC)" "$(ANDROID_AAB_OUT)"
-	printf "\n✅ Android AAB copied to %s\n" "$(ANDROID_AAB_OUT)"
+.PHONY: capacitor_sync
+capacitor_sync:
+	yarn ionic capacitor sync --no-build
 
-# -------- iOS pipeline (placeholder) --------
+.PHONY: android
+android: yarn_build capacitor_sync | $(RELEASE_DIR)
+	yarn ionic capacitor build android --no-build
+
 .PHONY: ios
-ios: yarn_build | $(RELEASE_DIR)
-	# TODO: replace with your real iOS build steps (fastlane/xcodebuild/etc.)
-	# Example: xcodebuild -workspace ios/App.xcworkspace -scheme App -configuration Release -archivePath build/App.xcarchive archive
-	#          xcodebuild -exportArchive -archivePath build/App.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath $(RELEASE_DIR)
-	echo "(iOS placeholder)" > $(RELEASE_DIR)/ios-build.txt
-	printf "\nℹ️ iOS placeholder artifact at %s\n" "$(RELEASE_DIR)/ios-build.txt"
+ios: yarn_build capacitor_sync | $(RELEASE_DIR)
+	yarn ionic capacitor build ios --no-build
 
 # -------- Maintenance --------
 .PHONY: clean showenv help
 clean:
 	rm -rf $(RELEASE_DIR) src-tauri/target android/app/build
 	printf "🧹 Cleaned build artifacts\n"
+
+.PHONY: finish_release
+finish_release:
+	cp ${ANDROID_APK_SRC} ${ANDROID_APK_OUT}
 
 showenv:
 	@echo "REACT_APP_DEFAULT_INSTANCE=$(REACT_APP_DEFAULT_INSTANCE)"
