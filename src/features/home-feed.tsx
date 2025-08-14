@@ -71,7 +71,7 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
       toolbar,
       newPostButton,
     };
-  }, []);
+  }, [active]);
 
   const scrollHandler = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
@@ -134,7 +134,7 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
     } else {
       prevOffsetRef.current = div?.scrollTop ?? 0;
     }
-  }, [active, tabBar, header, toolbar, newPostButton]);
+  }, [active, tabBar, header, toolbar, newPostButton, div?.scrollTop]);
 
   return { scrollHandler };
 }

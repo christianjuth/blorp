@@ -735,29 +735,36 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         q: apId,
       });
 
-      const { post, comment, community, person } = z
-        .object({
-          comment: z
-            .object({
-              comment: z.object({ id: z.number() }),
-            })
-            .optional(),
-          post: z.object({ post: z.object({ id: z.number() }) }).optional(),
-          community: z
-            .object({
-              community: z.object({ id: z.number() }),
-            })
-            .optional(),
-          person: z.object({ person: z.object({ id: z.number() }) }).optional(),
-        })
-        .parse(json);
+      try {
+        const { post, comment, community, person } = z
+          .object({
+            comment: z
+              .object({
+                comment: z.object({ id: z.number() }),
+              })
+              .optional(),
+            post: z.object({ post: z.object({ id: z.number() }) }).optional(),
+            community: z
+              .object({
+                community: z.object({ id: z.number() }),
+              })
+              .optional(),
+            person: z
+              .object({ person: z.object({ id: z.number() }) })
+              .optional(),
+          })
+          .parse(json);
 
-      return {
-        post_id: post?.post.id,
-        comment_id: comment?.comment.id,
-        community_id: community?.community.id,
-        person_id: person?.person.id,
-      };
+        return {
+          post_id: post?.post.id,
+          comment_id: comment?.comment.id,
+          community_id: community?.community.id,
+          person_id: person?.person.id,
+        };
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
     },
     (apId) => apId,
   );
@@ -899,24 +906,29 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       options,
     );
 
-    const { community_view, moderators } = z
-      .object({
-        community_view: pieFedCommunityViewSchema,
-        moderators: z.array(
-          z.object({
-            community: pieFedCommunitySchema,
-            moderator: pieFedPersonSchema,
-          }),
-        ),
-      })
-      .parse(json);
+    try {
+      const { community_view, moderators } = z
+        .object({
+          community_view: pieFedCommunityViewSchema,
+          moderators: z.array(
+            z.object({
+              community: pieFedCommunitySchema,
+              moderator: pieFedPersonSchema,
+            }),
+          ),
+        })
+        .parse(json);
 
-    return {
-      community: convertCommunity(community_view, "full"),
-      mods: moderators.map((m) =>
-        convertPerson({ person: m.moderator }, "partial"),
-      ),
-    };
+      return {
+        community: convertCommunity(community_view, "full"),
+        mods: moderators.map((m) =>
+          convertPerson({ person: m.moderator }, "partial"),
+        ),
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async getPerson(form: Forms.GetPerson, options: RequestOptions) {
@@ -932,10 +944,15 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         },
         options,
       );
-      const data = z
-        .object({ person_view: pieFedPersonViewSchema })
-        .parse(json);
-      return convertPerson(data.person_view, "full");
+      try {
+        const data = z
+          .object({ person_view: pieFedPersonViewSchema })
+          .parse(json);
+        return convertPerson(data.person_view, "full");
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
     } else {
       const json = await this.get(
         "/user",
@@ -944,10 +961,15 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         },
         options,
       );
-      const data = z
-        .object({ person_view: pieFedPersonViewSchema })
-        .parse(json);
-      return convertPerson(data.person_view, "full");
+      try {
+        const data = z
+          .object({ person_view: pieFedPersonViewSchema })
+          .parse(json);
+        return convertPerson(data.person_view, "full");
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
     }
   }
 
@@ -964,19 +986,24 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       options,
     );
 
-    const { post_view, community_view, cross_posts } = z
-      .object({
-        post_view: pieFedPostViewSchema,
-        cross_posts: z.array(pieFedCrosspostSchema),
-        community_view: pieFedCommunityViewSchema,
-      })
-      .parse(json);
+    try {
+      const { post_view, community_view, cross_posts } = z
+        .object({
+          post_view: pieFedPostViewSchema,
+          cross_posts: z.array(pieFedCrosspostSchema),
+          community_view: pieFedCommunityViewSchema,
+        })
+        .parse(json);
 
-    return {
-      post: convertPost(post_view, cross_posts),
-      community_view: convertCommunity(community_view, "partial"),
-      creator: convertPerson({ person: post_view.creator }, "partial"),
-    };
+      return {
+        post: convertPost(post_view, cross_posts),
+        community_view: convertCommunity(community_view, "partial"),
+        creator: convertPerson({ person: post_view.creator }, "partial"),
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async login(form: Forms.Login): Promise<{ jwt: string }> {
@@ -984,7 +1011,12 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       username: form.username,
       password: form.password,
     });
-    return z.object({ jwt: z.string() }).parse(json);
+    try {
+      return z.object({ jwt: z.string() }).parse(json);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async likePost(form: Forms.LikePost) {
@@ -992,8 +1024,13 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       post_id: form.postId,
       score: form.score,
     });
-    const data = z.object({ post_view: pieFedPostViewSchema }).parse(json);
-    return convertPost(data.post_view);
+    try {
+      const data = z.object({ post_view: pieFedPostViewSchema }).parse(json);
+      return convertPost(data.post_view);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async savePost(form: {
@@ -1004,8 +1041,13 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       post_id: form.postId,
       save: form.save,
     });
-    const data = z.object({ post_view: pieFedPostViewSchema }).parse(json);
-    return convertPost(data.post_view);
+    try {
+      const data = z.object({ post_view: pieFedPostViewSchema }).parse(json);
+      return convertPost(data.post_view);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async logout(): Promise<void> {
@@ -1075,11 +1117,16 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       id: form.id,
     });
 
-    const data = z
-      .object({ comment_view: pieFedCommentViewSchema })
-      .parse(json);
+    try {
+      const data = z
+        .object({ comment_view: pieFedCommentViewSchema })
+        .parse(json);
 
-    return convertComment(data.comment_view);
+      return convertComment(data.comment_view);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async followCommunity(
@@ -1089,12 +1136,17 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       community_id: form.communityId,
       follow: form.follow,
     });
-    const data = z
-      .object({
-        community_view: pieFedCommunityViewSchema,
-      })
-      .parse(json);
-    return convertCommunity(data.community_view, "partial");
+    try {
+      const data = z
+        .object({
+          community_view: pieFedCommunityViewSchema,
+        })
+        .parse(json);
+      return convertCommunity(data.community_view, "partial");
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async search(form: Forms.Search, options: RequestOptions) {
@@ -1115,32 +1167,37 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       options,
     );
 
-    const { posts, communities, users } = z
-      .object({
-        posts: z.array(pieFedPostViewSchema),
-        communities: z.array(pieFedCommunityViewSchema),
-        users: z.array(pieFedPersonViewSchema),
-      })
-      .parse(json);
+    try {
+      const { posts, communities, users } = z
+        .object({
+          posts: z.array(pieFedPostViewSchema),
+          communities: z.array(pieFedCommunityViewSchema),
+          users: z.array(pieFedPersonViewSchema),
+        })
+        .parse(json);
 
-    const nextCursor =
-      _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
-        ? 1
-        : _.parseInt(form.pageCursor) + 1;
+      const nextCursor =
+        _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
+          ? 1
+          : _.parseInt(form.pageCursor) + 1;
 
-    const hasMorePosts = posts.length > this.limit;
-    const hasMoreCommunities = communities.length > this.limit;
-    const hasMoreUsers = users.length > this.limit;
+      const hasMorePosts = posts.length > this.limit;
+      const hasMoreCommunities = communities.length > this.limit;
+      const hasMoreUsers = users.length > this.limit;
 
-    const hasNextCursor = hasMorePosts || hasMoreCommunities || hasMoreUsers;
+      const hasNextCursor = hasMorePosts || hasMoreCommunities || hasMoreUsers;
 
-    return {
-      posts: posts.map((p) => convertPost(p)),
-      communities: communities.map((c) => convertCommunity(c, "partial")),
-      comments: [],
-      users: users.map((p) => convertPerson(p, "partial")),
-      nextCursor: hasNextCursor ? String(nextCursor) : null,
-    };
+      return {
+        posts: posts.map((p) => convertPost(p)),
+        communities: communities.map((c) => convertCommunity(c, "partial")),
+        comments: [],
+        users: users.map((p) => convertPerson(p, "partial")),
+        nextCursor: hasNextCursor ? String(nextCursor) : null,
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async deletePost(form: Forms.DeletePost): Promise<Schemas.Post> {
@@ -1149,25 +1206,30 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       deleted: form.deleted,
     });
 
-    const data = z
-      .object({
-        post_view: pieFedPostViewSchema,
-      })
-      .parse(json);
+    try {
+      const data = z
+        .object({
+          post_view: pieFedPostViewSchema,
+        })
+        .parse(json);
 
-    return convertPost(data.post_view);
+      return convertPost(data.post_view);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async createComment(form: Forms.CreateComment): Promise<Schemas.Comment> {
+    const { post_id } = await this.resolveObjectId(form.postApId);
+
+    const json = await this.post("/comment", {
+      body: form.body,
+      post_id,
+      parent_id: form.parentId,
+    });
+
     try {
-      const { post_id } = await this.resolveObjectId(form.postApId);
-
-      const json = await this.post("/comment", {
-        body: form.body,
-        post_id,
-        parent_id: form.parentId,
-      });
-
       const { comment_view } = z
         .object({
           comment_view: pieFedCommentViewSchema,
@@ -1187,13 +1249,18 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       deleted: form.deleted,
     });
 
-    const { comment_view } = z
-      .object({
-        comment_view: pieFedCommentViewSchema,
-      })
-      .parse(json);
+    try {
+      const { comment_view } = z
+        .object({
+          comment_view: pieFedCommentViewSchema,
+        })
+        .parse(json);
 
-    return convertComment(comment_view);
+      return convertComment(comment_view);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async editComment(form: Forms.EditComment): Promise<Schemas.Comment> {
@@ -1202,13 +1269,18 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       body: form.body,
     });
 
-    const { comment_view } = z
-      .object({
-        comment_view: pieFedCommentViewSchema,
-      })
-      .parse(json);
+    try {
+      const { comment_view } = z
+        .object({
+          comment_view: pieFedCommentViewSchema,
+        })
+        .parse(json);
 
-    return convertComment(comment_view);
+      return convertComment(comment_view);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async getPersonContent(
@@ -1290,8 +1362,13 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       body: form.body,
       nsfw: form.nsfw,
     });
-    const data = z.object({ post_view: pieFedPostViewSchema }).parse(res);
-    return convertPost(data.post_view);
+    try {
+      const data = z.object({ post_view: pieFedPostViewSchema }).parse(res);
+      return convertPost(data.post_view);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async createPost(form: Forms.CreatePost) {
@@ -1303,8 +1380,13 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       body: form.body,
       nsfw: form.nsfw,
     });
-    const data = z.object({ post_view: pieFedPostViewSchema }).parse(res);
-    return convertPost(data.post_view);
+    try {
+      const data = z.object({ post_view: pieFedPostViewSchema }).parse(res);
+      return convertPost(data.post_view);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async markPostRead(form: Forms.MarkPostRead) {
@@ -1327,26 +1409,32 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       },
       options,
     );
-    const { private_messages, next_page } = z
-      .object({
-        private_messages: z.array(pieFedPrivateMessageViewSchema),
-        next_page: z.string().nullable().optional(),
-      })
-      .parse(json);
 
-    const profiles = _.uniqBy(
-      [
-        ...private_messages.map((pm) => pm.creator),
-        ...private_messages.map((pm) => pm.recipient),
-      ],
-      (p) => p.actor_id,
-    ).map((person) => convertPerson({ person }, "partial"));
+    try {
+      const { private_messages, next_page } = z
+        .object({
+          private_messages: z.array(pieFedPrivateMessageViewSchema),
+          next_page: z.string().nullable().optional(),
+        })
+        .parse(json);
 
-    return {
-      privateMessages: private_messages.map(convertPrivateMessage),
-      profiles,
-      nextCursor: next_page ?? null,
-    };
+      const profiles = _.uniqBy(
+        [
+          ...private_messages.map((pm) => pm.creator),
+          ...private_messages.map((pm) => pm.recipient),
+        ],
+        (p) => p.actor_id,
+      ).map((person) => convertPerson({ person }, "partial"));
+
+      return {
+        privateMessages: private_messages.map(convertPrivateMessage),
+        profiles,
+        nextCursor: next_page ?? null,
+      };
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async createPrivateMessage(form: Forms.CreatePrivateMessage) {
@@ -1355,13 +1443,18 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       recipient_id: form.recipientId,
     });
 
-    const { private_message_view } = z
-      .object({
-        private_message_view: pieFedPrivateMessageViewSchema,
-      })
-      .parse(json);
+    try {
+      const { private_message_view } = z
+        .object({
+          private_message_view: pieFedPrivateMessageViewSchema,
+        })
+        .parse(json);
 
-    return convertPrivateMessage(private_message_view);
+      return convertPrivateMessage(private_message_view);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async markPrivateMessageRead(form: Forms.MarkPrivateMessageRead) {
@@ -1377,8 +1470,13 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       featured: form.featured,
       feature_type: form.featureType,
     });
-    const data = z.object({ post_view: pieFedPostViewSchema }).parse(res);
-    return convertPost(data.post_view);
+    try {
+      const data = z.object({ post_view: pieFedPostViewSchema }).parse(res);
+      return convertPost(data.post_view);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async getReplies(form: Forms.GetReplies, option: RequestOptions) {
@@ -1393,20 +1491,25 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       option,
     );
 
-    const { replies, next_page } = z
-      .object({
-        replies: z.array(pieFedReplyViewSchema),
-        next_page: z.string().nullable().optional(),
-      })
-      .parse(json);
+    try {
+      const { replies, next_page } = z
+        .object({
+          replies: z.array(pieFedReplyViewSchema),
+          next_page: z.string().nullable().optional(),
+        })
+        .parse(json);
 
-    return {
-      replies: replies.map(convertReply),
-      profiles: replies.map((r) =>
-        convertPerson({ person: r.creator }, "partial"),
-      ),
-      nextCursor: next_page ?? null,
-    };
+      return {
+        replies: replies.map(convertReply),
+        profiles: replies.map((r) =>
+          convertPerson({ person: r.creator }, "partial"),
+        ),
+        nextCursor: next_page ?? null,
+      };
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async getMentions(form: Forms.GetMentions, options: RequestOptions) {
@@ -1420,21 +1523,26 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       options,
     );
 
-    const { replies, next_page } = z
-      .object({
-        next_page: z.string().nullable().optional(),
-        replies: z.array(pieFedReplyViewSchema),
-      })
-      .parse(json);
+    try {
+      const { replies, next_page } = z
+        .object({
+          next_page: z.string().nullable().optional(),
+          replies: z.array(pieFedReplyViewSchema),
+        })
+        .parse(json);
 
-    return {
-      mentions: replies.map(convertMention),
-      profiles: _.unionBy(
-        replies.map((r) => convertPerson({ person: r.creator }, "partial")),
-        (p) => p.apId,
-      ),
-      nextCursor: next_page ?? null,
-    };
+      return {
+        mentions: replies.map(convertMention),
+        profiles: _.unionBy(
+          replies.map((r) => convertPerson({ person: r.creator }, "partial")),
+          (p) => p.apId,
+        ),
+        nextCursor: next_page ?? null,
+      };
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async markReplyRead(form: Forms.MarkReplyRead) {
@@ -1496,15 +1604,20 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
 
     const json = await res.json();
 
-    const { url } = z
-      .object({
-        url: z.string(),
-      })
-      .parse(json);
+    try {
+      const { url } = z
+        .object({
+          url: z.string(),
+        })
+        .parse(json);
 
-    return {
-      url,
-    };
+      return {
+        url,
+      };
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   async saveUserSettings(form: Forms.SaveUserSettings) {
@@ -1541,19 +1654,24 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       options,
     );
 
-    const { post, community, person } = z
-      .object({
-        post: pieFedPostViewSchema.optional(),
-        community: pieFedCommentViewSchema.optional(),
-        person: pieFedPersonViewSchema.optional(),
-      })
-      .parse(json);
+    try {
+      const { post, community, person } = z
+        .object({
+          post: pieFedPostViewSchema.optional(),
+          community: pieFedCommentViewSchema.optional(),
+          person: pieFedPersonViewSchema.optional(),
+        })
+        .parse(json);
 
-    return {
-      post: post ? convertPost(post) : null,
-      community: community ? convertCommunity(community, "partial") : null,
-      user: person ? convertPerson(person, "partial") : null,
-    };
+      return {
+        post: post ? convertPost(post) : null,
+        community: community ? convertCommunity(community, "partial") : null,
+        user: person ? convertPerson(person, "partial") : null,
+      };
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   getPostSorts() {
