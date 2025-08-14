@@ -11,7 +11,6 @@
     "lint": "yarn oxlint",
     "build": "vite build && cap sync",
     "build:tauri": "tauri build",
-    "build:ios": "yarn ionic build --prod --platform=ios",
     "build:docker": "docker build . --tag blorp",
     "test": "vitest --coverage",
     "test:watch": "vitest --watch",
