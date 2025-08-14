@@ -7,7 +7,6 @@ import {
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "../components/gutters";
 import { memo, useMemo, useState } from "react";
-import { PostSortButton } from "../components/lemmy-sort";
 import { VirtualList } from "../components/virtual-list";
 import {
   CommunityCard,
@@ -20,7 +19,6 @@ import { usePostsStore } from "../stores/posts";
 import { SearchType } from "lemmy-v3";
 import { Link, useParams } from "@/src/routing/index";
 import {
-  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -43,6 +41,7 @@ import { RelativeTime } from "../components/relative-time";
 import { Message } from "../components/icons";
 import { Separator } from "../components/ui/separator";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 const EMPTY_ARR: never[] = [];
 
@@ -198,9 +197,9 @@ export default function SearchFeed({
       </PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
-          </IonButtons>
+          </ToolbarButtons>
           <IonSearchbar
             mode="ios"
             className="max-w-md mx-auto h-3"
@@ -215,9 +214,9 @@ export default function SearchFeed({
                 : undefined
             }
           />
-          <IonButtons slot="end">
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
         {media.maxMd && (
           <IonToolbar>
@@ -264,40 +263,29 @@ export default function SearchFeed({
                 key="header-type-toggle"
               >
                 <div className="flex flex-row h-12 md:border-b md:bg-background flex-1 items-center">
-                  <div>
-                    <ToggleGroup
-                      type="single"
-                      variant="outline"
-                      size="sm"
-                      value={type}
-                      onValueChange={(val) =>
-                        val &&
-                        setType(
-                          val as "posts" | "communities" | "users" | "comments",
-                        )
-                      }
-                    >
-                      <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
-                      {scope === "global" && (
-                        <ToggleGroupItem value="communities">
-                          Communities
-                        </ToggleGroupItem>
-                      )}
-                      {scope === "global" && (
-                        <ToggleGroupItem value="users">Users</ToggleGroupItem>
-                      )}
-                      <ToggleGroupItem value="comments">
-                        Comments
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    size="sm"
+                    value={type}
+                    onValueChange={(val) =>
+                      val &&
+                      setType(
+                        val as "posts" | "communities" | "users" | "comments",
+                      )
+                    }
+                  >
+                    <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                    {scope === "global" && (
+                      <ToggleGroupItem value="communities">
+                        Communities
                       </ToggleGroupItem>
-                    </ToggleGroup>
-                  </div>
-
-                  {type === "posts" && (
-                    <>
-                      <div className="w-[.5px] h-2/3 bg-border mx-3 my-auto" />
-                      <PostSortButton align="start" />
-                    </>
-                  )}
+                    )}
+                    {scope === "global" && (
+                      <ToggleGroupItem value="users">Users</ToggleGroupItem>
+                    )}
+                    <ToggleGroupItem value="comments">Comments</ToggleGroupItem>
+                  </ToggleGroup>
                 </div>
                 <></>
               </ContentGutters>,

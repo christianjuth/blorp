@@ -27,6 +27,7 @@ import { MainSidebar } from "./MainSidebar";
 import { LEFT_SIDEBAR_MENU_ID, RIGHT_SIDEBAR_MENU_ID, TABS } from "./config";
 import InstanceSidebar from "../features/instance-sidebar";
 import { getAccountSite, useAuth } from "../stores/auth";
+import { usePathname } from "./hooks";
 
 const CSAE = lazy(() => import("@/src/features/csae"));
 const NotFound = lazy(() => import("@/src/features/not-found"));
@@ -58,8 +59,44 @@ const CommunitiesFeed = lazy(() => import("@/src/features/communities-feed"));
 const User = lazy(() => import("@/src/features/user"));
 const SavedFeed = lazy(() => import("@/src/features/saved-feed"));
 const Search = lazy(() => import("@/src/features/search"));
+const LightBoxPostFeed = lazy(
+  () => import("@/src/features/light-box/light-box-post-feed"),
+);
+const LightBox = lazy(() => import("@/src/features/light-box/light-box"));
 
 const Instance = lazy(() => import("@/src/features/instance"));
+
+const SKIP_NAV_ID = "#main";
+function SkipNav() {
+  return (
+    <a
+      className="transition left-0 bg-brand text-brand-foreground absolute p-3 z-50 opacity-0 pointer-events-none focus:opacity-100 focus:pointer-events-auto"
+      href={SKIP_NAV_ID}
+    >
+      Skip Navigation
+    </a>
+  );
+}
+
+function useMenuSwipeEnabled(side: "right" | "left") {
+  const path = usePathname();
+  if (side === "left") {
+    switch (path) {
+      case "/home":
+      case "/communities":
+      case "/create":
+      case "/inbox":
+      case "/messages":
+        return true;
+      default:
+        return false;
+    }
+  } else {
+    // I wanted to prevent this from matching
+    // communities named lightbox
+    return !/\/lightbox(\/|\?|$)/.test(path);
+  }
+}
 
 const HOME_STACK = [
   <Route key="/home/*" path="/home/*" component={NotFound} />,
@@ -100,6 +137,24 @@ const HOME_STACK = [
   />,
   <Route key="/home/u/:userId" exact path="/home/u/:userId" component={User} />,
   <Route key="/home/saved" exact path="/home/saved" component={SavedFeed} />,
+  <Route
+    key="/home/lightbox"
+    exact
+    path="/home/lightbox"
+    component={LightBoxPostFeed}
+  />,
+  <Route
+    key="/home/lightbox/c/:communityName"
+    exact
+    path="/home/c/:communityName/lightbox"
+    component={LightBoxPostFeed}
+  />,
+  <Route
+    key="/home/lightbox/:imgUrl"
+    exact
+    path="/home/lightbox/:imgUrl"
+    component={LightBox}
+  />,
 ];
 
 const CREATE_POST_STACK = [
@@ -161,6 +216,18 @@ const COMMUNITIES_STACK = [
     path="/communities/u/:userId"
     component={User}
   />,
+  <Route
+    key="/communities/lightbox/c/:communityName"
+    exact
+    path="/communities/c/:communityName/lightbox"
+    component={LightBoxPostFeed}
+  />,
+  <Route
+    key="/communities/lightbox/:imgUrl"
+    exact
+    path="/communities/lightbox/:imgUrl"
+    component={LightBox}
+  />,
 ];
 
 const INBOX_STACK = [
@@ -206,6 +273,18 @@ const INBOX_STACK = [
     path="/inbox/u/:userId"
     component={User}
   />,
+  <Route
+    key="/inbox/lightbox/c/:communityName"
+    exact
+    path="/inbox/c/:communityName/lightbox"
+    component={LightBoxPostFeed}
+  />,
+  <Route
+    key="/inbox/lightbox"
+    exact
+    path="/inbox/lightbox/:imgUrl"
+    component={LightBox}
+  />,
 ];
 
 const MESSAGES_STACK = [
@@ -237,6 +316,8 @@ const SETTINGS = [
 ];
 
 function Tabs() {
+  const leftSwipeEnabled = useMenuSwipeEnabled("left");
+  const rightSwipeEnabled = useMenuSwipeEnabled("right");
   const selectedAccountIndex = useAuth((s) => s.accountIndex);
   const inboxCount = useNotificationCount()[selectedAccountIndex];
   const messageCount = usePrivateMessagesCount()[selectedAccountIndex];
@@ -248,7 +329,9 @@ function Tabs() {
 
   return (
     <>
+      <SkipNav />
       <IonMenu
+        swipeGesture={rightSwipeEnabled}
         menuId={RIGHT_SIDEBAR_MENU_ID}
         contentId="main"
         side="end"
@@ -269,6 +352,7 @@ function Tabs() {
 
       <IonSplitPane when="lg" contentId="main">
         <IonMenu
+          swipeGesture={leftSwipeEnabled}
           type="push"
           contentId="main"
           menuId={LEFT_SIDEBAR_MENU_ID}

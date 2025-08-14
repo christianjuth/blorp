@@ -9,7 +9,6 @@ import { Logo } from "@/src/components/logo";
 import pkgJson from "@/package.json";
 import { getDbSizes } from "@/src/lib/create-storage";
 import {
-  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -28,6 +27,7 @@ import { useConfirmationAlert } from "@/src/lib/hooks/index";
 import { DebouncedInput } from "@/src/components/debounced-input";
 import { FiChevronRight } from "react-icons/fi";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
+import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
 
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
@@ -261,13 +261,13 @@ export default function SettingsPage() {
       <PageTitle>Settings</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <MenuButton />
-            <ToolbarTitle>Settings</ToolbarTitle>
-          </IonButtons>
-          <IonButtons slot="end">
+            <ToolbarTitle numRightIcons={1}>Settings</ToolbarTitle>
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>

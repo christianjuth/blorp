@@ -43,6 +43,7 @@ import { create } from "zustand";
 import { COMMENT_COLLAPSE_EVENT } from "./config";
 import { useMedia } from "@/src/lib/hooks/index";
 import { CakeDay } from "../cake-day";
+import { useTagUser, useTagUserStore } from "@/src/stores/user-tags";
 
 type StoreState = {
   expandedDetails: Record<string, boolean>;
@@ -63,11 +64,13 @@ const useDetailsStore = create<StoreState>((set) => ({
 
 function Byline({
   actorId,
+  actorSlug,
   publishedDate,
   authorType,
   className,
 }: {
   actorId: string;
+  actorSlug: string;
   publishedDate: string;
   authorType?: "OP" | "ME" | "MOD" | "ADMIN";
   className?: string;
@@ -77,6 +80,8 @@ function Byline({
   const profileView = useProfilesStore(
     (s) => s.profiles[getCachePrefixer()(actorId)]?.data,
   );
+
+  const tag = useTagUserStore((s) => s.userTags[actorSlug]);
 
   const [name, host] = profileView?.slug.split("@") ?? [];
 
@@ -102,7 +107,15 @@ function Byline({
           className="text-base overflow-ellipsis flex flex-row overflow-x-hidden items-center"
         >
           <span className="font-medium text-xs">{name}</span>
-          <span className="italic text-xs text-muted-foreground">@{host}</span>
+          {tag ? (
+            <Badge size="sm" variant="brand" className="ml-2">
+              {tag}
+            </Badge>
+          ) : (
+            <span className="italic text-xs text-muted-foreground">
+              @{host}
+            </span>
+          )}
           {authorType === "ADMIN" && (
             <>
               <ShieldCheckmark className="text-brand ml-2" />
@@ -244,6 +257,11 @@ export function PostComment({
     parent: commentView,
   });
 
+  const tag = useTagUserStore((s) =>
+    commentView?.creatorSlug ? s.userTags[commentView.creatorSlug] : undefined,
+  );
+  const tagUser = useTagUser();
+
   const router = useIonRouter();
 
   const hideContent = commentView?.removed || commentView?.deleted || false;
@@ -327,6 +345,7 @@ export function PostComment({
               highlightComment && "bg-brand/10 dark:bg-brand/20",
             )}
             actorId={commentView.creatorApId}
+            actorSlug={commentView.creatorSlug}
             publishedDate={commentView.createdAt}
             authorType={
               isAdmin
@@ -383,6 +402,12 @@ export function PostComment({
                         ),
                       ),
                   } as const,
+                  {
+                    text: "Tag commenter",
+                    onClick: async () => {
+                      tagUser(commentView.creatorSlug, tag);
+                    },
+                  },
                   ...(isMyComment && !commentView.deleted
                     ? [
                         {
@@ -489,7 +514,7 @@ export function PostComment({
             rest.imediateChildren > 0 ||
             (replyState && media.md)) && (
             <div
-              className="border-l-[1.5px] border-b-[1.5px] pl-3 md:pl-3.5 rounded-bl-xl mb-2"
+              className="border-l-[2px] border-b-[2px] pl-3 md:pl-3.5 rounded-bl-xl mb-2"
               style={{ borderColor: color }}
             >
               {replyState && (
@@ -520,12 +545,12 @@ export function PostComment({
                     post: encodeURIComponent(comment.postApId),
                     comment: String(comment.id),
                   }}
-                  className="translate-y-1/2 pl-2 bg-background block"
+                  className="translate-y-1/2 pl-2 bg-background block text-muted-foreground"
                 >
                   View more
                 </Link>
               ) : (
-                <div className="h-1 -mt-1 w-full bg-background translate-y-0.5" />
+                <div className="h-2 -mt-2 w-full bg-background translate-y-1" />
               )}
             </div>
           )}

@@ -9,20 +9,15 @@ import {
 import { InAppBrowser } from "@capacitor/inappbrowser";
 import { useHistory, useLocation } from "react-router-dom";
 import type z from "zod";
-import { useIonAlert } from "@ionic/react";
+import { AlertInput, useIonAlert } from "@ionic/react";
 import { Deferred } from "../deferred";
+import { usePathname } from "@/src/routing/hooks";
+import { useMedia } from "./use-media";
 export { useMedia } from "./use-media";
 export { useTheme } from "./use-theme";
 
-interface ObserverOptions {
-  root?: Element | null;
-  rootMargin?: string;
-  threshold?: number | number[];
-}
-
 export function useElementHadFocus<T extends HTMLElement | null>(
   ref: RefObject<T>,
-  options: ObserverOptions = { root: null, rootMargin: "0px", threshold: 0.1 },
 ): boolean {
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
@@ -30,17 +25,16 @@ export function useElementHadFocus<T extends HTMLElement | null>(
     const element = ref.current;
     if (!element) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => entry && setIsVisible(entry.isIntersecting),
-      options,
-    );
+    const observer = new IntersectionObserver(([entry]) => {
+      entry && setIsVisible(entry.isIntersecting);
+    });
 
     observer.observe(element);
 
     return () => {
       observer.disconnect();
     };
-  }, [ref, options.root, options.rootMargin, options.threshold]);
+  }, [ref]);
 
   return isVisible;
 }
@@ -81,11 +75,20 @@ export function useUrlSearchState<S extends z.ZodSchema>(
 ): [z.infer<S>, SetUrlSearchParam<z.infer<S>>] {
   const history = useHistory();
   const location = useLocation();
+  const search = location.search;
+  const frozenLocation = useRef(location);
 
   const frozenDefaultValue = useRef(defaultValue);
+  const currentValueRef = useRef(defaultValue);
+
+  const isActive = useIsActiveRoute();
 
   // parse & validate the raw URL param, fallback to default
   const value = useMemo<z.infer<S>>(() => {
+    if (!isActive) {
+      return currentValueRef.current;
+    }
+
     const params = new URLSearchParams(location.search);
     const raw = params.get(key);
     if (raw == null) return frozenDefaultValue.current;
@@ -95,8 +98,10 @@ export function useUrlSearchState<S extends z.ZodSchema>(
     }
 
     const parsed = schema.safeParse(raw);
-    return parsed.success ? parsed.data : frozenDefaultValue.current;
-  }, [location.search, key, frozenDefaultValue.current, schema]);
+    const newValue = parsed.success ? parsed.data : frozenDefaultValue.current;
+    currentValueRef.current = newValue;
+    return newValue;
+  }, [location.search, key, defaultValue, schema, isActive]);
 
   // setter that validates and pushes/replaces the URL
   const setValue = useCallback<SetUrlSearchParam<z.infer<S>>>(
@@ -111,15 +116,21 @@ export function useUrlSearchState<S extends z.ZodSchema>(
         schema.parse(newVal);
       }
 
-      const params = new URLSearchParams(location.search);
+      const params = new URLSearchParams(search);
       params.set(key, newVal);
       const newSearch = params.toString();
-      const to = { ...location, search: newSearch ? `?${newSearch}` : "" };
+      const to = {
+        // Idk why but location is getting out of sync with
+        // browser location. So we just freeze the intial value
+        // and that seems to work.
+        ...frozenLocation.current,
+        search: newSearch ? `?${newSearch}` : "",
+      };
       replace ? history.replace(to) : history.push(to);
 
       frozenDefaultValue.current = defaultValue;
     },
-    [history, location, key, schema, value, defaultValue],
+    [history, key, schema, value, defaultValue, search],
   );
 
   return [value, setValue];
@@ -128,35 +139,51 @@ export function useUrlSearchState<S extends z.ZodSchema>(
 export function useConfirmationAlert() {
   const [alrt] = useIonAlert();
 
-  return async ({
+  return async <Z extends z.AnyZodObject>({
     header,
     message,
     cancelText = "Cancel",
     confirmText = "OK",
     danger,
+    inputs,
+    schema,
   }: {
     header?: string;
     message: string;
     cancelText?: string;
     confirmText?: string;
     danger?: boolean;
+    inputs?: AlertInput[];
+    schema?: Z;
   }) => {
-    const deferred = new Deferred();
+    const deferred = new Deferred<z.infer<Z>>();
     alrt({
       header,
       message,
+      inputs,
       buttons: [
         {
           text: cancelText,
           role: "cancel",
-          handler: () => deferred.reject(),
         },
         {
           text: confirmText,
           role: danger ? "destructive" : "confirm",
-          handler: () => deferred.resolve(),
         },
       ],
+      onDidDismiss: (e) => {
+        if (e.detail.role === "cancel") {
+          deferred.reject();
+        } else {
+          try {
+            const data = schema?.parse(e.detail.data.values);
+            deferred.resolve(data);
+          } catch (err) {
+            console.error(err);
+            deferred.reject();
+          }
+        }
+      },
     });
     return await deferred.promise;
   };
@@ -179,5 +206,67 @@ export function useIonPageElement() {
   return {
     ref,
     element: element ?? undefined,
+  };
+}
+
+export function useIsActiveRoute() {
+  const pathname = usePathname();
+  const snapshot = useRef(pathname);
+  return snapshot.current === pathname;
+}
+
+export function useHideTabBarOnMount() {
+  const isActive = useIsActiveRoute();
+  useEffect(() => {
+    if (isActive) {
+      const tabBar = () => document.querySelector("ion-tab-bar");
+      // add a CSS class to the root element
+      tabBar()?.classList.add("hidden");
+      return () => {
+        // clean up when this component unmounts
+        tabBar()?.classList.remove("hidden");
+      };
+    }
+  }, [isActive]);
+}
+
+export function useSafeAreaInsets() {
+  return useMemo(() => {
+    const top = parseInt(
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--ion-safe-area-top")
+        .trim(),
+      10,
+    );
+
+    const bottom = parseInt(
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--ion-safe-area-bottom")
+        .trim(),
+      10,
+    );
+
+    return {
+      top,
+      bottom,
+    };
+  }, []);
+}
+
+export function useNavbarHeight() {
+  const media = useMedia();
+  const height = media.md ? 60 : 55;
+  const { top } = useSafeAreaInsets();
+  return {
+    height,
+    inset: top,
+  };
+}
+
+export function useTabbarHeight() {
+  const { bottom } = useSafeAreaInsets();
+  return {
+    height: 50.5,
+    inset: bottom,
   };
 }

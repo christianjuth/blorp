@@ -124,10 +124,12 @@ function convertPost({
   community,
   creator,
   post_actions,
+  image_details,
 }: Pick<
   lemmyV4.PostView,
-  "post" | "community" | "creator" | "post_actions"
+  "post" | "community" | "creator" | "post_actions" | "image_details"
 >): Schemas.Post {
+  const ar = image_details ? image_details.width / image_details.height : null;
   return {
     id: post.id,
     createdAt: post.published_at,
@@ -135,6 +137,7 @@ function convertPost({
     title: post.name,
     body: post.body ?? null,
     thumbnailUrl: post.thumbnail_url ?? null,
+    embedVideoUrl: post.embed_video_url ?? null,
     upvotes: post.upvotes,
     downvotes: post.downvotes,
     commentsCount: post.comments,
@@ -146,7 +149,7 @@ function convertPost({
     creatorId: creator.id,
     creatorApId: creator.ap_id,
     creatorSlug: createSlug({ apId: creator.ap_id, name: creator.name }).slug,
-    thumbnailAspectRatio: null,
+    thumbnailAspectRatio: ar,
     url: post.url ?? null,
     urlContentType: post.url_content_type ?? null,
     crossPosts: [],
@@ -235,6 +238,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
     // const account = await this.client.getAccount();
     return {
       privateInstance: site.site_view.local_site.private_instance,
+      description: site.site_view.site.description ?? null,
       instance: this.instance,
       admins: site.admins.map((p) => convertPerson(p)),
       me: null,
@@ -395,6 +399,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
   }
 
   async search(form: Forms.Search, options: RequestOptions) {
+    const topSort = form.type === "Communities" || form.type === "Users";
     const { results, next_page } = await this.client.search(
       {
         q: form.q,
@@ -403,6 +408,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
           form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         type_: form.type,
         limit: this.limit,
+        sort: topSort ? "Top" : "New",
       },
       options,
     );

@@ -25,30 +25,20 @@ function Image(
     HTMLImageElement
   >,
 ) {
-  const handlers = useLongPress(
-    async () => {
-      const src = props.src;
-      if (src) {
-        Haptics.impact({ style: ImpactStyle.Heavy });
-        shareImage(src, src);
-      }
-    },
-    {
-      cancelOnMovement: 15,
-      onStart: (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      },
-      filterEvents: (event) => {
-        if ("button" in event) {
-          // Ignore mouse right click
-          return event.button !== 2;
-        }
-        return true;
-      },
-    },
-  );
-  return <img {...props} {...handlers()} />;
+  const linkCtx = useLinkContext();
+  if (props.src) {
+    return (
+      <Link
+        to={`${linkCtx.root}lightbox/:imgUrl`}
+        params={{
+          imgUrl: encodeURIComponent(props.src),
+        }}
+      >
+        <img {...props} />
+      </Link>
+    );
+  }
+  return <img {...props} />;
 }
 
 const options: (

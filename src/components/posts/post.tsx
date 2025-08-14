@@ -6,19 +6,20 @@ import { encodeApId } from "@/src/lib/api/utils";
 import { Link } from "@/src/routing/index";
 import { PostArticleEmbed } from "./post-article-embed";
 import { PostByline } from "./post-byline";
-import { PostCommentsButton, PostShareButton, Voting } from "./post-buttons";
+import {
+  PostCommentsButton,
+  PostShareButton,
+  PostVoting,
+} from "./post-buttons";
 import { MarkdownRenderer } from "../markdown/renderer";
 import { twMerge } from "tailwind-merge";
 import { PostLoopsEmbed } from "./post-loops-embed";
 import { YouTubeVideoEmbed } from "../youtube";
-import { PostVideoEmbed } from "./post-video-embed";
+import { PostVideoEmbed } from "./embeds/post-video-embed";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { useRef, useState } from "react";
-import { Haptics, ImpactStyle } from "@capacitor/haptics";
-import { useLongPress } from "use-long-press";
 import _ from "lodash";
-import { shareImage } from "@/src/lib/share";
 import { getAccountSite, useAuth } from "@/src/stores/auth";
 import removeMd from "remove-markdown";
 import { LuRepeat2 } from "react-icons/lu";
@@ -27,6 +28,7 @@ import { Separator } from "../ui/separator";
 import { SpotifyEmbed } from "./embeds/post-spotify-embed";
 import { SoundCloudEmbed } from "./embeds/soundcloud-embed";
 import { PeerTubeEmbed } from "./embeds/peertube-embed";
+import { IFramePostEmbed } from "./embeds/generic-video-embed";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -109,29 +111,6 @@ export function FeedPostCard(props: PostProps) {
 
   const patchPost = usePostsStore((s) => s.patchPost);
 
-  const handlers = useLongPress(
-    async () => {
-      if (post?.thumbnailUrl) {
-        Haptics.impact({ style: ImpactStyle.Heavy });
-        shareImage(post.title, post.thumbnailUrl);
-      }
-    },
-    {
-      cancelOnMovement: 15,
-      onStart: (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      },
-      filterEvents: (event) => {
-        if ("button" in event) {
-          // Ignore mouse right click
-          return event.button !== 2;
-        }
-        return true;
-      },
-    },
-  );
-
   if (post?.nsfw === true && !showNsfw) {
     return props.detailView ? <Notice>Hidden due to NSFW</Notice> : null;
   }
@@ -150,7 +129,7 @@ export function FeedPostCard(props: PostProps) {
     ? getPostEmbed(post, props.detailView ? "full-resolution" : "optimized")
     : null;
 
-  const showImage = embed?.type === "image" && embed.thumbnail && !post.deleted;
+  const showImage = embed?.type === "image" && !post.deleted;
   const showArticle = embed?.type === "article" && !post?.deleted;
   const blurImg = post.nsfw && !removeBlur ? blurNsfw : false;
 
@@ -174,14 +153,6 @@ export function FeedPostCard(props: PostProps) {
     }
   }
 
-  const diff =
-    typeof post?.optimisticMyVote === "number"
-      ? post?.optimisticMyVote - (post?.myVote ?? 0)
-      : 0;
-  const score = post.upvotes - post.downvotes + diff;
-
-  const myVote = post?.optimisticMyVote ?? post?.myVote ?? 0;
-
   return (
     <div
       data-testid="post-card"
@@ -194,8 +165,7 @@ export function FeedPostCard(props: PostProps) {
         post={post}
         pinned={pinned}
         showCreator={
-          (props.featuredContext !== "home" &&
-            props.featuredContext !== "user" &&
+          (props.featuredContext !== "user" &&
             props.featuredContext !== "search") ||
           props.detailView
         }
@@ -230,46 +200,6 @@ export function FeedPostCard(props: PostProps) {
         >
           {post.deleted ? "deleted" : post.title}
         </span>
-        {showImage && (
-          <div
-            className="max-md:-mx-3.5 flex flex-col relative overflow-hidden"
-            onClick={() => {
-              if (!removeBlur && props.detailView) {
-                setRemoveBlur(true);
-              }
-            }}
-          >
-            {!imageLoaded && (
-              <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
-            )}
-            <img
-              src={embed.thumbnail ?? undefined}
-              className={cn(
-                "md:rounded-lg object-cover relative",
-                blurImg && "blur-3xl",
-              )}
-              onLoad={(e) => {
-                setImageLoaded(true);
-                if (!post.thumbnailAspectRatio) {
-                  patchPost(post.apId, getCachePrefixer(), {
-                    thumbnailAspectRatio:
-                      e.currentTarget.naturalWidth /
-                      e.currentTarget.naturalHeight,
-                  });
-                }
-              }}
-              style={{
-                aspectRatio: post.thumbnailAspectRatio ?? undefined,
-              }}
-              {...handlers()}
-            />
-            {blurImg && !removeBlur && (
-              <div className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-xl">
-                NSFW
-              </div>
-            )}
-          </div>
-        )}
         {!props.detailView &&
           post.body &&
           !post.deleted &&
@@ -285,42 +215,93 @@ export function FeedPostCard(props: PostProps) {
           )}
       </Link>
 
+      {showImage && embed.thumbnail && (
+        <Link
+          to={
+            props.featuredContext === "home"
+              ? "/home/lightbox"
+              : `${linkCtx.root}c/:communityName/lightbox`
+          }
+          params={{
+            communityName: post.communitySlug,
+          }}
+          searchParams={`?apId=${encodeApId(post.apId)}`}
+          className="max-md:-mx-3.5 flex flex-col relative overflow-hidden"
+          onClick={() => {
+            if (!removeBlur && props.detailView) {
+              setRemoveBlur(true);
+            }
+          }}
+        >
+          {!imageLoaded && (
+            <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
+          )}
+          <img
+            src={embed.thumbnail ?? undefined}
+            className={cn(
+              "md:rounded-lg object-cover relative",
+              blurImg && "blur-3xl",
+            )}
+            onLoad={(e) => {
+              setImageLoaded(true);
+              if (!post.thumbnailAspectRatio) {
+                patchPost(post.apId, getCachePrefixer(), {
+                  thumbnailAspectRatio:
+                    e.currentTarget.naturalWidth /
+                    e.currentTarget.naturalHeight,
+                });
+              }
+            }}
+            style={{
+              aspectRatio: post.thumbnailAspectRatio ?? undefined,
+            }}
+          />
+          {blurImg && !removeBlur && (
+            <div className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-xl">
+              NSFW
+            </div>
+          )}
+        </Link>
+      )}
+
       {showArticle && (
         <PostArticleEmbed
           name={post.title}
-          url={showArticle ? post.url : undefined}
+          url={showArticle ? embed.embedUrl : undefined}
           displayUrl={showArticle ? displayUrl : undefined}
           thumbnail={showArticle ? embed.thumbnail : null}
           blurNsfw={blurImg}
         />
       )}
 
-      {embed?.type === "peertube" && !post.deleted && post.url && (
-        <PeerTubeEmbed url={post.url} />
+      {embed?.type === "generic-video" && !post.deleted && embed.embedUrl && (
+        <IFramePostEmbed embedVideoUrl={embed.embedUrl} />
       )}
-      {embed?.type === "soundcloud" && !post.deleted && post.url && (
-        <SoundCloudEmbed url={post.url} />
+      {embed?.type === "peertube" && !post.deleted && embed.embedUrl && (
+        <PeerTubeEmbed url={embed.embedUrl} />
       )}
-      {embed?.type === "spotify" && !post.deleted && post.url && (
-        <SpotifyEmbed url={post.url} />
+      {embed?.type === "soundcloud" && !post.deleted && embed.embedUrl && (
+        <SoundCloudEmbed url={embed.embedUrl} />
       )}
-      {embed?.type === "video" && !post.deleted && post.url && (
-        <PostVideoEmbed
-          url={post.url}
-          autoPlay={props.detailView}
-          blurNsfw={blurImg}
-        />
+      {embed?.type === "spotify" && !post.deleted && embed.embedUrl && (
+        <SpotifyEmbed url={embed.embedUrl} />
       )}
-      {embed?.type === "loops" && !post.deleted && post.url && (
+      {embed?.type &&
+        PostVideoEmbed.embedTypes.includes(embed?.type) &&
+        !post.deleted &&
+        embed.embedUrl && (
+          <PostVideoEmbed url={embed.embedUrl} blurNsfw={blurImg} />
+        )}
+      {embed?.type === "loops" && !post.deleted && embed.embedUrl && (
         <PostLoopsEmbed
-          url={post.url}
+          url={embed.embedUrl}
           thumbnail={embed.thumbnail}
           autoPlay={props.detailView}
           blurNsfw={blurImg}
         />
       )}
       {embed?.type === "youtube" && !post.deleted && (
-        <YouTubeVideoEmbed url={post.url} />
+        <YouTubeVideoEmbed url={embed.embedUrl} />
       )}
 
       {props.detailView && post.body && !post.deleted && (
@@ -329,12 +310,8 @@ export function FeedPostCard(props: PostProps) {
       <div className="flex flex-row items-center justify-end gap-2.5 pt-1">
         <PostShareButton postApId={props.apId} />
         <div className="flex-1" />
-        <PostCommentsButton
-          commentsCount={post.commentsCount}
-          communityName={post.communitySlug}
-          postApId={encodedApId}
-        />
-        <Voting apId={post.apId} score={score} myVote={myVote} />
+        <PostCommentsButton postApId={post.apId} />
+        <PostVoting apId={post.apId} />
       </div>
     </div>
   );

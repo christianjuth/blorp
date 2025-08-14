@@ -21,7 +21,6 @@ import fuzzysort from "fuzzysort";
 import _ from "lodash";
 import {
   IonButton,
-  IonButtons,
   IonContent,
   IonHeader,
   IonModal,
@@ -45,6 +44,7 @@ import { MarkdownRenderer } from "./markdown/renderer";
 import { env } from "../env";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { normalizeInstance } from "../lib/utils";
+import { ToolbarButtons } from "./toolbar/toolbar-buttons";
 
 const AudioPlayButton = ({ src }: { src: string }) => {
   const [playing, setPlaying] = useState(false);
@@ -476,7 +476,7 @@ function AuthModal({
     >
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
+          <ToolbarButtons side="left">
             <IonButton
               onClick={() => {
                 if (instance.url && !env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE) {
@@ -491,10 +491,10 @@ function AuthModal({
                 ? "Back"
                 : "Close"}
             </IonButton>
-          </IonButtons>
+          </ToolbarButtons>
           <IonTitle>{instance.baseurl ? instance.baseurl : "Login"}</IonTitle>
           {software === "lemmy" && (
-            <IonButtons slot="end">
+            <ToolbarButtons side="right">
               <IonButton
                 onClick={() => {
                   setSignup((b) => !b);
@@ -502,7 +502,7 @@ function AuthModal({
               >
                 {signup ? "Login" : "Sign up"}
               </IonButton>
-            </IonButtons>
+            </ToolbarButtons>
           )}
         </IonToolbar>
       </IonHeader>

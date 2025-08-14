@@ -1,6 +1,5 @@
 import {
   IonButton,
-  IonButtons,
   IonContent,
   IonHeader,
   IonModal,
@@ -25,6 +24,7 @@ import { Link } from "@/src/routing/index";
 import { isTauri } from "../lib/device";
 import { Capacitor } from "@capacitor/core";
 import { env } from "../env";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 const browser = Bowser.getParser(window.navigator.userAgent);
 const osName = browser.getOS().name?.toLowerCase();
@@ -82,11 +82,11 @@ function Card({
         <IonModal ref={modal} trigger={id}>
           <IonHeader>
             <IonToolbar>
-              <IonButtons slot="start">
+              <ToolbarButtons side="left">
                 <IonButton onClick={() => modal.current?.dismiss()}>
                   Close
                 </IonButton>
-              </IonButtons>
+              </ToolbarButtons>
               <IonTitle>Down for {os}</IonTitle>
             </IonToolbar>
           </IonHeader>

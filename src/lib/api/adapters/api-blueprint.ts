@@ -38,6 +38,7 @@ export const postSchema = z.object({
   title: z.string(),
   body: z.string().nullable(),
   thumbnailUrl: z.string().nullable(),
+  embedVideoUrl: z.string().nullable(),
   thumbnailAspectRatio: z.number().nullable(),
   downvotes: z.number(),
   upvotes: z.number(),
@@ -92,6 +93,7 @@ const communitySchema = z.object({
 export const siteSchema = z.object({
   privateInstance: z.boolean(),
   instance: z.string(),
+  description: z.string().nullable(),
   me: personSchema.nullable(),
   myEmail: z.string().nullable(),
   admins: z.array(personSchema),

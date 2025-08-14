@@ -30,10 +30,10 @@ const POST_SORTS: lemmyV3.SortType[] = [
   "New",
   "Old",
   "TopAll",
-  "TopDay",
   "TopHour",
   "TopSixHour",
   "TopTwelveHour",
+  "TopDay",
   "TopWeek",
   "TopMonth",
   "TopThreeMonths",
@@ -150,8 +150,12 @@ function convertPerson({
     deleted: person.deleted,
     createdAt: person.published,
     isBot: person.bot_account,
-    postCount: counts?.post_count ?? null,
-    commentCount: counts?.comment_count ?? null,
+    ...(counts
+      ? {
+          postCount: counts?.post_count ?? null,
+          commentCount: counts?.comment_count ?? null,
+        }
+      : {}),
   };
 }
 
@@ -160,6 +164,9 @@ function convertPost(
   crossPosts?: lemmyV3.PostView[],
 ): Schemas.Post {
   const { post, counts, community, creator } = postView;
+  const ar = postView.image_details
+    ? postView.image_details.width / postView.image_details.height
+    : null;
   return {
     creatorSlug: createSlug({ apId: creator.actor_id, name: creator.name })
       .slug,
@@ -172,13 +179,14 @@ function convertPost(
     title: post.name,
     body: post.body ?? null,
     thumbnailUrl: post.thumbnail_url ?? null,
+    embedVideoUrl: post.embed_video_url ?? null,
     upvotes: counts.upvotes,
     downvotes: counts.downvotes,
     myVote: postView.my_vote,
     commentsCount: counts.comments,
     deleted: post.deleted,
     removed: post.removed,
-    thumbnailAspectRatio: null,
+    thumbnailAspectRatio: ar,
     communitySlug: createSlug({
       apId: community.actor_id,
       name: community.name,
@@ -349,6 +357,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
     return {
       privateInstance: site.site_view.local_site.private_instance,
       public: site,
+      description: site.site_view.site.description ?? null,
       instance: this.instance,
       admins: site.admins.map((p) => convertPerson(p)),
       me: me ? convertPerson({ person: me }) : null,
@@ -538,6 +547,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
 
   async search(form: Forms.Search, options: RequestOptions) {
     const cursor = cursorToInt(form.pageCursor) ?? 1;
+    const topSort = form.type === "Communities" || form.type === "Users";
     const { posts, communities, users, comments } = await this.client.search(
       {
         q: form.q,
@@ -545,6 +555,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
         page: cursor,
         type_: form.type,
         limit: this.limit,
+        sort: topSort ? "TopAll" : "Active",
       },
       options,
     );

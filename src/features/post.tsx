@@ -24,7 +24,6 @@ import { VirtualList } from "../components/virtual-list";
 import { PostReportProvider } from "../components/posts/post-report";
 import { usePostsStore } from "../stores/posts";
 import {
-  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -35,13 +34,24 @@ import {
 import { resolveRoute, useParams } from "@/src/routing/index";
 import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
-import { useIonPageElement, useMedia, useTheme } from "../lib/hooks";
+import {
+  useHideTabBarOnMount,
+  useIonPageElement,
+  useMedia,
+  useTheme,
+} from "../lib/hooks";
 import { NotFound } from "./not-found";
 import { CommentSkeleton } from "../components/comments/comment-skeleton";
 import { useLinkContext } from "../routing/link-context";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { CommentSortSelect } from "../components/lemmy-sort";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
+import { cn } from "../lib/utils";
+
+function SafeAreaBottom() {
+  return <div className="h-safe-area-bottom bg-background" />;
+}
 
 const MemoedPostComment = memo(PostComment);
 
@@ -89,17 +99,20 @@ function PostBottomBarWithCtx({
   );
 }
 
-function ReplyToPost({ postApId }: { postApId: string }) {
+function ReplyToPost({
+  postApId,
+  className,
+}: {
+  postApId: string;
+  className?: string;
+}) {
   const postReplyState = useCommentEditingState({
     postApId,
   });
   const loadCommentIntoEditor = useLoadCommentIntoEditor();
   const media = useMedia();
   return (
-    <ContentGutters
-      className="max-md:mt-2 md:pb-2 md:pt-5 bg-background"
-      key="post-reply"
-    >
+    <ContentGutters className={cn("md:pb-2 md:pt-5 bg-background", className)}>
       <div className="flex-1">
         {postReplyState && media.md ? (
           <InlineCommentReply state={postReplyState} autoFocus={media.md} />
@@ -133,6 +146,8 @@ function CommentSortBar() {
 }
 
 export default function Post() {
+  useHideTabBarOnMount();
+
   const theme = useTheme();
   const media = useMedia();
   const linkCtx = useLinkContext();
@@ -250,12 +265,12 @@ export default function Post() {
               : undefined
           }
         >
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton className="max-md:text-white max-md:dark:text-muted-foreground" />
-            <ToolbarTitle className="md:hidden" size="sm">
+            <ToolbarTitle className="md:hidden" size="sm" numRightIcons={2}>
               {communityName}
             </ToolbarTitle>
-          </IonButtons>
+          </ToolbarButtons>
           <form
             className="max-md:hidden"
             onSubmit={(e) => {
@@ -279,82 +294,103 @@ export default function Post() {
               onIonInput={(e) => setSearch(e.detail.value ?? "")}
             />
           </form>
-          <IonButtons slot="end" className="gap-3.5">
+          <ToolbarButtons side="right">
             <CommentSortSelect
               variant="icon"
               className="text-white dark:text-muted-foreground md:hidden"
             />
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent scrollY={false}>
         <CommentReplyProvider presentingElement={pageElement.element}>
           <PostReportProvider>
-            <VirtualList
-              keepMountedIndices={[0]}
-              className="h-full ion-content-scroll-host max-md:bg-border/40"
-              data={data}
-              header={[
-                post ? (
-                  <MemoedPostCard
-                    key="post-details"
-                    apId={post.apId}
-                    featuredContext="community"
-                    detailView
-                    modApIds={modApIds}
-                  />
-                ) : (
-                  <ContentGutters className="px-0" key="post-skeleton">
-                    <PostCardSkeleton hideImage={false} detailView />
-                    <></>
-                  </ContentGutters>
-                ),
-                post && (
-                  <PostBottomBarWithCtx
-                    key="post-bottom-bar"
+            <div className="flex flex-col-reverse h-full">
+              {/* Reversing these might be a bad idea, but I didn't */}
+              {/* want keyboard users to have to tab through all comments */}
+              {/* to reach the reply field */}
+              {post && !commentPath && (
+                <div key="reply-to-post">
+                  <ReplyToPost
                     postApId={post.apId}
-                    commentCount={post.commentsCount}
+                    className="md:hidden border-t"
                   />
-                ),
-                post && !commentPath && (
-                  <ReplyToPost key="reply-to-post" postApId={post.apId} />
-                ),
-                <CommentSortBar key="comment-sort-bar" />,
-              ]}
-              renderItem={({ item }) => (
-                <MemoedPostComment
-                  highlightCommentId={highlightCommentId}
-                  postApId={decodedApId}
-                  queryKeyParentId={parentId}
-                  commentTree={item[1]}
-                  level={0}
-                  opId={opId}
-                  myUserId={myUserId}
-                  communityName={communityName}
-                  modApIds={modApIds}
-                  adminApIds={adminApIds}
-                  singleCommentThread={!!commentPath}
-                />
+                  <SafeAreaBottom />
+                </div>
               )}
-              placeholder={
-                comments.isPending || !isReady ? (
-                  <ContentGutters className="px-0">
-                    <CommentSkeleton />
-                    <></>
-                  </ContentGutters>
-                ) : undefined
-              }
-              numPlaceholders={
-                _.isNumber(post?.commentsCount)
-                  ? Math.max(1, post.commentsCount)
-                  : undefined
-              }
-              onEndReached={loadMore}
-              estimatedItemSize={450}
-              stickyHeaderIndices={[1]}
-              refresh={refresh}
-            />
+              <VirtualList
+                keepMountedIndices={[0]}
+                className="h-full ion-content-scroll-host max-md:bg-border/40"
+                data={data}
+                header={[
+                  post ? (
+                    <MemoedPostCard
+                      key="post-details"
+                      apId={post.apId}
+                      featuredContext="community"
+                      detailView
+                      modApIds={modApIds}
+                    />
+                  ) : (
+                    <ContentGutters className="px-0" key="post-skeleton">
+                      <PostCardSkeleton hideImage={false} detailView />
+                      <></>
+                    </ContentGutters>
+                  ),
+                  post && (
+                    <PostBottomBarWithCtx
+                      key="post-bottom-bar"
+                      postApId={post.apId}
+                      commentCount={post.commentsCount}
+                    />
+                  ),
+                  post && !commentPath && (
+                    <ReplyToPost
+                      key="reply-to-post"
+                      postApId={post.apId}
+                      className="max-md:hidden"
+                    />
+                  ),
+                  <CommentSortBar key="comment-sort-bar" />,
+                ]}
+                renderItem={({ item }) => (
+                  <>
+                    <MemoedPostComment
+                      highlightCommentId={highlightCommentId}
+                      postApId={decodedApId}
+                      queryKeyParentId={parentId}
+                      commentTree={item[1]}
+                      level={0}
+                      opId={opId}
+                      myUserId={myUserId}
+                      communityName={communityName}
+                      modApIds={modApIds}
+                      adminApIds={adminApIds}
+                      singleCommentThread={!!commentPath}
+                    />
+                    {commentPath && <SafeAreaBottom />}
+                  </>
+                )}
+                placeholder={
+                  comments.isPending || !isReady ? (
+                    <ContentGutters className="px-0">
+                      <CommentSkeleton />
+                      <></>
+                    </ContentGutters>
+                  ) : undefined
+                }
+                numPlaceholders={
+                  _.isNumber(post?.commentsCount)
+                    ? Math.max(1, post.commentsCount)
+                    : undefined
+                }
+                onEndReached={loadMore}
+                estimatedItemSize={450}
+                stickyHeaderIndices={[1]}
+                refresh={refresh}
+              />
+            </div>
           </PostReportProvider>
         </CommentReplyProvider>
 

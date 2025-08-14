@@ -1,12 +1,6 @@
 import { ContentGutters } from "@/src/components/gutters";
 import _, { parseInt } from "lodash";
-import {
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { UserDropdown } from "@/src/components/nav";
 import { PageTitle } from "@/src/components/page-title";
 import { useParams } from "@/src/routing";
@@ -19,6 +13,7 @@ import { useBlockCommunity, useBlockPerson } from "@/src/lib/api";
 import { useConfirmationAlert } from "@/src/lib/hooks/index";
 import { ToolbarBackButton } from "@/src/components/toolbar/toolbar-back-button";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
+import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
 
 export default function SettingsPage() {
   const getConfirmation = useConfirmationAlert();
@@ -47,13 +42,15 @@ export default function SettingsPage() {
       <PageTitle>{slug ?? "Person"}</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
-            <ToolbarTitle size="sm">{slug ?? "Person"}</ToolbarTitle>
-          </IonButtons>
-          <IonButtons slot="end">
+            <ToolbarTitle size="sm" numRightIcons={1}>
+              {slug ?? "Person"}
+            </ToolbarTitle>
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>

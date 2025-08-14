@@ -35,6 +35,7 @@ import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { useAuth } from "../stores/auth";
 import LoginRequired from "./login-required";
 import { Schemas } from "../lib/api/adapters/api-blueprint";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item =
@@ -291,17 +292,17 @@ export default function Inbox() {
       <PageTitle>Inbox</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <MenuButton />
-            <ToolbarTitle>Inbox</ToolbarTitle>
-          </IonButtons>
-          <IonButtons slot="end">
+            <ToolbarTitle numRightIcons={1}>Inbox</ToolbarTitle>
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
         {media.maxMd && (
           <IonToolbar>
-            <IonButtons slot="start">
+            <ToolbarButtons side="left">
               <ToggleGroup
                 type="single"
                 variant="outline"
@@ -317,7 +318,7 @@ export default function Inbox() {
                 <ToggleGroupItem value="replies">Replies</ToggleGroupItem>
                 <ToggleGroupItem value="mentions">Mentions</ToggleGroupItem>
               </ToggleGroup>
-            </IonButtons>
+            </ToolbarButtons>
           </IonToolbar>
         )}
       </IonHeader>

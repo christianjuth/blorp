@@ -16,13 +16,7 @@ import { useLinkContext } from "../routing/link-context";
 import { encodeApId } from "../lib/api/utils";
 import { usePostsStore } from "../stores/posts";
 import { Link } from "@/src/routing/index";
-import {
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
 import { useFiltersStore } from "../stores/filters";
@@ -31,6 +25,7 @@ import { useMedia, useUrlSearchState } from "../lib/hooks";
 import z from "zod";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
+import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 
 const EMPTY_ARR: never[] = [];
 
@@ -134,17 +129,17 @@ export default function SavedFeed() {
       <PageTitle>Saved</PageTitle>
       <IonHeader>
         <IonToolbar data-tauri-drag-region>
-          <IonButtons slot="start" className="gap-2">
+          <ToolbarButtons side="left">
             <ToolbarBackButton />
-            <ToolbarTitle>Saved</ToolbarTitle>
-          </IonButtons>
-          <IonButtons slot="end">
+            <ToolbarTitle numRightIcons={1}>Saved</ToolbarTitle>
+          </ToolbarButtons>
+          <ToolbarButtons side="right">
             <UserDropdown />
-          </IonButtons>
+          </ToolbarButtons>
         </IonToolbar>
         {media.maxMd && (
           <IonToolbar>
-            <IonButtons slot="start">
+            <ToolbarButtons side="left">
               <ToggleGroup
                 type="single"
                 variant="outline"
@@ -157,7 +152,7 @@ export default function SavedFeed() {
                 <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
                 <ToggleGroupItem value="comments">comments</ToggleGroupItem>
               </ToggleGroup>
-            </IonButtons>
+            </ToolbarButtons>
           </IonToolbar>
         )}
       </IonHeader>

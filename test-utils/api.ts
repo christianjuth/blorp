@@ -47,7 +47,18 @@ export function getPerson(overrides?: Partial<Schemas.Person>): Schemas.Person {
 }
 
 export function getPost(config?: {
-  variant?: "youtube" | "image" | "article" | "text";
+  variant?:
+    | "image"
+    | "video"
+    | "article"
+    | "youtube"
+    | "loops"
+    | "text"
+    | "spotify"
+    | "soundcloud"
+    | "vimeo"
+    | "generic-video"
+    | "peertube";
   post?: Partial<Schemas.Post>;
   /* postView?: PartialDeep<Omit<PostView, "image_details">>; */
   /* personView?: PartialDeep<PersonView>; */
@@ -81,6 +92,7 @@ export function getPost(config?: {
     communityApId: community.apId,
     thumbnailUrl: null,
     thumbnailAspectRatio: null,
+    embedVideoUrl: null,
     url: null,
     urlContentType: null,
     removed: false,
@@ -117,6 +129,27 @@ export function getPost(config?: {
     }
     case "youtube": {
       post.url = "https://www.youtube.com/watch?v=LDU_Txk06tM";
+      break;
+    }
+    case "soundcloud": {
+      post.url =
+        "https://soundcloud.com/tomvalbyrotary/youre-making-my-teeth-grow";
+      break;
+    }
+    case "video": {
+      post.url = "https://www.w3schools.com/html/mov_bbb.mp4";
+      break;
+    }
+    case "loops": {
+      post.url = "https://loops.video/v/60Sa-5oVYT";
+      post.thumbnailUrl =
+        "https://lemmy.world/pictrs/image/53222559-aac6-4936-a1ad-4ca28fd94713.jpeg";
+      break;
+    }
+    case "vimeo": {
+      post.url = "https://vimeo.com/279580150";
+      post.thumbnailUrl =
+        "https://lemmy.world/pictrs/image/56252b3c-61b4-4fb9-910c-ca273f6d0593.webp";
       break;
     }
   }

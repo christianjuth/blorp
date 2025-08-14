@@ -14,12 +14,17 @@ const POST_SORTS = [
   "Active",
   "Hot",
   "New",
+  "TopAll",
   "TopHour",
   "TopSixHour",
   "TopTwelveHour",
   "TopDay",
   "TopWeek",
   "TopMonth",
+  "TopThreeMonths",
+  "TopSixMonths",
+  "TopNineMonths",
+  "TopYear",
   "Scaled",
 ] as const;
 const postSortSchema = z.custom<(typeof POST_SORTS)[number]>((sort) => {
@@ -32,19 +37,7 @@ const commentSortSchema = z.custom<(typeof COMMENT_SORTS)[number]>((sort) => {
   return _.isString(sort) && COMMENT_SORTS.includes(sort as any);
 });
 
-const COMMUNITY_SORTS = [
-  "Active",
-  "Hot",
-  "New",
-  "TopAll",
-  "TopHour",
-  "TopSixHour",
-  "TopTwelveHour",
-  "TopDay",
-  "TopWeek",
-  "TopMonth",
-  "Scaled",
-] as const;
+const COMMUNITY_SORTS = ["Hot", "TopAll", "New"] as const;
 const communitySortSchema = z.custom<(typeof COMMUNITY_SORTS)[number]>(
   (sort) => {
     return _.isString(sort) && COMMUNITY_SORTS.includes(sort as any);
@@ -193,7 +186,7 @@ export const pieFedAdminSchema = z.object({
 export const pieFedSiteDetailsSchema = z.object({
   //actor_id: z.string(),
   //all_languages: z.array(pieFedLanguageSchema),
-  //description: z.string(),
+  description: z.string().nullable().optional(),
   enable_downvotes: z.boolean(),
   icon: z.string().optional(),
   name: z.string(),
@@ -385,6 +378,8 @@ function convertPost(
     title: post.title,
     body: post.body ?? null,
     thumbnailUrl: post.thumbnail_url ?? null,
+    // TODO: add this
+    embedVideoUrl: null,
     upvotes: counts.upvotes,
     downvotes: counts.downvotes,
     myVote: postView.my_vote,
@@ -779,6 +774,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       const me = site.my_user?.local_user_view?.person;
       return {
         privateInstance: false,
+        description: site.site.description ?? null,
         instance: this.instance,
         admins: site.admins.map((p) => convertPerson(p, "full")),
         me: me ? convertPerson({ person: me }, "partial") : null,
@@ -840,12 +836,12 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     try {
       const data = z
         .object({
-          next_page: z.string().nullable(),
+          next_page: z.string().nullable().optional(),
           posts: z.array(pieFedPostViewSchema),
         })
         .parse(json);
       return {
-        nextCursor: data.next_page,
+        nextCursor: data.next_page ?? null,
         posts: data.posts.map((post) => ({
           post: convertPost(post),
           creator: convertPerson({ person: post.creator }, "partial"),
@@ -865,7 +861,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       {
         limit: this.limit,
         page: form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
-        sort,
+        sort: sort === "TopAll" ? "Top" : sort,
         type_: form.type,
       },
       options,
@@ -873,13 +869,13 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     try {
       const data = z
         .object({
-          next_page: z.string().nullable(),
+          next_page: z.string().nullable().optional(),
           communities: z.array(pieFedCommunityViewSchema),
         })
         .parse(json);
 
       return {
-        nextCursor: data.next_page,
+        nextCursor: data.next_page ?? null,
         communities: data.communities.map((c) =>
           convertCommunity(c, "partial"),
         ),
@@ -1049,7 +1045,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       const data = z
         .object({
           comments: z.array(pieFedCommentViewSchema),
-          next_page: z.string().nullable(),
+          next_page: z.string().nullable().optional(),
         })
         .parse(json);
 
@@ -1060,7 +1056,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         creators: flattenedComments.map(({ creator }) =>
           convertPerson({ person: creator }, "partial"),
         ),
-        nextCursor: data.next_page,
+        nextCursor: data.next_page ?? null,
       };
     } catch (err) {
       console.error(err);
@@ -1102,6 +1098,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
   }
 
   async search(form: Forms.Search, options: RequestOptions) {
+    const topSort = form.type === "Communities" || form.type === "Users";
     const json = await this.get(
       "/search",
       {
@@ -1113,6 +1110,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
             : _.parseInt(form.pageCursor) + 1,
         type_: form.type,
         limit: this.limit,
+        sort: topSort ? "TopAll" : "Active",
       },
       options,
     );
@@ -1266,14 +1264,14 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         .object({
           posts: z.array(pieFedPostViewSchema).optional(),
           comments: z.array(pieFedCommentViewSchema).optional(),
-          next_page: z.string().nullable(),
+          next_page: z.string().nullable().optional(),
         })
         .parse(json);
 
       return {
         posts: posts?.map((p) => convertPost(p)) ?? [],
         comments: comments?.map(convertComment) ?? [],
-        nextCursor: next_page,
+        nextCursor: next_page ?? null,
       };
     } catch (err) {
       console.log(err);
@@ -1330,7 +1328,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     const { private_messages, next_page } = z
       .object({
         private_messages: z.array(pieFedPrivateMessageViewSchema),
-        next_page: z.string().nullable(),
+        next_page: z.string().nullable().optional(),
       })
       .parse(json);
 
@@ -1345,7 +1343,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     return {
       privateMessages: private_messages.map(convertPrivateMessage),
       profiles,
-      nextCursor: next_page,
+      nextCursor: next_page ?? null,
     };
   }
 
@@ -1396,7 +1394,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     const { replies, next_page } = z
       .object({
         replies: z.array(pieFedReplyViewSchema),
-        next_page: z.string().nullable(),
+        next_page: z.string().nullable().optional(),
       })
       .parse(json);
 
@@ -1405,7 +1403,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
       profiles: replies.map((r) =>
         convertPerson({ person: r.creator }, "partial"),
       ),
-      nextCursor: next_page,
+      nextCursor: next_page ?? null,
     };
   }
 
@@ -1422,7 +1420,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
 
     const { replies, next_page } = z
       .object({
-        next_page: z.string().nullable(),
+        next_page: z.string().nullable().optional(),
         replies: z.array(pieFedReplyViewSchema),
       })
       .parse(json);
@@ -1433,7 +1431,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         replies.map((r) => convertPerson({ person: r.creator }, "partial")),
         (p) => p.apId,
       ),
-      nextCursor: next_page,
+      nextCursor: next_page ?? null,
     };
   }
 
