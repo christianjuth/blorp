@@ -269,7 +269,6 @@ function HorizontalVirtualizer<T>({
     >
       {rowVirtualizer.getVirtualItems().map((virtualItem) => {
         const item = data?.[virtualItem.index];
-        console.log(virtualItem.index, item);
         return item ? (
           <div
             key={virtualItem.key}
