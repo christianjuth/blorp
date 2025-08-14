@@ -1237,6 +1237,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
             {
               ...personOrUsername,
               limit: this.limit,
+              sort: "New",
               page_cursor:
                 form.pageCursor === INIT_PAGE_TOKEN
                   ? undefined
@@ -1250,6 +1251,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
             {
               ...personOrUsername,
               limit: this.limit,
+              sort: "New",
               page_cursor:
                 form.pageCursor === INIT_PAGE_TOKEN
                   ? undefined

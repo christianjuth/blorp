@@ -489,12 +489,13 @@ export function PostComment({
                       ]),
                 ]}
                 trigger={
-                  <Button size="icon" variant="ghost" asChild>
+                  <Button size="icon" variant="ghost" className="z-10">
                     <div>
                       <IoEllipsisHorizontal size={16} />
                     </div>
                   </Button>
                 }
+                triggerAsChild
               />
 
               <CommentReplyButton
@@ -505,8 +506,12 @@ export function PostComment({
                     parent: commentView,
                   })
                 }
+                className="z-10"
               />
-              <CommentVoting commentView={commentView} className="-mr-2.5" />
+              <CommentVoting
+                commentView={commentView}
+                className="-mr-2.5 z-10"
+              />
             </div>
           )}
 

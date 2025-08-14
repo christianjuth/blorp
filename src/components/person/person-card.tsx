@@ -12,6 +12,7 @@ import { encodeApId } from "@/src/lib/api/utils";
 import { useLinkContext } from "../../routing/link-context";
 import { usePersonDetails } from "@/src/lib/api";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
+import { PersonHoverCard } from "./person-hover-card";
 
 export function PersonCard({
   actorId,
@@ -69,8 +70,29 @@ export function PersonCard({
 
   if (disableLink) {
     return (
-      <div
+      <PersonHoverCard actorId={actorId}>
+        <div
+          data-testid="person-card"
+          className={cn(
+            "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full text-foreground",
+            size === "sm" && "h-9",
+            className,
+          )}
+        >
+          {content}
+        </div>
+      </PersonHoverCard>
+    );
+  }
+
+  return (
+    <PersonHoverCard actorId={actorId} asChild>
+      <Link
         data-testid="person-card"
+        to={`${linkCtx.root}u/:userId`}
+        params={{
+          userId: encodeApId(override ? override.apId : actorId),
+        }}
         className={cn(
           "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full text-foreground",
           size === "sm" && "h-9",
@@ -78,25 +100,8 @@ export function PersonCard({
         )}
       >
         {content}
-      </div>
-    );
-  }
-
-  return (
-    <Link
-      data-testid="person-card"
-      to={`${linkCtx.root}u/:userId`}
-      params={{
-        userId: encodeApId(override ? override.apId : actorId),
-      }}
-      className={cn(
-        "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full text-foreground",
-        size === "sm" && "h-9",
-        className,
-      )}
-    >
-      {content}
-    </Link>
+      </Link>
+    </PersonHoverCard>
   );
 }
 

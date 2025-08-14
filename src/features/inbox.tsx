@@ -10,13 +10,7 @@ import {
   usePersonMentions,
   useReplies,
 } from "@/src/lib/api/index";
-import {
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { MenuButton, UserDropdown } from "../components/nav";
 import { PageTitle } from "../components/page-title";
 import { cn } from "../lib/utils";
@@ -113,7 +107,11 @@ function Mention({
                   <span className="font-bold">{mention.postName}</span>
                 </span>
               </div>
-              <MarkdownRenderer markdown={mention.body} className="pb-2" />
+              <MarkdownRenderer
+                markdown={mention.body}
+                className="pb-2"
+                disableLightbox
+              />
             </Link>
             <div className="flex flex-row justify-end gap-2 text-muted-foreground">
               <RelativeTime time={mention.createdAt} />
@@ -190,7 +188,11 @@ function Reply({
                   <span className="font-bold">{replyView.postName}</span>
                 </span>
               </div>
-              <MarkdownRenderer markdown={replyView.body} className="pb-2" />
+              <MarkdownRenderer
+                markdown={replyView.body}
+                className="pb-2"
+                disableLightbox
+              />
             </Link>
             <div className="flex flex-row justify-end gap-2 text-muted-foreground">
               <RelativeTime time={replyView.createdAt} />

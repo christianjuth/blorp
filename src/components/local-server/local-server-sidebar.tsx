@@ -122,9 +122,7 @@ function InstanceAdmins({ asPage }: { asPage?: boolean }) {
         </span>
 
         {admins.map(({ apId }) => (
-          <PersonHoverCard key={apId} actorId={apId}>
-            <PersonCard actorId={apId} size="sm" />
-          </PersonHoverCard>
+          <PersonCard key={apId} actorId={apId} size="sm" />
         ))}
       </section>
     );
@@ -138,9 +136,7 @@ function InstanceAdmins({ asPage }: { asPage?: boolean }) {
       </CollapsibleTrigger>
       <CollapsibleContent className="pt-2 flex flex-col gap-1">
         {admins.map(({ apId }) => (
-          <PersonHoverCard key={apId} actorId={apId}>
-            <PersonCard actorId={apId} size="sm" />
-          </PersonHoverCard>
+          <PersonCard key={apId} actorId={apId} size="sm" />
         ))}
       </CollapsibleContent>
     </Collapsible>

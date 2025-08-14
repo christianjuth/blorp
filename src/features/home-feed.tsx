@@ -52,11 +52,6 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
   const headerAnimateRef = useRef(0);
   const tabBarAnimateRef = useRef(0);
 
-  const [enabled, setEnabled] = useState(active);
-  useEffect(() => {
-    setEnabled(active);
-  }, [active]);
-
   const { tabBar, header, toolbar, newPostButton } = useMemo(() => {
     const tabBar = document.querySelector("ion-tab-bar");
 
@@ -76,11 +71,11 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
       toolbar,
       newPostButton,
     };
-  }, [enabled]);
+  }, []);
 
   const scrollHandler = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
-      if (prevOffsetRef.current === null) {
+      if (prevOffsetRef.current === null || !active) {
         return;
       }
 
@@ -122,11 +117,11 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
         newPostButton.style.opacity = String(1 - headerAnimateRef.current);
       }
     },
-    [header, toolbar, tabBar, newPostButton],
+    [active, header, toolbar, tabBar, newPostButton],
   );
 
   useEffect(() => {
-    if (!enabled) {
+    if (!active) {
       prevOffsetRef.current = 0;
       headerAnimateRef.current = 0;
       tabBarAnimateRef.current = 0;
@@ -139,13 +134,9 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
     } else {
       prevOffsetRef.current = div?.scrollTop ?? 0;
     }
-  }, [enabled, tabBar, header, toolbar]);
+  }, [active, tabBar, header, toolbar, newPostButton]);
 
-  const reset = useCallback(() => {
-    setEnabled(false);
-  }, []);
-
-  return { scrollHandler, reset };
+  return { scrollHandler };
 }
 
 export default function HomeFeed() {
@@ -286,13 +277,7 @@ export default function HomeFeed() {
                   </ContentGutters>
                 );
               }
-              return (
-                <Post
-                  key={item}
-                  apId={item}
-                  onNavigate={scrollAnimation.reset}
-                />
-              );
+              return <Post key={item} apId={item} />;
             }}
             className="h-full ion-content-scroll-host absolute inset-0 pt-[var(--offset-top)] pb-[var(--offset-bottom)]"
             onEndReached={() => {

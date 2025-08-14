@@ -355,7 +355,7 @@ export function useMostRecentPost(
   featuredContext: "local" | "community",
   form: Forms.GetPosts,
 ) {
-  const { api } = useApiClients();
+  const { api, queryKeyPrefix } = useApiClients();
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;
@@ -369,7 +369,7 @@ export function useMostRecentPost(
   } satisfies Forms.GetPosts;
 
   const query = useQuery({
-    queryKey: ["mostRecentPost", form],
+    queryKey: [...queryKeyPrefix, "mostRecentPost", form],
     queryFn: async ({ signal }) =>
       (await api).getPosts(
         {

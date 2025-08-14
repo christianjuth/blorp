@@ -1,5 +1,4 @@
 import MarkdownIt from "markdown-it";
-import markdownit from "markdown-it";
 import markdownitContainer, { ContainerOpts } from "markdown-it-container";
 import { useLinkContext } from "../../routing/link-context";
 import parse, {
@@ -7,17 +6,59 @@ import parse, {
   domToReact,
   HTMLReactParserOptions,
 } from "html-react-parser";
-import { Link } from "@/src/routing/index";
+import { Link, LinkProps } from "@/src/routing/index";
 import { CodeBlock } from "./code-block";
-import { DetailedHTMLProps, ImgHTMLAttributes } from "react";
-import { useLongPress } from "use-long-press";
-import { Haptics, ImpactStyle } from "@capacitor/haptics";
-import { shareImage } from "@/src/lib/share";
+import {
+  AnchorHTMLAttributes,
+  DetailedHTMLProps,
+  ImgHTMLAttributes,
+  useContext,
+} from "react";
 import { cn } from "@/src/lib/utils";
 import DOMPurify from "dompurify";
+import { createContext } from "react";
+import { RoutePath } from "@/src/routing/routes";
 
 const COMMUNITY_BANG =
   /^!([A-Za-z0-9_-]+)@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})$/;
+
+const Context = createContext({
+  insideLink: false,
+});
+
+const INSIDE_LINK_CTX = { insideLink: true };
+function DisableLinks({ children }: { children: React.ReactNode }) {
+  return (
+    <Context.Provider value={INSIDE_LINK_CTX}>{children}</Context.Provider>
+  );
+}
+
+function SafeRouterLink<Path extends RoutePath>(props: LinkProps<Path>) {
+  const { insideLink } = useContext(Context);
+  return insideLink ? (
+    <span {...props} />
+  ) : (
+    <Link {...props}>
+      <DisableLinks>{props.children}</DisableLinks>
+    </Link>
+  );
+}
+
+function SafeAnchor(
+  props: DetailedHTMLProps<
+    AnchorHTMLAttributes<HTMLAnchorElement>,
+    HTMLAnchorElement
+  >,
+) {
+  const { insideLink } = useContext(Context);
+  return insideLink ? (
+    <span {...props} className={cn("underline", props.className)} />
+  ) : (
+    <a {...props}>
+      <DisableLinks>{props.children}</DisableLinks>
+    </a>
+  );
+}
 
 function Image(
   props: DetailedHTMLProps<
@@ -28,14 +69,14 @@ function Image(
   const linkCtx = useLinkContext();
   if (props.src) {
     return (
-      <Link
+      <SafeRouterLink
         to={`${linkCtx.root}lightbox/:imgUrl`}
         params={{
           imgUrl: encodeURIComponent(props.src),
         }}
       >
         <img {...props} />
-      </Link>
+      </SafeRouterLink>
     );
   }
   return <img {...props} />;
@@ -57,41 +98,47 @@ const options: (
       if (textContent && COMMUNITY_BANG.test(textContent)) {
         const href = `${root}c/${textContent.substring(1)}`;
         return (
-          <Link to={href as never} params={{} as never}>
+          <SafeRouterLink to={href as never} params={{} as never}>
             {domToReact(domNode.children as DOMNode[], options(root))}
-          </Link>
+          </SafeRouterLink>
         );
       }
 
       // Replace "/c/community" with "/selected-tab/c/community"
       if (/^\/c\/[^/]+$/i.test(href)) {
         return (
-          <Link to={(root + href.substring(1)) as never} params={{} as never}>
+          <SafeRouterLink
+            to={(root + href.substring(1)) as never}
+            params={{} as never}
+          >
             {domToReact(domNode.children as DOMNode[], options(root))}
-          </Link>
+          </SafeRouterLink>
         );
       }
 
       // Replace "/u/community" with "/selected-tab/u/community"
       if (/^\/u\/[^/]+$/i.test(href)) {
         return (
-          <Link to={(root + href.substring(1)) as never} params={{} as never}>
+          <SafeRouterLink
+            to={(root + href.substring(1)) as never}
+            params={{} as never}
+          >
             {domToReact(domNode.children as DOMNode[], options(root))}
-          </Link>
+          </SafeRouterLink>
         );
       }
 
       if (href.startsWith("/")) {
         return (
-          <Link to={href as never} params={{} as never}>
+          <SafeRouterLink to={href as never} params={{} as never}>
             {domToReact(domNode.children as DOMNode[], options(root))}
-          </Link>
+          </SafeRouterLink>
         );
       } else {
         return (
-          <a href={href} target="_blank" rel="noreferrer noopener">
+          <SafeAnchor href={href} target="_blank" rel="noreferrer noopener">
             {domToReact(domNode.children as DOMNode[], options(root))}
-          </a>
+          </SafeAnchor>
         );
       }
     }
@@ -118,7 +165,7 @@ const options: (
 });
 
 function createMd(root: ReturnType<typeof useLinkContext>["root"]) {
-  const md = markdownit({
+  const md = MarkdownIt({
     linkify: true,
     html: true,
   });
@@ -195,13 +242,15 @@ export function MarkdownRenderer({
   markdown,
   className,
   dim,
+  disableLightbox: disableLinks,
 }: {
   markdown: string;
   className?: string;
   dim?: boolean;
+  disableLightbox?: boolean;
 }) {
   const root = useLinkContext().root;
-  return (
+  const content = (
     <div
       className={cn("markdown-content", dim && "text-foreground/70", className)}
     >
@@ -211,4 +260,5 @@ export function MarkdownRenderer({
       )}
     </div>
   );
+  return disableLinks ? <DisableLinks>{content}</DisableLinks> : content;
 }

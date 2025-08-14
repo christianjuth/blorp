@@ -4,7 +4,6 @@ import { useCommunity, usePost, usePosts } from "@/src/lib/api";
 import _ from "lodash";
 import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { useRecentCommunitiesStore } from "@/src/stores/recent-communities";
-import { Spinner } from "@/src/components/icons";
 import { BiHelpCircle } from "react-icons/bi";
 import { UserDropdown } from "@/src/components/nav";
 import { PageTitle } from "@/src/components/page-title";
@@ -41,6 +40,7 @@ import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
 import { Button } from "@/src/components/ui/button";
 import { IonButtons, IonButton, IonModal, IonTitle } from "@ionic/react";
 import { MarkdownRenderer } from "@/src/components/markdown/renderer";
+import { Spinner, NoImage } from "@/src/components/icons";
 
 const EMPTY_ARR: never[] = [];
 
@@ -194,7 +194,6 @@ function HorizontalVirtualizer<T>({
 
     let frame = 0;
     const onScroll = () => {
-      console.log("scroll");
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         updateIndex();
@@ -270,6 +269,7 @@ function HorizontalVirtualizer<T>({
     >
       {rowVirtualizer.getVirtualItems().map((virtualItem) => {
         const item = data?.[virtualItem.index];
+        console.log(virtualItem.index, item);
         return item ? (
           <div
             key={virtualItem.key}
@@ -324,7 +324,9 @@ const Post = memo(
         className="border-x border-background -mx-px"
         disabled={disabled}
       />
-    ) : null;
+    ) : (
+      <NoImage className="absolute top-1/2 left-1/2 h-40 w-40 -translate-1/2 text-white" />
+    );
   },
 );
 

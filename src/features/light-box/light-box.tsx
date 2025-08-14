@@ -61,12 +61,9 @@ const Controls = ({
       <Button
         size="icon"
         variant="secondary"
-        className={cn(
-          "transition-opacity",
-          !isZoomedIn && "opacity-0 pointer-events-none",
-        )}
+        className="transition-opacity disabled:opacity-0"
         onClick={() => resetTransform()}
-        disabled={isZoomedIn}
+        disabled={!isZoomedIn || disabled}
         tabIndex={!isZoomedIn || disabled ? -1 : undefined}
       >
         <MdZoomInMap />

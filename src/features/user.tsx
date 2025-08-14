@@ -118,7 +118,7 @@ export default function User() {
       });
       history.replace(newPath);
     }
-  }, [actorId, personQuery.data?.apId]);
+  }, [actorId, personQuery.data?.apId, history, linkCtx.root]);
 
   const {
     hasNextPage,
@@ -167,31 +167,20 @@ export default function User() {
         {media.maxMd && (
           <IonToolbar>
             <ToolbarButtons side="left">
-              <div className="flex flex-row items-center">
-                <div>
-                  <ToggleGroup
-                    type="single"
-                    variant="outline"
-                    size="sm"
-                    value={type}
-                    onValueChange={(val) =>
-                      val && setType(val as "Posts" | "Comments")
-                    }
-                  >
-                    <ToggleGroupItem value="Posts">Posts</ToggleGroupItem>
-                    <ToggleGroupItem value="Comments">
-                      <span>Comments</span>
-                    </ToggleGroupItem>
-                  </ToggleGroup>
-                </div>
-
-                {type === "Posts" && (
-                  <>
-                    <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
-                    <PostSortButton align="start" />
-                  </>
-                )}
-              </div>
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                size="sm"
+                value={type}
+                onValueChange={(val) =>
+                  val && setType(val as "Posts" | "Comments")
+                }
+              >
+                <ToggleGroupItem value="Posts">Posts</ToggleGroupItem>
+                <ToggleGroupItem value="Comments">
+                  <span>Comments</span>
+                </ToggleGroupItem>
+              </ToggleGroup>
             </ToolbarButtons>
             <ToolbarButtons side="right">
               <PersonActionMenu person={person} />
@@ -210,30 +199,21 @@ export default function User() {
                 className="max-md:hidden"
                 key="header-type-select"
               >
-                <div className="flex flex-row md:h-12 md:border-b md:bg-background flex-1 items-center">
-                  <div>
-                    <ToggleGroup
-                      type="single"
-                      variant="outline"
-                      size="sm"
-                      value={type}
-                      onValueChange={(val) =>
-                        val && setType(val as "Posts" | "Comments")
-                      }
-                    >
-                      <ToggleGroupItem value="Posts">Posts</ToggleGroupItem>
-                      <ToggleGroupItem value="Comments">
-                        <span>Comments</span>
-                      </ToggleGroupItem>
-                    </ToggleGroup>
-                  </div>
-
-                  {type === "Posts" && (
-                    <>
-                      <div className="w-[.5px] h-5 bg-border mx-3 my-auto" />
-                      <PostSortButton align="start" />
-                    </>
-                  )}
+                <div className="flex md:h-12 md:border-b md:bg-background flex-1 items-center">
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    size="sm"
+                    value={type}
+                    onValueChange={(val) =>
+                      val && setType(val as "Posts" | "Comments")
+                    }
+                  >
+                    <ToggleGroupItem value="Posts">Posts</ToggleGroupItem>
+                    <ToggleGroupItem value="Comments">
+                      <span>Comments</span>
+                    </ToggleGroupItem>
+                  </ToggleGroup>
                 </div>
                 <></>
               </ContentGutters>,

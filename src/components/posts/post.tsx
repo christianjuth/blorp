@@ -41,7 +41,6 @@ function Notice({ children }: { children: React.ReactNode }) {
 export interface PostProps {
   apId: string;
   detailView?: boolean;
-  onNavigate?: () => any;
   featuredContext?: "community" | "home" | "user" | "search";
   modApIds?: string[];
 }
@@ -189,7 +188,6 @@ export function FeedPostCard(props: PostProps) {
           communityName: post.communitySlug,
           post: encodedApId,
         }}
-        onClickCapture={props.onNavigate}
         className="gap-2 flex flex-col"
       >
         <span

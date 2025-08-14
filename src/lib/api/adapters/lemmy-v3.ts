@@ -523,6 +523,7 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
     const { posts, comments } = await this.client.getPersonDetails(
       {
         ...personOrUsername,
+        sort: "New",
         limit: this.limit,
         page:
           _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
