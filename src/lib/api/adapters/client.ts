@@ -4,10 +4,11 @@ import { ApiBlueprint } from "./api-blueprint";
 import z from "zod";
 import _ from "lodash";
 import { PieFedApi } from "./piefed";
+import { MBinApi } from "./mbin";
 
 const nodeInfoSchema = z.object({
   software: z.object({
-    name: z.enum(["lemmy", "piefed"]),
+    name: z.enum(["lemmy", "piefed", "mbin"]),
     version: z.string(),
   }),
 });
@@ -25,7 +26,7 @@ export const apiClient = _.memoize(
   }: {
     instance: string;
     jwt?: string;
-  }): Promise<ApiBlueprint<any, "lemmy" | "piefed">> => {
+  }): Promise<ApiBlueprint<any, "lemmy" | "piefed" | "mbin">> => {
     instance = instance.replace(/\/$/, "").trim();
 
     if (!instance.startsWith("https://") && !instance.startsWith("http://")) {
@@ -51,6 +52,9 @@ export const apiClient = _.memoize(
       }
       case "piefed": {
         return new PieFedApi({ instance, jwt });
+      }
+      case "mbin": {
+        return new MBinApi({ instance, jwt });
       }
     }
 
