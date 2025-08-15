@@ -14,7 +14,8 @@ import { createDb } from "../lib/create-storage";
 import pRetry from "p-retry";
 import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
 import { Toaster } from "@/src/components/ui/sonner";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
+import { TanstackDevtools } from "@tanstack/react-devtools";
 
 // List the last reason for bumping the key:
 // Caching creator profiles when fetching comments
@@ -116,7 +117,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <RefreshNotificationCount />
       <AuthProvider>{children}</AuthProvider>
       <Toaster />
-      <ReactQueryDevtools />
+      <TanstackDevtools
+        plugins={[
+          {
+            name: "Tanstack Query",
+            render: <ReactQueryDevtoolsPanel />,
+          },
+        ]}
+      />
     </PersistQueryClientProvider>
   );
 }

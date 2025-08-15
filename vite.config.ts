@@ -6,6 +6,10 @@ import circleDependency from "vite-plugin-circular-dependency";
 import path from "path";
 import legacy from "@vitejs/plugin-legacy";
 
+const VITE_FAST = process.env["VITE_FAST"];
+
+const fast = VITE_FAST === "1" || VITE_FAST === "true";
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   envPrefix: "REACT_APP_",
@@ -16,9 +20,13 @@ export default defineConfig(({ mode }) => ({
     }),
     tailwindcss(),
     react(),
-    legacy({
-      targets: ["defaults", "not IE 11"],
-    }),
+    ...(!fast
+      ? [
+          legacy({
+            targets: ["defaults", "not IE 11"],
+          }),
+        ]
+      : []),
   ],
   esbuild: {
     drop: mode === "production" ? ["console"] : [],
