@@ -30,6 +30,13 @@ const POST_SORTS = [
   "Scaled",
 ] as const;
 
+const paginationSchema = z.object({
+  count: z.number(),
+  currentPage: z.number(),
+  maxPage: z.number(),
+  perPage: z.number(),
+});
+
 /** Helper: ISO datetime validator that works across Zod versions */
 const isoDateTime = z.string().refine((s) => !Number.isNaN(Date.parse(s)), {
   message: "Invalid ISO datetime",
@@ -60,16 +67,16 @@ export const apEndpointsSchema = z
   .passthrough();
 
 /** ActivityPub Person (admins/moderators entries) */
-export const apPersonSchema = z.object({
+export const mbinPersonSchema = z.object({
   id: z.string().url(),
   type: z.literal("Person"),
-  name: z.string().optional(),
+  name: z.string(),
   preferredUsername: z.string(),
   inbox: z.string().url(),
   outbox: z.string().url(),
   url: z.string().url(),
   manuallyApprovesFollowers: z.boolean().optional(),
-  published: isoDateTime.optional(),
+  published: isoDateTime,
   following: z.string().url().optional(),
   followers: z.string().url().optional(),
   publicKey: apPublicKeySchema.optional(),
@@ -89,8 +96,8 @@ export const mbinInfoSchema = z.object({
   websiteOpenRegistrations: z.boolean(),
   websiteFederationEnabled: z.boolean(),
   websiteDefaultLang: z.string(),
-  instanceModerators: z.array(apPersonSchema),
-  instanceAdmins: z.array(apPersonSchema),
+  instanceModerators: z.array(mbinPersonSchema),
+  instanceAdmins: z.array(mbinPersonSchema),
 });
 
 export const mbinInstanceDocsSchema = z.object({
@@ -101,11 +108,65 @@ export const mbinInstanceDocsSchema = z.object({
   terms: z.string(), // Markdown string
 });
 
+export const mbinStoredImageSchema = z
+  .object({
+    filePath: z.string().nullable(),
+    sourceUrl: z.string().url().nullable(),
+    storageUrl: z.string().url(),
+    altText: z.string().nullable(),
+    width: z.number().int().nonnegative(),
+    height: z.number().int().nonnegative(),
+    blurHash: z.string().nullable(),
+  })
+  .passthrough();
+
+/** Avatar images in moderators can be incomplete */
+export const mbinAvatarImageSchema = mbinStoredImageSchema;
+
+/** Single moderator entry attached to a magazine */
+export const mbinMagazineModeratorSchema = z.object({
+  magazineId: z.number().int().nonnegative(),
+  userId: z.number().int().nonnegative(),
+  username: z.string(),
+  apId: z.string().nullable(),
+  avatar: mbinAvatarImageSchema.nullable(),
+});
+
+/** Magazine object */
+export const mbinMagazineSchema = z.object({
+  magazineId: z.number().int().nonnegative(),
+  owner: z.unknown().nullable().optional(), // shown as null in your sample; keep flexible
+  icon: mbinStoredImageSchema.nullable(),
+  name: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  rules: z.string().nullable(),
+  subscriptionsCount: z.number().int(),
+  entryCount: z.number().int(),
+  entryCommentCount: z.number().int(),
+  postCount: z.number().int(),
+  postCommentCount: z.number().int(),
+  isAdult: z.boolean(),
+  isUserSubscribed: z.boolean().nullable(),
+  isBlockedByUser: z.boolean().nullable(),
+  tags: z.array(z.string()).nullable().optional(),
+  badges: z.array(z.unknown()), // structure not specified in sample
+  moderators: z.array(mbinMagazineModeratorSchema),
+  apId: z.string(),
+  apProfileId: z.string().url(),
+  serverSoftware: z.string().nullable(),
+  serverSoftwareVersion: z.string().nullable(),
+  isPostingRestrictedToMods: z.boolean(),
+  localSubscribers: z.number().int().nonnegative(),
+  notificationStatus: z.unknown().nullable().optional(),
+});
+
+/** List/collection response for magazines */
 // Helpful types
 export type ApImage = z.infer<typeof apImageSchema>;
 export type ApPublicKey = z.infer<typeof apPublicKeySchema>;
 export type ApEndpoints = z.infer<typeof apEndpointsSchema>;
-export type ApPerson = z.infer<typeof apPersonSchema>;
+export type ApPerson = z.infer<typeof mbinPersonSchema>;
 export type MbinInfo = z.infer<typeof mbinInfoSchema>;
 
 // Usage:
@@ -162,84 +223,46 @@ function convertPost(
   };
 }
 
-function convertCommunity(
-  communityView:
-    | z.infer<typeof pieFedCommunityViewSchema>
-    | { community: z.infer<typeof pieFedCommunitySchema> },
-  mode: "full" | "partial",
-): Schemas.Community {
-  const counts = "counts" in communityView ? communityView.counts : null;
-  const subscribed =
-    "subscribed" in communityView ? communityView.subscribed : null;
+function convertCommunity({
+  magazine,
+}: {
+  magazine: z.infer<typeof mbinMagazineSchema>;
+}): Schemas.Community {
   const c: Schemas.Community = {
-    createdAt: communityView.community.published,
-    id: communityView.community.id,
-    apId: communityView.community.actor_id,
-    slug: createSlug({
-      apId: communityView.community.actor_id,
-      name: communityView.community.name,
-    }).slug,
-    icon: communityView.community.icon ?? null,
-    banner: communityView.community.banner ?? null,
-    ...(counts
-      ? {
-          postCount: counts.post_count ?? undefined,
-          commentCount: counts.post_reply_count ?? undefined,
-          subscriberCount: counts.total_subscriptions_count ?? undefined,
-          subscribersLocalCount: counts.subscriptions_count ?? undefined,
-          usersActiveHalfYearCount: counts.active_6monthly ?? undefined,
-          usersActiveDayCount: counts.active_daily ?? undefined,
-          usersActiveMonthCount: counts.active_monthly ?? undefined,
-          usersActiveWeekCount: counts.active_weekly ?? undefined,
-        }
-      : {}),
-    ...(subscribed
-      ? {
-          subscribed,
-        }
-      : {}),
+    createdAt: "",
+    id: magazine.magazineId,
+    apId: magazine.apProfileId,
+    slug: magazine.name,
+    icon: magazine.icon?.storageUrl ?? null,
+    banner: null,
+    postCount: magazine.postCount ?? undefined,
+    commentCount: magazine.postCommentCount ?? undefined,
+    subscriberCount: magazine.subscriptionsCount ?? undefined,
+    subscribersLocalCount: magazine.localSubscribers ?? undefined,
+    usersActiveHalfYearCount: undefined,
+    usersActiveDayCount: undefined,
+    usersActiveMonthCount: undefined,
+    usersActiveWeekCount: undefined,
+    description: magazine.description,
   };
-
-  if (mode === "full" || communityView.community.description) {
-    c.description = communityView.community.description ?? null;
-  }
-
   return c;
 }
 
-function convertPerson(
-  {
-    person,
-    counts,
-  }:
-    | z.infer<typeof pieFedPersonViewSchema>
-    | {
-        person: z.infer<typeof pieFedPersonSchema>;
-        counts?: undefined;
-      },
-  mode: "full" | "partial",
-): Schemas.Person {
+function convertPerson({
+  person,
+}: {
+  person: z.infer<typeof mbinPersonSchema>;
+}): Schemas.Person {
   const p: Schemas.Person = {
-    apId: person.actor_id,
+    apId: person.id,
     id: person.id,
-    avatar: person.avatar ?? null,
+    avatar: person.icon?.url ?? null,
     matrixUserId: null,
-    slug: createSlug({ apId: person.actor_id, name: person.user_name }).slug,
-    deleted: person.deleted,
+    slug: createSlug({ apId: person.id, name: person.name }).slug,
+    deleted: false,
     createdAt: person.published,
-    isBot: person.bot,
+    isBot: false,
   };
-
-  // PieFed excludes about from some endpoints.
-  // Full means it's giving us the full person object
-  // which includes about.
-  if (mode === "full" || person.about) {
-    p.bio = person.about ?? null;
-  }
-  if (mode === "full" || counts) {
-    p.postCount = counts?.post_count ?? null;
-    p.commentCount = counts?.comment_count ?? null;
-  }
 
   return p;
 }
@@ -385,7 +408,7 @@ export class MBinApi implements ApiBlueprint<null, "mbin"> {
 
   client = null;
   instance: string;
-  limit = 25;
+  limit = 50;
 
   jwt?: string;
 
@@ -486,8 +509,6 @@ export class MBinApi implements ApiBlueprint<null, "mbin"> {
   }
 
   async getSite(options: RequestOptions) {
-    console.log("HERE");
-
     const [json1, json2] = await Promise.all([
       this.get("/info", {}, options),
       this.get("/instance", {}, options),
@@ -502,7 +523,7 @@ export class MBinApi implements ApiBlueprint<null, "mbin"> {
       description: data2.about,
       me: null,
       myEmail: null,
-      admins: [],
+      admins: data1.instanceAdmins.map((person) => convertPerson({ person })),
       moderates: [],
       follows: [],
       personBlocks: [],
@@ -533,8 +554,30 @@ export class MBinApi implements ApiBlueprint<null, "mbin"> {
   }
 
   async getCommunities(form: Forms.GetCommunities, options: RequestOptions) {
-    throw Errors.NOT_IMPLEMENTED;
-    return {} as any;
+    const json = await this.get("/magazines", {
+      p: form.pageCursor === INIT_PAGE_TOKEN ? 1 : form.pageCursor,
+      perPage: this.limit,
+    });
+
+    try {
+      const { items, pagination } = z
+        .object({
+          items: z.array(mbinMagazineSchema),
+          pagination: paginationSchema,
+        })
+        .parse(json);
+
+      const hasMore =
+        pagination.count > pagination.currentPage * pagination.perPage;
+
+      return {
+        communities: items.map((magazine) => convertCommunity({ magazine })),
+        nextCursor: hasMore ? String(pagination.currentPage + 1) : null,
+      };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 
   async getCommunity(form: Forms.GetCommunity, options?: RequestOptions) {
