@@ -242,12 +242,12 @@ export function MarkdownRenderer({
   markdown,
   className,
   dim,
-  disableLightbox: disableLinks,
+  disableLinks,
 }: {
   markdown: string;
   className?: string;
   dim?: boolean;
-  disableLightbox?: boolean;
+  disableLinks?: boolean;
 }) {
   const root = useLinkContext().root;
   const content = (

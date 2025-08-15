@@ -71,7 +71,7 @@ function Comment({ path }: { path: string }) {
         comment: newPath,
       }}
     >
-      <MarkdownRenderer markdown={commentView.body} />
+      <MarkdownRenderer markdown={commentView.body} disableLinks />
     </Link>
   );
 }

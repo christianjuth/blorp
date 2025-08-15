@@ -23,11 +23,16 @@ import { Browser } from "@capacitor/browser";
 import { openUrl } from "@/src/lib/linking";
 import { resolveRoute } from "@/src/routing";
 import { SectionItem, Section } from "./shared-components";
-import { useConfirmationAlert } from "@/src/lib/hooks/index";
+import { useConfirmationAlert, useIsActiveRoute } from "@/src/lib/hooks/index";
 import { DebouncedInput } from "@/src/components/debounced-input";
 import { FiChevronRight } from "react-icons/fi";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
 import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/src/components/ui/tooltip";
 
 const version =
   _.isObject(pkgJson) && "version" in pkgJson ? pkgJson.version : undefined;
@@ -153,25 +158,16 @@ function formatSize(bytes: number): string {
 }
 
 function CacheSection() {
-  const settings = useSettingsStore();
-
-  const [signal, setSignal] = useState(0);
-
-  const focused = true;
-
   const [cacheSizes, setCacheSizes] = useState<Readonly<[string, number]>[]>(
     [],
   );
 
+  const isActive = useIsActiveRoute();
   useEffect(() => {
-    if (focused) {
+    if (isActive) {
       getDbSizes().then(setCacheSizes);
     }
-  }, [signal, focused]);
-
-  const refreshCacheSizes = () => {
-    setSignal((s) => s + 1);
-  };
+  }, [isActive]);
 
   const totalSize = cacheSizes.reduce((acc, [_, size]) => acc + size, 0);
 
@@ -188,15 +184,19 @@ function CacheSection() {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-row flex-1 gap-px rounded-md overflow-hidden">
                   {cacheSizes.map(([key, size], index) => (
-                    <div
-                      key={key}
-                      style={{
-                        width: `${(size / totalSize) * 100}%`,
-                        opacity:
-                          (cacheSizes.length - index) / cacheSizes.length,
-                      }}
-                      className="h-6 bg-foreground/50"
-                    />
+                    <Tooltip key={key}>
+                      <TooltipTrigger
+                        className="h-6 bg-foreground/50"
+                        style={{
+                          width: `${(size / totalSize) * 100}%`,
+                          opacity:
+                            (cacheSizes.length - index) / cacheSizes.length,
+                        }}
+                      ></TooltipTrigger>
+                      <TooltipContent>
+                        {key}: {formatSize(size)}
+                      </TooltipContent>
+                    </Tooltip>
                   ))}
                 </div>
 
@@ -211,7 +211,7 @@ function CacheSection() {
                         }}
                       />
                       <span className="capitalize text-sm text-muted-foreground">
-                        {key.split("_")[1]?.replaceAll("-", " ")}
+                        {key}
                       </span>
                     </div>
                   ))}

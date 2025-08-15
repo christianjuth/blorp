@@ -1,6 +1,7 @@
 import { openDB } from "idb";
 import { load } from "@tauri-apps/plugin-store";
 import { isTauri } from "./device";
+import _ from "lodash";
 
 import {
   CapacitorSQLite,
@@ -107,13 +108,7 @@ function createSqliteStore(rowName?: string) {
           }
         }
       }
-      return sizes
-        .filter(([_, size]) => {
-          return size / totalSize > 0.01;
-        })
-        .sort(([_aKey, aSize], [_bKey, bSize]) => {
-          return bSize - aSize;
-        });
+      return [sizes, totalSize] as const;
     },
   };
 }
@@ -220,13 +215,35 @@ export function createDb(rowName: string) {
   }
 }
 
+function processDbSizes(db: [string, number][], totalSize: number) {
+  return _.entries(
+    db.reduce(
+      (acc, [key, size]) => {
+        if (size / totalSize <= 0.01) {
+          acc["Other"] = acc["Other"] ?? 0;
+          acc["Other"] += size;
+        } else {
+          const prettyKey = _.capitalize(
+            key.split("_")[1]?.replaceAll("-", " ") ?? key,
+          );
+          acc[prettyKey] = size;
+        }
+        return acc;
+      },
+      {} as Record<string, number>,
+    ),
+  ).sort(([_aKey, aSize], [_bKey, bSize]) => {
+    return bSize - aSize;
+  });
+}
+
 export async function getDbSizes() {
   const sizes: [string, number][] = [];
   let totalSize = 0;
 
   if (Capacitor.isNativePlatform()) {
     const db = createSqliteStore();
-    return db.getDbSize();
+    return processDbSizes(...(await db.getDbSize()));
   } else if (isTauri()) {
     const store = await load(DB_NAME, { autoSave: false });
     const keys = await store.keys();
@@ -249,11 +266,5 @@ export async function getDbSizes() {
     }
   }
 
-  return sizes
-    .filter(([_, size]) => {
-      return size / totalSize > 0.01;
-    })
-    .sort(([_aKey, aSize], [_bKey, bSize]) => {
-      return bSize - aSize;
-    });
+  return processDbSizes(sizes, totalSize);
 }

@@ -87,7 +87,11 @@ function Comment({ comment }: { comment: Schemas.Comment }) {
                   <span className="font-bold">{comment.postTitle}</span>
                 </span>
               </div>
-              <MarkdownRenderer markdown={comment.body} className="pb-2" />
+              <MarkdownRenderer
+                markdown={comment.body}
+                className="pb-2"
+                disableLinks
+              />
             </Link>
             <div className="flex flex-row justify-end gap-2 text-muted-foreground">
               <RelativeTime time={comment.createdAt} />

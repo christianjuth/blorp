@@ -7,7 +7,6 @@ import {
 } from "../components/posts/post";
 import { MarkdownRenderer } from "../components/markdown/renderer";
 import { VirtualList } from "../components/virtual-list";
-import { PostSortButton } from "../components/lemmy-sort";
 import { memo, useEffect, useMemo } from "react";
 import { decodeApId, encodeApId } from "../lib/api/utils";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
@@ -82,7 +81,7 @@ const Comment = memo(function Comment({ path }: { path: string }) {
         {commentView.deleted ? (
           <span className="text-muted-foreground italic">deleted</span>
         ) : (
-          <MarkdownRenderer markdown={commentView.body} />
+          <MarkdownRenderer markdown={commentView.body} disableLinks />
         )}
       </Link>
       <></>
