@@ -8,13 +8,14 @@ import _ from "lodash";
 import { useNotificationCount } from "../lib/api";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { updateTauri } from "../lib/tauri";
-import { isTauri } from "../lib/device";
+import { isDev, isTauri } from "../lib/device";
 import { AuthProvider } from "./auth-context";
 import { createDb } from "../lib/create-storage";
 import pRetry from "p-retry";
 import { broadcastQueryClient } from "@tanstack/query-broadcast-client-experimental";
 import { Toaster } from "@/src/components/ui/sonner";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
+import { TanstackDevtools } from "@tanstack/react-devtools";
 
 // List the last reason for bumping the key:
 // Caching creator profiles when fetching comments
@@ -116,7 +117,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <RefreshNotificationCount />
       <AuthProvider>{children}</AuthProvider>
       <Toaster />
-      <ReactQueryDevtools />
+      {isDev() && (
+        <TanstackDevtools
+          plugins={[
+            {
+              name: "Tanstack Query",
+              render: <ReactQueryDevtoolsPanel />,
+            },
+          ]}
+        />
+      )}
     </PersistQueryClientProvider>
   );
 }
