@@ -145,7 +145,9 @@ export function useConfirmationAlert() {
     cancelText = "Cancel",
     confirmText = "OK",
     danger,
-    inputs,
+    // Ionic with crash if you pass undefined
+    // instead of an empty array
+    inputs = [],
     schema,
   }: {
     header?: string;
