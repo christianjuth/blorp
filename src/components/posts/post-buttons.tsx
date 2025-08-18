@@ -31,6 +31,7 @@ import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { encodeApId } from "@/src/lib/api/utils";
 import { getPostEmbed } from "@/src/lib/post";
 import { isWeb } from "@/src/lib/device";
+import { Tooltip, TooltipTrigger, TooltipContent } from "../ui/tooltip";
 
 export function usePostVoting(apId?: string) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -59,6 +60,8 @@ export function usePostVoting(apId?: string) {
 
   return {
     score,
+    upvotes: postView.upvotes,
+    downvotes: postView.downvotes,
     isUpvoted,
     isDownvoted,
     enableDownvotes,
@@ -142,21 +145,28 @@ export function PostVoting({
         )}
       >
         {isUpvoted ? (
-          <PiArrowFatUpFill className="scale-115" />
+          <PiArrowFatUpFill className="scale-115" aria-label="remove upvote" />
         ) : (
-          <PiArrowFatUpBold className="scale-115" />
+          <PiArrowFatUpBold className="scale-115" aria-label="upvote" />
         )}
       </Button>
-      <NumberFlow
-        //htmlFor={id}
-        className={cn(
-          "-mx-px cursor-pointer text-md",
-          isUpvoted && "text-brand",
-          isDownvoted && "text-brand-secondary",
-        )}
-        suffix={abbriviatedScore.suffix}
-        value={abbriviatedScore.number}
-      />
+      <Tooltip>
+        <TooltipTrigger aria-label={`${score} score`}>
+          <NumberFlow
+            //htmlFor={id}
+            className={cn(
+              "-mx-px cursor-pointer text-md",
+              isUpvoted && "text-brand",
+              isDownvoted && "text-brand-secondary",
+            )}
+            suffix={abbriviatedScore.suffix}
+            value={abbriviatedScore.number}
+          />
+        </TooltipTrigger>
+        <TooltipContent>
+          {voting.upvotes} upvotes, {voting.downvotes} downvotes
+        </TooltipContent>
+      </Tooltip>
       <Button
         size="icon"
         variant="ghost"
@@ -178,9 +188,12 @@ export function PostVoting({
         )}
       >
         {isDownvoted ? (
-          <PiArrowFatDownFill className="scale-115" />
+          <PiArrowFatDownFill
+            className="scale-115"
+            aria-label="remove downvote"
+          />
         ) : (
-          <PiArrowFatDownBold className="scale-115" />
+          <PiArrowFatDownBold className="scale-115" aria-label="downvote" />
         )}
       </Button>
     </div>
@@ -218,7 +231,8 @@ export function PostCommentsButton({
           }}
         >
           <TbMessageCircle className="scale-115" />
-          <span>{abbriviateNumber(postView.commentsCount)}</span>
+          {abbriviateNumber(postView.commentsCount)}
+          <span className="sr-only">comments</span>
         </Link>
       </Button>
     );
@@ -233,6 +247,7 @@ export function PostCommentsButton({
       >
         <TbMessageCirclePlus className="scale-115" />
         {postView?.commentsCount}
+        <span className="sr-only">comments</span>
       </Button>
     );
   }

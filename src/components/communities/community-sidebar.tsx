@@ -177,14 +177,17 @@ export function SmallScreenSidebar({
               Show more
             </Link>
           )}
-
           <div className="flex-1" />
-
           <ActionMenu
             header="Community"
             align="end"
             actions={actions}
-            trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
+            trigger={
+              <IoEllipsisHorizontal
+                className="text-muted-foreground"
+                aria-label="Community actions"
+              />
+            }
             onOpen={() => setOpenSignal((s) => s + 1)}
           />
 

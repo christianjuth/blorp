@@ -17,6 +17,7 @@ import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import _ from "lodash";
 import { getAccountSite, useAuth } from "@/src/stores/auth";
 import NumberFlow from "@number-flow/react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "../ui/tooltip";
 
 export function CommentVoting({
   commentView,
@@ -99,18 +100,29 @@ export function CommentVoting({
           isDownvoted && "text-brand-secondary",
         )}
       >
-        {isUpvoted ? <PiArrowFatUpFill /> : <PiArrowFatUpBold />}
-      </Button>
-      <NumberFlow
-        //htmlFor={id}
-        className={cn(
-          "-mx-0.5 cursor-pointer",
-          isUpvoted && "text-brand",
-          isDownvoted && "text-brand-secondary",
+        {isUpvoted ? (
+          <PiArrowFatUpFill aria-label="Remove upvote" />
+        ) : (
+          <PiArrowFatUpBold aria-label="Upvote" />
         )}
-        suffix={abbriviatedScore.suffix}
-        value={abbriviatedScore.number}
-      />
+      </Button>
+      <Tooltip>
+        <TooltipTrigger aria-label={`${score} score`}>
+          <NumberFlow
+            //htmlFor={id}
+            className={cn(
+              "-mx-0.5 cursor-pointer",
+              isUpvoted && "text-brand",
+              isDownvoted && "text-brand-secondary",
+            )}
+            suffix={abbriviatedScore.suffix}
+            value={abbriviatedScore.number}
+          />
+        </TooltipTrigger>
+        <TooltipContent>
+          {commentView.upvotes} upvotes, {commentView.downvotes} downvotes
+        </TooltipContent>
+      </Tooltip>
       <Button
         size="icon"
         variant="ghost"
@@ -132,7 +144,11 @@ export function CommentVoting({
           isDownvoted && "text-brand-secondary",
         )}
       >
-        {isDownvoted ? <PiArrowFatDownFill /> : <PiArrowFatDownBold />}
+        {isDownvoted ? (
+          <PiArrowFatDownFill aria-label="Remove downvote" />
+        ) : (
+          <PiArrowFatDownBold aria-label="Downvote" />
+        )}
       </Button>
     </div>
   );
@@ -152,7 +168,7 @@ export function CommentReplyButton(
         variant="ghost"
         className={cn("md:hidden", props.className)}
       >
-        <PiArrowBendUpLeftBold />
+        <PiArrowBendUpLeftBold aria-label="Reply" />
       </Button>
       <Button
         {...props}

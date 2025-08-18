@@ -304,6 +304,8 @@ export function PostSortButton({
     (sort) => sort.value && postSort.startsWith(sort.value),
   )?.text;
 
+  const ariaLabel = (isValidSort ? postSort : "Invalid") + " post sort";
+
   return (
     <ActionMenu
       header="Sort by"
@@ -313,12 +315,20 @@ export function PostSortButton({
       triggerAsChild={variant === "button"}
       trigger={
         variant === "button" ? (
-          <Button size="sm" variant="outline" className={className}>
+          <Button
+            size="sm"
+            variant="outline"
+            className={className}
+            aria-label={ariaLabel}
+          >
             {sortLabel ?? "Sort"}
             {isValidSort && getIconForSort(postSort)}
           </Button>
         ) : (
-          <div className={cn("text-2xl text-muted-foreground", className)}>
+          <div
+            className={cn("text-2xl text-muted-foreground", className)}
+            aria-label={ariaLabel}
+          >
             {isValidSort && getIconForSort(postSort)}
             {!isValidSort && <TbArrowsDownUp />}
           </div>
