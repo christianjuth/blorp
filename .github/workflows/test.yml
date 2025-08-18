@@ -100,7 +100,7 @@ jobs:
           yarn install --immutable
 
       - name: Build Blorp React app
-        run: VITE_FAST=1 yarn build
+        run: VITE_FAST=1 yarn vite build
 
       - name: Hash the output of yarn why playwright
         id: playwright_hash

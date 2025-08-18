@@ -8,7 +8,7 @@ import _ from "lodash";
 import { useNotificationCount } from "../lib/api";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { updateTauri } from "../lib/tauri";
-import { isTauri } from "../lib/device";
+import { isDev, isTauri } from "../lib/device";
 import { AuthProvider } from "./auth-context";
 import { createDb } from "../lib/create-storage";
 import pRetry from "p-retry";
@@ -117,14 +117,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <RefreshNotificationCount />
       <AuthProvider>{children}</AuthProvider>
       <Toaster />
-      <TanstackDevtools
-        plugins={[
-          {
-            name: "Tanstack Query",
-            render: <ReactQueryDevtoolsPanel />,
-          },
-        ]}
-      />
+      {isDev() && (
+        <TanstackDevtools
+          plugins={[
+            {
+              name: "Tanstack Query",
+              render: <ReactQueryDevtoolsPanel />,
+            },
+          ]}
+        />
+      )}
     </PersistQueryClientProvider>
   );
 }
