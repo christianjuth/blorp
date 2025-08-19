@@ -407,7 +407,7 @@ export class LemmyV4Api implements ApiBlueprint<lemmyV4.LemmyHttp, "lemmy"> {
         page_cursor:
           form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
         type_: form.type,
-        limit: this.limit,
+        limit: form.limit ?? this.limit,
         sort: topSort ? "Top" : "New",
       },
       options,
