@@ -202,6 +202,7 @@ export default function HomeFeed() {
             onSubmit={() => {
               router.push(`/home/s?q=${search}`);
             }}
+            className="max-md:hidden"
           />
           <ToolbarButtons side="right">
             {/* <DownloadButton /> */}

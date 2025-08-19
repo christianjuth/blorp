@@ -6,7 +6,7 @@ import {
 } from "@/src/components/posts/post";
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
 import { ContentGutters } from "@/src/components/gutters";
-import { memo, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { VirtualList } from "@/src/components/virtual-list";
 import {
   CommunityCard,
@@ -15,21 +15,17 @@ import {
 import { useFiltersStore } from "@/src/stores/filters";
 import _ from "lodash";
 import { ToggleGroup, ToggleGroupItem } from "@/src/components/ui/toggle-group";
-import { usePostsStore } from "@/src/stores/posts";
 import { SearchType } from "lemmy-v3";
 import { Link, useParams } from "@/src/routing/index";
-import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonSearchbar,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { PageTitle } from "@/src/components/page-title";
 import { UserDropdown } from "@/src/components/nav";
-import { useMedia, useUrlSearchState } from "@/src/lib/hooks";
+import {
+  useKeyboardShortcut,
+  useMedia,
+  useUrlSearchState,
+} from "@/src/lib/hooks";
 import { PostReportProvider } from "@/src/components/posts/post-report";
-import { useAuth } from "@/src/stores/auth";
 import z from "zod";
 import { PersonCard } from "@/src/components/person/person-card";
 import { useLinkContext } from "@/src/routing/link-context";
@@ -43,6 +39,7 @@ import { Separator } from "@/src/components/ui/separator";
 import { ToolbarBackButton } from "@/src/components/toolbar/toolbar-back-button";
 import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
 import { SearchBar } from "./search-bar";
+import { KeyboardShortcut } from "../keyboard-shortcut";
 
 const EMPTY_ARR: never[] = [];
 
@@ -135,6 +132,30 @@ export default function SearchFeed({
     z.enum(["posts", "communities", "users", "comments"]),
   );
 
+  useKeyboardShortcut(
+    useCallback(
+      (e) => {
+        if (!(e.target instanceof HTMLInputElement)) {
+          switch (e.key) {
+            case "1":
+              setType("posts");
+              break;
+            case "2":
+              setType("communities");
+              break;
+            case "3":
+              setType("users");
+              break;
+            case "4":
+              setType("comments");
+              break;
+          }
+        }
+      },
+      [setType],
+    ),
+  );
+
   const postSort = useFiltersStore((s) => s.postSort);
 
   const community = useCommunity({
@@ -168,9 +189,6 @@ export default function SearchFeed({
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } =
     searchResults;
 
-  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const postCache = usePostsStore((s) => s.posts);
-
   const data = useMemo(() => {
     if (type === "users") {
       const users =
@@ -193,7 +211,7 @@ export default function SearchFeed({
     }
 
     return searchResults.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
-  }, [searchResults.data?.pages, postCache, type, getCachePrefixer]);
+  }, [searchResults.data?.pages, type]);
 
   return (
     <IonPage>
@@ -216,6 +234,8 @@ export default function SearchFeed({
                 ? `Search ${communityName}`
                 : undefined
             }
+            preventOpen
+            className="w-auto max-md:mx-3"
           />
           <ToolbarButtons side="right">
             <UserDropdown />
@@ -251,7 +271,6 @@ export default function SearchFeed({
       <IonContent scrollY={false}>
         <PostReportProvider>
           <VirtualList<Item>
-            key={type === "communities" ? "communities" : type + postSort}
             className="h-full ion-content-scroll-host"
             data={
               data.length === 0 &&
@@ -278,16 +297,26 @@ export default function SearchFeed({
                       )
                     }
                   >
-                    <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+                    <ToggleGroupItem value="posts">
+                      Posts
+                      <KeyboardShortcut>1</KeyboardShortcut>
+                    </ToggleGroupItem>
                     {scope === "global" && (
                       <ToggleGroupItem value="communities">
                         Communities
+                        <KeyboardShortcut>2</KeyboardShortcut>
                       </ToggleGroupItem>
                     )}
                     {scope === "global" && (
-                      <ToggleGroupItem value="users">Users</ToggleGroupItem>
+                      <ToggleGroupItem value="users">
+                        Users
+                        <KeyboardShortcut>3</KeyboardShortcut>
+                      </ToggleGroupItem>
                     )}
-                    <ToggleGroupItem value="comments">Comments</ToggleGroupItem>
+                    <ToggleGroupItem value="comments">
+                      Comments
+                      <KeyboardShortcut>4</KeyboardShortcut>
+                    </ToggleGroupItem>
                   </ToggleGroup>
                 </div>
                 <></>

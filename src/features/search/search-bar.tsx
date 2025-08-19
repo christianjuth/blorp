@@ -4,12 +4,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandShortcut,
 } from "@/src/components/ui/command";
 import { useSearch } from "@/src/lib/api";
 import { cn } from "@/src/lib/utils";
 import { useAuth } from "@/src/stores/auth";
 import { usePostsStore } from "@/src/stores/posts";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import _ from "lodash";
 import { useProfilesStore } from "@/src/stores/profiles";
 import removeMd from "remove-markdown";
@@ -18,7 +19,38 @@ import { useIonRouter } from "@ionic/react";
 import { resolveRoute } from "@/src/routing";
 import { encodeApId } from "@/src/lib/api/utils";
 import { useCommunitiesStore } from "@/src/stores/communities";
-import type { Forms } from "@/src/lib/api/adapters/api-blueprint";
+import type { Forms, Schemas } from "@/src/lib/api/adapters/api-blueprint";
+import { useDebouncedState, useKeyboardShortcut } from "@/src/lib/hooks";
+
+function CommentSearchResult({ comment }: { comment: Schemas.Comment }) {
+  const router = useIonRouter();
+  const linkCtx = useLinkContext();
+
+  const onSelect = () =>
+    router.push(
+      resolveRoute(
+        `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
+        {
+          communityName: comment.communitySlug,
+          post: encodeApId(comment.postApId),
+          comment: String(comment.id),
+        },
+      ),
+    );
+
+  return (
+    <CommandItem
+      key={comment.apId}
+      value={comment.apId}
+      keywords={[comment.body]}
+      className="line-clamp-1"
+      onSelect={onSelect}
+      onClick={onSelect}
+    >
+      {removeMd(comment.body)}
+    </CommandItem>
+  );
+}
 
 function CommunitySearchResult({ apId }: { apId: string }) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -33,18 +65,20 @@ function CommunitySearchResult({ apId }: { apId: string }) {
     return null;
   }
 
+  const onSelect = () =>
+    router.push(
+      resolveRoute(`${linkCtx.root}c/:communityName`, {
+        communityName: community.communityView.slug,
+      }),
+    );
+
   return (
     <CommandItem
       value={apId}
       keywords={[community.communityView.slug]}
       className="line-clamp-1"
-      onSelect={() =>
-        router.push(
-          resolveRoute(`${linkCtx.root}c/:communityName`, {
-            communityName: community.communityView.slug,
-          }),
-        )
-      }
+      onSelect={onSelect}
+      onClick={onSelect}
     >
       {community.communityView.slug}
     </CommandItem>
@@ -62,19 +96,21 @@ function PostSearchResult({ apId }: { apId: string }) {
     return null;
   }
 
+  const onSelect = () =>
+    router.push(
+      resolveRoute(`${linkCtx.root}c/:communityName/posts/:post`, {
+        communityName: post.communitySlug,
+        post: encodeApId(apId),
+      }),
+    );
+
   return (
     <CommandItem
       value={apId}
       keywords={[post.title]}
       className="line-clamp-1"
-      onSelect={() =>
-        router.push(
-          resolveRoute(`${linkCtx.root}c/:communityName/posts/:post`, {
-            communityName: post.communitySlug,
-            post: encodeApId(apId),
-          }),
-        )
-      }
+      onSelect={onSelect}
+      onClick={onSelect}
     >
       {post.title}
     </CommandItem>
@@ -94,18 +130,20 @@ function UserSearchResult({ apId }: { apId: string }) {
     return null;
   }
 
+  const onSelect = () =>
+    router.push(
+      resolveRoute(`${linkCtx.root}u/:userId`, {
+        userId: encodeApId(apId),
+      }),
+    );
+
   return (
     <CommandItem
       value={apId}
       keywords={[post.slug]}
       className="line-clamp-1"
-      onSelect={() =>
-        router.push(
-          resolveRoute(`${linkCtx.root}u/:userId`, {
-            userId: encodeApId(apId),
-          }),
-        )
-      }
+      onSelect={onSelect}
+      onClick={onSelect}
     >
       {post.slug}
     </CommandItem>
@@ -115,44 +153,36 @@ function UserSearchResult({ apId }: { apId: string }) {
 export function SearchBar({
   type,
   communitySlug,
+  preventOpen = false,
+  className,
   ...props
 }: React.ComponentProps<typeof CommandInput> & { onSubmit?: () => any } & {
   type?: Forms.Search["type"];
   communitySlug?: Forms.Search["communitySlug"];
+  preventOpen?: boolean;
 }) {
-  const router = useIonRouter();
-  const linkCtx = useLinkContext();
-
   const ref = useRef<HTMLInputElement>(null);
-  const [open, setOpen] = useState(false);
 
-  const [deboucedValue, _setDebouncedValue] = useState(props.value);
+  const [_open, setOpen] = useState(false);
+  const isOpen = preventOpen ? false : _open;
 
-  const setDebouncedValue = useMemo(
-    () =>
-      _.debounce((newSearch: string) => {
-        _setDebouncedValue(newSearch);
-      }, 500),
-    [],
-  );
+  const search = useDebouncedState(props.value, 500);
 
   const searchResults = useSearch({
-    q: deboucedValue ?? "",
+    q: search.value ?? "",
     type: type ?? "All",
     limit: type ? 10 : 3,
     communitySlug,
   });
 
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
+  useKeyboardShortcut(
+    useCallback((e) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         ref.current?.focus();
       }
-    };
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, []);
+    }, []),
+  );
 
   const { posts, users, comments, communities } = useMemo(() => {
     const posts = _.uniq(searchResults.data?.pages.flatMap((p) => p.posts));
@@ -165,8 +195,11 @@ export function SearchBar({
   return (
     <Command
       className={cn(
-        "max-md:hidden max-w-md relative mx-auto overflow-visible",
-        open && !!props.value && "rounded-b-none",
+        "md:max-w-md relative mx-auto overflow-visible border group",
+        props.value && !preventOpen
+          ? "focus-within:rounded-b-none focus-within:shadow"
+          : "focus-within:ring",
+        className,
       )}
     >
       <CommandInput
@@ -182,15 +215,21 @@ export function SearchBar({
           props.onKeyDown?.(e);
         }}
         onValueChange={(value) => {
-          setDebouncedValue(value);
+          search.setValue(value);
           props.onValueChange?.(value);
         }}
+        loading={isOpen && searchResults.isFetching}
         data-tauri-drag-region
+        endAdornment={
+          <CommandShortcut className="group-focus-within:hidden">
+            ⌘K
+          </CommandShortcut>
+        }
       />
       <CommandList
         className={cn(
-          "absolute top-full w-full z-50 bg-popover rounded-b-md",
-          !open && "hidden",
+          "absolute top-full z-50 bg-popover rounded-b-lg border -left-px -right-px shadow hidden",
+          props.value && !preventOpen && "group-focus-within:block",
         )}
       >
         {props.value && (
@@ -204,7 +243,6 @@ export function SearchBar({
             </CommandItem>
           </CommandGroup>
         )}
-
         {props.value && communities && communities.length > 0 && (
           <CommandGroup heading="Communities">
             {communities.map((apId) => (
@@ -229,26 +267,7 @@ export function SearchBar({
         {props.value && comments && comments.length > 0 && (
           <CommandGroup heading="Comments">
             {comments.map((comment) => (
-              <CommandItem
-                key={comment.apId}
-                value={comment.apId}
-                keywords={[comment.body]}
-                className="line-clamp-1"
-                onSelect={() =>
-                  router.push(
-                    resolveRoute(
-                      `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
-                      {
-                        communityName: comment.communitySlug,
-                        post: encodeApId(comment.postApId),
-                        comment: String(comment.id),
-                      },
-                    ),
-                  )
-                }
-              >
-                {removeMd(comment.body)}
-              </CommandItem>
+              <CommentSearchResult key={comment.apId} comment={comment} />
             ))}
           </CommandGroup>
         )}

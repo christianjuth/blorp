@@ -13,6 +13,8 @@ import { AlertInput, useIonAlert } from "@ionic/react";
 import { Deferred } from "../deferred";
 import { usePathname } from "@/src/routing/hooks";
 import { useMedia } from "./use-media";
+import _ from "lodash";
+
 export { useMedia } from "./use-media";
 export { useTheme } from "./use-theme";
 
@@ -271,4 +273,36 @@ export function useTabbarHeight() {
     height: 50.5,
     inset: bottom,
   };
+}
+
+export function useKeyboardShortcut(handler: (e: KeyboardEvent) => void) {
+  const isActive = useIsActiveRoute();
+  useEffect(() => {
+    if (isActive) {
+      document.addEventListener("keydown", handler);
+      return () => document.removeEventListener("keydown", handler);
+    }
+  }, [handler, isActive]);
+}
+
+export function useDebouncedState<T>(initValue: T, debounceTime: number) {
+  const [value, _setValue] = useState(initValue);
+
+  const setValue = useMemo(
+    () =>
+      _.debounce((newValue: T) => {
+        _setValue(newValue);
+      }, debounceTime),
+    [debounceTime],
+  );
+
+  const setValueImediate = useCallback(
+    (value: T) => {
+      setValue.cancel();
+      _setValue(value);
+    },
+    [setValue],
+  );
+
+  return { value, setValue, setValueImediate, cancelSet: setValue.cancel };
 }

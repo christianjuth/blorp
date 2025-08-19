@@ -129,21 +129,16 @@ export default function CommunityFeed() {
               {communityName}
             </ToolbarTitle>
           </ToolbarButtons>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
+          <SearchBar
+            placeholder={`Search ${communityName}`}
+            value={search}
+            onValueChange={setSearch}
+            communitySlug={communityName}
+            onSubmit={() => {
               router.push(`${linkCtx.root}c/${communityName}/s?q=${search}`);
             }}
-            data-tauri-drag-region
             className="max-md:hidden"
-          >
-            <SearchBar
-              placeholder={`Search ${communityName}`}
-              value={search}
-              onValueChange={setSearch}
-              communitySlug={communityName}
-            />
-          </form>
+          />
           <ToolbarButtons side="right">
             <Link
               to={`${linkCtx.root}c/:communityName/s`}

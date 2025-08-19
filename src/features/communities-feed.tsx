@@ -92,6 +92,7 @@ export default function Communities() {
               router.push(`/communities/s?q=${search}`);
             }}
             type="Communities"
+            className="max-md:hidden"
           />
           <ToolbarButtons side="right">
             <Link to="/communities/s" className="text-2xl contents md:hidden">

@@ -286,6 +286,7 @@ export default function Post() {
                 ),
               );
             }}
+            className="max-md:hidden"
           />
           <ToolbarButtons side="right">
             <CommentSortSelect
