@@ -10,6 +10,9 @@ import { applyCapacitorFixes } from "./lib/capacitor";
 
 import "remove-focus-outline";
 import { InstanceFavicon } from "./components/instance-favicon";
+import { runTauriSecurityFix } from "./lib/create-storage";
+
+runTauriSecurityFix();
 
 applyCapacitorFixes();
 
