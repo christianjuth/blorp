@@ -548,14 +548,17 @@ export class LemmyV3Api implements ApiBlueprint<lemmyV3.LemmyHttp, "lemmy"> {
 
   async search(form: Forms.Search, options: RequestOptions) {
     const cursor = cursorToInt(form.pageCursor) ?? 1;
-    const topSort = form.type === "Communities" || form.type === "Users";
+    const topSort =
+      form.type === "Communities" ||
+      form.type === "Users" ||
+      form.type === "All";
     const { posts, communities, users, comments } = await this.client.search(
       {
         q: form.q,
         community_name: form.communitySlug,
         page: cursor,
         type_: form.type,
-        limit: this.limit,
+        limit: form.limit ?? this.limit,
         sort: topSort ? "TopAll" : "Active",
       },
       options,

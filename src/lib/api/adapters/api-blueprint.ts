@@ -299,9 +299,10 @@ export namespace Forms {
   export type Search = {
     q: string;
     communitySlug?: string;
-    type: "Posts" | "Communities" | "Users" | "Comments";
+    type: "Posts" | "Communities" | "Users" | "Comments" | "All";
     sort?: string;
     pageCursor?: string;
+    limit?: number;
   };
 
   export type GetCommunity = {

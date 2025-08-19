@@ -1,21 +1,21 @@
-import { useCommunity, useSearch } from "../lib/api";
+import { useCommunity, useSearch } from "@/src/lib/api";
 import {
   FeedPostCard,
   PostCardSkeleton,
   PostProps,
 } from "@/src/components/posts/post";
 import { CommunitySidebar } from "@/src/components/communities/community-sidebar";
-import { ContentGutters } from "../components/gutters";
+import { ContentGutters } from "@/src/components/gutters";
 import { memo, useMemo, useState } from "react";
-import { VirtualList } from "../components/virtual-list";
+import { VirtualList } from "@/src/components/virtual-list";
 import {
   CommunityCard,
   CommunityCardSkeleton,
-} from "../components/communities/community-card";
-import { useFiltersStore } from "../stores/filters";
+} from "@/src/components/communities/community-card";
+import { useFiltersStore } from "@/src/stores/filters";
 import _ from "lodash";
-import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
-import { usePostsStore } from "../stores/posts";
+import { ToggleGroup, ToggleGroupItem } from "@/src/components/ui/toggle-group";
+import { usePostsStore } from "@/src/stores/posts";
 import { SearchType } from "lemmy-v3";
 import { Link, useParams } from "@/src/routing/index";
 import {
@@ -25,23 +25,24 @@ import {
   IonSearchbar,
   IonToolbar,
 } from "@ionic/react";
-import { PageTitle } from "../components/page-title";
-import { UserDropdown } from "../components/nav";
-import { useMedia, useUrlSearchState } from "../lib/hooks";
-import { PostReportProvider } from "../components/posts/post-report";
-import { useAuth } from "../stores/auth";
+import { PageTitle } from "@/src/components/page-title";
+import { UserDropdown } from "@/src/components/nav";
+import { useMedia, useUrlSearchState } from "@/src/lib/hooks";
+import { PostReportProvider } from "@/src/components/posts/post-report";
+import { useAuth } from "@/src/stores/auth";
 import z from "zod";
-import { PersonCard } from "../components/person/person-card";
-import { useLinkContext } from "../routing/link-context";
-import { Schemas } from "../lib/api/adapters/api-blueprint";
-import { BadgeIcon } from "../components/badge-count";
-import { PersonAvatar } from "../components/person/person-avatar";
-import { MarkdownRenderer } from "../components/markdown/renderer";
-import { RelativeTime } from "../components/relative-time";
-import { Message } from "../components/icons";
-import { Separator } from "../components/ui/separator";
-import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
-import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
+import { PersonCard } from "@/src/components/person/person-card";
+import { useLinkContext } from "@/src/routing/link-context";
+import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
+import { BadgeIcon } from "@/src/components/badge-count";
+import { PersonAvatar } from "@/src/components/person/person-avatar";
+import { MarkdownRenderer } from "@/src/components/markdown/renderer";
+import { RelativeTime } from "@/src/components/relative-time";
+import { Message } from "@/src/components/icons";
+import { Separator } from "@/src/components/ui/separator";
+import { ToolbarBackButton } from "@/src/components/toolbar/toolbar-back-button";
+import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
+import { SearchBar } from "./search-bar";
 
 const EMPTY_ARR: never[] = [];
 
@@ -204,13 +205,11 @@ export default function SearchFeed({
           <ToolbarButtons side="left">
             <ToolbarBackButton />
           </ToolbarButtons>
-          <IonSearchbar
-            mode="ios"
-            className="max-w-md mx-auto h-3"
+          <SearchBar
             value={searchInput}
-            onIonInput={(e) => {
-              setSearchInput(e.detail.value ?? "");
-              setDebouncedSearch(e.detail.value ?? "");
+            onValueChange={(value) => {
+              setSearchInput(value);
+              setDebouncedSearch(value);
             }}
             placeholder={
               communityName && type === "posts"

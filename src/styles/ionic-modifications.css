@@ -62,6 +62,10 @@ html.plt-desktop ion-header ion-toolbar:first-of-type {
   }
 }
 
+ion-toolbar {
+  @apply contain-none overflow-visible;
+}
+
 /* Fix toolbar content vertical centering after */
 /* messing with the height of the header/toolbar */
 ion-toolbar ion-buttons {
@@ -70,9 +74,8 @@ ion-toolbar ion-buttons {
 }
 
 /* Make header toolbar padding match content padding */
-ion-toolbar.ios.ios::part(container),
-ion-toolbar.md.md {
-  @apply max-w-[1075px] mx-auto px-3.5;
+ion-toolbar.ios.ios::part(container) {
+  @apply max-w-[1075px] mx-auto px-3.5 overflow-visible contain-none;
 }
 /**
 * Tailwind apply doesn't seem to work with media queries

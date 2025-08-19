@@ -58,7 +58,7 @@ const CommunitySidebar = lazy(() => import("@/src/features/community-sidebar"));
 const CommunitiesFeed = lazy(() => import("@/src/features/communities-feed"));
 const User = lazy(() => import("@/src/features/user"));
 const SavedFeed = lazy(() => import("@/src/features/saved-feed"));
-const Search = lazy(() => import("@/src/features/search"));
+const Search = lazy(() => import("@/src/features/search/search-screen"));
 const LightBoxPostFeed = lazy(
   () => import("@/src/features/light-box/light-box-post-feed"),
 );

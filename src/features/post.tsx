@@ -27,7 +27,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonSearchbar,
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
@@ -48,6 +47,7 @@ import { CommentSortSelect } from "../components/lemmy-sort";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
 import { cn } from "../lib/utils";
+import { SearchBar } from "./search/search-bar";
 
 function SafeAreaBottom() {
   return <div className="h-safe-area-bottom bg-background" />;
@@ -271,10 +271,11 @@ export default function Post() {
               {communityName}
             </ToolbarTitle>
           </ToolbarButtons>
-          <form
-            className="max-md:hidden"
-            onSubmit={(e) => {
-              e.preventDefault();
+          <SearchBar
+            placeholder={`Search ${communityName}`}
+            value={search}
+            onValueChange={setSearch}
+            onSubmit={() => {
               router.push(
                 resolveRoute(
                   `${linkCtx.root}c/:communityName/s`,
@@ -285,15 +286,7 @@ export default function Post() {
                 ),
               );
             }}
-            data-tauri-drag-region
-          >
-            <IonSearchbar
-              className="max-w-md mx-auto"
-              placeholder={`Search ${communityName}`}
-              value={search}
-              onIonInput={(e) => setSearch(e.detail.value ?? "")}
-            />
-          </form>
+          />
           <ToolbarButtons side="right">
             <CommentSortSelect
               variant="icon"
