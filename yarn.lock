@@ -1562,6 +1562,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/dialog@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "@capacitor/dialog@npm:7.0.2"
+  peerDependencies:
+    "@capacitor/core": ">=7.0.0"
+  checksum: 10c0/5ba7296756a2b15ad33f863c000dd52e786818e0105d3c664ac77a78879a943a8d217d9e7b4999eba191d3c0543716cdf51fb9c4bf3ab7d15766dd8665a59750
+  languageName: node
+  linkType: hard
+
 "@capacitor/filesystem@npm:^7.0.1":
   version: 7.0.1
   resolution: "@capacitor/filesystem@npm:7.0.1"
@@ -10975,6 +10984,7 @@ __metadata:
     "@capacitor/browser": "npm:^7.0.1"
     "@capacitor/cli": "npm:^7.1.0"
     "@capacitor/core": "npm:^7.4.0"
+    "@capacitor/dialog": "npm:^7.0.2"
     "@capacitor/filesystem": "npm:^7.0.1"
     "@capacitor/haptics": "npm:^7.0.1"
     "@capacitor/inappbrowser": "npm:^2.1.0"
