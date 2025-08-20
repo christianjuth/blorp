@@ -176,7 +176,7 @@ export function useConfirmationAlert() {
         },
       ],
       onDidDismiss: (e) => {
-        if (e.detail.role === "cancel") {
+        if (e.detail.role === "cancel" || e.detail.role === "backdrop") {
           deferred.reject();
         } else {
           try {

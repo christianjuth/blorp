@@ -11,9 +11,9 @@ const config: CapacitorConfig = {
   plugins: {
     CapacitorSQLite: {
       iosDatabaseLocation: "Library/CapacitorDatabase",
-      iosIsEncryption: false,
+      iosIsEncryption: true,
       iosKeychainPrefix: "blorp",
-      androidIsEncryption: false,
+      androidIsEncryption: true,
     },
     Keyboard: {
       resize: KeyboardResize.Ionic,

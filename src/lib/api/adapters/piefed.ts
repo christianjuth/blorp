@@ -220,13 +220,15 @@ export const pieFedLocalUserViewSchema = z.object({
 });
 
 export const pieFedMyUserSchema = z.object({
-  community_blocks: z.array(pieFedCommunityViewSchema).optional(),
+  community_blocks: z
+    .array(z.object({ community: pieFedCommunitySchema }))
+    .optional(),
   //discussion_languages: z.array(pieFedLanguageSchema).optional(),
   follows: z.array(pieFedFollowSchema).optional(),
   //instance_blocks: z.array(z.any()).optional(),
   local_user_view: pieFedLocalUserViewSchema.optional(),
   moderates: z.array(pieFedCommunityViewSchema).optional(),
-  person_blocks: z.array(pieFedPersonSchema).optional(),
+  person_blocks: z.array(z.object({ target: pieFedPersonSchema })).optional(),
 });
 
 export const pieFedSiteSchema = z.object({
@@ -808,7 +810,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
           ) ?? null,
         personBlocks:
           site.my_user?.person_blocks?.map((block) =>
-            convertPerson({ person: block }, "partial"),
+            convertPerson({ person: block.target }, "partial"),
           ) ?? null,
         communityBlocks:
           site.my_user?.community_blocks?.map(({ community }) =>
@@ -1571,14 +1573,14 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
   }
 
   async blockPerson(form: Forms.BlockPerson) {
-    await this.post("/comment/report", {
+    await this.post("/user/block", {
       person_id: form.personId,
       block: form.block,
     });
   }
 
   async blockCommunity(form: Forms.BlockCommunity) {
-    await this.post("/comment/report", {
+    await this.post("/community/block", {
       community_id: form.communityId,
       block: form.block,
     });
@@ -1588,7 +1590,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
     const formData = new FormData();
     formData.append("file", form.image);
 
-    const res = await fetch(`${this.instance}/api/alpha/upload/user_image`, {
+    const res = await fetch(`${this.instance}/api/alpha/upload/image`, {
       method: "POST",
       headers: {
         ..._.omit(DEFAULT_HEADERS, "Content-Type"),

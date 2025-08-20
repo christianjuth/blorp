@@ -28,9 +28,6 @@ export default defineConfig(({ mode }) => ({
         ]
       : []),
   ],
-  esbuild: {
-    drop: mode === "production" ? ["console"] : [],
-  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname),

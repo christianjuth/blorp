@@ -56,7 +56,7 @@ function extractErrorContent(err: Error) {
   return content ? _.capitalize(content.replaceAll("_", " ")) : "Unknown error";
 }
 
-export function useApiClients(config?: { instance?: string }) {
+export function useApiClients(config?: { instance?: string; jwt?: string }) {
   const accountIndex = useAuth((s) => s.accountIndex);
   const accounts = useAuth((s) => s.accounts);
 
@@ -81,7 +81,7 @@ export function useApiClients(config?: { instance?: string }) {
     const getInstanceOverride = () =>
       config?.instance
         ? {
-            api: apiClient({ instance: config.instance }),
+            api: apiClient({ instance: config.instance, jwt: config.jwt }),
             queryKeyPrefix: [
               `instance-${config.instance}`,
               "auth-f",
