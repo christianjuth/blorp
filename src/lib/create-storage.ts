@@ -10,7 +10,6 @@ import {
 import { Capacitor } from "@capacitor/core";
 import { debounceByKey } from "./debounce-by-key";
 import pRetry from "p-retry";
-import { Dialog } from "@capacitor/dialog";
 
 const DB_VERSION = 1;
 const DB_NAME = "lemmy-db";
@@ -28,6 +27,61 @@ function generateSqlcipherSecret(byteLen = 32): string {
   return btoa(bin); // safe ASCII string to pass to setEncryptionSecret(...)
 }
 
+/**
+ * Encrypt an existing (currently unencrypted) SQLite DB in place.
+ *
+ * @param conn            An OPEN SQLiteDBConnection to the unencrypted DB.
+ * @param dbName          The logical database name you used in createConnection(..).
+ * @param sqlite          The SQLiteConnection instance you use elsewhere.
+ * @param passphraseOpt   Optional passphrase to set/stash if none is stored yet.
+ *
+ * Notes:
+ * - Works on iOS/Android native (not on platform === 'web').
+ * - Requires encryption to be enabled in capacitor.config.* for the platforms.
+ * - Uses the DB's current PRAGMA user_version as the connection version.
+ */
+export async function encryptExistingDb(
+  dbName: string,
+  sqlite: SQLiteConnection,
+) {
+  const hasSecret = (await sqlite.isSecretStored()).result;
+  if (!hasSecret) {
+    const pass = generateSqlcipherSecret();
+    await sqlite.setEncryptionSecret(pass);
+  }
+
+  // 2) If already encrypted, do nothing
+  // (If the DB might not exist yet, you can guard with isDatabase() first.)
+  const alreadyEncrypted = (await sqlite.isDatabaseEncrypted(dbName)).result;
+  if (alreadyEncrypted) {
+    return { changed: false };
+  }
+
+  // 5) Re-open in "encryption" mode to migrate the file
+  const encConn = await sqlite.createConnection(
+    dbName,
+    /* encrypted */ true,
+    /* mode      */ "encryption", // <- one-time upgrade from plaintext
+    /* version   */ DB_VERSION,
+    /* readonly  */ false,
+  );
+  try {
+    await encConn.open();
+
+    // Quick sanity: plugin says it's encrypted now
+    const nowEncrypted = (await sqlite.isDatabaseEncrypted(dbName)).result;
+    if (!nowEncrypted) {
+      throw new Error(
+        `Database "${dbName}" did not report encrypted after migration.`,
+      );
+    }
+  } finally {
+    await encConn.close();
+  }
+
+  return { changed: true };
+}
+
 function createSqliteStore(rowName?: string) {
   if (!db) {
     const sqlite: SQLiteConnection = new SQLiteConnection(CapacitorSQLite);
@@ -37,33 +91,7 @@ function createSqliteStore(rowName?: string) {
         await sqlite.closeConnection(DB_NAME, false);
       } catch {}
 
-      if (!(await sqlite.isDatabaseEncrypted(DB_NAME)).result) {
-        Dialog.alert({
-          title: "Upgrading database",
-          message:
-            "Please keep the app open. The upgrade could take up to 60 seconds.",
-        });
-
-        const hasSecret = (await sqlite.isSecretStored()).result;
-        if (!hasSecret) {
-          const pass = generateSqlcipherSecret();
-          await sqlite.setEncryptionSecret(pass);
-        }
-
-        const p = await sqlite.createConnection(
-          DB_NAME,
-          true,
-          "encrypted",
-          DB_VERSION,
-          false,
-        );
-        await p.close();
-
-        Dialog.alert({
-          title: "Database upgraded",
-          message: "You may continue to use the app as normal.",
-        });
-      }
+      await encryptExistingDb(DB_NAME, sqlite);
 
       const p = await sqlite.createConnection(
         DB_NAME,
