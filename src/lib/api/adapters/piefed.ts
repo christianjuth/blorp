@@ -160,8 +160,11 @@ export const pieFedCommunityViewSchema = z.object({
   //activity_alert: z.boolean(),
   //blocked: z.boolean(),
   community: pieFedCommunitySchema,
-  counts: pieFedCommunityCountsSchema,
-  subscribed: z.enum(["Subscribed", "NotSubscribed", "Pending"]),
+  counts: pieFedCommunityCountsSchema.optional().nullable(),
+  subscribed: z
+    .enum(["Subscribed", "NotSubscribed", "Pending"])
+    .optional()
+    .nullable(),
 });
 
 //export const pieFedAdminCountsSchema = z.object({
