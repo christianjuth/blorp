@@ -25,6 +25,9 @@ function blobToFile(blob: Blob, filename: string) {
   });
 }
 
+const libURL = new URL("/browser-image-compression.js", window.location.origin)
+  .href;
+
 export async function compressImage(file: File) {
   try {
     if (await isAnimatedImage(file)) {
@@ -33,7 +36,7 @@ export async function compressImage(file: File) {
     const blob = await imageCompression(file, {
       maxSizeMB: 1,
       maxWidthOrHeight: 1024,
-      libURL: "/browser-image-compression.js",
+      libURL,
     });
     return blobToFile(blob, file.name);
   } catch (err) {
