@@ -1437,14 +1437,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor-community/sqlite@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "@capacitor-community/sqlite@npm:7.0.0"
+"@capacitor-community/sqlite@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "@capacitor-community/sqlite@npm:7.0.1"
   dependencies:
     jeep-sqlite: "npm:^2.7.2"
   peerDependencies:
     "@capacitor/core": ">=7.0.0"
-  checksum: 10c0/f8975adea3c62bac39556b4c604010c8f2827a062ca43fa98d4ae09077aca0cba2c2cb98d2a693f0975478d50e327aa2be9933f27f4567b3be13a605dd324d9f
+  checksum: 10c0/9d1bb43876d6f14d5cee7923860831d6faafad9fcce450b3c6955ade3180f9b0fe068aa5717629e222ec0955a5e75d1b44aec3112cbea0bb7b63353a5797dce5
   languageName: node
   linkType: hard
 
@@ -10968,7 +10968,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "lemmy@workspace:."
   dependencies:
-    "@capacitor-community/sqlite": "npm:^7.0.0"
+    "@capacitor-community/sqlite": "npm:^7.0.1"
     "@capacitor/android": "npm:^7.4.0"
     "@capacitor/app": "npm:^7.0.1"
     "@capacitor/assets": "npm:^3.0.5"
