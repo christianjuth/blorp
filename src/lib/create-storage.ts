@@ -10,7 +10,6 @@ import {
 import { Capacitor } from "@capacitor/core";
 import { debounceByKey } from "./debounce-by-key";
 import pRetry from "p-retry";
-import { Dialog } from "@capacitor/dialog";
 
 const DB_VERSION = 1;
 const DB_NAME = "lemmy-db";
@@ -58,13 +57,6 @@ export async function encryptExistingDb(
     return { changed: false };
   }
 
-  await Dialog.alert({
-    title: "Upgrading database",
-    message:
-      "Please keep the app open. The upgrade could take up to 60 seconds.",
-    buttonTitle: "Continue",
-  });
-
   // 5) Re-open in "encryption" mode to migrate the file
   const encConn = await sqlite.createConnection(
     dbName,
@@ -87,10 +79,7 @@ export async function encryptExistingDb(
     await encConn.close();
   }
 
-  await Dialog.alert({
-    title: "Database upgraded",
-    message: "You may continue to use the app as normal.",
-  });
+  location.reload();
 
   return { changed: true };
 }
@@ -210,15 +199,23 @@ export const runTauriSecurityFix = () => {
           },
         });
 
-        for (const key of await store.keys()) {
-          const value = await store.get(key);
-          if (value) {
-            idb.put(TABLE_NAME, value, key);
+        let migrated = false;
+
+        try {
+          for (const key of await store.keys()) {
+            const value = await store.get(key);
+            if (value) {
+              idb.put(TABLE_NAME, value, key);
+              migrated = true;
+            }
+          }
+        } finally {
+          await store.reset();
+          await store.save();
+          if (migrated) {
+            location.reload();
           }
         }
-
-        await store.reset();
-        await store.save();
       },
       {
         retries: 10,
