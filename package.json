@@ -29,6 +29,7 @@
     "@capacitor/app": "^7.0.1",
     "@capacitor/browser": "^7.0.1",
     "@capacitor/core": "^7.4.0",
+    "@capacitor/dialog": "^7.0.2",
     "@capacitor/filesystem": "^7.0.1",
     "@capacitor/haptics": "^7.0.1",
     "@capacitor/inappbrowser": "^2.1.0",
