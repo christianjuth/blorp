@@ -276,13 +276,14 @@ export function useTabbarHeight() {
 }
 
 export function useKeyboardShortcut(handler: (e: KeyboardEvent) => void) {
+  const media = useMedia();
   const isActive = useIsActiveRoute();
   useEffect(() => {
-    if (isActive) {
+    if (isActive && media.md) {
       document.addEventListener("keydown", handler);
       return () => document.removeEventListener("keydown", handler);
     }
-  }, [handler, isActive]);
+  }, [handler, isActive, media.md]);
 }
 
 export function useDebouncedState<T>(initValue: T, debounceTime: number) {

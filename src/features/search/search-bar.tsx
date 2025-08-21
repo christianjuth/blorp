@@ -21,6 +21,7 @@ import { encodeApId } from "@/src/lib/api/utils";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import type { Forms, Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import { useDebouncedState, useKeyboardShortcut } from "@/src/lib/hooks";
+import { isIos, isMacOs } from "@/src/lib/device";
 
 function CommentSearchResult({ comment }: { comment: Schemas.Comment }) {
   const router = useIonRouter();
@@ -222,7 +223,7 @@ export function SearchBar({
         data-tauri-drag-region
         endAdornment={
           <CommandShortcut className="group-focus-within:hidden">
-            ⌘K
+            {isMacOs() || isIos() ? "⌘" : "Ctrl+"}K
           </CommandShortcut>
         }
       />

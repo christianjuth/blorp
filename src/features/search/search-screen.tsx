@@ -141,13 +141,13 @@ export default function SearchFeed({
               setType("posts");
               break;
             case "2":
-              setType("communities");
+              setType("comments");
               break;
             case "3":
-              setType("users");
+              setType("communities");
               break;
             case "4":
-              setType("comments");
+              setType("users");
               break;
           }
         }
@@ -196,18 +196,18 @@ export default function SearchFeed({
       return users;
     }
 
-    if (type === "communities") {
-      const communities =
-        searchResults.data?.pages.map((res) => res.communities).flat() ??
-        EMPTY_ARR;
-      return communities;
-    }
-
     if (type === "comments") {
       const comments =
         searchResults.data?.pages.map((res) => res.comments).flat() ??
         EMPTY_ARR;
       return comments;
+    }
+
+    if (type === "communities") {
+      const communities =
+        searchResults.data?.pages.map((res) => res.communities).flat() ??
+        EMPTY_ARR;
+      return communities;
     }
 
     return searchResults.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
@@ -255,6 +255,7 @@ export default function SearchFeed({
               }
             >
               <ToggleGroupItem value="posts">Posts</ToggleGroupItem>
+              <ToggleGroupItem value="comments">Comments</ToggleGroupItem>
               {scope === "global" && (
                 <ToggleGroupItem value="communities">
                   Communities
@@ -263,7 +264,6 @@ export default function SearchFeed({
               {scope === "global" && (
                 <ToggleGroupItem value="users">Users</ToggleGroupItem>
               )}
-              <ToggleGroupItem value="comments">Comments</ToggleGroupItem>
             </ToggleGroup>
           </IonToolbar>
         )}
@@ -301,22 +301,22 @@ export default function SearchFeed({
                       Posts
                       <KeyboardShortcut>1</KeyboardShortcut>
                     </ToggleGroupItem>
+                    <ToggleGroupItem value="comments">
+                      Comments
+                      <KeyboardShortcut>2</KeyboardShortcut>
+                    </ToggleGroupItem>
                     {scope === "global" && (
                       <ToggleGroupItem value="communities">
                         Communities
-                        <KeyboardShortcut>2</KeyboardShortcut>
+                        <KeyboardShortcut>3</KeyboardShortcut>
                       </ToggleGroupItem>
                     )}
                     {scope === "global" && (
                       <ToggleGroupItem value="users">
                         Users
-                        <KeyboardShortcut>3</KeyboardShortcut>
+                        <KeyboardShortcut>4</KeyboardShortcut>
                       </ToggleGroupItem>
                     )}
-                    <ToggleGroupItem value="comments">
-                      Comments
-                      <KeyboardShortcut>4</KeyboardShortcut>
-                    </ToggleGroupItem>
                   </ToggleGroup>
                 </div>
                 <></>
