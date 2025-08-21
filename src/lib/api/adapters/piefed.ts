@@ -195,11 +195,6 @@ export const pieFedSiteDetailsSchema = z.object({
   user_count: z.number(),
 });
 
-export const pieFedFollowSchema = z.object({
-  community: pieFedCommunitySchema,
-  //follower: pieFedPersonSchema,
-});
-
 export const pieFedLocalUserSchema = z.object({
   //default_listing_type: z.string(),
   //default_sort_type: z.string(),
@@ -222,18 +217,28 @@ export const pieFedLocalUserViewSchema = z.object({
 export const pieFedMyUserSchema = z.object({
   community_blocks: z
     .array(z.object({ community: pieFedCommunitySchema }))
-    .optional(),
+    .optional()
+    .nullable(),
   //discussion_languages: z.array(pieFedLanguageSchema).optional(),
-  follows: z.array(pieFedFollowSchema).optional(),
+  follows: z
+    .array(z.object({ community: pieFedCommunitySchema }))
+    .optional()
+    .nullable(),
   //instance_blocks: z.array(z.any()).optional(),
-  local_user_view: pieFedLocalUserViewSchema.optional(),
-  moderates: z.array(pieFedCommunityViewSchema).optional(),
-  person_blocks: z.array(z.object({ target: pieFedPersonSchema })).optional(),
+  local_user_view: pieFedLocalUserViewSchema.optional().nullable(),
+  moderates: z
+    .array(z.object({ community: pieFedCommunitySchema }))
+    .optional()
+    .nullable(),
+  person_blocks: z
+    .array(z.object({ target: pieFedPersonSchema }))
+    .optional()
+    .nullable(),
 });
 
 export const pieFedSiteSchema = z.object({
   admins: z.array(pieFedAdminSchema),
-  my_user: pieFedMyUserSchema.optional(),
+  my_user: pieFedMyUserSchema.optional().nullable(),
   site: pieFedSiteDetailsSchema,
   version: z.string(),
 });

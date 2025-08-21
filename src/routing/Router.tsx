@@ -18,7 +18,7 @@ import { useMedia } from "@/src/lib/hooks/index";
 import { useNotificationCount, usePrivateMessagesCount } from "@/src/lib/api";
 import { lazy } from "react";
 import { dispatchScrollEvent } from "@/src/lib/scroll-events";
-import { isTauri } from "@/src/lib/device";
+import { isAndroid, isTauri } from "@/src/lib/device";
 import { AppUrlListener } from "@/src/components/universal-links";
 import { CreatePost } from "@/src/features/create-post";
 import { cn } from "../lib/utils";
@@ -78,9 +78,9 @@ function SkipNav() {
   );
 }
 
-function useMenuSwipeEnabled(side: "right" | "left") {
+function useMenuSwipeEnabled(side: "from-right" | "from-left") {
   const path = usePathname();
-  if (side === "left") {
+  if (side === "from-left") {
     switch (path) {
       case "/home":
       case "/communities":
@@ -92,6 +92,9 @@ function useMenuSwipeEnabled(side: "right" | "left") {
         return false;
     }
   } else {
+    if (isAndroid()) {
+      return false;
+    }
     // I wanted to prevent this from matching
     // communities named lightbox
     return !/\/lightbox(\/|\?|$)/.test(path);
@@ -316,8 +319,8 @@ const SETTINGS = [
 ];
 
 function Tabs() {
-  const leftSwipeEnabled = useMenuSwipeEnabled("left");
-  const rightSwipeEnabled = useMenuSwipeEnabled("right");
+  const fromLeftSwipeEnabled = useMenuSwipeEnabled("from-left");
+  const fromRightSwipeEnabled = useMenuSwipeEnabled("from-right");
   const selectedAccountIndex = useAuth((s) => s.accountIndex);
   const inboxCount = useNotificationCount()[selectedAccountIndex];
   const messageCount = usePrivateMessagesCount()[selectedAccountIndex];
@@ -331,7 +334,7 @@ function Tabs() {
     <>
       <SkipNav />
       <IonMenu
-        swipeGesture={rightSwipeEnabled}
+        swipeGesture={fromRightSwipeEnabled}
         menuId={RIGHT_SIDEBAR_MENU_ID}
         contentId="main"
         side="end"
@@ -352,7 +355,7 @@ function Tabs() {
 
       <IonSplitPane when="lg" contentId="main">
         <IonMenu
-          swipeGesture={leftSwipeEnabled}
+          swipeGesture={fromLeftSwipeEnabled}
           type="push"
           contentId="main"
           menuId={LEFT_SIDEBAR_MENU_ID}

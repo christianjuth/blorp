@@ -754,16 +754,21 @@ export function useRefreshAuth() {
             cacheProfiles(getCachePrefixer(account), [me]);
             cacheCommunities(
               getCachePrefixer(account),
-              [...(site?.follows ?? []), ...(site?.moderates ?? [])].map(
-                (community) => ({
-                  communityView: community,
-                }),
-              ),
+              [
+                ...(site?.follows ?? []),
+                ...(site?.moderates ?? []),
+                ...(site?.communityBlocks ?? []),
+              ].map((community) => ({
+                communityView: community,
+              })),
             );
           }
 
           if (site) {
-            cacheProfiles(getCachePrefixer(account), site.admins);
+            cacheProfiles(getCachePrefixer(account), [
+              ...site.admins,
+              ...(site.personBlocks ?? []),
+            ]);
             updateAccount(i, {
               site,
             });
