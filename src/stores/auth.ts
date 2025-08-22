@@ -263,7 +263,6 @@ export const useAuth = create<AuthStore>()(
       merge: (persisted, current) => {
         const persistedData = storeSchema.safeParse(persisted).data;
         const currentLoggedIn = current.accounts.filter((a) => !!a.jwt);
-        console.log([...(persistedData?.accounts ?? []), ...currentLoggedIn]);
         return {
           ...current,
           ...persistedData,
