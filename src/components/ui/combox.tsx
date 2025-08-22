@@ -45,7 +45,11 @@ export function Combobox<V extends string>({
       <PopoverTrigger asChild>{trigger({ isOpen: open })}</PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align={align}>
         <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
+          <CommandInput
+            placeholder="Search language..."
+            className="h-9 text-sm"
+            searchIcon={false}
+          />
           <CommandList>
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>

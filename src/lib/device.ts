@@ -8,6 +8,14 @@ export function isAndroid() {
   return browser.is("android");
 }
 
+export function isMacOs() {
+  return browser.is("macos");
+}
+
+export function isIos() {
+  return browser.is("ios");
+}
+
 export function isTauri(): boolean {
   try {
     return _.isObject(window) && "isTauri" in window && Boolean(window.isTauri);

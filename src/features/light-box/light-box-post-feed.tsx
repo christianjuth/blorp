@@ -12,6 +12,7 @@ import {
   useElementHadFocus,
   useHideTabBarOnMount,
   useIsActiveRoute,
+  useKeyboardShortcut,
   useMedia,
   useNavbarHeight,
   useTabbarHeight,
@@ -210,53 +211,50 @@ function HorizontalVirtualizer<T>({
   const [snap, setSnap] = useState(true);
 
   const timerRef = useRef<number>(-1);
-  useEffect(() => {
-    if (!focused || !isActive) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      switch (e.key) {
-        case "ArrowLeft":
-        case "a":
-        case "j":
-          window.clearTimeout(timerRef.current);
-          e.preventDefault();
-          e.stopPropagation();
-          setSnap(false);
-          scrollBy(-itemWidth, {
-            behavior: "auto",
-            align: "start",
-          });
-          updateIndex();
-          timerRef.current = window.setTimeout(() => {
-            setSnap(true);
-          }, 50);
-          break;
-        case "d":
-        case "k":
-        case "ArrowRight":
-          window.clearTimeout(timerRef.current);
-          e.preventDefault();
-          e.stopPropagation();
-          setSnap(false);
-          scrollBy(itemWidth, {
-            behavior: "auto",
-            align: "start",
-          });
-          updateIndex();
-          timerRef.current = window.setTimeout(() => {
-            setSnap(true);
-          }, 50);
-          break;
-        default:
-          break;
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [itemWidth, scrollBy, updateIndex, focused, isActive]);
+  useKeyboardShortcut(
+    useCallback(
+      (e) => {
+        if (!focused || e.metaKey) return;
+        switch (e.key) {
+          case "ArrowLeft":
+          case "a":
+          case "j":
+            window.clearTimeout(timerRef.current);
+            e.preventDefault();
+            e.stopPropagation();
+            setSnap(false);
+            scrollBy(-itemWidth, {
+              behavior: "auto",
+              align: "start",
+            });
+            updateIndex();
+            timerRef.current = window.setTimeout(() => {
+              setSnap(true);
+            }, 50);
+            break;
+          case "d":
+          case "k":
+          case "ArrowRight":
+            window.clearTimeout(timerRef.current);
+            e.preventDefault();
+            e.stopPropagation();
+            setSnap(false);
+            scrollBy(itemWidth, {
+              behavior: "auto",
+              align: "start",
+            });
+            updateIndex();
+            timerRef.current = window.setTimeout(() => {
+              setSnap(true);
+            }, 50);
+            break;
+          default:
+            break;
+        }
+      },
+      [itemWidth, scrollBy, updateIndex, focused],
+    ),
+  );
 
   return (
     <div
@@ -457,49 +455,45 @@ export default function LightBoxPostFeed() {
   const voting = usePostVoting(postApId);
   const { vote, isUpvoted, isDownvoted } = voting ?? {};
 
-  useEffect(() => {
-    if (!isActive) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (post) {
-        switch (e.key) {
-          case "ArrowUp":
-          case "w":
-          case "h":
-            e.preventDefault();
-            e.stopPropagation();
-            requireAuth().then(() => {
-              vote?.mutate({
-                score: isUpvoted ? 0 : 1,
-                postApId: post.apId,
-                postId: post.id,
+  useKeyboardShortcut(
+    useCallback(
+      (e) => {
+        if (post && !e.metaKey) {
+          switch (e.key) {
+            case "ArrowUp":
+            case "w":
+            case "h":
+              e.preventDefault();
+              e.stopPropagation();
+              requireAuth().then(() => {
+                vote?.mutate({
+                  score: isUpvoted ? 0 : 1,
+                  postApId: post.apId,
+                  postId: post.id,
+                });
               });
-            });
-            break;
-          case "ArrowDown":
-          case "s":
-          case "l":
-            e.preventDefault();
-            e.stopPropagation();
-            requireAuth().then(() => {
-              vote?.mutate({
-                score: isDownvoted ? 0 : -1,
-                postApId: post.apId,
-                postId: post.id,
+              break;
+            case "ArrowDown":
+            case "s":
+            case "l":
+              e.preventDefault();
+              e.stopPropagation();
+              requireAuth().then(() => {
+                vote?.mutate({
+                  score: isDownvoted ? 0 : -1,
+                  postApId: post.apId,
+                  postId: post.id,
+                });
               });
-            });
-            break;
-          default:
-            break;
+              break;
+            default:
+              break;
+          }
         }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [vote, isUpvoted, isDownvoted, post, isActive, requireAuth]);
+      },
+      [vote, isUpvoted, isDownvoted, post, requireAuth],
+    ),
+  );
 
   const onIndexChange = useCallback(
     (newIndex: number) => {

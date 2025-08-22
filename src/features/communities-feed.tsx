@@ -12,7 +12,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonSearchbar,
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
@@ -23,6 +22,7 @@ import { Link } from "@/src/routing/index";
 import { getAccountSite, useAuth } from "../stores/auth";
 import { Search } from "../components/icons";
 import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
+import { SearchBar } from "./search/search-bar";
 
 const MemoedListItem = memo(function ListItem(props: {
   communitySlug: string;
@@ -85,21 +85,15 @@ export default function Communities() {
             <MenuButton />
             <CommunityFilter />
           </ToolbarButtons>
-          <form
-            className="max-md:hidden"
-            onSubmit={(e) => {
-              e.preventDefault();
+          <SearchBar
+            value={search}
+            onValueChange={setSearch}
+            onSubmit={() => {
               router.push(`/communities/s?q=${search}`);
             }}
-            data-tauri-drag-region
-          >
-            <IonSearchbar
-              mode="ios"
-              className="max-w-md mx-auto"
-              value={search}
-              onIonInput={(e) => setSearch(e.detail.value ?? "")}
-            />
-          </form>
+            type="Communities"
+            className="max-md:hidden"
+          />
           <ToolbarButtons side="right">
             <Link to="/communities/s" className="text-2xl contents md:hidden">
               <Search className="text-muted-foreground scale-110" />

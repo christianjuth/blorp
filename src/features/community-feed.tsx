@@ -17,7 +17,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonSearchbar,
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
@@ -44,6 +43,7 @@ import { Search } from "../components/icons";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { Separator } from "../components/ui/separator";
 import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
+import { SearchBar } from "./search/search-bar";
 
 const EMPTY_ARR: never[] = [];
 
@@ -129,21 +129,16 @@ export default function CommunityFeed() {
               {communityName}
             </ToolbarTitle>
           </ToolbarButtons>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
+          <SearchBar
+            placeholder={`Search ${communityName}`}
+            value={search}
+            onValueChange={setSearch}
+            communitySlug={communityName}
+            onSubmit={() => {
               router.push(`${linkCtx.root}c/${communityName}/s?q=${search}`);
             }}
-            data-tauri-drag-region
             className="max-md:hidden"
-          >
-            <IonSearchbar
-              className="max-w-md mx-auto"
-              placeholder={`Search ${communityName}`}
-              value={search}
-              onIonInput={(e) => setSearch(e.detail.value ?? "")}
-            />
-          </form>
+          />
           <ToolbarButtons side="right">
             <Link
               to={`${linkCtx.root}c/:communityName/s`}

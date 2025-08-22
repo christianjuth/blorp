@@ -1167,8 +1167,8 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
           _.isUndefined(form.pageCursor) || form.pageCursor === INIT_PAGE_TOKEN
             ? 1
             : _.parseInt(form.pageCursor) + 1,
-        type_: form.type,
-        limit: this.limit,
+        type_: form.type === "All" ? "Posts" : form.type,
+        limit: form.limit ?? this.limit,
         sort: topSort ? "TopAll" : "Active",
       },
       options,

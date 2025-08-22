@@ -34,6 +34,7 @@ import { useAuth } from "../stores/auth";
 import { usePostsStore } from "../stores/posts";
 import { Search } from "../components/icons";
 import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
+import { SearchBar } from "./search/search-bar";
 
 const EMPTY_ARR: never[] = [];
 
@@ -195,20 +196,14 @@ export default function HomeFeed() {
             <MenuButton />
             <HomeFilter />
           </ToolbarButtons>
-          <form
-            className="max-md:hidden"
-            onSubmit={(e) => {
-              e.preventDefault();
+          <SearchBar
+            onValueChange={setSearch}
+            value={search}
+            onSubmit={() => {
               router.push(`/home/s?q=${search}`);
             }}
-            data-tauri-drag-region
-          >
-            <IonSearchbar
-              className="max-w-md mx-auto"
-              value={search}
-              onIonInput={(e) => setSearch(e.detail.value ?? "")}
-            />
-          </form>
+            className="max-md:hidden"
+          />
           <ToolbarButtons side="right">
             {/* <DownloadButton /> */}
             <Link

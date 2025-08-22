@@ -1588,6 +1588,7 @@ export function useSearch(form: Forms.Search) {
     initialPageParam: INIT_PAGE_TOKEN,
     notifyOnChangeProps: "all",
     staleTime: 1000 * 60 * 5,
+    enabled: !!form.q,
     // refetchOnWindowFocus: false,
     // refetchOnMount: true,
     // staleTime: Infinity,
