@@ -35,6 +35,7 @@ import { useCommunitiesStore } from "@/src/stores/communities";
 import { CakeDay } from "../cake-day";
 import { useTagUser, useTagUserStore } from "@/src/stores/user-tags";
 import { Badge } from "../ui/badge";
+import { useTranslation } from "react-i18next";
 
 export function PostByline({
   post,
@@ -51,6 +52,8 @@ export function PostByline({
   onNavigate?: () => void;
   isMod?: boolean;
 }) {
+  const { t } = useTranslation();
+
   const [alrt] = useIonAlert();
 
   const showReportModal = useShowPostReportModal();
@@ -94,7 +97,7 @@ export function PostByline({
   const actions: ActionMenuProps["actions"] = useMemo(
     () => [
       {
-        text: saved ? "Unsave post" : "Save post",
+        text: saved ? t("unsave_post") : t("save_post"),
         onClick: () =>
           requireAuth().then(() => {
             savePost.mutateAsync({
