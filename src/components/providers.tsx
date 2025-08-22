@@ -61,14 +61,10 @@ const persister: Persister = {
     );
   },
   restoreClient: async () => {
-    try {
-      const cache = await pRetry(() => db.getItem("react-query-cache"), {
-        retries: 5,
-      });
-      return cache ? JSON.parse(cache) : undefined;
-    } catch {
-      window.location.reload();
-    }
+    const cache = await pRetry(() => db.getItem("react-query-cache"), {
+      retries: 3,
+    });
+    return cache ? JSON.parse(cache) : undefined;
   },
   removeClient: async () => {
     await db.removeItem("react-query-cache");
