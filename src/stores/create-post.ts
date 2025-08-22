@@ -193,6 +193,17 @@ export const useCreatePostStore = create<CreatePostStore>()(
           }
         };
       },
+      merge: (p: any, current) => {
+        const persisted = p as Partial<CreatePostStore>;
+        return {
+          ...current,
+          ...persisted,
+          drafts: {
+            ...current.drafts,
+            ...persisted.drafts,
+          },
+        } satisfies CreatePostStore;
+      },
     },
   ),
 );

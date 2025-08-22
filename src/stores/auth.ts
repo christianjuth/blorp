@@ -29,12 +29,12 @@ const accountSchema = z.union([
   z.object({
     instance: z.string(),
     jwt: z.string().optional(),
+    site: siteSchema,
     uuid: z.string().optional(),
   }),
   z.object({
     instance: z.string(),
     jwt: z.string().optional(),
-    site: siteSchema,
     uuid: z.string().optional(),
   }),
 ]);
@@ -258,6 +258,20 @@ export const useAuth = create<AuthStore>()(
                 ...a,
               }) satisfies Account,
           ),
+        };
+      },
+      merge: (persisted, current) => {
+        const persistedData = storeSchema.safeParse(persisted).data;
+        const currentLoggedIn = current.accounts.filter((a) => !!a.jwt);
+        return {
+          ...current,
+          ...persistedData,
+          accounts: persistedData?.accounts
+            ? _.uniqBy(
+                [...persistedData.accounts, ...currentLoggedIn],
+                (a) => a.uuid,
+              )
+            : current.accounts,
         };
       },
     },

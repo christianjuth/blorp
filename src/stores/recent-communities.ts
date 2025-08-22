@@ -17,19 +17,25 @@ const INIT_STATE = {
   recentlyVisited: [],
 };
 
+function mergeCommunities(
+  existingCommunities: Schemas.Community[],
+  newCommunities: Schemas.Community[],
+) {
+  return _.slice(
+    _.uniqBy([...newCommunities, ...existingCommunities], (c) => c.apId),
+    0,
+    MAX_VISITED,
+  );
+}
+
 export const useRecentCommunitiesStore = create<RecentCommunityStore>()(
   persist(
     (set, get) => ({
       ...INIT_STATE,
       update: (comunity) => {
         const prev = get().recentlyVisited;
-        const update = _.slice(
-          _.uniqBy([comunity, ...prev], (c) => c.apId),
-          0,
-          MAX_VISITED,
-        );
         set({
-          recentlyVisited: update,
+          recentlyVisited: mergeCommunities(prev, [comunity]),
         });
       },
       reset: () => {
@@ -42,6 +48,17 @@ export const useRecentCommunitiesStore = create<RecentCommunityStore>()(
       name: "recent-communities",
       storage: createStorage<RecentCommunityStore>(),
       version: 1,
+      merge: (p: any, current) => {
+        const persisted = p as Partial<RecentCommunityStore>;
+        return {
+          ...current,
+          ...persisted,
+          recentlyVisited: mergeCommunities(
+            persisted.recentlyVisited ?? [],
+            current.recentlyVisited,
+          ),
+        } satisfies RecentCommunityStore;
+      },
     },
   ),
 );
