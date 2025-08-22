@@ -195,6 +195,7 @@ export function ResponsiveImage({
           <button
             className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-3xl"
             onClick={() => setRemoveBlur(true)}
+            aria-label="Show NSFW"
           >
             NSFW
           </button>
