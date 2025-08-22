@@ -13,45 +13,14 @@ import { usePostsStore } from "@/src/stores/posts";
 import { useCallback, useMemo, useRef, useState } from "react";
 import _ from "lodash";
 import { useProfilesStore } from "@/src/stores/profiles";
-import removeMd from "remove-markdown";
 import { useLinkContext } from "@/src/routing/link-context";
 import { useIonRouter } from "@ionic/react";
 import { resolveRoute } from "@/src/routing";
 import { encodeApId } from "@/src/lib/api/utils";
 import { useCommunitiesStore } from "@/src/stores/communities";
-import type { Forms, Schemas } from "@/src/lib/api/adapters/api-blueprint";
+import type { Forms } from "@/src/lib/api/adapters/api-blueprint";
 import { useDebouncedState, useKeyboardShortcut } from "@/src/lib/hooks";
 import { isIos, isMacOs } from "@/src/lib/device";
-
-function CommentSearchResult({ comment }: { comment: Schemas.Comment }) {
-  const router = useIonRouter();
-  const linkCtx = useLinkContext();
-
-  const onSelect = () =>
-    router.push(
-      resolveRoute(
-        `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
-        {
-          communityName: comment.communitySlug,
-          post: encodeApId(comment.postApId),
-          comment: String(comment.id),
-        },
-      ),
-    );
-
-  return (
-    <CommandItem
-      key={comment.apId}
-      value={comment.apId}
-      keywords={[comment.body]}
-      className="line-clamp-1"
-      onSelect={onSelect}
-      onClick={onSelect}
-    >
-      {removeMd(comment.body)}
-    </CommandItem>
-  );
-}
 
 function CommunitySearchResult({ apId }: { apId: string }) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -185,12 +154,11 @@ export function SearchBar({
     }, []),
   );
 
-  const { posts, users, comments, communities } = useMemo(() => {
+  const { posts, users, communities } = useMemo(() => {
     const posts = _.uniq(searchResults.data?.pages.flatMap((p) => p.posts));
     const users = _.uniq(searchResults.data?.pages.flatMap((p) => p.users));
-    const comments = searchResults.data?.pages.flatMap((p) => p.comments);
     const communities = searchResults.data?.pages.flatMap((p) => p.communities);
-    return { posts, users, comments, communities };
+    return { posts, users, communities };
   }, [searchResults.data]);
 
   return (
@@ -262,13 +230,6 @@ export function SearchBar({
           <CommandGroup heading="Users">
             {users.map((apId) => (
               <UserSearchResult key={apId} apId={apId} />
-            ))}
-          </CommandGroup>
-        )}
-        {props.value && comments && comments.length > 0 && (
-          <CommandGroup heading="Comments">
-            {comments.map((comment) => (
-              <CommentSearchResult key={comment.apId} comment={comment} />
             ))}
           </CommandGroup>
         )}
