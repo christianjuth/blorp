@@ -10,7 +10,7 @@ import { useSearch } from "@/src/lib/api";
 import { cn } from "@/src/lib/utils";
 import { useAuth } from "@/src/stores/auth";
 import { usePostsStore } from "@/src/stores/posts";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import _ from "lodash";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { useLinkContext } from "@/src/routing/link-context";
@@ -19,8 +19,13 @@ import { resolveRoute } from "@/src/routing";
 import { encodeApId } from "@/src/lib/api/utils";
 import { useCommunitiesStore } from "@/src/stores/communities";
 import type { Forms } from "@/src/lib/api/adapters/api-blueprint";
-import { useDebouncedState, useKeyboardShortcut } from "@/src/lib/hooks";
+import {
+  useDebouncedState,
+  useIsActiveRoute,
+  useKeyboardShortcut,
+} from "@/src/lib/hooks";
 import { isIos, isMacOs } from "@/src/lib/device";
+import { useSearchStore } from "@/src/stores/search";
 
 function CommunitySearchResult({ apId }: { apId: string }) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -46,11 +51,12 @@ function CommunitySearchResult({ apId }: { apId: string }) {
     <CommandItem
       value={apId}
       keywords={[community.communityView.slug]}
-      className="line-clamp-1"
       onSelect={onSelect}
       onClick={onSelect}
     >
-      {community.communityView.slug}
+      <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+        {community.communityView.slug}
+      </span>
     </CommandItem>
   );
 }
@@ -78,11 +84,12 @@ function PostSearchResult({ apId }: { apId: string }) {
     <CommandItem
       value={apId}
       keywords={[post.title]}
-      className="line-clamp-1"
       onSelect={onSelect}
       onClick={onSelect}
     >
-      {post.title}
+      <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+        {post.title}
+      </span>
     </CommandItem>
   );
 }
@@ -111,11 +118,12 @@ function UserSearchResult({ apId }: { apId: string }) {
     <CommandItem
       value={apId}
       keywords={[post.slug]}
-      className="line-clamp-1"
       onSelect={onSelect}
       onClick={onSelect}
     >
-      {post.slug}
+      <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+        {post.slug}
+      </span>
     </CommandItem>
   );
 }
@@ -125,8 +133,11 @@ export function SearchBar({
   communitySlug,
   preventOpen = false,
   className,
+  autoFocus,
   ...props
-}: React.ComponentProps<typeof CommandInput> & { onSubmit?: () => any } & {
+}: React.ComponentProps<typeof CommandInput> & {
+  onSubmit?: (value?: string) => any;
+} & {
   type?: Forms.Search["type"];
   communitySlug?: Forms.Search["communitySlug"];
   preventOpen?: boolean;
@@ -161,11 +172,27 @@ export function SearchBar({
     return { posts, users, communities };
   }, [searchResults.data]);
 
+  const isActive = useIsActiveRoute();
+
+  useEffect(() => {
+    if (autoFocus && isActive) {
+      const id = setTimeout(() => {
+        ref.current?.focus();
+      }, 50);
+      return () => clearTimeout(id);
+    }
+  }, [autoFocus, isActive]);
+
+  const saveSearch = useSearchStore((s) => s.saveSearch);
+  const searchHistory = useSearchStore((s) => s.searchHistory).slice(0, 5);
+
+  const canOpen = props.value || searchHistory.length > 0;
+
   return (
     <Command
       className={cn(
         "md:max-w-md relative mx-auto overflow-visible border group",
-        props.value && !preventOpen
+        canOpen && !preventOpen
           ? "focus-within:rounded-b-none focus-within:shadow"
           : "focus-within:ring",
         className,
@@ -180,6 +207,11 @@ export function SearchBar({
         onKeyDown={(e) => {
           if (e.key === "Escape") {
             ref.current?.blur();
+          } else if (e.key === "Enter") {
+            if (props.value) {
+              saveSearch(props.value);
+            }
+            ref.current?.blur();
           }
           props.onKeyDown?.(e);
         }}
@@ -190,7 +222,7 @@ export function SearchBar({
         loading={isOpen && searchResults.isFetching}
         data-tauri-drag-region
         endAdornment={
-          <CommandShortcut className="group-focus-within:hidden">
+          <CommandShortcut className="group-focus-within:hidden max-md:hidden">
             {isMacOs() || isIos() ? "⌘" : "Ctrl+"}K
           </CommandShortcut>
         }
@@ -198,20 +230,49 @@ export function SearchBar({
       <CommandList
         className={cn(
           "absolute top-full z-50 bg-popover rounded-b-lg border -left-px -right-px shadow hidden",
-          props.value && !preventOpen && "group-focus-within:block",
+          canOpen && !preventOpen && "group-focus-within:block",
         )}
       >
         {props.value && (
           <CommandGroup forceMount>
             <CommandItem
-              className="line-clamp-1"
               value={props.value}
-              onSelect={props.onSubmit}
+              onSelect={() => {
+                if (props.value) {
+                  saveSearch(props.value);
+                }
+                props.onSubmit?.();
+              }}
             >
-              Search {props.value.trim()}...
+              <span className="whitespace-nowrap break-all overflow-hidden text-ellipsis">
+                Search {props.value.trim()}...
+              </span>
             </CommandItem>
           </CommandGroup>
         )}
+
+        {searchHistory.length > 0 && (
+          <CommandGroup heading="Recent searches">
+            {searchHistory.map((item) =>
+              item !== props.value ? (
+                <CommandItem
+                  key={item}
+                  className="whitespace-nowrap overflow-hidden text-ellipsis"
+                  value={item}
+                  onSelect={() => {
+                    saveSearch(item);
+                    props.onSubmit?.(item);
+                  }}
+                >
+                  <span className="whitespace-nowrap overflow-hidden text-ellipsis">
+                    {item}
+                  </span>
+                </CommandItem>
+              ) : null,
+            )}
+          </CommandGroup>
+        )}
+
         {props.value && communities && communities.length > 0 && (
           <CommandGroup heading="Communities">
             {communities.map((apId) => (

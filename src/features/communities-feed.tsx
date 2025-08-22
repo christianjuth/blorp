@@ -88,8 +88,8 @@ export default function Communities() {
           <SearchBar
             value={search}
             onValueChange={setSearch}
-            onSubmit={() => {
-              router.push(`/communities/s?q=${search}`);
+            onSubmit={(newVal) => {
+              router.push(`/communities/s?q=${newVal ?? search}`);
             }}
             type="Communities"
             className="max-md:hidden"

@@ -844,6 +844,7 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         community_name: form.communitySlug,
         sort,
         type_: form.type,
+        saved_only: form.savedOnly,
       },
       options,
     );
@@ -1076,37 +1077,70 @@ export class PieFedApi implements ApiBlueprint<null, "piefed"> {
         ? (await this.resolveObjectId(form.postApId)).post_id
         : undefined;
 
-      const json = await this.get(
-        "/post/replies",
-        {
-          limit: 100,
-          type_: "All",
-          sort,
-          page:
-            form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
-          parent_id: form.parentId,
-          post_id,
-          max_depth: form.maxDepth,
-        },
-        options,
-      );
+      if (form.savedOnly) {
+        const json = await this.get(
+          "/comment/list",
+          {
+            limit: this.limit,
+            type_: "All",
+            sort,
+            page:
+              form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
+            parent_id: form.parentId,
+            post_id,
+            max_depth: form.maxDepth,
+            saved_only: form.savedOnly,
+          },
+          options,
+        );
 
-      const data = z
-        .object({
-          comments: z.array(pieFedCommentViewSchema),
-          next_page: z.string().nullable().optional(),
-        })
-        .parse(json);
+        const data = z
+          .object({
+            comments: z.array(pieFedCommentViewSchema),
+            next_page: z.string().nullable().optional(),
+          })
+          .parse(json);
 
-      const flattenedComments = flattenCommentViews(data.comments);
+        return {
+          comments: data.comments.map(convertComment),
+          creators: data.comments.map(({ creator }) =>
+            convertPerson({ person: creator }, "partial"),
+          ),
+          nextCursor: data.next_page ?? null,
+        };
+      } else {
+        const json = await this.get(
+          "/post/replies",
+          {
+            limit: 100,
+            type_: "All",
+            sort,
+            page:
+              form.pageCursor === INIT_PAGE_TOKEN ? undefined : form.pageCursor,
+            parent_id: form.parentId,
+            post_id,
+            max_depth: form.maxDepth,
+          },
+          options,
+        );
 
-      return {
-        comments: flattenedComments.map(convertComment),
-        creators: flattenedComments.map(({ creator }) =>
-          convertPerson({ person: creator }, "partial"),
-        ),
-        nextCursor: data.next_page ?? null,
-      };
+        const data = z
+          .object({
+            comments: z.array(pieFedCommentViewSchema),
+            next_page: z.string().nullable().optional(),
+          })
+          .parse(json);
+
+        const flattenedComments = flattenCommentViews(data.comments);
+
+        return {
+          comments: flattenedComments.map(convertComment),
+          creators: flattenedComments.map(({ creator }) =>
+            convertPerson({ person: creator }, "partial"),
+          ),
+          nextCursor: data.next_page ?? null,
+        };
+      }
     } catch (err) {
       console.error(err);
       throw err;

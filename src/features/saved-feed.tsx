@@ -87,18 +87,16 @@ export default function SavedFeed() {
 
   const comments = useComments({
     savedOnly: true,
+    maxDepth: undefined,
   });
 
   const postSort = useFiltersStore((s) => s.postSort);
-  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const posts = usePosts({
     savedOnly: true,
     type: "All",
   });
 
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } = posts;
-
-  const postCache = usePostsStore((s) => s.posts);
 
   const data = useMemo(() => {
     const commentViews =
@@ -116,13 +114,7 @@ export default function SavedFeed() {
       default:
         return [...postIds, ...commentViews];
     }
-  }, [
-    posts.data?.pages,
-    comments.data?.pages,
-    postCache,
-    type,
-    getCachePrefixer,
-  ]);
+  }, [posts.data?.pages, comments.data?.pages, type]);
 
   return (
     <IonPage>

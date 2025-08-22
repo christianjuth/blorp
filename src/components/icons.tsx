@@ -18,3 +18,4 @@ export { FiLogOut as LogOut } from "react-icons/fi";
 export { PiShareFat as Share } from "react-icons/pi";
 export { CgSearch as Search, CgSpinner as Spinner } from "react-icons/cg";
 export { MdOutlineImageNotSupported as NoImage } from "react-icons/md";
+export { HiOutlineX as X } from "react-icons/hi";

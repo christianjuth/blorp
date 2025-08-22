@@ -13,6 +13,8 @@ import { useLinkContext } from "../../routing/link-context";
 import { usePersonDetails } from "@/src/lib/api";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 import { PersonHoverCard } from "./person-hover-card";
+import _ from "lodash";
+import { abbriviateNumber } from "@/src/lib/format";
 
 export function PersonCard({
   actorId,
@@ -20,12 +22,16 @@ export function PersonCard({
   className,
   person: override,
   disableLink,
+  disableHover,
+  showCounts,
 }: {
   actorId: string;
   person?: Schemas.Person;
   size?: "sm" | "md";
   className?: string;
   disableLink?: boolean;
+  disableHover?: boolean;
+  showCounts?: boolean;
 }) {
   const linkCtx = useLinkContext();
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -56,43 +62,40 @@ export function PersonCard({
         </AvatarFallback>
       </Avatar>
 
-      <span
-        className={cn(
-          "text-sm overflow-hidden overflow-ellipsis",
-          size === "sm" && "text-xs",
+      <div className="flex flex-col">
+        <span
+          className={cn(
+            "text-sm overflow-hidden overflow-ellipsis",
+            size === "sm" && "text-xs",
+          )}
+        >
+          {name}
+          <span className="text-muted-foreground italic">@{host}</span>
+        </span>
+        {showCounts && (
+          <div className="flex flex-row gap-1">
+            {_.isNumber(personView?.postCount) && size === "md" && (
+              <span className="text-xs text-muted-foreground">
+                {abbriviateNumber(personView.postCount)} posts
+                {_.isNumber(personView?.commentCount) ? "," : ""}
+              </span>
+            )}
+
+            {_.isNumber(personView?.commentCount) && size === "md" && (
+              <span className="text-xs text-muted-foreground">
+                {abbriviateNumber(personView.commentCount)} comments
+              </span>
+            )}
+          </div>
         )}
-      >
-        {name}
-        <span className="text-muted-foreground italic">@{host}</span>
-      </span>
+      </div>
     </>
   );
 
   if (disableLink) {
-    return (
-      <PersonHoverCard actorId={actorId}>
-        <div
-          data-testid="person-card"
-          className={cn(
-            "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full text-foreground",
-            size === "sm" && "h-9",
-            className,
-          )}
-        >
-          {content}
-        </div>
-      </PersonHoverCard>
-    );
-  }
-
-  return (
-    <PersonHoverCard actorId={actorId} asChild>
-      <Link
+    const noLinkContent = (
+      <div
         data-testid="person-card"
-        to={`${linkCtx.root}u/:userId`}
-        params={{
-          userId: encodeApId(override ? override.apId : actorId),
-        }}
         className={cn(
           "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full text-foreground",
           size === "sm" && "h-9",
@@ -100,7 +103,38 @@ export function PersonCard({
         )}
       >
         {content}
-      </Link>
+      </div>
+    );
+
+    return disableHover ? (
+      noLinkContent
+    ) : (
+      <PersonHoverCard actorId={actorId}>{noLinkContent}</PersonHoverCard>
+    );
+  }
+
+  const withLinkContent = (
+    <Link
+      data-testid="person-card"
+      to={`${linkCtx.root}u/:userId`}
+      params={{
+        userId: encodeApId(override ? override.apId : actorId),
+      }}
+      className={cn(
+        "flex flex-row gap-2 items-center flex-shrink-0 h-12 max-w-full text-foreground",
+        size === "sm" && "h-9",
+        className,
+      )}
+    >
+      {content}
+    </Link>
+  );
+
+  return disableHover ? (
+    withLinkContent
+  ) : (
+    <PersonHoverCard actorId={actorId} asChild>
+      {withLinkContent}
     </PersonHoverCard>
   );
 }

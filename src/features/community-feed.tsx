@@ -20,7 +20,7 @@ import {
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
-import { useParams } from "@/src/routing/index";
+import { resolveRoute, useParams } from "@/src/routing/index";
 import { CommunityBanner } from "../components/communities/community-banner";
 import { useRecentCommunitiesStore } from "../stores/recent-communities";
 
@@ -134,8 +134,16 @@ export default function CommunityFeed() {
             value={search}
             onValueChange={setSearch}
             communitySlug={communityName}
-            onSubmit={() => {
-              router.push(`${linkCtx.root}c/${communityName}/s?q=${search}`);
+            onSubmit={(newVal) => {
+              router.push(
+                resolveRoute(
+                  `${linkCtx.root}c/:communityName/s`,
+                  {
+                    communityName,
+                  },
+                  `?q=${newVal ?? search}`,
+                ),
+              );
             }}
             className="max-md:hidden"
           />

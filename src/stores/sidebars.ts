@@ -26,6 +26,10 @@ type SidebarStore = {
   // User sidebar
   personBioExpanded: boolean;
   setPersonBioExpanded: (val: boolean) => void;
+
+  // Search
+  recentSearchesExpanded: boolean;
+  setRecentSearchesExpanded: (val: boolean) => void;
 };
 
 export const useSidebarStore = create<SidebarStore>()(
@@ -60,6 +64,11 @@ export const useSidebarStore = create<SidebarStore>()(
       personBioExpanded: true,
       setPersonBioExpanded: (personBioExpanded: boolean) =>
         set({ personBioExpanded }),
+
+      // Search
+      recentSearchesExpanded: true,
+      setRecentSearchesExpanded: (recentSearchesExpanded) =>
+        set({ recentSearchesExpanded }),
     }),
     {
       name: "sidebar",

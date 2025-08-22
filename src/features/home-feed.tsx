@@ -14,7 +14,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonSearchbar,
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
@@ -22,7 +21,7 @@ import { VirtualList } from "../components/virtual-list";
 import { MenuButton, UserDropdown } from "../components/nav";
 import { HomeFilter, PostSortButton } from "../components/lemmy-sort";
 import { useMedia } from "../lib/hooks";
-import { Link } from "@/src/routing/index";
+import { Link, resolveRoute } from "@/src/routing/index";
 import { Button } from "../components/ui/button";
 import { FaArrowUp } from "react-icons/fa6";
 import { LuLoaderCircle } from "react-icons/lu";
@@ -199,13 +198,12 @@ export default function HomeFeed() {
           <SearchBar
             onValueChange={setSearch}
             value={search}
-            onSubmit={() => {
-              router.push(`/home/s?q=${search}`);
+            onSubmit={(newVal) => {
+              router.push(resolveRoute("/home/s", `?q=${newVal ?? search}`));
             }}
             className="max-md:hidden"
           />
           <ToolbarButtons side="right">
-            {/* <DownloadButton /> */}
             <Link
               to="/home/s"
               className="text-2xl contents text-muted-foreground md:hidden"

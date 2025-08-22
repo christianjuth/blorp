@@ -16,7 +16,7 @@ import { twMerge } from "tailwind-merge";
 import { subscribeToScrollEvent } from "../lib/scroll-events";
 import _ from "lodash";
 import {
-  useElementHadFocus,
+  useElementHasFocus,
   useIsInAppBrowserOpen,
   useMedia,
 } from "../lib/hooks";
@@ -125,7 +125,7 @@ function VirtualListInternal<T>({
       ? Math.round(drawDistance / estimatedItemSize)
       : undefined;
 
-  const focused = useElementHadFocus(scrollRef);
+  const focused = useElementHasFocus(scrollRef);
 
   useEffect(() => onFocusChange?.(focused), [focused]);
 
