@@ -19,7 +19,7 @@ import {
   useUrlSearchState,
 } from "@/src/lib/hooks";
 import { ToolbarTitle } from "@/src/components/toolbar/toolbar-title";
-import { useAuth } from "@/src/stores/auth";
+import { getAccountSite, useAuth } from "@/src/stores/auth";
 import { ToolbarBackButton } from "@/src/components/toolbar/toolbar-back-button";
 import { cn } from "@/src/lib/utils";
 import { ResponsiveImage } from "./light-box";
@@ -311,7 +311,10 @@ const Post = memo(
     const postView = usePostsStore(
       (s) => s.posts[getCachePrefixer()(apId)]?.data,
     );
+
+    const blurImg = postView?.nsfw;
     const img = postView?.thumbnailUrl;
+
     return img ? (
       <ResponsiveImage
         img={img}
@@ -320,6 +323,7 @@ const Post = memo(
         paddingB={paddingB}
         className="border-x border-background -mx-px"
         disabled={disabled}
+        blurNsfw={blurImg}
       />
     ) : (
       <NoImage className="absolute top-1/2 left-1/2 h-40 w-40 -translate-1/2 text-white" />
@@ -437,6 +441,10 @@ export default function LightBoxPostFeed() {
   const post = usePostsStore((s) =>
     postApId ? s.posts[getCachePrefixer()(postApId)]?.data : null,
   );
+
+  const blurNsfw =
+    useAuth((s) => getAccountSite(s.getSelectedAccount())?.blurNsfw) ?? true;
+  const blurImg = post?.nsfw ? blurNsfw : false;
 
   const community = useCommunity({
     name: communityName,
