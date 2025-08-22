@@ -13,11 +13,17 @@ export function createStorage<S>(): PersistStorage<S> {
 
   return {
     getItem: async (key) => {
-      const value = await pRetry(() => db.getItem(key), {
-        retries: 3,
-      });
-      locked = false;
-      return value ? JSON.parse(value) : null;
+      try {
+        const value = await pRetry(() => db.getItem(key), {
+          retries: 5,
+        });
+        locked = false;
+        return value ? JSON.parse(value) : null;
+      } catch (err) {
+        console.error(err);
+        locked = false;
+        return null;
+      }
     },
     setItem: async (key, value) => {
       if (!locked) {
