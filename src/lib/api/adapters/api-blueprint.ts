@@ -76,7 +76,7 @@ const communitySchema = z.object({
   slug: communitySlug,
   icon: z.string().nullable(),
   description: z.string().nullable().optional(),
-  banner: z.string().nullable(),
+  banner: z.string().nullable().optional(),
   usersActiveDayCount: z.number().optional(),
   usersActiveWeekCount: z.number().optional(),
   usersActiveMonthCount: z.number().optional(),

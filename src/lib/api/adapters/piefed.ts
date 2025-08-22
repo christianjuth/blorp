@@ -436,7 +436,6 @@ function convertCommunity(
       name: communityView.community.name,
     }).slug,
     icon: communityView.community.icon ?? null,
-    banner: communityView.community.banner ?? null,
     ...(counts
       ? {
           postCount: counts.post_count ?? undefined,
@@ -458,6 +457,7 @@ function convertCommunity(
 
   if (mode === "full" || communityView.community.description) {
     c.description = communityView.community.description ?? null;
+    c.banner = communityView.community.banner ?? null;
   }
 
   return c;
