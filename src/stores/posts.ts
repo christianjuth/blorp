@@ -127,6 +127,17 @@ export const usePostsStore = create<SortsStore>()(
           state?.cleanup();
         };
       },
+      merge: (p: any, current) => {
+        const persisted = p as Partial<SortsStore>;
+        return {
+          ...current,
+          ...persisted,
+          posts: {
+            ...current.posts,
+            ...persisted.posts,
+          },
+        } satisfies SortsStore;
+      },
     },
   ),
 );

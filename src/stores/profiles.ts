@@ -105,6 +105,17 @@ export const useProfilesStore = create<ProfilesStore>()(
       name: "profiles",
       storage: createStorage<ProfilesStore>(),
       version: 2,
+      merge: (p: any, current) => {
+        const persisted = p as Partial<ProfilesStore>;
+        return {
+          ...current,
+          ...persisted,
+          profiles: {
+            ...current.profiles,
+            ...persisted.profiles,
+          },
+        } satisfies ProfilesStore;
+      },
     },
   ),
 );

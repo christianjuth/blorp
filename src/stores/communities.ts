@@ -17,7 +17,7 @@ type CachedCommunity = {
   lastUsed: number;
 };
 
-type SortsStore = {
+type CommunityStore = {
   communities: Record<string, CachedCommunity>;
   patchCommunity: (
     id: string,
@@ -40,7 +40,7 @@ const INIT_STATE = {
   communities: {},
 };
 
-export const useCommunitiesStore = create<SortsStore>()(
+export const useCommunitiesStore = create<CommunityStore>()(
   persist(
     (set, get) => ({
       ...INIT_STATE,
@@ -157,12 +157,23 @@ export const useCommunitiesStore = create<SortsStore>()(
     }),
     {
       name: "communities",
-      storage: createStorage<SortsStore>(),
+      storage: createStorage<CommunityStore>(),
       version: 2,
       onRehydrateStorage: () => {
         return (state) => {
           state?.cleanup();
         };
+      },
+      merge: (p: any, current) => {
+        const persisted = p as Partial<CommunityStore>;
+        return {
+          ...current,
+          ...persisted,
+          communities: {
+            ...current.communities,
+            ...persisted.communities,
+          },
+        } satisfies CommunityStore;
       },
     },
   ),

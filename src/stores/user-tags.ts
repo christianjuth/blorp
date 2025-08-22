@@ -33,6 +33,17 @@ export const useTagUserStore = create<InboxStore>()(
       name: "user-tags",
       storage: createStorage<InboxStore>(),
       version: 0,
+      merge: (p: any, current) => {
+        const persisted = p as Partial<InboxStore>;
+        return {
+          ...current,
+          ...persisted,
+          userTags: {
+            ...current.userTags,
+            ...persisted.userTags,
+          },
+        } satisfies InboxStore;
+      },
     },
   ),
 );

@@ -123,6 +123,17 @@ export const useCommentsStore = create<SortsStore>()(
           state?.cleanup();
         };
       },
+      merge: (p: any, current) => {
+        const persisted = p as Partial<SortsStore>;
+        return {
+          ...current,
+          ...persisted,
+          comments: {
+            ...current.comments,
+            ...persisted.comments,
+          },
+        } satisfies SortsStore;
+      },
     },
   ),
 );

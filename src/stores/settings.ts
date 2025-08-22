@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStorage, sync } from "./storage";
 import { isTest } from "../lib/device";
+import _ from "lodash";
 
 type SettingsStore = {
   showMarkdown: boolean;
@@ -20,6 +21,10 @@ const INIT_STATE = {
   filterKeywords: [],
 };
 
+function pruneFilterKeywords(keywords: string[]) {
+  return _.uniq(keywords.filter(Boolean));
+}
+
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set, get) => ({
@@ -34,8 +39,7 @@ export const useSettingsStore = create<SettingsStore>()(
         });
       },
       pruneFiltersKeywords: () => {
-        const filterKeywords = [...get().filterKeywords].filter(Boolean);
-        set({ filterKeywords });
+        set({ filterKeywords: pruneFilterKeywords(get().filterKeywords) });
       },
       reset: () => {
         if (isTest()) {
@@ -47,6 +51,17 @@ export const useSettingsStore = create<SettingsStore>()(
       name: "settings",
       storage: createStorage<SettingsStore>(),
       version: 0,
+      merge: (p: any, current) => {
+        const persisted = p as Partial<SettingsStore>;
+        return {
+          ...current,
+          ...persisted,
+          filterKeywords: pruneFilterKeywords([
+            ...(persisted.filterKeywords ?? []),
+            ...current.filterKeywords,
+          ]),
+        } satisfies SettingsStore;
+      },
     },
   ),
 );

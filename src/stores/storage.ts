@@ -6,18 +6,28 @@ import _ from "lodash";
 
 export function createStorage<S>(): PersistStorage<S> {
   const db = createDb("zustand");
+
+  // If read takes too long, write can override it
+  // so we lock writing until read finishes.
+  let locked = true;
+
   return {
     getItem: async (key) => {
       const value = await pRetry(() => db.getItem(key), {
         retries: 3,
       });
+      locked = false;
       return value ? JSON.parse(value) : null;
     },
     setItem: async (key, value) => {
-      await db.setItem(key, JSON.stringify(value));
+      if (!locked) {
+        await db.setItem(key, JSON.stringify(value));
+      }
     },
     removeItem: async (key) => {
-      await db.removeItem(key);
+      if (!locked) {
+        await db.removeItem(key);
+      }
     },
   };
 }
