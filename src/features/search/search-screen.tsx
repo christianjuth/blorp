@@ -34,17 +34,52 @@ import { BadgeIcon } from "@/src/components/badge-count";
 import { PersonAvatar } from "@/src/components/person/person-avatar";
 import { MarkdownRenderer } from "@/src/components/markdown/renderer";
 import { RelativeTime } from "@/src/components/relative-time";
-import { Message } from "@/src/components/icons";
+import { Message, X } from "@/src/components/icons";
 import { Separator } from "@/src/components/ui/separator";
 import { ToolbarBackButton } from "@/src/components/toolbar/toolbar-back-button";
 import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
 import { SearchBar } from "./search-bar";
 import { KeyboardShortcut } from "../keyboard-shortcut";
+import { RecentSearchesSidebar } from "./recent-searches-sidebar";
+import { useSearchStore } from "@/src/stores/search";
+import { Button } from "@/src/components/ui/button";
+import { cn } from "@/src/lib/utils";
 
 const EMPTY_ARR: never[] = [];
 
 const NO_ITEMS = "NO_ITEMS";
 type Item = string | Schemas.Comment;
+
+function SearchHistoryItem({
+  search,
+  onSelect,
+}: {
+  search: string;
+  onSelect: () => void;
+}) {
+  const removeSearch = useSearchStore((s) => s.removeSearch);
+  return (
+    <ContentGutters className="py md:hidden">
+      <div className="flex flex-row border-t items-center">
+        <button
+          className="text-start py-2 flex-1 overflow-hidden text-ellipsis whitespace-nowrap"
+          onClick={onSelect}
+        >
+          {search}
+        </button>
+        <Button
+          size="icon"
+          variant="ghost"
+          aria-label="remove from search"
+          onClick={() => removeSearch(search)}
+          className="-mr-2"
+        >
+          <X />
+        </Button>
+      </div>
+    </ContentGutters>
+  );
+}
 
 const Post = memo((props: PostProps) => (
   <ContentGutters className="max-md:px-0">
@@ -126,6 +161,14 @@ export default function SearchFeed({
     [],
   );
 
+  const updateSearch = (newSearch: string, flush?: boolean) => {
+    setSearchInput(newSearch);
+    setDebouncedSearch(newSearch);
+    if (flush) {
+      setDebouncedSearch.flush();
+    }
+  };
+
   const [type, setType] = useUrlSearchState(
     "type",
     defaultType,
@@ -189,7 +232,7 @@ export default function SearchFeed({
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } =
     searchResults;
 
-  const data = useMemo(() => {
+  const apiData = useMemo(() => {
     if (type === "users") {
       const users =
         searchResults.data?.pages.map((res) => res.users).flat() ?? EMPTY_ARR;
@@ -213,6 +256,18 @@ export default function SearchFeed({
     return searchResults.data?.pages.flatMap((res) => res.posts) ?? EMPTY_ARR;
   }, [searchResults.data?.pages, type]);
 
+  const saveSearch = useSearchStore((s) => s.saveSearch);
+  const searchHistory = useSearchStore((s) => s.searchHistory);
+
+  const data =
+    searchInput.length === 0
+      ? searchHistory
+      : apiData.length === 0 &&
+          !searchResults.isRefetching &&
+          !searchResults.isPending
+        ? [NO_ITEMS]
+        : apiData;
+
   return (
     <IonPage>
       <PageTitle>
@@ -225,10 +280,7 @@ export default function SearchFeed({
           </ToolbarButtons>
           <SearchBar
             value={searchInput}
-            onValueChange={(value) => {
-              setSearchInput(value);
-              setDebouncedSearch(value);
-            }}
+            onValueChange={(value) => updateSearch(value)}
             placeholder={
               communityName && type === "posts"
                 ? `Search ${communityName}`
@@ -236,6 +288,7 @@ export default function SearchFeed({
             }
             preventOpen
             className="w-auto max-md:mx-3"
+            autoFocus={media.maxMd && searchInput.length === 0}
           />
           <ToolbarButtons side="right">
             <UserDropdown />
@@ -272,13 +325,7 @@ export default function SearchFeed({
         <PostReportProvider>
           <VirtualList<Item>
             className="h-full ion-content-scroll-host"
-            data={
-              data.length === 0 &&
-              !searchResults.isRefetching &&
-              !searchResults.isPending
-                ? [NO_ITEMS]
-                : data
-            }
+            data={data}
             header={[
               <ContentGutters
                 className="max-md:hidden"
@@ -321,8 +368,25 @@ export default function SearchFeed({
                 </div>
                 <></>
               </ContentGutters>,
+              <ContentGutters
+                key="recent-searches"
+                className={cn("md:hidden", searchInput.length > 0 && "hidden")}
+              >
+                <span className="py-2.5 text-sm text-muted-foreground">
+                  RECENT SEARCHES
+                </span>
+              </ContentGutters>,
             ]}
             renderItem={({ item }) => {
+              if (searchInput.length === 0 && _.isString(item)) {
+                return (
+                  <SearchHistoryItem
+                    search={item}
+                    onSelect={() => updateSearch(item, true)}
+                  />
+                );
+              }
+
               if (!_.isString(item)) {
                 return <Comment comment={item} />;
               }
@@ -345,7 +409,12 @@ export default function SearchFeed({
               if (type === "users") {
                 return (
                   <ContentGutters>
-                    <PersonCard actorId={item} />
+                    <PersonCard
+                      actorId={item}
+                      disableHover
+                      showCounts
+                      className="pt-3.5"
+                    />
                   </ContentGutters>
                 );
               }
@@ -365,16 +434,18 @@ export default function SearchFeed({
             estimatedItemSize={type === "posts" ? 475 : 52}
             refresh={refetch}
             placeholder={
-              <ContentGutters
-                className={type !== "communities" ? "px-0" : undefined}
-              >
-                {type === "communities" ? (
-                  <CommunityCardSkeleton className="flex-1" />
-                ) : (
-                  <PostCardSkeleton />
-                )}
-                <></>
-              </ContentGutters>
+              searchInput.length > 0 && (
+                <ContentGutters
+                  className={type !== "communities" ? "px-0" : undefined}
+                >
+                  {type === "communities" ? (
+                    <CommunityCardSkeleton className="flex-1" />
+                  ) : (
+                    <PostCardSkeleton />
+                  )}
+                  <></>
+                </ContentGutters>
+              )
             }
             stickyHeaderIndices={[0]}
           />
@@ -382,10 +453,17 @@ export default function SearchFeed({
 
         <ContentGutters className="max-md:hidden absolute top-0 right-0 left-0 z-10">
           <div className="flex-1" />
-          {communityName && (
+          {communityName ? (
             <CommunitySidebar
               communityName={communityName}
               actorId={community.data?.community.apId}
+            />
+          ) : (
+            <RecentSearchesSidebar
+              onSelect={(value) => {
+                updateSearch(value, true);
+                saveSearch(value);
+              }}
             />
           )}
         </ContentGutters>

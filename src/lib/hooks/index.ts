@@ -18,7 +18,7 @@ import _ from "lodash";
 export { useMedia } from "./use-media";
 export { useTheme } from "./use-theme";
 
-export function useElementHadFocus<T extends HTMLElement | null>(
+export function useElementHasFocus<T extends HTMLElement | null>(
   ref: RefObject<T>,
 ): boolean {
   const [isVisible, setIsVisible] = useState<boolean>(false);

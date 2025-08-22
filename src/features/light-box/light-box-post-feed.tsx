@@ -9,7 +9,7 @@ import { UserDropdown } from "@/src/components/nav";
 import { PageTitle } from "@/src/components/page-title";
 import { useFiltersStore } from "@/src/stores/filters";
 import {
-  useElementHadFocus,
+  useElementHasFocus,
   useHideTabBarOnMount,
   useIsActiveRoute,
   useKeyboardShortcut,
@@ -116,7 +116,7 @@ function HorizontalVirtualizer<T>({
   const initialOffset = activeIndex * itemWidth;
 
   const isActive = useIsActiveRoute();
-  const focused = useElementHadFocus(scrollRef);
+  const focused = useElementHasFocus(scrollRef);
 
   const rowVirtualizer = useVirtualizer({
     count,

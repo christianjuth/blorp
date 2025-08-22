@@ -275,14 +275,14 @@ export default function Post() {
             placeholder={`Search ${communityName}`}
             value={search}
             onValueChange={setSearch}
-            onSubmit={() => {
+            onSubmit={(newVal) => {
               router.push(
                 resolveRoute(
                   `${linkCtx.root}c/:communityName/s`,
                   {
                     communityName,
                   },
-                  `?s=${search}`,
+                  `?s=${newVal ?? search}`,
                 ),
               );
             }}

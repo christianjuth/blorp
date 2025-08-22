@@ -151,6 +151,7 @@ function Reply({
   const newPath = [parent !== "0" ? parent : undefined, replyView.commentId]
     .filter(Boolean)
     .join(".");
+  const hasParent = parent && parent !== "0";
   return (
     <ContentGutters className="px-0">
       <div className={cn("flex-1 max-md:px-3.5", !noBorder && "border-b")}>
@@ -184,7 +185,10 @@ function Reply({
                 {replyView.read ? null : <div />}
                 <span>
                   <span className="font-bold">{replyView.creatorSlug}</span>
-                  <span> replied to your comment in </span>
+                  <span>
+                    {" "}
+                    replied to your {hasParent ? "comment" : "post"} in{" "}
+                  </span>
                   <span className="font-bold">{replyView.postName}</span>
                 </span>
               </div>

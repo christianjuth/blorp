@@ -330,7 +330,7 @@ export function useComments(form: Forms.GetComments) {
         nextCursor,
       };
     },
-    enabled: !_.isNil(form.postApId),
+    enabled: !_.isNil(form.postApId) || !_.isNil(form.savedOnly),
     getNextPageParam: (data) => data.nextCursor,
     initialPageParam: INIT_PAGE_TOKEN,
     refetchOnMount: "always",
