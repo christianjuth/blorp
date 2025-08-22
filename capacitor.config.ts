@@ -1,5 +1,3 @@
-/// <reference types="@capacitor-community/sqlite" />
-
 import type { CapacitorConfig } from "@capacitor/cli";
 import { KeyboardResize, KeyboardStyle } from "@capacitor/keyboard";
 
@@ -9,12 +7,6 @@ const config: CapacitorConfig = {
   webDir: "dist",
   appendUserAgent: "Blorp",
   plugins: {
-    CapacitorSQLite: {
-      iosDatabaseLocation: "Library/CapacitorDatabase",
-      iosIsEncryption: true,
-      iosKeychainPrefix: "blorp",
-      androidIsEncryption: true,
-    },
     Keyboard: {
       resize: KeyboardResize.Ionic,
       style: KeyboardStyle.Dark,

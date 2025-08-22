@@ -1437,17 +1437,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor-community/sqlite@npm:^7.0.1":
-  version: 7.0.1
-  resolution: "@capacitor-community/sqlite@npm:7.0.1"
-  dependencies:
-    jeep-sqlite: "npm:^2.7.2"
-  peerDependencies:
-    "@capacitor/core": ">=7.0.0"
-  checksum: 10c0/9d1bb43876d6f14d5cee7923860831d6faafad9fcce450b3c6955ade3180f9b0fe068aa5717629e222ec0955a5e75d1b44aec3112cbea0bb7b63353a5797dce5
-  languageName: node
-  linkType: hard
-
 "@capacitor/android@npm:^7.4.0":
   version: 7.4.0
   resolution: "@capacitor/android@npm:7.4.0"
@@ -4866,7 +4855,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stencil/core@npm:^4.0.3, @stencil/core@npm:^4.20.0":
+"@stencil/core@npm:^4.0.3":
   version: 4.28.2
   resolution: "@stencil/core@npm:4.28.2"
   dependencies:
@@ -7422,13 +7411,6 @@ __metadata:
     p-queue: "npm:6.6.2"
     unload: "npm:2.4.1"
   checksum: 10c0/5cf04d2e4d2920f955d39b382efc32be0cf2f265bf07e0770d50c4d0691c7bf02613cc9b334132b874dc092b0db6b9fc463c4c7883be1ce3d2588c9388cae54f
-  languageName: node
-  linkType: hard
-
-"browser-fs-access@npm:^0.35.0":
-  version: 0.35.0
-  resolution: "browser-fs-access@npm:0.35.0"
-  checksum: 10c0/9d309e27809e9cc419be4ed71d4cecdad7bf0915cb6e87c706031f51fb1b9d5e35ef7092b4e044adc3b68319baa31ae7ed0d2b8ffeac6e0430abdadbd22dfa36
   languageName: node
   linkType: hard
 
@@ -10863,19 +10845,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jeep-sqlite@npm:^2.7.2":
-  version: 2.8.0
-  resolution: "jeep-sqlite@npm:2.8.0"
-  dependencies:
-    "@stencil/core": "npm:^4.20.0"
-    browser-fs-access: "npm:^0.35.0"
-    jszip: "npm:^3.10.1"
-    localforage: "npm:^1.10.0"
-    sql.js: "npm:^1.11.0"
-  checksum: 10c0/fe8d33418c3bfad4a7edb55e5295c395f3289442b02874356665cbad75935908e1c4a3a82e93a87610d9e46c24aa1776d36af8a161f17e769e0ed8f633a4939f
-  languageName: node
-  linkType: hard
-
 "jiti@npm:^2.4.1, jiti@npm:^2.4.2":
   version: 2.4.2
   resolution: "jiti@npm:2.4.2"
@@ -11025,18 +10994,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jszip@npm:^3.10.1":
-  version: 3.10.1
-  resolution: "jszip@npm:3.10.1"
-  dependencies:
-    lie: "npm:~3.3.0"
-    pako: "npm:~1.0.2"
-    readable-stream: "npm:~2.3.6"
-    setimmediate: "npm:^1.0.5"
-  checksum: 10c0/58e01ec9c4960383fb8b38dd5f67b83ccc1ec215bf74c8a5b32f42b6e5fb79fada5176842a11409c4051b5b94275044851814a31076bf49e1be218d3ef57c863
-  languageName: node
-  linkType: hard
-
 "kind-of@npm:^6.0.3":
   version: 6.0.3
   resolution: "kind-of@npm:6.0.3"
@@ -11089,7 +11046,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "lemmy@workspace:."
   dependencies:
-    "@capacitor-community/sqlite": "npm:^7.0.1"
     "@capacitor/android": "npm:^7.4.0"
     "@capacitor/app": "npm:^7.0.1"
     "@capacitor/assets": "npm:^3.0.5"
@@ -11272,15 +11228,6 @@ __metadata:
   dependencies:
     immediate: "npm:~3.0.5"
   checksum: 10c0/d62685786590351b8e407814acdd89efe1cb136f05cb9236c5a97b2efdca1f631d2997310ad2d565c753db7596799870140e4777c9c9b8c44a0f6bf42d1804a1
-  languageName: node
-  linkType: hard
-
-"lie@npm:~3.3.0":
-  version: 3.3.0
-  resolution: "lie@npm:3.3.0"
-  dependencies:
-    immediate: "npm:~3.0.5"
-  checksum: 10c0/56dd113091978f82f9dc5081769c6f3b947852ecf9feccaf83e14a123bc630c2301439ce6182521e5fbafbde88e88ac38314327a4e0493a1bea7e0699a7af808
   languageName: node
   linkType: hard
 
@@ -12976,13 +12923,6 @@ __metadata:
   version: 1.0.1
   resolution: "package-json-from-dist@npm:1.0.1"
   checksum: 10c0/62ba2785eb655fec084a257af34dbe24292ab74516d6aecef97ef72d4897310bc6898f6c85b5cd22770eaa1ce60d55a0230e150fb6a966e3ecd6c511e23d164b
-  languageName: node
-  linkType: hard
-
-"pako@npm:~1.0.2":
-  version: 1.0.11
-  resolution: "pako@npm:1.0.11"
-  checksum: 10c0/86dd99d8b34c3930345b8bbeb5e1cd8a05f608eeb40967b293f72fe469d0e9c88b783a8777e4cc7dc7c91ce54c5e93d88ff4b4f060e6ff18408fd21030d9ffbe
   languageName: node
   linkType: hard
 
@@ -14760,13 +14700,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"setimmediate@npm:^1.0.5":
-  version: 1.0.5
-  resolution: "setimmediate@npm:1.0.5"
-  checksum: 10c0/5bae81bfdbfbd0ce992893286d49c9693c82b1bcc00dcaaf3a09c8f428fdeacf4190c013598b81875dfac2b08a572422db7df779a99332d0fce186d15a3e4d49
-  languageName: node
-  linkType: hard
-
 "setprototypeof@npm:1.2.0":
   version: 1.2.0
   resolution: "setprototypeof@npm:1.2.0"
@@ -15149,13 +15082,6 @@ __metadata:
   version: 1.1.3
   resolution: "sprintf-js@npm:1.1.3"
   checksum: 10c0/09270dc4f30d479e666aee820eacd9e464215cdff53848b443964202bf4051490538e5dd1b42e1a65cf7296916ca17640aebf63dae9812749c7542ee5f288dec
-  languageName: node
-  linkType: hard
-
-"sql.js@npm:^1.11.0":
-  version: 1.13.0
-  resolution: "sql.js@npm:1.13.0"
-  checksum: 10c0/ecad62bf74082bf296a42db9bf001a79cd1b2fc954dbaddb97d689f7382c573ec827a692bd4490322fac47358d74c026258042466e258b34ea7c07b35d4a2e8e
   languageName: node
   linkType: hard
 
