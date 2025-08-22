@@ -3,23 +3,15 @@ import { createDb } from "@/src/lib/create-storage";
 import pRetry from "p-retry";
 import { UseBoundStore } from "zustand";
 import _ from "lodash";
-import { isDev } from "../lib/device";
 
 export function createStorage<S>(): PersistStorage<S> {
   const db = createDb("zustand");
   return {
     getItem: async (key) => {
-      try {
-        const value = await pRetry(() => db.getItem(key), {
-          retries: 5,
-        });
-        return value ? JSON.parse(value) : null;
-      } catch (err) {
-        console.error(err);
-        if (!isDev()) {
-          window.location.reload();
-        }
-      }
+      const value = await pRetry(() => db.getItem(key), {
+        retries: 3,
+      });
+      return value ? JSON.parse(value) : null;
     },
     setItem: async (key, value) => {
       await db.setItem(key, JSON.stringify(value));
