@@ -52,7 +52,6 @@ build: preflight common tauri android ios
 preflight:
 	command -v jq    >/dev/null || { echo "jq not found" >&2; exit 1; }
 	command -v yarn  >/dev/null || { echo "yarn not found" >&2; exit 1; }
-	command -v tauri >/dev/null || { echo "tauri not found" >&2; exit 1; }
 	command -v xcrun >/dev/null || { echo "xcrun not found (macOS only)" >&2; exit 1; }
 
 common: dirs yarn_install yarn_build
@@ -99,7 +98,7 @@ validate:
 		else \
 			echo "✅ $$crate @ $$pkg_ver"; \
 		fi \
-	done < <(jq -r '[(.dependencies // {}), (.devDependencies // {})] | map(select(type=="object")) | add | to_entries[] | select(.key | startswith("@tauri-apps/")) | "\(.key | split("/") | .[1]) \(.value)"' ./package.json)
+	done < <(jq -r '[(.dependencies // {}), (.devDependencies // {})] | map(select(type=="object")) | add | to_entries[] | select(.key | startswith("@tauri-apps/")) | select(.key | startswith("@tauri-apps/cli") | not) | "\(.key | split("/") | .[1]) \(.value)"' ./package.json)
 
 # -------- Tauri (macOS) pipeline --------
 .PHONY: tauri tauri_build tauri_pkg tauri_notarize tauri_staple tauri_release_files
@@ -108,7 +107,7 @@ tauri: tauri_build tauri_pkg tauri_notarize tauri_staple tauri_release_files
 	printf "\n✅ Tauri pipeline complete\n"
 
 tauri_build: yarn_build | $(RELEASE_DIR)
-	tauri build --no-bundle --target $(UNIVERSAL_TARGET)
+	tauri build --bundles app --target $(UNIVERSAL_TARGET)
 
 tauri_pkg: tauri_build | $(RELEASE_DIR)
 	xcrun productbuild --sign $(PRODUCTBUILD_SIGNING_IDENTITY) \

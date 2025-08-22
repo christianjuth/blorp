@@ -5366,6 +5366,127 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tauri-apps/cli-darwin-arm64@npm:2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli-darwin-arm64@npm:2.8.1"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/cli-darwin-x64@npm:2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli-darwin-x64@npm:2.8.1"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/cli-linux-arm-gnueabihf@npm:2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli-linux-arm-gnueabihf@npm:2.8.1"
+  conditions: os=linux & cpu=arm
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/cli-linux-arm64-gnu@npm:2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli-linux-arm64-gnu@npm:2.8.1"
+  conditions: os=linux & cpu=arm64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/cli-linux-arm64-musl@npm:2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli-linux-arm64-musl@npm:2.8.1"
+  conditions: os=linux & cpu=arm64 & libc=musl
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/cli-linux-riscv64-gnu@npm:2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli-linux-riscv64-gnu@npm:2.8.1"
+  conditions: os=linux & cpu=riscv64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/cli-linux-x64-gnu@npm:2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli-linux-x64-gnu@npm:2.8.1"
+  conditions: os=linux & cpu=x64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/cli-linux-x64-musl@npm:2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli-linux-x64-musl@npm:2.8.1"
+  conditions: os=linux & cpu=x64 & libc=musl
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/cli-win32-arm64-msvc@npm:2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli-win32-arm64-msvc@npm:2.8.1"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/cli-win32-ia32-msvc@npm:2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli-win32-ia32-msvc@npm:2.8.1"
+  conditions: os=win32 & cpu=ia32
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/cli-win32-x64-msvc@npm:2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli-win32-x64-msvc@npm:2.8.1"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/cli@npm:^2.8.1":
+  version: 2.8.1
+  resolution: "@tauri-apps/cli@npm:2.8.1"
+  dependencies:
+    "@tauri-apps/cli-darwin-arm64": "npm:2.8.1"
+    "@tauri-apps/cli-darwin-x64": "npm:2.8.1"
+    "@tauri-apps/cli-linux-arm-gnueabihf": "npm:2.8.1"
+    "@tauri-apps/cli-linux-arm64-gnu": "npm:2.8.1"
+    "@tauri-apps/cli-linux-arm64-musl": "npm:2.8.1"
+    "@tauri-apps/cli-linux-riscv64-gnu": "npm:2.8.1"
+    "@tauri-apps/cli-linux-x64-gnu": "npm:2.8.1"
+    "@tauri-apps/cli-linux-x64-musl": "npm:2.8.1"
+    "@tauri-apps/cli-win32-arm64-msvc": "npm:2.8.1"
+    "@tauri-apps/cli-win32-ia32-msvc": "npm:2.8.1"
+    "@tauri-apps/cli-win32-x64-msvc": "npm:2.8.1"
+  dependenciesMeta:
+    "@tauri-apps/cli-darwin-arm64":
+      optional: true
+    "@tauri-apps/cli-darwin-x64":
+      optional: true
+    "@tauri-apps/cli-linux-arm-gnueabihf":
+      optional: true
+    "@tauri-apps/cli-linux-arm64-gnu":
+      optional: true
+    "@tauri-apps/cli-linux-arm64-musl":
+      optional: true
+    "@tauri-apps/cli-linux-riscv64-gnu":
+      optional: true
+    "@tauri-apps/cli-linux-x64-gnu":
+      optional: true
+    "@tauri-apps/cli-linux-x64-musl":
+      optional: true
+    "@tauri-apps/cli-win32-arm64-msvc":
+      optional: true
+    "@tauri-apps/cli-win32-ia32-msvc":
+      optional: true
+    "@tauri-apps/cli-win32-x64-msvc":
+      optional: true
+  bin:
+    tauri: tauri.js
+  checksum: 10c0/78ceed9d56d0653ab3d6924a4f54e388f42a3ac92a2004ed43f68fe3e55c5de080f35c00110aef4c622d91cff8aeeb7d4cd87b691973d948043c8d8a959893f2
+  languageName: node
+  linkType: hard
+
 "@tauri-apps/plugin-deep-link@npm:2.2.0":
   version: 2.2.0
   resolution: "@tauri-apps/plugin-deep-link@npm:2.2.0"
@@ -11018,6 +11139,7 @@ __metadata:
     "@tanstack/react-query-devtools": "npm:5.83.1"
     "@tanstack/react-query-persist-client": "npm:5.83.1"
     "@tanstack/react-virtual": "npm:^3.13.12"
+    "@tauri-apps/cli": "npm:^2.8.1"
     "@tauri-apps/plugin-deep-link": "npm:2.2.0"
     "@tauri-apps/plugin-dialog": "npm:2.2.0"
     "@tauri-apps/plugin-http": "npm:2.3.0"
