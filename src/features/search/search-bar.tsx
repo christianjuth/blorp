@@ -220,7 +220,6 @@ export function SearchBar({
           props.onValueChange?.(value);
         }}
         loading={isOpen && searchResults.isFetching}
-        data-tauri-drag-region
         endAdornment={
           <CommandShortcut className="group-focus-within:hidden max-md:hidden">
             {isMacOs() || isIos() ? "⌘" : "Ctrl+"}K
