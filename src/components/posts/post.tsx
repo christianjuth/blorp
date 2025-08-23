@@ -18,7 +18,7 @@ import { YouTubeVideoEmbed } from "../youtube";
 import { PostVideoEmbed } from "./embeds/post-video-embed";
 import { cn } from "@/src/lib/utils";
 import { Skeleton } from "../ui/skeleton";
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import _ from "lodash";
 import { getAccountSite, useAuth } from "@/src/stores/auth";
 import removeMd from "remove-markdown";
@@ -90,6 +90,8 @@ export function PostCardSkeleton(props: {
 }
 
 export function FeedPostCard(props: PostProps) {
+  const id = useId();
+
   const showNsfw =
     useAuth((s) => getAccountSite(s.getSelectedAccount())?.showNsfw) ?? false;
   const blurNsfw =
@@ -152,13 +154,18 @@ export function FeedPostCard(props: PostProps) {
     }
   }
 
+  const titleId = `${id}-title`;
+  const bodyId = `${id}-title`;
+
   return (
-    <div
+    <article
       data-testid="post-card"
       className={cn(
         "flex-1 py-4 gap-2 flex flex-col max-md:px-3.5 overflow-x-hidden",
         props.detailView ? "max-md:bg-background" : "border-b",
       )}
+      aria-labelledby={titleId}
+      aria-describedby={bodyId}
     >
       <PostByline
         post={post}
@@ -195,6 +202,7 @@ export function FeedPostCard(props: PostProps) {
             "text-xl font-medium",
             !props.detailView && post.read && "text-muted-foreground",
           )}
+          id={titleId}
         >
           {post.deleted ? "deleted" : post.title}
         </span>
@@ -207,6 +215,7 @@ export function FeedPostCard(props: PostProps) {
                 "text-sm line-clamp-3 leading-relaxed",
                 post.read && "text-muted-foreground",
               )}
+              id={bodyId}
             >
               {removeMd(post.body)}
             </p>
@@ -303,7 +312,7 @@ export function FeedPostCard(props: PostProps) {
       )}
 
       {props.detailView && post.body && !post.deleted && (
-        <MarkdownRenderer markdown={post.body} className="pt-2" />
+        <MarkdownRenderer markdown={post.body} className="pt-2" id={bodyId} />
       )}
       <div className="flex flex-row items-center justify-end gap-2.5 pt-1">
         <PostShareButton postApId={props.apId} />
@@ -311,7 +320,7 @@ export function FeedPostCard(props: PostProps) {
         <PostCommentsButton postApId={post.apId} />
         <PostVoting apId={post.apId} />
       </div>
-    </div>
+    </article>
   );
 }
 

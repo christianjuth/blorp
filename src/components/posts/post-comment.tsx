@@ -489,10 +489,13 @@ export function PostComment({
                       ]),
                 ]}
                 trigger={
-                  <Button size="icon" variant="ghost" className="z-10">
-                    <div>
-                      <IoEllipsisHorizontal size={16} />
-                    </div>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="z-10"
+                    aria-label="Comment actions"
+                  >
+                    <IoEllipsisHorizontal size={16} />
                   </Button>
                 }
                 triggerAsChild

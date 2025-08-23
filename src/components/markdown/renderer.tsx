@@ -243,16 +243,19 @@ export function MarkdownRenderer({
   className,
   dim,
   disableLinks,
+  id,
 }: {
   markdown: string;
   className?: string;
   dim?: boolean;
   disableLinks?: boolean;
+  id?: string;
 }) {
   const root = useLinkContext().root;
   const content = (
     <div
       className={cn("markdown-content", dim && "text-foreground/70", className)}
+      id={id}
     >
       {parse(
         DOMPurify.sanitize(RENDERERS[root].render(markdown)),

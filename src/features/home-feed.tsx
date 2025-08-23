@@ -206,7 +206,7 @@ export default function HomeFeed() {
           <ToolbarButtons side="right">
             <Link
               to="/home/s"
-              className="text-2xl contents text-muted-foreground md:hidden"
+              className="text-2xl text-muted-foreground md:hidden"
             >
               <Search className="scale-110" />
             </Link>

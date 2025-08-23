@@ -178,6 +178,9 @@ const MenuBar = ({
             }
           } catch {}
         }}
+        aria-label={
+          editor.isActive("link") ? "Link selected text" : "Insert link"
+        }
       >
         <IoLink />
       </Toggle>
@@ -188,6 +191,7 @@ const MenuBar = ({
         type="button"
         onClick={() => editor.chain().focus().toggleBold().run()}
         disabled={!editor.can().chain().focus().toggleBold().run()}
+        aria-label={editor.isActive("bold") ? "Unbold" : "Bold"}
       >
         <AiOutlineBold />
       </Toggle>
@@ -198,6 +202,7 @@ const MenuBar = ({
         type="button"
         onClick={() => editor.chain().focus().toggleItalic().run()}
         disabled={!editor.can().chain().focus().toggleItalic().run()}
+        aria-label={editor.isActive("italic") ? "Unitalicize" : "Italicize"}
       >
         <AiOutlineItalic />
       </Toggle>
@@ -208,6 +213,9 @@ const MenuBar = ({
         type="button"
         onClick={() => editor.chain().focus().toggleStrike().run()}
         disabled={!editor.can().chain().focus().toggleStrike().run()}
+        aria-label={
+          editor.isActive("bold") ? "Unstrikethrough" : "Strikethrough"
+        }
       >
         <AiOutlineStrikethrough />
       </Toggle>
@@ -218,6 +226,7 @@ const MenuBar = ({
         type="button"
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
         disabled={!editor.can().chain().focus().toggleBlockquote().run()}
+        aria-label={editor.isActive("blockquote") ? "Unquote" : "Quote"}
       >
         <FaQuoteRight />
       </Toggle>
@@ -227,6 +236,7 @@ const MenuBar = ({
         data-state="off"
         type="button"
         onClick={() => editor.chain().focus().unsetAllMarks().run()}
+        aria-label="Clear format"
       >
         <MdOutlineFormatClear />
       </Toggle>
@@ -271,7 +281,12 @@ const MenuBar = ({
             onClick: () => editor.chain().focus().toggleOrderedList().run(),
           },
         ]}
-        trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
+        trigger={
+          <IoEllipsisHorizontal
+            className="text-muted-foreground"
+            aria-label="More text formatting options"
+          />
+        }
       />
     </div>
   );
@@ -444,6 +459,7 @@ function TipTapEditor({
           type="button"
           className="md:hidden"
           onClick={onChangeEditorType}
+          aria-label="Show markdown editor"
         >
           <IoLogoMarkdown />
         </Button>
@@ -493,6 +509,7 @@ function TipTapEditor({
           type="button"
           className="md:hidden"
           onClick={onChangeEditorType}
+          aria-label="Show markdown editor"
         >
           <IoLogoMarkdown />
         </Button>
@@ -545,6 +562,7 @@ function TextAreaEditor({
           type="button"
           className="md:hidden"
           onClick={onChangeEditorType}
+          aria-label="Show rich text editor"
         >
           <IoDocumentText />
         </Button>
@@ -580,6 +598,7 @@ function TextAreaEditor({
           type="button"
           className="md:hidden"
           onClick={onChangeEditorType}
+          aria-label="Show rich text editor"
         >
           <IoDocumentText />
         </Button>

@@ -81,6 +81,7 @@ export function ResponsiveImage({
   paddingB = 0,
   className,
   disabled,
+  blurNsfw,
 }: {
   paddingT?: number;
   paddingB?: number;
@@ -88,7 +89,9 @@ export function ResponsiveImage({
   onZoom: (scale: number) => void;
   className?: string;
   disabled?: boolean;
+  blurNsfw?: boolean | null;
 }) {
+  const [removeBlur, setRemoveBlur] = useState(false);
   const [isZoomedIn, setIsZoomedIn] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -167,7 +170,10 @@ export function ResponsiveImage({
           }}
         >
           <img
-            className={cn(error && "opacity-0")}
+            className={cn(
+              error && "opacity-0",
+              blurNsfw && !removeBlur && "blur-3xl",
+            )}
             src={img}
             onLoad={(e) => {
               setLoading(false);
@@ -185,6 +191,15 @@ export function ResponsiveImage({
             }}
           />
         </TransformComponent>
+        {blurNsfw && !removeBlur && (
+          <button
+            className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-3xl"
+            onClick={() => setRemoveBlur(true)}
+            aria-label="Show NSFW"
+          >
+            NSFW
+          </button>
+        )}
         <Controls
           isZoomedIn={isZoomedIn}
           style={{ bottom: paddingB }}

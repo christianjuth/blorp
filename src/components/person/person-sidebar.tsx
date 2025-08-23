@@ -159,7 +159,10 @@ export function PersonSidebar({ person }: { person?: Schemas.Person }) {
               align="end"
               actions={actions}
               trigger={
-                <IoEllipsisHorizontal className="text-muted-foreground mt-0.5" />
+                <IoEllipsisHorizontal
+                  className="text-muted-foreground mt-0.5"
+                  aria-label="Person action menu"
+                />
               }
               onOpen={() => setOpenSignal((s) => s + 1)}
             />

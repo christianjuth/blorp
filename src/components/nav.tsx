@@ -52,6 +52,8 @@ function AccountNotificationBadge({
   );
 }
 
+const USER_DROPDOWN_ARIA = "Open account/app settings menu";
+
 export function UserDropdown() {
   const getConfirmation = useConfirmationAlert();
   const media = useMedia();
@@ -96,7 +98,7 @@ export function UserDropdown() {
         autoHide={false}
         data-testid="user-sidebar-trigger"
       >
-        {content}
+        <button aria-label={USER_DROPDOWN_ARIA}>{content}</button>
       </IonMenuToggle>
     );
   }
@@ -105,7 +107,10 @@ export function UserDropdown() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger data-testid="user-dropdown-trigger">
+      <DropdownMenuTrigger
+        data-testid="user-dropdown-trigger"
+        aria-label={USER_DROPDOWN_ARIA}
+      >
         {content}
       </DropdownMenuTrigger>
       <DropdownMenuContent

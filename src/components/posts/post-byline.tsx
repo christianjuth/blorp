@@ -227,6 +227,7 @@ export function PostByline({
           "h-6 w-6 text-sm",
           showCommunity && showCreator && "h-8 w-8 text-md",
         )}
+        aria-hidden
       >
         <AvatarImage
           src={community?.communityView.icon ?? undefined}
@@ -271,6 +272,7 @@ export function PostByline({
                 }}
                 onClickCapture={onNavigate}
               >
+                <span className="sr-only">u/</span>
                 {creatorName}
                 {tag ? (
                   <Badge size="sm" variant="brand" className="ml-2">
@@ -319,7 +321,12 @@ export function PostByline({
         header="Post"
         align="end"
         actions={actions}
-        trigger={<IoEllipsisHorizontal className="text-muted-foreground" />}
+        trigger={
+          <IoEllipsisHorizontal
+            className="text-muted-foreground"
+            aria-label="Post actions"
+          />
+        }
         onOpen={() => setOpenSignal((s) => s + 1)}
       />
     </div>
