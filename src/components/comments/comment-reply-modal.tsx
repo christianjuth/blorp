@@ -138,8 +138,8 @@ export function CommentReplyProvider({
   const lastResortId = useId();
   const commentKey = comment?.id ?? parent?.id ?? postApId ?? lastResortId;
   const body =
-    useCommentRepliesStore((s) => s.getComment(commentKey)) ||
-    comment?.body ||
+    useCommentRepliesStore((s) => s.getComment(commentKey)) ??
+    comment?.body ??
     "";
 
   const setContent = useCommentRepliesStore((s) => s.setComment);
@@ -174,7 +174,12 @@ export function CommentReplyProvider({
         ...state,
         content: body,
         setContent: (newContent: string) => setContent(commentKey, newContent),
-        cancel: () => setState(null),
+        cancel: () => {
+          setState(null);
+          if (body === "") {
+            setContent(commentKey, null);
+          }
+        },
         submit: handleSubmit,
       }
     : null;
