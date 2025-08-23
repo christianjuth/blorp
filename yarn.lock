@@ -5240,6 +5240,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/pacer@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "@tanstack/pacer@npm:0.14.0"
+  dependencies:
+    "@tanstack/store": "npm:^0.7.2"
+  checksum: 10c0/07da46e81da90e4982942d059519621191a6b3cb0a392c5c1f0dc46099d1281c704ce905c03ed539496dd7d9c3a5e09dc03271295eacb66bf59744b817dbd8d0
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-broadcast-client-experimental@npm:5.83.1":
   version: 5.83.1
   resolution: "@tanstack/query-broadcast-client-experimental@npm:5.83.1"
@@ -5331,6 +5340,13 @@ __metadata:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
   checksum: 10c0/0eda3d5691ec3bf93a1cdaa955f4972c7aa9a5026179622824bb52ff8c47e59ee4634208e52d77f43ffb3ce435ee39a0899d6a81f6316918ce89d68122490371
+  languageName: node
+  linkType: hard
+
+"@tanstack/store@npm:^0.7.2":
+  version: 0.7.4
+  resolution: "@tanstack/store@npm:0.7.4"
+  checksum: 10c0/084aa3cf9a2b49bf9b1fb44872cb6fe4a05f8e6fc1bf584f1f30e6e0d89558b9003830562ece7794df85e1fc106542f3f50d71f0ea682deb11846576c1d33595
   languageName: node
   linkType: hard
 
@@ -11089,6 +11105,7 @@ __metadata:
     "@storybook/react-vite": "npm:^9.0.12"
     "@t3-oss/env-core": "npm:^0.13.4"
     "@tailwindcss/vite": "npm:^4.1.11"
+    "@tanstack/pacer": "npm:^0.14.0"
     "@tanstack/query-broadcast-client-experimental": "npm:5.83.1"
     "@tanstack/react-devtools": "npm:^0.3.0"
     "@tanstack/react-query": "npm:5.83.1"

@@ -3,6 +3,7 @@ import { load } from "@tauri-apps/plugin-store";
 import { isTauri } from "./device";
 import _ from "lodash";
 import pRetry from "p-retry";
+import { AsyncThrottler } from "@tanstack/pacer";
 
 const DB_VERSION = 1;
 const DB_NAME = "lemmy-db";
@@ -60,6 +61,19 @@ function createIdb(rowName: string) {
     });
   }
 
+  const getThrottledSet = _.memoize((key: string) => {
+    return new AsyncThrottler(
+      async (value: string) => {
+        const db = await getDb();
+        await db.put(TABLE_NAME, value, `${rowName}_${key}`);
+      },
+      {
+        wait: 2000,
+        leading: true,
+      },
+    );
+  });
+
   return {
     async getItem(key: string): Promise<string | null> {
       const db = await getDb();
@@ -67,11 +81,13 @@ function createIdb(rowName: string) {
     },
 
     async setItem(key: string, value: string): Promise<void> {
-      const db = await getDb();
-      await db.put(TABLE_NAME, value, `${rowName}_${key}`);
+      const set = getThrottledSet(key);
+      await set.maybeExecute(value);
     },
 
     async removeItem(key: string): Promise<void> {
+      const set = getThrottledSet(key);
+      set.cancel();
       const db = await getDb();
       await db.delete(TABLE_NAME, `${rowName}_${key}`);
     },
