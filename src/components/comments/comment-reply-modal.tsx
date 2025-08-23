@@ -164,9 +164,16 @@ export function CommentReplyProvider({
         queryKeyParentId,
       });
     }
-    setContent(commentKey, "");
+    setContent(commentKey, null);
     setState(null);
     setSignal((s) => s + 1);
+  };
+
+  const onCancel = () => {
+    if (body.trim() === "") {
+      setContent(commentKey, null);
+    }
+    setState(null);
   };
 
   const internalState: InternalState | null = state
@@ -174,12 +181,7 @@ export function CommentReplyProvider({
         ...state,
         content: body,
         setContent: (newContent: string) => setContent(commentKey, newContent),
-        cancel: () => {
-          setState(null);
-          if (body === "") {
-            setContent(commentKey, null);
-          }
-        },
+        cancel: () => onCancel(),
         submit: handleSubmit,
       }
     : null;
@@ -188,7 +190,7 @@ export function CommentReplyProvider({
     <Context.Provider value={{ setState, state: internalState }}>
       <IonModal
         isOpen={state !== null}
-        onWillDismiss={() => setState(null)}
+        onWillDismiss={() => onCancel()}
         onDidPresent={() => setSignal((s) => s + 1)}
         presentingElement={presentingElement}
         className="md:hidden"
@@ -196,7 +198,7 @@ export function CommentReplyProvider({
         <IonHeader>
           <IonToolbar>
             <ToolbarButtons side="left">
-              <IonButton onClick={() => setState(null)}>Cancel</IonButton>
+              <IonButton onClick={() => onCancel()}>Cancel</IonButton>
             </ToolbarButtons>
             <IonTitle>{parent ? "Reply to comment" : "Add comment"}</IonTitle>
             <ToolbarButtons side="right">
