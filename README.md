@@ -85,4 +85,4 @@ Want to ask questions, share feedback, or just chat with other Blorp users? Head
 ## 📄 License
 
 * [AGPL-3.0](https://github.com/christianjuth/blorp/blob/main/LICENSE) © Blorp
-* You can also view all the [licenses of the libraries we ship](https://github.com/christianjuth/blorp/blob/main/THIRD-PARTY-NOTICES.md) in our ap
+* You can also view all the [licenses of the libraries we ship](https://github.com/christianjuth/blorp/blob/main/THIRD-PARTY-NOTICES.md) in our app
