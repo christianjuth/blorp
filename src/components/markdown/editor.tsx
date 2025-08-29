@@ -157,7 +157,6 @@ const MenuBar = ({
                   text: "OK",
                   role: "confirm",
                   handler: (v) => {
-                    console.log(v, "v");
                     try {
                       const link = linkSchema.parse(v);
                       deferred.resolve(link);

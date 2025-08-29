@@ -120,6 +120,9 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
     [active, header, toolbar, tabBar, newPostButton],
   );
 
+  const scrollTop = useRef(div?.scrollTop ?? 0);
+  scrollTop.current = div?.scrollTop ?? 0;
+
   useEffect(() => {
     if (!active) {
       prevOffsetRef.current = 0;
@@ -132,9 +135,9 @@ function useHideHeaderTabBar(div: HTMLDivElement | null, active: boolean) {
         newPostButton.style.opacity = "1";
       }
     } else {
-      prevOffsetRef.current = div?.scrollTop ?? 0;
+      prevOffsetRef.current = scrollTop.current;
     }
-  }, [active, tabBar, header, toolbar, newPostButton, div?.scrollTop]);
+  }, [active, tabBar, header, toolbar, newPostButton]);
 
   return { scrollHandler };
 }
