@@ -1,6 +1,7 @@
 import {
   Editor,
   EditorContent,
+  getMarkRange,
   ReactNodeViewRenderer,
   useEditor,
 } from "@tiptap/react";
@@ -44,6 +45,10 @@ import { ActionMenu } from "../adaptable/action-menu";
 import { toast } from "sonner";
 import { MdOutlineFormatClear } from "react-icons/md";
 
+const CustomLink = Link.extend({
+  inclusive: false,
+});
+
 const linkSchema = z.object({
   description: z.string(),
   url: z.string(),
@@ -78,6 +83,23 @@ function IconFileInput({ onFile }: { onFile: (file: File) => void }) {
   );
 }
 
+function getActiveLinkInfo(editor: Editor) {
+  const { state } = editor;
+  const linkType = state.schema.marks["link"];
+  const { $from } = state.selection;
+
+  if (!linkType) {
+    return null;
+  }
+
+  const range = getMarkRange($from, linkType);
+  if (!range) return null;
+
+  const text = state.doc.textBetween(range.from, range.to, undefined, "\uFFFC");
+  const attrs = editor.getAttributes("link"); // href, target, etc.
+  return { text, href: attrs["href"], range };
+}
+
 const MenuBar = ({
   editor,
   onFile,
@@ -102,17 +124,10 @@ const MenuBar = ({
         type="button"
         onClick={async () => {
           const isLinkActive = editor.isActive("link");
+          const linkInfo = getActiveLinkInfo(editor);
 
-          let prevDescription = "";
           const { from, to } = editor.state.selection;
-          if (isLinkActive) {
-            editor.chain().focus().extendMarkRange("link").run();
-            prevDescription = editor.state.doc.textBetween(from, to, " ");
-          } else if (to > from) {
-            prevDescription = editor.state.doc.textBetween(from, to, " ");
-          }
-
-          const previousUrl = editor.getAttributes("link")["href"];
+          const selectedText = editor.state.doc.textBetween(from, to, " ");
 
           try {
             const deferred = new Deferred<z.infer<typeof linkSchema>>();
@@ -122,12 +137,14 @@ const MenuBar = ({
                 {
                   name: "description",
                   placeholder: "Desscription",
-                  value: prevDescription,
+                  value: linkInfo
+                    ? linkInfo.text || linkInfo.href
+                    : selectedText,
                 },
                 {
                   name: "url",
                   placeholder: "https://join-lemmy.org",
-                  value: previousUrl,
+                  value: linkInfo?.href,
                 },
               ],
               buttons: [
@@ -161,8 +178,13 @@ const MenuBar = ({
                 .chain()
                 .focus()
                 .extendMarkRange("link")
-                .insertContent(description)
-                .setLink({ href: url })
+                .insertContent([
+                  {
+                    type: "text",
+                    text: description,
+                    marks: [{ type: "link", attrs: { href: url } }],
+                  },
+                ])
                 .run();
             } else {
               const { from } = editor.state.selection;
@@ -344,7 +366,7 @@ function TipTapEditor({
       }).configure({
         lowlight,
       }),
-      Link.configure({
+      CustomLink.configure({
         autolink: true,
         defaultProtocol: "https",
       }),
