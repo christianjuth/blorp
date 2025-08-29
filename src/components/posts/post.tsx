@@ -96,6 +96,9 @@ export function FeedPostCard(props: PostProps) {
     useAuth((s) => getAccountSite(s.getSelectedAccount())?.showNsfw) ?? false;
   const blurNsfw =
     useAuth((s) => getAccountSite(s.getSelectedAccount())?.blurNsfw) ?? true;
+  const myApId = useAuth(
+    (s) => getAccountSite(s.getSelectedAccount())?.me?.apId,
+  );
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
   const post = usePostsStore(
@@ -182,7 +185,7 @@ export function FeedPostCard(props: PostProps) {
             ? true
             : props.detailView
         }
-        isMod={props.modApIds?.includes(post.creatorApId)}
+        isMod={myApId ? props.modApIds?.includes(myApId) : false}
       />
 
       {props.detailView && post.crossPosts && post.crossPosts.length > 0 && (

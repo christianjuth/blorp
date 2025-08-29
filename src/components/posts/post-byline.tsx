@@ -93,20 +93,10 @@ export function PostByline({
   const [openSignal, setOpenSignal] = useState(0);
   const actions: ActionMenuProps["actions"] = useMemo(
     () => [
-      {
-        text: saved ? "Unsave post" : "Save post",
-        onClick: () =>
-          requireAuth().then(() => {
-            savePost.mutateAsync({
-              postId: post.id,
-              save: !saved,
-            });
-          }),
-      },
-      ...(isMyPost && isMod
+      ...(isMod
         ? [
             {
-              text: "Feature post",
+              text: "Moderation",
               actions: [
                 {
                   text: post.featuredCommunity
@@ -123,6 +113,31 @@ export function PostByline({
             },
           ]
         : []),
+      ...(!isMyPost
+        ? [
+            {
+              text: "Author",
+              actions: [
+                {
+                  text: "Tag Author",
+                  onClick: async () => {
+                    tagUser(post.creatorSlug, tag);
+                  },
+                },
+              ],
+            },
+          ]
+        : []),
+      {
+        text: saved ? "Unsave post" : "Save post",
+        onClick: () =>
+          requireAuth().then(() => {
+            savePost.mutateAsync({
+              postId: post.id,
+              save: !saved,
+            });
+          }),
+      },
       {
         text: "View post source",
         onClick: async () => {
@@ -131,12 +146,6 @@ export function PostByline({
           } catch {
             // TODO: handle error
           }
-        },
-      },
-      {
-        text: "Tag creator",
-        onClick: async () => {
-          tagUser(post.creatorSlug, tag);
         },
       },
       ...(isMyPost
