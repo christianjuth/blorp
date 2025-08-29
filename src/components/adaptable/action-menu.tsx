@@ -200,12 +200,9 @@ export function ActionMenu<V extends string>({
           isOpen
           buttons={subActionButtons}
           onWillDismiss={({ detail }) => {
-            const selectedActions = actions.find(
-              (a) => "actions" in a && a.actions === subActions,
-            )?.actions;
             const index = _.isNumber(detail.data) ? detail.data : null;
-            if (index !== null && selectedActions) {
-              const action = selectedActions[index];
+            if (index !== null && subActions) {
+              const action = subActions[index];
               if (action && action.onClick) {
                 setSubActions(undefined);
                 setSubActionsTitle(undefined);
