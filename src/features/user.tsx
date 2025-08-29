@@ -30,6 +30,7 @@ import { useHistory } from "react-router";
 import { ToolbarBackButton } from "../components/toolbar/toolbar-back-button";
 import { ToolbarTitle } from "../components/toolbar/toolbar-title";
 import { ToolbarButtons } from "../components/toolbar/toolbar-buttons";
+import { CommentVoting } from "../components/comments/comment-buttons";
 
 const NO_ITEMS = "NO_ITEMS";
 type Item = string;
@@ -83,6 +84,8 @@ const Comment = memo(function Comment({ path }: { path: string }) {
         ) : (
           <MarkdownRenderer markdown={commentView.body} disableLinks />
         )}
+
+        <CommentVoting commentView={commentView} className="self-end" />
       </Link>
       <></>
     </ContentGutters>
