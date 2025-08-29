@@ -1,6 +1,10 @@
 import { MarkdownRenderer } from "../markdown/renderer";
 import _ from "lodash";
-import { CommentReplyButton, CommentVoting } from "../comments/comment-buttons";
+import {
+  CommentReplyButton,
+  CommentVoting,
+  useDoubleTapLike,
+} from "../comments/comment-buttons";
 import {
   InlineCommentReply,
   useCommentEditingState,
@@ -45,6 +49,7 @@ import { useMedia } from "@/src/lib/hooks/index";
 import { CakeDay } from "../cake-day";
 import { useTagUser, useTagUserStore } from "@/src/stores/user-tags";
 import { useSettingsStore } from "@/src/stores/settings";
+import { useDoubleTap } from "use-double-tap";
 
 type StoreState = {
   expandedDetails: Record<string, boolean>;
@@ -204,6 +209,17 @@ export function PostComment({
 
   const deleteComment = useDeleteComment();
 
+  const doubleTapLike = useDoubleTapLike(
+    commentView
+      ? {
+          postId: commentView.postId,
+          id: commentView.id,
+          score: 1,
+          path: commentView.path,
+        }
+      : undefined,
+  );
+
   const isMyComment = commentView?.creatorId === myUserId;
 
   const sorted = _.entries(_.omit(rest, ["sort", "imediateChildren"])).sort(
@@ -350,6 +366,7 @@ export function PostComment({
             );
           }
         }}
+        {...doubleTapLike}
       >
         {commentView && (
           <Byline

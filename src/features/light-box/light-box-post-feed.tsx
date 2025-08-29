@@ -36,7 +36,6 @@ import { decodeApId, encodeApId } from "@/src/lib/api/utils";
 import { useLinkContext } from "@/src/routing/link-context";
 import { useParams } from "@/src/routing";
 import { Forms } from "@/src/lib/api/adapters/api-blueprint";
-import { useRequireAuth } from "@/src/components/auth-context";
 import { ToolbarButtons } from "@/src/components/toolbar/toolbar-buttons";
 import { Button } from "@/src/components/ui/button";
 import { IonButtons, IonButton, IonModal, IonTitle } from "@ionic/react";
@@ -115,7 +114,6 @@ function HorizontalVirtualizer<T>({
 
   const initialOffset = activeIndex * itemWidth;
 
-  const isActive = useIsActiveRoute();
   const focused = useElementHasFocus(scrollRef);
 
   const rowVirtualizer = useVirtualizer({
@@ -312,7 +310,10 @@ const Post = memo(
       (s) => s.posts[getCachePrefixer()(apId)]?.data,
     );
 
-    const blurImg = postView?.nsfw;
+    const blurNsfw =
+      useAuth((s) => getAccountSite(s.getSelectedAccount())?.blurNsfw) ?? true;
+
+    const blurImg = blurNsfw ? postView?.nsfw : false;
     const img = postView?.thumbnailUrl;
 
     return img ? (
@@ -442,10 +443,6 @@ export default function LightBoxPostFeed() {
     postApId ? s.posts[getCachePrefixer()(postApId)]?.data : null,
   );
 
-  const blurNsfw =
-    useAuth((s) => getAccountSite(s.getSelectedAccount())?.blurNsfw) ?? true;
-  const blurImg = post?.nsfw ? blurNsfw : false;
-
   const community = useCommunity({
     name: communityName,
   });
@@ -457,8 +454,6 @@ export default function LightBoxPostFeed() {
       updateRecent(community.data.community);
     }
   }, [community.data, updateRecent]);
-
-  const requireAuth = useRequireAuth();
 
   const voting = usePostVoting(postApId);
   const { vote, isUpvoted, isDownvoted } = voting ?? {};
@@ -473,12 +468,10 @@ export default function LightBoxPostFeed() {
             case "h":
               e.preventDefault();
               e.stopPropagation();
-              requireAuth().then(() => {
-                vote?.mutate({
-                  score: isUpvoted ? 0 : 1,
-                  postApId: post.apId,
-                  postId: post.id,
-                });
+              vote?.({
+                score: isUpvoted ? 0 : 1,
+                postApId: post.apId,
+                postId: post.id,
               });
               break;
             case "ArrowDown":
@@ -486,12 +479,10 @@ export default function LightBoxPostFeed() {
             case "l":
               e.preventDefault();
               e.stopPropagation();
-              requireAuth().then(() => {
-                vote?.mutate({
-                  score: isDownvoted ? 0 : -1,
-                  postApId: post.apId,
-                  postId: post.id,
-                });
+              vote?.({
+                score: isDownvoted ? 0 : -1,
+                postApId: post.apId,
+                postId: post.id,
               });
               break;
             default:
@@ -499,7 +490,7 @@ export default function LightBoxPostFeed() {
           }
         }
       },
-      [vote, isUpvoted, isDownvoted, post, requireAuth],
+      [vote, isUpvoted, isDownvoted, post],
     ),
   );
 

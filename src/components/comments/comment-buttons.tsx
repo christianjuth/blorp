@@ -18,6 +18,34 @@ import _ from "lodash";
 import { getAccountSite, useAuth } from "@/src/stores/auth";
 import NumberFlow from "@number-flow/react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "../ui/tooltip";
+import { useDoubleTap } from "use-double-tap";
+
+type Vote = {
+  postId: number;
+  id: number;
+  score: number;
+  path: string;
+};
+
+function usePostVoting() {
+  const requireAuth = useRequireAuth();
+  const vote = useLikeComment();
+  return (config: Vote) => {
+    requireAuth().then(() => {
+      voteHaptics(config.score);
+      vote.mutate(config);
+    });
+  };
+}
+
+export function useDoubleTapLike(config?: Vote) {
+  const vote = usePostVoting();
+  return useDoubleTap(() => {
+    if (config) {
+      vote(config);
+    }
+  });
+}
 
 export function CommentVoting({
   commentView,
@@ -33,9 +61,7 @@ export function CommentVoting({
 
   const id = useId();
 
-  const requireAuth = useRequireAuth();
-
-  const vote = useLikeComment();
+  const vote = usePostVoting();
 
   const myVote = commentView?.optimisticMyVote ?? commentView?.myVote ?? 0;
 
@@ -57,14 +83,11 @@ export function CommentVoting({
         variant="ghost"
         onClick={async () => {
           const newVote = isUpvoted ? 0 : 1;
-          voteHaptics(newVote);
-          requireAuth().then(() => {
-            vote.mutate({
-              postId: commentView.postId,
-              id: commentView.id,
-              score: newVote,
-              path: commentView.path,
-            });
+          vote({
+            postId: commentView.postId,
+            id: commentView.id,
+            score: newVote,
+            path: commentView.path,
           });
         }}
         className={cn("text-md font-normal -mr-2", isUpvoted && "text-brand")}
@@ -83,17 +106,13 @@ export function CommentVoting({
         variant="ghost"
         onClick={async () => {
           const newVote = isUpvoted ? 0 : 1;
-          voteHaptics(newVote);
-          requireAuth().then(() => {
-            vote.mutate({
-              postId: commentView.postId,
-              id: commentView.id,
-              score: newVote,
-              path: commentView.path,
-            });
+          vote({
+            postId: commentView.postId,
+            id: commentView.id,
+            score: newVote,
+            path: commentView.path,
           });
         }}
-        //disabled={vote.isPending}
         className={cn(
           "hover:text-brand hover:bg-brand/10",
           isUpvoted && "text-brand",
@@ -128,17 +147,13 @@ export function CommentVoting({
         variant="ghost"
         onClick={async () => {
           const newVote = isDownvoted ? 0 : -1;
-          voteHaptics(newVote);
-          requireAuth().then(() => {
-            vote.mutate({
-              postId: commentView.postId,
-              id: commentView.id,
-              score: newVote,
-              path: commentView.path,
-            });
+          vote({
+            postId: commentView.postId,
+            id: commentView.id,
+            score: newVote,
+            path: commentView.path,
           });
         }}
-        //disabled={vote.isPending}
         className={cn(
           "hover:text-brand-secondary hover:bg-brand-secondary/10",
           isDownvoted && "text-brand-secondary",

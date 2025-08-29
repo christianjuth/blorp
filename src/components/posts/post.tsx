@@ -10,6 +10,7 @@ import {
   PostCommentsButton,
   PostShareButton,
   PostVoting,
+  useDoubleTapPostLike,
 } from "./post-buttons";
 import { MarkdownRenderer } from "../markdown/renderer";
 import { twMerge } from "tailwind-merge";
@@ -116,6 +117,16 @@ export function FeedPostCard(props: PostProps) {
   const leftHandedMode = useSettingsStore((s) => s.leftHandedMode);
 
   const patchPost = usePostsStore((s) => s.patchPost);
+
+  const doubeTapLike = useDoubleTapPostLike(
+    post
+      ? {
+          postId: post.id,
+          postApId: post.apId,
+          score: 1,
+        }
+      : undefined,
+  );
 
   if (post?.nsfw === true && !showNsfw) {
     return props.detailView ? <Notice>Hidden due to NSFW</Notice> : null;
@@ -317,7 +328,9 @@ export function FeedPostCard(props: PostProps) {
       )}
 
       {props.detailView && post.body && !post.deleted && (
-        <MarkdownRenderer markdown={post.body} className="pt-2" id={bodyId} />
+        <div className="flex-1" {...doubeTapLike}>
+          <MarkdownRenderer markdown={post.body} className="pt-2" id={bodyId} />
+        </div>
       )}
       <div
         className={cn(

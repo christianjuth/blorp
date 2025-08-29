@@ -14,7 +14,7 @@ import {
 import { TbMessageCircle, TbMessageCirclePlus } from "react-icons/tb";
 import { cn } from "@/src/lib/utils";
 import { Button } from "../ui/button";
-import { useId, useMemo } from "react";
+import { useCallback, useId, useMemo } from "react";
 import { abbriviateNumber, abbriviateNumberParts } from "@/src/lib/format";
 import { useLinkContext } from "../../routing/link-context";
 import { getAccountSite, useAuth } from "@/src/stores/auth";
@@ -32,6 +32,7 @@ import { encodeApId } from "@/src/lib/api/utils";
 import { getPostEmbed } from "@/src/lib/post";
 import { isWeb } from "@/src/lib/device";
 import { Tooltip, TooltipTrigger, TooltipContent } from "../ui/tooltip";
+import { useDoubleTap } from "use-double-tap";
 
 export function usePostVoting(apId?: string) {
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -44,7 +45,19 @@ export function usePostVoting(apId?: string) {
       (s) => getAccountSite(s.getSelectedAccount())?.enablePostDownvotes,
     ) ?? true;
 
-  const vote = useLikePost(apId);
+  const { mutate: mutateVote } = useLikePost(apId);
+
+  const requireAuth = useRequireAuth();
+
+  const vote = useCallback(
+    (form: { postApId: string; postId: number; score: -1 | 0 | 1 }) => {
+      requireAuth().then(() => {
+        voteHaptics(form.score);
+        mutateVote(form);
+      });
+    },
+    [requireAuth, mutateVote],
+  );
 
   if (!postView) return null;
 
@@ -64,10 +77,23 @@ export function usePostVoting(apId?: string) {
     downvotes: postView.downvotes,
     isUpvoted,
     isDownvoted,
-    enableDownvotes,
     vote,
+    enableDownvotes,
     postId: postView.id,
   };
+}
+
+export function useDoubleTapPostLike(config?: {
+  postApId: string;
+  postId: number;
+  score: -1 | 0 | 1;
+}) {
+  const voting = usePostVoting(config?.postApId);
+  return useDoubleTap(() => {
+    if (config) {
+      voting?.vote(config);
+    }
+  });
 }
 
 export function PostVoting({
@@ -78,7 +104,6 @@ export function PostVoting({
   className?: string;
 }) {
   const id = useId();
-  const requireAuth = useRequireAuth();
 
   const voting = usePostVoting(apId);
 
@@ -96,17 +121,13 @@ export function PostVoting({
       <Button
         size="sm"
         variant="outline"
-        onClick={async () => {
-          const newVote = isUpvoted ? 0 : 1;
-          voteHaptics(newVote);
-          requireAuth().then(() => {
-            vote.mutate({
-              score: newVote,
-              postApId: apId,
-              postId,
-            });
-          });
-        }}
+        onClick={() =>
+          vote({
+            score: isUpvoted ? 0 : 1,
+            postApId: apId,
+            postId,
+          })
+        }
         className={cn("text-md font-normal", isUpvoted && "text-brand")}
       >
         {isUpvoted ? <FaHeart /> : <FaRegHeart />}
@@ -126,18 +147,13 @@ export function PostVoting({
         id={id}
         size="icon"
         variant="ghost"
-        onClick={async () => {
-          const newVote = isUpvoted ? 0 : 1;
-          voteHaptics(newVote);
-          requireAuth().then(() => {
-            vote.mutate({
-              score: newVote,
-              postApId: apId,
-              postId,
-            });
-          });
-        }}
-        //disabled={vote.isPending}
+        onClick={() =>
+          vote({
+            score: isUpvoted ? 0 : 1,
+            postApId: apId,
+            postId,
+          })
+        }
         className={cn(
           "hover:text-brand hover:bg-brand/10",
           "flex items-center space-x-1 text-left",
@@ -170,18 +186,13 @@ export function PostVoting({
       <Button
         size="icon"
         variant="ghost"
-        onClick={async () => {
-          const newVote = isDownvoted ? 0 : -1;
-          voteHaptics(newVote);
-          requireAuth().then(() => {
-            vote.mutate({
-              score: newVote,
-              postApId: apId,
-              postId,
-            });
-          });
-        }}
-        //disabled={vote.isPending}
+        onClick={() =>
+          vote({
+            score: isDownvoted ? 0 : -1,
+            postApId: apId,
+            postId,
+          })
+        }
         className={cn(
           "hover:text-brand-secondary hover:bg-brand-secondary/10",
           isDownvoted && "text-brand-secondary",
