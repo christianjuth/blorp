@@ -497,13 +497,16 @@ export function usePosts(form: Forms.GetPosts) {
   };
 }
 
+function useListCommunitiesKey() {
+  const { queryKeyPrefix } = useApiClients();
+  return [...queryKeyPrefix, "listCommunities"];
+}
+
 export function useListCommunities(form: Forms.GetCommunities) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
-  const { api, queryKeyPrefix } = useApiClients();
-
+  const { api } = useApiClients();
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-
-  const queryKey = [...queryKeyPrefix, "listCommunities"];
+  const queryKey = useListCommunitiesKey();
 
   if (form.sort) {
     queryKey.push("sort", form.sort);
@@ -1546,7 +1549,11 @@ export function useSearch(form: Forms.Search) {
   const { api, queryKeyPrefix } = useApiClients();
 
   const postSort = useFiltersStore((s) => s.postSort);
-  const sort = form.sort ?? postSort;
+  form = {
+    sort: postSort,
+    ...form,
+    q: form.q.trim(),
+  };
 
   const queryKey = [...queryKeyPrefix, "search", form];
 
@@ -1562,7 +1569,6 @@ export function useSearch(form: Forms.Search) {
         await api
       ).search(
         {
-          sort,
           ...form,
           pageCursor: pageParam,
         },
@@ -1653,6 +1659,8 @@ export function useFollowCommunity() {
   const patchCommunity = useCommunitiesStore((s) => s.patchCommunity);
   const cacheCommunity = useCommunitiesStore((s) => s.cacheCommunity);
 
+  const refreshAuthKey = useRefreshAuthKey();
+
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -1701,6 +1709,9 @@ export function useFollowCommunity() {
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [...queryKeyPrefix, "listCommunities"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: refreshAuthKey,
       });
     },
   });
