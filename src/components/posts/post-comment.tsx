@@ -31,7 +31,7 @@ import { Badge } from "@/src/components/ui/badge";
 import { Button } from "../ui/button";
 import { useMemo, useRef } from "react";
 import { ContentGutters } from "../gutters";
-import { shareRoute } from "@/src/lib/share";
+import { copyRouteToClipboard, shareRoute } from "@/src/lib/share";
 import { useProfilesStore } from "@/src/stores/profiles";
 import { Shield, ShieldCheckmark } from "../icons";
 import {
@@ -271,6 +271,17 @@ export function PostComment({
     commentView &&
     highlightCommentId === String(commentView.id);
 
+  const route = commentView
+    ? resolveRoute(
+        `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
+        {
+          communityName,
+          post: encodeURIComponent(postApId),
+          comment: String(commentView.id),
+        },
+      )
+    : null;
+
   const content = (
     <div
       ref={ref}
@@ -460,20 +471,23 @@ export function PostComment({
                         } as const,
                       ]
                     : []),
-                  {
-                    text: "Share comment",
-                    onClick: () =>
-                      shareRoute(
-                        resolveRoute(
-                          `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
-                          {
-                            communityName,
-                            post: encodeURIComponent(postApId),
-                            comment: String(commentView.id),
-                          },
-                        ),
-                      ),
-                  } as const,
+                  ...(route
+                    ? [
+                        {
+                          text: "Share",
+                          actions: [
+                            {
+                              text: "Share link to comment",
+                              onClick: () => shareRoute(route),
+                            },
+                            {
+                              text: "Copy link to comment",
+                              onClick: () => copyRouteToClipboard(route),
+                            },
+                          ],
+                        },
+                      ]
+                    : []),
                   ...(isMyComment
                     ? [
                         {
