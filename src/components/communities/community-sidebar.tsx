@@ -19,7 +19,7 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { PersonCard } from "../person/person-card";
-import { shareRoute } from "@/src/lib/share";
+import { copyRouteToClipboard, shareRoute } from "@/src/lib/share";
 import { Sidebar, SidebarContent } from "../sidebar";
 import {
   Collapsible,
@@ -33,6 +33,7 @@ import { cn } from "@/src/lib/utils";
 import { AggregateBadges } from "../aggregates";
 import { useConfirmationAlert } from "@/src/lib/hooks/index";
 import { Skeleton } from "../ui/skeleton";
+import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
 
 dayjs.extend(localizedFormat);
 
@@ -45,7 +46,6 @@ export function SmallScreenSidebar({
   actorId?: string | null;
   expanded?: boolean;
 }) {
-  const getConfirmation = useConfirmationAlert();
   const linkCtx = useLinkContext();
 
   useCommunity({
@@ -57,68 +57,13 @@ export function SmallScreenSidebar({
   );
   const communityView = data?.communityView;
 
-  const isLoggedIn = useAuth((s) => s.isLoggedIn());
-
-  const createPost = useCommunityCreatePost({
-    communityName,
-  });
-
-  const blockCommunity = useBlockCommunity();
-
   const [openSignal, setOpenSignal] = useState(0);
-  const actions: ActionMenuProps["actions"] = useMemo(
-    () => [
-      ...(isLoggedIn
-        ? [
-            {
-              text: "Create post",
-              onClick: createPost,
-            },
-          ]
-        : []),
-      {
-        text: "Share",
-        onClick: () =>
-          shareRoute(
-            resolveRoute(`${linkCtx.root}c/:communityName`, {
-              communityName,
-            }),
-          ),
-      },
-      ...(actorId
-        ? [
-            {
-              text: "View source",
-              onClick: async () => {
-                try {
-                  openUrl(actorId);
-                } catch {
-                  // TODO: handle error
-                }
-              },
-            },
-          ]
-        : []),
-      ...(isLoggedIn && communityView
-        ? [
-            {
-              text: "Block community",
-              danger: true,
-              onClick: () =>
-                getConfirmation({
-                  message: `Block ${communityName}`,
-                }).then(() =>
-                  blockCommunity.mutate({
-                    communityId: communityView?.id,
-                    block: true,
-                  }),
-                ),
-            },
-          ]
-        : []),
-    ],
-    [openSignal],
-  );
+  const actions = useCommunityActions({
+    communityName,
+    communityView,
+    actorId,
+    openSignal,
+  });
 
   const createdAt = (
     <div className="flex items-center gap-1.5 text-sm h-5 text-muted-foreground">
@@ -229,45 +174,49 @@ export function SmallScreenSidebar({
   );
 }
 
-export function CommunitySidebar({
-  communityName,
+function useCommunityActions({
   actorId,
-  hideDescription = false,
+  communityName,
+  communityView,
+  openSignal,
 }: {
+  actorId?: string | null;
   communityName: string;
-  actorId: string | undefined;
-  hideDescription?: boolean;
-  asPage?: boolean;
-}) {
+  communityView?: Schemas.Community;
+  openSignal: number;
+}): ActionMenuProps["actions"] {
   const getConfirmation = useConfirmationAlert();
-
-  useCommunity({
-    name: communityName,
-  });
-
-  const linkCtx = useLinkContext();
-  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
-  const data = useCommunitiesStore(
-    (s) => s.communities[getCachePrefixer()(communityName)]?.data,
-  );
+  const blockCommunity = useBlockCommunity();
 
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
-
-  const aboutOpen = useSidebarStore((s) => s.communityAboutExpanded);
-  const setAboutOpen = useSidebarStore((s) => s.setCommunityAboutExpanded);
-
-  const modsOpen = useSidebarStore((s) => s.communityModsExpanded);
-  const setModsOpen = useSidebarStore((s) => s.setCommunityModsExpanded);
+  const linkCtx = useLinkContext();
 
   const createPost = useCommunityCreatePost({
     communityName,
   });
 
-  const blockCommunity = useBlockCommunity();
-
-  const [openSignal, setOpenSignal] = useState(0);
-  const actions: ActionMenuProps["actions"] = useMemo(
-    () => [
+  return useMemo(() => {
+    const route = resolveRoute(`${linkCtx.root}c/:communityName`, {
+      communityName,
+    });
+    return [
+      ...(route
+        ? [
+            {
+              text: "Share",
+              actions: [
+                {
+                  text: "Share link to community",
+                  onClick: () => shareRoute(route),
+                },
+                {
+                  text: "Copy link to community",
+                  onClick: () => copyRouteToClipboard(route),
+                },
+              ],
+            },
+          ]
+        : []),
       ...(isLoggedIn
         ? [
             {
@@ -276,15 +225,6 @@ export function CommunitySidebar({
             },
           ]
         : []),
-      {
-        text: "Share",
-        onClick: () =>
-          shareRoute(
-            resolveRoute(`${linkCtx.root}c/:communityName`, {
-              communityName,
-            }),
-          ),
-      },
       ...(actorId
         ? [
             {
@@ -299,7 +239,7 @@ export function CommunitySidebar({
             },
           ]
         : []),
-      ...(isLoggedIn
+      ...(isLoggedIn && communityView
         ? [
             {
               text: "Block community",
@@ -309,16 +249,50 @@ export function CommunitySidebar({
                   message: `Block ${communityName}`,
                 }).then(() =>
                   blockCommunity.mutate({
-                    communityId: communityView.id,
+                    communityId: communityView?.id,
                     block: true,
                   }),
                 ),
             },
           ]
         : []),
-    ],
-    [openSignal],
+    ];
+  }, [openSignal]);
+}
+
+export function CommunitySidebar({
+  communityName,
+  actorId,
+  hideDescription = false,
+}: {
+  communityName: string;
+  actorId: string | undefined;
+  hideDescription?: boolean;
+  asPage?: boolean;
+}) {
+  useCommunity({
+    name: communityName,
+  });
+
+  const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
+  const data = useCommunitiesStore(
+    (s) => s.communities[getCachePrefixer()(communityName)]?.data,
   );
+
+  const aboutOpen = useSidebarStore((s) => s.communityAboutExpanded);
+  const setAboutOpen = useSidebarStore((s) => s.setCommunityAboutExpanded);
+
+  const modsOpen = useSidebarStore((s) => s.communityModsExpanded);
+  const setModsOpen = useSidebarStore((s) => s.setCommunityModsExpanded);
+
+  const [openSignal, setOpenSignal] = useState(0);
+
+  const actions = useCommunityActions({
+    communityName,
+    communityView: data?.communityView,
+    actorId,
+    openSignal,
+  });
 
   if (!data) {
     return null;
