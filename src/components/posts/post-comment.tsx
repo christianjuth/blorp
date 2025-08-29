@@ -44,6 +44,7 @@ import { COMMENT_COLLAPSE_EVENT } from "./config";
 import { useMedia } from "@/src/lib/hooks/index";
 import { CakeDay } from "../cake-day";
 import { useTagUser, useTagUserStore } from "@/src/stores/user-tags";
+import { useSettingsStore } from "@/src/stores/settings";
 
 type StoreState = {
   expandedDetails: Record<string, boolean>;
@@ -250,6 +251,8 @@ export function PostComment({
 
   const ref = useRef<HTMLDivElement>(null);
 
+  const leftHandedMode = useSettingsStore((s) => s.leftHandedMode);
+
   const editingState = useCommentEditingState({
     comment: commentView,
   });
@@ -396,7 +399,12 @@ export function PostComment({
           )}
 
           {commentView && (
-            <div className="flex flex-row items-center text-sm text-muted-foreground justify-end gap-1">
+            <div
+              className={cn(
+                "flex flex-row items-center text-sm text-muted-foreground justify-end gap-1",
+                leftHandedMode && "flex-row-reverse",
+              )}
+            >
               <ActionMenu
                 actions={[
                   ...(!isMyComment
@@ -538,7 +546,7 @@ export function PostComment({
               />
               <CommentVoting
                 commentView={commentView}
-                className="-mr-2.5 z-10"
+                className={cn("z-10", leftHandedMode ? "-ml-2.5" : "-mr-2.5")}
               />
             </div>
           )}

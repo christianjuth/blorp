@@ -113,6 +113,8 @@ export function FeedPostCard(props: PostProps) {
 
   const filterKeywords = useSettingsStore((s) => s.filterKeywords);
 
+  const leftHandedMode = useSettingsStore((s) => s.leftHandedMode);
+
   const patchPost = usePostsStore((s) => s.patchPost);
 
   if (post?.nsfw === true && !showNsfw) {
@@ -317,7 +319,12 @@ export function FeedPostCard(props: PostProps) {
       {props.detailView && post.body && !post.deleted && (
         <MarkdownRenderer markdown={post.body} className="pt-2" id={bodyId} />
       )}
-      <div className="flex flex-row items-center justify-end gap-2.5 pt-1">
+      <div
+        className={cn(
+          "flex flex-row items-center justify-end gap-2.5 pt-1",
+          leftHandedMode && "flex-row-reverse",
+        )}
+      >
         <PostShareButton postApId={props.apId} />
         <div className="flex-1" />
         <PostCommentsButton postApId={post.apId} />

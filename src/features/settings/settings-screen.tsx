@@ -244,8 +244,8 @@ function CacheSection() {
 }
 
 export default function SettingsPage() {
-  //const showNsfw = useSettingsStore((s) => s.showNsfw);
-  //const setShowNsfw = useSettingsStore((s) => s.setShowNsfw);
+  const leftHandedMode = useSettingsStore((s) => s.leftHandedMode);
+  const setLeftHandedMode = useSettingsStore((s) => s.setLeftHandedMode);
 
   const hideRead = useSettingsStore((s) => s.hideRead);
   const setHideRead = useSettingsStore((s) => s.setHideRead);
@@ -275,6 +275,18 @@ export default function SettingsPage() {
           <div className="flex-1 gap-9 flex flex-col">
             <AccountSection />
 
+            <Section title="ACCESSIBILITY">
+              <SectionItem>
+                <IonToggle
+                  className="flex-1 font-light"
+                  checked={leftHandedMode}
+                  onIonChange={(e) => setLeftHandedMode(e.detail.checked)}
+                >
+                  Left handed mode
+                </IonToggle>
+              </SectionItem>
+            </Section>
+
             <Section title="GLOBAL FILTERS">
               <SectionItem>
                 <IonToggle
@@ -285,17 +297,6 @@ export default function SettingsPage() {
                   Hide read posts from feeds
                 </IonToggle>
               </SectionItem>
-              {/* 
-                This should be set at the account level,
-                and iOS requores that this is done outside of the app.
-              <IonItem>
-                <IonToggle
-                  checked={showNsfw}
-                  onIonChange={(e) => setShowNsfw(e.detail.checked)}
-                >
-                  Show NSFW
-                </IonToggle>
-              </IonItem>*/}
             </Section>
 
             <Section title="GLOBAL KEYWORD FILTERS">

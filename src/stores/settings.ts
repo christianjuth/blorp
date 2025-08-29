@@ -5,6 +5,8 @@ import { isTest } from "../lib/device";
 import _ from "lodash";
 
 type SettingsStore = {
+  leftHandedMode: boolean;
+  setLeftHandedMode: (newVal: boolean) => any;
   showMarkdown: boolean;
   setShowMarkdown: (newVal: boolean) => any;
   hideRead: boolean;
@@ -16,6 +18,7 @@ type SettingsStore = {
 };
 
 const INIT_STATE = {
+  leftHandedMode: false,
   showMarkdown: false,
   hideRead: false,
   filterKeywords: [],
@@ -29,6 +32,7 @@ export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set, get) => ({
       ...INIT_STATE,
+      setLeftHandedMode: (leftHandedMode) => set({ leftHandedMode }),
       setShowMarkdown: (showMarkdown) => set({ showMarkdown }),
       setHideRead: (hideRead) => set({ hideRead }),
       setFilterKeywords: (update) => {
