@@ -388,26 +388,64 @@ export function PostComment({
             <div className="flex flex-row items-center text-sm text-muted-foreground justify-end gap-1">
               <ActionMenu
                 actions={[
-                  {
-                    text: "Share",
-                    onClick: () =>
-                      shareRoute(
-                        resolveRoute(
-                          `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
-                          {
-                            communityName,
-                            post: encodeURIComponent(postApId),
-                            comment: String(commentView.id),
-                          },
-                        ),
-                      ),
-                  } as const,
-                  {
-                    text: "Tag commenter",
-                    onClick: async () => {
-                      tagUser(commentView.creatorSlug, tag);
-                    },
-                  },
+                  ...(!isMyComment
+                    ? [
+                        {
+                          text: "Commenter",
+                          actions: [
+                            {
+                              text: "Tag commenter",
+                              onClick: async () => {
+                                tagUser(commentView.creatorSlug, tag);
+                              },
+                            },
+                            {
+                              text: "Message commenter",
+                              onClick: () =>
+                                requireAuth().then(() =>
+                                  router.push(
+                                    resolveRoute("/messages/chat/:userId", {
+                                      userId: encodeApId(
+                                        commentView.creatorApId,
+                                      ),
+                                    }),
+                                  ),
+                                ),
+                            },
+                            {
+                              text: "Block commenter",
+                              onClick: async () => {
+                                try {
+                                  await requireAuth();
+                                  const deferred = new Deferred();
+                                  alrt({
+                                    message: `Block ${commentView.creatorSlug}`,
+                                    buttons: [
+                                      {
+                                        text: "Cancel",
+                                        role: "cancel",
+                                        handler: () => deferred.reject(),
+                                      },
+                                      {
+                                        text: "OK",
+                                        role: "confirm",
+                                        handler: () => deferred.resolve(),
+                                      },
+                                    ],
+                                  });
+                                  await deferred.promise;
+                                  blockPerson.mutate({
+                                    personId: commentView.creatorId,
+                                    block: true,
+                                  });
+                                } catch {}
+                              },
+                              danger: true,
+                            },
+                          ],
+                        },
+                      ]
+                    : []),
                   ...(isMyComment && !commentView.deleted
                     ? [
                         {
@@ -422,6 +460,20 @@ export function PostComment({
                         } as const,
                       ]
                     : []),
+                  {
+                    text: "Share comment",
+                    onClick: () =>
+                      shareRoute(
+                        resolveRoute(
+                          `${linkCtx.root}c/:communityName/posts/:post/comments/:comment`,
+                          {
+                            communityName,
+                            post: encodeURIComponent(postApId),
+                            comment: String(commentView.id),
+                          },
+                        ),
+                      ),
+                  } as const,
                   ...(isMyComment
                     ? [
                         {
@@ -438,52 +490,11 @@ export function PostComment({
                       ]
                     : [
                         {
-                          text: `Message ${commentView.creatorSlug}`,
-                          onClick: () =>
-                            requireAuth().then(() =>
-                              router.push(
-                                resolveRoute("/messages/chat/:userId", {
-                                  userId: encodeApId(commentView.creatorApId),
-                                }),
-                              ),
-                            ),
-                        } as const,
-                        {
-                          text: "Report",
+                          text: "Report comment",
                           onClick: () =>
                             requireAuth().then(() =>
                               showReportModal(commentView.path),
                             ),
-                          danger: true,
-                        } as const,
-                        {
-                          text: "Block person",
-                          onClick: async () => {
-                            try {
-                              await requireAuth();
-                              const deferred = new Deferred();
-                              alrt({
-                                message: `Block ${commentView.creatorSlug}`,
-                                buttons: [
-                                  {
-                                    text: "Cancel",
-                                    role: "cancel",
-                                    handler: () => deferred.reject(),
-                                  },
-                                  {
-                                    text: "OK",
-                                    role: "confirm",
-                                    handler: () => deferred.resolve(),
-                                  },
-                                ],
-                              });
-                              await deferred.promise;
-                              blockPerson.mutate({
-                                personId: commentView.creatorId,
-                                block: true,
-                              });
-                            } catch {}
-                          },
                           danger: true,
                         } as const,
                       ]),

@@ -119,10 +119,40 @@ export function PostByline({
               text: "Author",
               actions: [
                 {
-                  text: "Tag Author",
+                  text: "Tag author",
                   onClick: async () => {
                     tagUser(post.creatorSlug, tag);
                   },
+                },
+                {
+                  text: "Block author",
+                  onClick: async () => {
+                    try {
+                      await requireAuth();
+                      const deferred = new Deferred();
+                      alrt({
+                        message: `Block ${creator?.slug}`,
+                        buttons: [
+                          {
+                            text: "Cancel",
+                            role: "cancel",
+                            handler: () => deferred.reject(),
+                          },
+                          {
+                            text: "OK",
+                            role: "confirm",
+                            handler: () => deferred.resolve(),
+                          },
+                        ],
+                      });
+                      await deferred.promise;
+                      blockPerson.mutate({
+                        personId: post.creatorId,
+                        block: true,
+                      });
+                    } catch {}
+                  },
+                  danger: true,
                 },
               ],
             },
@@ -171,41 +201,11 @@ export function PostByline({
           ]
         : [
             {
-              text: "Report",
+              text: "Report post",
               onClick: () =>
                 requireAuth().then(() => {
                   showReportModal(post.apId);
                 }),
-              danger: true,
-            },
-            {
-              text: "Block person",
-              onClick: async () => {
-                try {
-                  await requireAuth();
-                  const deferred = new Deferred();
-                  alrt({
-                    message: `Block ${creator?.slug}`,
-                    buttons: [
-                      {
-                        text: "Cancel",
-                        role: "cancel",
-                        handler: () => deferred.reject(),
-                      },
-                      {
-                        text: "OK",
-                        role: "confirm",
-                        handler: () => deferred.resolve(),
-                      },
-                    ],
-                  });
-                  await deferred.promise;
-                  blockPerson.mutate({
-                    personId: post.creatorId,
-                    block: true,
-                  });
-                } catch {}
-              },
               danger: true,
             },
           ]),
