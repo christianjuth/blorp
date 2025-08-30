@@ -62,6 +62,11 @@ html.plt-desktop ion-header ion-toolbar:first-of-type {
   }
 }
 
+/* Fix sidebar inside ion content going over popover search menu */
+ion-header {
+  @apply z-20;
+}
+
 ion-toolbar {
   @apply contain-none overflow-visible;
 }
