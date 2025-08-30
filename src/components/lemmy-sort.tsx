@@ -118,7 +118,7 @@ export function CommunitySortSelect() {
     }
 
     return [];
-  }, [data]);
+  }, [data, setCommunitySort]);
 
   return (
     <ActionMenu
@@ -191,7 +191,7 @@ export function CommentSortSelect({
     }
 
     return [];
-  }, [data]);
+  }, [data, setCommentSort]);
 
   return (
     <ActionMenu
@@ -292,7 +292,7 @@ export function PostSortButton({
     }
 
     return [];
-  }, [data]);
+  }, [data, setPostSort]);
 
   if (hideOnGtMd && media.md) {
     return null;
@@ -378,7 +378,7 @@ export function HomeFilter({ children }: { children?: React.ReactNode }) {
         value: opt.value,
         onClick: () => setListingType(opt.value),
       })),
-    [instance, isLoggedIn],
+    [isLoggedIn, setListingType, instanceHost],
   );
 
   return (
@@ -442,7 +442,7 @@ export function CommunityFilter() {
         value: opt.value,
         onClick: () => setListingType(opt.value),
       })),
-    [instance, isLoggedIn],
+    [isLoggedIn, instanceHost, setListingType],
   );
 
   return (

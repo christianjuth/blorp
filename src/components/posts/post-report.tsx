@@ -54,7 +54,7 @@ export function PostReportProvider({
       commentPath,
       setCommentPath,
     }),
-    [],
+    [apId, commentPath],
   );
 
   const submit = () => {

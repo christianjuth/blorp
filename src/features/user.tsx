@@ -149,7 +149,7 @@ export default function User() {
       case "Comments":
         return commentViews;
     }
-  }, [data?.pages, type, getCachePrefixer]);
+  }, [data?.pages, type]);
 
   return (
     <IonPage>

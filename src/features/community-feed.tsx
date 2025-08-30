@@ -91,7 +91,7 @@ export default function CommunityFeed() {
     if (community.data) {
       updateRecent(community.data.community);
     }
-  }, [community.data]);
+  }, [community.data, updateRecent]);
 
   const {
     hasNextPage,

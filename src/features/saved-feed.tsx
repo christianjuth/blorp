@@ -14,7 +14,6 @@ import { useCommentsStore } from "../stores/comments";
 import { MarkdownRenderer } from "../components/markdown/renderer";
 import { useLinkContext } from "../routing/link-context";
 import { encodeApId } from "../lib/api/utils";
-import { usePostsStore } from "../stores/posts";
 import { Link } from "@/src/routing/index";
 import { IonContent, IonHeader, IonPage, IonToolbar } from "@ionic/react";
 import { UserDropdown } from "../components/nav";

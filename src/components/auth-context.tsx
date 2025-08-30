@@ -54,14 +54,16 @@ const AudioPlayButton = ({ src }: { src: string }) => {
     const start = () => setPlaying(true);
     const stop = () => setPlaying(false);
 
-    audioRef.current.addEventListener("play", start);
-    audioRef.current.addEventListener("ended", stop);
-    audioRef.current.addEventListener("pause", stop);
+    const current = audioRef.current;
+
+    current.addEventListener("play", start);
+    current.addEventListener("ended", stop);
+    current.addEventListener("pause", stop);
 
     return () => {
-      audioRef.current.removeEventListener("play", start);
-      audioRef.current.removeEventListener("ended", stop);
-      audioRef.current.removeEventListener("pause", stop);
+      current.removeEventListener("play", start);
+      current.removeEventListener("ended", stop);
+      current.removeEventListener("pause", stop);
     };
   }, []);
 

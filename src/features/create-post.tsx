@@ -171,7 +171,7 @@ function useLoadRecentCommunity(draftId: string, draft: Draft) {
         communitySlug: mostRecentCommunity.slug,
       });
     }
-  }, [draftId, isActive, patchDraft]);
+  }, [draftId, isActive, patchDraft, isEmpty, mostRecentCommunity]);
 }
 
 export function CreatePost() {

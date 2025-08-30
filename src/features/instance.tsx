@@ -22,7 +22,7 @@ function compareHosts(a: string, b: string) {
 }
 
 export default function Instance() {
-  const history = useHistory();
+  const { replace } = useHistory();
 
   const [instance] = useUrlSearchState("q", "", z.string());
   const site = useSite({
@@ -43,7 +43,7 @@ export default function Instance() {
     const siteInstance = site.data?.instance;
     if (site.error) {
       const id = setTimeout(() => {
-        history.replace(resolveRoute("/home"));
+        replace(resolveRoute("/home"));
       }, 5000);
       return () => clearTimeout(id);
     } else if (siteInstance) {
@@ -53,7 +53,7 @@ export default function Instance() {
         updateSelectedAccount({
           instance: siteInstance,
         });
-        history.replace(resolveRoute("/home"));
+        replace(resolveRoute("/home"));
         return;
       }
 
@@ -61,7 +61,7 @@ export default function Instance() {
         const account = accounts[i];
         if (account && compareHosts(siteInstance, account.instance)) {
           setAccountIndex(i);
-          history.replace(resolveRoute("/home"));
+          replace(resolveRoute("/home"));
           return;
         }
       }
@@ -78,11 +78,13 @@ export default function Instance() {
           });
         })
         .finally(() => {
-          history.replace(resolveRoute("/home"));
+          replace(resolveRoute("/home"));
         });
     }
   }, [
-    env.REACT_APP_LOCK_TO_DEFAULT_INSTANCE,
+    alrt,
+    replace,
+    setAccountIndex,
     accounts,
     site.data,
     site.error,

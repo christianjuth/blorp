@@ -34,7 +34,7 @@ dayjs.extend(updateLocale);
 export default function Messages() {
   const media = useMedia();
 
-  const markMessageRead = useMarkPriavteMessageRead();
+  const { mutateAsync: markMessageRead } = useMarkPriavteMessageRead();
   const otherActorId = decodeApId(useParams("/messages/chat/:userId").userId);
 
   const getCachePrefixer = useAuth((s) => s.getCachePrefixer);
@@ -79,7 +79,7 @@ export default function Messages() {
       if (data && me) {
         for (const pm of data) {
           if (!pm.read && pm.creatorId !== me?.id) {
-            await markMessageRead.mutateAsync({
+            await markMessageRead({
               id: pm.id,
               read: true,
             });
@@ -88,7 +88,7 @@ export default function Messages() {
       }
     };
     fn();
-  }, [data, me]);
+  }, [data, me, markMessageRead]);
 
   const ref = useRef<VListHandle>(null);
   useEffect(() => {

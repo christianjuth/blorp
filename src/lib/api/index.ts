@@ -103,7 +103,7 @@ export function useApiClients(config?: { instance?: string; jwt?: string }) {
       apis,
       ...(getInstanceOverride() ?? apis[accountIndex] ?? getDefaultInstance()),
     };
-  }, [accounts, accountIndex, config?.instance]);
+  }, [accounts, accountIndex, config?.instance, config?.jwt]);
 }
 
 export function usePersonDetails({
@@ -399,7 +399,7 @@ export function useMostRecentPost(
 
 export function usePosts(form: Forms.GetPosts) {
   const isLoggedIn = useAuth((s) => s.isLoggedIn());
-  const { api, queryKeyPrefix } = useApiClients();
+  const { api } = useApiClients();
 
   const postSort = useFiltersStore((s) => s.postSort);
   const sort = form.sort ?? postSort;

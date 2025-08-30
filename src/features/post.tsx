@@ -62,7 +62,7 @@ function useDelayedReady(delay: number) {
   useEffect(() => {
     const id = setTimeout(() => setIsReady(true), delay);
     return () => clearTimeout(id);
-  }, []);
+  }, [delay]);
   return isReady;
 }
 

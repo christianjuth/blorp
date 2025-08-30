@@ -26,7 +26,7 @@ function LoadData() {
       getCachePrefixer(),
       POST_FEED.map((p) => p.post),
     );
-  }, []);
+  }, [getCachePrefixer, cachePosts]);
 
   return null;
 }

@@ -18,7 +18,7 @@ function LoadData() {
   useEffect(() => {
     cachePosts(getCachePrefixer(), [postView.post]);
     cacheProfiles(getCachePrefixer(), [postView.creator]);
-  }, []);
+  }, [cacheProfiles, cachePosts, getCachePrefixer]);
 
   return null;
 }

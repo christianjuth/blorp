@@ -16,7 +16,7 @@ function LoadCommunity() {
     cacheCommunity(getCachePrefixer(), {
       communityView: COMMUNITY,
     });
-  }, []);
+  }, [getCachePrefixer, cacheCommunity]);
 
   return null;
 }

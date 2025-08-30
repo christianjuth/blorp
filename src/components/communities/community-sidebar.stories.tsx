@@ -24,7 +24,7 @@ function LoadCommunity() {
       mods: MODS,
     });
     cacheProfiles(getCachePrefixer(), MODS);
-  }, []);
+  }, [cacheProfiles, getCachePrefixer, cacheCommunity]);
 
   return null;
 }

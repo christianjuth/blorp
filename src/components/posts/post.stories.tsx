@@ -66,7 +66,7 @@ function LoadData() {
       getCachePrefixer(),
       POSTS.map((p) => p.post),
     );
-  }, []);
+  }, [cachePosts, cacheProfiles, getCachePrefixer]);
 
   return null;
 }

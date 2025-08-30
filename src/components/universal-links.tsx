@@ -3,15 +3,15 @@ import { useHistory } from "@/src/routing/index";
 import { App, URLOpenListenerEvent } from "@capacitor/app";
 
 export const AppUrlListener: React.FC<any> = () => {
-  let history = useHistory();
+  const { push } = useHistory();
   useEffect(() => {
     App.addListener("appUrlOpen", (event: URLOpenListenerEvent) => {
       try {
         const url = new URL(event.url);
-        history.push(url.pathname as never, {} as never);
+        push(url.pathname as never, {} as never);
       } catch {}
     });
-  }, []);
+  }, [push]);
 
   return null;
 };

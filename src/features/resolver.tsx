@@ -18,7 +18,7 @@ const origin = (() => {
 
 export default function ApResolver() {
   const location = useLocation();
-  const history = useHistory();
+  const { replace } = useHistory();
   const apId = origin + location.pathname;
 
   const { data } = useResolveObject(apId);
@@ -27,26 +27,26 @@ export default function ApResolver() {
     const { post, community, user } = data ?? {};
 
     if (post) {
-      history.replace(
+      replace(
         resolveRoute("/home/c/:communityName/posts/:post", {
           post: encodeApId(post.apId),
           communityName: post.communitySlug,
         }),
       );
     } else if (community) {
-      history.replace(
+      replace(
         resolveRoute("/home/c/:communityName", {
           communityName: community.slug,
         }),
       );
     } else if (user) {
-      history.replace(
+      replace(
         resolveRoute("/home/u/:userId", {
           userId: encodeApId(user.apId),
         }),
       );
     }
-  }, [data?.post, data?.community, data?.user]);
+  }, [replace, data?.post, data?.community, data?.user]);
 
   return <NotFound />;
 }
