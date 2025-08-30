@@ -28,13 +28,14 @@
 <br/>
 
 ## Try it!
-| Url | Description |
-|-----|-----|
-| [blorpblorp.xyz](https://blorpblorp.xyz/) | ✅  Official site updated multiple times a week |
-| [blorp.lemmy.zip](https://blorp.lemmy.zip) | Blorp hosted by the lemmy.zip team |
-| [blorp.piefed.zip](https://blorp.piefed.zip) | Blorp hosted by the piefed.zip team |
-| [b.feddit.uk](https://b.feddit.uk) | Blorp hosted by the feddit.uk team |
-| [blorp.europe.pub](https://blorp.europe.pub) | Hosted by europe.pub | |
+| Url | Official Instance | Lemmy | PieFed |
+|-----|-----|-----|-----|
+| **[blorpblorp.xyz](https://blorpblorp.xyz/)** | ✅ | ✅ | ✅ |
+| [blorp.lemmy.zip](https://blorp.lemmy.zip) || ✅ ||
+| [blorp.piefed.zip](https://blorp.piefed.zip) ||| ✅ |
+| [b.feddit.uk](https://b.feddit.uk) || ✅ ||
+| [blorp.europe.pub](https://blorp.europe.pub) || ✅ ||
+| [b.lemmy.nz](https://b.lemmy.nz/) || ✅ ||
 
 ## 🚀 Download
 
