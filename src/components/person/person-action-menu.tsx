@@ -2,8 +2,6 @@ import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { IoEllipsisHorizontal } from "react-icons/io5";
-import { useMemo, useState } from "react";
-import { useLinkContext } from "../../routing/link-context";
 import { encodeApId } from "@/src/lib/api/utils";
 import { openUrl } from "@/src/lib/linking";
 import { Deferred } from "@/src/lib/deferred";
@@ -11,19 +9,26 @@ import { useIonAlert, useIonRouter } from "@ionic/react";
 import { useRequireAuth } from "../auth-context";
 import { useBlockPerson } from "@/src/lib/api";
 import { getAccountActorId, useAuth } from "@/src/stores/auth";
-import { shareRoute } from "@/src/lib/share";
+import { useShareActions } from "@/src/lib/share";
 import { resolveRoute } from "../../routing/index";
 import { Schemas } from "@/src/lib/api/adapters/api-blueprint";
+import { useTagUser, useTagUserStore } from "@/src/stores/user-tags";
 
 dayjs.extend(localizedFormat);
 
-export function PersonActionMenu({ person }: { person?: Schemas.Person }) {
+export function usePersonActions({
+  person,
+}: {
+  person?: Schemas.Person;
+}): ActionMenuProps["actions"] {
+  const tag = useTagUserStore((s) =>
+    person ? s.userTags[person.slug] : undefined,
+  );
+
   const [alrt] = useIonAlert();
 
   const router = useIonRouter();
   const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
-
-  const linkCtx = useLinkContext();
 
   const requireAuth = useRequireAuth();
 
@@ -31,79 +36,87 @@ export function PersonActionMenu({ person }: { person?: Schemas.Person }) {
 
   const blockPerson = useBlockPerson();
 
-  const [openSignal, setOpenSignal] = useState(0);
-  const actions: ActionMenuProps["actions"] = useMemo(
-    () => [
-      ...(person
-        ? [
-            {
-              text: "Message",
-              onClick: () =>
-                router.push(
-                  resolveRoute("/messages/chat/:userId", {
-                    userId: encodeApId(person?.apId),
-                  }),
-                ),
-            },
-            {
-              text: "Share",
-              onClick: () =>
-                shareRoute(
-                  resolveRoute(`${linkCtx.root}u/:userId`, {
-                    userId: encodeApId(person?.apId),
-                  }),
-                ),
-            },
-            {
-              text: "View source",
-              onClick: async () => {
-                try {
-                  openUrl(person.apId);
-                } catch {
-                  // TODO: handle error
-                }
-              },
-            },
-          ]
-        : []),
-      ...(person && person.apId !== myUserId
-        ? [
-            {
-              text: "Block person",
-              onClick: async () => {
-                try {
-                  await requireAuth();
-                  const deferred = new Deferred();
-                  alrt({
-                    message: `Block ${slug ?? "person"}`,
-                    buttons: [
-                      {
-                        text: "Cancel",
-                        role: "cancel",
-                        handler: () => deferred.reject(),
-                      },
-                      {
-                        text: "OK",
-                        role: "confirm",
-                        handler: () => deferred.resolve(),
-                      },
-                    ],
-                  });
-                  await deferred.promise;
-                  blockPerson.mutate({
-                    personId: person?.id,
-                    block: true,
-                  });
-                } catch {}
-              },
-              danger: true,
-            },
-          ]
-        : []),
-    ],
-    [openSignal],
+  const tagUser = useTagUser();
+
+  const shareActions = useShareActions(
+    "person",
+    person
+      ? resolveRoute("/messages/chat/:userId", {
+          userId: encodeApId(person.apId),
+        })
+      : null,
   );
 
+  return [
+    ...(person
+      ? [
+          {
+            text: "Message user",
+            onClick: () =>
+              router.push(
+                resolveRoute("/messages/chat/:userId", {
+                  userId: encodeApId(person?.apId),
+                }),
+              ),
+          },
+          ...shareActions,
+          {
+            text: "Tag user",
+            onClick: async () => {
+              tagUser(person.slug, tag);
+            },
+          },
+          {
+            text: "View user source",
+            onClick: async () => {
+              try {
+                openUrl(person.apId);
+              } catch {
+                // TODO: handle error
+              }
+            },
+          },
+        ]
+      : []),
+    ...(person && person.apId !== myUserId
+      ? [
+          {
+            text: "Block user",
+            onClick: async () => {
+              try {
+                await requireAuth();
+                const deferred = new Deferred();
+                alrt({
+                  message: `Block ${slug ?? "person"}`,
+                  buttons: [
+                    {
+                      text: "Cancel",
+                      role: "cancel",
+                      handler: () => deferred.reject(),
+                    },
+                    {
+                      text: "OK",
+                      role: "confirm",
+                      handler: () => deferred.resolve(),
+                    },
+                  ],
+                });
+                await deferred.promise;
+                blockPerson.mutate({
+                  personId: person?.id,
+                  block: true,
+                });
+              } catch {}
+            },
+            danger: true,
+          },
+        ]
+      : []),
+  ];
+}
+
+export function PersonActionMenu({ person }: { person?: Schemas.Person }) {
+  const actions = usePersonActions({ person });
   return (
     <ActionMenu
       header="User actions"
@@ -112,7 +125,6 @@ export function PersonActionMenu({ person }: { person?: Schemas.Person }) {
       trigger={
         <IoEllipsisHorizontal className="text-muted-foreground mt-0.5" />
       }
-      onOpen={() => setOpenSignal((s) => s + 1)}
     />
   );
 }

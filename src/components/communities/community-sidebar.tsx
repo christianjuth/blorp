@@ -11,7 +11,6 @@ import { useAuth } from "@/src/stores/auth";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { openUrl } from "@/src/lib/linking";
-import { useMemo, useState } from "react";
 import { useCommunityCreatePost } from "./community-create-post";
 import {
   Avatar,
@@ -19,7 +18,7 @@ import {
   AvatarImage,
 } from "@/src/components/ui/avatar";
 import { PersonCard } from "../person/person-card";
-import { copyRouteToClipboard, shareRoute } from "@/src/lib/share";
+import { useShareActions } from "@/src/lib/share";
 import { Sidebar, SidebarContent } from "../sidebar";
 import {
   Collapsible,
@@ -57,12 +56,10 @@ export function SmallScreenSidebar({
   );
   const communityView = data?.communityView;
 
-  const [openSignal, setOpenSignal] = useState(0);
   const actions = useCommunityActions({
     communityName,
     communityView,
     actorId,
-    openSignal,
   });
 
   const createdAt = (
@@ -133,7 +130,6 @@ export function SmallScreenSidebar({
                 aria-label="Community actions"
               />
             }
-            onOpen={() => setOpenSignal((s) => s + 1)}
           />
 
           <CommunityJoinButton communityName={communityName} />
@@ -178,12 +174,10 @@ function useCommunityActions({
   actorId,
   communityName,
   communityView,
-  openSignal,
 }: {
   actorId?: string | null;
   communityName: string;
   communityView?: Schemas.Community;
-  openSignal: number;
 }): ActionMenuProps["actions"] {
   const getConfirmation = useConfirmationAlert();
   const blockCommunity = useBlockCommunity();
@@ -195,69 +189,54 @@ function useCommunityActions({
     communityName,
   });
 
-  return useMemo(() => {
-    const route = resolveRoute(`${linkCtx.root}c/:communityName`, {
-      communityName,
-    });
-    return [
-      ...(route
-        ? [
-            {
-              text: "Share",
-              actions: [
-                {
-                  text: "Share link to community",
-                  onClick: () => shareRoute(route),
-                },
-                {
-                  text: "Copy link to community",
-                  onClick: () => copyRouteToClipboard(route),
-                },
-              ],
+  const route = resolveRoute(`${linkCtx.root}c/:communityName`, {
+    communityName,
+  });
+
+  const shareActions = useShareActions("community", route);
+
+  return [
+    ...shareActions,
+    ...(isLoggedIn
+      ? [
+          {
+            text: "Create post",
+            onClick: createPost,
+          },
+        ]
+      : []),
+    ...(actorId
+      ? [
+          {
+            text: "View source",
+            onClick: async () => {
+              try {
+                openUrl(actorId);
+              } catch {
+                // TODO: handle error
+              }
             },
-          ]
-        : []),
-      ...(isLoggedIn
-        ? [
-            {
-              text: "Create post",
-              onClick: createPost,
-            },
-          ]
-        : []),
-      ...(actorId
-        ? [
-            {
-              text: "View source",
-              onClick: async () => {
-                try {
-                  openUrl(actorId);
-                } catch {
-                  // TODO: handle error
-                }
-              },
-            },
-          ]
-        : []),
-      ...(isLoggedIn && communityView
-        ? [
-            {
-              text: "Block community",
-              danger: true,
-              onClick: () =>
-                getConfirmation({
-                  message: `Block ${communityName}`,
-                }).then(() =>
-                  blockCommunity.mutate({
-                    communityId: communityView?.id,
-                    block: true,
-                  }),
-                ),
-            },
-          ]
-        : []),
-    ];
-  }, [openSignal]);
+          },
+        ]
+      : []),
+    ...(isLoggedIn && communityView
+      ? [
+          {
+            text: "Block community",
+            danger: true,
+            onClick: () =>
+              getConfirmation({
+                message: `Block ${communityName}`,
+              }).then(() =>
+                blockCommunity.mutate({
+                  communityId: communityView?.id,
+                  block: true,
+                }),
+              ),
+          },
+        ]
+      : []),
+  ];
 }
 
 export function CommunitySidebar({
@@ -285,13 +264,10 @@ export function CommunitySidebar({
   const modsOpen = useSidebarStore((s) => s.communityModsExpanded);
   const setModsOpen = useSidebarStore((s) => s.setCommunityModsExpanded);
 
-  const [openSignal, setOpenSignal] = useState(0);
-
   const actions = useCommunityActions({
     communityName,
     communityView: data?.communityView,
     actorId,
-    openSignal,
   });
 
   if (!data) {
@@ -322,7 +298,6 @@ export function CommunitySidebar({
               trigger={
                 <IoEllipsisHorizontal className="text-muted-foreground mt-0.5" />
               }
-              onOpen={() => setOpenSignal((s) => s + 1)}
             />
           </div>
 

@@ -123,7 +123,7 @@ export function ActionMenu<V extends string>({
               : []),
           ]
         : null,
-    [actions, showCancel, subActions],
+    [showCancel, subActions, selectedValue],
   );
 
   if (media.md) {

@@ -9,7 +9,6 @@ import { useRequireAuth } from "../auth-context";
 import { useShowPostReportModal } from "./post-report";
 import { useAuth, getAccountActorId, getAccountSite } from "@/src/stores/auth";
 import { openUrl } from "@/src/lib/linking";
-import { useMemo, useState } from "react";
 import { Link } from "@/src/routing/index";
 import { RelativeTime } from "../relative-time";
 import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
@@ -36,6 +35,155 @@ import { CakeDay } from "../cake-day";
 import { useTagUser, useTagUserStore } from "@/src/stores/user-tags";
 import { Badge } from "../ui/badge";
 
+function usePostActions({
+  post,
+  isMod,
+  tag,
+}: {
+  post: Schemas.Post;
+  isMod?: boolean;
+  tag?: string;
+}): ActionMenuProps["actions"] {
+  const [alrt] = useIonAlert();
+
+  const showReportModal = useShowPostReportModal();
+  const requireAuth = useRequireAuth();
+  const blockPerson = useBlockPerson();
+  const deletePost = useDeletePost(post.apId);
+  const featurePost = useFeaturePost(post.apId);
+  const savePost = useSavePost(post.apId);
+
+  const router = useIonRouter();
+  const updateDraft = useCreatePostStore((s) => s.updateDraft);
+
+  const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
+  const isMyPost = post.creatorApId === myUserId;
+
+  const encodedApId = encodeApId(post.apId);
+  const tagUser = useTagUser();
+
+  const saved = post.optimisticSaved ?? post.saved;
+
+  return [
+    ...(isMod
+      ? [
+          {
+            text: "Moderation",
+            actions: [
+              {
+                text: post.featuredCommunity
+                  ? "Unfeature in community"
+                  : "Feature in community",
+                onClick: () =>
+                  featurePost.mutate({
+                    featureType: "Community",
+                    postId: post.id,
+                    featured: !post.featuredCommunity,
+                  }),
+              },
+            ],
+          },
+        ]
+      : []),
+    ...(!isMyPost
+      ? [
+          {
+            text: "Author",
+            actions: [
+              {
+                text: "Tag author",
+                onClick: async () => {
+                  tagUser(post.creatorSlug, tag);
+                },
+              },
+              {
+                text: "Block author",
+                onClick: async () => {
+                  try {
+                    await requireAuth();
+                    const deferred = new Deferred();
+                    alrt({
+                      message: `Block ${post.creatorSlug}`,
+                      buttons: [
+                        {
+                          text: "Cancel",
+                          role: "cancel",
+                          handler: () => deferred.reject(),
+                        },
+                        {
+                          text: "OK",
+                          role: "confirm",
+                          handler: () => deferred.resolve(),
+                        },
+                      ],
+                    });
+                    await deferred.promise;
+                    blockPerson.mutate({
+                      personId: post.creatorId,
+                      block: true,
+                    });
+                  } catch {}
+                },
+                danger: true,
+              },
+            ],
+          },
+        ]
+      : []),
+    {
+      text: saved ? "Unsave post" : "Save post",
+      onClick: () =>
+        requireAuth().then(() => {
+          savePost.mutateAsync({
+            postId: post.id,
+            save: !saved,
+          });
+        }),
+    },
+    {
+      text: "View post source",
+      onClick: async () => {
+        try {
+          openUrl(post.apId);
+        } catch {
+          // TODO: handle error
+        }
+      },
+    },
+    ...(isMyPost
+      ? [
+          {
+            text: "Edit post",
+            onClick: () => {
+              if (post) {
+                updateDraft(post.apId, postToDraft(post));
+                router.push(`/create?id=${encodedApId}`);
+              }
+            },
+          },
+          {
+            text: post.deleted ? "Restore post" : "Delete post",
+            onClick: () =>
+              deletePost.mutate({
+                postId: post.id,
+                deleted: !post.deleted,
+              }),
+            danger: true,
+          },
+        ]
+      : [
+          {
+            text: "Report post",
+            onClick: () =>
+              requireAuth().then(() => {
+                showReportModal(post.apId);
+              }),
+            danger: true,
+          },
+        ]),
+  ];
+}
+
 export function PostByline({
   post,
   pinned,
@@ -51,22 +199,7 @@ export function PostByline({
   onNavigate?: () => void;
   isMod?: boolean;
 }) {
-  const [alrt] = useIonAlert();
-
-  const showReportModal = useShowPostReportModal();
-  const requireAuth = useRequireAuth();
-  const blockPerson = useBlockPerson();
-  const deletePost = useDeletePost(post.apId);
-  const featurePost = useFeaturePost(post.apId);
-  const savePost = useSavePost(post.apId);
-
-  const router = useIonRouter();
-  const updateDraft = useCreatePostStore((s) => s.updateDraft);
-
   const linkCtx = useLinkContext();
-
-  const myUserId = useAuth((s) => getAccountActorId(s.getSelectedAccount()));
-  const isMyPost = post.creatorApId === myUserId;
 
   const tag = useTagUserStore((s) => s.userTags[post.creatorSlug]);
 
@@ -83,135 +216,11 @@ export function PostByline({
   )?.map((a) => a.apId);
   const isAdmin = adminApIds?.includes(post.creatorApId) ?? false;
 
-  const encodedApId = encodeApId(post.apId);
   const encodedCreatorApId = encodeApId(post.creatorApId);
 
   const saved = post.optimisticSaved ?? post.saved;
 
-  const tagUser = useTagUser();
-
-  const [openSignal, setOpenSignal] = useState(0);
-  const actions: ActionMenuProps["actions"] = useMemo(
-    () => [
-      ...(isMod
-        ? [
-            {
-              text: "Moderation",
-              actions: [
-                {
-                  text: post.featuredCommunity
-                    ? "Unfeature in community"
-                    : "Feature in community",
-                  onClick: () =>
-                    featurePost.mutate({
-                      featureType: "Community",
-                      postId: post.id,
-                      featured: !post.featuredCommunity,
-                    }),
-                },
-              ],
-            },
-          ]
-        : []),
-      ...(!isMyPost
-        ? [
-            {
-              text: "Author",
-              actions: [
-                {
-                  text: "Tag author",
-                  onClick: async () => {
-                    tagUser(post.creatorSlug, tag);
-                  },
-                },
-                {
-                  text: "Block author",
-                  onClick: async () => {
-                    try {
-                      await requireAuth();
-                      const deferred = new Deferred();
-                      alrt({
-                        message: `Block ${creator?.slug}`,
-                        buttons: [
-                          {
-                            text: "Cancel",
-                            role: "cancel",
-                            handler: () => deferred.reject(),
-                          },
-                          {
-                            text: "OK",
-                            role: "confirm",
-                            handler: () => deferred.resolve(),
-                          },
-                        ],
-                      });
-                      await deferred.promise;
-                      blockPerson.mutate({
-                        personId: post.creatorId,
-                        block: true,
-                      });
-                    } catch {}
-                  },
-                  danger: true,
-                },
-              ],
-            },
-          ]
-        : []),
-      {
-        text: saved ? "Unsave post" : "Save post",
-        onClick: () =>
-          requireAuth().then(() => {
-            savePost.mutateAsync({
-              postId: post.id,
-              save: !saved,
-            });
-          }),
-      },
-      {
-        text: "View post source",
-        onClick: async () => {
-          try {
-            openUrl(post.apId);
-          } catch {
-            // TODO: handle error
-          }
-        },
-      },
-      ...(isMyPost
-        ? [
-            {
-              text: "Edit post",
-              onClick: () => {
-                if (post && communityName) {
-                  updateDraft(post.apId, postToDraft(post));
-                  router.push(`/create?id=${encodedApId}`);
-                }
-              },
-            },
-            {
-              text: post.deleted ? "Restore post" : "Delete post",
-              onClick: () =>
-                deletePost.mutate({
-                  postId: post.id,
-                  deleted: !post.deleted,
-                }),
-              danger: true,
-            },
-          ]
-        : [
-            {
-              text: "Report post",
-              onClick: () =>
-                requireAuth().then(() => {
-                  showReportModal(post.apId);
-                }),
-              danger: true,
-            },
-          ]),
-    ],
-    [openSignal],
-  );
+  const actions = usePostActions({ post, isMod, tag });
 
   const [communityName, communityHost] = post.communitySlug.split("@");
   const [creatorName, creatorHost] = post.creatorSlug.split("@");
@@ -336,7 +345,6 @@ export function PostByline({
             aria-label="Post actions"
           />
         }
-        onOpen={() => setOpenSignal((s) => s + 1)}
       />
     </div>
   );

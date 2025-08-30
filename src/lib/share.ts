@@ -8,7 +8,8 @@ import { privilegedFetch } from "./privileged-fetch";
 import { env } from "../env";
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { isCapacitor } from "./device";
+import { isCapacitor, isFirefox } from "./device";
+import { ActionMenuProps } from "../components/adaptable/action-menu";
 
 const DEFAULT_HEADERS = {
   // lemmy.ml will reject requests if
@@ -84,7 +85,8 @@ const origin = isCapacitor()
   : window.location.origin || "https://blorpblorp.xyz";
 
 export function useCanShare() {
-  const [share, setShare] = useState(false);
+  // Firefox doesn't typically allow sharing
+  const [share, setShare] = useState(!isFirefox());
   useEffect(() => {
     canShare().then(setShare);
   }, []);
@@ -117,4 +119,33 @@ export async function shareRoute(route: string) {
   } catch (e) {
     console.error("Error sharing URL:", e);
   }
+}
+
+export function useShareActions(
+  label: string,
+  route: string | null | undefined,
+) {
+  const canShare = useCanShare();
+  if (!route) {
+    return [];
+  }
+  return [
+    {
+      text: "Share",
+      actions: [
+        ...(canShare
+          ? [
+              {
+                text: `Share link to ${label}`,
+                onClick: () => shareRoute(route),
+              },
+            ]
+          : []),
+        {
+          text: `Copy link to ${label}`,
+          onClick: () => copyRouteToClipboard(route),
+        },
+      ],
+    },
+  ] satisfies ActionMenuProps["actions"];
 }

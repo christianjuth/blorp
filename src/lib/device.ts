@@ -16,6 +16,10 @@ export function isIos() {
   return browser.is("ios");
 }
 
+export function isFirefox() {
+  return browser.is("firefox");
+}
+
 export function isTauri(): boolean {
   try {
     return _.isObject(window) && "isTauri" in window && Boolean(window.isTauri);
