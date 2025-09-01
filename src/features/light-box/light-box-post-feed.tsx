@@ -41,6 +41,7 @@ import { Button } from "@/src/components/ui/button";
 import { IonButtons, IonButton, IonModal, IonTitle } from "@ionic/react";
 import { MarkdownRenderer } from "@/src/components/markdown/renderer";
 import { Spinner, NoImage } from "@/src/components/icons";
+import { getPostEmbed } from "@/src/lib/post";
 
 const EMPTY_ARR: never[] = [];
 
@@ -312,9 +313,10 @@ const Post = memo(
 
     const blurNsfw =
       useAuth((s) => getAccountSite(s.getSelectedAccount())?.blurNsfw) ?? true;
-
     const blurImg = blurNsfw ? postView?.nsfw : false;
-    const img = postView?.thumbnailUrl;
+
+    const embed = postView ? getPostEmbed(postView) : null;
+    const img = embed?.fullResThumbnail ?? embed?.thumbnail;
 
     return img ? (
       <ResponsiveImage

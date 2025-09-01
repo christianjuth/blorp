@@ -266,7 +266,7 @@ function usePostShareActions({
 }: {
   post?: Schemas.Post;
 }): ActionMenuProps<string>["actions"] {
-  const embed = post ? getPostEmbed(post, "full-resolution") : null;
+  const embed = post ? getPostEmbed(post) : null;
 
   const linkCtx = useLinkContext();
 
