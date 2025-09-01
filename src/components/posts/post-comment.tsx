@@ -49,7 +49,6 @@ import { useMedia } from "@/src/lib/hooks/index";
 import { CakeDay } from "../cake-day";
 import { useTagUser, useTagUserStore } from "@/src/stores/user-tags";
 import { useSettingsStore } from "@/src/stores/settings";
-import { useDoubleTap } from "use-double-tap";
 
 type StoreState = {
   expandedDetails: Record<string, boolean>;
@@ -366,7 +365,6 @@ export function PostComment({
             );
           }
         }}
-        {...doubleTapLike}
       >
         {commentView && (
           <Byline
@@ -404,10 +402,14 @@ export function PostComment({
           )}
 
           {!hideContent && !editingState && commentView && (
-            <MarkdownRenderer
-              markdown={commentView.body}
-              className={cn(highlightComment && "bg-brand/10 dark:bg-brand/20")}
-            />
+            <div {...doubleTapLike}>
+              <MarkdownRenderer
+                markdown={commentView.body}
+                className={cn(
+                  highlightComment && "bg-brand/10 dark:bg-brand/20",
+                )}
+              />
+            </div>
           )}
 
           {/* Editing */}
