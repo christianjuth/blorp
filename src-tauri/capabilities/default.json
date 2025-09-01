@@ -25,6 +25,7 @@
     "updater:default",
     "core:window:allow-set-badge-count",
     "dialog:default",
-    "process:default"
+    "process:default",
+    "fs:allow-app-write"
   ]
 }

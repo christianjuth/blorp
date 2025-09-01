@@ -24,6 +24,7 @@
     "hoistingLimits": "workspaces"
   },
   "dependencies": {
+    "@capacitor-community/media": "^8.0.1",
     "@capacitor/android": "^7.4.0",
     "@capacitor/app": "^7.0.1",
     "@capacitor/browser": "^7.0.1",
@@ -62,6 +63,7 @@
     "@tanstack/react-virtual": "^3.13.12",
     "@tauri-apps/plugin-deep-link": "2.2.0",
     "@tauri-apps/plugin-dialog": "2.2.0",
+    "@tauri-apps/plugin-fs": "~2",
     "@tauri-apps/plugin-http": "2.3.0",
     "@tauri-apps/plugin-opener": "2.2.5",
     "@tauri-apps/plugin-process": "2.2.0",

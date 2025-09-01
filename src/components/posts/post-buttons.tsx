@@ -21,7 +21,7 @@ import { getAccountSite, useAuth } from "@/src/stores/auth";
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import { Share } from "../icons";
 import { usePostsStore } from "@/src/stores/posts";
-import { shareImage, useShareActions } from "@/src/lib/share";
+import { shareImage, useShareActions, downloadImage } from "@/src/lib/share";
 import { ActionMenu, ActionMenuProps } from "../adaptable/action-menu";
 import { encodeApId } from "@/src/lib/api/utils";
 import { getPostEmbed } from "@/src/lib/post";
@@ -289,6 +289,14 @@ function usePostShareActions({
           {
             text: "Share image",
             onClick: () => shareImage(post.title, thumbnailUrl),
+          },
+        ]
+      : []),
+    ...(post && thumbnailUrl && embed.type === "image" && !isWeb()
+      ? [
+          {
+            text: "Download image",
+            onClick: () => downloadImage(post.title, thumbnailUrl),
           },
         ]
       : []),

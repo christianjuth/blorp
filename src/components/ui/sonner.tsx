@@ -10,16 +10,17 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       style={
         {
-          "--normal-bg": "var(--popover)",
+          "--normal-bg": "var(--shad-popover)",
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
+          "--gray11": "white",
         } as React.CSSProperties
       }
       position={media.maxMd ? "top-center" : "bottom-center"}
       toastOptions={{
         duration: 2000,
         className:
-          "max-md:mt-[calc(var(--ion-safe-area-top)+50px)] data-[type=error]:bg-destructive! data-[type=success]:bg-emerald-600! text-white! rounded-xl!",
+          "max-md:mt-[calc(var(--ion-safe-area-top)+50px)] bg-emerald-600! data-[type=error]:bg-destructive! data-[type=warning]:bg-amber-600! text-white! rounded-xl!",
       }}
       {...props}
     />

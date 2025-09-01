@@ -1437,6 +1437,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor-community/media@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "@capacitor-community/media@npm:8.0.1"
+  peerDependencies:
+    "@capacitor/core": ">=7.0.0"
+  checksum: 10c0/d597830f1810fcfcb9c6e4ff05b33a67b662bd81381b18b2b6246656055257aba9b6cb3f078b7a1c38c3891e230e1078a272cc84392dd2657bab6e84b51c7499
+  languageName: node
+  linkType: hard
+
 "@capacitor/android@npm:^7.4.0":
   version: 7.4.0
   resolution: "@capacitor/android@npm:7.4.0"
@@ -5371,6 +5380,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tauri-apps/api@npm:^2.8.0":
+  version: 2.8.0
+  resolution: "@tauri-apps/api@npm:2.8.0"
+  checksum: 10c0/fb111e4d7572372997b440ebe6879543fa8c4765151878e3fddfbfe809b18da29eed142ce83061d14a9ca6d896b3266dc8a4927c642d71cdc0b4277dc7e3aabf
+  languageName: node
+  linkType: hard
+
 "@tauri-apps/cli-darwin-arm64@npm:2.8.1":
   version: 2.8.1
   resolution: "@tauri-apps/cli-darwin-arm64@npm:2.8.1"
@@ -5507,6 +5523,15 @@ __metadata:
   dependencies:
     "@tauri-apps/api": "npm:^2.0.0"
   checksum: 10c0/18d10013cc207dc5cf1b0513b7585fd6aa1a1a133dbb8e048e1d27ef7251ac770dfa2c9d5c400e4b87b9823c3c7155bc6a279a577e494504361a30383c4e1f17
+  languageName: node
+  linkType: hard
+
+"@tauri-apps/plugin-fs@npm:~2":
+  version: 2.4.2
+  resolution: "@tauri-apps/plugin-fs@npm:2.4.2"
+  dependencies:
+    "@tauri-apps/api": "npm:^2.8.0"
+  checksum: 10c0/ae640f23cfd089552e0958245a10c701baf57581e898628f1cb8bf961e7f26365190d5fb0cee021d3604596d3b6a7dfd934ccdc46d3d699f9c0e9ec49a3bacd8
   languageName: node
   linkType: hard
 
@@ -11062,6 +11087,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "lemmy@workspace:."
   dependencies:
+    "@capacitor-community/media": "npm:^8.0.1"
     "@capacitor/android": "npm:^7.4.0"
     "@capacitor/app": "npm:^7.0.1"
     "@capacitor/assets": "npm:^3.0.5"
@@ -11115,6 +11141,7 @@ __metadata:
     "@tauri-apps/cli": "npm:^2.8.1"
     "@tauri-apps/plugin-deep-link": "npm:2.2.0"
     "@tauri-apps/plugin-dialog": "npm:2.2.0"
+    "@tauri-apps/plugin-fs": "npm:~2"
     "@tauri-apps/plugin-http": "npm:2.3.0"
     "@tauri-apps/plugin-opener": "npm:2.2.5"
     "@tauri-apps/plugin-process": "npm:2.2.0"
