@@ -5380,13 +5380,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tauri-apps/api@npm:^2.8.0":
-  version: 2.8.0
-  resolution: "@tauri-apps/api@npm:2.8.0"
-  checksum: 10c0/fb111e4d7572372997b440ebe6879543fa8c4765151878e3fddfbfe809b18da29eed142ce83061d14a9ca6d896b3266dc8a4927c642d71cdc0b4277dc7e3aabf
-  languageName: node
-  linkType: hard
-
 "@tauri-apps/cli-darwin-arm64@npm:2.8.1":
   version: 2.8.1
   resolution: "@tauri-apps/cli-darwin-arm64@npm:2.8.1"
@@ -5526,12 +5519,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tauri-apps/plugin-fs@npm:~2":
-  version: 2.4.2
-  resolution: "@tauri-apps/plugin-fs@npm:2.4.2"
+"@tauri-apps/plugin-fs@npm:2.4.1":
+  version: 2.4.1
+  resolution: "@tauri-apps/plugin-fs@npm:2.4.1"
   dependencies:
-    "@tauri-apps/api": "npm:^2.8.0"
-  checksum: 10c0/ae640f23cfd089552e0958245a10c701baf57581e898628f1cb8bf961e7f26365190d5fb0cee021d3604596d3b6a7dfd934ccdc46d3d699f9c0e9ec49a3bacd8
+    "@tauri-apps/api": "npm:^2.6.0"
+  checksum: 10c0/a191f280479220c99b4147b358286118c7d6664fa0b901302cbb2a27ad402c017ba31e3eff3b660afe79df59c654e3f1dfc02caa8f4b7c7baa084be995702604
   languageName: node
   linkType: hard
 
@@ -11141,7 +11134,7 @@ __metadata:
     "@tauri-apps/cli": "npm:^2.8.1"
     "@tauri-apps/plugin-deep-link": "npm:2.2.0"
     "@tauri-apps/plugin-dialog": "npm:2.2.0"
-    "@tauri-apps/plugin-fs": "npm:~2"
+    "@tauri-apps/plugin-fs": "npm:2.4.1"
     "@tauri-apps/plugin-http": "npm:2.3.0"
     "@tauri-apps/plugin-opener": "npm:2.2.5"
     "@tauri-apps/plugin-process": "npm:2.2.0"

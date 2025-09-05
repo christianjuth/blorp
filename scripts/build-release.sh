@@ -6,7 +6,7 @@ set +a  # Stop automatic export
 export REACT_APP_DEFAULT_INSTANCE="https://lemmy.zip"
 export REACT_APP_LOCK_TO_DEFAULT_INSTANCE=0EACT_APP_LOCK_TO_DEFAULT_INSTANCE=0
 
-if ! make validate; then
+if ! ./scripts/validate-tauri.sh; then
   echo "❌ Plugin‑version check failed; aborting." >&2
   exit 1
 fi

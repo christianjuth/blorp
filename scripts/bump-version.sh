@@ -69,7 +69,7 @@ if [ -d "$ROOT/src-tauri" ]; then
   echo "  ✔ regenerated Cargo.lock"
 fi
 
-if ! make validate; then
+if ! ./scripts/validate-tauri.sh; then
   echo "❌ Plugin‑version check failed; aborting." >&2
   exit 1
 fi
