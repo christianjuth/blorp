@@ -12,6 +12,7 @@
 <p align="center">
 &nbsp;<a href="https://apps.apple.com/us/app/blorp-for-lemmy/id6739925430"><img src="public/badges/ios.svg" height="45"></a>&nbsp;
 &nbsp;<a href="https://play.google.com/store/apps/details?id=xyz.blorpblorp.app"><img src="public/badges/play.svg" height="45"></a>&nbsp;
+&nbsp;<a href="https://f-droid.org/en/packages/xyz.blorpblorp.app/"><img src="public/badges/fdroid.png" height="45"></a>&nbsp;
 </p>
 <p align="center">
   <a href="https://matrix.to/#/#blorp:matrix.org"><img src="https://img.shields.io/badge/chat-matrix-blue?style=flat-square&logo=matrix" alt="matrix chat"></a>
@@ -40,8 +41,10 @@
 ## 🚀 Download
 
 * [iOS](https://apps.apple.com/us/app/blorp-for-lemmy/id6739925430)
+* Android
+    * [Google Play](https://play.google.com/store/apps/details?id=xyz.blorpblorp.app)
+    * [F-Droid](https://f-droid.org/en/packages/xyz.blorpblorp.app/)
 * [macOS](https://github.com/Blorp-Labs/blorp/releases/latest)
-* [Android](https://play.google.com/store/apps/details?id=xyz.blorpblorp.app)
 
 ## 🧪 Beta Testing
 
