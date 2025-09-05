@@ -80,7 +80,7 @@ export const pieFedPostCountsSchema = z.object({
 });
 
 export const pieFedPersonSchema = z.object({
-  about: z.string().optional(),
+  about: z.string().optional().nullable(),
   actor_id: z.string(),
   avatar: z.string().nullable().optional(),
   //banner: z.string().nullable().optional(),
