@@ -324,14 +324,14 @@ export default function SettingsPage() {
 
             <Section title="OTHER">
               <SectionItem
-                href="https://github.com/christianjuth/blorp/releases"
+                href="https://github.com/Blorp-Labs/blorp/releases"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 What's new
               </SectionItem>
               <SectionItem
-                href="https://github.com/christianjuth/blorp/issues/new"
+                href="https://github.com/Blorp-Labs/blorp/issues/new"
                 target="_blank"
                 rel="noopener noreferrer"
               >

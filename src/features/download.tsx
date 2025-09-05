@@ -108,7 +108,7 @@ const CARDS: { os: string; card: ReactNode }[] = [
       <Card
         icon={<FaApple className="text-5xl" />}
         description="Universal build for Intel and Apple Silicon"
-        downloadLink="https://github.com/christianjuth/blorp/releases/latest/download/Mac-Installer.pkg"
+        downloadLink="https://github.com/Blorp-Labs/blorp/releases/latest/download/Mac-Installer.pkg"
         os="MacOS"
       />
     ),

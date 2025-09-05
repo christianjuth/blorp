@@ -56,7 +56,7 @@ export default function Support() {
               <div className="flex gap-3">
                 <a
                   className="text-brand"
-                  href="https://github.com/christianjuth/blorp/issues"
+                  href="https://github.com/Blorp-Labs/blorp/issues"
                   rel="noopener noreferrer"
                   target="_blank"
                 >
@@ -65,7 +65,7 @@ export default function Support() {
                 <span className="text-border">|</span>
                 <a
                   className="text-brand"
-                  href="https://github.com/christianjuth/blorp/issues/new"
+                  href="https://github.com/Blorp-Labs/blorp/issues/new"
                   rel="noopener noreferrer"
                   target="_blank"
                 >

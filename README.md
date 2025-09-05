@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-<a href="https://blorpblorp.xyz/" target="_blank" rel="noopener noreferrer">Web App</a> · <a href="https://github.com/christianjuth/blorp/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=">Report Bug</a> · <a href="https://github.com/christianjuth/blorp/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md&title=">Request Feature</a> · <a href="https://github.com/christianjuth/blorp/releases">Releases</a>
+<a href="https://blorpblorp.xyz/" target="_blank" rel="noopener noreferrer">Web App</a> · <a href="https://github.com/Blorp-Labs/blorp/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=">Report Bug</a> · <a href="https://github.com/Blorp-Labs/blorp/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md&title=">Request Feature</a> · <a href="https://github.com/Blorp-Labs/blorp/releases">Releases</a>
 </p>
 
 <p align="center">
@@ -40,7 +40,7 @@
 ## 🚀 Download
 
 * [iOS](https://apps.apple.com/us/app/blorp-for-lemmy/id6739925430)
-* [macOS](https://github.com/christianjuth/blorp/releases/latest)
+* [macOS](https://github.com/Blorp-Labs/blorp/releases/latest)
 * [Android](https://play.google.com/store/apps/details?id=xyz.blorpblorp.app)
 
 ## 🧪 Beta Testing
@@ -86,5 +86,5 @@ Want to ask questions, share feedback, or just chat with other Blorp users? Head
 
 ## 📄 License
 
-* [AGPL-3.0](https://github.com/christianjuth/blorp/blob/main/LICENSE) © Blorp
-* You can also view all the [licenses of the libraries we ship](https://github.com/christianjuth/blorp/blob/main/THIRD-PARTY-NOTICES.md) in our app
+* [AGPL-3.0](https://github.com/Blorp-Labs/blorp/blob/main/LICENSE) © Blorp
+* You can also view all the [licenses of the libraries we ship](https://github.com/Blorp-Labs/blorp/blob/main/THIRD-PARTY-NOTICES.md) in our app

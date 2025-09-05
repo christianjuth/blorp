@@ -38,11 +38,11 @@ cat > release/latest.json <<EOF
   "platforms": {
     "darwin-aarch64": {
       "signature": "$sig",
-      "url": "https://github.com/christianjuth/blorp/releases/download/v$version/Mac-Blorp.app.tar.gz"
+      "url": "https://github.com/Blorp-Labs/blorp/releases/download/v$version/Mac-Blorp.app.tar.gz"
     },
     "darwin-x86_64": {
       "signature": "$sig",
-      "url": "https://github.com/christianjuth/blorp/releases/download/v$version/Mac-Blorp.app.tar.gz"
+      "url": "https://github.com/Blorp-Labs/blorp/releases/download/v$version/Mac-Blorp.app.tar.gz"
     }
   }
 }
