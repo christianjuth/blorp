@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IonApp } from "@ionic/react";
+import { IonApp, IonContent, IonPage } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import type { Preview } from "@storybook/react-vite";
 import { Providers } from "../src/components/providers";
@@ -21,7 +21,11 @@ const preview: Preview = {
     <IonApp>
       <IonReactRouter>
         <Providers>
-          <Story />
+          <IonPage>
+            <IonContent>
+              <Story />
+            </IonContent>
+          </IonPage>
         </Providers>
       </IonReactRouter>
     </IonApp>

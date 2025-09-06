@@ -10,10 +10,7 @@ const PEERTUBE_REGEX =
   /^https?:\/\/[\w.-]+\/videos\/watch\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?:[?#].*)?$/i;
 const PEERTUBE_REGEX2 = /^https?:\/\/[\w.-]+\/w\/[0-9a-z]+$/i;
 
-export function getPostEmbed(
-  post: Schemas.Post,
-  imageMode: "optimized" | "full-resolution",
-) {
+export function getPostEmbed(post: Schemas.Post) {
   const urlContentType = post.urlContentType;
   let embedUrl = post.url;
 
@@ -78,18 +75,17 @@ export function getPostEmbed(
     embedType = "article";
   }
 
-  let thumbnail = post.thumbnailUrl;
-  if (
-    (!thumbnail || imageMode === "full-resolution") &&
-    post.url &&
-    embedType === "image"
-  ) {
-    thumbnail = post.url;
+  const thumbnail = post.thumbnailUrl;
+  let fullResThumbnail: string | null = null;
+
+  if (post.url && embedType === "image" && post.url !== thumbnail) {
+    fullResThumbnail = post.url;
   }
 
   return {
     type: embedType,
     thumbnail,
+    fullResThumbnail,
     embedUrl,
   };
 }

@@ -30,6 +30,7 @@ import { SpotifyEmbed } from "./embeds/post-spotify-embed";
 import { SoundCloudEmbed } from "./embeds/soundcloud-embed";
 import { PeerTubeEmbed } from "./embeds/peertube-embed";
 import { IFramePostEmbed } from "./embeds/generic-video-embed";
+import { ProgressiveImage } from "../progressive-image";
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
@@ -142,9 +143,7 @@ export function FeedPostCard(props: PostProps) {
     displayUrl = `${parsedUrl.host.replace(/^www\./, "")}${parsedUrl.pathname.replace(/\/$/, "")}`;
   }
 
-  const embed = post
-    ? getPostEmbed(post, props.detailView ? "full-resolution" : "optimized")
-    : null;
+  const embed = post ? getPostEmbed(post) : null;
 
   const showImage = embed?.type === "image" && !post.deleted;
   const showArticle = embed?.type === "article" && !post?.deleted;
@@ -259,25 +258,22 @@ export function FeedPostCard(props: PostProps) {
           {!imageLoaded && (
             <Skeleton className="absolute inset-0 rounded-none md:rounded-lg" />
           )}
-          <img
-            src={embed.thumbnail ?? undefined}
+          <ProgressiveImage
+            lowSrc={embed.thumbnail}
+            highSrc={embed.fullResThumbnail}
             className={cn(
               "md:rounded-lg object-cover relative",
               blurImg && "blur-3xl",
             )}
-            onLoad={(e) => {
+            onAspectRatio={(thumbnailAspectRatio) => {
               setImageLoaded(true);
               if (!post.thumbnailAspectRatio) {
                 patchPost(post.apId, getCachePrefixer(), {
-                  thumbnailAspectRatio:
-                    e.currentTarget.naturalWidth /
-                    e.currentTarget.naturalHeight,
+                  thumbnailAspectRatio,
                 });
               }
             }}
-            style={{
-              aspectRatio: post.thumbnailAspectRatio ?? undefined,
-            }}
+            aspectRatio={post.thumbnailAspectRatio ?? undefined}
           />
           {blurImg && !removeBlur && (
             <div className="absolute top-1/2 inset-x-0 text-center z-0 font-bold text-xl">
